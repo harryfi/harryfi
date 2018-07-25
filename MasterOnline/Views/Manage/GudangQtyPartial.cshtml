@@ -1,0 +1,39 @@
+﻿@model MasterOnline.ViewModels.PesananViewModel
+
+@{
+    var listBarang = Model.ListBarang.ToList();
+}
+
+<div class="row">
+    <div class="col-md-4 col-sm-4 col-xs-4">
+        <i>Nama Barang</i>
+    </div>
+    <div class="col-md-4 col-sm-4 col-xs-4">
+        <i>Gudang</i>
+    </div>
+    <div class="col-md-4 col-sm-4 col-xs-4">
+        <i>Kuantitas</i>
+    </div>
+</div>
+<br/>
+
+<div id="scrollable_div">
+    @foreach (var barang in Model.ListPesananDetail)
+    {
+        <div class="row">
+            @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
+            <div class="form-group">
+                @Html.Label(listBarang.Single(b => b.BRG == barang.BRG).NAMA, new { @class = "col-md-4 col-sm-4 col-xs-4 control-label", style = "margin-top: 6px;" })
+                <div class="col-md-4 col-sm-4 col-xs-4">
+                    <div id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-recnum="@(barang.NO_URUT)"></div>
+                    @Html.Hidden($"Gudang-{barang.NO_URUT}", barang.LOKASI, new { data_jenis = "gudang_siap_kirim" })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-4">
+                    @Html.Hidden($"Max-Qty-{barang.NO_URUT}", barang.QTY)
+                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY, new {@class = "form-control", type = "number", min = "0", oninput = "maxLengthCheck(this)", maxlength = 3})
+                </div>
+            </div>
+        </div>
+        <br/>
+    }
+</div>

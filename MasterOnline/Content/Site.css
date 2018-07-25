@@ -1,0 +1,102 @@
+﻿body {
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    padding-top: 50px;
+}
+
+/* Set padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Override the default bootstrap behavior where horizontal description lists 
+   will truncate terms that are too long to fit in the left column 
+*/
+.dl-horizontal dt {
+    white-space: normal;
+}
+
+/* Set width on the form input elements since they're 100% wide by default */
+input,
+select,
+textarea {
+    max-width: 280px;
+}
+
+/*Custom All Views (starts)*/
+.btn {
+    border-radius: 3px !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: inherit;
+    font-weight: 100;
+}
+
+.small, small {
+    font-size: 85%;
+}
+
+a {
+    color: #3361b7;
+    text-decoration: none !important;
+}
+
+.form-control, .single-line {
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #e5e6e7;
+    border-radius: 1px;
+    color: inherit;
+    display: block;
+    padding: 6px 12px;
+    -webkit-transition: border-color .15s ease-in-out 0s,box-shadow .15s ease-in-out 0s;
+    transition: border-color .15s ease-in-out 0s,box-shadow .15s ease-in-out 0s;
+    width: 100%;
+}
+
+.form-control, .form-control:focus, 
+.has-error .form-control:focus, 
+.has-success .form-control:focus, 
+.has-warning .form-control:focus, 
+.navbar-collapse, .navbar-form, 
+.navbar-form-custom .form-control:focus, 
+.navbar-form-custom .form-control:hover, 
+.open .btn.dropdown-toggle, .panel, .popover, 
+.progress, .progress-bar {
+    box-shadow: none;
+}
+
+input {
+    max-width: 100%;
+}
+
+.form-control:focus, .has-success .form-control, .has-success .form-control:focus, .single-line:focus {
+    border-color: #1f74ad;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+.block {
+    display: block !important;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.btn > .fa {
+    font-size: 18px;
+}
+/*Custom All Views (ends)*/
+/*HOME - INDEX (starts)*/
+.daftarBtn, .navbar-nav li a:hover {
+    background: #ed5565 !important;
+    color: #fff !important;
+    border-radius: 5px;
+}
+/*HOME - INDEX (ends)*/
+

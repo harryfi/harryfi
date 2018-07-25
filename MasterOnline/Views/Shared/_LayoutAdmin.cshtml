@@ -1,0 +1,223 @@
+﻿@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    var dataSession = HttpContext.Current.Session["SessionAdmin"] as Admin;
+    var nama = "";
+
+    if (dataSession != null)
+    {
+        nama = dataSession.Username;
+    }
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <link href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="~/Content/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <link href="~/Content/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <link href="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
+    <link href="~/Content/ManageSite.css" rel="stylesheet" />
+
+    @RenderSection("styles", required: false)
+
+    <style>
+        table.dataTable thead tr {
+            background-color: #ffe8e8;
+        }
+
+        ul.bar_tabs > li a {
+            background-color: #ffe8e8;
+        }
+
+        body {
+            background: #000;
+        }
+
+        #menu_toggle,
+        #menu_toggle:focus,
+        #menu_toggle:hover {
+            color: #000;
+        }
+
+        .nav_title,
+        .left_col {
+            /*background: #891539;*/
+            background: #000;
+        }
+
+        .nav.side-menu > li.active,
+        .nav.side-menu > li.current-page {
+            /*border-right: 5px solid #ff85ab;*/
+            border-right: 5px solid #d51339;
+        }
+
+            .nav.side-menu > li.active > a {
+                /*background: linear-gradient(#b31949,#891539),#891539;*/
+                background: linear-gradient(#d51339, #000), #000;
+            }
+
+        .nav-md ul.nav.child_menu li:before {
+            /*background: #ff85ab;*/
+            background: #d51339;
+        }
+
+        .nav-md ul.nav.child_menu li:after {
+            /*border-left: 1px solid #ff85ab;*/
+            border-left: 1px solid #d51339;
+        }
+    </style>
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("AccountMenu", "Admin")" class="site_title">
+                            <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px;" src="~/Content/Images/MO_new_logo_v2_white_text.png">
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                    <br />
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>General</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a href="@Url.Action("AccountMenu", "Admin")"><i class="fa fa-user"></i> Account</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("UserMenu", "Admin")"><i class="fa fa-users"></i> User</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("MarketplaceMenu", "Admin")"><i class="fa fa-shopping-cart"></i> Marketplace</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("CourierMenu", "Admin")"><i class="fa fa-truck"></i> Ekspedisi</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("FormMenu", "Admin")"><i class="fa fa-sitemap"></i> Form Menu</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("Subscription", "Admin")"><i class="fa fa-diamond"></i> Subscription</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("AktivitasSubscription", "Admin")"><i class="fa fa-exchange"></i> Aktivitas Subscription</a>
+                                </li>
+                                <li>
+                                    <a href="@Url.Action("Promo", "Admin")"><i class="fa fa-money"></i> Promo</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /sidebar menu -->
+                </div>
+            </div>
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <img src="~/Content/Images/temp-ava.png" alt=""><b>Admin</b>
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="@Url.Action("LoggingOut", "Admin")"><i class="fa fa-sign-out pull-right"></i> Keluar</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                @RenderBody()
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    Master Online - By <a href="http://www.erasoft.co.id/">Erasoft</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="~/Content/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/Content/vendors/fastclick/lib/fastclick.js"></script>
+    <script src="~/Content/vendors/nprogress/nprogress.js"></script>
+    <script src="~/Content/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="~/Content/vendors/gauge.js/dist/gauge.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="~/Content/vendors/iCheck/icheck.min.js"></script>
+    <script src="~/Content/vendors/skycons/skycons.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.pie.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.time.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.stack.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.resize.js"></script>
+    <script src="~/Content/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="~/Content/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="~/Content/vendors/flot.curvedlines/curvedLines.js"></script>
+    <script src="~/Content/vendors/DateJS/build/date.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/jquery.vmap.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="~/Content/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/Content/build/js/custom.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+            $(".alert").slideUp(500);
+        });
+
+        $(document).ready(function () {
+            $('form input.limited_number_textbox[type="number"]').each(function () {
+                var $this = $(this);
+                $this.attr('oninput', 'maxLengthCheck(this)');
+            });
+
+            $('form input.limited_number_textbox[type="number"]').change(function () {
+                var $this = $(this);
+                if ($this.val() < 0) $this.val(0);
+            });
+        });
+
+        function maxLengthCheck(object) {
+            var $maxLength = $(object).attr('maxlength');
+
+            if (typeof $maxLength === typeof undefined && $maxLength === false) {
+                if (object.value.length > 3)
+                    object.value = object.value.slice(0, 3);
+            } else {
+                if (object.value.length > $maxLength)
+                    object.value = object.value.slice(0, $maxLength);
+            }
+        }
+
+        var _0x2056 = ["\x6F\x6E\x6C\x6F\x61\x64", "\x6F\x6E\x6D\x6F\x75\x73\x65\x6D\x6F\x76\x65", "\x6F\x6E\x6B\x65\x79\x70\x72\x65\x73\x73", "\x53\x65\x73\x69\x20\x41\x6E\x64\x61\x20\x74\x65\x6C\x61\x68\x20\x68\x61\x62\x69\x73\x20\x6B\x61\x72\x65\x6E\x61\x20\x74\x69\x64\x61\x6B\x20\x74\x65\x72\x64\x65\x74\x65\x6B\x73\x69\x20\x61\x64\x61\x6E\x79\x61\x20\x6B\x65\x67\x69\x61\x74\x61\x6E\x20\x73\x65\x6C\x61\x6D\x61\x20\x31\x30\x20\x6D\x65\x6E\x69\x74", "\x68\x72\x65\x66", "\x40\x55\x72\x6C\x2E\x41\x63\x74\x69\x6F\x6E\x28\x22\x4C\x6F\x67\x67\x69\x6E\x67\x4F\x75\x74\x22\x2C\x22\x4D\x61\x6E\x61\x67\x65\x22\x29"]; var inactivityTime = function () { var _0x8846x2; window[_0x2056[0]] = _0x8846x4; document[_0x2056[1]] = _0x8846x4; document[_0x2056[2]] = _0x8846x4; function _0x8846x3() { alert(_0x2056[3]); location[_0x2056[4]] = _0x2056[5] } function _0x8846x4() { clearTimeout(_0x8846x2); _0x8846x2 = setTimeout(_0x8846x3, 600000) } }
+    </script>
+</body>
+</html>

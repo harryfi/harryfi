@@ -1,0 +1,1843 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.FakturViewModel
+@{
+    ViewBag.Title = "Faktur";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    long accId;
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+
+    <style>
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        .btn-success[disabled]:hover {
+            background: #6ad6bf;
+            border-color: #6ad6bf;
+        }
+
+        table#table_tambah_faktur thead tr {
+            background-color: #c7f1f5;
+        }
+
+        .qty-input {
+            width: 50px;
+        }
+
+        .disc-input {
+            width: 50px;
+        }
+
+        .ndisc-input {
+            width: 100px;
+        }
+
+        #BRG,
+        #GUDANG,
+        #GUDANG .selectivity-single-select-input {
+            width: 100px !important;
+        }
+    </style>
+
+    <style>
+        #modal-pricing,
+        #modal-pricing-expired {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing .modal-content,
+            #modal-pricing-expired .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
+
+        .snip1404 {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            color: #ffffff;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            margin-top: 13%;
+            display: table;
+        }
+
+            .snip1404 img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: -1;
+            }
+
+            .snip1404 .plan {
+                margin: 0;
+                width: 33.333333%;
+                position: relative;
+                float: left;
+                overflow: hidden;
+                border: 3px solid #442232;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                background-color: #c13232;
+            }
+
+                .snip1404 .plan:hover i,
+                .snip1404 .plan.hover i {
+                    -webkit-transform: scale(1.2);
+                    transform: scale(1.2);
+                }
+
+                .snip1404 .plan:first-of-type {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                .snip1404 .plan:last-of-type {
+                    border-radius: 0 8px 8px 0;
+                }
+
+            .snip1404 * {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 0.25s ease-out;
+                transition: all 0.25s ease-out;
+            }
+
+            .snip1404 header {
+                background-color: #c13232;
+                color: #ffffff;
+            }
+
+            .snip1404 .plan-title {
+                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: 0;
+                padding: 20px 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+                .snip1404 .plan-title:after {
+                    position: absolute;
+                    content: '';
+                    top: 100%;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 40px 300px 0 0;
+                    border-color: rgba(0, 0, 0, 0.5) transparent transparent;
+                }
+
+            .snip1404 .plan-cost {
+                padding: 40px 20px 10px;
+                text-align: right;
+            }
+
+            .snip1404 .plan-price {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+
+            .snip1404 .plan-type {
+                opacity: 0.8;
+                font-size: 0.7em;
+                text-transform: uppercase;
+            }
+
+            .snip1404 .plan-features {
+                padding: 0 0 20px;
+                margin: 0;
+                list-style: outside none none;
+            }
+
+                .snip1404 .plan-features li {
+                    padding: 8px 5%;
+                }
+
+                .snip1404 .plan-features i {
+                    margin-right: 8px;
+                    color: rgba(0, 0, 0, 0.5);
+                }
+
+            .snip1404 .plan-select {
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                text-align: center;
+            }
+
+                .snip1404 .plan-select a {
+                    background-color: #442232;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 20px;
+                    font-size: 0.75em;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    display: inline-block;
+                }
+
+                    .snip1404 .plan-select a:hover {
+                        background-color: #552a3f;
+                    }
+
+            .snip1404 .featured {
+                margin-top: -10px;
+                border-color: #331926;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+                .snip1404 .featured .plan-select {
+                    padding: 30px 20px;
+                }
+
+        @@media only screen and (max-width: 767px) {
+            .snip1404 .plan {
+                width: 50%;
+            }
+
+            .snip1404 .plan-title,
+            .snip1404 .plan-select a {
+                -webkit-transform: translateY(0);
+                transform: translateY(0);
+            }
+
+            .snip1404 .plan-select,
+            .snip1404 .featured .plan-select {
+                padding: 20px;
+            }
+
+            .snip1404 .featured {
+                margin-top: 0;
+            }
+        }
+
+        @@media only screen and (max-width: 440px) {
+            .snip1404 .plan {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: #212121;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" id="faktur-tab" role="tab" data-toggle="tab" aria-expanded="true">Faktur</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tab_content2" id="faktur-lunas-tab" role="tab" data-toggle="tab" aria-expanded="false">Faktur Belum Lunas</a>
+                </li>
+                <li role="presentation">
+                    <a href="#tab_content3" id="faktur-tempo-tab" role="tab" data-toggle="tab" aria-expanded="false">Faktur Jatuh Tempo</a>
+                </li>
+                @*<li role="presentation" class="">
+                        <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Menunggu Pembayaran</a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Dalam Proses</a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>
+                    </li>
+                    <li role="presentation" class="">
+                        <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
+                    </li>*@
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="faktur-tab">
+                    <div class="row faktur_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_faktur" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <div class="pull-right" id="tambah_baru_tombol_section">
+                                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row faktur_table_section" style="margin-top: 5px;">
+                        <div class="col-sm-12" id="table-faktur-partial">
+                            @Html.Partial("TableFakturPartial")
+                        </div>
+                    </div>
+                    <div class="row faktur_editor_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Faktur</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-1" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                @using (Html.BeginForm("SaveFaktur", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-faktur" }))
+                                {
+                                    <div id="form-partial">
+                                        @Html.Partial("BarangFakturPartial")
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px;">
+                            <div class="col-sm-12">
+                                <table id="datatable_nunggu" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Order</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var faktur in Model.ListFaktur)
+                                        {
+                                            var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.NAMAPEMESAN);
+                                            var pelanggan = Model.ListPelanggan.Single(m => m.CUST == pesanan.CUST);
+                                            var idMarket = Convert.ToInt32(pelanggan.NAMA);
+                                            <tr>
+                                                <td>@faktur.NO_BUKTI</td>
+                                                <td>@faktur.TGL</td>
+                                                <td>@Model.ListMarketplace.Single(m => m.IdMarket == idMarket).NamaMarket</td>
+                                                <td>
+                                                    @(buyer.NAMA + " (" + buyer.PERSO + ")")
+                                                </td>
+                                                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
+                                                <td class="edit-hapus-col">
+                                                    <button class="btn btn-primary" onclick="editFaktur(@faktur.RecNum)">
+                                                        <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                                    </button>
+                                                </td>
+                                                <td class="edit-hapus-col">
+                                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusFaktur" onclick="pass(@faktur.RecNum)">
+                                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="sedangproses-tab">
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_sedangproses" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px;">
+                            <div class="col-sm-12">
+                                <table id="datatable_sedangproses" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Pengambilan</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 140px;">No. Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Tgl. Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 60px;">Pelanggan</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Lokasi</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px;">Sumber</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 120px;">Status Pengambilan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px;">
+                            <div class="col-sm-12">
+                                <table id="datatable_sudahkirim" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 259px;">Tgl. Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Sumber</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 60px;">Pelanggan</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Alamat Kirim</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px;">Kurir</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px;">Resi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="selesai-tab">
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_selesai" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-8 col-sm-6">
+                                <div class="pull-right">
+                                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                                        <span>Refresh</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 5px;">
+                            <div class="col-sm-12">
+                                <table id="datatable_selesai" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Nomor</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Faktur</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Pelanggan</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 60px;">Lokasi</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Nilai</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px;">Sumber</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px;">Status Market</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus faktur ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteFaktur();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteBarang();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
+    <div class="modal-dialog" id="modal-pricing" role="document">
+        <div class="modal-content">
+            @Html.Partial("PricingPartialViewFaktur")
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalPricingExpired" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
+    <div class="modal-dialog" id="modal-pricing-expired" role="document">
+        <div class="modal-content">
+            @Html.Partial("PricingExpiredPartialViewFaktur")
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+    <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+
+    <script type="text/javascript">
+        var $TabAktif = 0;// 0 Faktur, 1 Faktur Sudah Lunas, 2 Faktur Jatuh Tempo
+        var $modeEdit = 0; // 0 new, 1 edit
+        var $bakalNetto = 0;
+        var $totalAwal = 0;
+        var $nettoSebelumnya = 0;
+        var $beforeState = {
+            brutto: 0,
+            netto: 0,
+            ndisc: 0,
+            ppn: 0,
+            nppn: 0,
+            ongkir: 0
+        };
+
+        var table = $('#datatable').DataTable({
+            "order": [[1, "desc"]], //or asc
+            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        });
+
+        $('#search_faktur').keyup(function () {
+            table.search($(this).val()).draw();
+        });
+
+        $(document).ready(function () {
+            var tableSiapProses = $('#datatable_siapproses').DataTable({
+                columnDefs: [{
+                    orderable: false,
+                    className: 'select-checkbox',
+                    targets: 0
+                }],
+                select: {
+                    style: 'os',
+                    selector: 'td:first-child'
+                }
+            });
+
+            $('#search_siapproses').keyup(function () {
+                tableSiapProses.search($(this).val()).draw();
+            });
+
+            $('#faktur-tab').click(function () {
+                $TabAktif = 0;
+                refreshTableFaktur1();
+                $('#tambah_faktur').show();
+                $('#refresh_faktur').show();
+            });
+
+            $('#faktur-lunas-tab').click(function () {
+                $TabAktif = 1;
+                refreshTableFakturLunas();
+                $('#tambah_faktur').hide();
+                $('#refresh_faktur').hide();
+            });
+
+            $('#faktur-tempo-tab').click(function () {
+                $TabAktif = 2;
+                refreshTableFakturTempo();
+                $('#tambah_faktur').hide();
+                $('#refresh_faktur').hide();
+            });
+
+            Initialize();
+        });
+
+        function refreshTableFakturLunas() {
+            var link = '@Url.Action("RefreshTableFakturLunas", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[ 1, "desc" ]], //or asc
+                        "columnDefs" : [{"targets":1, "type":"date-eu"}],
+                    });
+                    $('#search_faktur').keyup(function () {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshTableFakturTempo() {
+            var link = '@Url.Action("RefreshTableFakturTempo", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[ 1, "desc" ]], //or asc
+                        "columnDefs" : [{"targets":1, "type":"date-eu"}],
+                    });
+                    $('#search_faktur').keyup(function () {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function cekJumlahPesananBulanIni() {
+            var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new { uname = "replaceUname" })';
+            link = link.replace("replaceUname", '@(username)');
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                    var $jumlahPesananMax = res.JumlahPesananMax;
+                    var $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
+
+                    if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                            'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
+                    } else if (res.SudahSampaiBatasTanggal) {
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                            'data-target="#modalPricingExpired" id="tambah_faktur">Tambah Baru</button>');
+                    } else {
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>');
+                        $('#tambah_faktur').on('click', function () {
+                            $('.faktur_table_section').hide();
+                            $('.faktur_editor_section').show();
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function Initialize() {
+            cekJumlahPesananBulanIni();
+            //var tableNunggu = $('#datatable_nunggu').DataTable();
+            //var tableSedangProses = $('#datatable_sedangproses').DataTable();
+            //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
+            //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
+            //var tableSelesai = $('#datatable_selesai').DataTable();
+            //$('#search_selesai').keyup(function () {
+            //    tableSelesai.search($(this).val()).draw();
+            //});
+
+            //$('#search_nunggu').keyup(function () {
+            //    tableNunggu.search($(this).val()).draw();
+            //});
+
+            //$('#search_sedangproses').keyup(function () {
+            //    tableSedangProses.search($(this).val()).draw();
+            //});
+
+            //$('#search_siapkirim').keyup(function () {
+            //    tableSiapKirim.search($(this).val()).draw();
+            //});
+
+            //$('#search_sudahkirim').keyup(function () {
+            //    tableSudahKirim.search($(this).val()).draw();
+            //});
+
+            //$('input[name="select_all"]').on('click',
+            //    function () {
+            //        var attr = $(this).attr('checked');
+
+            //        if (typeof attr !== typeof undefined && attr !== false) {
+            //            $('input[name="data-1"]').removeAttr('checked');
+            //            $('input[name="data-2"]').removeAttr('checked');
+            //        } else {
+            //            $('input[name="data-1"]').attr('checked', 'checked');
+            //            $('input[name="data-2"]').attr('checked', 'checked');
+            //        }
+            //    });
+
+
+            $('#tambah_faktur').on('click', function () {
+                refreshForm1();
+            });
+
+            $('#refresh_faktur').on('click', function () {
+                if ($TabAktif == 0) {
+                    refreshTableFaktur1();
+                }
+                else if ($TabAktif == 1) {
+                    refreshTableFakturLunas();
+                }
+                else if ($TabAktif == 2) {
+                    refreshTableFakturTempo();
+                }
+            });
+
+            $('#close-editor-1').on('click', function () {
+                if ($TabAktif == 0) {
+                    refreshTableFaktur1();
+                }
+                else if ($TabAktif == 1) {
+                    refreshTableFakturLunas();
+                }
+                else if ($TabAktif == 2) {
+                    refreshTableFakturTempo();
+                }
+
+                $('input, select, .btn-danger').each(function() {
+                    $(this).removeAttr('disabled');
+                });
+
+                $('.faktur_editor_section').hide();
+                $('.faktur_table_section').show();
+
+                $modeEdit = 0;
+
+                $bakalNetto = 0;
+                $totalAwal = 0;
+                $nettoSebelumnya = 0;
+                $('.btn-danger').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+            });
+
+            if ($('.message-error').text() !== '') {
+                //$('#tambah_faktur').click();
+                $('.faktur_table_section').hide();
+                $('.faktur_editor_section').show();
+            }
+
+            $('#table_tambah_faktur > tbody > tr > td.editable-kode').prop('contentEditable', true);
+
+            getTanggal();
+            getMarketplace();
+            getBuyer();
+            getDataBarang();
+            getGudang();
+
+            if ($('#Faktur_TGL').val() != '') {
+                $('#Faktur_TGL').val($('#Faktur_TGL').val().split(' ')[0]);
+                $('#TGL').val($('#Faktur_TGL').val());
+            } else {
+                $('#Faktur_TGL').val($('#TGL').val());
+            }
+
+            $('#Faktur_TERM').change(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Faktur_TGL_JT_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                }
+            });
+
+            refreshInputan();
+            refreshNetto();
+        }
+
+        function getTanggal() {
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Faktur_TGL').val($(this).val());
+
+                    if ($('#Faktur_TERM').val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+                        $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Faktur_TGL').val($(this).val());
+
+                    if ($('#Faktur_TERM').val() == '') {
+                        $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Faktur_TERM').val(), 'days');
+                        $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+        }
+
+        var $flagPerubahan = 0;
+
+        function undeleteableFaktur() {
+            alert('Transaksi Sudah Posting / Dibayar / Pesanan dari faktur ini sudah dalam status SELESAI \nFaktur tidak dapat dihapus!');
+        }
+
+        function lihatFaktur(idFaktur) {
+            var link = '@Url.Action("EditFaktur", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", idFaktur);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+
+                    $('#form-partial').html(response);
+                    $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                    refreshInputan();
+                    getTanggal();
+                    getBuyer();
+                    getDataBarang();
+                    getMarketplace();
+
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+
+                    $nettoSebelumnya += $bakalNetto;
+                    $('input, select, .btn-danger').each(function() {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('tr[data-faktur-id="0"]').remove();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshInputan() {
+
+            if ($('#Faktur_TGL').val() != '') {
+                $('#Faktur_TGL').val($('#Faktur_TGL').val().split(' ')[0]);
+                $('#TGL').val($('#Faktur_TGL').val());
+            }
+
+            $('#Faktur_NILAI_DISC').focus(function () {
+                //$(this).val('');
+                $(this).val(convertToAngka($(this).val()));
+            });
+
+            $('#Faktur_NILAI_DISC').blur(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                var $tot = convertToAngka($('#Faktur_BRUTO').val());
+                if ($(this).val() > $tot) {
+                    alert('Diskon tidak boleh melebihi total bruto sebesar ' + convertToRupiah($tot) + '!');
+                } else {
+                    if ($(this).val() < 0 || $(this).val() === '') { $(this).val(convertToRupiah(0)); }
+                    refreshNetto();
+                }
+            });
+
+            $('#Faktur_NILAI_DISC').change(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                if ($(this).val() <= convertToAngka($('#Faktur_BRUTO').val())) {
+                    $(this).val(convertToAngka($(this).val()));
+                    $(this).val(convertToRupiah($(this).val()));
+                    refreshNetto();
+                }
+            });
+
+            $('#Faktur_PPN').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+                //$(this).val('');
+            });
+
+            $('#Faktur_PPN').blur(function () {
+                if ($(this).val() === '') $(this).val(0);
+                refreshNetto();
+            });
+
+            $('#Faktur_PPN').change(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                if ($(this).val() > 100) $(this).val(100);
+                if ($(this).val() < 0 || $(this).val() === '') $(this).val(0);
+                refreshNetto();
+            });
+
+            $("input.num-only").on('keydown',
+                function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                        // Allow: Ctrl+A, Command+A
+                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                        // Allow: home, end, left, right, down, up
+                        (e.keyCode >= 35 && e.keyCode <= 40)) {
+                        // let it happen, don't do anything
+                        return;
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
+            $('#Faktur_BRUTO').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#Faktur_NILAI_PPN').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#Faktur_NETTO').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#Faktur_TGL_JT_TEMPO').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+
+            $('#Faktur_TERM').change(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Faktur_TGL_JT_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                }
+            });
+
+            // ==== Update Data ====
+            $('#Faktur_NILAI_DISC').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#Faktur_PPN').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#Faktur_MATERAI').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#Faktur_MATERAI').blur(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                $(this).val(convertToAngka($(this).val()));
+                $(this).val(convertToRupiah($(this).val()));
+                refreshNetto();
+            });
+
+            $('#Faktur_MATERAI').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
+
+            $('#Faktur_TERM').blur(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#btn-simpan-perubahan').click(function () {
+                var $this = $(this);
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdateFaktur", "Manage")',
+                    data: JSON.stringify({
+                        OrderId: $('#Faktur_NO_BUKTI').val(),
+                        NilaiDisc: convertToAngka($('#Faktur_NILAI_DISC').val()),
+                        Ppn: $('#Faktur_PPN').val(),
+                        NilaiPpn: convertToAngka($('#Faktur_NILAI_PPN').val()),
+                        Tgl: $('#Faktur_TGL').val(),
+                        Cust: $('#Faktur_CUST').val(),
+                        Term: $('#Faktur_TERM').val(),
+                        Buyer: $('#Faktur_PEMESAN').val(),
+                        Tempo: $('#Faktur_TGL_JT_TEMPO').val(),
+                        OngkosKirim: convertToAngka($('#Faktur_MATERAI').val()),
+                        Bruto: convertToAngka($('#Faktur_BRUTO').val())
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function () {
+                        alert('Data faktur berhasil di-update');
+                        //change by calvin 7 juni 2018
+                        //$this.hide();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end change by calvin 7 juni 2018
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            });
+
+            $('#tambah-pembeli').click(function() {
+                window.open('@Url.Action("BuyerPopup", "Manage")', "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+
+            $('#lihat-pembeli').click(function () {
+                var $link = '@Url.Action("EditPembeliPopup", "Manage", new { kodePembeli = "replaceId" })';
+                $link = $link.replace("replaceId", $('#Faktur_PEMESAN').val());
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+        }
+
+        function refreshNettoBarang($trId) {
+            var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
+            var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
+            var $ndisc1 = convertToAngka($($trElement + ' .ndisc1-barang').text());
+            var $ndisc2 = convertToAngka($($trElement + ' .ndisc2-barang').text());
+            var $totDisc = $ndisc1 + $ndisc2;
+            var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang) - $totDisc;
+
+            $($trElement + ' .netto-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
+            $('#Faktur_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
+
+            refreshNetto();
+        }
+
+        function refreshNetto() {
+            $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
+
+            var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
+            $('#Faktur_NILAI_PPN').val(convertToRupiah($nPpn));
+
+            $bakalNetto -= convertToAngka($('#Faktur_NILAI_DISC').val());
+            $bakalNetto += $nPpn;
+            $bakalNetto += convertToAngka($('#Faktur_MATERAI').val());
+
+            $('#Faktur_NETTO').val(convertToRupiah($bakalNetto));
+        }
+
+        function modeEditTd() {
+            $('.qty-barang').addClass('editable');
+            $('.disc1-barang').addClass('editable');
+            $('.ndisc1-barang').addClass('editable');
+            $('.disc2-barang').addClass('editable');
+            $('.ndisc2-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', true);
+            $('#table_tambah_faktur > tbody > tr > td.editable').on('click', function () {
+                var $this = $(this);
+                var $class = $this.attr('class');
+                var $inputClass = '';
+                var $trId = $this.parent().attr('data-faktur-id');
+                var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
+                var $angka = convertToAngka($this.text());
+
+                if ($class == 'qty-barang editable') {
+                    $inputClass = 'qty-input';
+                } else if ($class == 'disc1-barang editable' || $class == 'disc2-barang editable') {
+                    $inputClass = 'disc-input';
+                } else if ($class == 'ndisc1-barang editable' || $class == 'ndisc2-barang editable') {
+                    $inputClass = 'ndisc-input';
+                }
+
+                var $input = $('<input>', {
+                    'class': $inputClass,
+                    value: $this.val(),
+                    type: 'number',
+                    blur: function () {
+                        if (this.value === '') {
+                            if ($class === 'qty-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+                            } else if ($class === 'disc1-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+
+                                $($trElement + ' .ndisc1-barang')
+                                    .text(convertToRupiah(0))
+                                    .addClass('editable')
+                                    .prop('contentEditable', true)
+                                    .css('pointer-events', 'auto');
+                            } else if ($class === 'disc2-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+
+                                $($trElement + ' .ndisc2-barang')
+                                    .text(convertToRupiah(0))
+                                    .addClass('editable')
+                                    .prop('contentEditable', true)
+                                    .css('pointer-events', 'auto');
+                            } else if ($class === 'ndisc1-barang editable') {
+                                $this.html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+
+                                $($trElement + ' .disc1-barang')
+                                    .addClass('editable')
+                                    .prop('contentEditable', true)
+                                    .css('pointer-events', 'auto')
+                                    .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+                            } else if ($class === 'ndisc2-barang editable') {
+                                $this.html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+
+                                $($trElement + ' .disc2-barang')
+                                    .addClass('editable')
+                                    .prop('contentEditable', true)
+                                    .css('pointer-events', 'auto')
+                                    .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+                            }
+
+                            refreshNettoBarang($trId);
+                        } else {
+                            var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
+
+                            if ($class === 'qty-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+                            } else if ($class === 'disc1-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+
+                                if (this.value == 0) {
+                                    $($trElement + ' .ndisc1-barang')
+                                        .text(convertToRupiah(0))
+                                        .addClass('editable')
+                                        .prop('contentEditable', true)
+                                        .css('pointer-events', 'auto')
+                                        .html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+                                } else {
+                                    var $ndisc1 = convertToRupiah(this.value * $hargaBarang * parseInt($($trElement + ' .qty-barang').text()) / 100);
+
+                                    $($trElement + ' .ndisc1-barang')
+                                        .removeClass('editable')
+                                        .prop('contentEditable', false)
+                                        .css('pointer-events', 'none')
+                                        .html($ndisc1 + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+                                }
+                            } else if ($class === 'disc2-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+
+                                if (this.value == 0) {
+                                    $($trElement + ' .ndisc2-barang')
+                                        .text(convertToRupiah(0))
+                                        .addClass('editable')
+                                        .prop('contentEditable', true)
+                                        .css('pointer-events', 'auto')
+                                        .html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+                                } else {
+                                    var $ndisc1Exist = convertToAngka($($trElement + ' .ndisc1-barang').text());
+                                    var $ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
+
+                                    $($trElement + ' .ndisc2-barang')
+                                        .removeClass('editable')
+                                        .prop('contentEditable', false)
+                                        .css('pointer-events', 'none')
+                                        .html($ndisc2 + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+                                }
+                            } else if ($class === 'ndisc1-barang editable') {
+                                $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+
+                                if (this.value != 0) {
+                                    $($trElement + ' .disc1-barang')
+                                        .removeClass('editable')
+                                        .prop('contentEditable', false)
+                                        .css('pointer-events', 'none')
+                                        .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+                                } else {
+                                    $($trElement + ' .disc1-barang')
+                                        .addClass('editable')
+                                        .prop('contentEditable', true)
+                                        .css('pointer-events', 'auto')
+                                        .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+                                }
+                            } else if ($class === 'ndisc2-barang editable') {
+                                $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+
+                                if (this.value != 0) {
+                                    $($trElement + ' .disc2-barang')
+                                        .removeClass('editable')
+                                        .prop('contentEditable', false)
+                                        .css('pointer-events', 'none')
+                                        .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+                                } else {
+                                    $($trElement + ' .disc2-barang')
+                                        .addClass('editable')
+                                        .prop('contentEditable', true)
+                                        .css('pointer-events', 'auto')
+                                        .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+                                }
+                            }
+
+                            refreshNettoBarang($trId);
+                        }
+                    },
+                    focus: function() {
+                        if ($angka == 0) {
+                            this.value = '';
+                        } else {
+                            this.value = $angka;
+                        }
+                    },
+                    keyup: function (e) {
+                        if (e.which === 13) $input.blur();
+                    },
+                    keypress: function(e) {
+                        if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                    },
+                    change: function() {
+                        if ($(this).attr('class') == 'qty-input') {
+                            if ($(this).val() > 999) {
+                                $(this).val(999);
+                            }
+                        }
+
+                        if ($(this).attr('class') == 'disc-input') {
+                            if ($(this).val() > 99) {
+                                $(this).val(99);
+                            }
+                        }
+                    }
+                }).appendTo($this.empty()).focus();
+            });
+        }
+
+        @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+        var $marketCollection = @Html.Raw(Json.Encode(markets));
+
+        function getMarketplace() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPelangganAkun", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var customerList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            var $namaMarket = $marketCollection[item.NAMA];
+
+                            customerList[i] = {
+                                id: item.CUST,
+                                text: $namaMarket + " (" + item.PERSO + ")",
+                                term: item.TOP
+                            };
+                        });
+
+                    var custSelect = $('#CUSTOMER').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: customerList,
+                        onChange: function (value) {
+                            var $objSup = $.grep(customerList, function (data) { return data.id == value });
+
+                            if (value == null) {
+                                $("#Faktur_CUST").val(null);
+                                $("#Faktur_TERM").val(null).change();
+                            } else {
+                                $("#Faktur_CUST").val(value);
+                                if ($objSup[0] != null) {
+                                    $("#Faktur_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                            getTanggal();
+                            $('#btn-simpan-perubahan-row').show();
+                        },
+                    });
+                    //change by calvin 7 juni 2018, set silent jadi true, agar event onchange tidak jalan saat set Faktur_CUST saat buka form faktur
+                    custSelect[0].selectize.setValue($('#Faktur_CUST').val(),true);
+                    //end change by calvin 7 juni 2018
+
+
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getBuyer() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPembeli", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listPembeli = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listPembeli[i] = {
+                                id: item.BUYER_CODE,
+                                text: item.NAMA
+                            };
+                        });
+
+                    $('#MARKETPEMESAN').selectize()[0].selectize.destroy();
+
+                    var marketSelect = $('#MARKETPEMESAN').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listPembeli,
+                        onChange: function (value) {
+                            $('#Faktur_PEMESAN').val(value);
+                            $('#Faktur_NAMAPEMESAN').val($("#MARKETPEMESAN option:selected").text());
+
+                            if (value == null) {
+                                $('#tambah-pembeli').show();
+                                $('#lihat-pembeli').hide();
+                            } else {
+                                $('#tambah-pembeli').hide();
+                                $('#lihat-pembeli').show();
+                            }
+                            $('#btn-simpan-perubahan-row').show();
+                        }
+                    });
+
+                    marketSelect[0].selectize.setValue($('#Faktur_PEMESAN').val());
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getGudang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetGudang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listGudang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listGudang[i] = {
+                                id: item.Kode_Gudang,
+                                text: item.Nama_Gudang
+                            };
+                        });
+
+                    var gudangSelect = $('#GUDANG').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listGudang,
+                        onChange: function (value) {
+                            $('#FakturDetail_GUDANG').val(value);
+
+                            if (value != null) {
+                                $('#gudang-kode').text(value);
+                            } else {
+                                $('#gudang-kode').text('-');
+                            }
+                        }
+                    });
+
+                    gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function offTab() {
+            $(document).keydown(function(objEvent) {
+                if (objEvent.keyCode == 9) {
+                    objEvent.preventDefault();
+                }
+            });
+        }
+
+        function onTab() {
+            $(document).keydown(function (objEvent) {
+                if (objEvent.keyCode == 9) {}
+            });
+        }
+
+        function getDataBarang() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetDataBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKodeBarang = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKodeBarang[i] = {
+                                id: item.BRG,
+                                text: item.BRG + ' (' + item.NAMA + ')'
+                            };
+                        });
+
+                    $('#BRG').selectivity({
+                        allowClear: true,
+                        items: listKodeBarang,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var val = $(this).selectivity('value');
+                        var $trId = $(this).closest('tr').attr('data-faktur-id');
+                        var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
+
+                        if (val != null) {
+                            $.each(data,
+                                function (i, item) {
+                                    if (item.BRG === val) {
+                                        if (item.NAMA2 == null)
+                                            $($trElement + ' .nama-barang').text(item.NAMA + " ");
+                                        else
+                                            $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
+
+                                        $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
+                                        $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                        return;
+                                    }
+                                });
+
+                            $beforeState.brutto = $('#Faktur_BRUTO').val();
+                            $beforeState.netto = $('#Faktur_NETTO').val();
+                            $beforeState.ndisc = $('#Faktur_NILAI_DISC').val();
+                            $beforeState.ppn = $('#Faktur_PPN').val();
+                            $beforeState.nppn = $('#Faktur_NILAI_PPN').val();
+                            $beforeState.ongkir = $('#Faktur_MATERAI').val();
+                            $($trElement + ' .btn-primary').removeAttr('disabled');
+                            $('#gudang-select').show();
+                            $('#gudang-kode').hide();
+                            offTab();
+                            modeEditTd();
+                        } else {
+                            $($trElement + ' .nama-barang').text('-');
+                            $($trElement + ' .stn-barang').html('-' +'<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
+                            $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+                            $($trElement + ' .disc1-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+                            $($trElement + ' .disc2-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+                            $($trElement + ' .ndisc1-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+                            $($trElement + ' .ndisc2-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+                            $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
+
+                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                            $('#gudang-select').hide();
+                            $('#gudang-kode').show();
+
+                            if ($('#Faktur_RecNum').val() == null) {
+                                $('#Faktur_NETTO').val(convertToRupiah(0));
+                                $('#Faktur_BRUTO').val(convertToRupiah(0));
+                                $('#Faktur_NILAI_DISC').val(convertToRupiah(0));
+                                $('#Faktur_PPN').val(0);
+                                $('#Faktur_NILAI_PPN').val(convertToRupiah(0));
+                                $('#Faktur_MATERAI').val(convertToRupiah(0));
+                            } else {
+                                $('#Faktur_BRUTO').val($beforeState.brutto);
+                                $('#Faktur_NETTO').val($beforeState.netto);
+                                $('#Faktur_NILAI_DISC').val($beforeState.ndisc);
+                                $('#Faktur_PPN').val($beforeState.ppn);
+                                $('#Faktur_NILAI_PPN').val($beforeState.nppn);
+                                $('#Faktur_MATERAI').val($beforeState.ongkir);
+                            }
+
+                            onTab();
+                            modeEditOff();
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function modeEditOff() {
+            $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', false);
+            $('#table_tambah_faktur > tbody > tr > td.editable').prop('onclick', null).off('click');
+            $('.qty-barang').removeClass('editable');
+            $('.disc1-barang').removeClass('editable');
+            $('.disc2-barang').removeClass('editable');
+            $('.ndisc1-barang').removeClass('editable');
+            $('.ndisc2-barang').removeClass('editable');
+        }
+
+        function convertToRupiah(angka) {
+            var rupiah = '';
+            var angkarev = angka.toString().split('').reverse().join('');
+            for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+        }
+
+        function convertToAngka(rupiah) {
+            return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        }
+
+        var $idFaktur = "";
+
+        function editFaktur1(idFaktur) {
+            var link = '@Url.Action("EditFaktur", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", idFaktur);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $modeEdit = 1;
+
+                    $('#form-partial').html(response);
+                    $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+
+                    refreshInputan();
+                    getTanggal();
+                    getBuyer();
+                    getDataBarang();
+                    getGudang();
+                    getMarketplace();
+
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+
+                    $nettoSebelumnya += $bakalNetto;
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(idFaktur) {
+            this.$idFaktur = idFaktur;
+        }
+
+        function deleteFaktur() {
+            var link = '@Url.Action("DeleteFaktur", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", this.$idFaktur);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-partial').html(response);
+                    Initialize();
+                    $('#loading_spinner').hide();
+                    $('#konfHapusFaktur').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        var $brg = '';
+
+        function passBarangInDb($brg) {
+            this.$brg = $brg;
+        }
+
+        function deleteBarang() {
+            var link = '@Url.Action("DeleteBarangFaktur", "Manage", new { noUrut = "replaceBrgId" })';
+            link = link.replace("replaceBrgId", this.$brg);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    refreshNettoBarang();
+                    $nettoSebelumnya = 0;
+                    $bakalNetto = 0;
+                    $('#form-partial').html(response);
+                    $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                    getTanggal();
+                    getMarketplace();
+                    getBuyer();
+                    getDataBarang();
+                    getGudang();
+                    $('#konfHapusBarang').modal('hide');
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function refreshTableFaktur1() {
+            var link = '@Url.Action("RefreshTableFaktur1", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-faktur-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[ 1, "desc" ]], //or asc
+                        "columnDefs" : [{"targets":1, "type":"date-eu"}],
+                    });
+                    $('#search_faktur').keyup(function () {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshForm1() {
+            var link = '@Url.Action("RefreshFakturForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#form-partial').html(response);
+                    refreshInputan();
+                    getTanggal();
+                    getMarketplace();
+                    getBuyer();
+                    getDataBarang();
+                    getGudang();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+
+
+        function simpanbrg($id) {
+            if (!validateForm()) return false;
+            refreshNetto();
+            if ($id == 'brg-0') {
+                if ($('#Faktur_TGL').val() != '' &&
+                    $('#Faktur_CUST').val() != '' &&
+                    $('#Faktur_TERM').val() != '' &&
+                    $('#Faktur_PEMESAN').val() != ''
+                ) {
+                    var tgl = $('#Faktur_TGL').val();
+                    $('#FakturDetail_TGL_INPUT').val(tgl);
+                    $('#FakturDetail_BRG').val($('#BRG').selectivity('val'));
+                    $('#FakturDetail_SATUAN').val('2'); //Satuan Kecil
+                    $('#FakturDetail_H_SATUAN').val(convertToAngka($('tr[data-faktur-id="0"] .harga-barang').text()));
+                    $('#FakturDetail_QTY').val($('tr[data-faktur-id="0"] .qty-barang').text());
+                    $('#FakturDetail_DISCOUNT').val($('tr[data-faktur-id="0"] .disc1-barang').text());
+                    $('#FakturDetail_DISCOUNT_2').val($('tr[data-faktur-id="0"] .disc2-barang').text());
+                    $('#FakturDetail_NILAI_DISC_1').val(convertToAngka($('tr[data-faktur-id="0"] .ndisc1-barang').text()));
+                    $('#FakturDetail_NILAI_DISC_2').val(convertToAngka($('tr[data-faktur-id="0"] .ndisc2-barang').text()));
+                    $('#FakturDetail_HARGA').val(convertToAngka($('tr[data-faktur-id="0"] .netto-barang').text()));
+                    $("#Faktur_BRUTO").val(convertToAngka($("#Faktur_BRUTO").val()));
+                    $("#Faktur_NILAI_DISC").val(convertToAngka($("#Faktur_NILAI_DISC").val()));
+                    $("#Faktur_NILAI_PPN").val(convertToAngka($("#Faktur_NILAI_PPN").val()));
+                    $("#Faktur_MATERAI").val(convertToAngka($("#Faktur_MATERAI").val()));
+                    $("#Faktur_NETTO").val($bakalNetto);
+
+                    $totalAwal = 0;
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveFaktur", "Manage")',
+                        data: $('#form-faktur').serialize(),
+                        beforeSend: function() {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $('#form-partial').html(response);
+                                $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
+                                refreshInputan();
+                                getTanggal();
+                                getBuyer();
+                                getDataBarang();
+                                getGudang();
+                                getMarketplace();
+                                $('#btn-simpan-perubahan-row').show();
+                            } else {
+                                console.log(response.Errors);
+                                alert(response.Errors[0]);
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
+                            console.log(xhr);
+                        }
+                    });
+                } else {
+                    alert('Silakan isi semua field terlebih dahulu!');
+                }
+            }
+        }
+    </script>
+
+    <script>
+        //Disable Enter Key Submit Form
+        function stopRKey(evt) {
+            var evt = (evt) ? evt : ((event) ? event : null);
+            var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+            if ((evt.keyCode === 13) && (node.type === "text")) { return false; }
+        }
+        document.onkeypress = stopRKey;
+    </script>
+}

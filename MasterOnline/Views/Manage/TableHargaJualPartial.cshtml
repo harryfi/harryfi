@@ -1,0 +1,31 @@
+﻿@model MasterOnline.ViewModels.HargaJualViewModel
+@{
+    var context = new MoDbContext();
+}
+<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Kode Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Nama Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Akun MP</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Harga Jual</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Harga Beli Terakhir</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var barangDijualPerMarket in Model.ListHargaJualPerMarket)
+        {
+            var namaMarket = context.Marketplaces.FirstOrDefault(m => m.IdMarket == barangDijualPerMarket.IDMARKET)?.NamaMarket;
+            <tr>
+                <td>@barangDijualPerMarket.BRG</td>
+                <td>
+                    @(Model?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA) 
+                    @(Model?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA2)
+                </td>
+                <td>@namaMarket (@barangDijualPerMarket.AKUNMARKET)</td>
+                <td>@barangDijualPerMarket.HJUAL</td>
+                <td>@(Model?.ListHargaTerakhir?.OrderByDescending(b => b.TGL).FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.HPOKOK)</td>
+            </tr>
+        }
+    </tbody>
+</table>

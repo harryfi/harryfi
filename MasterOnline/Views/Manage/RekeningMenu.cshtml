@@ -1,0 +1,371 @@
+﻿@using MasterOnline.ViewModels
+@model RekeningViewModel
+@{
+    ViewBag.Title = "Rekening";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+
+    var kategoriDictionary = new Dictionary<string, string>()
+{
+    {"1", "Kas"},
+    {"2", "Bank"},
+    {"3", "Piutang Dagang"},
+    {"4", "Persediaan"},
+    {"5", "Aktiva Lancar"},
+    {"6", "Aktiva Tetap"},
+    {"7", "Investasi"},
+    {"8", "Hutang Dagang"},
+    {"9", "Hutang Lainnya"},
+    {"10", "Hutang Jangka Lainnya"},
+    {"11", "Modal"},
+    {"12", "Pendapatan"},
+    {"13", "Harga Pokok Penjualan"},
+    {"14", "Biaya"},
+    {"15", "Pendapatan Lainnya"},
+    {"16", "Biaya Lainnya"}
+};
+}
+
+@section styles
+{
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+
+    <style>
+         #rekening-section > div {
+             background-color: #fff;
+             padding: 20px;
+         }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="rekening-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row rekening_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_rekening" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_rekening">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row rekening_table_section">
+            <div class="col-sm-12" id="table-rekening-partial">
+                @Html.Partial("TableRekeningPartial")
+            </div>
+        </div>
+        <div class="row rekening_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Rekening</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail rekening</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveRekening", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-rekening" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.HiddenFor(m => m.Rekening.LKS, new { Value = 1 })
+                                            @Html.HiddenFor(m => m.Rekening.USERNAME, new { Value = username })
+                                            @Html.HiddenFor(m => m.Rekening.type, new { Value = "" })
+                                            @Html.HiddenFor(m => m.Rekening.kurs, new { Value = "IDR" })
+                                            @Html.HiddenFor(m => m.Rekening.UserId, new { Value = username })
+                                            @Html.HiddenFor(m => m.Rekening.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                            @Html.HiddenFor(m => m.Rekening.RecNum)
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Rekening.KODE, "Kode Rekening *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Rekening.KODE, new { @class = "form-control", required = "required" })
+                                                    @Html.HiddenFor(m => m.Rekening.rek_konsol)
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Rekening.NAMA, "Nama Rekening *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Rekening.NAMA, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Rekening.JR, "Tipe *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Rekening.JR)
+                                                    <select id="TIPE" placeholder="Harap Pilih" required = "required"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Rekening.KATEGORY, "Kategori *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Rekening.KATEGORY)
+                                                    <select id="KATEGORI" placeholder="Harap Pilih" required = "required"></select>
+                                                </div>
+                                            </div>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanRekening(this)" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus rekening -->
+<div class="modal fade" id="konfHapusRekening" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus rekening <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteRekening()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+                                    {
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $rekeningId = "";
+
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function Initialize() {
+            var table = $('#datatable').DataTable();
+
+            $('#search_rekening').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_rekening').on('click', function () {
+                $('.rekening_table_section').hide();
+                $('.rekening_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.rekening_table_section').show();
+                $('.rekening_editor_section').hide();
+                $('#Rekening_KODE, #Rekening_NAMA, #Rekening_RecNum').val('');
+                $('#Rekening_KODE').removeAttr('disabled');
+                $('#Rekening_USERNAME, #Rekening_UserId').val('@(username)');
+                $('#Rekening_TglInput').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
+                $('#Rekening_JR').val(null);
+                $('#Rekening_KATEGORY').val(null);
+                getTipe();
+                getKategori();
+            });
+            
+            getTipe();
+            getKategori();
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_rekening').click();
+                $('#Rekening_KODE').prop('disabled', true);
+            }
+
+            $('#Rekening_KODE').on('change blur',
+                function () {
+                    $('#Rekening_rek_konsol').val($(this).val());
+
+                    if (!$(this).is(':disabled')) {
+                        cekKode($(this), 'rek');
+                    }
+                });
+        }
+
+        var $listTipe = [
+            {
+                id: "N",
+                text: "Neraca"
+            },
+            {
+                id: "P",
+                text: "Pendapatan"
+            },
+            {
+                id: "B",
+                text: "Biaya"
+            }
+        ];
+
+        var $listKategori = [];
+
+        @{
+            for (var i = 0; i < kategoriDictionary.Count; i++)
+            {
+                @Html.Raw("$listKategori["+i+"] = { id: "+ (i+1) +", text: '"+ kategoriDictionary[(i+1).ToString()] +"' };")
+            }
+        }
+
+        function getTipe() {
+            var tipeSelect = $('#TIPE').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: $listTipe,
+                onChange: function (value) {
+                    $('#Rekening_JR').val(value);
+                }
+            });
+
+            tipeSelect[0].selectize.setValue($('#Rekening_JR').val());
+        }
+
+        function getKategori() {
+            var katSelect = $('#KATEGORI').selectize({
+                valueField: 'id',
+                searchField: 'text',
+                options: $listKategori,
+                onChange: function(value) {
+                    $('#Rekening_KATEGORY').val(value);
+                }
+            });
+
+            katSelect[0].selectize.setValue($('#Rekening_KATEGORY').val());
+        }
+
+        function simpanRekening(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                success: function (response) {
+                    $('#table-rekening-partial').html(response);
+                    Initialize();
+                    $('#close-editor').click();
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+
+        function editRekening(rekeningId) {
+            var link = '@Url.Action("EditRekening", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", rekeningId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#Rekening_LKS').val(response.Rekening.LKS);
+                    $('#Rekening_USERNAME').val(response.Rekening.USERNAME);
+                    $('#Rekening_type').val(response.Rekening.type);
+                    $('#Rekening_kurs').val(response.Rekening.kurs);
+                    $('#Rekening_UserId').val(response.Rekening.UserId);
+                    $('#Rekening_TglInput').val(response.Rekening.TglInput);
+                    $('#Rekening_RecNum').val(response.Rekening.RecNum);
+                    $('#Rekening_KODE').val(response.Rekening.KODE);
+                    $('#Rekening_NAMA').val(response.Rekening.NAMA);
+                    $('#Rekening_JR').val(response.Rekening.JR);
+                    $('#Rekening_KATEGORY').val(response.Rekening.KATEGORY);
+                    getTipe();
+                    getKategori();
+                    $('#tambah_rekening').click();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(rekeningId, namaRek) {
+            this.$rekeningId = rekeningId;
+            $('#hapus_label').text(namaRek);
+        }
+
+        function deleteRekening() {
+            var link = '@Url.Action("DeleteRekening", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", this.$rekeningId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-rekening-partial').html(response);
+                    Initialize();
+                    $('#konfHapusRekening').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

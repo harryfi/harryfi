@@ -1,0 +1,146 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model PromosiViewModel
+
+@Html.HiddenFor(m => m.Promosi.RecNum)
+@Html.HiddenFor(m => m.Promosi.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Promosi.NAMA_PROMOSI, "Nama Promosi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Promosi.NAMA_PROMOSI, new { @class = "form-control", maxlength = 50, required = "required" })
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Promosi.TGL_MULAI, "Tanggal Mulai", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Promosi.TGL_MULAI)
+                    <div class="input-group date">
+                        <input type="text" id="TGL_MULAI" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Promosi.NAMA_MARKET, "Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Promosi.NAMA_MARKET)
+                    <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Promosi.TGL_AKHIR, "Tanggal Akhir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Promosi.TGL_AKHIR)
+                    <div class="input-group date">
+                        <input type="text" id="TGL_AKHIR" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model?.Promosi?.RecNum != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.PromosiDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <table id="table_tambah_promosi" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">Kode Brg</th>
+                    <th width="150">Nama Brg</th>
+                    <th width="100">Harga Normal</th>
+                    <th width="100">Harga Promosi</th>
+                    <th width="45">Simpan</th>
+                    <th width="45">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var promosi in Model?.ListPromosiDetail.Where(pb => pb.RecNumPromosi == Model?.Promosi?.RecNum)?.ToList())
+                {
+                    <tr data-barang-id="brg-@promosi.RecNum">
+                        <td>
+                            @promosi.KODE_BRG
+                        </td>
+                        <td class="nama-barang">
+                            @(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA) @(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA2)
+                        </td>
+                        <td class="harga-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", promosi.HARGA_NORMAL)
+                        </td>
+                        <td class="harga-promosi-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", promosi.HARGA_PROMOSI)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@promosi.RecNum')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                <tr data-promosi-id="0">
+                    @Html.HiddenFor(m => m.PromosiDetail.RecNum)
+                    <td>
+                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.PromosiDetail.KODE_BRG)
+                    </td>
+                    <td class="nama-barang">-</td>
+                    <td class="harga-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PromosiDetail.HARGA_NORMAL)
+                    </td>
+                    <td class="harga-promosi-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PromosiDetail.HARGA_PROMOSI)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

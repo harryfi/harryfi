@@ -1,0 +1,370 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.BarangViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Stf02.ID)
+@Html.HiddenFor(m => m.Stf02.HPP, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.HBELI, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.HBESAR, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.HKECIL, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.TYPE, new { Value = 3 })
+@Html.HiddenFor(m => m.Stf02.KLINK, new { Value = 1 })
+@Html.HiddenFor(m => m.Stf02.HP_STD, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.QPROD, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.ISI3, new { Value = 3 })
+@Html.HiddenFor(m => m.Stf02.ISI4, new { Value = 1 })
+@Html.HiddenFor(m => m.Stf02.TOLERANSI, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.H_STN_3, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.H_STN_4, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.SS, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.METODA_HPP_PER_SN, new { Value = false })
+@Html.HiddenFor(m => m.Stf02.HNA_PPN, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.LABA, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.DEFAULT_STN_HRG_JUAL, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.DEFAULT_STN_JUAL, new { Value = 0 })
+@Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
+@Html.HiddenFor(m => m.Stf02.STN)
+@Html.HiddenFor(m => m.Stf02.Metoda, new { Value = Model?.DataUsaha?.METODA_NO })
+@Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.Hidden("UrlUpload")
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Detail Barang</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <br>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.BRG, "Kode Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 20, required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", maxlength = 30 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Sort1, "Kategori Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select id="KATEGORI" placeholder="Harap pilih" required="required"></select>
+                            @Html.HiddenFor(m => m.Stf02.Sort1)
+                            @Html.HiddenFor(m => m.Stf02.KET_SORT1)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Sort2, "Merk Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select id="MERK" placeholder="Harap pilih" required="required"></select>
+                            @Html.HiddenFor(m => m.Stf02.Sort2)
+                            @Html.HiddenFor(m => m.Stf02.KET_SORT2)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.STN2, "Satuan Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.STN2, new { @class = "form-control", maxlength = 5, required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.MINI, "Stok Minimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control", required = "required", minlength = 30 })
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" id="upload-foto-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Foto Produk</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-4 foto_produk_section">
+                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_1">Hapus</button>
+                            <div class="box_upload" id="box_upload_1">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_1' name="foto_produk_1" accept=".jpg" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 foto_produk_section">
+                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_2">Hapus</button>
+                            <div class="box_upload" id="box_upload_2">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_2' name="foto_produk_2" accept=".jpg" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 foto_produk_section">
+                            <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_3">Hapus</button>
+                            <div class="box_upload" id="box_upload_3">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_3' name="foto_produk_3" accept=".jpg" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <h2>Marketplace</h2>
+            <div class="x_panel" id="info-penjualan-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Info Penjualan</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Stf02.BERAT, "Berat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-6">
+                                @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                            </div>
+                            <label class="control-label satuan col-md-5 col-sm-6">GR</label>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Stf02.PANJANG, "Panjang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-6">
+                                @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                            </div>
+                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Stf02.LEBAR, "Lebar *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-6">
+                                @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                            </div>
+                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Stf02.TINGGI, "Tinggi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-6">
+                                @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                            </div>
+                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" id="harga-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Harga</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
+                        </div>
+                    </div>
+                    @{
+                        var listMarket = Model.ListMarket;
+                    }
+                    @if (listMarket != null)
+                    {
+                        <hr />
+                        <div id="hjualmarket-section">
+                            @for (var i = 0; i < listMarket.ToList().Count; i++)
+                            {
+                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].USERNAME, new { Value = username })
+                                <div class="form-group">
+                                    @if (Model.ListHargaJualPermarketView.Count > 0)
+                                    {
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView[i].RecNum })
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
+                                    }
+                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].BRG, new { Value = "xxx" })
+                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].IDMARKET, new { Value = listMarket[i].RecNum })
+                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
+                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="font-size: 11px;">
+                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                    </label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        @if (Model.ListHargaJualPermarketView.Count > 0)
+                                        {
+                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.ListHargaJualPermarketView?[i].HJUAL ?? 0) })
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
+                                        }
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+                                        @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView[i]?.DISPLAY })
+                                            <label class="checkbox-container">
+                                                Tampilkan
+                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView[i]?.DISPLAY == true ? "checked" : null) />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        }
+                                        else
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
+                                            <label class="checkbox-container">
+                                                Tampilkan
+                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    @if (listMarket?.Count == 0)
+                    {
+                        <div class="text-center">
+                            <h4>Harga jual per-marketplace belum ada karena</h4>
+                            <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" id="laintitle-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Lain-lain</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    @if (listMarket != null)
+                    {
+                        <div id="lain-section">
+                            @for (var i = 0; i < listMarket.ToList().Count; i++)
+                            {
+                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                                {
+                                    <div>
+                                        <h2 style="font-size: 14px">
+                                            @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                        </h2>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            @Html.LabelFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, "Template Delivery *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView[i]?.DeliveryTempElevenia })
+                                                <div class="input-group text">
+                                                    <table>
+                                                        <tr>
+                                                            <td>
+                                                            @Html.TextBox("DeliveryTempElevenia" + i + "Box", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView[i]?.DeliveryTempElevenia })
+                                                            </td>
+                                                            <td>
+                                                                <span class="input-group-btn">
+                                                                    <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({listMarket[i].RecNum})"))">
+                                                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                    </button>
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    @if (listMarket?.Count == 0)
+                    {
+                        <div class="text-center">
+                            <h4>Harga jual per-marketplace belum ada karena</h4>
+                            <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    @Html.HiddenFor(m => m.Username, new { Value = username })
+    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanBarang1(this)" />
+</div>

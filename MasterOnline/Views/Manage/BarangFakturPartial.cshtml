@@ -1,0 +1,393 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model FakturViewModel
+@{
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+    }
+}
+
+@Html.HiddenFor(m => m.Faktur.RecNum)
+@Html.HiddenFor(m => m.Faktur.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Faktur.JENIS_RETUR, new { Value = " " })
+@Html.HiddenFor(m => m.Faktur.JENIS_FORM, new { Value = "2" })
+@Html.HiddenFor(m => m.Faktur.STATUS, new { Value = "1" })
+@Html.HiddenFor(m => m.Faktur.ST_POSTING, new { Value = "T" })
+@Html.HiddenFor(m => m.Faktur.VLT, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Faktur.NO_FA_OUTLET, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.NO_LPB, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.GROUP_LIMIT, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.KODE_ANGKUTAN, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.JENIS_MOBIL, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.NAMA_CUST, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Faktur.TUKAR_PPN, new { Value = 1 })
+@Html.HiddenFor(m => m.Faktur.SOPIR, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.KET, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.PPNBM, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.KODE_SALES, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.KODE_WIL, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.U_MUKA, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.U_MUKA_FA, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.JTRAN, new { Value = "SI" })
+@Html.HiddenFor(m => m.Faktur.JENIS, new { Value = "1" })
+@Html.HiddenFor(m => m.Faktur.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Faktur.NO_REF, new { Value = "" })
+@Html.HiddenFor(m => m.Faktur.NILAI_PPNBM, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN, new { Value = "" })
+
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.NO_BUKTI, "No. Faktur", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Faktur.NO_BUKTI)
+                    @if (Model.Faktur != null)
+                    {
+                        <input type="text" value="@Model.Faktur.NO_BUKTI" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" value="[AUTO]" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    @if (Model.Faktur != null)
+                    {
+                        if (Model.Faktur.ST_POSTING == "Y")
+                        {
+                            <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                        }
+                        else
+                        {
+                            <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="text" value="Belum" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.TGL, "Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Faktur.TGL)
+                    <div class="input-group date">
+                        <input type="text" id="TGL" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.CUST, "Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Faktur.CUST)
+                    <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.PEMESAN, "Pembeli", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group">
+                        @Html.HiddenFor(m => m.Faktur.PEMESAN)
+                        <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>
+                        <span class="input-group-btn">
+                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                            <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Faktur.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3 })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6">
+                    <h5>Hari</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.TGL_JT_TEMPO, "Tgl. Jatuh Tempo", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group date">
+                        @Html.TextBoxFor(m => m.Faktur.TGL_JT_TEMPO, new { @readonly = "readonly", @style = "background-color : #eee; cursor :not-allowed;", @class = "form-control", Value = Model?.Faktur?.TGL_JT_TEMPO?.ToString("dd/MM/yyyy") })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <h5>Mata uang Rupiah (IDR)</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.BRUTO, "Bruto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @{
+                        var listBarangFaktur = Model.ListFakturDetail.Where(b => b.NO_BUKTI == Model?.Faktur?.NO_BUKTI);
+                        var totalHargaBarang = 0d;
+                        foreach (var barang in listBarangFaktur)
+                        {
+                            totalHargaBarang += (double)barang.HARGA;
+                        }
+                    }
+                    @Html.TextBoxFor(m => m.Faktur.BRUTO, new { @readonly = "readonly", @style = "background-color : #eee; cursor :not-allowed;", @class = "form-control", Value = (totalHargaBarang >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalHargaBarang) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.PPN, "PPN", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    <div class="input-group">
+                        @Html.TextBoxFor(m => m.Faktur.PPN, new { @class = "form-control", Value = (Model?.Faktur?.PPN >= 0 ? Model.Faktur.PPN : 0), type = "number", min = 0, max = 100 })
+                        <span class="input-group-addon">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.MATERAI, "Ongkos Kirim", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Faktur.MATERAI, new { @class = "form-control num-only", Value = (Model?.Faktur?.MATERAI > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.MATERAI) : "0,00") })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.NILAI_DISC, "Discount", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Faktur.NILAI_DISC, new { @class = "form-control num-only", Value = (Model?.Faktur?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NILAI_DISC) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.NILAI_PPN, "Nilai PPN", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Faktur.NILAI_PPN, new { @readonly = "readonly", @style = "background-color : #eee; cursor :not-allowed;", @class = "form-control", Value = (Model?.Faktur?.NILAI_PPN >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Faktur.NILAI_PPN) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Faktur.NETTO, "Netto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Faktur.NETTO, new {  @readonly= "readonly",@style= "background-color : #eee; cursor :not-allowed;", @class = "form-control", Value = (Model?.Faktur?.NETTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Faktur.NETTO) : "0,00") })
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model?.Faktur?.RecNum != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.FakturDetail.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.FakturDetail.CATATAN, new { Value = "-" })
+@Html.HiddenFor(m => m.FakturDetail.JENIS_FORM, new { Value = "2" })
+@Html.HiddenFor(m => m.FakturDetail.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <table id="table_tambah_faktur" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">Kode Brg</th>
+                    <th width="150">Nama Brg</th>
+                    <th>Stn</th>
+                    <th>Harga</th>
+                    <th width="80">Gd</th>
+                    <th width="45">Qty</th>
+                    <th width="55">Disc%</th>
+                    <th>NDisc</th>
+                    <th width="55">Disc2%</th>
+                    <th>NDisc2</th>
+                    <th width="100">Netto</th>
+                    <th width="45">Simpan</th>
+                    <th width="45">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var faktur in Model.ListFakturDetail.Where(pb => pb.NO_BUKTI == Model?.Faktur?.NO_BUKTI).ToList())
+                {
+                    <tr data-barang-id="brg-@faktur.NO_URUT">
+                        @{
+                            var stnBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.STN2;
+                        }
+                        <td>
+                            @faktur.BRG
+                        </td>
+                        <td class="nama-barang">
+                            @(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA) @(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA2)
+                        </td>
+                        <td class="stn-barang">
+                            @stnBarang
+                        </td>
+                        <td class="harga-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.H_SATUAN)
+                        </td>
+                        <td class="gd-barang">
+                            @faktur.GUDANG
+                        </td>
+                        <td class="qty-barang">
+                            @faktur.QTY
+                        </td>
+                        <td class="disc1-barang">
+                            @faktur.DISCOUNT
+                        </td>
+                        <td class="ndisc1-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NILAI_DISC_1)
+                        </td>
+                        <td class="disc2-barang">
+                            @faktur.DISCOUNT_2
+                        </td>
+                        <td class="ndisc2-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NILAI_DISC_2)
+                        </td>
+                        <td class="netto-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.HARGA)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@faktur.NO_URUT')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                <tr data-faktur-id="0">
+                    @Html.HiddenFor(m => m.FakturDetail.NO_URUT)
+                    <td>
+                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.FakturDetail.BRG)
+                    </td>
+                    <td class="nama-barang">-</td>
+                    <td class="stn-barang">
+                        -
+                        @Html.HiddenFor(m => m.FakturDetail.SATUAN, new { Value = "2" })
+                    </td>
+                    <td class="harga-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.FakturDetail.H_SATUAN)
+                    </td>
+                    <td class="gd-barang">
+                        <span id="gudang-kode">-</span>
+                        <div id="gudang-select" style="display: none;">
+                            <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+                        </div>
+                        @Html.HiddenFor(m => m.FakturDetail.GUDANG)
+                    </td>
+                    <td class="qty-barang">
+                        0
+                        @Html.HiddenFor(m => m.FakturDetail.QTY)
+                    </td>
+                    <td class="disc1-barang">
+                        0
+                        @Html.HiddenFor(m => m.FakturDetail.DISCOUNT)
+                    </td>
+                    <td class="ndisc1-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.FakturDetail.NILAI_DISC_1)
+                    </td>
+                    <td class="disc2-barang">
+                        0
+                        @Html.HiddenFor(m => m.FakturDetail.DISCOUNT_2)
+                    </td>
+                    <td class="ndisc2-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.FakturDetail.NILAI_DISC_2)
+                    </td>
+                    <td class="netto-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.FakturDetail.HARGA)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

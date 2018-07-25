@@ -1,0 +1,364 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "TestReport";
+    Layout = "~/Views/Shared/_LayoutReport.cshtml";
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var userId = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        userId = context.Account.Single(a => a.AccountId == accId).UserId;
+        context.Dispose();
+    }
+    else
+    {
+        userId = dataSession?.Account?.UserId;
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+}
+
+<h2>Posisi Stok</h2>
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Tanggal Cutoff")
+        <div class="input-group date">
+            @Html.TextBox("CutOffDate", null, new { @class = "form-control" })
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-10">
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-3">
+        @Html.Label("", "Pilih Stok")
+        <div class="input-group text">
+            <select class="form-control" id="cboPilihStok" name="cboPilihStok">
+                <option value="0">Semua Stok</option>
+                <option value="1">Yang ada Stok</option>
+                <option value="2">Tidak ada Stok</option>
+                <option value="3">Di atas Max. Stok</option>
+                <option value="4">Di bawah Min. Stok</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-9">
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Barang")
+        <div class="input-group text">
+            @Html.TextBox("FromBrg", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-daribrg" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "Sampai Barang")
+        <div class="input-group text">
+            @Html.TextBox("ToBrg", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-sdbrg" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Gudang")
+        <div class="input-group text">
+            @Html.TextBox("Gudang1", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang1" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div style="display: inline-block;height:19px;width:1px"></div>
+        <div class="input-group text">
+            @Html.TextBox("Gudang2", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang2" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div style="display: inline-block;height:19px;width:1px"></div>
+        <div class="input-group text">
+            @Html.TextBox("Gudang3", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang3" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div style="display: inline-block;height:19px;width:1px"></div>
+        <div class="input-group text">
+            @Html.TextBox("Gudang4", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang4" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div style="display: inline-block;height:19px;width:1px"></div>
+        <div class="input-group text">
+            @Html.TextBox("Gudang5", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang5" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="input-group text">
+            @Html.TextBox("Gudang6", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang6" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="input-group text">
+            @Html.TextBox("Gudang7", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang7" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="input-group text">
+            @Html.TextBox("Gudang8", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang8" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="input-group text">
+            @Html.TextBox("Gudang9", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang9" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="input-group text">
+            @Html.TextBox("Gudang10", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-gudang10" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-primary" id="preview-report">Preview Report</button>
+    </div>
+</div>
+<br />
+<br />
+<div class="row text-center">
+    <object id="pdf_viewer" data="#" type="application/pdf" width="1079" height="600"></object>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+
+    <script>
+        var promptBrg = "";
+        var promptGudang = "";
+        $(document).ready(function () {
+            var d = new Date();
+
+            $('#CutOffDate').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', d);
+
+            $('#prompt-daribrg').click(function () {
+                promptBrg = "1";
+                var $link = '@Url.Action("PromptBarang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdbrg').click(function () {
+                promptBrg = "2";
+                var $link = '@Url.Action("PromptBarang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang1').click(function () {
+                promptGudang = "1";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang2').click(function () {
+                promptGudang = "2";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang3').click(function () {
+                promptGudang = "3";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang4').click(function () {
+                promptGudang = "4";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang5').click(function () {
+                promptGudang = "5";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang6').click(function () {
+                promptGudang = "6";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang7').click(function () {
+                promptGudang = "7";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang8').click(function () {
+                promptGudang = "8";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang9').click(function () {
+                promptGudang = "9";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-gudang10').click(function () {
+                promptGudang = "10";
+                var $link = '@Url.Action("PromptGudang", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+
+            $('#preview-report').click(function() {
+                previewing();
+            });
+        });
+
+        function formatDateToYYYYmmDD(date) {
+            if (date == "") {
+                $('#CutOffDate').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0');
+
+                date = $('#CutOffDate').val();
+            }
+
+            var month = '' + (date.slice(3, 5));
+            var day = '' + (date.slice(0, 2));
+            var year = (date.slice(6, 10));
+            return [year, month, day].join('/');
+        }
+        var tanggalcutoff = "";
+        function previewing() {
+            //if (selisihValid()) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Preview16", "Report")',
+                    data: JSON.stringify({
+                        UserId: '@(userId)',
+                        CutOffDate: formatDateToYYYYmmDD($('#CutOffDate').val()),
+                        PilihStok: $('#cboPilihStok').val(),
+                        FromBrg: $('#FromBrg').val(),
+                        ToBrg: $('#ToBrg').val(),
+                        Gudang1: $('#Gudang1').val(),
+                        Gudang2: $('#Gudang2').val(),
+                        Gudang3: $('#Gudang3').val(),
+                        Gudang4: $('#Gudang4').val(),
+                        Gudang5: $('#Gudang5').val(),
+                        Gudang6: $('#Gudang6').val(),
+                        Gudang7: $('#Gudang7').val(),
+                        Gudang8: $('#Gudang8').val(),
+                        Gudang9: $('#Gudang9').val(),
+                        Gudang10: $('#Gudang10').val()
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function (data) {
+                        //alert(data);
+                        //console.log(data);
+                        $("<iframe id='LoadReportMO'>")// create a new iframe element
+                            .hide()//invisible
+                            .load(function () {
+                                setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
+                            })
+                            .attr("src", data)//load the page
+                            .appendTo("body");
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            //}
+        }
+        function afterPromptBarang(brg) {
+            if (promptBrg == "1") {
+                $('#FromBrg').val(brg);
+            }
+            else if (promptBrg == "2") {
+                $('#ToBrg').val(brg);
+            }
+            promptBrg = "";
+        }
+        function afterPromptGudang(gd) {
+            $('#Gudang' + promptGudang).val(gd);
+            promptGudang = "";
+        }
+    </script>
+}
+
+

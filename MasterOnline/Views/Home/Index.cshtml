@@ -1,0 +1,424 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+@section styles
+{
+    <link href="~/Content/hover-min.css" rel="stylesheet" />
+
+    <style>
+        @@font-face {
+            font-family: 'RoundedElegance';
+            src: url("../../fonts/rounded_elegance.svg");
+            src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+        }
+
+        html {
+            -webkit-text-stroke-width: 0.5pt;
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+
+        #cover {
+            margin-top: 65px;
+            margin-bottom: 18px;
+            background-size: cover;
+            min-height: 350px;
+        }
+
+            #cover h2 {
+                color: #891539;
+                font-size: 38px;
+                line-height: 58px;
+                letter-spacing: 3px;
+                font-weight: 700;
+                margin-top: 130px;
+            }
+
+            #cover h3 {
+                font-size: 58px;
+                font-weight: 700;
+                text-transform: uppercase;
+                font-family: 'RoundedElegance';
+            }
+
+                #cover h3 span {
+                    color: #ed5565;
+                }
+
+            #cover span {
+                font-size: 53px;
+            }
+
+            #cover p {
+                font-size: 18px;
+                letter-spacing: .5px;
+                margin-bottom: 30px;
+            }
+
+            #cover .btn {
+                background-color: #891539;
+                color: #fff;
+            }
+
+                #cover .btn:hover {
+                    background-color: #b01c4b;
+                }
+
+        #gradient-mo {
+            background: rgba(255,23,23,1);
+            background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+            background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .videoWrapper {
+            margin-top: 100px;
+            position: relative;
+        }
+
+        .videoBox {
+            position: relative;
+            padding-top: 20px;
+            padding-bottom: 67.5%;
+            height: 0;
+            overflow: hidden;
+        }
+
+            .videoBox iframe {
+                box-sizing: border-box;
+                /*background: url(../../Content/Images/macbook.png) 50% no-repeat;*/
+                background-size: contain;
+                padding: 10% 12% 14.8%;
+                position: absolute;
+                top: -10px;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+        #marketplace .logo-container {
+            padding: 40px 0;
+        }
+
+        #marketplace .title-box-red,
+        .carakerja .title-box-red {
+            padding: 10px 7px;
+        }
+
+            #marketplace .title-box-red h3,
+            .carakerja .title-box-red h3 {
+                font-size: 20px;
+                color: #fff;
+                font-weight: 400;
+                margin: 0px;
+                text-align: left !important;
+            }
+
+        #marketplace .mp-logo:first-child {
+            margin-left: 60px;
+        }
+
+        #marketplace .mp-logo {
+            margin-right: 20px;
+        }
+
+        .titleSection {
+            color: #ed5565;
+            font-size: 35px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .carakerja {
+            padding: 0 0 40px 0;
+            background-color: #fff;
+        }
+
+            .carakerja h3, .carakerja p {
+                font-weight: 300;
+                text-align: center;
+            }
+
+            .carakerja h3 {
+                font-size: 22px;
+            }
+
+            .carakerja p {
+                font-size: 17px;
+                line-height: 24px;
+                color: #777;
+            }
+
+            .carakerja strong {
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                display: block;
+            }
+
+            .carakerja img {
+                margin-top: 25px;
+            }
+
+        #banner {
+            background: url(../../Content/Images/shattered.png) 0 50%;
+            min-height: 200px;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+            #banner h2 {
+                color: #999;
+                font-size: 25px;
+                font-weight: 400;
+                margin: 30px 0 28px 0;
+            }
+
+        footer {
+            background: #891539;
+            padding: 55px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
+
+        .title-box-red {
+            background: rgba(137,21,57,1);
+            background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+            background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
+        }
+
+        .carakerja .content-feature {
+            background-color: #f6f6f6;
+            padding-bottom: 10px;
+        }
+
+        #promo_pulsa {
+            display: none; /* Sementara */
+            position: absolute;
+            width: 20%;
+            right: 15px;
+            top: 175px;
+            z-index: 100;
+        }
+    </style>
+}
+
+<a href="@Url.Action("Promo")">
+    <img class="hvr-buzz" src="~/Content/Images/PromoPulsa.png" id="promo_pulsa" />
+</a>
+
+<!--Start Top Slogan-->
+<div id="cover">
+    <div class="container">
+        <div class="col-md-5">
+            <h2>SOLUSI CERDAS<br />PEBISNIS ONLINE</h2>
+            <span id="gradient-mo">master online</span>
+            <p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>
+            <p>KONTROL BISNIS ANDA DARI SATU TEMPAT</p>
+            <a class="btn btn-lg" href="/register" role="button">DAFTAR (FREE)</a>
+        </div>
+        <div class="col-md-7 col-xs-12">
+            <div class="videoWrapper">
+                <div class="videoBox">
+                    <iframe width="560" height="315" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--End of Top Slogan-->
+<!--Start Marketplaces-->
+<div id="marketplace">
+    <div class="container title-box-red">
+        <h3>CARA MUDAH DAN CEPAT KONTROL BISNIS ANDA DI BERBAGAI MARKETPLACE</h3>
+    </div>
+    <div class="container logo-container">
+        <div class="mp-logo col-md-2 col-xs-4">
+            <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
+        </div>
+        <div class="mp-logo col-md-2 col-xs-4">
+            <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
+        </div>
+        <div class="mp-logo col-md-2 col-xs-4">
+            <img src="~/Content/Images/logo-blibli.png" alt="zalora" class="img-responsive">
+        </div>
+        <div class="mp-logo col-md-2 col-xs-4">
+            <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
+        </div>
+        <div class="mp-logo col-md-2 col-xs-4">
+            <img src="~/Content/Images/logo-shopee.png" alt="shopee" class="img-responsive">
+        </div>
+    </div>
+</div>
+<!--End of Marketplaces-->
+<!--Start How It Works-->
+<div class="carakerja">
+    <div class="container title-box-red">
+        <h3>CARA KERJA MASTER ONLINE</h3>
+    </div>
+    <div class="container content-feature">
+        <div class="col-md-10 col-md-offset-1">
+            <img src="~/Content/Images/ilustrasi_mo.png" alt="cara kerja masteronline" class="img-responsive">
+        </div>
+    </div>
+</div>
+<!--End of How It Works-->
+<!--Start Features-->
+<section id="features">
+    <!-- Start Inventory -->
+    <div class="carakerja">
+        <div class="container title-box-red">
+            <h3>PENGATURAN BARANG SECARA TERPUSAT</h3>
+        </div>
+        <div class="container content-feature">
+            <div class="col-md-10 col-md-offset-1">
+                <h3>Proses upload barang ke marketplace jadi sangat mudah</h3>
+                <img src="~/Content/Images/Home-Barang.png" alt="screenshot" class="img-responsive"><br />
+                <p>Anda cukup mengisi daftar barang Anda sekali di MasterOnline. Otomatis barang-brang yang Anda isi akan di upload ke semua marketplace Anda</p>
+            </div>
+        </div>
+    </div>
+    <!-- End Inventory -->
+    <!-- Start Order -->
+    <div class="carakerja">
+        <div class="container title-box-red">
+            <h3>ATUR DAN KONTROL PESANAN ANDA, PEMBAYARAN SAMPAI PENGIRIMANNYA</h3>
+        </div>
+        <div class="container content-feature">
+            <div class="col-md-10 col-md-offset-1">
+                <h3>Proses semua pesanan online Anda dari satu tempat</h3>
+                <img src="~/Content/Images/Home-Pesanan.png" alt="screenshot" class="img-responsive"><br />
+                <p>Anda tidak perlu login ke masing-masing marketplace Anda untuk memproses pesanan.<br>Lakukan semuanya di MasterOnline, dari pengambilan barang, pengepakan, cetak label &amp; faktur, sampai input nomor resi. Marketplace Anda akan diupdate otomatis</p>
+            </div>
+        </div>
+    </div>
+    <!-- End Order -->
+    <!-- Start Qty -->
+    <div class="carakerja">
+        <div class="container title-box-red">
+            <h3>KONTROL STOK BARANG SECARA REAL TIME</h3>
+        </div>
+        <div class="container">
+            <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;">
+                <h3>Apa yang terjadi kalau ada penjualan di toko online atau toko fisik Anda?</h3>
+                <p>MasterOnline akan mengupdate stok barang yang terjual di semua toko Anda secara online maupun offline, sehingga stok Anda akan selalu menampilkan stok yang sebenarnya.<br>Menghindarkan Anda dari review negatif dan penalty karena tidak dapat memenuhi pesanan</p>
+            </div>
+        </div>
+    </div>
+    <!-- End Qty -->
+    <!-- Start Dashboard -->
+    <div class="carakerja">
+        <div class="container title-box-red">
+            <h3>PANTAU BISNIS ANDA DENGAN DASHBOARD YANG KOMPREHENSIF</h3>
+        </div>
+        <div class="container content-feature">
+            <div class="col-md-10 col-md-offset-1">
+                <h3>Pantau bisnis Anda secara tepat dan akurat</h3>
+                <img src="~/Content/Images/Home-Dashboard.PNG" alt="screenshot" class="img-responsive"><br />
+                <p>MasterOnline memberikan tampilan muka untuk membantu Anda memantau proses transaksi pada bisnis yang Anda jalankan, sehingga Anda bisa melihat perkembangan dari bisnis yang Anda jalani</p>
+            </div>
+        </div>
+    </div>
+    <!-- End Dashboard -->
+    <!-- Start Accounting -->
+    <div class="carakerja">
+        <div class="container title-box-red">
+            <h3>TERINTEGRASI DENGAN AKUNTING</h3>
+        </div>
+        <div class="container content-feature">
+            <div class="col-md-10 col-md-offset-1">
+                <h3>Kontrol &amp; monitor bisnis Anda dengan<br /> modul akunting yang terintegrasi secara 'built-in'</h3>
+                <img src="~/Content/Images/Home-Akunting.png" alt="screenshot" class="img-responsive"><br />
+                <p>Catat semua transaksi akunting Anda, mulai dari pembelian barang, kas dan bank, pembayaran dll.<br>Hasilkan laporan aktifitas dan kinerja bisnis Anda secara instant dan real time</p>
+                <div class="text-center full-width">
+                    <img src="~/Content/Images/bca-bank-central-asia-logo.png" alt="bca" width="25%" style="display: block; margin-left: auto; margin-right: auto" class="img-responsive">
+                </div><br />
+                <p>Master Online juga terintegrasi dengan API BCA, yang memudahkan Anda melakukan pembayaran ke supplier atau vendor dengan satu layar.</p>
+            </div>
+        </div>
+    </div>
+    <!-- End Accounting -->
+</section>
+<!--End of Features-->
+<!--Start Footer-->
+<footer>
+    <div class="container">
+        <div class="col-md-3 col-md-offset-1 col-xs-6">
+            <a href="https://www.jubelio.com">
+                <img src="~/Content/Images/MO_new_logo_bottom.png" alt="MasterOnline" class="img-responsive">
+            </a><br /><br />
+            <span style="color: #f7f7f7">
+                PT Erasoft Teknologi Indonesia.<br>
+                Jl. Alaydrus No. 37,<br>
+                Jakarta Pusat, 10130<br>
+            </span>
+            <br>
+        </div>
+        <div class="footerMenuCol col-md-2 col-xs-12">
+            <h3>Hubungi Kami</h3>
+            <ul>
+                <li><a href="mailto:csmasteronline@gmail.com">Email</a></li>
+                <li><a href="https://www.facebook.com/">Facebook</a></li>
+                <li><a href="https://www.instagram.com/">Instagram</a></li>
+                <li><a href="https://www.youtube.com/channel/UCFQSo4VeQKGhUgk7nuqowuQ">Youtube</a></li>
+            </ul>
+        </div>
+        <div class="footerMenuCol col-md-2 col-xs-12">
+            <h3>Dukungan</h3>
+            <ul>
+                <li><a href="https://www.masteronline.co.id/panduan">Panduan Pemakaian</a></li>
+                <li><a href="https://www.masteronline.co.id/faq">FAQ</a></li>
+            </ul>
+        </div>
+        <div class="footerMenuCol col-md-2 col-xs-12">
+            <h3>Kebijakan</h3>
+            <ul>
+                <li><a href="~/Content/Static/termsandconditions.html">Privasi</a></li>
+                <li><a href="~/Content/Static/termsandconditions.html#security">Keamanan</a></li>
+                <li><a href="~/Content/Static/termsandconditions.html#terms">Syarat dan Ketentuan</a></li>
+            </ul>
+        </div>
+    </div>
+</footer>
+<!--End of Footer-->

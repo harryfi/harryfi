@@ -1,0 +1,149 @@
+﻿@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.SaHutangViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@Html.HiddenFor(m => m.Hutang.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Hutang.KONTAN, new { Value = "2" })
+@Html.HiddenFor(m => m.Hutang.MUKA, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.DISC1, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.NDISC1, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.PPN, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.KET, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.PO, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.SATUAN, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.KODE_JURNAL, new { Value = "MM" })
+@Html.HiddenFor(m => m.Hutang.VLT, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Hutang.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Hutang.POSTING, new { Value = "T" })
+@Html.HiddenFor(m => m.Hutang.NPPN, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.BAYAR, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.DEBET, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.KREDIT, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.F_PAJAK, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.TGL_PAJAK, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.NSUPP, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.TOTAL_DEBET_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TOTAL_KREDIT_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TGL_INV_2, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Hutang.INV_2, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.RANGKA, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.MESIN, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.TAHUN, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.RECNUM)
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.INV, "No. Bukti", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.HiddenFor(m => m.Hutang.INV)
+                @if (Model.Hutang != null)
+                {
+                    <input type="text" value="@Model.Hutang.INV" disabled class="form-control" />
+                }
+                else
+                {
+                    <input type="text" value="[AUTO]" disabled class="form-control" />
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+            <div class="col-md-3 col-sm-3 col-xs-12">
+                @if (Model.Hutang != null)
+                {
+                    if (Model.Hutang.POSTING == "Y")
+                    {
+                        <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                    }
+                }
+                else
+                {
+                    <input type="text" value="Belum" disabled class="form-control" />
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.TGL, "Tanggal", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="input-group date">
+                    @Html.TextBoxFor(m => m.Hutang.TGL, new { @class = "form-control" })
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.SUPP, "Supplier", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.HiddenFor(m => m.Hutang.SUPP)
+                @Html.TextBox("SUPPNAME", "", new { @class = "form-control" })
+                <div id="SUPPLIER" class="selectivity-input" tabindex="0"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-6">
+                @Html.TextBoxFor(m => m.Hutang.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, max = 999, min=0 })
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-6">
+                <h5>Hari</h5>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.JTGL, "Tgl. Jatuh Tempo", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Hutang.JTGL, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Hutang.TOTAL, "Nilai", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Hutang.TOTAL, new { @class = "form-control", type = "number", required = "required", min = 0 })
+            </div>
+        </div>
+    </div>
+</div>
+<button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanHutang(this);">Simpan</button>

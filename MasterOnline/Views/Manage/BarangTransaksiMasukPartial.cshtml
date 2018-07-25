@@ -1,0 +1,243 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model StokViewModel
+@{
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+    }
+}
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Stok.ID)
+@Html.HiddenFor(m => m.Stok.UserName, new { Value = username })
+@Html.HiddenFor(m => m.Stok.JRef, new { Value = "6" })
+@Html.HiddenFor(m => m.Stok.JTran, new { Value = "M" })
+@Html.HiddenFor(m => m.Stok.MK, new { Value = "M" })
+@Html.HiddenFor(m => m.Stok.STATUS_LOADING, new { Value = "0" })
+@Html.HiddenFor(m => m.Stok.KOLI, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.VOLUME, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.BERAT, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.JAM, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.NILAI_ANGKUTAN, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.JLH_KARYAWAN, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.Kurs, new { Value = 0 })
+@Html.HiddenFor(m => m.Stok.ST_Cetak, new { Value = "1" })
+@Html.HiddenFor(m => m.Stok.Ket, new { Value = "-" })
+@Html.HiddenFor(m => m.Stok.ST_Posting, new { Value = "-" })
+@Html.HiddenFor(m => m.Stok.Ref, new { Value = "-" })
+@Html.HiddenFor(m => m.Stok.Jenis_Form, new { Value = 1 })
+@Html.HiddenFor(m => m.Stok.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Stok.VALUTA, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Stok.Retur_Penuh, new { Value = false })
+@Html.HiddenFor(m => m.Stok.Terima_Penuh, new { Value = false })
+@Html.HiddenFor(m => m.Stok.TERIMA_PENUH_PO_QC, new { Value = false })
+@Html.HiddenFor(m => m.Stok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Stok.Nobuk, "No. Bukti", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Stok.Nobuk)
+                    @if (Model.Stok != null)
+                    {
+                        <input type="text" value="@Model.Stok.Nobuk" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" value="[AUTO]" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    @if (Model.Stok != null)
+                    {
+                        if (Model.Stok.ST_Posting == "Y")
+                        {
+                            <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                        }
+                        else
+                        {
+                            <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="text" value="Belum" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Stok.Tgl, "Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group date">
+                        @Html.TextBoxFor(m => m.Stok.Tgl, new { @class = "form-control" })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group text-right">
+            </div>
+        </div>
+    </div>
+    @if (Model?.Stok?.ID != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.BarangStok.UserName, new { Value = username })
+@Html.HiddenFor(m => m.BarangStok.Jenis_Form, new { Value = 1 })
+@Html.HiddenFor(m => m.BarangStok.Qty_Retur, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.Qty_Berat, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.TOTAL_LOT, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.TOTAL_QTY, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.QTY_TERIMA_PO_QC, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.TRANS_NO_URUT, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.STN_N, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.BIAYA_PER_QTY, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.QTY_CLAIM, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.NO_URUT_PO, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.NO_URUT_SJ, new { Value = 0 })
+@Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <h5 class="pull-right" style="margin-top: 0;">Mata uang Rupiah (IDR)</h5>
+        <table id="table_tambah_stok" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="75">Kode Brg</th>
+                    <th width="170">Nama Brg</th>
+                    <th width="80">Stn</th>
+                    <th width="120">Harga</th>
+                    <th width="80">Ke Gd</th>
+                    <th width="45">Qty</th>
+                    <th width="120">Total</th>
+                    <th width="45">Simpan</th>
+                    <th width="45">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var listBarang = Model.ListBarang.ToList();
+                    var iPd = 0;
+                }
+                @foreach (var stok in Model.ListBarangStok.Where(pb => pb.Nobuk == Model?.Stok?.Nobuk).ToList())
+                {
+                    <tr data-barang-id="brg-@stok.No">
+                        <td>
+                            @stok.Kobar
+                        </td>
+                        <td class="nama-barang">
+                            @listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                        </td>
+                        <td class="stn-barang">
+                            @(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
+                        </td>
+                        <td class="harga-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
+                        </td>
+                        <td class="gd-barang">
+                            @stok.Ke_Gd
+                        </td>
+                        <td class="qty-barang">
+                            @stok.Qty
+                        </td>
+                        <td class="netto-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@stok.No')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    iPd = iPd + 1;
+                }
+                <tr data-stok-id="0">
+                    @Html.HiddenFor(m => m.BarangStok.No)
+                    @Html.HiddenFor(m => m.BarangStok.Nobuk, new { Value = "-" })
+                    @Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                    <td>
+                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.BarangStok.Kobar)
+                    </td>
+                    <td class="nama-barang">-</td>
+                    <td class="stn-barang">
+                        -
+                        @Html.HiddenFor(m => m.BarangStok.Satuan)
+                    </td>
+                    <td class="harga-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.BarangStok.Harsat)
+                    </td>
+                    <td class="gd-barang">
+                        <span id="gudang-kode">-</span>
+                        <div id="gudang-select" style="display: none;">
+                            <select id="GUDANG" placeholder="Harap pilih" required="required"></select>
+                        </div>
+                        @Html.HiddenFor(m => m.BarangStok.Ke_Gd)
+                    </td>
+                    <td class="qty-barang">
+                        0
+                        @Html.HiddenFor(m => m.BarangStok.Qty)
+                    </td>
+                    <td class="netto-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.BarangStok.Harga)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+

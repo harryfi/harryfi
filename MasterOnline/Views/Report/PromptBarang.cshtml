@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Prompt Barang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+    </style>
+}
+
+<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama Barang</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var brg in Model)
+        {
+            <tr>
+                <td>@brg.BRG</td>
+                <td>@brg.NAMA</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" onclick="pilihPrompt('@brg.BRG')">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        function pilihPrompt($value) {
+            self.window.close();
+            window.onunload = refreshTextBox;
+            function refreshTextBox() {
+                window.opener.afterPromptBarang($value);
+            }
+        }
+    </script>
+}

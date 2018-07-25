@@ -1,0 +1,316 @@
+﻿@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    MoDbContext context = new MoDbContext();
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    var nama = "";
+
+    if (dataSession?.Account != null)
+    {
+        nama = dataSession.Account.Username;
+    }
+    else
+    {
+        nama = dataSession?.User.Username;
+    }
+
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <link href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="~/Content/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <link href="~/Content/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <link href="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
+    <link href="~/Content/ManageSite.css" rel="stylesheet" />
+    <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
+
+    @RenderSection("styles", required: false)
+    <style>
+        table.dataTable thead tr {
+            background-color: #ffe8e8;
+        }
+
+        ul.bar_tabs > li a {
+            background-color: #ffe8e8;
+        }
+
+        body {
+            background: #891539;
+        }
+
+        #menu_toggle,
+        #menu_toggle:focus,
+        #menu_toggle:hover {
+            color: #891539;
+        }
+
+        .nav_title,
+        .left_col {
+            background: #891539;
+        }
+
+        .nav.side-menu > li.active,
+        .nav.side-menu > li.current-page {
+            border-right: 5px solid #ff85ab;
+        }
+
+            .nav.side-menu > li.active > a {
+                background: linear-gradient(#b31949,#891539),#891539;
+            }
+
+        .nav-md ul.nav.child_menu li:before {
+            background: #ff85ab;
+        }
+
+        .nav-md ul.nav.child_menu li:after {
+            border-left: 1px solid #ff85ab;
+        }
+
+        .tile-stats .iconreport {
+            width: 20px;
+            height: 20px;
+            color: #BAB8B8;
+            position: absolute;
+            left: 14px;
+            top: 16px;
+            z-index: 1
+        }
+
+        .tile-stats .iconreport i {
+            margin: 0;
+            font-size: 40px;
+            line-height: 0;
+            vertical-align: bottom;
+            padding: 0
+        }
+
+        .tile-stats .countreport {
+            position: relative;
+            margin: 0;
+            margin-left: 60px;
+            z-index: 5;
+            padding: 0
+        }
+    </style>
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("Index", "Manage")" class="site_title">
+                            <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px;" src="~/Content/Images/Logo_Top_MO_Manage.png">
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                    <!-- menu profile quick info -->
+                    <div class="profile clearfix">
+                        <div class="profile_pic">
+                            <img src="~/Content/Images/temp-ava.png" alt="..." class="img-circle profile_img">
+                        </div>
+                        <div class="profile_info">
+                            <span>Selamat Datang,</span>
+                            <h2>@nama</h2>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+                    <br />
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <h3>General</h3>
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a href="@Url.Action("Index", "Manage")"><i class="fa fa-home"></i> Dashboard</a>
+                                </li>
+                                @{
+                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    var listChild = listAnak.ToList();
+
+                                    var listSec = new List<SecUser>();
+
+                                    if (dataSession?.User != null)
+                                    {
+                                        listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
+                                    }
+                                }
+                                @foreach (var parent in listParent)
+                                {
+                                    if (parent.Show)
+                                    {
+                                        <li class="parent-li" id="@parent.ScrId">
+                                            <a @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                @if (parent.HaveChild)
+                                                {
+                                                    <span class="fa fa-chevron-down"></span>
+                                                }
+                                            </a>
+                                            <ul class="nav child_menu">
+                                                @foreach (var child in listChild)
+                                                {
+                                                    if (listSec.Count > 0)
+                                                    {
+                                                        var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+
+                                                        if (child.ParentId == parent.ScrId && secUserMenu != null)
+                                                        {
+                                                            if (child.Show)
+                                                            {
+                                                                <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                            }
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        if (child.ParentId == parent.ScrId)
+                                                        {
+                                                            if (child.Show)
+                                                            {
+                                                                <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            </ul>
+                                        </li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /sidebar menu -->
+                </div>
+            </div>
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <img src="~/Content/Images/temp-ava.png" alt="">@nama
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="@Url.Action("GantiPassword", "Manage")"><i class="fa fa-key pull-right"></i> Ubah Password</a></li>
+                                    <li><a href="@Url.Action("LoggingOut", "Account")"><i class="fa fa-sign-out pull-right"></i> Keluar</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <div class="row">
+                    <div class="animated flipInY col-lg-2 col-md-2 col-sm-6 col-xs-12" style="padding-left:0px">
+                        <a href="@Url.Action("Reports", "Manage")">
+                            <div class="tile-stats">
+                                <div class="iconreport"><i class="fa fa-arrow-left"></i></div>
+                                <div class="countreport">
+                                    <h2> Laporan</h2>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="tile-stats">
+                        <div style="margin:14px 14px 14px 14px">
+                            @RenderBody()
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-right">
+                    MasterOnline - By <a href="http://www.erasoft.co.id/">Erasoft</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="~/Content/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/Content/vendors/fastclick/lib/fastclick.js"></script>
+    <script src="~/Content/vendors/nprogress/nprogress.js"></script>
+    <script src="~/Content/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="~/Content/vendors/gauge.js/dist/gauge.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="~/Content/vendors/iCheck/icheck.min.js"></script>
+    <script src="~/Content/vendors/skycons/skycons.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.pie.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.time.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.stack.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.resize.js"></script>
+    <script src="~/Content/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="~/Content/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="~/Content/vendors/flot.curvedlines/curvedLines.js"></script>
+    <script src="~/Content/vendors/DateJS/build/date.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/jquery.vmap.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="~/Content/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/Content/build/js/custom.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    @RenderSection("scripts", required: false)
+    <script type="text/javascript">
+        $(".alert").fadeTo(4000, 500).slideUp(500, function () {
+            $(".alert").slideUp(500);
+        });
+
+        var counter = 0;
+
+        $(document).ready(function () {
+            @if (dataSession?.User != null)
+            {
+                if (dataSession.User.UserId != null)
+                {
+                    <text>
+                        $(".side-menu li.parent-li").each(function() {
+                            var id = $(this).attr("id");
+                            if ($(".parent-li#" + id + " .child_menu li").length === 0) {
+                                $(this).hide();
+                            }
+                        });
+                    </text>
+                }
+            }
+
+            //Otomatis mengikuti attribute maxlength / stringlength
+            $("input[data-val-length-max]").each(function ()
+            {
+                var $this = $(this);
+                var data = $this.data();
+                $this.attr("maxlength", data.valLengthMax);
+            });
+        });
+
+        var _0x2056 = ["\x6F\x6E\x6C\x6F\x61\x64", "\x6F\x6E\x6D\x6F\x75\x73\x65\x6D\x6F\x76\x65", "\x6F\x6E\x6B\x65\x79\x70\x72\x65\x73\x73", "\x53\x65\x73\x69\x20\x41\x6E\x64\x61\x20\x74\x65\x6C\x61\x68\x20\x68\x61\x62\x69\x73\x20\x6B\x61\x72\x65\x6E\x61\x20\x74\x69\x64\x61\x6B\x20\x74\x65\x72\x64\x65\x74\x65\x6B\x73\x69\x20\x61\x64\x61\x6E\x79\x61\x20\x6B\x65\x67\x69\x61\x74\x61\x6E\x20\x73\x65\x6C\x61\x6D\x61\x20\x31\x30\x20\x6D\x65\x6E\x69\x74", "\x68\x72\x65\x66", "\x40\x55\x72\x6C\x2E\x41\x63\x74\x69\x6F\x6E\x28\x22\x4C\x6F\x67\x67\x69\x6E\x67\x4F\x75\x74\x22\x2C\x22\x4D\x61\x6E\x61\x67\x65\x22\x29"]; var inactivityTime = function () { var _0x8846x2; window[_0x2056[0]] = _0x8846x4; document[_0x2056[1]] = _0x8846x4; document[_0x2056[2]] = _0x8846x4; function _0x8846x3() { alert(_0x2056[3]); location[_0x2056[4]] = _0x2056[5] } function _0x8846x4() { clearTimeout(_0x8846x2); _0x8846x2 = setTimeout(_0x8846x3, 600000) } }
+    </script>
+</body>
+</html>

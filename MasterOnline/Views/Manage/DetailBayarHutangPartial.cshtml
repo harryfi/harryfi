@@ -1,0 +1,401 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model BayarHutangViewModel
+@{
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    long accId;
+    if (dataSession?.User != null)
+    {
+        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
+    }
+}
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Hutang.RecNum)
+@Html.HiddenFor(m => m.Hutang.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Hutang.KET, new { Value = "-" })
+@Html.HiddenFor(m => m.Hutang.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Hutang.VLT, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Hutang.MUKA1, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.MUKA2, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.MUKA3, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TGIRO, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TGLINPUT, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TOTAL_DEBET_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TOTAL_KREDIT_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.POSTING, new { Value = "'" })
+@Html.HiddenFor(m => m.Hutang.NSUPP, new { Value = "" })
+@Html.HiddenFor(m => m.Hutang.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Hutang.TBAYAR, new { Value = 0 })
+@Html.HiddenFor(m => m.Hutang.TPOT, new { Value = 0 })
+@{
+    var listHutangDetail = Model.ListHutangDetail.Where(b => b.BUKTI == Model?.Hutang?.BUKTI).ToList();
+}
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Hutang.BUKTI, "No. Bukti", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Hutang.BUKTI)
+                    @if (Model.Hutang != null)
+                    {
+                        <input type="text" id="txtNoBuk" value="@Model.Hutang.BUKTI" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" id="txtNoBuk" value="[AUTO]" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    @if (Model.Hutang != null)
+                    {
+                        if (Model.Hutang.POSTING == "Y")
+                        {
+                            <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                        }
+                        else
+                        {
+                            <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                        }
+                    }
+                    else
+                    {
+                        <input type="text" value="Belum" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Hutang.TGL, "Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Hutang.TGL)
+                    <div class="input-group date">
+                        <input type="text" id="TGL" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Hutang.SUPP, "Supplier", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Hutang.SUPP)
+                    <select id="SUPPLIER" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Total Pembayaran", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-6">
+                    @{
+                        var totalSemua = 0d;
+                        foreach (var detailHutang in listHutangDetail)
+                        {
+                            totalSemua += (detailHutang.BAYAR + detailHutang.POT);
+                        }
+                    }
+                    @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        @*add by Tri, button untuk tampilkan modal untuk input data rek. BCA*@
+        <div class="col-md-6">
+            <div class="form-group">
+                @*<label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>*@
+                <div class="col-md-3 col-sm-3 col-xs-12">
+                    @if (Model.Hutang != null)
+                    {
+                        if (Model.Hutang.TGIRO == 1)
+                        {
+                            <button type="button" class="btn btn-primary" id="btnBayar" onclick="popTransfer('1', String(txtNoBuk.value));">
+                                <span>Transfer BCA</span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary" id="btnBayar" onclick="popTransfer('0', String(txtNoBuk.value));">
+                                <span>Transfer BCA</span>
+                            </button>
+                        }
+                    }
+                    @*else
+                    {
+                        <button type="button" class="btn btn-primary" id="btnBayar" onclick="popTransfer('0');">
+                            <span>Transfer BCA</span>
+                        </button>
+                    }*@
+                    @*<button type="button" class="btn btn-primary" id="btnBayar" data-toggle="modal" data-target="#modalDataRekBCA" onclick="popTransfer( @{ (Model.Hutang != null) ? Model.Hutang.TGIRO : 0 });">
+                            <span>Transfer BCA</span>
+                        </button>*@
+                </div>
+            </div>
+        </div>
+        @*end add by Tri, button untuk tampilkan modal untuk input data rek. BCA*@
+    </div>
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-2"></div>
+                <div class="col-md-8">
+                    <h5>Mata uang Rupiah (IDR)</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model?.Hutang?.RecNum != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.HutangDetail.USERNAME, new { Value = username })
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <table id="table_tambah_hutang" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">No. Invoice</th>
+                    <th width="200">Sisa</th>
+                    <th width="200">Nilai Potongan</th>
+                    <th width="200">Nilai Bayar</th>
+                    <th width="45">Simpan</th>
+                    <th width="45">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var iPd = 0;
+                }
+                @foreach (var detailHutang in Model.ListHutangDetail.Where(pb => pb.BUKTI == Model?.Hutang?.BUKTI).ToList())
+                {
+                    <tr data-hutang-id="hut-@detailHutang.NO">
+                        <td>
+                            @detailHutang.NINV
+                        </td>
+                        <td class="sisa-hutang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.SISA)
+
+                        </td>
+                        <td class="potongan-hutang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.POT)
+                        </td>
+                        <td class="bayar-hutang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.BAYAR)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusDetail" onclick="passInvoiceInDb('@detailHutang.NO')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    iPd = iPd + 1;
+                }
+                <tr data-hutang-id="0">
+                    @Html.HiddenFor(m => m.HutangDetail.NO)
+                    <td>
+                        <div id="INVOICE" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.HutangDetail.NINV)
+                    </td>
+                    <td class="sisa-hutang">
+                        <span class="span-sisa-hutang">-</span>
+                        @Html.HiddenFor(m => m.HutangDetail.SISA)
+                    </td>
+                    <td class="potongan-hutang">
+                        <span class="span-potongan-hutang">0,00</span>
+                        @Html.TextBoxFor(m => m.HutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                    </td>
+                    <td class="bayar-hutang">
+                        <span class="span-bayar-hutang">0,00</span>
+                        @Html.TextBoxFor(m => m.HutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                    </td>
+                    <td class="edit-hapus-col">
+                        @*<button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('hut-0')">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>*@
+                        @*@if (Model.Hutang != null)
+                            {
+                                if (Convert.ToString(Model.Hutang.TGIRO) == "1")
+                                {
+                                    <button class="btn btn-primary" onclick="simpandetail('hut-0')">
+                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-primary" onclick="simpandetail('hut-0')">
+                                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                    </button>
+                                }
+                            }
+                            else
+                            {*@
+                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('hut-0')">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                        @*}*@
+                    </td>
+                    <td class="edit-hapus-col">
+                        @*<button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusInvoice">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>*@
+                        @*@if (Model.Hutang != null)
+                            {
+                                if (Convert.ToString(Model.Hutang.TGIRO) == "1")
+                                {
+                                    <button class="btn btn-danger" onclick="undeleteableDetail()">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusInvoice">
+                                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                    </button>
+                                }
+                            }
+                            else
+                            {*@
+                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusInvoice">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                        @*}*@
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+@*add by Tri, modal untuk input data rek. BCA*@
+<div class="modal fade" id="modalDataRekBCA" tabindex="-1" role="dialog" aria-labelledby="isiResiLabel" onloadstart="alert('test')">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="isiDataRek">Isi Data Rek. BCA</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group">
+                        <h4>Apakah anda akan melakukan pembayaran pada :</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @Html.Label("Nomor Rekening", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @*@Html.TextBox("txtNoRekFrom")*@
+                            <input type="text" id="txtNoRek" disabled class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @Html.Label("Atas Nama", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @*@Html.TextBox("txtNamaFrom")*@
+                            <input type="text" id="txtNamaTo" disabled class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <h4>dan pemotongan dari :</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        @Html.Label("ID Perusahaan", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @*@Html.TextBox("txtCorpId")*@
+                            <input type="text" id="txtCorpId" disabled class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @Html.Label("Nomor Rekening", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBox("txtNoRekFrom")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @Html.Label("Atas Nama", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBox("txtNamaFrom")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @{ var totalNilai = 0d; }
+                        @Html.Label("Nilai", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        @{
+                            totalNilai = 0;
+                            foreach (var detailHutang in listHutangDetail)
+                            {
+                                totalNilai += (detailHutang.BAYAR);
+                            }
+                            string stringNilai = totalNilai >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalNilai) : "0,00";
+                        }
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @*@Html.TextBox("txtNilai")*@
+                            @*@Html.TextBox("txtNilai", (totalNilai >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalNilai) : "0,00"), new { @class = "form-control" })*@
+                            <input type="text" id="txtNilai" value=@stringNilai disabled class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="TransferBCA( txtNoBuk.value, SUPPLIER.value, @totalNilai, txtNoRek.value, txtCorpId.value);" type="button" class="btn btn-success">Bayar</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by Tri, modal untuk input data rek. BCA*@

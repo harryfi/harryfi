@@ -1,0 +1,24 @@
+﻿@model MasterOnline.Models.Account
+@{
+    ViewBag.Title = "Account Detail";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h3>KTP:</h3>
+@if (!String.IsNullOrWhiteSpace(Model.PhotoKtpUrl))
+{
+    <img src="@Url.Content(Model.PhotoKtpUrl)" width="65%" />
+}
+else
+{
+    <img src="~/Content/Images/no-img-market.jpg" />
+}
+<hr />
+<h3>Email: @Model.Email</h3>
+<hr />
+<h3>No. HP: @Model.NoHp</h3>
+<hr />
+<h3>Status: @(Model.Status != true ? "Tidak Aktif" : "Aktif")</h3>
+<hr />
+<h3>Nama Toko: @Model.NamaTokoOnline</h3>
+<hr />

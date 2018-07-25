@@ -1,0 +1,241 @@
+﻿@model MasterOnline.ViewModels.PromoViewModel
+@{
+    ViewBag.Title = "Promo";
+}
+
+@section styles
+{
+    <style>
+        @@font-face {
+            font-family: 'RoundedElegance';
+            src: url("../../fonts/rounded_elegance.svg");
+            src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+        }
+
+        html {
+            -webkit-text-stroke-width: 0.5pt;
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        #promo_section {
+            margin-top: 150px;
+        }
+
+        #promo_caption {
+            line-height: 1.5;
+        }
+    </style>
+}
+
+<div class="container" id="promo_section">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 id="promo_caption">
+                Dapatkan pulsa senilai <b>Rp 50.000,00</b> secara <b>GRATIS</b> hanya dengan memperkenalkan MasterOnline ke <b>10 orang</b> yang Anda kenal!<br />
+                Isi data di bawah ini untuk mengikuti <i>event</i> tersebut!
+            </h4>
+        </div>
+    </div>
+    <br />
+    @using (Html.BeginForm("SavePromo", "Home", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
+    {
+        @Html.HiddenFor(m => m.Promo.RecNum)
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Promo.EMAIL_REF, $"Email Anda *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                    <div class="col-md-8 col-sm-8 col-xs-6">
+                        @Html.TextBoxFor(m => m.Promo.EMAIL_REF, new { @class = "form-control", required = "required", type = "email", maxlength = 50, placeholder = "Email Anda" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Promo.HP_REF, $"No. HP Anda *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                    <div class="col-md-8 col-sm-8 col-xs-6">
+                        @Html.TextBoxFor(m => m.Promo.HP_REF, new { @class = "form-control", required = "required", maxlength = 20, placeholder = "No. HP Anda" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="border: dashed 1.1px gray" />
+        <div class="row">
+            <div class="col-md-6">
+                @for (var i = 0; i < 5; i++)
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ListPromo[i].EMAIL, $"Email Ke-{i + 1} *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-8 col-sm-8 col-xs-6">
+                                    @Html.TextBoxFor(m => m.ListPromo[i].EMAIL, new { @class = "form-control", required = "required", type = "email", maxlength = 50, placeholder = "Email teman Anda" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ListPromo[i].HP, $"HP Ke-{i + 1} *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-8 col-sm-8 col-xs-6">
+                                    @Html.TextBoxFor(m => m.ListPromo[i].HP, new { @class = "form-control", required = "required", maxlength = 20, placeholder = "No. HP teman Anda" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                }
+            </div>
+            <div class="col-md-6">
+                @for (var i = 5; i < 10; i++)
+                {
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ListPromo[i].EMAIL, $"Email Ke-{i + 1} *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-8 col-sm-8 col-xs-6">
+                                    @Html.TextBoxFor(m => m.ListPromo[i].EMAIL, new { @class = "form-control", required = "required", type = "email", maxlength = 50, placeholder = "Email teman Anda" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ListPromo[i].HP, $"HP Ke-{i + 1} *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-8 col-sm-8 col-xs-6">
+                                    @Html.TextBoxFor(m => m.ListPromo[i].HP, new { @class = "form-control", required = "required", type = "tel", maxlength = 20, placeholder = "No. HP teman Anda" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br />
+                }
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <button id="kirim_email_btn" type="submit" class="btn btn-success btn-large" style="font-size: 20px; width: 200px;">
+                    Kirim Email
+                </button>
+            </div>
+        </div>
+    }
+    <br />
+    <br />
+</div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $('#kirim_email_btn').click(function () {
+                if (!validateForm()) return false;
+
+                $('form').submit();
+            });
+
+            $('form input[required="required"], form textarea[required="required"]').keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            });
+
+            $("form input[type='email']").keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+
+                        if (!isEmail($value)) {
+                            $this.closest('.form-group').addClass('has-error');
+
+                            if (!$this.closest('div').find('.text-danger').length)
+                                $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                        } else {
+                            $this.closest('.form-group').removeClass('has-error');
+                            $this.closest('div').find('.text-danger').remove();
+                        }
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+
+                    if (!isEmail($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length)
+                            $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            $("form input[data-val-length-max]").each(function () {
+                var $this = $(this);
+                var data = $this.data();
+                $this.attr("maxlength", data.valLengthMax);
+            });
+        });
+    </script>
+}

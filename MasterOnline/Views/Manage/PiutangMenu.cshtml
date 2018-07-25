@@ -1,0 +1,466 @@
+﻿@using MasterOnline.ViewModels
+@model SaPiutangViewModel
+@{
+    ViewBag.Title = "Saldo Awal Piutang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var context = new MoDbContext();
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        .input-group {
+            margin-bottom: 0;
+        }
+
+        #piutang-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #Piutang_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+    </style>
+}
+
+<div class="row" id="piutang-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row piutang_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_piutang" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_piutang">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row piutang_table_section" style="margin-top: 5px;">
+            <div class="col-sm-12">
+                <div id="table-piutang-partial">
+                    @Html.Partial("TablePiutangPartial")
+                </div>
+            </div>
+        </div>
+        <div class="row piutang_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Piutang</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail piutang</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SavePiutang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        {
+                                            <div id="form-partial">
+                                                @Html.Partial("FormPiutangPartial")
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus piutang -->
+<div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus piutang ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deletePiutang()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $piutangId = "";
+
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function Initialize() {
+            var table = $('#datatable').DataTable();
+
+            $('#search_piutang').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_piutang').on('click', function () {
+                $('.piutang_table_section').hide();
+                $('.piutang_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('input, select, .btn-danger').each(function() {
+                    $(this).removeAttr('disabled');
+                });
+                $('.piutang_table_section').show();
+                $('.piutang_editor_section').hide();
+                $('input').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                refreshForm();
+                refreshTablePiutang();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_piutang').click();
+            }
+
+            refreshInputan();
+            getCustomer();
+        }
+
+        function refreshInputan(value = '') {
+            $('#CUSTNAME').hide();
+
+            $('#Piutang_TGL').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0').change(function () {
+                if ($(this).val() == '') {
+                    $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+                    return;
+                }
+
+                var $tgl = moment($(this).val(), "DD/MM/YYYY");
+
+                if ($('#Piutang_TERM').val() === '') {
+                    $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+                } else {
+                    var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+                    $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                }
+            });
+
+            $('#Piutang_TERM').change(function () {
+                if ($(this).val() == '') {
+                    $('#Piutang_JTGL').val('Masukkan TOP dahulu');
+                    return;
+                }
+
+                var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+
+                if ($('#Piutang_TGL').val() === '') {
+                    $('#Piutang_JTGL').val('Pilih tanggal dahulu');
+                } else {
+                    var $tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                }
+            });
+
+            if (value != '')
+                $('#Piutang_TGL').val(value);
+
+            $('#Piutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+        }
+
+            @{
+            var markets = new Dictionary<string, string>();
+
+            foreach (var marketplace in context.Marketplaces.ToList())
+            {
+                markets.Add(marketplace.IdMarket.ToString(), marketplace.NamaMarket);
+            }
+        }
+
+            var $marketCollection = @Html.Raw(Json.Encode(markets));
+
+            function getCustomer(value='') {
+                $.ajax({
+                    type: "GET",
+                    /**/
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    /**/
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+
+                        var custSelect = $('#CUSTOMER').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: customerList,
+                            onChange: function(value) {
+                                var $objSup = $.grep(customerList, function (data) { return data.id == value });
+
+                                if (value === null) {
+                                    $("#Piutang_CUST").val(null);
+                                    $("#Piutang_NSUPP").val(null);
+                                    $("#Piutang_TERM").val(null).change();
+                                } else {
+                                    $("#Piutang_CUST").val(value);
+                                    if ($objSup[0] != null) {
+                                        $("#Piutang_NCUST").val($objSup[0].text);
+                                        $("#Piutang_TERM").val($objSup[0].term).change();
+                                    }
+                                }
+                            }
+                        });
+
+                        custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+
+
+                        if (value != '')
+                            $('#Piutang_TERM').val(value)
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+
+            function simpanPiutang(btnClicked) {
+                if (!validateForm()) return false;
+
+                var $form = $(btnClicked).parents('form');
+
+                $('#Piutang_NETTO').val($('#Piutang_TOTAL').val());
+
+                $.ajax({
+                    type: "POST",
+                    url: $form.attr('action'),
+                    data: $form.serialize(),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#table-akun-partial').html(response);
+                            Initialize();
+                            $('#close-editor').click();
+                            $("html, body").animate({ scrollTop: 0 }, "slow");
+                            $('#loading_spinner').hide();
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+
+                return false;
+            }
+
+            function refreshTablePiutang() {
+                var link = '@Url.Action("RefreshTablePiutang", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        $('#table-piutang-partial').html(response);
+                        var table = $('#datatable').DataTable();
+                        $('#search_piutang').keyup(function () {
+                            table.search($(this).val()).draw();
+                        });
+                        refreshInputan();
+                        getCustomer();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+
+            function refreshForm() {
+                var link = '@Url.Action("RefreshPiutangForm", "Manage")';
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        getCustomer();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+                
+            function undeleteablePiutang() {
+                alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
+            }
+
+            function lihatPiutang(piutangId) {
+                var link = '@Url.Action("EditPiutang", "Manage", new { recNum = "replaceId" })';
+                link = link.replace("replaceId", piutangId);
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        $('#simpan_btn').hide();
+                        //Initialize();
+
+                        var tgl = $("#Piutang_TGL").val();
+                        var term = $("#Piutang_TERM").val();
+
+                        refreshInputan(tgl.substring(0, 10));
+
+                        $('#CUSTNAME').show();
+                        $('#CUSTOMER').hide();
+
+                        getCustomer(term);
+
+                        $('#tambah_piutang').click();
+
+                        $('input, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        //$('tr[data--id="0"]').remove();
+
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+
+            function editPiutang(piutangId) {
+                var link = '@Url.Action("EditPiutang", "Manage", new { recNum = "replaceId" })';
+                link = link.replace("replaceId", piutangId);
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        $('#form-partial').html(response);
+                        //Initialize();
+
+                        var tgl = $("#Piutang_TGL").val();
+                        var term = $("#Piutang_TERM").val();
+
+                        refreshInputan(tgl.substring(0, 10));
+                        getCustomer(term);
+
+                        $('#tambah_piutang').click();
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        $('#loading_spinner').hide();
+                    }
+                });
+            }
+
+            function pass(piutangId) {
+                this.$piutangId = piutangId;
+            }
+
+            function deletePiutang() {
+                var link = '@Url.Action("DeletePiutang", "Manage", new { recNum = "replaceId" })';
+                link = link.replace("replaceId", this.$piutangId);
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        $('#table-piutang-partial').html(response);
+                        Initialize();
+                        $('#konfHapusPiutang').modal('hide');
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+    </script>
+}

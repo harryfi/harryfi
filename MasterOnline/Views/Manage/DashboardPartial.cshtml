@@ -1,0 +1,406 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardViewModel
+
+@{
+    var listBarangMiniStok = new List<PenjualanBarang>();
+}
+
+<div class="row">
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Pesanan</h2>
+                @*<ul class="nav navbar-right panel_toolbox">
+                    <li>
+                        <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                    </li>
+                    <li>
+                        <a class="close-link"><i class="fa fa-close"></i></a>
+                    </li>
+                </ul>*@
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="label_waktu">
+                    <span class="label label-success date_label">Hari Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahPesananHariIni ?? 0)
+                    </h2>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananHariIni ?? 0)
+                    </h2>
+                    <small>Nilai Pesanan</small>
+                </div>
+                <div class="divider_2"></div>
+                <div class="label_waktu">
+                    <span class="label label-success month_label">Bulan Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahPesananBulanIni ?? 0)
+                    </h2>
+                    <small>Jumlah Pesanan</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiPesananBulanIni ?? 0)
+                    </h2>
+                    <small>Nilai Pesanan</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Faktur</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="label_waktu">
+                    <span class="label label-success date_label">Hari Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahFakturHariIni ?? 0)
+                    </h2>
+                    <small>Jumlah Faktur</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiFakturHariIni ?? 0)
+                    </h2>
+                    <small>Nilai Faktur</small>
+                </div>
+                <div class="divider_2"></div>
+                <div class="label_waktu">
+                    <span class="label label-success month_label">Bulan Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahFakturBulanIni ?? 0)
+                    </h2>
+                    <small>Jumlah Faktur</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiFakturBulanIni ?? 0)
+                    </h2>
+                    <small>Nilai Faktur</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-md-4 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Retur</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="label_waktu">
+                    <span class="label label-success date_label">Hari Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahReturHariIni ?? 0)
+                    </h2>
+                    <small>Jumlah Retur</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiReturHariIni ?? 0)
+                    </h2>
+                    <small>Nilai Retur</small>
+                </div>
+                <div class="divider_2"></div>
+                <div class="label_waktu">
+                    <span class="label label-success month_label">Bulan Ini</span>
+                </div>
+                <div>
+                    <h2 class="no-margins">
+                        @(Model?.JumlahReturBulanIni ?? 0)
+                    </h2>
+                    <small>Jumlah Retur</small>
+                </div>
+                <div class="pemisah_info"></div>
+                <div>
+                    <h2 class="no-margins">
+                        Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.NilaiReturBulanIni ?? 0)
+                    </h2>
+                    <small>Nilai Retur</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Pesanan Per Marketplace</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
+                            <th class="text-center date_label" colspan="2">Hari Ini</th>
+                            <th class="text-center month_label" colspan="2">Bulan Ini</th>
+                        </tr>
+                        <tr>
+                            <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                            <th class="text-center">Nilai Pesanan</th>
+                            <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
+                            <th class="text-center">Nilai Pesanan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model?.ListPesananPerMarketplace.Count > 0)
+                        {
+                            foreach (var pesananPerMarketplace in Model.ListPesananPerMarketplace)
+                            {
+                                <tr>
+                                    <td class="text-center">@pesananPerMarketplace.NamaMarket</td>
+                                    <td class="text-center">@pesananPerMarketplace.JumlahPesananHariIni</td>
+                                    <td class="text-center">@pesananPerMarketplace.NilaiPesananHariIni</td>
+                                    <td class="text-center">@pesananPerMarketplace.JumlahPesananBulanIni</td>
+                                    <td class="text-center">@pesananPerMarketplace.NilaiPesananBulanIni</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="text-center">---</td>
+                                <td class="text-center">---</td>
+                                <td class="text-center">---</td>
+                                <td class="text-center">---</td>
+                                <td class="text-center">---</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>10 Barang Paling Laku</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li>
+                        <a><span class="label label-success">3 Bulan Terakhir</span></a>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content text-center">
+                @if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+                {
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Kode Barang</th>
+                                <th class="text-center">Nama Barang</th>
+                                <th class="text-center">Qty Terjual</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model?.ListBarangLaku?.Count > 0)
+                            {
+                                foreach (var barangLaku in Model.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10))
+                                {
+                                    if (barangLaku.Laku)
+                                    {
+                                        <tr>
+                                            <td>@barangLaku.KodeBrg</td>
+                                            <td>@barangLaku.NamaBrg</td>
+                                            <td>@barangLaku.Qty</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>---</td>
+                                    <td>---</td>
+                                    <td>---</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>10 Barang Tidak Laku</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                    <li>
+                        <a><span class="label label-success">3 Bulan Terakhir</span></a>
+                    </li>
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content text-center">
+                @if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+                {
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Kode Barang</th>
+                                <th class="text-center">Nama Barang</th>
+                                <th class="text-center">Stok Gudang</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model?.ListBarangTidakLaku?.Count > 0)
+                            {
+                                foreach (var barang in Model.ListBarangTidakLaku.Take(10))
+                                {
+                                    if (!barang.Laku)
+                                    {
+                                        <tr>
+                                            <td>@barang.KodeBrg</td>
+                                            <td>@barang.NamaBrg</td>
+                                            <td>@barang.Qty</td>
+                                        </tr>
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td>---</td>
+                                    <td>---</td>
+                                    <td>---</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>10 Barang Di Bawah Minimum Stok</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content text-center">
+                @if (Model?.ListBarang != null && Model?.ListBarangUntukCekQty != null)
+                {
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">Kode Barang</th>
+                                <th class="text-center">Nama Barang</th>
+                                <th class="text-center">Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                foreach (var barang in Model.ListBarang)
+                                {
+                                    var barangUtkCek = Model.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
+
+                                    var qtyOnHand = 0d;
+
+                                    if (barangUtkCek != null)
+                                    {
+                                        qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                                                    + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                                                    + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                                                    - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                                                    - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+
+                                        if (qtyOnHand < barang.MINI)
+                                        {
+                                            listBarangMiniStok.Add(new PenjualanBarang
+                                            {
+                                                KodeBrg = barang.BRG,
+                                                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                                                Qty = qtyOnHand
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+
+                            @if (listBarangMiniStok.Count > 0)
+                            {
+                                foreach (var barangMinimStok in listBarangMiniStok.OrderBy(b => b.Qty).Take(10))
+                                {
+                                    <tr>
+                                        <td>@barangMinimStok.KodeBrg</td>
+                                        <td>@barangMinimStok.NamaBrg</td>
+                                        <td>@barangMinimStok.Qty</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>Informasi SKU</h2>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                @if (Model?.ListBarang != null && Model?.ListPesananDetail != null)
+                {
+                    <p>
+                        <span class="block_subtitle">Inventory</span>: @(Model.ListBarang.Count > 0 ? Model.ListBarang.Count.ToString() : "0") SKU
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Barang Tak Laku (3 Bulan Terakhir)</span>: @(Model?.ListBarangTidakLaku?.Count > 0 ? Model?.ListBarangTidakLaku?.Count.ToString() : "0") SKU
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Barang Kurang dari Minimum Stok</span>: @(listBarangMiniStok.Count > 0 ? listBarangMiniStok.Count.ToString() : "0") SKU
+                    </p>
+                }
+                else
+                {
+                    <img src="~/Content/Images/no_data.png" class="img-rounded" style="margin: 20px;">
+                }
+            </div>
+        </div>
+    </div>
+</div>

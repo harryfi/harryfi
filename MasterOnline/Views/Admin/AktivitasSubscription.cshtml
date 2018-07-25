@@ -1,0 +1,142 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.SubsViewModel
+@{
+    ViewBag.Title = "Aktivitas Subscription";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section styles
+{
+    <style>
+        #subs-section {
+            margin-top: 60px;
+            background: white;
+            padding: 20px;
+        }
+    </style>
+}
+
+
+<div class="row" id="subs-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row subs_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_subs" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row subs_table_section">
+            <div class="col-sm-12">
+                @if (ViewData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        @ViewData["SuccessMessage"].ToString()
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                }
+                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                {
+                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @modelError.ErrorMessage
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                }
+                <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                    <thead>
+                        <tr role="row">
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var sub in Model.ListAktivitasSubs)
+                            {
+                                <tr>
+                                    <td class="text-center">@sub.Account</td>
+                                    <td class="text-center">@sub.Email</td>
+                                    <td class="text-center">@sub.TipeSubs</td>
+                                    <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="konfHapusSubs" tabindex="-1" role="dialog" aria-labelledby="konfHapusSubsLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfHapusSubsLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus subscription ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteSubs()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        var $subsId = 0;
+
+        $(document).on('ready',
+            function () {
+                var table = $('#datatable').DataTable();
+
+                $('#search_subs').keyup(function () {
+                    table.search($(this).val()).draw();
+                });
+            });
+
+        function convertToRupiah(angka) {
+            var rupiah = '';
+            var angkarev = angka.toString().split('').reverse().join('');
+            for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+        }
+
+        function convertToAngka(rupiah) {
+            return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        }
+
+
+    </script>
+}

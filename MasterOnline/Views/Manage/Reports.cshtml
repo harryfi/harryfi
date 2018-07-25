@@ -1,0 +1,388 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "Reports";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var userId = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        userId = context.Account.Single(a => a.AccountId == accId).UserId;
+        context.Dispose();
+    }
+    else
+    {
+        userId = dataSession?.Account?.UserId;
+    }
+}
+
+<style>
+
+    .tile-stats .icon {
+        width: 20px;
+        height: 20px;
+        color: #BAB8B8;
+        position: absolute;
+        right: 35px;
+        top: 10px;
+        z-index: 1
+    }
+
+        .tile-stats .icon i {
+            margin: 0;
+            font-size: 30px;
+            line-height: 0;
+            vertical-align: bottom;
+            padding: 0
+        }
+
+    .tile-stats .count {
+        position: relative;
+        margin: 0;
+        margin-left: 20px;
+        z-index: 5;
+        padding: 0
+    }
+
+    .tile-stats {
+        padding-top: 9px;
+        height: 60px;
+    }
+
+    .reports-tile {
+        padding-top: 10px;
+        height: auto;
+        position: relative;
+        display: block;
+        margin-bottom: 10px;
+        border: 1px solid #E4E4E4;
+        overflow: hidden;
+        border-radius: 5px;
+        background: #FFF;
+        transition: all .3s ease-in-out;
+    }
+
+        .reports-tile .title {
+            position: relative;
+            margin: 0;
+            margin-left: 10px;
+            z-index: 5;
+            padding: 0
+        }
+
+        .reports-tile hr {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .reports-tile .items {
+            position: relative;
+            margin: 0;
+            margin-left: 15px;
+            z-index: 5;
+            padding: 0
+        }
+
+            .reports-tile .items .col-md-6 {
+                margin-bottom: 10px;
+            }
+
+                .reports-tile .items .col-md-6 h4 {
+                    font-weight: bold;
+                }
+</style>
+
+<div class="row">
+    <div class="animated flipInY col-lg-12 col-md-12 col-sm-6 col-xs-12">
+        <div class="reports-tile">
+            <div class="title">
+                <h2>Keuangan</h2>
+            </div>
+            <hr />
+            <div class="items">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("Neraca", "Report")">
+                            <h4> Neraca</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("RugiLaba", "Report")">
+                            <h4> Laba/Rugi</h4>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("CetakBukuBesar", "Report")">
+                            <h4> Buku Besar</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("CetakRekapBukuBesar", "Report")">
+                            <h4> Rekap Buku Besar</h4>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="animated flipInY col-lg-12 col-md-12 col-sm-6 col-xs-12">
+        <div class="reports-tile">
+            <div class="title">
+                <h2>Penjualan</h2>
+            </div>
+            <hr />
+            <div class="items">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("KartuPiutang", "Report")">
+                            <h4> Kartu Piutang</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("MutasiPiutang", "Report")">
+                            <h4> Mutasi Piutang</h4>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("ListFakturPenjualan", "Report")">
+                            <h4> List Faktur Penjualan</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("AnalisaRugiLabaPenjualan", "Report")">
+                            <h4> Analisa Laba/Rugi Penjualan</h4>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="animated flipInY col-lg-12 col-md-12 col-sm-6 col-xs-12">
+        <div class="reports-tile">
+            <div class="title">
+                <h2>Pembelian</h2>
+            </div>
+            <hr />
+            <div class="items">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("KartuHutang", "Report")">
+                            <h4> Kartu Hutang</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("MutasiHutang", "Report")">
+                            <h4> Mutasi Hutang</h4>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("ListInvPembelian", "Report")">
+                            <h4> List Invoice Pembelian</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("AnalisaPembelian", "Report")">
+                            <h4> Analisa Pembelian</h4>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="animated flipInY col-lg-12 col-md-12 col-sm-6 col-xs-12">
+        <div class="reports-tile">
+            <div class="title">
+                <h2>Inventory</h2>
+            </div>
+            <hr />
+            <div class="items">
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("KartuStok", "Report")">
+                            <h4> Kartu Stok</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("MutasiStokBulanan", "Report")">
+                            <h4> Mutasi Stok Bulanan</h4>
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="@Url.Action("KartuStokDenganHarga", "Report")">
+                            <h4> Kartu Stok Dengan Harga</h4>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="@Url.Action("PosisiStok", "Report")">
+                            <h4> Posisi Stok</h4>
+                        </a>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+@*
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("MutasiPiutang", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2> Mutasi Piutang</h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("MutasiHutang", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2> Mutasi Hutang</h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("KartuPiutang", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count"><h2> Kartu Piutang</h2></div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("KartuHutang", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count"><h2> Kartu Hutang</h2></div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("AnalisaRugiLabaPenjualan", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Analisa Laba/Rugi Penjualan
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("AnalisaPembelian", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Analisa Pembelian
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("KartuStok", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Kartu Stok
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("MutasiStokBulanan", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Mutasi Stok Bulanan
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("RugiLaba", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Laba/Rugi
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("Neraca", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Neraca
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("CetakBukuBesar", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Buku Besar
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="animated flipInY col-lg-5 col-md-5 col-sm-6 col-xs-12">
+            <a href="@Url.Action("CetakRekapBukuBesar", "Report")">
+                <div class="tile-stats">
+                    <div class="icon"><i class="fa fa-book"></i></div>
+                    <div class="count">
+                        <h2>
+                            Rekap Buku Besar
+                        </h2>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+*@

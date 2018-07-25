@@ -1,0 +1,146 @@
+﻿@using MasterOnline.ViewModels
+@model SaPiutangViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@Html.HiddenFor(m => m.Piutang.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Piutang.KONTAN, new { Value = "2" })
+@Html.HiddenFor(m => m.Piutang.SLM, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.BANK, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.MUKA, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.DISC1, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.NDISC1, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.PPN, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.PPN_RATE, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.KET, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.SO, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.SATUAN, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.WIL, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.POST, new { Value = "T" })
+@Html.HiddenFor(m => m.Piutang.VLT, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Piutang.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Piutang.POT, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.NPPN, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.BAYAR, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.DEBET, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.KREDIT, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.NETTO, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.F_PAJAK, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.TGL_PAJAK, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.NCUST, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.TOTAL_DEBET_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.TOTAL_KREDIT_GL, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.NILAI_PROYEK, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Piutang.NFAKTUR_RETENSI, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.NFAKTUR_RETENSI, new { Value = 0 })
+@Html.HiddenFor(m => m.Piutang.RANGKA, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.MESIN, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.TAHUN, new { Value = "" })
+@Html.HiddenFor(m => m.Piutang.RecNum)
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.FAKTUR, "No. Bukti", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.HiddenFor(m => m.Piutang.FAKTUR)
+                <input type="text" value="[AUTO]" disabled class="form-control" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label class="control-label col-md-4 col-sm-4 col-xs-12">Status Posting</label>
+            <div class="col-md-3 col-sm-3 col-xs-12">
+                @if (Model.Piutang != null)
+                {
+                    if (Model.Piutang.POST == "Y")
+                    {
+                        <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                    }
+                }
+                else
+                {
+                    <input type="text" value="Belum" disabled class="form-control" />
+                }
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.TGL, "Tanggal", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="input-group date">
+                    @Html.TextBoxFor(m => m.Piutang.TGL, new { @class = "form-control" })
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.CUST, "Customer", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.HiddenFor(m => m.Piutang.CUST)
+                @Html.TextBox("CUSTNAME", "", new { @class = "form-control" })
+                <select id="CUSTOMER" placeholder="Harap pilih" required="required"></select>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-6">
+                @Html.TextBoxFor(m => m.Piutang.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, min = 0, max = 999, required = "required" })
+            </div>
+            <div class="col-md-2 col-sm-2 col-xs-6">
+                <h5>Hari</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.JTGL, "Tanggal Jatuh Tempo", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Piutang.JTGL, new { @class = "form-control" })
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Piutang.TOTAL, "Nilai", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Piutang.TOTAL, new { @class = "form-control", type = "number", required="required", min = 0 })
+            </div>
+        </div>
+    </div>
+</div>
+<button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanPiutang(this);">Simpan</button>

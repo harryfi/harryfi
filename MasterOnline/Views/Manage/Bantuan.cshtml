@@ -1,0 +1,189 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "Bantuan";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    MoDbContext context = new MoDbContext();
+    ErasoftContext erasoftContext = null;
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+    if (dataSession?.Account != null)
+    {
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+    }
+    else
+    {
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        erasoftContext = new ErasoftContext(accFromUser.UserId);
+    }
+
+    var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
+    var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+}
+
+@section styles
+{
+    <style>
+        .langkah-done {
+            color: green !important;
+            font-size: 40px;
+            position: absolute;
+            right: 20px;
+            top: 7px;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12" style="margin-bottom: 16px;">
+        <h2>
+            <strong>Langkah mudah untuk memulai</strong>
+        </h2>
+    </div>
+</div>
+<div class="row animated fadeInRight">
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title">
+                <h5>
+                    <strong>Isi Data Perusahaan</strong>
+                    @if (dataUsahaInDb.NAMA_PT != "PT ERAKOMP INFONUSA")
+                    {
+                        <span class="fa fa-check-circle langkah-done"></span>
+                    }
+                </h5>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <img alt="Perusahaan" class="img-responsive-35 center-block" src="~/Content/Images/bank.png">
+                <br />
+                <p>
+                    Masukkan data-data perusahaan Anda seperti:
+                    <strong> Logo, Alamat, dan Telepon</strong>
+                </p>
+                <br>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a class="btn btn-primary btn-lg btn-block" href="@Url.Action("DataPerusahaanMenu")">
+                            <i class="fa fa-pencil"></i> @(dataUsahaInDb.NAMA_PT == "PT ERAKOMP INFONUSA" ? "Isi Data" : "Edit Data")
+                        </a>
+                        <!--<a class="btn btn-danger btn-md btn-block" href="#">
+                            <i class="fa fa-question-circle"></i> Panduan step by step
+                        </a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="x_panel">
+            <div class="x_title">
+                <h5>
+                    <strong>Hubungkan ke Marketplace</strong>
+                    @if (jumlahAkunMarketplace > 0)
+                    {
+                        <span class="fa fa-check-circle langkah-done"></span>
+                    }
+                </h5>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <img alt="Marketplace" class="img-responsive-35 center-block" src="~/Content/Images/store.png">
+                <br />
+                <p>
+                    Sambungkan MasterOnline ke marketplace anda (<strong>Bukalapak, Lazada</strong>, dll).
+                </p>
+                <br>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        @if (dataUsahaInDb.NAMA_PT != "PT ERAKOMP INFONUSA")
+                        {
+                            <a class="btn btn-primary btn-lg btn-block" href="@Url.Action("Pelanggan")">
+                                <i class="fa fa-plug"></i> Sambungkan
+                            </a>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary btn-lg btn-block" onclick="warningDataPerusahaan();">
+                                <i class="fa fa-plug"></i> Sambungkan
+                            </button>
+                        }
+                        <!--<a class="btn btn-danger btn-md btn-block" href="#">
+                            <i class="fa fa-question-circle"></i> Panduan step by step
+                        </a>-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<div class="col-md-3">
+        <div class="x_panel">
+            <div class="x_title">
+                <h5><strong>Masukkan saldo awal akunting</strong></h5>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <img alt="Saldo Awal" class="img-responsive-35 center-block" src="~/Content/Images/accounting-book.png">
+                <br />
+                <p>Masukkan <strong>saldo awal akunting</strong> anda. Skip kalau anda tidak memerlukan akunting.</p>
+                <br>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a class="btn btn-primary btn-lg btn-block" href="#">
+                            <i class="fa fa-pencil"></i> Isi data
+                        </a>
+                        <a class="btn btn-danger btn-md btn-block" href="#">
+                            <i class="fa fa-question-circle"></i> Panduan step by step
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3" style="min-height: 365.06px;">
+        <div class="x_panel" style="min-height: 355.06px;">
+            <div class="x_title">
+                <h5><strong>Selesai</strong></h5>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <img alt="Selesai" class="img-responsive-35 center-block" src="~/Content/Images/done.png">
+                <br />
+                <p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p>
+                <br>
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <a class="btn btn-primary btn-lg btn-block" href="#">
+                            <i class="fa fa-cogs"></i> Pengaturan
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>-->
+</div>
+
+@section scripts
+{
+    <script>
+        function warningDataPerusahaan() {
+            alert('Isi data perusahaan terlebih dahulu!');
+            return;
+        }
+    </script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/5b0f46fd8859f57bdc7bb3f2/1cf46d1np';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+    </script>
+    <!--End of Tawk.to Script-->
+}

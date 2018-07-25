@@ -1,0 +1,296 @@
+﻿@using MasterOnline.ViewModels
+@model GudangViewModel
+@{
+    ViewBag.Title = "Gudang";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@section styles
+{
+    <style>
+        #gudang-section {
+            background-color: #fff;
+            padding: 20px;
+            margin-top: 58px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="gudang-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="gudang_table_section">
+            <div class="row">
+                <div class="col-lg-12">
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="input-group">
+                        <input id="search_gudang" type="text" class="form-control" placeholder="Pencarian">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div class="col-lg-8 col-sm-6">
+                    <div class="pull-right">
+                        <button type="button" class=" btn btn-default" data-style="expand-right">
+                            <span>Refresh</span>
+                        </button>
+                        <button class="btn btn-primary btn_tambah_data" id="tambah_gudang">Tambah Baru</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div id="table-gudang-partial" class="col-lg-12">
+                    @Html.Partial("TableGudangPartial")
+                </div>
+            </div>
+        </div>
+        <div class="row gudang_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Gudang</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Data Gudang</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveGudang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-gudang" }))
+                                        {
+                                            @Html.HiddenFor(m => m.Gudang.ID)
+                                            @Html.HiddenFor(m => m.Gudang.QOH_SALES, new { Value = false })
+                                            @Html.HiddenFor(m => m.Gudang.AL1, new { Value = " " })
+                                            @Html.HiddenFor(m => m.Gudang.AL2, new { Value = " " })
+                                            @Html.HiddenFor(m => m.Gudang.AL3, new { Value = " " })
+                                            @Html.HiddenFor(m => m.Gudang.GD_KONSINYASI, new { Value = false })
+                                            @Html.HiddenFor(m => m.Gudang.CUSTOMER, new { Value = " " })
+                                            @Html.HiddenFor(m => m.Gudang.DISCOUNT, new { Value = false })
+                                            @Html.HiddenFor(m => m.Gudang.KD_HARGA_JUAL, new { Value = " " })
+                                            @Html.HiddenFor(m => m.Gudang.USERNAME, new { Value = username })
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Gudang.Kode_Gudang, "Kode Gudang *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Gudang.Kode_Gudang, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Gudang.Nama_Gudang, "Nama Gudang *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-5 col-sm-5 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Gudang.Nama_Gudang, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanGudang(this)" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="hapusGudang" tabindex="-1" role="dialog" aria-labelledby="hapusGudangLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="hapusGudangLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteKat()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script type="text/javascript">
+        $gudangId = "";
+
+        $(document).on('ready', function () {
+            var table = $('#datatable').DataTable();
+
+            $('#search_gudang').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            Initialize();
+        });
+
+        function Initialize() {
+            $('#tambah_gudang').on('click', function () {
+                $('.gudang_table_section').hide();
+                $('.gudang_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.gudang_table_section').show();
+                $('.gudang_editor_section').hide();
+                $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID').val("");
+                $('#Gudang_Kode_Gudang').removeAttr('disabled');
+                resetError();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_gudang').click();
+            }
+
+            $('#Gudang_Kode_Gudang').on('change blur',
+                function() {
+                    if (!$(this).is(':disabled')) {
+                        cekKode($(this), 'gd');
+                    }
+                });
+            $('#Gudang_Nama_Gudang').on('change blur',
+                function () {
+                    if (!$(this).is(':disabled')) {
+                        cekField($(this), 'CekNmGudang', 'Nama Gudang ini sudah digunakan!');
+                    }
+                });
+        }
+
+        function simpanGudang(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-gudang-partial').html(response);
+                    Initialize();
+                    $('#close-editor').click();
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                    $('#loading_spinner').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+
+            return false;
+        }
+
+        function editGudang(idGud) {
+            var link = '@Url.Action("EditGudang", "Manage", new { gudangId = "replaceId" })';
+            link = link.replace("replaceId", idGud);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#Gudang_AL1').val(response.Gudang.AL1);
+                    $('#Gudang_AL2').val(response.Gudang.AL2);
+                    $('#Gudang_AL3').val(response.Gudang.AL3);
+                    $('#Gudang_CUSTOMER').val(response.Gudang.CUSTOMER);
+                    $('#Gudang_GD_KONSINYASI').val(response.Gudang.GD_KONSINYASI);
+                    $('#Gudang_QOH_SALES').val(response.Gudang.QOH_SALES);
+                    $('#Gudang_ID').val(response.Gudang.ID);
+                    $('#Gudang_USERNAME').val(response.Gudang.USERNAME);
+                    $('#Gudang_Kode_Gudang').val(response.Gudang.Kode_Gudang).attr('disabled', 'disabled');
+                    $('#Gudang_Nama_Gudang').val(response.Gudang.Nama_Gudang);
+                    $('#tambah_gudang').click();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(gudangId, namaGudang) {
+            this.$gudangId = gudangId;
+            $('#hapus_label').text(namaGudang);
+        }
+
+        function deleteKat() {
+            var link = '@Url.Action("DeleteGudang", "Manage", new { gudangId = "replaceId" })';
+            link = link.replace("replaceId", this.$gudangId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-gudang-partial').html(response);
+                    Initialize();
+                    $('#hapusGudang').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

@@ -1,0 +1,14 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using MasterOnline.Models;
+
+namespace MasterOnline.ViewModels
+{
+    public class SaPiutangViewModel
+    {
+        public ART01A Piutang { get; set; }
+        public List<ART01A> ListPiutang { get; set; } = new List<ART01A>();
+    }
+}

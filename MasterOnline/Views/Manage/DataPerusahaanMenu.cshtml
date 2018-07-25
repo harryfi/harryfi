@@ -1,0 +1,492 @@
+﻿@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.DataPerusahaanViewModel
+@{
+    ViewBag.Title = "Data Perusahaan";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        #data-usaha-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #DataUsaha_ALAMAT_PT {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        .logo_perusahaan_section {
+            padding: 0 10px 10px 10px;
+        }
+
+        .logo_perusahaan_section > .box_upload {
+            width: 300px;
+            height: 300px;
+            border: dashed 1.5px #bbb;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            background-image: url('');
+            text-align: center;
+            display: table;
+            cursor: pointer;
+        }
+
+        .box_upload > .box_upload_placeholder {
+            color: #ccc;
+            font-size: 20px;
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        .btn_hapus_logo {
+            position: absolute;
+            bottom: 25px;
+            left: 20px;
+        }
+    </style>
+}
+
+<div class="row" id="data-usaha-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="col-lg-12">
+            <div class="page-editor">
+                <h2 class="editor-title">Data Perusahaan</h2>
+                <span class="title-accent"></span>
+                <div class="form-horizontal">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="x_panel">
+                                <div class="x_title">
+                                    <h2 style="font-size: 16px">Detail Data</h2>
+                                    <ul class="nav navbar-right panel_toolbox">
+                                        <li>
+                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                        </li>
+                                    </ul>
+                                    <div class="clearfix"></div>
+                                </div>
+                                <div class="x_content">
+                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                    {
+                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                        {
+                                            <div class="alert alert-danger">
+                                                <span class="message-error">@modelError.ErrorMessage</span>
+                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                        }
+                                    }
+                                    <br>
+                                    @using (Html.BeginForm("SaveDataUsaha", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                    {
+                                        @Html.HiddenFor(m => m.DataUsaha.USERNAME, new { Value = username })
+                                        @Html.HiddenFor(m => m.DataUsaha.VALIDASI_U_MUKA, new { Value = "1" })
+                                        @Html.HiddenFor(m => m.DataUsaha.KODE_BRG_STYLE, new { Value = "-" })
+                                        @Html.HiddenFor(m => m.DataUsaha.GUDANG_SALESMAN, new { Value = "0" })
+                                        @Html.HiddenFor(m => m.DataUsaha.BARANG_SAMA, new { Value = "0" })
+                                        @Html.HiddenFor(m => m.DataUsaha.EDIT_BONUS, new { Value = "0" })
+                                        @Html.HiddenFor(m => m.DataUsaha.VALIDASI_BRG_FAKTUR, new { Value = "0" })
+                                        @Html.HiddenFor(m => m.DataUsaha.METODA_DISCOUNT, new { Value = "0" })
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.NAMA_PT, "Nama Perusahaan *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.NAMA_PT, new { @class = "form-control", required = "required" }) : Html.TextBoxFor(m => m.DataUsaha.NAMA_PT, new { @class = "form-control", required = "required", Value = "" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.NPWP, "NPWP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required" }) : Html.TextBoxFor(m => m.DataUsaha.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.METODA_NO, "Metoda HPP", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @{
+                                                    var listMetoda = new List<MetodaHpp>()
+                                                            {
+                                                                new MetodaHpp()
+                                                                {
+                                                                    KODE = "1",
+                                                                    KET = "FIFO"
+                                                                },
+                                                                new MetodaHpp()
+                                                                {
+                                                                    KODE = "2",
+                                                                    KET = "Rata-rata Perusahaan"
+                                                                },
+                                                                new MetodaHpp()
+                                                                {
+                                                                    KODE = "3",
+                                                                    KET = "Rata-rata Gudang"
+                                                                }
+                                                            };
+                                                }
+                                                @Html.HiddenFor(m => m.DataUsaha.METODA_NO)
+                                                <select class="form-control" id="DataUsaha_Metoda" name="DataUsaha.Metoda" required="required">
+                                                    <option value="default">Harap pilih</option>
+                                                    @foreach (var metoda in listMetoda)
+                                                    {
+                                                        if (Model?.DataUsaha != null)
+                                                        {
+                                                            if (metoda.KODE == Model.DataUsaha.METODA_NO)
+                                                            {
+                                                                <option value="@metoda.KODE" selected>@metoda.KET</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@metoda.KODE">@metoda.KET</option>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="@metoda.KODE">@metoda.KET</option>
+                                                        }
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.ALAMAT_PT, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextAreaFor(m => m.DataUsaha.ALAMAT_PT, new { @class = "form-control", required = "required" }) : Html.TextArea("DataUsaha_ALAMAT_PT", "", new { @class = "form-control", required = "required" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.DataUsahaTambahan.KODEPROV)
+                                                <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.DataUsahaTambahan.KODEKABKOT)
+                                                <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 5 })
+                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "", maxlength = 5 }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsahaTambahan.PERSON, "Contact Person *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required" })
+                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.PERSON, new { @class = "form-control", required = "required", Value = "" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsahaTambahan.EMAIL, "Email CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
+                                                            : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsahaTambahan.TELEPON, "Telepon CP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required" })
+                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.BCA_API_KEY, "BCA API KEY", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
+                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.BCA_API_SECRET, "BCA API SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
+                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_ID, "BCA CLIENT ID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
+                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.BCA_CLIENT_SECRET, "BCA CLIENT SECRET", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", type = "email" })
+                                                      : Html.TextBoxFor(m => m.DataUsahaTambahan.EMAIL, new { @class = "form-control", required = "required", Value = "", type = "email" }))
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            @Html.Label("Logo Perusahaan *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-4 logo_perusahaan_section">
+                                                <button type="button" class="btn btn-danger btn-small btn_hapus_logo" id="btn_hapus_logo">Hapus</button>
+                                                <div class="box_upload" id="box_upload_logo">
+                                                    <span class="box_upload_placeholder">300 x 300 <br/> (.JPG / .JPEG)</span>
+                                                    <input type='file' id='logo_perusahaan' name="logo_perusahaan" accept=".jpg"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanDataUsaha(this);"/>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script>
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function Initialize() {
+            getKabKot();
+            resetKabKot();
+
+            $('#DataUsaha_Metoda').change(function() {
+                $('#DataUsaha_METODA_NO').val($(this).val());
+            });
+
+            $("input[type=file]").on("click",
+                function (e) {
+                    e.stopPropagation();
+                });
+
+            $('#logo_perusahaan').hide();
+            $('#btn_hapus_logo').hide();
+
+            $('#logo_perusahaan').change(function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                var validImage = ["image/jpeg"];
+                if ($.inArray(fileType, validImage) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_logo').css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_logo span').hide();
+                    $('#btn_hapus_logo').show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            $('#box_upload_logo').on('click', function () {
+                $('#logo_perusahaan').click();
+            });
+
+            $('#btn_hapus_logo').click(function () {
+                var $link = '@Html.Raw(Url.Action("DeleteLogoPerusahaan", "Manage", new { namaPT = "replaceNama", uname = "replaceUsername" }))';
+                $link = $link.replace("replaceNama", $('#DataUsaha_NAMA_PT').val());
+                $link = $link.replace("replaceUsername", $('#DataUsaha_USERNAME').val());
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        $('#logo_perusahaan').val(null);
+                        $('#box_upload_logo').css('background-image', '');
+                        $('#box_upload_logo span').show();
+                        $('#btn_hapus_logo').hide();
+                    },
+                    error: function()
+                    {
+                    }
+                });
+
+                return;
+            });
+
+            var $linkLogo = '/Content/Uploaded/LogoUsaha-' + $('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val() + '.jpg';
+
+            $.ajax({
+                url: $linkLogo,
+                type: 'GET',
+                success: function () {
+                    $('#box_upload_logo').css({
+                        'background-image': 'url("' + $linkLogo + '")',
+                        'background-size': 'cover'
+                    });
+                    $('#box_upload_logo span').hide();
+                    $('#btn_hapus_logo').show();
+                },
+                error: function () {
+                }
+            });
+        }
+
+        function simpanDataUsaha(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+            var $formData = new FormData($('form')[0]);
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        if (response.Errors == null) {
+                            alert('Data perusahaan berhasil disimpan!');
+                            window.location = '@Url.Action("Bantuan")';
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+
+                        $('#loading_spinner').hide();
+                    } else {
+                        console.log(response.Errors);
+                        alert('Ada data yang tidak valid!');
+                        $('#loading_spinner').hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+
+        function getKabKot() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    $('#KODEPROV').selectivity({
+                        allowClear: true,
+                        items: provList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    $('#KODEPROV').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            resetKabKot();
+                        } else {
+                            loadDataKabupatenKota($val);
+                        }
+
+                        $('#DataUsahaTambahan_KODEPROV').val($val);
+                    });
+
+                    $('#KODEPROV').selectivity('value', $('#DataUsahaTambahan_KODEPROV').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function resetKabKot() {
+            $('#KODEKABKOT').selectivity({
+                allowClear: true,
+                items: [],
+                placeholder: 'Harap pilih'
+            });
+            $('#KODEKABKOT').selectivity('value', 'Harap pilih');
+        }
+
+        function loadDataKabupatenKota(kdProv) {
+            var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
+            link = link.replace("replaceId", kdProv);
+
+            $.ajax({
+                type: "GET",
+                /**/
+                url: link,
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var kabkotList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            kabkotList[i] = {
+                                id: item.KodeKabKot,
+                                text: item.NamaKabKot
+                            };
+                        });
+
+                    $('#KODEKABKOT').selectivity({
+                        allowClear: true,
+                        items: kabkotList,
+                        placeholder: 'Harap pilih'
+                    }).change(function () {
+                        var $val = $(this).selectivity('value');
+                        $('#DataUsahaTambahan_KODEKABKOT').val($val);
+                    });;
+
+                    $('#KODEKABKOT').selectivity('value', $('#DataUsahaTambahan_KODEKABKOT').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+    </script>
+}

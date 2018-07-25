@@ -1,0 +1,172 @@
+﻿@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.SecurityUserViewModel
+@{
+    ViewBag.Title = "SecUserMenu";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+}
+
+@section styles
+{
+    <style>
+        .btn-success {
+            background-color: #d7d7d7;
+        }
+
+        .btn {
+            border: none;
+        }
+
+            .btn span.glyphicon {
+                opacity: 0;
+            }
+
+            .btn.active span.glyphicon {
+                opacity: 1;
+            }
+    </style>
+}
+
+<div class="row">
+    <div class="col-lg-12">
+        @if (ViewData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">
+                @ViewData["SuccessMessage"].ToString()
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="row user_table_section">
+    <div class="col-sm-12">
+        <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+            <thead>
+                <tr role="row">
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Username</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Security</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account.AccountId).ToList())
+                {
+                    <tr>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>
+                            <a href="@Url.Action("SecUserMenu", "Manage", new {userId = @user.UserId})" style="text-decoration: underline;">Klik di sini</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@if (Model.User != null)
+{
+    <br /><br />
+    <div style="background-color: #fff; padding: 20px;">
+        <button class="btn btn-primary btn-lg pull-right" id="submit-sec">Simpan</button>
+
+        @using (Html.BeginForm("SaveSecUser", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-security-user" }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="col-lg-3">
+                    <label class="control-label">Username</label>
+                    <input class="form-control" type="text" disabled="disabled" value="@Model.User.Username" />
+                </div>
+                <div class="col-lg-3">
+                    <label class="control-label">Email</label>
+                    <input class="form-control" type="text" disabled="disabled" value="@Model.User.Email" />
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-bordered table-striped table-responsive" id="table-security">
+                        <thead>
+                            <tr>
+                                <th>Form</th>
+                                <th style="width: 75px; max-width: 75px;">Access</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var form in Model.ListForms)
+                            {
+                                if (!form.HaveChild)
+                                {
+                                    <tr>
+                                        <td>@form.NamaForm</td>
+                                        <td class="text-center">
+                                            <div class="btn-group" data-toggle="buttons">
+                                                @{
+                                                    var checkInSec = Model.ListSec.SingleOrDefault(s => s.FormId == form.ScrId);
+
+                                                    if (checkInSec == null)
+                                                    {
+                                                        <label class="btn btn-success">
+                                                            <input id="@form.ScrId" data-parent-id="@form.ParentId" type="checkbox" autocomplete="off">
+                                                            <span class="glyphicon glyphicon-ok"></span>
+                                                        </label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <label class="btn btn-success active">
+                                                            <input id="@form.ScrId" data-parent-id="@form.ParentId" type="checkbox" autocomplete="off" checked>
+                                                            <span class="glyphicon glyphicon-ok"></span>
+                                                        </label>
+                                                    }
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#submit-sec").click(function () {
+                var formSecArray = [];
+                var parentSecArray = [];
+                var counter = 0;
+
+                $("#table-security tr td label.active").each(function () {
+                    formSecArray[counter] = $(this).find("input").attr("id");
+                    parentSecArray[counter] = $(this).find("input").attr("data-parent-id");
+                    counter++;
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("PassSecurityArray", "Manage")',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ secArray: formSecArray })
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("PassParentSecurityArray", "Manage")',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ secArray: parentSecArray})
+                });
+
+                $("#form-security-user").submit();
+            });
+        });
+    </script>
+}

@@ -1,0 +1,497 @@
+﻿@model MasterOnline.Models.Account
+@{
+    ViewBag.Title = "Register";
+}
+
+@section styles
+{
+    <style>
+        html {
+            -webkit-text-stroke-width: 0.5pt;
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+    </style>
+}
+
+<div class="loginColumns">
+    <div class="row">
+        <a href="/">
+            <div class="col-md-12 text-center">
+                <img alt="logo" src="~/Content/Images/MO_new_logo.png" width="300">
+            </div>
+        </a>
+    </div>
+    <div class="row m-t">
+        <div class="col-md-6">
+            <h2 class="font-bold">
+                Pendaftaran Akun Baru
+            </h2>
+            <p>Cukup masukkan alamat email dan password. Anda siap untuk memulai!</p><br>
+            <p>Pengaturan lebih detail bisa di lakukan setelah pendaftaran anda selesai.</p><br>
+            <p>
+                <small>
+                    <a href="~/Content/Static/termsandconditions.html#privacy">Kebijakan Privasi</a><!-- react-text: 153 -->&nbsp;&nbsp;&nbsp;<!-- /react-text -->
+                    <a href="~/Content/Static/termsandconditions.html#terms">Syarat dan Ketentuan</a><!-- react-text: 155 -->&nbsp;&nbsp;&nbsp;<!-- /react-text -->
+                    <a href="~/Content/Static/termsandconditions.html#security">Keamanan</a><br>
+                </small>
+            </p>
+        </div>
+        <div class="col-md-6">
+            <div class="ibox-content">
+                <div>
+                    @if (ViewData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @Html.Raw(ViewData["SuccessMessage"])
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                @modelError.ErrorMessage
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    @using (Html.BeginForm("SaveAccount", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(m => m.UserId, new { Value = "xxx" })
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NoHp, "No. HP *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Username, "Username *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-6" style="padding-left: 0;">
+                                @Html.LabelFor(m => m.Password, "Password *", new { @class = "control-label control-label-bold" })
+                                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
+                            </div>
+                            <div class="col-lg-6" style="padding-right: 0; padding-left: 0;">
+                                @Html.LabelFor(m => m.ConfirmPassword, "Konfirmasi Password *", new { @class = "control-label control-label-bold" })
+                                @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
+                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.NamaTokoOnline, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="space-15">
+                            <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary block full-width m-b" data-style="expand-right">
+                            <span>Daftar</span>
+                            <i class='fa fa-spinner fa-spin pull-right hide'></i>
+                        </button><span>Sudah punya akun?</span><a href="@Url.Action("Login", "Account")"> Login di sini</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <small>PT. Erasoft Teknologi Indonesia</small>
+        </div>
+        <div class="col-md-6 text-right">
+            <small>© 2017-2018</small>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f3f3f4;
+        padding-top: 0;
+    }
+
+    hr {
+        margin-top: 10px;
+    }
+
+    .font-bold {
+        font-weight: 600;
+    }
+
+    h2 {
+        font-size: 24px;
+    }
+
+    p {
+        margin: 0;
+    }
+
+    .loginColumns, .passwordBox {
+        margin: 0 auto;
+        padding: 25px 20px 20px;
+    }
+
+    .loginColumns {
+        max-width: 800px;
+    }
+
+    img[alt="logo"] {
+        margin-bottom: 30px;
+    }
+
+    .ibox-content {
+        clear: both;
+        padding: 15px 20px 20px;
+        border-color: #e7eaec;
+        border-image: none;
+        border-style: solid solid none;
+        border-width: 1px 0;
+    }
+
+    .ibox-content, .ibox-title {
+        background-color: #fff;
+        color: inherit;
+    }
+
+    .space-15 {
+        margin: 15px 0;
+    }
+
+    .block {
+        display: block !important;
+    }
+
+    .m-b {
+        margin-bottom: 15px;
+    }
+
+    .full-width {
+        width: 100% !important;
+    }
+
+    .navbar {
+        display: none;
+    }
+</style>
+
+@section scripts
+{
+    <script>
+        $(document).on('ready', function (event) {
+            initRequired();
+
+            $('form').submit(function () {
+                if (!validateForm()) return false;
+
+                $('.fa-spin').removeClass('hide');
+            });
+
+            var validImage = ["image/jpeg"];
+
+            $('#ImageFile').change(function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImage) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    $(this).val('');
+                    return;
+                }
+            });
+        });
+
+        function isEmptyOrSpaces(str) {
+            return str === null || str.match(/^ *$/) !== null;
+        }
+
+        function isEmail(email) {
+            var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            return regex.test(email);
+        }
+
+        function initRequired() {
+            $('#Email').on('change',
+                function() {
+                    cekEmail($(this));
+                });
+
+            $('form input[required="required"], form textarea[required="required"]').keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            });
+
+            $('form select[required="required"]').on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #d0d0d0');
+                    $this.parent().parent('.form-group').removeClass('has-error');
+
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().find('.text-danger').remove();
+                    } else {
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            $('form .selectized[required="required"]').on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #d0d0d0');
+                    $this.parent().parent('.form-group').removeClass('has-error');
+
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().find('.text-danger').remove();
+                    } else {
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            $("form input[type='number']").keydown(function (e) {
+                // Allow: backspace, delete, tab, escape, enter and .
+                if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    // Allow: Ctrl/cmd+A
+                    (e.keyCode == 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+C
+                    (e.keyCode == 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+X
+                    (e.keyCode == 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+v
+                    (e.keyCode == 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: home, end, left, right
+                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    // let it happen, don't do anything
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            $("form input[type='email']").keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+
+                        if (!isEmail($value)) {
+                            $this.closest('.form-group').addClass('has-error');
+
+                            if (!$this.closest('div').find('.text-danger').length)
+                                $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                        } else {
+                            $this.closest('.form-group').removeClass('has-error');
+                            $this.closest('div').find('.text-danger').remove();
+                        }
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+
+                    if (!isEmail($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length)
+                            $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            //Otomatis mengikuti attribute maxlength / stringlength
+            $("form input[data-val-length-max]").each(function () {
+                var $this = $(this);
+                var data = $this.data();
+                $this.attr("maxlength", data.valLengthMax);
+            });
+
+            $('form input[type="text"]').each(function () {
+                var $this = $(this);
+                var $name = $this.attr('name');
+
+                if ($name != null) {
+                    if ($name.indexOf('TLP') !== -1 || $name.indexOf('TELEPON') !== -1) {
+                        $this.attr("maxlength", 15);
+                    }
+                }
+            });
+
+            $('form input.limited_number_textbox[type="number"]').each(function () {
+                var $this = $(this);
+                $this.attr('oninput', 'maxLengthCheck(this)');
+            });
+        }
+
+        function cekEmail($this) {
+            var link = '@Url.Action("CekEmailPengguna", "Account", new { emailPengguna = "replaceEmail" })';
+            link = link.replace("replaceEmail", $this.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    console.log(response);
+                    if (!response.Available && response.CekNull != null) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Email ini sudah digunakan!</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function validateForm() {
+            var $isValid = true;
+
+            $('form input[required="required"], form textarea[required="required"]').each(function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            $('form select[required="required"]').each(function () {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        if ($this.closest('div').hasClass('input-group')) {
+                            $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        } else {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            $('form .selectized').each(function () {
+                var $this = $(this);
+                var $inputSelectize = $this.parent().find('.item');
+
+                if ($inputSelectize.length == 0) {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        if ($this.closest('div').hasClass('input-group')) {
+                            $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        } else {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            var $errorElement = $('form').find('.has-error');
+            if ($errorElement.length) $isValid = false;
+
+            return $isValid;
+        }
+    </script>
+}

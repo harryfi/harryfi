@@ -1,0 +1,405 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model PesananViewModel
+@{
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account?.Username;
+    }
+}
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Pesanan.RecNum)
+@Html.HiddenFor(m => m.Pesanan.STATUS_TRANSAKSI, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.NO_PO_CUST, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.VLT, new { Value = "IDR" })
+@Html.HiddenFor(m => m.Pesanan.NILAI_TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Pesanan.KODE_SALES, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.KODE_WIL, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.KODE_ALAMAT, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.PRINT_COUNT, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.KIRIM_PENUH, new { Value = false })
+@Html.HiddenFor(m => m.Pesanan.RETUR_PENUH, new { Value = false })
+@Html.HiddenFor(m => m.Pesanan.AL_CUST, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.U_MUKA, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.CUST_QQ, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.Status_Approve, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.User_Approve, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.NO_PENAWARAN, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.INDENT, new { Value = false })
+@Html.HiddenFor(m => m.Pesanan.ZONA, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.UCAPAN, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.SUPP, new { Value = "0" })
+@Html.HiddenFor(m => m.Pesanan.N_UCAPAN, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.TIPE_KIRIM, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.TOTAL_TITIPAN, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.CUST_QQ, new { Value = " " })
+@Html.HiddenFor(m => m.Pesanan.HARGA_FRANCO, new { Value = "0" })
+@Html.HiddenFor(m => m.Pesanan.KOMISI, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.N_KOMISI, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.N_KOMISI1, new { Value = 0 })
+@Html.HiddenFor(m => m.Pesanan.STATUS, new { Value = "0" })
+@Html.HiddenFor(m => m.Pesanan.USER_NAME, new { Value = username })
+@Html.HiddenFor(m => m.Pesanan.NO_REFERENSI, new { Value = "" })
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NO_BUKTI, "No. Order", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Pesanan.NO_BUKTI)
+                    @if (Model.Pesanan != null)
+                    {
+                        <input type="text" value="@Model.Pesanan.NO_BUKTI" disabled class="form-control" />
+                    }
+                    else
+                    {
+                        <input type="text" value="[AUTO]" disabled class="form-control" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NO_REFERENSI, "No. Referensi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Pesanan.NO_REFERENSI, new { @class = "form-control", disabled = "disabled" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.TGL, "Tanggal", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Pesanan.TGL)
+                    <div class="input-group date">
+                        <input type="text" id="TGL" class="form-control" />
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.EXPEDISI, "Kurir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Pesanan.NAMAPENGIRIM)
+                    @Html.HiddenFor(m => m.Pesanan.EXPEDISI)
+                    <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.CUST, "Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Pesanan.NAMA_CUST)
+                    @Html.HiddenFor(m => m.Pesanan.CUST)
+                    <select id="CUSTOMER" placeholder="Harap Pilih" required="required"></select>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NAMAPEMESAN, "Pembeli", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group">
+                        @Html.HiddenFor(m => m.Pesanan.PEMESAN)
+                        @Html.HiddenFor(m => m.Pesanan.NAMAPEMESAN)
+                        <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>
+                        <span class="input-group-btn">
+                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </button>
+                            <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
+                                <span class="glyphicon glyphicon-eye-open"></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, min = 0, max = 999 })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6">
+                    <h5>Hari</h5>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.TGL_JTH_TEMPO, "Tgl. Jatuh Tempo", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="input-group date">
+                        @Html.TextBoxFor(m => m.Pesanan.TGL_JTH_TEMPO, new { @class = "form-control", Value = Model?.Pesanan?.TGL_JTH_TEMPO?.ToString("dd/MM/yyyy") })
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.ALAMAT_KIRIM, "Alamat Kirim", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextAreaFor(m => m.Pesanan.ALAMAT_KIRIM, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <h5>Mata uang Rupiah (IDR)</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.BRUTO, "Bruto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Pesanan.BRUTO, new { @class = "form-control", Value = (Model?.Pesanan?.BRUTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.BRUTO) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.PPN, "PPN", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    <div class="input-group">
+                        @Html.TextBoxFor(m => m.Pesanan.PPN, new { @class = "form-control", Value = (Model?.Pesanan?.PPN >= 0 ? Model.Pesanan.PPN : 0), type = "number", min = 0, max = 100 })
+                        <span class="input-group-addon">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.ONGKOS_KIRIM, "Ongkos Kirim", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Pesanan.ONGKOS_KIRIM, new { @class = "form-control num-only", Value = (Model?.Pesanan?.ONGKOS_KIRIM > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.ONGKOS_KIRIM) : "0,00") })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NILAI_DISC, "Discount", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Pesanan.NILAI_DISC, new { @class = "form-control num-only", Value = (Model?.Pesanan?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.NILAI_DISC) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NILAI_PPN, "Nilai PPN", new { @class = "col-md-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Pesanan.NILAI_PPN, new { @class = "form-control", Value = (Model?.Pesanan?.NILAI_PPN >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NILAI_PPN) : "0,00") })
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Pesanan.NETTO, "Netto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Pesanan.NETTO, new { @class = "form-control", Value = (Model?.Pesanan?.NETTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NETTO) : "0,00") })
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (Model?.Pesanan?.RecNum != null)
+    {
+        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    <hr />
+</div>
+@Html.HiddenFor(m => m.PesananDetail.USER_NAME, new { Value = username })
+@Html.HiddenFor(m => m.PesananDetail.WRITE_KONFIG, new { Value = false })
+@Html.HiddenFor(m => m.PesananDetail.QTY_KIRIM, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.QTY_RETUR, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.LOKASI, new { Value = " " })
+@Html.HiddenFor(m => m.PesananDetail.CATATAN, new { Value = " " })
+@Html.HiddenFor(m => m.PesananDetail.DISCOUNT_3, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.DISCOUNT_4, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.DISCOUNT_5, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_3, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_4, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_5, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.TRANS_NO_URUT, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.SATUAN_N, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.QTY_N, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.NTITIPAN, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.DISC_TITIPAN, new { Value = 0 })
+@Html.HiddenFor(m => m.PesananDetail.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<div class="row" style="margin-top: 15px;">
+    <div class="col-lg-12">
+        <table id="table_tambah_pesanan" class="table table-bordered" role="grid">
+            <thead>
+                <tr>
+                    <th width="100">Kode Brg</th>
+                    <th width="150">Nama Brg</th>
+                    <th>Stn</th>
+                    <th>Harga</th>
+                    <th width="45">Qty</th>
+                    <th width="55">Disc%</th>
+                    <th>NDisc</th>
+                    <th width="55">Disc2%</th>
+                    <th>NDisc2</th>
+                    <th width="100">Netto</th>
+                    <th width="45">Simpan</th>
+                    <th width="45">Hapus</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var listBarang = Model.ListBarang.ToList();
+                    var iPd = 0;
+                }
+                @foreach (var pesanan in Model.ListPesananDetail.Where(pb => pb.NO_BUKTI == Model?.Pesanan?.NO_BUKTI).ToList())
+                {
+                    <tr data-barang-id="brg-@pesanan.NO_URUT">
+                        @{
+                            var stnBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.STN2;
+                            var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.HJUAL;
+                        }
+                        <td>
+                            @pesanan.BRG
+                        </td>
+                        <td class="nama-barang">
+                            @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA) @(listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG)?.NAMA2)
+                        </td>
+                        <td class="stn-barang">
+                            @stnBarang
+                        </td>
+                        <td class="harga-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hjualBarang)
+                        </td>
+                        <td class="qty-barang">
+                            @pesanan.QTY
+                        </td>
+                        <td class="disc1-barang">
+                            @pesanan.DISCOUNT
+                        </td>
+                        <td class="ndisc1-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
+                        </td>
+                        <td class="disc2-barang">
+                            @pesanan.DISCOUNT_2
+                        </td>
+                        <td class="ndisc2-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
+                        </td>
+                        <td class="netto-barang">
+                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button type="button" class="btn btn-primary" disabled="disabled">
+                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                        <td class="edit-hapus-col">
+                            <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@pesanan.NO_URUT')">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        </td>
+                    </tr>
+                    iPd = iPd + 1;
+                }
+                <tr data-pesanan-id="0">
+                    @Html.HiddenFor(m => m.PesananDetail.NO_URUT)
+                    <td>
+                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                        @Html.HiddenFor(m => m.PesananDetail.BRG)
+                    </td>
+                    <td class="nama-barang">-</td>
+                    <td class="stn-barang">
+                        -
+                        @Html.HiddenFor(m => m.PesananDetail.SATUAN)
+                    </td>
+                    <td class="harga-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PesananDetail.H_SATUAN)
+                    </td>
+                    <td class="qty-barang">
+                        0
+                        @Html.HiddenFor(m => m.PesananDetail.QTY)
+                    </td>
+                    <td class="disc1-barang">
+                        0
+                        @Html.HiddenFor(m => m.PesananDetail.DISCOUNT)
+                    </td>
+                    <td class="ndisc1-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_1)
+                    </td>
+                    <td class="disc2-barang">
+                        0
+                        @Html.HiddenFor(m => m.PesananDetail.DISCOUNT_2)
+                    </td>
+                    <td class="ndisc2-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_2)
+                    </td>
+                    <td class="netto-barang">
+                        0,00
+                        @Html.HiddenFor(m => m.PesananDetail.HARGA)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
+                            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" disabled="disabled" data-toggle="modal" data-target="#konfHapusBarang">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

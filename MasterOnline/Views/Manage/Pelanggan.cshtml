@@ -1,0 +1,888 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model CustomerViewModel
+@{
+    ViewBag.Title = "Marketplace / Customer";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+@section styles
+{
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
+    <style>
+        #customer-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #Customers_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+    <style>
+        #modal-pricing {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
+
+        .snip1404 {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            color: #ffffff;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            margin-top: 13%;
+            display: table;
+        }
+
+            .snip1404 img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: -1;
+            }
+
+            .snip1404 .plan {
+                margin: 0;
+                width: 33.333333%;
+                position: relative;
+                float: left;
+                overflow: hidden;
+                border: 3px solid #442232;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                background-color: #c13232;
+            }
+
+                .snip1404 .plan:hover i,
+                .snip1404 .plan.hover i {
+                    -webkit-transform: scale(1.2);
+                    transform: scale(1.2);
+                }
+
+                .snip1404 .plan:first-of-type {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                .snip1404 .plan:last-of-type {
+                    border-radius: 0 8px 8px 0;
+                }
+
+            .snip1404 * {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 0.25s ease-out;
+                transition: all 0.25s ease-out;
+            }
+
+            .snip1404 header {
+                background-color: #c13232;
+                color: #ffffff;
+            }
+
+            .snip1404 .plan-title {
+                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: 0;
+                padding: 20px 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+                .snip1404 .plan-title:after {
+                    position: absolute;
+                    content: '';
+                    top: 100%;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 40px 300px 0 0;
+                    border-color: rgba(0, 0, 0, 0.5) transparent transparent;
+                }
+
+            .snip1404 .plan-cost {
+                padding: 40px 20px 10px;
+                text-align: right;
+            }
+
+            .snip1404 .plan-price {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+
+            .snip1404 .plan-type {
+                opacity: 0.8;
+                font-size: 0.7em;
+                text-transform: uppercase;
+            }
+
+            .snip1404 .plan-features {
+                padding: 0 0 20px;
+                margin: 0;
+                list-style: outside none none;
+            }
+
+                .snip1404 .plan-features li {
+                    padding: 8px 5%;
+                }
+
+                .snip1404 .plan-features i {
+                    margin-right: 8px;
+                    color: rgba(0, 0, 0, 0.5);
+                }
+
+            .snip1404 .plan-select {
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                padding: 20px;
+                text-align: center;
+            }
+
+                .snip1404 .plan-select a {
+                    background-color: #442232;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 20px;
+                    font-size: 0.75em;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    display: inline-block;
+                }
+
+                    .snip1404 .plan-select a:hover {
+                        background-color: #552a3f;
+                    }
+
+            .snip1404 .featured {
+                margin-top: -10px;
+                border-color: #331926;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+                .snip1404 .featured .plan-select {
+                    padding: 30px 20px;
+                }
+
+        @@media only screen and (max-width: 767px) {
+            .snip1404 .plan {
+                width: 50%;
+            }
+
+            .snip1404 .plan-title,
+            .snip1404 .plan-select a {
+                -webkit-transform: translateY(0);
+                transform: translateY(0);
+            }
+
+            .snip1404 .plan-select,
+            .snip1404 .featured .plan-select {
+                padding: 20px;
+            }
+
+            .snip1404 .featured {
+                margin-top: 0;
+            }
+        }
+
+        @@media only screen and (max-width: 440px) {
+            .snip1404 .plan {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: #212121;
+        }
+    </style>
+}
+<div class="row" id="customer-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row customer_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_customer" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right" id="tambah_baru_tombol_section">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row customer_table_section">
+            <div class="col-sm-12" id="table-customer-partial">
+                @Html.Partial("TableCustomerPartial")
+            </div>
+        </div>
+        <div class="row customer_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Marketplace / Customer</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div id="somediv" role="dialog"></div>
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Marketplace / Customer</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
+                                            @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
+                                            @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                            @Html.HiddenFor(m => m.Customers.RecNum)
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.CUST)
+                                                    @if (Model.Customers != null)
+                                                    {
+                                                        <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.NAMA)
+                                                    <select id="MARKET" placeholder="Harap pilih" required="required"></select>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", type = "email", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group" id="password-akun" style="display: none;">
+                                                @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox", required = "required", type = "number", maxlength = 3, min = 0, max = 999 })
+                                                </div>
+                                                <div class="col-md-2 col-sm-2 col-xs-6">
+                                                    <h5>Hari</h5>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                                                <div class="col-md-6 col-sm-6 col-xs-6">
+                                                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                                                </div>
+                                                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                            </div>
+                                            <div id="BlibliClient" class="form-group">
+                                            </div>
+                                            <div id="BlibliClientPass" class="form-group">
+                                            </div>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Hapus customer -->
+<div class="modal fade" id="konfHapuscustomer" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus akun penghubung marketplace <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deletecustomer()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
+    <div class="modal-dialog" id="modal-pricing" role="document">
+        <div class="modal-content">
+            @Html.Partial("MarketplacePricingPartialView")
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    //add by Tri
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-kNpQZUsTHkQzk9BZ"></script>
+    <script type="text/javascript">
+        var $customerId = "";
+        var $jumlahMarketplace = 0;
+        var $jumlahMarketplaceMax = 0;
+
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function cekJumlahMarketplace() {
+            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
+            link = link.replace("replaceUname", '@(username)');
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                    $jumlahMarketplaceMax = res.JumlahMarketplaceMax;
+                    $jumlahMarketplace = res.JumlahMarketplace;
+
+                    console.log($jumlahMarketplace);
+                    console.log($jumlahMarketplaceMax);
+
+                    if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
+                        $('#tambah_market').remove();
+                        $('#tambah_baru_tombol_section').html("");
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                            'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
+                    } else {
+                        $('#tambah_market').remove();
+                        $('#tambah_baru_tombol_section').html("");
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
+                        $('#tambah_market').on('click', function () {
+                            $('.customer_table_section').hide();
+                            $('.customer_editor_section').show();
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function getKabKot() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    $('#KODEPROV').selectivity({
+                        allowClear: true,
+                        items: provList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    var $kdProv = $('#Customers_KODEPROV').val();
+
+                    $('#KODEPROV').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Customers_KODEPROV").val(null);
+                            resetKabKot();
+                        } else {
+                            $("#Customers_KODEPROV").val($val);
+                            loadDataKabupatenKota($val);
+                        }
+                    });
+
+                    if ($kdProv !== null) {
+                        $('#KODEPROV').selectivity('value', $kdProv);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getPelanggan() {
+            $.ajax({
+                type: "GET",
+                /**/
+                /**/
+                url: '@Url.Action("GetPelanggan", "Manage")',
+                /**/
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var customerList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            customerList[i] = {
+                                id: item.IdMarket,
+                                text: item.NamaMarket
+                            };
+                        });
+
+                    var namaMarket = $('#MARKET').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: customerList,
+                        onChange: function(value) {
+                            $("#Customers_NAMA").val(value);
+
+                            if (value == 8) {
+                                $('#password-akun').show();
+                            } else {
+                                $('#password-akun').hide();
+                            }
+                        }
+                    });
+
+                    namaMarket[0].selectize.setValue($('#Customers_NAMA').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function simpanCustomer(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#table-customer-partial').html(response);
+                        Initialize();
+                        $('#close-editor').click();
+                        $('#loading_spinner').hide();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                    } else {
+                        console.log(response.Errors);
+                        alert('Ada data yang tidak valid!');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+
+        function Initialize() {
+            cekJumlahMarketplace();
+
+            var table = $('#datatable').DataTable();
+
+            $('#search_customer').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_market').on('click', function () {
+                $('.customer_table_section').hide();
+                $('.customer_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.customer_table_section').show();
+                $('.customer_editor_section').hide();
+                $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
+                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_TOP, #Customers_PERSO, #Customers_API_KEY').val('');
+                $('#CUSTNUMBER').val('[AUTO]');
+                $('#Customers_USERNAME').val('@(username)');
+                $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
+                $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
+                var namaMarket = $('#MARKET').selectize();
+                namaMarket[0].selectize.setValue('');
+                resetError();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_market').click();
+            }
+
+            getPelanggan();
+            getKabKot();
+            resetKabKot();
+        }
+
+        function resetKabKot() {
+            $('#KODEKABKOT').selectivity({
+                allowClear: true,
+                items: [],
+                placeholder: 'Harap pilih'
+            });
+            $('#KODEKABKOT').selectivity('value', 'Harap pilih');
+        }
+
+        function loadDataKabupatenKota(kdProv) {
+            var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
+            link = link.replace("replaceId", kdProv);
+
+            $.ajax({
+                type: "GET",
+                /**/
+                url: link,
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var kabkotList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            kabkotList[i] = {
+                                id: item.KodeKabKot,
+                                text: item.NamaKabKot
+                            };
+                        });
+
+                    $('#KODEKABKOT').selectivity({
+                        allowClear: true,
+                        items: kabkotList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    $('#KODEKABKOT').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Customers_KODEKABKOT").val(null);
+                        } else {
+                            $("#Customers_KODEKABKOT").val($val);
+                        }
+                    });
+
+                    var $kdKabKot = $('#Customers_KODEKABKOT').val();
+
+                    if ($kdKabKot !== null) {
+                        $('#KODEKABKOT').selectivity('value', $kdKabKot);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function editcustomer(customerId) {
+            var link = '@Url.Action("EditCustomer", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", customerId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    getPelanggan();
+                    getKabKot();
+                    resetKabKot();
+                    @{
+                                                                        <text>
+                    $('#Customers_TGL_INPUT').val(@(Model?.Customers?.TGL_INPUT));
+                    </text>
+                                                                    }
+                    $('#Customers_USERNAME').val(response.Customers.USERNAME);
+                    $('#Customers_PASSWORD').val(response.Customers.PASSWORD);
+                    $('#Customers_RecNum').val(response.Customers.RecNum);
+                    $('#Customers_CUST').val(response.Customers.CUST).attr('disabled', 'disabled');
+                    $('#CUSTNUMBER').val(response.Customers.CUST);
+                    $('#Customers_NAMA').val(response.Customers.NAMA);
+                    $('#Customers_PERSO').val(response.Customers.PERSO);
+                    $('#Customers_EMAIL').val(response.Customers.EMAIL).trigger('change');
+                    $('#Customers_AL').val(response.Customers.AL);
+                    $('#Customers_KODEPOS').val(response.Customers.KODEPOS);
+                    $('#Customers_KODEPROV').val(response.Customers.KODEPROV);
+                    $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
+                    $('#Customers_TLP').val(response.Customers.TLP);
+                    $('#Customers_TOP').val(response.Customers.TOP);
+                    $('#Customers_API_KEY').val(response.Customers.API_KEY);
+                    //add by Tri, button for generate lazada code
+                    $('#generate_code').remove();
+                    @{
+                        var lzdCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("LAZADA")).IdMarket.ToString();
+                    }
+                    if (@lzdCode == response.Customers.NAMA) {
+                        $('#buttonGen').append('<button class="btn btn-primary" onclick="GenerateLazadaCode('+response.Customers.CUST+'); return false;" id="generate_code">Generate</button>');
+                    }
+                    //end add by Tri, button for generate lazada code
+                    //add by calvin, textbox for client api blibli
+                    $('#labelAPI_CLIENT_U').remove();
+                    $('#txtAPI_CLIENT_U').remove();
+                    $('#labelAPI_CLIENT_P').remove();
+                    $('#txtAPI_CLIENT_P').remove();
+                    @{
+                        var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
+                    }
+                    if (@blibliCode == response.Customers.NAMA) {
+
+                        $('#lbl_Customers_API_KEY').html("API Secret Key *");
+                        var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">API client *</label>';
+
+                        var valuetxtAPI_CLIENT_U = "";
+                        if (response.Customers.API_CLIENT_U != null) {
+                            valuetxtAPI_CLIENT_U = response.Customers.API_CLIENT_U;
+                        }
+                        var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
+
+                        var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">API client password *</label>';
+                        var valuetxtAPI_CLIENT_P = "";
+                        if (response.Customers.API_CLIENT_P != null) {
+                            valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
+                        }
+                        var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="'+ valuetxtAPI_CLIENT_P +'"></div>';
+
+                        $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                        $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        $('#labelAPI_CLIENT_U').html("API client username *");
+                    }
+                    //end add by Tri, button for generate lazada code
+
+                    $('.customer_table_section').hide();
+                    $('.customer_editor_section').show();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //add by Tri, call midtrans api get token
+        function clickSub(sendKode)
+        {
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", "0" + sendKode);
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        snap.pay(response, { skipOrderSummary: true });
+                        //alert(response);
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            //window.location = "http://localhost:50108/midtrans/PaymentMidtrans?code=0" + sendKode;
+            //window.open($link, "_self");
+            //alert('' +sendKode);
+        }
+        //end add by Tri, call midtrans api get token
+
+        //add by Tri, get link to generate lazada code
+        function GenerateLazadaCode(kdCust) {
+
+            var link = '@Url.Action("LazadaUrl", "Lazada", new { cust = "replaceCust" })';
+            link = link.replace("replaceCust", kdCust);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    //opendialog(response);
+                    //close edit form
+                    @*$('.customer_table_section').show();
+                    $('.customer_editor_section').hide();
+                    $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
+                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_TOP, #Customers_PERSO, #Customers_API_KEY').val('');
+                    $('#CUSTNUMBER').val('[AUTO]');
+                    $('#Customers_USERNAME').val('@(username)');
+                    $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
+                    $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
+                    var namaMarket = $('#MARKET').selectize();
+                    namaMarket[0].selectize.setValue('');
+                    resetError();*@
+                    //end close edit form
+                    window.open(response, "Lazada Authentication", "width=600, height=400, scrollbars=yes");
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        //function opendialog(page) {
+        //    var $dialog = $('#somediv')
+        //        .html('<iframe style="border: 0px; " src="' + page + '" width="100%" height="100%"></iframe>')
+        //        .dialog({
+        //            title: "Lazada Authentication",
+        //            autoOpen: false,
+        //            dialogClass: 'dialog_fixed,ui-widget-header',
+        //            modal: true,
+        //            height: 500,
+        //            minWidth: 400,
+        //            minHeight: 400,
+        //            draggable: true,
+        //            /*close: function () { $(this).remove(); },*/
+        //            buttons: { "Close": function () { $(this).dialog("close"); } }
+        //        });
+        //    $dialog.dialog('open');
+        //}
+        //end add by Tri, get link to generate lazada code
+        function pass(customerId, akunMarket) {
+            this.$customerId = customerId;
+            $('#hapus_label').text(akunMarket);
+        }
+
+        function deletecustomer() {
+            var link = '@Url.Action("DeleteCustomer", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", this.$customerId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-customer-partial').html(response);
+                    Initialize();
+                    $('#konfHapuscustomer').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

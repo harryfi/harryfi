@@ -1,0 +1,790 @@
+﻿@using MasterOnline.Models
+@using MasterOnline.ViewModels
+@{
+    MoDbContext context = new MoDbContext();
+    ErasoftContext erasoftContext = null;
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    var nama = "";
+
+    if (dataSession?.Account != null)
+    {
+        nama = dataSession.Account.Username;
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+    }
+    else
+    {
+        nama = dataSession?.User.Username;
+        var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
+        erasoftContext = new ErasoftContext(accFromUser.UserId);
+    }
+
+    var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
+    var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
+    var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+}
+
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <link href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/nprogress/nprogress.css" rel="stylesheet">
+    <link href="~/Content/vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <link href="~/Content/vendors/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">
+    <link href="~/Content/vendors/jqvmap/dist/jqvmap.min.css" rel="stylesheet" />
+    <link href="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+    <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
+    <link href="~/Content/ManageSite.css" rel="stylesheet" />
+    <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
+
+    @RenderSection("styles", required: false)
+    <style>
+        .page-editor {
+            overflow: inherit !important;
+        }
+
+        table thead tr {
+            background-color: #ffe8e8;
+        }
+
+        ul.bar_tabs > li a {
+            background-color: #ffe8e8;
+        }
+
+        body {
+            background: #000;
+        }
+
+        #menu_toggle,
+        #menu_toggle:focus,
+        #menu_toggle:hover {
+            color: #000;
+        }
+
+        .nav_title,
+        .left_col {
+            /*background: #891539;*/
+            background: #000;
+        }
+
+        .nav.side-menu > li.active,
+        .nav.side-menu > li.current-page {
+            /*border-right: 5px solid #ff85ab;*/
+            border-right: 5px solid #d51339;
+        }
+
+            .nav.side-menu > li.active > a {
+                /*background: linear-gradient(#b31949,#891539),#891539;*/
+                background: linear-gradient(#d51339, #000), #000;
+            }
+
+        .nav-md ul.nav.child_menu li:before {
+            /*background: #ff85ab;*/
+            background: #d51339;
+        }
+
+        .nav-md ul.nav.child_menu li:after {
+            /*border-left: 1px solid #ff85ab;*/
+            border-left: 1px solid #d51339;
+        }
+
+        #loading_spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_spinner_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        #modal-gudang-qty-body .selectivity-dropdown {
+            left: 206.828px !important;
+        }
+
+        .site_title {
+            overflow: visible;
+        }
+    </style>
+</head>
+<body class="nav-md">
+    <div class="container body">
+        <div class="main_container">
+            <div class="col-md-3 left_col">
+                <div class="left_col scroll-view">
+                    <div class="navbar nav_title" style="border: 0;">
+                        <a href="@Url.Action("Index", "Manage")" class="site_title">
+                            <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px; margin-top: 25px;" src="~/Content/Images/MO_new_logo_v2_white_text.png">
+                        </a>
+                    </div>
+                    <div class="clearfix"></div>
+                    <!-- menu profile quick info -->
+                    <!--<div class="profile clearfix">
+                        <div class="profile_pic">
+                            <img src="~/Content/Images/temp-ava.png" alt="..." class="img-circle profile_img">
+                        </div>
+                        <div class="profile_info">
+                            <span>Selamat Datang,</span>
+                            <h2>@nama</h2>
+                        </div>
+                    </div>
+                    <!-- /menu profile quick info -->
+                    <br />
+                    <!-- sidebar menu -->
+                    <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+                        <div class="menu_section">
+                            <ul class="nav side-menu">
+                                <li>
+                                    <a href="@Url.Action("Index", "Manage")"><i class="fa fa-home"></i> Dashboard</a>
+                                </li>
+                                @if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
+                                {
+                                    var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
+                                    var listChild = listAnak.ToList();
+                                    var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
+
+                                    var listSec = new List<SecUser>();
+
+                                    if (dataSession?.User != null)
+                                    {
+                                        listSec = context.SecUser.Where(s => s.UserId == dataSession.User.UserId && s.Permission).ToList();
+                                    }
+
+                                    foreach (var parent in listParent)
+                                    {
+                                        if (parent.Show)
+                                        {
+                                            <li class="parent-li" id="@parent.ScrId">
+                                                <a @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                    @if (parent.HaveChild)
+                                                    {
+                                                        <span class="fa fa-chevron-down"></span>
+                                                    }
+                                                </a>
+                                                <ul class="nav child_menu">
+                                                    @foreach (var child in listChild)
+                                                    {
+                                                        if (listSec.Count > 0)
+                                                        {
+                                                            var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+
+                                                            if (child.ParentId == parent.ScrId && secUserMenu != null)
+                                                            {
+                                                                if (child.Show)
+                                                                {
+                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (child.ParentId == parent.ScrId)
+                                                            {
+                                                                if (child.Show && !child.HaveChild)
+                                                                {
+                                                                    <li>
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (child.Icon != null)
+                                                                            {
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li class="parent-li" id="@child.ScrId">
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                        <ul class="nav child_menu">
+                                                                            @foreach (var childFromChild in listChildFromChild)
+                                                                            {
+                                                                                if (listSec.Count > 0)
+                                                                                {
+                                                                                    var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                    if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (childFromChild.ParentId == child.ScrId)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        </ul>
+                                                                    </li>
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>
+                                            </li>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <li>
+                                        <a href="@Url.Action("Bantuan", "Manage")"><i class="fa fa-question-circle"></i> Bantuan</a>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /sidebar menu -->
+                </div>
+            </div>
+            <!-- top navigation -->
+            <div class="top_nav">
+                <div class="nav_menu">
+                    <nav>
+                        <div class="nav toggle">
+                            <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+                        </div>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li class="">
+                                <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                    <img src="~/Content/Images/temp-ava.png" alt="">@nama
+                                    <span class=" fa fa-angle-down"></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-usermenu pull-right">
+                                    <li><a href="@Url.Action("GantiPassword", "Manage")"><i class="fa fa-key pull-right"></i> Ubah Password</a></li>
+                                    <li><a href="@Url.Action("LoggingOut", "Account")"><i class="fa fa-sign-out pull-right"></i> Keluar</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            <!-- /top navigation -->
+            <!-- page content -->
+            <div class="right_col" role="main">
+                <div id="loading_spinner">
+                    <div id="loading_spinner_image">
+                        <img src="~/Content/Images/spinner.gif" />
+                    </div>
+                </div>
+                @RenderBody()
+            </div>
+            <!-- /page content -->
+            <!-- footer content -->
+            <footer>
+                <div class="pull-left">
+                    <a href="#">Blog MasterOnline</a>
+                </div>
+                <div class="pull-right">
+                    MasterOnline - By <a href="http://www.erasoft.co.id/">Erasoft</a>
+                </div>
+                <div class="clearfix"></div>
+            </footer>
+            <!-- /footer content -->
+        </div>
+    </div>
+    <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+    <script src="~/Content/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/Content/vendors/fastclick/lib/fastclick.js"></script>
+    <script src="~/Content/vendors/nprogress/nprogress.js"></script>
+    <script src="~/Content/vendors/Chart.js/dist/Chart.min.js"></script>
+    <script src="~/Content/vendors/gauge.js/dist/gauge.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js"></script>
+    <script src="~/Content/vendors/iCheck/icheck.min.js"></script>
+    <script src="~/Content/vendors/skycons/skycons.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.pie.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.time.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.stack.js"></script>
+    <script src="~/Content/vendors/Flot/jquery.flot.resize.js"></script>
+    <script src="~/Content/vendors/flot.orderbars/js/jquery.flot.orderBars.js"></script>
+    <script src="~/Content/vendors/flot-spline/js/jquery.flot.spline.min.js"></script>
+    <script src="~/Content/vendors/flot.curvedlines/curvedLines.js"></script>
+    <script src="~/Content/vendors/DateJS/build/date.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/jquery.vmap.js"></script>
+    <script src="~/Content/vendors/jqvmap/dist/maps/jquery.vmap.world.js"></script>
+    <script src="~/Content/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js"></script>
+    <script src="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
+    <script src="~/Content/build/js/custom.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        $(".alert").fadeTo(4000, 500).slideUp(500, function () {
+            $(".alert").slideUp(500);
+        });
+
+        var counter = 0;
+
+        $(document).ready(function () {
+            @if (dataSession?.User != null)
+            {
+                if (dataSession.User.UserId != null)
+                {
+                    <text>
+                        $(".side-menu li.parent-li").each(function() {
+                            var id = $(this).attr("id");
+                            if ($(".parent-li#" + id + " .child_menu li").length === 0) {
+                                $(this).hide();
+                            }
+                        });
+                    </text>
+                }
+            }
+
+            initRequired();
+        });
+
+        function initRequired() {
+            $('#simpan_btn').addClass('hidden_for_f2');
+            $('#btn-ubah-password').addClass('hidden_for_f2');
+            $('#submit-sec').addClass('hidden_for_f2');
+
+            $('.page-close').click(function() {
+                $('#simpan_btn').addClass('hidden_for_f2');
+                $('#btn-ubah-password').addClass('hidden_for_f2');
+                $('#submit-sec').addClass('hidden_for_f2');
+            });
+
+            $('.btn_tambah_data').click(function () {
+                $('#simpan_btn').removeClass('hidden_for_f2');
+                $('#btn-ubah-password').removeClass('hidden_for_f2');
+                $('#submit-sec').removeClass('hidden_for_f2');
+            });
+
+            $('body').keydown(function (event) {
+                if (!$('#simpan_btn').hasClass('hidden_for_f2') && !$('#btn-ubah-password').hasClass('hidden_for_f2') && !$('#submit-sec').hasClass('hidden_for_f2'))
+                {
+                    if(event.which == 113) {
+                        $('#simpan_btn').click();
+                        $('#btn-ubah-password').click();
+                        $('#submit-sec').click();
+                        return false;
+                    }
+                }
+            });
+
+            $('form input[required="required"], form textarea[required="required"]').keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            });
+
+            $('form select[required="required"]').on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #d0d0d0');
+                    $this.parent().parent('.form-group').removeClass('has-error');
+
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().find('.text-danger').remove();
+                    } else {
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            $('form .selectized[required="required"]').on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #d0d0d0');
+                    $this.parent().parent('.form-group').removeClass('has-error');
+
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().find('.text-danger').remove();
+                    } else {
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            $("form input[type='number']").keydown(function (e) {
+                // Allow: backspace, delete, tab, escape, enter and .
+                if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    // Allow: Ctrl/cmd+A
+                    (e.keyCode == 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+C
+                    (e.keyCode == 67 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+X
+                    (e.keyCode == 88 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: Ctrl/cmd+v
+                    (e.keyCode == 86 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: home, end, left, right
+                    (e.keyCode >= 35 && e.keyCode <= 39)) {
+                    // let it happen, don't do anything
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
+
+            $("form input[type='email']").keydown(function (e) {
+                var code = e.keyCode || e.which;
+                if (code == '9') {
+                    var $this = $(this);
+                    var $value = $this.val();
+
+                    if ($value == '' || isEmptyOrSpaces($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+
+                        if (!isEmail($value)) {
+                            $this.closest('.form-group').addClass('has-error');
+
+                            if (!$this.closest('div').find('.text-danger').length)
+                                $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                        } else {
+                            $this.closest('.form-group').removeClass('has-error');
+                            $this.closest('div').find('.text-danger').remove();
+                        }
+                    }
+                }
+            }).on('blur change', function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+                } else {
+                    $this.closest('.form-group').removeClass('has-error');
+                    $this.closest('div').find('.text-danger').remove();
+
+                    if (!isEmail($value)) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length)
+                            $this.closest('div').append('<span class="text-danger">Email tidak valid!</span>');
+                    } else {
+                        $this.closest('.form-group').removeClass('has-error');
+                        $this.closest('div').find('.text-danger').remove();
+                    }
+                }
+            });
+
+            //Otomatis mengikuti attribute maxlength / stringlength
+            $("form input[data-val-length-max]").each(function () {
+                var $this = $(this);
+                var data = $this.data();
+                $this.attr("maxlength", data.valLengthMax);
+            });
+
+            $('form input[type="text"]').each(function () {
+                var $this = $(this);
+                var $name = $this.attr('name');
+
+                if ($name != null) {
+                    if ($name.indexOf('TLP') !== -1 || $name.indexOf('TELEPON') !== -1) {
+                        $this.attr("maxlength", 15);
+                    }
+                }
+            });
+
+            $('form input.limited_number_textbox[type="number"]').each(function () {
+                var $this = $(this);
+                $this.attr('oninput', 'maxLengthCheck(this)');
+            });
+        }
+
+        function resetError() {
+            $('.has-error').each(function() {
+                $(this).removeClass('has-error');
+            });
+
+            $('form').each(function () {
+                $(this).find('span.text-danger').remove();
+            });
+        }
+
+        function validateForm() {
+            var $isValid = true;
+            resetError();
+
+            $('form input[required="required"], form textarea[required="required"]').each(function () {
+                var $this = $(this);
+                var $value = $this.val();
+
+                if ($value == '' || isEmptyOrSpaces($value)) {
+                    $this.closest('.form-group').addClass('has-error');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            $('form select[required="required"]').each(function() {
+                var $this = $(this);
+                var $value = $this.find('option:selected').text();
+
+                if ($value == null || $value == 'Harap pilih' || $value == 'Silakan pilih') {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        if ($this.closest('div').hasClass('input-group')) {
+                            $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        } else {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            //$('form .selectized').each(function () {
+            $('form .selectized[required="required"]').each(function () {
+                var $this = $(this);
+                var $inputSelectize = $this.parent().find('.item');
+
+                if ($inputSelectize.length == 0) {
+                    $this.parent().parent('.form-group').addClass('has-error');
+                    $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
+
+                    if (!$this.closest('div').find('.text-danger').length) {
+                        if ($this.closest('div').hasClass('input-group')) {
+                            $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        } else {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
+                    }
+
+                    $isValid = false;
+                }
+            });
+
+            var $errorElement = $('form').find('.has-error');
+            if ($errorElement.length) $isValid = false;
+
+            return $isValid;
+        }
+
+        function cekKode($this, $jenis) {
+            var link = '';
+
+            if ($jenis == 'gd') {
+                link = '@Url.Action("CekKodeGudang", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'kat') {
+                link = '@Url.Action("CekKodeKategori", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'merk') {
+                link = '@Url.Action("CekKodeMerk", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'brg') {
+                link = '@Url.Action("CekKodeBarang", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'supp') {
+                link = '@Url.Action("CekKodeSupplier", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'rek') {
+                link = '@Url.Action("CekKodeRekening", "Manage", new { kode = "replaceKode" })';
+            } else if ($jenis == 'buyer') {
+                link = '@Url.Action("CekKodePembeli", "Manage", new { kode = "replaceKode" })';
+            }
+
+            link = link.replace("replaceKode", $this.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (!response.Available) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kode ini sudah digunakan!</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function cekField($this, $urlAction, $msg) {
+            var link = '';
+
+            link = '@Url.Action("replaceUrl", "Manage", new { kode = "replaceKode" })';
+            link = link.replace("replaceUrl", $urlAction);
+            link = link.replace("replaceKode", $this.val());
+
+            console.log('test');
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (!response.Available) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">' + $msg +'</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function isEmptyOrSpaces(str){
+            return str === null || str.match(/^ *$/) !== null;
+        }
+
+        function isEmail(email) {
+            var regex = /^([a-zA-Z0-9_.+-])+\@@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            return regex.test(email);
+        }
+
+        function maxLengthCheck(object) {
+            var $maxLength = $(object).attr('maxlength');
+
+            if (typeof $maxLength === typeof undefined && $maxLength === false) {
+                if (object.value.length > 3)
+                    object.value = object.value.slice(0, 3);
+            } else {
+                if (object.value.length > $maxLength)
+                    object.value = object.value.slice(0, $maxLength);
+            }
+        }
+
+        function getUrlParameter(sParam) {
+            var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+                sURLVariables = sPageURL.split('&'),
+                sParameterName,
+                i;
+
+            for (i = 0; i < sURLVariables.length; i++) {
+                sParameterName = sURLVariables[i].split('=');
+
+                if (sParameterName[0] === sParam) {
+                    return sParameterName[1] === undefined ? true : sParameterName[1];
+                }
+            }
+        };
+
+        // add for proteksi copy di object input type=number
+        function InitPaste(obj) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste(x);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste(obj) {
+            var x = obj;
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+            var strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+        // end
+        var _0x2056 = ["\x6F\x6E\x6C\x6F\x61\x64", "\x6F\x6E\x6D\x6F\x75\x73\x65\x6D\x6F\x76\x65", "\x6F\x6E\x6B\x65\x79\x70\x72\x65\x73\x73", "\x53\x65\x73\x69\x20\x41\x6E\x64\x61\x20\x74\x65\x6C\x61\x68\x20\x68\x61\x62\x69\x73\x20\x6B\x61\x72\x65\x6E\x61\x20\x74\x69\x64\x61\x6B\x20\x74\x65\x72\x64\x65\x74\x65\x6B\x73\x69\x20\x61\x64\x61\x6E\x79\x61\x20\x6B\x65\x67\x69\x61\x74\x61\x6E\x20\x73\x65\x6C\x61\x6D\x61\x20\x31\x30\x20\x6D\x65\x6E\x69\x74", "\x68\x72\x65\x66", "\x40\x55\x72\x6C\x2E\x41\x63\x74\x69\x6F\x6E\x28\x22\x4C\x6F\x67\x67\x69\x6E\x67\x4F\x75\x74\x22\x2C\x22\x4D\x61\x6E\x61\x67\x65\x22\x29"]; var inactivityTime = function () { var _0x8846x2; window[_0x2056[0]] = _0x8846x4; document[_0x2056[1]] = _0x8846x4; document[_0x2056[2]] = _0x8846x4; function _0x8846x3() { alert(_0x2056[3]); location[_0x2056[4]] = _0x2056[5] } function _0x8846x4() { clearTimeout(_0x8846x2); _0x8846x2 = setTimeout(_0x8846x3, 600000) } }
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

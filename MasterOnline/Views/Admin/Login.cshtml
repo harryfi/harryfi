@@ -1,0 +1,107 @@
+﻿@model MasterOnline.Models.Admin
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>MasterOnline - Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/vendors/bootstrap/dist/css/bootstrap.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/vendors/font-awesome/css/font-awesome.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/admin/fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/vendors/animate.css/animate.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/vendors/css-hamburgers/hamburgers.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/vendors/animsition/css/animsition.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="~/Content/admin/util.css">
+    <link rel="stylesheet" type="text/css" href="~/Content/admin/main.css">
+    <!--===============================================================================================-->
+</head>
+<body>
+    <div class="limiter">
+        <div class="container-login100">
+            <div class="wrap-login100 p-l-85 p-r-85 p-t-55 p-b-55">
+                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                {
+                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                    {
+                        <div class="alert alert-danger">
+                            @modelError.ErrorMessage
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                }
+                @using (Html.BeginForm("LoggingIn", "Admin", FormMethod.Post, new
+                {
+                    enctype = "multipart/form-data",
+                    @class = "login100-form validate-form flex-sb flex-w"
+                }))
+                {
+                    @Html.AntiForgeryToken()
+                    <span class="login100-form-title p-b-32">
+                        Admin Login
+                    </span>
+
+                    <span class="txt1 p-b-11">
+                        @Html.LabelFor(m => m.Email)
+                    </span>
+                    <div class="wrap-input100 validate-input m-b-36" data-validate="Email is required">
+                        @Html.TextBoxFor(m => m.Email, new {@class = "input100", maxlength = 50})
+                        <span class="focus-input100"></span>
+                    </div>
+
+                    <span class="txt1 p-b-11">
+                        @Html.LabelFor(m => m.Password)
+                    </span>
+                    <div class="wrap-input100 validate-input m-b-12" data-validate="Password is required">
+                        <span class="btn-show-pass">
+                            <i class="fa fa-eye"></i>
+                        </span>
+                        @Html.TextBoxFor(m => m.Password, new {@class = "input100", maxlength = 50, type = "password"})
+                        <span class="focus-input100"></span>
+                    </div>
+
+                    <div class="flex-sb-m w-full p-b-48">
+                        <div class="contact100-form-checkbox">
+                            <input class="input-checkbox100" id="ckb1" type="checkbox" checked="checked" name="remember-me">
+                            <label class="label-checkbox100" for="ckb1">
+                                Remember me
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="container-login100-form-btn">
+                        <button class="login100-form-btn">
+                            Masuk
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!--===============================================================================================-->
+    <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendors/animsition/js/animsition.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendors/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/vendors/select2/dist/js/select2.min.js"></script>
+    <!--===============================================================================================-->
+    <script src="~/Content/admin/main.js"></script>
+
+</body>
+</html>

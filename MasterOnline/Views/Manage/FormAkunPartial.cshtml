@@ -1,0 +1,40 @@
+﻿@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.AccountUserViewModel
+@{
+    var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+}
+
+@Html.HiddenFor(m => m.User.AccountId, new { Value = dataSession?.Account.AccountId })
+@Html.HiddenFor(m => m.User.UserId)
+<div class="form-group">
+    @Html.LabelFor(m => m.User.Email, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.User.Email, new { @class = "form-control", maxlength = 50, type = "email" })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.User.Username, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.User.Username, new { @class = "form-control", @maxlength = 50 })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.User.NoHp, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.User.NoHp, new { @class = "form-control", @maxlength = 20 })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.User.Password, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.User.Password, new { @class = "form-control", @maxlength = 50, @type = "password" })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.User.KonfirmasiPassword, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.User.KonfirmasiPassword, new { @class = "form-control", @maxlength = 50, @type = "password" })
+    </div>
+</div>
+<hr />
+<button type="button" class="btn btn-primary pull-right" id="simpan_btn" onclick="simpanAkun(this)">Simpan</button>

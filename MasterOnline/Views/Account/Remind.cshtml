@@ -1,0 +1,92 @@
+﻿
+@{
+    ViewBag.Title = "Remind";
+}
+
+<div class="passwordBox">
+    <div class="row">
+        <a href="/">
+            <div class="col-md-12 text-center m-b-lg">
+                <img alt="logo" src="~/Content/Images/logo_dark.png">
+            </div>
+        </a>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="ibox-content">
+                <h2 class="font-bold">Lupa Password</h2>
+                <p>Masukkan email anda, kami akan mengirimkan link untuk mengganti password anda.</p>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form class="m-t">
+                            <div class="form-group">
+                                <div class="form-group">
+                                    <label class="control-label control-label-bold">Email</label>
+                                    <input type="email" class="form-control" name="email" value="">
+                                </div>
+                            </div>
+                            <button type="submit" class="ladda-button btn btn-primary block full-width m-b" data-style="expand-right">
+                                <span class="ladda-label">Submit</span>
+                                <span class="ladda-spinner"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row text-center">
+                    <p>
+                        <a href="/login">Kembali ke Login</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+</div>
+<style>
+    body {
+        background-color: #f3f3f4;
+        font-family: Roboto,sans-serif;
+        color: #333;
+        padding-top: 0;
+    }
+
+    .passwordBox {
+        max-width: 460px;
+        margin: 0 auto;
+        padding: 100px 20px 20px;
+    }
+
+    .ibox-content {
+        clear: both;
+        padding: 15px 20px 20px;
+        border-color: #e7eaec;
+        border-image: none;
+        border-style: solid solid none;
+        border-width: 1px 0;
+    }
+
+    .ibox-content, .ibox-title {
+        background-color: #fff;
+        color: inherit;
+    }
+
+    .m-b-lg {
+        margin-bottom: 30px;
+    }
+
+    .block {
+        display: block !important;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .m-b {
+        margin-bottom: 15px;
+    }
+
+    .navbar {
+        display: none;
+    }
+</style>

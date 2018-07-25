@@ -1,0 +1,460 @@
+﻿@using MasterOnline.ViewModels
+@model BuyerViewModel
+@{
+    ViewBag.Title = "Pembeli";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        #pembeli-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        #Pembeli_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="pembeli-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row pembeli_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_pembeli" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_pembeli">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row pembeli_table_section">
+            <div id="table-buyer-partial" class="col-sm-12">
+                @Html.Partial("TableBuyerPartial")
+            </div>
+        </div>
+        <div class="row pembeli_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Pembeli</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Pembeli</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SavePembeli", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.HiddenFor(m => m.Pembeli.USERNAME, new { Value = username })
+                                            @Html.HiddenFor(m => m.Pembeli.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                            @Html.HiddenFor(m => m.Pembeli.RecNum)
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.BUYER_CODE, "Kode Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @if (Model?.Pembeli?.RecNum != null)
+                                                    {
+                                                        @Html.HiddenFor(m => m.Pembeli.BUYER_CODE)
+                                                        <input type="text" value="@Model.Pembeli.BUYER_CODE" disabled class="form-control" />
+                                                    }
+                                                    else
+                                                    {
+                                                        @Html.TextBoxFor(m => m.Pembeli.BUYER_CODE, new { @class = "form-control", required = "required" })
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.NAMA, "Nama Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Pembeli.NAMA, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Pembeli.PERSO, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextAreaFor(m => m.Pembeli.AL, new { @class = "form-control", required = "required", maxlength = 250 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Pembeli.KODEPROV)
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0" required = "required"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Pembeli.KODEKABKOT)
+                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required = "required"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Pembeli.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 15 })
+                                                </div>
+                                            </div>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)"/>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus pembeli -->
+<div class="modal fade" id="konfHapusPembeli" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus pembeli <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deletePembeli()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $pembeliId = "";
+
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function Initialize() {
+            var table = $('#datatable').DataTable();
+
+            $('#search_pembeli').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_pembeli').on('click', function () {
+                $('.pembeli_table_section').hide();
+                $('.pembeli_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.pembeli_table_section').show();
+                $('.pembeli_editor_section').hide();
+                $('#Pembeli_KODEPOS, #Pembeli_NAMA, #Pembeli_EMAIL, #Pembeli_AL, #Pembeli_RecNum,#Pembeli_PERSO, ' +
+                    '#Pembeli_BUYER_CODE, #Pembeli_TLP, #Pembeli_KODEPROV, #Pembeli_KODEKABKOT').val('');
+                $('#Pembeli_BUYER_CODE').removeAttr('disabled');
+                $('#Pembeli_USERNAME').val('@(username)');
+                $('#Pembeli_TGL_INPUT').val('@(DateTime.Now)');
+                $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
+                resetError();
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_pembeli').click();
+            }
+
+            getKabKot();
+            resetKabKot();
+
+            $('#Pembeli_BUYER_CODE').on('change blur',
+                function () {
+                    if (!$(this).is(':disabled')) {
+                        cekKode($(this), 'buyer');
+                    }
+                });
+
+            $('#Pembeli_TLP').keydown(
+                function () {
+                    InitPaste($(this));
+                }); 
+            $('#Pembeli_KODEPOS').keydown(
+                function () {
+                    InitPaste($(this));
+                });
+        }
+
+        function simpanPembeli(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-buyer-partial').html(response);
+                    Initialize();
+                    $('#close-editor').click();
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+
+            return false;
+        }
+
+        function getKabKot() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    $('#KODEPROV').selectivity({
+                        allowClear: true,
+                        items: provList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    var $kdProv = $('#Pembeli_KODEPROV').val();
+
+                    $('#KODEPROV').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Pembeli_KODEPROV").val(null);
+                            resetKabKot();
+                        } else {
+                            $("#Pembeli_KODEPROV").val($val);
+                            loadDataKabupatenKota($val);
+                        }
+                    });
+
+                    if ($kdProv !== null) {
+                        $('#KODEPROV').selectivity('value', $kdProv);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function resetKabKot() {
+            $('#KODEKABKOT').selectivity({
+                allowClear: true,
+                items: [],
+                placeholder: 'Harap pilih'
+            });
+            $('#KODEKABKOT').selectivity('value', 'Harap pilih');
+        }
+
+        function loadDataKabupatenKota(kdProv) {
+            var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
+            link = link.replace("replaceId", kdProv);
+
+            $.ajax({
+                type: "GET",
+                /**/
+                url: link,
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var kabkotList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            kabkotList[i] = {
+                                id: item.KodeKabKot,
+                                text: item.NamaKabKot
+                            };
+                        });
+
+                    $('#KODEKABKOT').selectivity({
+                        allowClear: true,
+                        items: kabkotList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    $('#KODEKABKOT').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Pembeli_KODEKABKOT").val(null);
+                        } else {
+                            $("#Pembeli_KODEKABKOT").val($val);
+                        }
+                    });
+
+                    var $kdKabKot = $('#Pembeli_KODEKABKOT').val();
+
+                    if ($kdKabKot !== null) {
+                        $('#KODEKABKOT').selectivity('value', $kdKabKot);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function editPembeli(pembeliId) {
+            var link = '@Url.Action("EditPembeli", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", pembeliId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    getKabKot();
+                    resetKabKot();
+                    $('#Pembeli_USERNAME').val(response.Pembeli.USERNAME);
+                    $('#Pembeli_TGL_INPUT').val(moment(response.Pembeli.TGL_INPUT).format("YYYY-MM-DD HH:mm:ss"));
+                    $('#Pembeli_RecNum').val(response.Pembeli.RecNum);
+                    $('#Pembeli_BUYER_CODE').val(response.Pembeli.BUYER_CODE).attr('disabled', 'disabled');
+                    $('#Pembeli_NAMA').val(response.Pembeli.NAMA);
+                    $('#Pembeli_PERSO').val(response.Pembeli.PERSO);
+                    $('#Pembeli_EMAIL').val(response.Pembeli.EMAIL);
+                    $('#Pembeli_AL').val(response.Pembeli.AL);
+                    $('#Pembeli_KODEPOS').val(response.Pembeli.KODEPOS);
+                    $('#Pembeli_KODEPROV').val(response.Pembeli.KODEPROV);
+                    $('#Pembeli_KODEKABKOT').val(response.Pembeli.KODEKABKOT);
+                    $('#Pembeli_TLP').val(response.Pembeli.TLP);
+                    $('#tambah_pembeli').click();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(pembeliId, namaPembeli) {
+            this.$pembeliId = pembeliId;
+            $('#hapus_label').text(namaPembeli);
+        }
+
+        function deletePembeli() {
+            var link = '@Url.Action("DeletePembeli", "Manage", new { buyerId = "replaceId" })';
+            link = link.replace("replaceId", this.$pembeliId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-buyer-partial').html(response);
+                    Initialize();
+                    $('#konfHapusPembeli').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

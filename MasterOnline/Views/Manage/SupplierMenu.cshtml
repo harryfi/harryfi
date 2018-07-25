@@ -1,0 +1,424 @@
+﻿@using MasterOnline.ViewModels
+@model SupplierViewModel
+@{
+    ViewBag.Title = "Supplier";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    if (dataSession?.User != null)
+    {
+        var context = new MoDbContext();
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+
+    <style>
+        #supplier-section > div {
+            background-color: #fff;
+            padding: 20px;
+        }
+
+        /*#Supplier_AL {
+            resize: vertical;
+            height: 100px;
+            max-height: 100px;
+        }*/
+
+        #hapus_label {
+            color: orange;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<div class="row" id="supplier-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row supplier_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_supplier" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_supplier">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row supplier_table_section">
+            <div id="table-supplier-partial" class="col-sm-12">
+                @Html.Partial("TableSupplierPartial")
+            </div>
+        </div>
+        <div class="row supplier_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Supplier</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail supplier</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveSupplier", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-supplier" }))
+                                        {
+                                            @Html.HiddenFor(m => m.Supplier.USERNAME, new { Value = username })
+                                            @Html.HiddenFor(m => m.Supplier.KLINK, new { Value = 01 })
+                                            @Html.HiddenFor(m => m.Supplier.KODE_CABANG, new { Value = 1 })
+                                            @Html.HiddenFor(m => m.Supplier.VLT, new { Value = "IDR" })
+                                            @Html.HiddenFor(m => m.Supplier.ADAPPN, new { Value = false })
+                                            @Html.HiddenFor(m => m.Supplier.STATUS_SUPP, new { Value = true })
+                                            @Html.HiddenFor(m => m.Supplier.RecNum)
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.SUPP, "Kode Supplier *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.SUPP, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.NAMA, "Nama Supplier *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.NAMA, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.AL, new { @class = "form-control", required = "required", maxlength = 100 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.AL2, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.AL2, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.AL3, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.HiddenFor(m => m.Supplier.AL3)
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.AL4, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.AL4, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 7 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.TERM, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-2 col-sm-2 col-xs-6">
+                                                    @Html.TextBoxFor(m => m.Supplier.TERM, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 3, min = 0, max = 999 })
+                                                </div>
+                                                <div class="col-md-3 col-sm-3 col-xs-6">
+                                                    <h5>Hari</h5>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.RekBca, "No. Rekening BCA", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.RekBca, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 12 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.NamaRekBca, "Nama Rekening BCA", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.NamaRekBca, new { @class = "form-control", maxlength = 12 })
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <h4>Kontak Person</h4>
+                                            <hr />
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.PERSO, "Nama *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.PERSO, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.NPWP, "NPWP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 20 })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Supplier.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 20 })
+                                                </div>
+                                            </div>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanSupplier(this)" />
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus supplier -->
+<div class="modal fade" id="konfHapusSupplier" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus supplier <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteSupplier()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        $supplierId = "";
+
+        $(document).on('ready',
+            function () {
+                Initialize();
+            });
+
+        function Initialize() {
+            var table = $('#datatable').DataTable();
+
+            $('#search_supplier').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_supplier').on('click', function () {
+                $('.supplier_table_section').hide();
+                $('.supplier_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.supplier_table_section').show();
+                $('.supplier_editor_section').hide();
+                $('#Supplier_RecNum').val('');
+                $('#Supplier_USERNAME').val('@(username)');
+                $('#Supplier_SUPP').val('').removeAttr('disabled');
+                $('#Supplier_NAMA').val('');
+                $('#Supplier_AL').val('');
+                $('#Supplier_AL2').val('');
+                $('#Supplier_AL3').val('');
+                $('#Supplier_AL4').val('');
+                $('#Supplier_TERM').val('');
+                $('#Supplier_PERSO').val('');
+                $('#Supplier_NPWP').val('');
+                $('#Supplier_TLP').val('');
+                $('#KODEPROV').selectivity('value', null);
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_supplier').click();
+            }
+
+            getProvinsi();
+
+            $('#Supplier_SUPP').on('change blur',
+                function () {
+                    if (!$(this).is(':disabled')) {
+                        cekKode($(this), 'supp');
+                    }
+                });
+
+            $('#Supplier_NAMA').on('change blur',
+                function () {
+                    if (!$(this).is(':disabled')) {
+                        cekField($(this), 'CekNmSupplier', 'Nama Supplier ini sudah digunakan!');
+                    }
+                });
+        }
+
+        function getProvinsi() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    $('#KODEPROV').selectivity({
+                        allowClear: true,
+                        items: provList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    var $kdProv = $('#Supplier_AL3').val();
+
+                    $('#KODEPROV').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Supplier_AL3").val(null);
+                        } else {
+                            $("#Supplier_AL3").val($val);
+                        }
+                    });
+
+                    if ($kdProv !== null) {
+                        $('#KODEPROV').selectivity('value', $kdProv);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function simpanSupplier(btnClicked) {
+            if (!validateForm()) return false;
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#table-supplier-partial').html(response);
+                    Initialize();
+                    $('#close-editor').click();
+                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+
+            return false;
+        }
+
+        function editSupplier(supplierId) {
+            var link = '@Url.Action("EditSupplier", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", supplierId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#Supplier_USERNAME').val(response.Supplier.USERNAME);
+                    $('#Supplier_KLINK').val(response.Supplier.KLINK);
+                    $('#Supplier_KODE_CABANG').val(response.Supplier.KODE_CABANG);
+                    $('#Supplier_USERNAME').val(response.Supplier.USERNAME);
+                    $('#Supplier_VLT').val(response.Supplier.VLT);
+                    $('#Supplier_ADAPPN').val(response.Supplier.ADAPPN);
+                    $('#Supplier_STATUS_SUPP').val(response.Supplier.STATUS_SUPP);
+                    $('#Supplier_RecNum').val(response.Supplier.RecNum);
+                    $('#Supplier_SUPP').val(response.Supplier.SUPP).attr('disabled', 'disabled');
+                    $('#Supplier_NAMA').val(response.Supplier.NAMA);
+                    $('#Supplier_AL').val(response.Supplier.AL);
+                    $('#Supplier_AL2').val(response.Supplier.AL2);
+                    $('#Supplier_AL3').val(response.Supplier.AL3);
+                    $('#Supplier_AL4').val(response.Supplier.AL4);
+                    $('#Supplier_TERM').val(response.Supplier.TERM);
+                    $('#Supplier_PERSO').val(response.Supplier.PERSO);
+                    $('#Supplier_NPWP').val(response.Supplier.NPWP);
+                    $('#Supplier_TLP').val(response.Supplier.TLP);
+                    getProvinsi();
+                    $('#tambah_supplier').click();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(supplierId, namaSup) {
+            this.$supplierId = supplierId;
+            $('#hapus_label').text(namaSup);
+        }
+
+        function deleteSupplier() {
+            var link = '@Url.Action("DeleteSupplier", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", this.$supplierId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-supplier-partial').html(response);
+                    Initialize();
+                    $('#konfHapusSupplier').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

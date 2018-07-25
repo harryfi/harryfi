@@ -1,0 +1,36 @@
+using MasterOnline.Migrations;
+using MasterOnline.Models;
+
+namespace MasterOnline
+{
+    using System;
+    using System.Data.Entity;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Linq;
+
+    public partial class MoDbContext : DbContext
+    {
+        public DbSet<Account> Account { get; set; }
+        public DbSet<User> User { get; set; }
+        public DbSet<SecUser> SecUser { get; set; }
+        public DbSet<FormMos> FormMoses { get; set; }
+        public DbSet<Marketplace> Marketplaces { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Provinsi> Provinsi { get; set; }
+        public DbSet<KabupatenKota> KabupatenKota { get; set; }
+        public DbSet<Ekspedisi> Ekspedisi { get; set; }
+        public DbSet<Subscription> Subscription { get; set; }
+        public DbSet<AktivitasSubscription> AktivitasSubscription { get; set; }
+        public DbSet<TransaksiMidtrans> TransaksiMidtrans { get; set; }
+        public DbSet<Promo> Promo { get; set; }
+
+        public MoDbContext()
+            : base("name=MoDbContext")
+        {
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+        }
+    }
+}

@@ -1,0 +1,166 @@
+﻿@using MasterOnline.ViewModels
+
+@{
+    ViewBag.Title = "TestReport";
+    Layout = "~/Views/Shared/_LayoutReport.cshtml";
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var userId = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        userId = context.Account.Single(a => a.AccountId == accId).UserId;
+        context.Dispose();
+    }
+    else
+    {
+        userId = dataSession?.Account?.UserId;
+    }
+}
+
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+}
+
+<h2>Mutasi Piutang</h2>
+
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Customer")
+        <div class="input-group text">
+            @Html.TextBox("FromCust", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-daricustomer" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "Sampai Customer")
+        <div class="input-group text">
+            @Html.TextBox("ToCust", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-sdcustomer" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        @Html.Label("", "Tanggal Pembukuan")
+        <div class="input-group date">
+            @Html.TextBox("CutOffDate", null, new { @class = "form-control" })
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-10">
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-primary" id="preview-report">Preview Report</button>
+    </div>
+</div>
+<br />
+<br />
+<div class="row text-center">
+    <object id="pdf_viewer" data="#" type="application/pdf" width="1079" height="600"></object>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+
+    <script>
+        var promptCust = "";
+        $(document).ready(function() {
+            $('#CutOffDate').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+
+            $('#preview-report').click(function() {
+                previewing();
+            });
+            
+            $('#prompt-daricustomer').click(function () {
+                promptCust = "1";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdcustomer').click(function () {
+                promptCust = "2";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+        });
+
+        function formatDateToYYYYmmDD(date) {
+            if (date == "") {
+                $('#CutOffDate').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0');
+
+                date = $('#CutOffDate').val();
+            }
+
+            var month = '' + (date.slice(3, 5));
+            var day = '' + (date.slice(0, 2));
+            var year = (date.slice(6, 10));
+            return [year, month, day].join('/');
+        }
+        var tanggalcutoff = "";
+        function previewing() {
+            //if (selisihValid()) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Preview1", "Report")',
+                    data: JSON.stringify({
+                        UserId: '@(userId)',
+                        FromCust: $('#FromCust').val(),
+                        ToCust: $('#ToCust').val(),
+                        CutOffDate: formatDateToYYYYmmDD($('#CutOffDate').val())
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function (data) {
+                        //alert(data);
+                        $("<iframe id='LoadReportMO'>")// create a new iframe element
+                            .hide()//invisible
+                            .load(function () {
+                                setTimeout(function () { $("#LoadReportMO").remove(); }, 30000);
+                            })
+                            .attr("src", data)//load the page
+                            .appendTo("body");
+                        
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            //}
+        }
+
+        function afterPromptCustomer(cust) {
+            if (promptCust == "1") {
+                $('#FromCust').val(cust);
+            }
+            else if (promptCust == "2") {
+                $('#ToCust').val(cust);
+            }
+            promptCust = "";
+        }
+    </script>
+}
