@@ -10,8 +10,8 @@
     var context = new MoDbContext();
     if (dataSession?.User != null)
     {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
+        var accId = context.User.SingleOrDefault(u => u.Username == dataSession.User.Username)?.AccountId;
+        username = context.Account.SingleOrDefault(a => a.AccountId == accId)?.Username;
         context.Dispose();
     }
     else
@@ -125,7 +125,7 @@
                 <div class="col-md-6" id="fake_page">
                     @if (Model.Faktur != null)
                     {
-                        var pembeli = Model.ListPembeli.Single(p => p.BUYER_CODE == Model.Faktur.PEMESAN);
+                        var pembeli = Model.ListPembeli.SingleOrDefault(p => p.BUYER_CODE == Model.Faktur.PEMESAN);
 
                         //~/ Content / Images / MO_new_logo_v2.png
                         <div class="row">
@@ -159,11 +159,11 @@
                             <tbody id="barang-faktur">
                                 @foreach (var fakturDetail in Model.ListFakturDetail)
                                 {
-                                    var namaBarang1 = Model?.ListBarang?.Single(b => b.BRG == fakturDetail.BRG).NAMA;
-                                    var namaBarang2 = Model?.ListBarang?.Single(b => b.BRG == fakturDetail.BRG).NAMA2;
-                                    var beratBarang = Model?.ListBarang?.Single(b => b.BRG == fakturDetail.BRG).BERAT;
-                                    var merk = Model?.ListBarang?.Single(b => b.BRG == fakturDetail.BRG).Sort2;
-                                    var satuan = Model?.ListBarang?.Single(b => b.BRG == fakturDetail.BRG).STN2;
+                                    var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                    var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                    var beratBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.BERAT;
+                                    var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                    var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
                                     <tr>
                                         <td>
                                             @namaBarang1
