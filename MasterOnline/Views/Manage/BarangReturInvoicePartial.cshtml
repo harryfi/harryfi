@@ -46,11 +46,11 @@
                     @Html.HiddenFor(m => m.Invoice.INV)
                     @if (Model.Invoice != null)
                     {
-                        <input id="NOBUK_INVOICE" type="text" value="@Model.Invoice.INV" disabled class="form-control" />
+                    <input id="NOBUK_INVOICE" type="text" value="@Model.Invoice.INV" disabled class="form-control" />
                     }
                     else
                     {
-                        <input type="text" value="[AUTO]" disabled class="form-control" />
+                    <input type="text" value="[AUTO]" disabled class="form-control" />
                     }
                 </div>
             </div>
@@ -63,16 +63,16 @@
                     {
                         if (Model.Invoice.POSTING == "Y")
                         {
-                            <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
+                    <input type="text" style="width:65px" value="Sudah" disabled class="form-control" />
                         }
                         else
                         {
-                            <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
+                    <input type="text" style="width:65px" value="Belum" disabled class="form-control" />
                         }
                     }
                     else
                     {
-                        <input type="text" value="Belum" disabled class="form-control" />
+                    <input type="text" value="Belum" disabled class="form-control" />
                     }
                 </div>
             </div>
@@ -203,18 +203,18 @@
 
     @if (Model?.Invoice?.RecNum != null)
     {
-        <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4"></div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <div class="col-md-4"></div>
-                    <div class="col-md-8">
-                        <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
-                    </div>
+    <div id="btn-simpan-perubahan-row" class="row" style="display: none;">
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4"></div>
+        <div class="col-lg-4">
+            <div class="form-group">
+                <div class="col-md-4"></div>
+                <div class="col-md-8">
+                    <button id="btn-simpan-perubahan" type="button" class="btn btn-success btn-block">Simpan Perubahan</button>
                 </div>
             </div>
         </div>
+    </div>
     }
     <hr />
 </div>
@@ -255,56 +255,79 @@
                 }
                 @foreach (var invoice in Model.ListInvoiceDetail.Where(pb => pb.INV == Model?.Invoice?.INV).ToList())
                 {
-                    <tr data-barang-id="brg-@invoice.NO">
+                <tr data-barang-id="brg-@invoice.NO">
+                    @{
+                            //change by nurul 25/7/2018
+                            //var stnBarang = listBarang.Single(b => b.BRG == invoice.BRG).STN2;
+                            //var hjualBarang = listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
+
+                            var stnBarang = "";
+                            if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
+                            {
+                                stnBarang= listBarang.Single(b => b.BRG == invoice.BRG).STN2;
+                            }
+                            double hjualBarang = 0;
+                            if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
+                            {
+                                hjualBarang= listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
+                            }
+                            //End change
+                    }
+                    <td>
+                        <span class="kode-barang">@invoice.BRG</span>
+                    </td>
+                    <td class="nama-barang">
+                        //change by nurul 25/7/2018
+                        //@listBarang.Single(b => b.BRG == invoice.BRG).NAMA
                         @{
-                            var stnBarang = listBarang.Single(b => b.BRG == invoice.BRG).STN2;
-                            var hjualBarang = listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
+                                var nm = "";
+                                if (listBarang.Single(b => b.BRG == invoice.BRG)!=null)
+                                {
+                                    nm = listBarang.Single(b => b.BRG == invoice.BRG).NAMA;
+                                }
                         }
-                        <td>
-                            <span class="kode-barang">@invoice.BRG</span>
-                        </td>
-                        <td class="nama-barang">
-                            @listBarang.Single(b => b.BRG == invoice.BRG).NAMA
-                        </td>
-                        <td class="stn-barang">
-                            @stnBarang
-                        </td>
-                        <td class="harga-barang">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hjualBarang)
-                        </td>
-                        <td class="gd-barang">
-                            @invoice.GD
-                        </td>
-                        <td class="qty-barang">
-                            <input type="number" min="0" max="99999" class="qty-input-box" style="display: none; width: 45px;" />
-                            <span class="qty-initial">@invoice.QTY</span>
-                        </td>
-                        <td class="disc1-barang">
-                            @invoice.DISCOUNT_1
-                        </td>
-                        <td class="ndisc1-barang">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NILAI_DISC_1)
-                        </td>
-                        <td class="disc2-barang">
-                            @invoice.DISCOUNT_2
-                        </td>
-                        <td class="ndisc2-barang">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NILAI_DISC_2)
-                        </td>
-                        <td class="netto-barang">
-                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.THARGA)
-                        </td>
-                        <td class="edit-hapus-col">                          
-                                <button type="button" class="btn btn-primary" onclick="editQty('brg-@invoice.NO')">
-                                    <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                </button>                           
-                        </td>
-                        <td class="edit-hapus-col">
-                            <button class="btn btn-danger" type="button" data-toggle="modal"  data-target="#konfHapusBarang" onclick="passBarangInDb('@invoice.NO')">
-                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                            </button>
-                        </td>
-                    </tr>
+                        @nm
+                        //end change
+                    </td>
+                    <td class="stn-barang">
+                        @stnBarang
+                    </td>
+                    <td class="harga-barang">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hjualBarang)
+                    </td>
+                    <td class="gd-barang">
+                        @invoice.GD
+                    </td>
+                    <td class="qty-barang">
+                        <input type="number" min="0" max="99999" class="qty-input-box" style="display: none; width: 45px;" />
+                        <span class="qty-initial">@invoice.QTY</span>
+                    </td>
+                    <td class="disc1-barang">
+                        @invoice.DISCOUNT_1
+                    </td>
+                    <td class="ndisc1-barang">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NILAI_DISC_1)
+                    </td>
+                    <td class="disc2-barang">
+                        @invoice.DISCOUNT_2
+                    </td>
+                    <td class="ndisc2-barang">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NILAI_DISC_2)
+                    </td>
+                    <td class="netto-barang">
+                        @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.THARGA)
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button type="button" class="btn btn-primary" onclick="editQty('brg-@invoice.NO')">
+                            <span class="icon-btn-edit glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-danger" type="button" data-toggle="modal" data-target="#konfHapusBarang" onclick="passBarangInDb('@invoice.NO')">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
                     iPd = iPd + 1;
                 }
                 <tr data-invoice-id="0">
