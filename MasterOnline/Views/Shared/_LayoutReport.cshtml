@@ -38,8 +38,80 @@
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
 
     @RenderSection("styles", required: false)
+    @*<style>
+            table.dataTable thead tr {
+                background-color: #ffe8e8;
+            }
+
+            ul.bar_tabs > li a {
+                background-color: #ffe8e8;
+            }
+
+            body {
+                background: #891539;
+            }
+
+            #menu_toggle,
+            #menu_toggle:focus,
+            #menu_toggle:hover {
+                color: #891539;
+            }
+
+            .nav_title,
+            .left_col {
+                background: #891539;
+            }
+
+            .nav.side-menu > li.active,
+            .nav.side-menu > li.current-page {
+                border-right: 5px solid #ff85ab;
+            }
+
+                .nav.side-menu > li.active > a {
+                    background: linear-gradient(#b31949,#891539),#891539;
+                }
+
+            .nav-md ul.nav.child_menu li:before {
+                background: #ff85ab;
+            }
+
+            .nav-md ul.nav.child_menu li:after {
+                border-left: 1px solid #ff85ab;
+            }
+
+            .tile-stats .iconreport {
+                width: 20px;
+                height: 20px;
+                color: #BAB8B8;
+                position: absolute;
+                left: 14px;
+                top: 16px;
+                z-index: 1
+            }
+
+            .tile-stats .iconreport i {
+                margin: 0;
+                font-size: 40px;
+                line-height: 0;
+                vertical-align: bottom;
+                padding: 0
+            }
+
+            .tile-stats .countreport {
+                position: relative;
+                margin: 0;
+                margin-left: 60px;
+                z-index: 5;
+                padding: 0
+            }
+        </style>*@
+
     <style>
-        table.dataTable thead tr {
+        .page-editor {
+            overflow: inherit !important;
+        }
+
+        table thead tr {
             background-color: #ffe8e8;
         }
 
@@ -48,35 +120,40 @@
         }
 
         body {
-            background: #891539;
+            background: #000;
         }
 
         #menu_toggle,
         #menu_toggle:focus,
         #menu_toggle:hover {
-            color: #891539;
+            color: #000;
         }
 
         .nav_title,
         .left_col {
-            background: #891539;
+            /*background: #891539;*/
+            background: #000;
         }
 
         .nav.side-menu > li.active,
         .nav.side-menu > li.current-page {
-            border-right: 5px solid #ff85ab;
+            /*border-right: 5px solid #ff85ab;*/
+            border-right: 5px solid #d51339;
         }
 
             .nav.side-menu > li.active > a {
-                background: linear-gradient(#b31949,#891539),#891539;
+                /*background: linear-gradient(#b31949,#891539),#891539;*/
+                background: linear-gradient(#d51339, #000), #000;
             }
 
         .nav-md ul.nav.child_menu li:before {
-            background: #ff85ab;
+            /*background: #ff85ab;*/
+            background: #d51339;
         }
 
         .nav-md ul.nav.child_menu li:after {
-            border-left: 1px solid #ff85ab;
+            /*border-left: 1px solid #ff85ab;*/
+            border-left: 1px solid #d51339;
         }
 
         .tile-stats .iconreport {
@@ -89,13 +166,13 @@
             z-index: 1
         }
 
-        .tile-stats .iconreport i {
-            margin: 0;
-            font-size: 40px;
-            line-height: 0;
-            vertical-align: bottom;
-            padding: 0
-        }
+            .tile-stats .iconreport i {
+                margin: 0;
+                font-size: 40px;
+                line-height: 0;
+                vertical-align: bottom;
+                padding: 0
+            }
 
         .tile-stats .countreport {
             position: relative;
@@ -104,7 +181,41 @@
             z-index: 5;
             padding: 0
         }
+
+        #loading_spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_spinner_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        #modal-gudang-qty-body .selectivity-dropdown {
+            left: 206.828px !important;
+        }
+
+        .site_title {
+            overflow: visible;
+        }
     </style>
+
 </head>
 <body class="nav-md">
     <div class="container body">
@@ -112,27 +223,33 @@
             <div class="col-md-3 left_col">
                 <div class="left_col scroll-view">
                     <div class="navbar nav_title" style="border: 0;">
+                        @*change by nurul 26/7/2018*@
+                        @*<a href="@Url.Action("Index", "Manage")" class="site_title">
+                                <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px;" src="~/Content/Images/Logo_Top_MO_Manage.png">
+                            </a>*@
                         <a href="@Url.Action("Index", "Manage")" class="site_title">
-                            <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px;" src="~/Content/Images/Logo_Top_MO_Manage.png">
+                            <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px; margin-top: 25px;" src="~/Content/Images/MO_new_logo_v2_white_text.png">
                         </a>
                     </div>
                     <div class="clearfix"></div>
+                    @*remark by nurul 26/7/2018*@
                     <!-- menu profile quick info -->
-                    <div class="profile clearfix">
-                        <div class="profile_pic">
-                            <img src="~/Content/Images/temp-ava.png" alt="..." class="img-circle profile_img">
-                        </div>
-                        <div class="profile_info">
-                            <span>Selamat Datang,</span>
-                            <h2>@nama</h2>
-                        </div>
-                    </div>
+                    @*<div class="profile clearfix">
+                            <div class="profile_pic">
+                                <img src="~/Content/Images/temp-ava.png" alt="..." class="img-circle profile_img">
+                            </div>
+                            <div class="profile_info">
+                                <span>Selamat Datang,</span>
+                                <h2>@nama</h2>
+                            </div>
+                        </div>*@
                     <!-- /menu profile quick info -->
+                    @*end remark*@
                     <br />
                     <!-- sidebar menu -->
                     <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
                         <div class="menu_section">
-                            <h3>General</h3>
+                            @*<h3>General</h3>*@
                             <ul class="nav side-menu">
                                 <li>
                                     <a href="@Url.Action("Index", "Manage")"><i class="fa fa-home"></i> Dashboard</a>
@@ -140,7 +257,9 @@
                                 @{
                                     var listAnak = context.FormMoses.Where(m => m.ParentId != 0);
                                     var listChild = listAnak.ToList();
-
+                                    //add by nurul 26/7/2018
+                                    var listChildFromChild = context.FormMoses.Where(m => m.ParentId != 0 && m.HaveChildFromChild).ToList();
+                                    //end add
                                     var listSec = new List<SecUser>();
 
                                     if (dataSession?.User != null)
@@ -160,6 +279,36 @@
                                                     <span class="fa fa-chevron-down"></span>
                                                 }
                                             </a>
+                                            @*<ul class="nav child_menu">
+                                                    @foreach (var child in listChild)
+                                                    {
+                                                        if (listSec.Count > 0)
+                                                        {
+                                                            var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+
+                                                            if (child.ParentId == parent.ScrId && secUserMenu != null)
+                                                            {
+                                                                if (child.Show)
+                                                                {
+                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                }
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            if (child.ParentId == parent.ScrId)
+                                                            {
+                                                                if (child.Show)
+                                                                {
+                                                                    <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                </ul>*@
+
+                                            @*change by nurul 26/7/2018*@
+
                                             <ul class="nav child_menu">
                                                 @foreach (var child in listChild)
                                                 {
@@ -179,14 +328,67 @@
                                                     {
                                                         if (child.ParentId == parent.ScrId)
                                                         {
-                                                            if (child.Show)
+                                                            if (child.Show && !child.HaveChild)
                                                             {
-                                                                <li><a href="@child.Url">@child.NamaForm</a></li>
+                                                                <li>
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        @if (child.Icon != null)
+                                                                        {
+                                                                            <i class="fa @child.Icon"></i>
+                                                                        }
+                                                                        @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                </li>
+                                                            }
+                                                            else
+                                                            {
+                                                                <li class="parent-li" id="@child.ScrId">
+                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                        @if (child.HaveChild)
+                                                                        {
+                                                                            <span class="fa fa-chevron-down"></span>
+                                                                        }
+                                                                    </a>
+                                                                    <ul class="nav child_menu">
+                                                                        @foreach (var childFromChild in listChildFromChild)
+                                                                        {
+                                                                            if (listSec.Count > 0)
+                                                                            {
+                                                                                var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                if (childFromChild.ParentId == child.ScrId)
+                                                                                {
+                                                                                    if (childFromChild.Show)
+                                                                                    {
+                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    </ul>
+                                                                </li>
                                                             }
                                                         }
                                                     }
                                                 }
                                             </ul>
+
+                                            @*end change*@
                                         </li>
                                     }
                                 }
@@ -313,4 +515,9 @@
         var _0x2056 = ["\x6F\x6E\x6C\x6F\x61\x64", "\x6F\x6E\x6D\x6F\x75\x73\x65\x6D\x6F\x76\x65", "\x6F\x6E\x6B\x65\x79\x70\x72\x65\x73\x73", "\x53\x65\x73\x69\x20\x41\x6E\x64\x61\x20\x74\x65\x6C\x61\x68\x20\x68\x61\x62\x69\x73\x20\x6B\x61\x72\x65\x6E\x61\x20\x74\x69\x64\x61\x6B\x20\x74\x65\x72\x64\x65\x74\x65\x6B\x73\x69\x20\x61\x64\x61\x6E\x79\x61\x20\x6B\x65\x67\x69\x61\x74\x61\x6E\x20\x73\x65\x6C\x61\x6D\x61\x20\x31\x30\x20\x6D\x65\x6E\x69\x74", "\x68\x72\x65\x66", "\x40\x55\x72\x6C\x2E\x41\x63\x74\x69\x6F\x6E\x28\x22\x4C\x6F\x67\x67\x69\x6E\x67\x4F\x75\x74\x22\x2C\x22\x4D\x61\x6E\x61\x67\x65\x22\x29"]; var inactivityTime = function () { var _0x8846x2; window[_0x2056[0]] = _0x8846x4; document[_0x2056[1]] = _0x8846x4; document[_0x2056[2]] = _0x8846x4; function _0x8846x3() { alert(_0x2056[3]); location[_0x2056[4]] = _0x2056[5] } function _0x8846x4() { clearTimeout(_0x8846x2); _0x8846x2 = setTimeout(_0x8846x3, 600000) } }
     </script>
 </body>
+
+@*change by nurul 26/7/2018*@
+
+@*end change*@
+
 </html>

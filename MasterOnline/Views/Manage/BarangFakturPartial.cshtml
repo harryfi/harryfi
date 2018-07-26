@@ -283,13 +283,31 @@
                 {
                     <tr data-barang-id="brg-@faktur.NO_URUT">
                         @{
-                            var stnBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.STN2;
+                            //change by nurul 26/7/2018
+                            //var stnBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.STN2;
+                            var stnBarang = "";
+                            if (Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG) !=null)
+                            {
+                                stnBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.STN2;
+                            }
+                            var nm = "";
+                            if (Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)!=null)
+                            {
+                                nm = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA;
+                            }
+                            var nm2 = "";
+                            if (Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)!=null)
+                            {
+                                nm2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA2;
+                            }
+                            //end change
                         }
                         <td>
                             @faktur.BRG
                         </td>
                         <td class="nama-barang">
-                            @(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA) @(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA2)
+                            @*@(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA) @(Model?.ListBarang?.SingleOrDefault(b => b.BRG == faktur.BRG)?.NAMA2)*@
+                            @nm  @nm2
                         </td>
                         <td class="stn-barang">
                             @stnBarang

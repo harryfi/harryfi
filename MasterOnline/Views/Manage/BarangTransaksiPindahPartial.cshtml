@@ -59,7 +59,7 @@
                         <input type="text" value="[AUTO]" disabled class="form-control" />
                     }
                 </div>
-            </div> 
+            </div>
         </div>
         <div class="col-md-6">
             <div class="form-group">
@@ -164,13 +164,29 @@
                             @stok.Kobar
                         </td>
                         <td class="nama-barang">
-                            @listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                            @{
+                                //change by nurul 26/7/2018
+                                //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                                var nm = "";
+                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                {
+                                    nm = listBarang.Single(b => b.BRG == stok.Kobar).NAMA;
+                                }
+
+                                var stnbarang = "";
+                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                {
+                                    stnbarang= listBarang.Single(b => b.BRG == stok.Kobar).STN2;
+                                }
+                                //end change
+                            }
+                            @nm
                         </td>
                         <td class="stn-barang">
-                            @{
-                            var stnBarang = listBarang.Single(b => b.BRG == stok.Kobar).STN2;
-                            }
-                            @stnBarang
+                            @*@{
+                                var stnBarang = listBarang.Single(b => b.BRG == stok.Kobar).STN2;
+                            }*@
+                            @stnbarang
                         </td>
                         <td class="harga-barang">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
