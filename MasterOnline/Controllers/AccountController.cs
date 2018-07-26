@@ -215,6 +215,7 @@ namespace MasterOnline.Controllers
                 }
             }
             #endregion
+            #region Blibli
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBLIShop.Count > 0)
@@ -228,7 +229,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-
+            #endregion
             #region elevenia
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
