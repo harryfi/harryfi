@@ -148,10 +148,73 @@ namespace MasterOnline.Controllers
             }
             var connectionID = Guid.NewGuid().ToString();
             string username = sessionData.Account.Username;
-            int lazadaAcc = 0;
-            int blAcc = 0;
-            int elAcc = 0;
+            
+            #region bukalapak
+            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            if (listBLShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBLShop)
+                {
+                    var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                    foreach (var item in stf02hinDB)
+                    {
+                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                        if (barangInDb != null)
+                        {
+                            var qtyOnHand = 0d;
+                            {
+                                object[] spParams = {
+                                            new SqlParameter("@BRG", barangInDb.BRG),
+                                            new SqlParameter("@GD","ALL"),
+                                            new SqlParameter("@Satuan", "2"),
+                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                        };
 
+                                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                            }
+                            new BukaLapakController().updateProduk(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.API_KEY, tblCustomer.TOKEN);
+                        }
+
+                    }
+                }
+            }
+            #endregion
+            #region lazada
+            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            if (listLazadaShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listLazadaShop)
+                {
+                    var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                    foreach (var item in stf02hinDB)
+                    {
+                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                        if (barangInDb != null)
+                        {
+                            var qtyOnHand = 0d;
+                            {
+                                object[] spParams = {
+                                            new SqlParameter("@BRG", barangInDb.BRG),
+                                            new SqlParameter("@GD","ALL"),
+                                            new SqlParameter("@Satuan", "2"),
+                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                        };
+
+                                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                            }
+                            new LazadaController().UpdatePriceQuantity(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.TOKEN);
+                        }
+
+                    }
+                }
+            }
+            #endregion
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBLIShop.Count > 0)
@@ -166,11 +229,11 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            #region elevenia
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
-                elAcc = 1;
                 var elApi = new EleveniaController();
                 foreach (ARF01 tblCustomer in listELShop)
                 {
@@ -227,6 +290,7 @@ namespace MasterOnline.Controllers
                     //elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                 }
             }
+            #endregion
             //var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             //if (listBLShop.Count > 0)

@@ -5,6 +5,7 @@ using MasterOnline.Models;
 using MasterOnline.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -108,6 +109,9 @@ namespace MasterOnline.Controllers
             if (res.code.Equals("0"))
             {
                 ret.status = 1;
+                DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + data.kdBrg + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+
             }
             else
             {
