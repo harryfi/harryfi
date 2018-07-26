@@ -152,6 +152,20 @@ namespace MasterOnline.Controllers
             int blAcc = 0;
             int elAcc = 0;
 
+            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            if (listBLIShop.Count > 0)
+            {
+                var BliApi = new BlibliController();
+                foreach (ARF01 tblCustomer in listBLIShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                    {
+                        BliApi.GetToken(tblCustomer.API_CLIENT_U, tblCustomer.API_CLIENT_P, tblCustomer.API_KEY, tblCustomer.EMAIL, tblCustomer.PASSWORD);
+                    }
+                }
+            }
+
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)

@@ -1591,7 +1591,7 @@ namespace MasterOnline.Controllers
                 {
                     Stf02 = ErasoftDbContext.STF02.Single(b => b.BRG == barangId),
                     ListStf02S = ErasoftDbContext.STF02.ToList(),
-                    ListMarket = ErasoftDbContext.ARF01.ToList(),
+                    ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.PERSO).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList()
                 };
 
@@ -1608,7 +1608,7 @@ namespace MasterOnline.Controllers
             var vm = new BarangViewModel()
             {
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
-                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.PERSO).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
