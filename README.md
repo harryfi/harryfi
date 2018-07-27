@@ -1,3 +1,3 @@
 # MO
 
-3r4S0ft's Project
+Created by PT Erasoft Teknologi Indonesia

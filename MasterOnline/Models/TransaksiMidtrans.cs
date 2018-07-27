@@ -22,7 +22,8 @@ namespace MasterOnline.Models
         public double VALUE { get; set; }
 
         [Required]
-        public int TYPE { get; set; }
+        [StringLength(2)]
+        public string TYPE { get; set; }
 
         [Required]
         [Column(TypeName = "date")]
