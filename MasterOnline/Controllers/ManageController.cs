@@ -1179,7 +1179,8 @@ namespace MasterOnline.Controllers
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
             string[] imageUrl = new string[Request.Files.Count];//variabel penampung url image hasil upload ke markeplace
-
+            var lzdApi = new LazadaController();
+            var blApi = new BukaLapakController();
 
             //add by tri call marketplace api to create product
             if (insert)
@@ -1196,7 +1197,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(imgPath[i]))
                                 {
-                                    var uploadImg = new LazadaController().UploadImage(imgPath[i], tblCustomer.TOKEN);
+                                    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
                                     if (uploadImg.status == 1)
                                         imageUrl[i] = uploadImg.message;
                                 }
@@ -1236,7 +1237,7 @@ namespace MasterOnline.Controllers
                             {
                                 dataLazada.imageUrl = imageUrl[0];
                             }
-                            var result = new LazadaController().CreateProduct(dataLazada);
+                            var result = lzdApi.CreateProduct(dataLazada);
                         }
 
                     }
@@ -1254,7 +1255,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(imgPath[i]))
                             {
-                                var uploadImg = new BukaLapakController().uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                var uploadImg = blApi.uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
                                 if (uploadImg.status == 1)
                                     imgID[i] = uploadImg.message;
                             }
@@ -1293,12 +1294,12 @@ namespace MasterOnline.Controllers
                             data.imageId = imgID[0];
                         }
 
-                        var result = new BukaLapakController().CreateProduct(data);
+                        var result = blApi.CreateProduct(data);
                         if (result.status == 1)
                             if (!productMarketPlace.DISPLAY)
                             {
                                 //panggil api utk non-aktif barang yg baru di insert
-                                result = new BukaLapakController().prodNonAktif(result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                result = blApi.prodNonAktif(result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
                             }
                     }
                 }
@@ -1323,7 +1324,7 @@ namespace MasterOnline.Controllers
                             {
                                 var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
                                 var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                                var resultLazada = new LazadaController().UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
+                                var resultLazada = lzdApi.UpdatePriceQuantity(tokoLazada.BRG_MP, tokoLazada.HJUAL.ToString(), "", tblCustomer.TOKEN);
                             }
                         }
                     }
@@ -1335,7 +1336,7 @@ namespace MasterOnline.Controllers
                         {
                             var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
                             var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                            var resultBL = new BukaLapakController().updateProduk(tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
+                            var resultBL = blApi.updateProduk(tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
                         }
                     }
 
@@ -1352,7 +1353,7 @@ namespace MasterOnline.Controllers
                             {
                                 var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
                                 var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                                var resultLazada = new LazadaController().setDisplay(tokoLazada.BRG_MP, tokoLazada.DISPLAY, tblCustomer.TOKEN);
+                                var resultLazada = lzdApi.setDisplay(tokoLazada.BRG_MP, tokoLazada.DISPLAY, tblCustomer.TOKEN);
                             }
                         }
                     }
@@ -1370,11 +1371,11 @@ namespace MasterOnline.Controllers
 
                             if (tokoBl.DISPLAY)
                             {
-                                var result = new BukaLapakController().prodAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                var result = blApi.prodAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
                             }
                             else
                             {
-                                var result = new BukaLapakController().prodNonAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                var result = blApi.prodNonAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
 
                             }
 

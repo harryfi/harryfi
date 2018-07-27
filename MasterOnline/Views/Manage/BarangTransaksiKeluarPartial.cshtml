@@ -163,7 +163,17 @@
                             @stok.Kobar
                         </td>
                         <td class="nama-barang">
-                            @listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                            @{
+                                //change by nurul 26/7/2018
+                                //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
+                                var nm = "";
+                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                {
+                                    nm = listBarang.Single(b => b.BRG == stok.Kobar).NAMA;
+                                }
+                                //end change 
+                            }
+                            @nm
                         </td>
                         <td class="stn-barang">
                             @if (stok.Satuan == "1")

@@ -276,14 +276,36 @@
                 {
                     <tr data-barang-id="brg-@invoice.NO">
                         @{
-                            var stnBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.STN2;
-                            var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.HJUAL;
+                            //change by nurul 26/7/2018
+                            //var stnBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.STN2;
+                            //var hjualBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.HJUAL;
+                            var stnBarang = "";
+                            if (listBarang.SingleOrDefault(b => b.BRG == invoice.BRG) != null)
+                            {
+                                stnBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.STN2;
+                            }
+                            double hjualBarang = 0;
+                            if (listBarang.SingleOrDefault(b => b.BRG == invoice.BRG) != null)
+                            {
+                                hjualBarang = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG).HJUAL;
+                            }
+                            //end change
                         }
                         <td>
                             @invoice.BRG
                         </td>
                         <td class="nama-barang">
-                            @(listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA)
+                            @{
+                                //change by nurul 26/7/2018
+                                //@(listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA)
+                                var nm = "";
+                                if(listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)!=null)
+                                {
+                                    nm = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA;
+                                }
+                                //end change
+                            }
+                            @nm
                         </td>
                         <td class="stn-barang">
                             @stnBarang

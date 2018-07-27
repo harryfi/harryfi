@@ -276,18 +276,18 @@
                     <td>
                         <span class="kode-barang">@invoice.BRG</span>
                     </td>
-                    <td class="nama-barang">
-                        //change by nurul 25/7/2018
-                        //@listBarang.Single(b => b.BRG == invoice.BRG).NAMA
+                    <td class="nama-barang">                        
                         @{
-                                var nm = "";
-                                if (listBarang.Single(b => b.BRG == invoice.BRG)!=null)
-                                {
-                                    nm = listBarang.Single(b => b.BRG == invoice.BRG).NAMA;
-                                }
+                            //change by nurul 25/7/2018
+                            //@listBarang.Single(b => b.BRG == invoice.BRG).NAMA
+                            var nm = "";
+                            if (listBarang.Single(b => b.BRG == invoice.BRG)!=null)
+                            {
+                                nm = listBarang.Single(b => b.BRG == invoice.BRG).NAMA;
+                            }
+                            //end change
                         }
-                        @nm
-                        //end change
+                        @nm                        
                     </td>
                     <td class="stn-barang">
                         @stnBarang
