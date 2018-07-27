@@ -381,6 +381,10 @@
     <Compile Include="Migrations\201807251013488_AddTableTransaksiMidtrans.Designer.cs">
       <DependentUpon>201807251013488_AddTableTransaksiMidtrans.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807270630408_AlterTipeDataTypeMidtrans.cs" />
+    <Compile Include="Migrations\201807270630408_AlterTipeDataTypeMidtrans.Designer.cs">
+      <DependentUpon>201807270630408_AlterTipeDataTypeMidtrans.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -5281,6 +5285,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807251013488_AddTableTransaksiMidtrans.resx">
       <DependentUpon>201807251013488_AddTableTransaksiMidtrans.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807270630408_AlterTipeDataTypeMidtrans.resx">
+      <DependentUpon>201807270630408_AlterTipeDataTypeMidtrans.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
