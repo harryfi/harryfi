@@ -148,23 +148,26 @@ namespace MasterOnline.Controllers
             }
             var connectionID = Guid.NewGuid().ToString();
             string username = sessionData.Account.Username;
-            
+
             #region bukalapak
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            var blApi = new BukaLapakController();
             if (listBLShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listBLShop)
                 {
-                    var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
-                    foreach (var item in stf02hinDB)
+                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
-                        if (barangInDb != null)
+                        var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                        foreach (var item in stf02hinDB)
                         {
-                            var qtyOnHand = 0d;
+                            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                            if (barangInDb != null)
                             {
-                                object[] spParams = {
+                                var qtyOnHand = 0d;
+                                {
+                                    object[] spParams = {
                                             new SqlParameter("@BRG", barangInDb.BRG),
                                             new SqlParameter("@GD","ALL"),
                                             new SqlParameter("@Satuan", "2"),
@@ -172,32 +175,39 @@ namespace MasterOnline.Controllers
                                             new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
                                         };
 
-                                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                                }
+                                blApi.updateProduk(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.API_KEY, tblCustomer.TOKEN);
                             }
-                            new BukaLapakController().updateProduk(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.API_KEY, tblCustomer.TOKEN);
-                        }
 
+                        }
                     }
                 }
             }
             #endregion
             #region lazada
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
+            var lzdApi = new LazadaController();
             if (listLazadaShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLazadaShop)
                 {
-                    var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
-                    foreach (var item in stf02hinDB)
+                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
-                        if (barangInDb != null)
+                        #region refresh token lazada
+                        lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+                        #endregion
+                        var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                        foreach (var item in stf02hinDB)
                         {
-                            var qtyOnHand = 0d;
+                            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                            if (barangInDb != null)
                             {
-                                object[] spParams = {
+                                var qtyOnHand = 0d;
+                                {
+                                    object[] spParams = {
                                             new SqlParameter("@BRG", barangInDb.BRG),
                                             new SqlParameter("@GD","ALL"),
                                             new SqlParameter("@Satuan", "2"),
@@ -205,12 +215,13 @@ namespace MasterOnline.Controllers
                                             new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
                                         };
 
-                                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                                }
+                                lzdApi.UpdatePriceQuantity(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.TOKEN);
                             }
-                            new LazadaController().UpdatePriceQuantity(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.TOKEN);
-                        }
 
+                        }
                     }
                 }
             }

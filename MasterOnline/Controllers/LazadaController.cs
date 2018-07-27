@@ -22,7 +22,30 @@ namespace MasterOnline.Controllers
         string eraCallbackUrl = "https://example.com/lzd/code?user=";
         //string eraAppKey = "";
         // GET: Lazada
+        DatabaseSQL EDB;
+        MoDbContext MoDbContext;
 
+        public LazadaController()
+        {
+            MoDbContext = new MoDbContext();
+            if (sessionData?.Account != null)
+            {
+                //if (sessionData.Account.UserId == "admin_manage")
+                //    ErasoftDbContext = new ErasoftContext();
+                //else
+                //    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+                EDB = new DatabaseSQL(sessionData.Account.UserId);
+
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    EDB = new DatabaseSQL(accFromUser.UserId);
+                }
+            }
+        }
         [Route("lzd/code")]
         [HttpGet]
         public void LazadaCode(string user, string lzdID, string code)
@@ -70,6 +93,28 @@ namespace MasterOnline.Controllers
 
         }
 
+        public LazadaAuth GetRefToken(string cust, string refreshToken)
+        {
+            LazadaAuth ret = new LazadaAuth();
+            string url;
+            url = "https://auth.lazada.com/rest";
+            ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest("/auth/token/refresh");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("refresh_token", refreshToken);
+            LazopResponse response = client.Execute(request);
+            //Console.WriteLine(response.IsError());
+            //Console.WriteLine(response.Body);
+            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
+            if (!response.IsError())
+            {
+                //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "' WHERE CUST = '" + cust + "'");
+
+            }
+            return ret;
+        }
+
         public BindingBase CreateProduct(BrgViewModel data)
         {
             var ret = new BindingBase();
@@ -109,7 +154,7 @@ namespace MasterOnline.Controllers
             if (res.code.Equals("0"))
             {
                 ret.status = 1;
-                DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                 EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + data.kdBrg + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
 
             }
