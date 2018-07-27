@@ -19,7 +19,30 @@ namespace MasterOnline.Controllers
     {
         // GET: BukaLapak
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        DatabaseSQL EDB;
+        MoDbContext MoDbContext;
 
+        public BukaLapakController()
+        {
+            MoDbContext = new MoDbContext();
+            if (sessionData?.Account != null)
+            {
+                //if (sessionData.Account.UserId == "admin_manage")
+                //    ErasoftDbContext = new ErasoftContext();
+                //else
+                //    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+                EDB = new DatabaseSQL(sessionData.Account.UserId);
+
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    EDB = new DatabaseSQL(accFromUser.UserId);
+                }
+            }
+        }
         [HttpPost]
         public BindingBase GetAccessKey(string cust, string email, string password)
         {
@@ -46,7 +69,7 @@ namespace MasterOnline.Controllers
                 {
                     if (retObj.status.Equals("OK"))
                     {
-                        DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                        //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                         ret.status = 1;
                         string username = sessionData.Account.Username;
 
@@ -71,7 +94,7 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
 
             var dataProduct = new BindingBukaLapakProduct
             {
@@ -288,7 +311,7 @@ namespace MasterOnline.Controllers
                 }
                 else//no product on bukalapak > create new
                 {
-                    DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     var dsSTF02 = EDB.GetDataSet("MOConnectionString", "STF02", "SELECT * FROM STF02 WHERE BRG = '" + kdBrg + "'");
                     if (dsSTF02.Tables[0].Rows.Count > 0)
                     {
@@ -399,7 +422,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public BindingBase cekTransaksi(/*string transId,*/ string Cust, string email, string userId, string token, string connectionID)
         {
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
             var ret = new BindingBase();
             ret.status = 0;
 
@@ -597,7 +620,7 @@ namespace MasterOnline.Controllers
                 if (bindStatus.status.Equals("OK"))
                 {
                     string username = sessionData.Account.Username;
-                    DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     ret.status = 1;
                     //change status menjadi  04 => shipped
                     //EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + noBukti + "'");
@@ -633,7 +656,7 @@ namespace MasterOnline.Controllers
                 if (bindCancel.status.Equals("OK"))
                 {
                     string username = sessionData.Account.Username;
-                    DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     ret.status = 1;
                     //change status menjadi  11 => cancelled
                     EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI = '" + noBukti + "'");
