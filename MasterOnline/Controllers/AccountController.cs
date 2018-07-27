@@ -119,7 +119,7 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncQOH();
+                SyncMarketplace();
                 return RedirectToAction("Index", "Manage");
             }
 
@@ -127,7 +127,7 @@ namespace MasterOnline.Controllers
         }
 
         public ErasoftContext ErasoftDbContext { get; set; }
-        protected void SyncQOH()
+        protected void SyncMarketplace()
         {
             MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
@@ -148,7 +148,7 @@ namespace MasterOnline.Controllers
             }
             var connectionID = Guid.NewGuid().ToString();
             string username = sessionData.Account.Username;
-            
+
             #region bukalapak
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
@@ -238,6 +238,9 @@ namespace MasterOnline.Controllers
                 var elApi = new EleveniaController();
                 foreach (ARF01 tblCustomer in listELShop)
                 {
+                    //isi delivery temp
+                    elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum),Convert.ToString(tblCustomer.API_KEY));
+
                     //cari yang brg_mp tidak null, per market
                     var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
                     foreach (var item in stf02hinDB)

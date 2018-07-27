@@ -22,6 +22,7 @@ namespace MasterOnline.Controllers
     public class BlibliController : Controller
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        private static readonly DateTime Jan1st1970 = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);//string auth = Base64Encode();
 
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
@@ -79,6 +80,18 @@ namespace MasterOnline.Controllers
                     arf01inDB.TOKEN = ret.access_token;
                     arf01inDB.REFRESH_TOKEN = ret.refresh_token;
                     ErasoftDbContext.SaveChanges();
+
+                    BlibliAPIData apidata = new BlibliAPIData {
+                        API_client_username = API_client_username,
+                        API_client_password = API_client_password,
+                        API_secret_key = API_secret_key,
+                        merchant_code = arf01inDB.Sort1_Cust,
+                        mta_username_email_merchant = email_merchant,
+                        mta_password_password_merchant = password_merchant,
+                        token = ret.access_token
+                    };
+
+                    GetCategoryTree(apidata);
                 }
             }
             return ret;
@@ -97,24 +110,24 @@ namespace MasterOnline.Controllers
             "\"merchantSku\": \"" + data.kode + "\",    " +                                   // SKU
             "\"tipePenanganan\": 1,     " +                                             // 1= reguler produk (dikirim oleh blili)| 2= dikirim oleh kurir | 3 =ambil sendiri di toko
             "\"price\": " + data.Price + ", " +                                                      //harga reguler (no diskon)
-            "\"salePrice\": " + data.Price + ",  " +                                                  // harga yg tercantum di display blibli
+            "\"salePrice\": " + data.MarketPrice + ",  " +                                                  // harga yg tercantum di display blibli
             "\"stock\": " + data.Qty + ",  " +
             "\"minimumStock\": " + data.MinQty + ", " +
             "\"pickupPointCode\": \"PP-3000179\", " +                                   //pick up poin code, baca GetPickUp
             "\"length\": " + data.Length + ",  " +
             "\"width\": " + data.Width + ", " +
             "\"height\": " + data.Height + ", " +
-            "\"weight\": " + data.berat + ", " +
+            "\"weight\": " + data.berat + ", " + // dalam gram, sama seperti MO
             "\"desc\": \"" + data.Keterangan + "\", " +
-            "\"uniqueSellingPoint\": \"deskripsi promosi\", " +
-            "\"productStory\": \"deskripsi lengkap\", " +
-            "\"upcCode\": \"kode barcode\",  " +
-            "\"display\": false,   " +                                                  // true=tampil                
+            "\"uniqueSellingPoint\": \"\", " + //ex : Unique selling point of current product
+            "\"productStory\": \"\", " + //ex : This product is launched at 25 Des 2016, made in Indonesia
+            "\"upcCode\": \"\",  " + //barcode, ex :1231230010
+            "\"display\": " + data.display + ",   " + // true=tampil                
             "\"buyable\": true,  " +
             "\"installation\": false, " +
-            "\"features\": [{ \"name\": \"Brand\", \"value\": \"Samsung\"}, " +
-            "               {\"name\": \"Berat\",\"value\": \"5 Kg\"}, " +
-            "               {\"name\" : \"Dimensi Produk\",\"value\" : \"50cm x 40cm\"}], " +
+            "\"features\": [{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, " +
+            "               {\"name\": \"Berat\",\"value\": \"" + Convert.ToString(Convert.ToInt32(data.berat) / 1000).Replace(",", ".") + " Kg\"}, " +
+            "               {\"name\" : \"Dimensi Produk\",\"value\" : \"" + data.Length + "cm x " + data.Width + "cm x " + data.Height + "cm\"}], " +
             "\"variasi\": [{\"name\": \"Warna\",\"value\": \"Black\"},{\"name\": \"Warna\",\"value\": \"Red\"},{\"name\": \"Ukuran\",\"value\": \"35\"},{\"name\": \"Ukuran\",\"value\": \"36\"}], " +
             "\"images\": [{\"locationPath\": \"samsung_product-merchant_full01.jpg\",\"sequence\": 0},{\"locationPath\": \"samsung_product-merchant_full02.jpg\",\"sequence\": 1},]}}";
 
@@ -148,6 +161,52 @@ namespace MasterOnline.Controllers
 
             return responseFromServer;
         }
+        public string GetCategoryTree(BlibliAPIData data)
+        {
+            string ret = "";
+
+            string milis = CurrentTimeMillis().ToString();
+            DateTime milisBack = Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategory", data.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + Convert.ToBase64String(Encoding.UTF8.GetBytes(data.token))));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (CurrentTimeMillis().ToString()));
+            myReq.Headers.Add("username", userMTA);
+            myReq.Headers.Add("requestId", milis);
+            myReq.Headers.Add("sessionId", milis);
+            myReq.ContentType = "application/json";
+            myReq.Accept = "application/json";
+            Stream dataStream = myReq.GetRequestStream();
+            WebResponse response = myReq.GetResponse();
+            dataStream = response.GetResponseStream();
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+            dataStream.Close();
+            response.Close();
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            BlibliGetCategoryReturn result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetCategoryReturn)) as BlibliGetCategoryReturn;
+            if (result.errorCode == null)
+            {
+                //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(API_client_password) && p.API_CLIENT_U.Equals(API_client_username)).SingleOrDefault();
+                //if (arf01inDB != null)
+                //{
+                //    arf01inDB.TOKEN = ret.access_token;
+                //    arf01inDB.REFRESH_TOKEN = ret.refresh_token;
+                //    ErasoftDbContext.SaveChanges();
+                //}
+            }
+            return ret;
+        }
         private string CreateToken(string urlBlili, string secretMTA)
         {
             secretMTA = secretMTA ?? "";
@@ -170,19 +229,30 @@ namespace MasterOnline.Controllers
     new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
     ).TotalMilliseconds;
         }
+        public class BlibliAPIData {
+            public string merchant_code { get; set; }
+            public string API_client_username { get; set; }
+            public string API_client_password { get; set; }
+            public string API_secret_key { get; set; }
+            public string mta_username_email_merchant { get; set; }
+            public string mta_password_password_merchant { get; set; }
+            public string token { get; set; }
+        }
         public class BlibliProductData
         {
             public string ID_Merchant { get; set; }
             public string api_key { get; set; }
             public string kode { get; set; }
             public string nama { get; set; }
-            public string Length{ get; set; }
-            public string Width{ get; set; }
-            public string Height{ get; set; }
+            public string display { get; set; }
+            public string Length { get; set; }
+            public string Width { get; set; }
+            public string Height { get; set; }
             public string berat { get; set; }
             public string[] imgUrl { get; set; }
             public string Keterangan { get; set; }
             public string Price { get; set; }
+            public string MarketPrice { get; set; }
             public string Qty { get; set; }
             public string MinQty { get; set; }
             public string DeliveryTempNo { get; set; }
@@ -190,6 +260,14 @@ namespace MasterOnline.Controllers
             public string IDMarket { get; set; }
             public string kode_mp { get; set; }
 
+        }
+        public class BlibliGetCategoryReturn
+        {
+            public string requestId { get; set; }
+            public string errorMessage { get; set; }
+            public string errorCode { get; set; }
+            public string success { get; set; }
+            public string content { get; set; }
         }
         public class BliBliToken
         {

@@ -339,19 +339,19 @@ namespace MasterOnline.Controllers
         }
 
         //public async Task<DeliveryTemplates> GetDeliveryTemp(EleveniaProductData data)
-        public async Task<ActionResult> GetDeliveryTemp(string recNum)
+        public async Task<ActionResult> GetDeliveryTemp(string recNum, string auth)
         {
-            string auth = "";
-            ManageController MC = new ManageController();
-            var kdEL = MC.MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var listELShop = MC.ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString() && m.RecNum.ToString().Equals(recNum)).ToList();
-            if (listELShop.Count > 0)
-            {
-                foreach (ARF01 tblCustomer in listELShop)
-                {
-                    auth = tblCustomer.API_KEY;
-                }
-            }
+            //string auth = "";
+            //ManageController MC = new ManageController();
+            //var kdEL = MC.MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            //var listELShop = MC.ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString() && m.RecNum.ToString().Equals(recNum)).ToList();
+            //if (listELShop.Count > 0)
+            //{
+                //foreach (ARF01 tblCustomer in listELShop)
+            //    {
+            //        auth = tblCustomer.API_KEY;
+            //    }
+            //}
             //var ret = new DeliveryTemplates();
             var ret = string.Empty;
             //string auth = data.api_key;//"f6875334a817a9ee4c20387a5b8b9d0b";
