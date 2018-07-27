@@ -210,7 +210,7 @@
                 });
             $('#Gudang_Nama_Gudang').on('change blur',
                 function () {
-                    if (!$(this).is(':disabled')) {
+                    if (!$(this).is(':disabled') && $(this).val()!="" ) {
                         cekField($(this), 'CekNmGudang', 'Nama Gudang ini sudah digunakan!');
                     }
                 });
@@ -283,9 +283,14 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-gudang-partial').html(response);
-                    Initialize();
-                    $('#hapusGudang').modal('hide');
+                    if (response.Errors != undefined) {
+                        $('#hapusGudang').modal('hide');
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#table-gudang-partial').html(response);
+                        Initialize();
+                        $('#hapusGudang').modal('hide');
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

@@ -2367,11 +2367,11 @@ namespace MasterOnline.Controllers
 
         public ActionResult SaveReturFaktur(FakturViewModel dataVm)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
-            //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-            //}
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
 
             bool returBaru = false;
 
@@ -5736,10 +5736,21 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeleteGudang(int? gudangId)
         {
+            var vmError = new StokViewModel() { };
+
             var gudangInDb = ErasoftDbContext.STF18.Single(k => k.ID == gudangId);
 
-            ErasoftDbContext.STF18.Remove(gudangInDb);
-            ErasoftDbContext.SaveChanges();
+            var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.GUDANG == gudangInDb.Kode_Gudang);
+            var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.GD == gudangInDb.Kode_Gudang);
+
+            if (cekFaktur > 0 || cekPembelian > 0)
+            {
+                vmError.Errors.Add("Gudang sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+
+            //ErasoftDbContext.STF18.Remove(gudangInDb);
+            //ErasoftDbContext.SaveChanges();
 
             var partialVm = new GudangViewModel()
             {
