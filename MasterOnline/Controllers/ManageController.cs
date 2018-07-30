@@ -672,7 +672,7 @@ namespace MasterOnline.Controllers
                             mta_username_email_merchant = cust.EMAIL,
                             mta_password_password_merchant = cust.PASSWORD
                         };
-                        BliApi.GetToken(data, false);
+                        BliApi.GetToken(data, true);
                     }
                 }
                 #endregion
@@ -695,6 +695,27 @@ namespace MasterOnline.Controllers
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
+
+                //untuk simpan ke MO
+                #region BLIBLI get token
+                if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
+                {
+                    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
+                    {
+                        var BliApi = new BlibliController();
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = customer.Customers.API_CLIENT_U,
+                            API_client_password = customer.Customers.API_CLIENT_P,
+                            API_secret_key = customer.Customers.API_KEY,
+                            mta_username_email_merchant = customer.Customers.EMAIL,
+                            mta_password_password_merchant = customer.Customers.PASSWORD
+                        };
+                        BliApi.GetToken(data, true);
+                    }
+                }
+                #endregion
+                //untuk simpan ke MO
             }
 
             ErasoftDbContext.SaveChanges();
