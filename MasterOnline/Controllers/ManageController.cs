@@ -554,7 +554,18 @@ namespace MasterOnline.Controllers
             try
             {
                 var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == buyerId);
+                //ADD BY NURUL 30/7/2018
+                var vmError = new StokViewModel() { };
 
+                var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+                var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+
+                if (cekFaktur > 0 || cekPesanan > 0)
+                {
+                    vmError.Errors.Add("Pembeli sudah dipakai di transaksi !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //END ADD                                
                 ErasoftDbContext.ARF01C.Remove(buyerInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -1620,6 +1631,22 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteBarang(string barangId)
         {
             var barangInDb = ErasoftDbContext.STF02.Single(b => b.BRG == barangId);
+
+            //add by nurul 30/7/2018
+            var vmError = new StokViewModel() { };
+
+            var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == barangInDb.BRG);
+            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == barangInDb.BRG);
+
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add
 
             ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.BRG == barangId));
             ErasoftDbContext.STF02.Remove(barangInDb);
@@ -4364,6 +4391,21 @@ namespace MasterOnline.Controllers
         {
             var suppInDb = ErasoftDbContext.APF01.Single(c => c.RecNum == recNum);
 
+            //add by nurul 30/7/2018
+            var vmError = new StokViewModel() { };
+
+            var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.SUPP == suppInDb.SUPP);
+            var cekPembelian = ErasoftDbContext.PBT01A.Count(k => k.SUPP == suppInDb.SUPP);
+            var cekTransaksi = ErasoftDbContext.STT01A.Count(k => k.Supp == suppInDb.SUPP);
+            var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.SUPP == suppInDb.SUPP);
+
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
+            {
+                vmError.Errors.Add("Supplier sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add
+
             ErasoftDbContext.APF01.Remove(suppInDb);
             ErasoftDbContext.SaveChanges();
 
@@ -5736,21 +5778,25 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeleteGudang(int? gudangId)
         {
-            var vmError = new StokViewModel() { };
-
             var gudangInDb = ErasoftDbContext.STF18.Single(k => k.ID == gudangId);
+
+            //ADD BY NURUL 27/7/2018
+            var vmError = new StokViewModel() { };
 
             var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.GUDANG == gudangInDb.Kode_Gudang);
             var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.GD == gudangInDb.Kode_Gudang);
+            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Dr_Gd == gudangInDb.Kode_Gudang || k.Ke_Gd == gudangInDb.Kode_Gudang);
+            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.LOKASI == gudangInDb.Kode_Gudang);
 
-            if (cekFaktur > 0 || cekPembelian > 0)
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
             {
                 vmError.Errors.Add("Gudang sudah dipakai di transaksi !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
+            //END ADD
 
-            //ErasoftDbContext.STF18.Remove(gudangInDb);
-            //ErasoftDbContext.SaveChanges();
+            ErasoftDbContext.STF18.Remove(gudangInDb);
+            ErasoftDbContext.SaveChanges();
 
             var partialVm = new GudangViewModel()
             {
