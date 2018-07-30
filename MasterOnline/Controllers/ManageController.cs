@@ -672,7 +672,7 @@ namespace MasterOnline.Controllers
                             mta_username_email_merchant = cust.EMAIL,
                             mta_password_password_merchant = cust.PASSWORD
                         };
-                        BliApi.GetToken(data, false);
+                        BliApi.GetToken(data, true);
                     }
                 }
                 #endregion
