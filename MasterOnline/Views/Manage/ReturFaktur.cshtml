@@ -378,7 +378,7 @@
         var $nettoSebelumnya = 0;
 
         var table = $('#datatable').DataTable({
-            "order": [[1, "desc"]], //or asc 
+            "order": [[1, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
@@ -878,7 +878,9 @@
                                 if ($objSup[0] != null) {
                                     $("#Faktur_TERM").val($objSup[0].term).change();
                                 }
-                                getFaktur();
+                                if ($("#Faktur_RecNum").val()=="") {
+                                    getFaktur();
+                                }
                             }
                         }
                     });
@@ -905,13 +907,15 @@
                 success: function (data) {
                     var fakturList = [];
 
-                    $.each(data,
-                        function (i, item) {
-                            fakturList[i] = {
-                                id: item.RecNum,
-                                text: item.NO_BUKTI
-                            };
-                        });
+                    if (baru) {
+                        $.each(data,
+                            function (i, item) {
+                                fakturList[i] = {
+                                    id: item.RecNum,
+                                    text: item.NO_BUKTI
+                                };
+                            });
+                    }
 
                     $('#FAKTUR').selectize()[0].selectize.destroy();
 
@@ -939,15 +943,15 @@
                     });
 
                     //$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
-                    if (!baru) {
-                        setTimeout(function () {
-                                $('#CUSTOMER')[0].selectize.disable();
-                                $('#FAKTUR')[0].selectize.disable();
-                                $("#TGL").attr("disabled", true);
-                                $("#TGL_BTN").attr('disabled', 'disabled');
-                        }, 1000);
-                        faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
-                    }
+                    //if (!baru) {
+                    //setTimeout(function () {
+                    //$('#CUSTOMER')[0].selectize.disable();
+                    //$('#FAKTUR')[0].selectize.disable();
+                    $("#TGL").attr("disabled", true);
+                    $("#TGL_BTN").attr('disabled', 'disabled');
+                    //}, 1000);
+                    faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    //}
 
                 },
                 error: function (xhr) {
@@ -1193,7 +1197,7 @@
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[1, "desc"]], //or asc 
+                        "order": [[1, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_faktur').keyup(function () {
@@ -1314,6 +1318,11 @@
                             getTanggal();
                             getMarketplace();
                             getFaktur(false);
+
+                            $(' select ').each(function () {
+                                $(this).attr('disabled', 'disabled');
+                            });
+
                             $('#btn-simpan-perubahan-row').show();
                             $('#btn-autoload-row').hide();
                             $('tr[data-faktur-id="0"]').hide();
