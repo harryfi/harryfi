@@ -21,9 +21,31 @@ namespace MasterOnline.Controllers
     public class EleveniaController : Controller
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-        //public MoDbContext MoDbContext { get; set; }
-        //public ErasoftContext ErasoftDbContext { get; set; }
+        public MoDbContext MoDbContext { get; set; }
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        public EleveniaController() {
+            MoDbContext = new MoDbContext();
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            if (sessionData?.Account != null)
+            {
+                if (sessionData.Account.UserId == "admin_manage")
+                    ErasoftDbContext = new ErasoftContext();
+                else
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
 
+                EDB = new DatabaseSQL(sessionData.Account.UserId);
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+                    EDB = new DatabaseSQL(accFromUser.UserId);
+                }
+            }
+        }
         [Route("ele/image")]
         public ActionResult Image(string id)
         {
@@ -48,7 +70,6 @@ namespace MasterOnline.Controllers
 
         public async Task<ClientMessage> CreateProduct(EleveniaProductData data, bool display)
         {
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
 
@@ -142,7 +163,6 @@ namespace MasterOnline.Controllers
 
         public async Task<ClientMessage> UpdateProduct(EleveniaProductData data)
         {
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
 
@@ -225,7 +245,6 @@ namespace MasterOnline.Controllers
 
         public async Task<ClientMessage> UpdateProductQOH_Price(EleveniaProductData data)
         {
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
 
@@ -371,7 +390,6 @@ namespace MasterOnline.Controllers
                     //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
                     if (res.DeliveryTemplates != null)
                     {
-                        DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
 
                         EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
                         string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
@@ -397,7 +415,6 @@ namespace MasterOnline.Controllers
                     //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
                     if (res.DeliveryTemplates != null)
                     {
-                        DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
 
                         EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
                         string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
@@ -467,7 +484,6 @@ namespace MasterOnline.Controllers
                 {
                     string username = "Auto Elevenia";
                     string sellerShop = "seller elv";
-                    DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     string sSQL = "insert into TEMP_ELV_ORDERS ([DELIVERY_NO],[DELIVERY_MTD_CD],[DELIVERY_ETR_CD],[DELIVERY_ETR_NAME],[ORDER_NO]";
                     sSQL += ",[ORDER_NAME],[ORDER_DATE],[ORDER_AMOUNT],[ORDER_PROD_NO],[ORDER_PROD_QTY],[PROD_NO],[RECEIVER_ADDRESS],[RECEIVER_POSTCODE]";
                     sSQL += ",[DELIVERY_PHONE],[DELIVERY_COST],[ORDER_STAT],[SHOP_NAME],[CUST],[NAMA_CUST],[USERNAME],[CONN_ID]) VALUES";

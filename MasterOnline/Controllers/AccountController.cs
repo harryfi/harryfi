@@ -236,7 +236,15 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                     {
-                        BliApi.GetToken(tblCustomer.API_CLIENT_U, tblCustomer.API_CLIENT_P, tblCustomer.API_KEY, tblCustomer.EMAIL, tblCustomer.PASSWORD);
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_secret_key = tblCustomer.API_KEY,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD
+                        };
+                        BliApi.GetToken(data, true);
                     }
                 }
             }
@@ -250,7 +258,7 @@ namespace MasterOnline.Controllers
                 foreach (ARF01 tblCustomer in listELShop)
                 {
                     //isi delivery temp
-                    elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum),Convert.ToString(tblCustomer.API_KEY));
+                    elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum), Convert.ToString(tblCustomer.API_KEY));
 
                     //cari yang brg_mp tidak null, per market
                     var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
@@ -306,18 +314,6 @@ namespace MasterOnline.Controllers
                 }
             }
             #endregion
-            //var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            //if (listBLShop.Count > 0)
-            //{
-            //    blAcc = 1;
-            //    foreach (ARF01 tblCustomer in listBLShop)
-            //    {
-            //        var blApi = new BukaLapakController();
-            //        //blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
-            //    }
-
-            //}
         }
 
         // Route ke halaman register
