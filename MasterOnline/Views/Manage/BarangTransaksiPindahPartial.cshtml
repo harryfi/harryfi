@@ -168,15 +168,15 @@
                                 //change by nurul 26/7/2018
                                 //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
                                 var nm = "";
-                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
                                 {
-                                    nm = listBarang.Single(b => b.BRG == stok.Kobar).NAMA;
+                                    nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
                                 }
 
                                 var stnbarang = "";
-                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
                                 {
-                                    stnbarang= listBarang.Single(b => b.BRG == stok.Kobar).STN2;
+                                    stnbarang= listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
                                 }
                                 //end change
                             }

@@ -1100,8 +1100,9 @@
         var PromptDeliveryTempEleveniaTextBox = "";
         function PromptDeliveryTempElevenia(i, r) {
             PromptDeliveryTempEleveniaTextBox = i;
+            showPromptWindow(r);
 
-            var link = '@Url.Action("GetDeliveryTemp", "Elevenia", new { recNum = "replaceRecNum" })';
+            @*var link = '@Url.Action("GetDeliveryTemp", "Elevenia", new { recNum = "replaceRecNum" })';
             link = link.replace("replaceRecNum", r);
 
             $.ajax({
@@ -1120,7 +1121,7 @@
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
-            });
+            });*@
         }
 
         function showPromptWindow(val) {

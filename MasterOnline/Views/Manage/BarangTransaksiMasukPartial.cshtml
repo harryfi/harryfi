@@ -167,9 +167,9 @@
                                 //change by nurul 26/7/2018
                                 //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
                                 var nm = "";
-                                if (listBarang.Single(b => b.BRG == stok.Kobar) != null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
-                                    nm = listBarang.Single(b => b.BRG == stok.Kobar).NAMA;
+                                    nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
                                 }
                                 //end change
                             }
@@ -180,15 +180,15 @@
                                 //change by nurul 26/7/2018
                                 //@(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
                                 var sstn = "";
-                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
                                 {
-                                    sstn = listBarang.Single(b => b.BRG == stok.Kobar).STN;
+                                    sstn = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN;
                                 }
 
                                 var sstn2 = "";
-                                if (listBarang.Single(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
                                 {
-                                    sstn2 = listBarang.Single(b => b.BRG == stok.Kobar).STN2;
+                                    sstn2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
                                 }
                                 //end change 
                             }

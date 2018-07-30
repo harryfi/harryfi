@@ -331,7 +331,7 @@
                                                     @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", type = "email", required = "required" })
                                                 </div>
                                             </div>
-                                            <div class="form-group" id="password-akun" style="display: none;">
+                                            <div class="form-group" id="password-akun">
                                                 @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
@@ -462,12 +462,12 @@
 
                     if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
                         $('#tambah_market').remove();
-                        $('#tambah_baru_tombol_section').html("");
+                        $('#tambah_market').html("");
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
                     } else {
                         $('#tambah_market').remove();
-                        $('#tambah_baru_tombol_section').html("");
+                        $('#tambah_market').html("");
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
@@ -558,10 +558,16 @@
                         onChange: function(value) {
                             $("#Customers_NAMA").val(value);
 
-                            if (value == 8) {
+                            @{
+                                var bklapak = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK")).IdMarket.ToString();
+                                var blibli = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("Blibli")).IdMarket.ToString();
+                            }
+                            if (@bklapak == value ||  @blibli == value ) {
                                 $('#password-akun').show();
+                                $('#Customers_PASSWORD').attr('required', 'checked');
                             } else {
                                 $('#password-akun').hide();
+                                $('#Customers_PASSWORD').removeAttr('required');
                             }
                         }
                     });
@@ -759,7 +765,7 @@
 
                         $('#lbl_Customers_API_KEY').html("API Secret Key *");
                         var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID</label>';
-                        
+
                         var valuetxtSort1_Cust = "";
                         if (response.Customers.Sort1_Cust != null) {
                             valuetxtSort1_Cust = response.Customers.Sort1_Cust;
