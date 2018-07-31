@@ -174,6 +174,9 @@ namespace MasterOnline.Controllers
         }
         public async Task<string> GetCategoryTree(BlibliAPIData data)
         {
+            //HASIL MEETING : SIMPAN CATEGORY DAN ATTRIBUTE NYA KE DATABASE MO
+            //INSERT JIKA CATEGORY_CODE UTAMA BELUM ADA DI MO
+
             string ret = "";
 
             string milis = CurrentTimeMillis().ToString();
@@ -249,6 +252,11 @@ namespace MasterOnline.Controllers
                                     //oCommand.Parameters[0].Value = data.merchant_code;
                                     foreach (var item in result.content) //foreach parent level top
                                     {
+                                        //jika item.categoryCode.Value sudah ada, tidak perlu insert
+                                        //if ()
+                                        //{
+
+                                        //}
                                         oCommand.Parameters[0].Value = item.categoryCode.Value;
                                         oCommand.Parameters[1].Value = item.categoryName.Value;
                                         oCommand.Parameters[2].Value = "";

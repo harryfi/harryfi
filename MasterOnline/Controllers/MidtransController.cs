@@ -2,6 +2,7 @@
 using MasterOnline.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -56,7 +57,7 @@ namespace MasterOnline.Controllers
             data.customer_details = new CustomerDetail();
             //data.customer_details.first_name = sessionData.User.Username;
             //data.user_id = sessionData.User.NoHp;
-
+            string currentYear = DateTime.Today.ToString("yy");
             string dataPost = Newtonsoft.Json.JsonConvert.SerializeObject(data);
             Utils.HttpRequest req = new Utils.HttpRequest();
             System.Net.Http.HttpContent content = new System.Net.Http.StringContent(dataPost);
@@ -66,12 +67,22 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrEmpty(bindTransferCharge.token))
                 {
                     MoDbContext = new MoDbContext();
+                    #region auto number no_transaksi
+                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
+                    int lastNum = 0;
+                    if (listTrans.Count > 0)
+                    {
+                        lastNum = listTrans.Last().RECNUM.Value;
+                    }
+                    lastNum = lastNum + 1;
+                    string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
+                    #endregion
                     var dataTrans = new TransaksiMidtrans();
-                    dataTrans.NO_TRANSAKSI = "";
+                    dataTrans.NO_TRANSAKSI = noTrans;
                     dataTrans.TGL_INPUT = DateTime.Now;
-                    //dataTrans.TYPE = code;
+                    dataTrans.TYPE = code;
                     dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
-                    dataTrans.ACCOUNT_ID = sessionData.User.AccountId;
+                    dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
 
                     MoDbContext.TransaksiMidtrans.Add(dataTrans);
                     MoDbContext.SaveChanges();
@@ -91,27 +102,48 @@ namespace MasterOnline.Controllers
         [System.Web.Mvc.Route("midtrans/transaction")]
         public void PostReceive([FromBody]MidtransTransactionData notification_data)
         {
-            MoDbContext = new MoDbContext();
-            if (notification_data != null)
+            try
             {
-                if (notification_data.status_code.Equals("200") && notification_data.transaction_status.Equals("settlement"))
+                MoDbContext = new MoDbContext();
+                if (notification_data != null)
                 {
-                    //transaction complete
-                    var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
-                    if (tranMidtrans != null)
+                    if (notification_data.status_code.Equals("200") && notification_data.transaction_status.Equals("settlement"))
                     {
-                        //transaksi sudah ada di tabel transaksi midtrans
-                        var insertTrans = new AktivitasSubscription();
-                        var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
-                        insertTrans.Account = userData.Username;
-                        insertTrans.Email = userData.Email;
-                        insertTrans.Nilai = tranMidtrans.VALUE;
-                        insertTrans.TanggalBayar = tranMidtrans.TGL_INPUT;
-                        //insertTrans.TipeSubs = tranMidtrans.TYPE;
+                        //transaction complete
+                        var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
+                        if (tranMidtrans != null)
+                        {
+                            //transaksi sudah ada di tabel transaksi midtrans
+                            var insertTrans = new AktivitasSubscription();
+                            var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
+                            insertTrans.Account = userData.Username;
+                            insertTrans.Email = userData.Email;
+                            insertTrans.Nilai = tranMidtrans.VALUE;
+                            insertTrans.TanggalBayar = tranMidtrans.TGL_INPUT;
+                            insertTrans.TipeSubs = tranMidtrans.TYPE;
 
+                        }
                     }
-                }
 
+                }
+            }
+            catch (Exception ex)
+            {
+                string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.File.Create(path);
+                    TextWriter tw = new StreamWriter(path);
+                    tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +" : " + ex.ToString());
+                    tw.Close();
+                }
+                else if (System.IO.File.Exists(path))
+                {
+                    TextWriter tw = new StreamWriter(path);
+                    //tw.WriteLine("The next line!");
+                    tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + ex.ToString());
+                    tw.Close();
+                }
             }
         }
         public static string Base64Encode()

@@ -93,7 +93,22 @@
                             @promosi.KODE_BRG
                         </td>
                         <td class="nama-barang">
-                            @(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA) @(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA2)
+                            @{
+                                //change by nurul 30/7/2018
+                                //@(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA) @(Model?.ListBarang?.Single(b => b.BRG == promosi.KODE_BRG).NAMA2)
+                                var nm = "";
+                                if (Model?.ListBarang?.SingleOrDefault(b => b.BRG == promosi.KODE_BRG)!=null)
+                                {
+                                    nm = Model?.ListBarang?.SingleOrDefault(b => b.BRG == promosi.KODE_BRG).NAMA;
+                                }
+                                var nm2 = "";
+                                if (Model?.ListBarang?.SingleOrDefault(b => b.BRG == promosi.KODE_BRG)!=null)
+                                {
+                                    nm2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == promosi.KODE_BRG).NAMA2;
+                                }
+                                //end change
+                            }
+                            @nm @nm2
                         </td>
                         <td class="harga-barang">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", promosi.HARGA_NORMAL)
