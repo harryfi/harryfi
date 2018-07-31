@@ -336,14 +336,14 @@
                     blur: function () {
                         if (this.value == '') {
                             if ($class === 'qty-barang editable') {
-                                $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="">');
+                                $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
                             } else if ($class === 'harga-barang editable') {
                                 $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
                             }
                             refreshNettoBarang($trId);
                         } else {
                             if ($class === 'qty-barang editable') {
-                                $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="">');
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
                             } else if ($class == 'harga-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
                                 $('#BarangStok_Harsat').val(this.value);

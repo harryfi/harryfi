@@ -447,9 +447,19 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-buyer-partial').html(response);
-                    Initialize();
-                    $('#konfHapusPembeli').modal('hide');
+                    //change by nurul 30/7/2018
+                    //$('#table-buyer-partial').html(response);
+                    //Initialize();
+                    //$('#konfHapusPembeli').modal('hide');
+                    if (response.Errors != undefined) {
+                        $('#konfHapusPembeli').modal('hide');
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#table-buyer-partial').html(response);
+                        Initialize();
+                        $('#konfHapusPembeli').modal('hide');
+                    }
+                    //end change
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

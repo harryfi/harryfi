@@ -1086,9 +1086,19 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-barang-1-partial').html(response);
-                    Initialize();
-                    $('#konfHapusBarang').modal('hide');
+                    //change by nurul 30/7/2018
+                    //$('#table-barang-1-partial').html(response);
+                    //Initialize();
+                    //$('#konfHapusBarang').modal('hide');
+                    if (response.Errors != undefined) {
+                        $('#konfHapusBarang').modal('hide');
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#table-barang-1-partial').html(response);
+                        Initialize();
+                        $('#konfHapusBarang').modal('hide');
+                    }
+                    //end change
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
