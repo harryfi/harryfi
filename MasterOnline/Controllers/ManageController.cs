@@ -696,7 +696,6 @@ namespace MasterOnline.Controllers
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
 
-                //untuk simpan ke MO
                 #region BLIBLI get token
                 if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
                 {
@@ -715,7 +714,6 @@ namespace MasterOnline.Controllers
                     }
                 }
                 #endregion
-                //untuk simpan ke MO
             }
 
             ErasoftDbContext.SaveChanges();
