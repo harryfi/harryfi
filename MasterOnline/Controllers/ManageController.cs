@@ -3720,7 +3720,7 @@ namespace MasterOnline.Controllers
         public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            if (tipeStatus == "03") // validasi di tab Siap dikirim
+            if (tipeStatus == "04") // validasi di tab Siap dikirim
             {
                 if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
                 {
