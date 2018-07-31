@@ -651,7 +651,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpPost]
-        public async System.Threading.Tasks.Task<ActionResult> SaveCustomer(CustomerViewModel customer)
+        public ActionResult SaveCustomer(CustomerViewModel customer)
         {
             if (!ModelState.IsValid)
             {
