@@ -26,6 +26,7 @@ namespace MasterOnline.Controllers
 
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
 
         public BlibliController()
         {
@@ -37,6 +38,8 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext();
                 else
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+
+                EDB = new DatabaseSQL(sessionData.Account.UserId);
             }
             else
             {
@@ -44,16 +47,17 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+                    EDB = new DatabaseSQL(accFromUser.UserId);
                 }
             }
         }
-        public BliBliToken GetToken(string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
+        public async Task<BliBliToken> GetToken(BlibliAPIData data, bool getCategory)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
             //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
-            string apiId = API_client_username + ":" + API_client_password;//<-- diambil dari profil API
-            string userMTA = email_merchant;//<-- email user merchant
-            string passMTA = password_merchant;//<-- pass merchant
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
             //apiId = "mta-api-sandbox:sandbox-secret-key";
             //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
             string urll = "https://api.blibli.com/v2/oauth/token?grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
@@ -62,36 +66,43 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
             myReq.ContentType = "application/x-www-form-urlencoded";
             myReq.Accept = "application/json";
-            Stream dataStream = myReq.GetRequestStream();
-            WebResponse response = myReq.GetResponse();
-            dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-            dataStream.Close();
-            response.Close();
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = "";
+
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //dataStream.Close();
+            //response.Close();
             // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
             //cek refreshToken
-            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
-            if (ret.error == null)
+            if (responseFromServer != "")
             {
-                var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(API_client_password) && p.API_CLIENT_U.Equals(API_client_username)).SingleOrDefault();
-                if (arf01inDB != null)
+                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
+                if (ret.error == null)
                 {
-                    arf01inDB.TOKEN = ret.access_token;
-                    arf01inDB.REFRESH_TOKEN = ret.refresh_token;
-                    ErasoftDbContext.SaveChanges();
-
-                    BlibliAPIData apidata = new BlibliAPIData {
-                        API_client_username = API_client_username,
-                        API_client_password = API_client_password,
-                        API_secret_key = API_secret_key,
-                        merchant_code = arf01inDB.Sort1_Cust,
-                        mta_username_email_merchant = email_merchant,
-                        mta_password_password_merchant = password_merchant,
-                        token = ret.access_token
-                    };
-
-                    GetCategoryTree(apidata);
+                    var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+                    if (arf01inDB != null)
+                    {
+                        arf01inDB.TOKEN = ret.access_token;
+                        arf01inDB.REFRESH_TOKEN = ret.refresh_token;
+                        ErasoftDbContext.SaveChanges();
+                        if (getCategory)
+                        {
+                            data.merchant_code = arf01inDB.Sort1_Cust;
+                            data.token = ret.access_token;
+                            await GetCategoryTree(data);
+                        }
+                    }
                 }
             }
             return ret;
@@ -161,7 +172,7 @@ namespace MasterOnline.Controllers
 
             return responseFromServer;
         }
-        public string GetCategoryTree(BlibliAPIData data)
+        public async Task<string> GetCategoryTree(BlibliAPIData data)
         {
             string ret = "";
 
@@ -177,33 +188,256 @@ namespace MasterOnline.Controllers
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
-            myReq.Headers.Add("Authorization", ("Bearer " + Convert.ToBase64String(Encoding.UTF8.GetBytes(data.token))));
+            myReq.Headers.Add("Authorization", ("bearer " + data.token));
             myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-            myReq.Headers.Add("x-blibli-mta-date-milis", (CurrentTimeMillis().ToString()));
-            myReq.Headers.Add("username", userMTA);
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
             myReq.Headers.Add("requestId", milis);
             myReq.Headers.Add("sessionId", milis);
-            myReq.ContentType = "application/json";
-            myReq.Accept = "application/json";
-            Stream dataStream = myReq.GetRequestStream();
-            WebResponse response = myReq.GetResponse();
-            dataStream = response.GetResponseStream();
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
-            dataStream.Close();
-            response.Close();
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
             // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
             //cek refreshToken
-            BlibliGetCategoryReturn result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetCategoryReturn)) as BlibliGetCategoryReturn;
-            if (result.errorCode == null)
+            if (responseFromServer != null)
             {
-                //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(API_client_password) && p.API_CLIENT_U.Equals(API_client_username)).SingleOrDefault();
-                //if (arf01inDB != null)
-                //{
-                //    arf01inDB.TOKEN = ret.access_token;
-                //    arf01inDB.REFRESH_TOKEN = ret.refresh_token;
-                //    ErasoftDbContext.SaveChanges();
-                //}
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    if (result.content.Count > 0)
+                    {
+                        //Data Source = 202.67.14.92; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
+                        //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                        using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                //oCommand.ExecuteNonQuery();
+                                //oCommand.Transaction = oTransaction;
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.CommandText = "INSERT INTO [CATEGORY_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                                try
+                                {
+                                    //oCommand.Parameters[0].Value = data.merchant_code;
+                                    foreach (var item in result.content) //foreach parent level top
+                                    {
+                                        oCommand.Parameters[0].Value = item.categoryCode.Value;
+                                        oCommand.Parameters[1].Value = item.categoryName.Value;
+                                        oCommand.Parameters[2].Value = "";
+                                        oCommand.Parameters[3].Value = item.children == null ? "1" : "0";
+                                        oCommand.Parameters[4].Value = "";
+                                        if (oCommand.ExecuteNonQuery() == 1)
+                                        {
+                                            if (item.children != null)
+                                            {
+                                                RecursiveInsertCategory(oCommand, item.children, item.categoryCode.Value, item.categoryCode.Value, data);
+                                            }
+                                            //throw new InvalidProgramException();
+                                        }
+                                    }
+                                    //oTransaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    //oTransaction.Rollback();
+                                }
+                            }
+                            //}
+                        }
+                        //await GetAttributeList(data, "AK-1000205", "Aksesoris Audio Lainnya");
+                    }
+                }
+            }
+
+            return ret;
+        }
+        protected void RecursiveInsertCategory(SqlCommand oCommand, dynamic item_children, string parent, string master_category_code, BlibliAPIData data)
+        {
+            foreach (var child in item_children)
+            {
+                oCommand.Parameters[0].Value = child.categoryCode.Value;
+                oCommand.Parameters[1].Value = child.categoryName.Value;
+                oCommand.Parameters[2].Value = parent;
+                oCommand.Parameters[3].Value = child.children == null ? "1" : "0";
+                oCommand.Parameters[4].Value = master_category_code;
+
+                if (oCommand.ExecuteNonQuery() == 1)
+                {
+                    if (child.children != null)
+                    {
+                        RecursiveInsertCategory(oCommand, child.children, child.categoryCode.Value, master_category_code, data);
+                    }
+                    else
+                    {
+                        GetAttributeList(data, child.categoryCode.Value, child.categoryName.Value);
+                    }
+                }
+            }
+        }
+        public async Task<string> GetAttributeList(BlibliAPIData data, string categoryCode, string categoryName)
+        {
+            string ret = "";
+
+            string milis = CurrentTimeMillis().ToString();
+            DateTime milisBack = Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + data.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis);
+            myReq.Headers.Add("sessionId", milis);
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+
+            //Stream dataStream = myReq.GetRequestStream();
+            //WebResponse response = myReq.GetResponse();
+            //dataStream = response.GetResponseStream();
+            //StreamReader reader = new StreamReader(dataStream);
+            //string responseFromServer = reader.ReadToEnd();
+            //dataStream.Close();
+            //response.Close();
+
+            // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+            //cek refreshToken
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    if (result.value.attributes.Count > 0)
+                    {
+                        using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
+                        {
+                            oConnection.Open();
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                string a = "";
+                                #region Generate Parameters dan CommandText
+                                for (int i = 1; i <= 20; i++)
+                                {
+                                    a = Convert.ToString(i);
+                                    sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                    sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                    oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                    oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                }
+                                sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                #endregion
+                                oCommand.CommandText = sSQL;
+                                oCommand.Parameters[0].Value = categoryCode;
+                                oCommand.Parameters[1].Value = categoryName;
+                                for (int i = 0; i < 20; i++)
+                                {
+                                    a = Convert.ToString(i * 4 + 2);
+                                    oCommand.Parameters[(i * 4) + 2].Value = "";
+                                    oCommand.Parameters[(i * 4) + 3].Value = "";
+                                    oCommand.Parameters[(i * 4) + 4].Value = "";
+                                    oCommand.Parameters[(i * 4) + 5].Value = "";
+                                    try
+                                    {
+                                        oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                                        oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                                        oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                                        oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                                oCommand.ExecuteNonQuery();
+                            }
+                            using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                            {
+                                oCommand2.CommandType = CommandType.Text;
+                                oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+                                oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
+                                oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
+                                oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+                                oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
+                                string a = "";
+                                for (int i = 0; i < 20; i++)
+                                {
+                                    a = Convert.ToString(i + 1);
+                                    try
+                                    {
+                                        if (result.value.attributes[i].options.Count > 0)
+                                        {
+                                            for (int j = 0; j < result.value.attributes[i].options.Count; j++)
+                                            {
+                                                oCommand2.Parameters[0].Value = result.value.attributes[i].attributeCode.Value;
+                                                oCommand2.Parameters[1].Value = result.value.attributes[i].attributeType.Value;
+                                                oCommand2.Parameters[2].Value = result.value.attributes[i].name.Value;
+                                                oCommand2.Parameters[3].Value = result.value.attributes[i].options[j].Value;
+                                                oCommand2.ExecuteNonQuery();
+                                            }
+                                        }
+
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                }
+                            }
+                            //}
+                        }
+                    }
+                }
             }
             return ret;
         }
@@ -229,7 +463,8 @@ namespace MasterOnline.Controllers
     new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
     ).TotalMilliseconds;
         }
-        public class BlibliAPIData {
+        public class BlibliAPIData
+        {
             public string merchant_code { get; set; }
             public string API_client_username { get; set; }
             public string API_client_password { get; set; }

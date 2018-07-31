@@ -71,10 +71,10 @@ namespace MasterOnline.Controllers
                     {
                         //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                         ret.status = 1;
-                        string username = sessionData.Account.Username;
+                        //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
                         EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "' WHERE CUST ='" + cust + "'");
-                        var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
+                        //var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
                     }
                     else
                     {
@@ -449,7 +449,7 @@ namespace MasterOnline.Controllers
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
                     //int i = 1;
                     var connIDARF01C = Guid.NewGuid().ToString();
-                    string username = sessionData.Account.Username;
+                    string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
                     foreach (Transaction order in bindOrder.transactions)
                     {
@@ -619,7 +619,7 @@ namespace MasterOnline.Controllers
             {
                 if (bindStatus.status.Equals("OK"))
                 {
-                    string username = sessionData.Account.Username;
+                    //string username = sessionData.Account.Username;
                     //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     ret.status = 1;
                     //change status menjadi  04 => shipped
@@ -655,11 +655,11 @@ namespace MasterOnline.Controllers
             {
                 if (bindCancel.status.Equals("OK"))
                 {
-                    string username = sessionData.Account.Username;
+                    //string username = sessionData.Account.Username;
                     //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
                     ret.status = 1;
                     //change status menjadi  11 => cancelled
-                    EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI = '" + noBukti + "'");
+                    //EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI = '" + noBukti + "'");
                 }
                 else
                 {
