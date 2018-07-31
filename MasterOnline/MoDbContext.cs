@@ -23,6 +23,9 @@ namespace MasterOnline
         public DbSet<AktivitasSubscription> AktivitasSubscription { get; set; }
         public DbSet<TransaksiMidtrans> TransaksiMidtrans { get; set; }
         public DbSet<Promo> Promo { get; set; }
+        public DbSet<ATTRIBUTE_BLIBLI> AttributeBlibli { get; set; }
+        public DbSet<ATTRIBUTE_OPT_BLIBLI> AttributeOptBlibli { get; set; }
+        public DbSet<CATEGORY_BLIBLI> CategoryBlibli { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
