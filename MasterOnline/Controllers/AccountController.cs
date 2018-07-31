@@ -227,27 +227,27 @@ namespace MasterOnline.Controllers
             //}
             //#endregion
             #region Blibli
-            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
-            if (listBLIShop.Count > 0)
-            {
-                var BliApi = new BlibliController();
-                foreach (ARF01 tblCustomer in listBLIShop)
-                {
-                    if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
-                    {
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = tblCustomer.API_CLIENT_U,
-                            API_client_password = tblCustomer.API_CLIENT_P,
-                            API_secret_key = tblCustomer.API_KEY,
-                            mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD
-                        };
-                        BliApi.GetToken(data, false);
-                    }
-                }
-            }
+            //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            //var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            //if (listBLIShop.Count > 0)
+            //{
+            //    var BliApi = new BlibliController();
+            //    foreach (ARF01 tblCustomer in listBLIShop)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+            //        {
+            //            BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+            //            {
+            //                API_client_username = tblCustomer.API_CLIENT_U,
+            //                API_client_password = tblCustomer.API_CLIENT_P,
+            //                API_secret_key = tblCustomer.API_KEY,
+            //                mta_username_email_merchant = tblCustomer.EMAIL,
+            //                mta_password_password_merchant = tblCustomer.PASSWORD
+            //            };
+            //            BliApi.GetToken(data, false);
+            //        }
+            //    }
+            //}
             #endregion
             //#region elevenia
             //var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");

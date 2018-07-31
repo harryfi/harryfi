@@ -479,6 +479,7 @@
             });
         }
 
+
         function getKabKot() {
             $.ajax({
                 type: "GET",
@@ -895,6 +896,21 @@
                     $('#table-customer-partial').html(response);
                     Initialize();
                     $('#konfHapuscustomer').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function getCategoryBlibli() {
+            var link = '@Url.Action("GetCategoryBlibli", "Manage")';
+            //link = link.replace("replaceId", this.$customerId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

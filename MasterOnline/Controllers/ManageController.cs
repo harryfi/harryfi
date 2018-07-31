@@ -621,8 +621,37 @@ namespace MasterOnline.Controllers
             return Json(valSubs, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public async System.Threading.Tasks.Task<string> GetCategoryBlibli()
+        {
+            var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
+            var custInDb = ErasoftDbContext.ARF01.Where(c => c.NAMA == idmarket).ToList();
+            foreach (var customer in custInDb)
+            {
+                #region BLIBLI get token
+                    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+                    {
+                        var BliApi = new BlibliController();
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = customer.API_CLIENT_U,
+                            API_client_password = customer.API_CLIENT_P,
+                            API_secret_key = customer.API_KEY,
+                            mta_username_email_merchant = customer.EMAIL,
+                            mta_password_password_merchant = customer.PASSWORD,
+                            merchant_code = customer.Sort1_Cust,
+                            token = customer.TOKEN
+                        };
+                        await BliApi.GetToken(data, true);
+                        //BliApi.GetCategoryTree(data);
+                    }
+                #endregion
+            }
+            return "";
+        }
+
         [HttpPost]
-        public ActionResult SaveCustomer(CustomerViewModel customer)
+        public async System.Threading.Tasks.Task<ActionResult> SaveCustomer(CustomerViewModel customer)
         {
             if (!ModelState.IsValid)
             {
@@ -669,24 +698,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF02H.Add(dataHarga);
                 }
 
-                #region BLIBLI get token
-                if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
-                {
-                    if (!string.IsNullOrEmpty(cust.API_CLIENT_P) && !string.IsNullOrEmpty(cust.API_CLIENT_U))
-                    {
-                        var BliApi = new BlibliController();
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = cust.API_CLIENT_U,
-                            API_client_password = cust.API_CLIENT_P,
-                            API_secret_key = cust.API_KEY,
-                            mta_username_email_merchant = cust.EMAIL,
-                            mta_password_password_merchant = cust.PASSWORD
-                        };
-                        BliApi.GetToken(data, true);
-                    }
-                }
-                #endregion
+                
             }
             else
             {
@@ -706,25 +718,6 @@ namespace MasterOnline.Controllers
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
-
-                #region BLIBLI get token
-                if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
-                {
-                    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
-                    {
-                        var BliApi = new BlibliController();
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = customer.Customers.API_CLIENT_U,
-                            API_client_password = customer.Customers.API_CLIENT_P,
-                            API_secret_key = customer.Customers.API_KEY,
-                            mta_username_email_merchant = customer.Customers.EMAIL,
-                            mta_password_password_merchant = customer.Customers.PASSWORD
-                        };
-                        BliApi.GetToken(data, true);
-                    }
-                }
-                #endregion
             }
 
             ErasoftDbContext.SaveChanges();
