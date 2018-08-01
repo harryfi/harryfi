@@ -642,7 +642,7 @@ namespace MasterOnline.Controllers
                             merchant_code = customer.Sort1_Cust,
                             token = customer.TOKEN
                         };
-                        await BliApi.GetToken(data, true);
+                        await BliApi.GetCategoryTree(data);
                         //BliApi.GetCategoryTree(data);
                     }
                 #endregion
