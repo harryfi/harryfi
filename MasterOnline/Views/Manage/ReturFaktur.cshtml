@@ -506,7 +506,13 @@
                     $('#Faktur_TGL_JT_TEMPO').val($tglTop.format('DD/MM/YYYY'));
                 }
                 $('#btn-simpan-perubahan-row').show();
-            });
+                });
+
+            if ($('#Faktur_TGL').val() != '') {
+                $('#TGL').val($('#Faktur_TGL').val().substr(0, 10));
+            } else {
+                $('#Faktur_TGL').val($('#TGL').val());
+            }
         }
 
         var $flagPerubahan = 0;

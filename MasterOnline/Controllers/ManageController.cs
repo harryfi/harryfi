@@ -5641,6 +5641,12 @@ namespace MasterOnline.Controllers
                 {
                     ErasoftDbContext.APT03B.Add(dataVm.HutangDetail);
                 }
+
+                var hutangInDb = ErasoftDbContext.APT03A.Single(p => p.BUKTI == dataVm.Hutang.BUKTI);
+
+                hutangInDb.TPOT = hutangInDb.TPOT + dataVm.HutangDetail.POT;
+                hutangInDb.TBAYAR = hutangInDb.TBAYAR + dataVm.HutangDetail.BAYAR;
+
             }
 
             ErasoftDbContext.SaveChanges();
@@ -5716,6 +5722,7 @@ namespace MasterOnline.Controllers
 
                 hutangInDb.TPOT -= detailHutangInDb.POT;
                 hutangInDb.TBAYAR -= detailHutangInDb.BAYAR;
+
                 ErasoftDbContext.APT03B.Remove(detailHutangInDb);
                 ErasoftDbContext.SaveChanges();
 
