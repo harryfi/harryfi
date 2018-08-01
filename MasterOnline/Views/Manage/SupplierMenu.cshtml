@@ -411,9 +411,19 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-supplier-partial').html(response);
-                    Initialize();
-                    $('#konfHapusSupplier').modal('hide');
+                    //change by nurul 30/7/2018
+                    //$('#table-supplier-partial').html(response);
+                    //Initialize();
+                    //$('#konfHapusSupplier').modal('hide');
+                    if (response.Errors != undefined) {
+                        $('#konfHapusSupplier').modal('hide');
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#table-supplier-partial').html(response);
+                        Initialize();
+                        $('#konfHapusSupplier').modal('hide');
+                    }
+                    //end change
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

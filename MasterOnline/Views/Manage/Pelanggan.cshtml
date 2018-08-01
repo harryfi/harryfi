@@ -462,12 +462,10 @@
 
                     if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
                         $('#tambah_market').remove();
-                        $('#tambah_market').html("");
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
                     } else {
                         $('#tambah_market').remove();
-                        $('#tambah_market').html("");
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
@@ -480,6 +478,7 @@
                 }
             });
         }
+
 
         function getKabKot() {
             $.ajax({
@@ -897,6 +896,21 @@
                     $('#table-customer-partial').html(response);
                     Initialize();
                     $('#konfHapuscustomer').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function getCategoryBlibli() {
+            var link = '@Url.Action("GetCategoryBlibli", "Manage")';
+            //link = link.replace("replaceId", this.$customerId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

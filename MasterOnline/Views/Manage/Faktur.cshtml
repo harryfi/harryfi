@@ -720,12 +720,14 @@
                     var $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
+                        $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
                     } else if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricingExpired" id="tambah_faktur">Tambah Baru</button>');
                     } else {
+                        $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>');
                         $('#tambah_faktur').on('click', function () {
                             $('.faktur_table_section').hide();

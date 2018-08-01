@@ -554,7 +554,18 @@ namespace MasterOnline.Controllers
             try
             {
                 var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == buyerId);
+                //ADD BY NURUL 30/7/2018
+                var vmError = new StokViewModel() { };
 
+                var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+                var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+
+                if (cekFaktur > 0 || cekPesanan > 0)
+                {
+                    vmError.Errors.Add("Pembeli sudah dipakai di transaksi !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //END ADD                                
                 ErasoftDbContext.ARF01C.Remove(buyerInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -610,6 +621,35 @@ namespace MasterOnline.Controllers
             return Json(valSubs, JsonRequestBehavior.AllowGet);
         }
 
+        [HttpGet]
+        public async System.Threading.Tasks.Task<string> GetCategoryBlibli()
+        {
+            var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
+            var custInDb = ErasoftDbContext.ARF01.Where(c => c.NAMA == idmarket).ToList();
+            foreach (var customer in custInDb)
+            {
+                #region BLIBLI get token
+                    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+                    {
+                        var BliApi = new BlibliController();
+                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        {
+                            API_client_username = customer.API_CLIENT_U,
+                            API_client_password = customer.API_CLIENT_P,
+                            API_secret_key = customer.API_KEY,
+                            mta_username_email_merchant = customer.EMAIL,
+                            mta_password_password_merchant = customer.PASSWORD,
+                            merchant_code = customer.Sort1_Cust,
+                            token = customer.TOKEN
+                        };
+                        await BliApi.GetCategoryTree(data);
+                        //BliApi.GetCategoryTree(data);
+                    }
+                #endregion
+            }
+            return "";
+        }
+
         [HttpPost]
         public ActionResult SaveCustomer(CustomerViewModel customer)
         {
@@ -658,24 +698,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF02H.Add(dataHarga);
                 }
 
-                #region BLIBLI get token
-                if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
-                {
-                    if (!string.IsNullOrEmpty(cust.API_CLIENT_P) && !string.IsNullOrEmpty(cust.API_CLIENT_U))
-                    {
-                        var BliApi = new BlibliController();
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = cust.API_CLIENT_U,
-                            API_client_password = cust.API_CLIENT_P,
-                            API_secret_key = cust.API_KEY,
-                            mta_username_email_merchant = cust.EMAIL,
-                            mta_password_password_merchant = cust.PASSWORD
-                        };
-                        BliApi.GetToken(data, true);
-                    }
-                }
-                #endregion
+                
             }
             else
             {
@@ -695,27 +718,6 @@ namespace MasterOnline.Controllers
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
-
-                //untuk simpan ke MO
-                #region BLIBLI get token
-                if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
-                {
-                    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
-                    {
-                        var BliApi = new BlibliController();
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = customer.Customers.API_CLIENT_U,
-                            API_client_password = customer.Customers.API_CLIENT_P,
-                            API_secret_key = customer.Customers.API_KEY,
-                            mta_username_email_merchant = customer.Customers.EMAIL,
-                            mta_password_password_merchant = customer.Customers.PASSWORD
-                        };
-                        BliApi.GetToken(data, true);
-                    }
-                }
-                #endregion
-                //untuk simpan ke MO
             }
 
             ErasoftDbContext.SaveChanges();
@@ -1687,6 +1689,22 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteBarang(string barangId)
         {
             var barangInDb = ErasoftDbContext.STF02.Single(b => b.BRG == barangId);
+
+            //add by nurul 30/7/2018
+            var vmError = new StokViewModel() { };
+
+            var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Kobar == barangInDb.BRG);
+            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.BRG == barangInDb.BRG);
+            var cekPromosi = ErasoftDbContext.DETAILPROMOSI.Count(k => k.KODE_BRG == barangInDb.BRG);
+
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+            {
+                vmError.Errors.Add("Barang sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add
 
             ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.BRG == barangId));
             ErasoftDbContext.STF02.Remove(barangInDb);
@@ -3702,7 +3720,7 @@ namespace MasterOnline.Controllers
         public ActionResult UbahStatusPesanan(int? recNum, string tipeStatus)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
-            if (tipeStatus == "03") // validasi di tab Siap dikirim
+            if (tipeStatus == "04") // validasi di tab Siap dikirim
             {
                 if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
                 {
@@ -4430,6 +4448,21 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteSupplier(int? recNum)
         {
             var suppInDb = ErasoftDbContext.APF01.Single(c => c.RecNum == recNum);
+
+            //add by nurul 30/7/2018
+            var vmError = new StokViewModel() { };
+
+            var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.SUPP == suppInDb.SUPP);
+            var cekPembelian = ErasoftDbContext.PBT01A.Count(k => k.SUPP == suppInDb.SUPP);
+            var cekTransaksi = ErasoftDbContext.STT01A.Count(k => k.Supp == suppInDb.SUPP);
+            var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.SUPP == suppInDb.SUPP);
+
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
+            {
+                vmError.Errors.Add("Supplier sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add
 
             ErasoftDbContext.APF01.Remove(suppInDb);
             ErasoftDbContext.SaveChanges();
@@ -5803,21 +5836,25 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeleteGudang(int? gudangId)
         {
-            var vmError = new StokViewModel() { };
-
             var gudangInDb = ErasoftDbContext.STF18.Single(k => k.ID == gudangId);
+
+            //ADD BY NURUL 27/7/2018
+            var vmError = new StokViewModel() { };
 
             var cekFaktur = ErasoftDbContext.SIT01B.Count(k => k.GUDANG == gudangInDb.Kode_Gudang);
             var cekPembelian = ErasoftDbContext.PBT01B.Count(k => k.GD == gudangInDb.Kode_Gudang);
+            var cekTransaksi = ErasoftDbContext.STT01B.Count(k => k.Dr_Gd == gudangInDb.Kode_Gudang || k.Ke_Gd == gudangInDb.Kode_Gudang);
+            var cekPesanan = ErasoftDbContext.SOT01B.Count(k => k.LOKASI == gudangInDb.Kode_Gudang);
 
-            if (cekFaktur > 0 || cekPembelian > 0)
+            if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0)
             {
                 vmError.Errors.Add("Gudang sudah dipakai di transaksi !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
+            //END ADD
 
-            //ErasoftDbContext.STF18.Remove(gudangInDb);
-            //ErasoftDbContext.SaveChanges();
+            ErasoftDbContext.STF18.Remove(gudangInDb);
+            ErasoftDbContext.SaveChanges();
 
             var partialVm = new GudangViewModel()
             {
