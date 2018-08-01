@@ -380,6 +380,7 @@ namespace MasterOnline.Controllers
                 //ret = bindOrder;
                 if (bindOrder.code.Equals("0"))
                 {
+                    string listOrderId = "[";
                     if (bindOrder.data.orders.Count > 0)
                     {
                         string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
@@ -443,7 +444,7 @@ namespace MasterOnline.Controllers
                                     break;
                             }
                             insertQ += "('" + order.order_id + "','" + order.customer_first_name + "','" + order.customer_last_name + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
-                            insertQ += "','" + order.delivery_info + "','" + price[0].Replace(',', '.') + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name + "','" + order.address_billing.last_name;
+                            insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name + "','" + order.address_billing.last_name;
                             insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1 + "','" + order.address_billing.address2 + "','" + order.address_billing.address3 + "','" + order.address_billing.address4 + "','" + order.address_billing.address5;
                             insertQ += "','" + order.address_billing.customer_email + "','" + order.address_billing.city + "','" + order.address_billing.post_code + "','" + order.address_billing.country + "','" + order.address_shipping.first_name + "','" + order.address_shipping.last_name + "','" + order.address_shipping.phone + "','" + order.address_shipping.phone2;
                             insertQ += "','" + order.address_shipping.address1 + "','" + order.address_shipping.address2 + "','" + order.address_shipping.address3 + "','" + order.address_shipping.address4 + "','" + order.address_shipping.address5 + "','" + order.address_shipping.customer_email + "','" + order.address_shipping.city;
@@ -465,17 +466,24 @@ namespace MasterOnline.Controllers
                             insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1 + "', 0, 0, 0, 0, '1', 0, 0, ";
                             insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
 
+                            listOrderId += order.order_id;
+
                             if (i < bindOrder.data.orders.Count)
                             {
                                 insertQ += " , ";
                                 insertPembeli += " , ";
+                                listOrderId += ",";
+                            }
+                            else
+                            {
+                                listOrderId += "]";
                             }
                             i = i + 1;
                         }
 
-                        var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                        ret.status = 1;
-                        ret.message = a.ToString();
+                        //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
+                        //ret.status = 1;
+                        //ret.message = a.ToString();
 
                         SqlCommand CommandSQL = new SqlCommand();
                         CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
@@ -487,7 +495,9 @@ namespace MasterOnline.Controllers
                         CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
 
 
-                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+
+                        getMultiOrderItems(listOrderId, accessToken, connectionID);
                     }
                     else
                     {
@@ -505,10 +515,10 @@ namespace MasterOnline.Controllers
             else
             {
                 ret.message = "failed to call lazada api";
-            }            
+            }
             return ret;
         }
-        
+
         public BindingBase getOrderItems(string orderId, string accessToken)
         {
             var ret = new BindingBase();
@@ -708,16 +718,16 @@ namespace MasterOnline.Controllers
                                         insertQ += " , ";
                                     i = i + 1;
                                 }
-                                var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                                ret.status = 1;
-                                ret.message = a.ToString();
+                                //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
+                                //ret.status = 1;
+                                //ret.message = a.ToString();
 
                                 SqlCommand CommandSQL = new SqlCommand();
                                 CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                                 CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
                                 //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
 
-                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
                             }
                         }
                     }
