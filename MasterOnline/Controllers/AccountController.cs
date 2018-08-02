@@ -119,7 +119,7 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                //SyncMarketplace();
+                SyncMarketplace();
                 return RedirectToAction("Index", "Manage");
             }
 
