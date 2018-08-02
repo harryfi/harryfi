@@ -159,7 +159,7 @@ namespace MasterOnline
         [StringLength(10)]
         public string Attr5_Area { get; set; }
 
-        [StringLength(50)]
+        //[StringLength(50)]
         public string Kode { get; set; }
 
         [StringLength(2)]
