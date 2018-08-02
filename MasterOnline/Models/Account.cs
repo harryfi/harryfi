@@ -67,5 +67,7 @@ namespace MasterOnline.Models
 
         [Column(TypeName = "date")]
         public DateTime? TGL_SUBSCRIPTION { get; set; }
+
+        public string PhotoKtpBase64 { get; set; }
     }
 }
