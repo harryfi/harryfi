@@ -516,7 +516,15 @@
                     $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
                 }
                 //$('#btn-simpan-perubahan-row').show();
-            });
+                });
+
+            if ($('#Invoice_TGL').val() != '') {
+                $('#TGL').val($('#Invoice_TGL').val().substr(0, 10));
+            } else {
+                $('#Invoice_TGL').val($('#TGL').val());
+
+
+            }
         }
 
         var $flagPerubahan = 0;

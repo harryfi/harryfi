@@ -17,5 +17,6 @@ namespace MasterOnline.ViewModels
         public SIFSY DataUsaha { get; set; }
         public String Username { get; set; }
         public List<string> Errors { get; set; } = new List<string>();
+        public List<CATEGORY_BLIBLI> ListCategoryBlibli { get; set; }
     }
 }

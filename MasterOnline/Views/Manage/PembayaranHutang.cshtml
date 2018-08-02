@@ -466,7 +466,14 @@
                 language: 'id'
             }).datepicker('setDate', '0').change(function () {
                 $('#Hutang_TGL').val($(this).val());
-            });
+                });
+
+
+            if ($('#Hutang_TGL').val() != '') {
+                $('#TGL').val($('#Hutang_TGL').val().substr(0, 10));
+            } else {
+                $('#Hutang_TGL').val($('#TGL').val());
+            }
         }
 
         var $flagPerubahan = 0;
@@ -497,14 +504,19 @@
                         OrderId: "@(Model?.Hutang?.BUKTI)",
                         Tgl: $('#Hutang_tgl').val()
                     }),
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function () {
                         alert('Data hutang berhasil di-update');
                         $this.hide();
+                        $('#loading_spinner').hide();
                     },
                     error: function (xhr) {
                         console.log(xhr);
+                        $('#loading_spinner').hide();
                     }
                 });
             });
@@ -512,10 +524,10 @@
             var $totalSemua = 0;
 
             $('tr[data-hutang-id="0"] #HutangDetail_POT').change(function () {
-                $totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
+                //$totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
                 $('tr[data-hutang-id="0"] .span-potongan-hutang').text(convertToRupiah($(this).val()));
-                $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
-                $('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($(this).val()));
+                //$('#TOTALBAYAR').val(convertToRupiah($totalSemua));
+                //$('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($(this).val()));
             }).focus(function () {
                 $(this).val('');
             }).blur(function() {
@@ -524,7 +536,7 @@
             });
 
             $('tr[data-hutang-id="0"] #HutangDetail_BAYAR').change(function () {
-                $totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
+                $totalSemua = parseInt($('#HutangDetail_BAYAR').val());
                 $('tr[data-hutang-id="0"] .span-bayar-hutang').text(convertToRupiah($(this).val()));
                 $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
                 $('#Hutang_TBAYAR').val(parseInt($('#Hutang_TBAYAR').val()) + parseInt($(this).val()));
@@ -698,6 +710,9 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $('#form-partial').html(response);
                     refreshInputan();
@@ -705,9 +720,11 @@
                     getSupplier();
                     getInvoice($("#Hutang_SUPP").val());
                     $('#tambah_hutang').click();
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -723,13 +740,18 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $('#table-hutang-partial').html(response);
                     Initialize();
                     $('#konfHapusHutang').modal('hide');
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -749,15 +771,20 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $('#form-partial').html(response);
                     getTanggal();
                     getSupplier();
                     getInvoice($("#Hutang_SUPP").val());
                     $('#konfHapusDetail').modal('hide');
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
                     console.log(xhr);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -818,12 +845,16 @@
                         return;
                     }
 
+                    $('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($('#HutangDetail_POT').val()));
                     $('#Hutang_TBAYAR').val(convertToAngka($('#TOTALBAYAR').val()));
 
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveBayarHutang", "Manage")',
                         data: $('#form-hutang').serialize(),
+                        beforeSend: function () {
+                            $('#loading_spinner').show();
+                        },
                         success: function (response) {
                             if (response.Errors == null) {
                                 $('#form-partial').html(response);
@@ -832,8 +863,10 @@
                                 getSupplier();
                                 getInvoice($("#Hutang_SUPP").val());
                                 $('#btn-simpan-perubahan-row').hide();
+                                $('#loading_spinner').hide();
                             } else {
                                 console.log(response.Errors);
+                                $('#loading_spinner').hide();
                                 alert('Ada data yang tidak valid!');
                             }
                         },
@@ -922,7 +955,7 @@
                 });
 
         }
-        
+
         //end add by Tri function to call bca api
 
     </script>

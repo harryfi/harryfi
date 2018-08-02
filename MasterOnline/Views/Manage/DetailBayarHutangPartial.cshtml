@@ -40,6 +40,7 @@
 @Html.HiddenFor(m => m.Hutang.TPOT, new { Value = 0 })
 @{
     var listHutangDetail = Model.ListHutangDetail.Where(b => b.BUKTI == Model?.Hutang?.BUKTI).ToList();
+
 }
 <div class="form-horizontal">
     <div class="row">
@@ -116,12 +117,17 @@
                 <div class="col-md-6">
                     @{
                         var totalSemua = 0d;
-                        foreach (var detailHutang in listHutangDetail)
+                        //foreach (var detailHutang in listHutangDetail)
+                        //{
+                        //    totalSemua += (detailHutang.BAYAR + detailHutang.POT);
+                        //}
+                        if (Model.Hutang != null)
                         {
-                            totalSemua += (detailHutang.BAYAR + detailHutang.POT);
+                            totalSemua = Model.Hutang.TBAYAR;
                         }
                     }
                     @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control" })
+
                 </div>
             </div>
         </div>
@@ -146,11 +152,11 @@
                         }
                     }
                     @*else
-                    {
-                        <button type="button" class="btn btn-primary" id="btnBayar" onclick="popTransfer('0');">
-                            <span>Transfer BCA</span>
-                        </button>
-                    }*@
+                        {
+                            <button type="button" class="btn btn-primary" id="btnBayar" onclick="popTransfer('0');">
+                                <span>Transfer BCA</span>
+                            </button>
+                        }*@
                     @*<button type="button" class="btn btn-primary" id="btnBayar" data-toggle="modal" data-target="#modalDataRekBCA" onclick="popTransfer( @{ (Model.Hutang != null) ? Model.Hutang.TGIRO : 0 });">
                             <span>Transfer BCA</span>
                         </button>*@
