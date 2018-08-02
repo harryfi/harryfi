@@ -650,20 +650,18 @@ namespace MasterOnline.Controllers
                 {
                     if (bindOrderItems.data.Count > 0)
                     {
+                        string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
+                        insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
+                        insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
+                        insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
+                        insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
+                        string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
                         foreach (Datum order in bindOrderItems.data)
                         {
                             if (order.order_items.Count() > 0)
-                            {
-
-                                string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
-                                insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
-                                insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
-                                insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
-                                insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
-
-                                int i = 1;
+                            {                                
                                 //var connectionID = Guid.NewGuid().ToString();
-                                string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
                                 foreach (Order_Items items in order.order_items)
                                 {
@@ -711,25 +709,28 @@ namespace MasterOnline.Controllers
                                     insertQ += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name + "','" + items.sku + "','" + items.shop_sku + "','" + items.shipping_type;
                                     insertQ += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
                                     insertQ += ",'" + statusEra + "','" + items.shipment_provider + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason + "','" + items.reason_detail + "','" + items.purchase_order_id;
-                                    insertQ += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes + "','" + items.shipping_provider_type + "','" + items.created_at + "','" + items.updated_at;
+                                    insertQ += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
                                     insertQ += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
 
-                                    if (i < bindOrderItems.data.Count)
-                                        insertQ += " , ";
-                                    i = i + 1;
+                                    //if (i < bindOrderItems.data.Count)
+                                        insertQ += ",";
+                                    //i = i + 1;
                                 }
-                                //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                                //ret.status = 1;
-                                //ret.message = a.ToString();
-
-                                SqlCommand CommandSQL = new SqlCommand();
-                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                                //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
-
-                                //EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                                
                             }
                         }
+                        insertQ = insertQ.Substring(0, insertQ.Length - 1);
+
+                        //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
+                        //ret.status = 1;
+                        //ret.message = a.ToString();
+
+                        SqlCommand CommandSQL = new SqlCommand();
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                        //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
+
+                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
                     }
                     else
                     {

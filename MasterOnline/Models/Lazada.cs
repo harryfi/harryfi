@@ -257,12 +257,12 @@ namespace MasterOnline.Models
         public string promised_shipping_time { get; set; }
         public string purchase_order_id { get; set; }
         public string shipping_type { get; set; }
-        public string created_at { get; set; }
+        public DateTime created_at { get; set; }
         public string voucher_code { get; set; }
         public string package_id { get; set; }
         public string variation { get; set; }
         public string wallet_credits { get; set; }
-        public string updated_at { get; set; }
+        public DateTime updated_at { get; set; }
         public string purchase_order_number { get; set; }
         public string currency { get; set; }
         public string shipping_provider_type { get; set; }
