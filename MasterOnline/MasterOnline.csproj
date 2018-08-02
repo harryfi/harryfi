@@ -393,6 +393,10 @@
     <Compile Include="Migrations\201807310357378_Add3Tables.Designer.cs">
       <DependentUpon>201807310357378_Add3Tables.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808011147472_AddTableMidtransData.cs" />
+    <Compile Include="Migrations\201808011147472_AddTableMidtransData.Designer.cs">
+      <DependentUpon>201808011147472_AddTableMidtransData.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -674,6 +678,7 @@
     <Compile Include="Models\InvoiceJson.cs" />
     <Compile Include="Models\Lazada.cs" />
     <Compile Include="Models\Midtrans.cs" />
+    <Compile Include="Models\MIDTRANS_DATA.cs" />
     <Compile Include="Models\PenjualanBarang.cs" />
     <Compile Include="Models\PesananPerMarketplaceModel.cs" />
     <Compile Include="Models\Promo.cs" />
@@ -5305,6 +5310,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807310357378_Add3Tables.resx">
       <DependentUpon>201807310357378_Add3Tables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808011147472_AddTableMidtransData.resx">
+      <DependentUpon>201808011147472_AddTableMidtransData.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

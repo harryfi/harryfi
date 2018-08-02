@@ -4068,218 +4068,235 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GenerateFaktur(int? recNumPesanan, string uname)
         {
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNumPesanan);
-            var listBarangPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
-            var dataVm = new FakturViewModel()
+            try
             {
-                Faktur = new SIT01A(),
-                FakturDetail = new SIT01B()
-            };
-
-            // Bagian Save Faktur Generated
-
-            var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
-            var digitAkhir = "";
-            var noOrder = "";
-
-            if (listFakturInDb.Count == 0)
-            {
-                digitAkhir = "000001";
-                noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
-            }
-            else
-            {
-                var lastRecNum = listFakturInDb.Last().RecNum;
-                lastRecNum++;
-
-                digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
-                noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-            }
-
-            dataVm.Faktur.NO_BUKTI = noOrder;
-            dataVm.Faktur.NO_F_PAJAK = "";
-            dataVm.Faktur.NO_SO = pesananInDb.NO_BUKTI;
-            dataVm.Faktur.CUST = pesananInDb.CUST;
-            dataVm.Faktur.NAMAPEMESAN = pesananInDb.NAMAPEMESAN;
-            dataVm.Faktur.PEMESAN = pesananInDb.PEMESAN;
-            dataVm.Faktur.NAMA_CUST = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).PERSO;
-            dataVm.Faktur.AL = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL;
-            dataVm.Faktur.AL2 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL2;
-            dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL3;
-            dataVm.Faktur.TGL = DateTime.Now;
-            dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
-            dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
-            dataVm.Faktur.USERNAME = uname;
-            dataVm.Faktur.JENIS_RETUR = " ";
-            dataVm.Faktur.JENIS_FORM = "2";
-            dataVm.Faktur.STATUS = "1";
-            dataVm.Faktur.ST_POSTING = "T";
-            dataVm.Faktur.VLT = "IDR";
-            dataVm.Faktur.NO_FA_OUTLET = "-";
-            dataVm.Faktur.NO_LPB = "-";
-            dataVm.Faktur.GROUP_LIMIT = "-";
-            dataVm.Faktur.KODE_ANGKUTAN = "-";
-            dataVm.Faktur.JENIS_MOBIL = "-";
-            dataVm.Faktur.JTRAN = "SI";
-            dataVm.Faktur.JENIS = "1";
-            dataVm.Faktur.NAMA_CUST = "-";
-            dataVm.Faktur.TUKAR = 1;
-            dataVm.Faktur.TUKAR_PPN = 1;
-            dataVm.Faktur.SOPIR = "-";
-            dataVm.Faktur.KET = "-";
-            dataVm.Faktur.PPNBM = 0;
-            dataVm.Faktur.NILAI_PPNBM = 0;
-            dataVm.Faktur.KODE_SALES = "-";
-            dataVm.Faktur.KODE_WIL = "-";
-            dataVm.Faktur.U_MUKA = 0;
-            dataVm.Faktur.U_MUKA_FA = 0;
-            dataVm.Faktur.TERM = pesananInDb.TERM;
-            dataVm.Faktur.TGL_JT_TEMPO = pesananInDb.TGL_JTH_TEMPO;
-            dataVm.Faktur.BRUTO = pesananInDb.BRUTO;
-            dataVm.Faktur.PPN = pesananInDb.PPN;
-            dataVm.Faktur.NILAI_PPN = pesananInDb.NILAI_PPN;
-            dataVm.Faktur.DISCOUNT = pesananInDb.DISCOUNT;
-            dataVm.Faktur.NILAI_DISC = pesananInDb.NILAI_DISC;
-            dataVm.Faktur.MATERAI = pesananInDb.ONGKOS_KIRIM;
-            dataVm.Faktur.NETTO = pesananInDb.NETTO;
-            dataVm.Faktur.TGLINPUT = DateTime.Now;
-
-            #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NILAI_DISC)))
-            {
-                dataVm.Faktur.NILAI_DISC = 0;
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_SO)))
-            {
-                dataVm.Faktur.NO_SO = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_REF)))
-            {
-                dataVm.Faktur.NO_REF = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.DISCOUNT)))
-            {
-                dataVm.Faktur.DISCOUNT = 0;
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.CUST_QQ)))
-            {
-                dataVm.Faktur.CUST_QQ = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NAMA_CUST_QQ)))
-            {
-                dataVm.Faktur.NAMA_CUST_QQ = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.STATUS_LOADING)))
-            {
-                dataVm.Faktur.STATUS_LOADING = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_PO_CUST)))
-            {
-                dataVm.Faktur.NO_PO_CUST = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.PENGIRIM)))
-            {
-                dataVm.Faktur.PENGIRIM = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NAMAPENGIRIM)))
-            {
-                dataVm.Faktur.NAMAPENGIRIM = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.ZONA)))
-            {
-                dataVm.Faktur.ZONA = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.UCAPAN)))
-            {
-                dataVm.Faktur.UCAPAN = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.N_UCAPAN)))
-            {
-                dataVm.Faktur.N_UCAPAN = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.PEMESAN)))
-            {
-                dataVm.Faktur.PEMESAN = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.SUPP)))
-            {
-                dataVm.Faktur.SUPP = "";
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.KOMISI)))
-            {
-                dataVm.Faktur.KOMISI = 0;
-            }
-            if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.N_KOMISI)))
-            {
-                dataVm.Faktur.N_KOMISI = 0;
-            }
-            #endregion
-
-            ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
-            ErasoftDbContext.SaveChanges();
-
-            dataVm.FakturDetail.NO_BUKTI = noOrder;
-            dataVm.FakturDetail.USERNAME = uname;
-            dataVm.FakturDetail.CATATAN = "-";
-            dataVm.FakturDetail.JENIS_FORM = "2";
-            dataVm.FakturDetail.TGLINPUT = DateTime.Now;
-
-            foreach (var pesananDetail in listBarangPesananInDb)
-            {
-                dataVm.FakturDetail.NILAI_DISC = pesananDetail.NILAI_DISC_1 + pesananDetail.NILAI_DISC_2;
-                dataVm.FakturDetail.BRG = pesananDetail.BRG;
-                dataVm.FakturDetail.SATUAN = pesananDetail.SATUAN;
-                dataVm.FakturDetail.H_SATUAN = pesananDetail.H_SATUAN;
-                dataVm.FakturDetail.GUDANG = pesananDetail.LOKASI;
-                dataVm.FakturDetail.QTY = pesananDetail.QTY;
-                dataVm.FakturDetail.DISCOUNT = pesananDetail.DISCOUNT;
-                dataVm.FakturDetail.NILAI_DISC_1 = pesananDetail.NILAI_DISC_1;
-                dataVm.FakturDetail.DISCOUNT_2 = pesananDetail.DISCOUNT_2;
-                dataVm.FakturDetail.NILAI_DISC_2 = pesananDetail.NILAI_DISC_2;
-                dataVm.FakturDetail.HARGA = pesananDetail.HARGA;
-
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_KIRIM)))
+                var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNumPesanan);
+                var listBarangPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                var dataVm = new FakturViewModel()
                 {
-                    dataVm.FakturDetail.QTY_KIRIM = 0;
+                    Faktur = new SIT01A(),
+                    FakturDetail = new SIT01B()
+                };
+
+                // Bagian Save Faktur Generated
+
+                var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var digitAkhir = "";
+                var noOrder = "";
+
+                if (listFakturInDb.Count == 0)
+                {
+                    digitAkhir = "000001";
+                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
                 }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_RETUR)))
+                else
                 {
-                    dataVm.FakturDetail.QTY_RETUR = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_3)))
-                {
-                    dataVm.FakturDetail.DISCOUNT_3 = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_4)))
-                {
-                    dataVm.FakturDetail.DISCOUNT_4 = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_5)))
-                {
-                    dataVm.FakturDetail.DISCOUNT_5 = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_3)))
-                {
-                    dataVm.FakturDetail.NILAI_DISC_3 = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_4)))
-                {
-                    dataVm.FakturDetail.NILAI_DISC_4 = 0;
-                }
-                if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_5)))
-                {
-                    dataVm.FakturDetail.NILAI_DISC_5 = 0;
+                    var lastRecNum = listFakturInDb.Last().RecNum;
+                    lastRecNum++;
+
+                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                 }
 
-                ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
-                ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
+                dataVm.Faktur.NO_BUKTI = noOrder;
+                dataVm.Faktur.NO_F_PAJAK = "-";
+                dataVm.Faktur.NO_SO = pesananInDb.NO_BUKTI;
+                dataVm.Faktur.CUST = pesananInDb.CUST;
+                dataVm.Faktur.NAMAPEMESAN = (pesananInDb.NAMAPEMESAN.Length > 20 ? pesananInDb.NAMAPEMESAN.Substring(0, 17) + "..." : pesananInDb.NAMAPEMESAN);
+                dataVm.Faktur.PEMESAN = pesananInDb.PEMESAN;
+                dataVm.Faktur.NAMA_CUST = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).PERSO;
+                dataVm.Faktur.AL = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL;
+                dataVm.Faktur.AL2 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL2;
+                dataVm.Faktur.AL3 = ErasoftDbContext.ARF01.Single(p => p.CUST == dataVm.Faktur.CUST).AL3;
+                dataVm.Faktur.TGL = DateTime.Now;
+                dataVm.Faktur.PPN_Bln_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("MM"));
+                dataVm.Faktur.PPN_Thn_Lapor = Convert.ToByte(dataVm.Faktur.TGL.ToString("yyyy").Substring(2, 2));
+                dataVm.Faktur.USERNAME = uname;
+                dataVm.Faktur.JENIS_RETUR = "-";
+                dataVm.Faktur.JENIS_FORM = "2";
+                dataVm.Faktur.STATUS = "1";
+                dataVm.Faktur.ST_POSTING = "T";
+                dataVm.Faktur.VLT = "IDR";
+                dataVm.Faktur.NO_FA_OUTLET = "-";
+                dataVm.Faktur.NO_LPB = "-";
+                dataVm.Faktur.GROUP_LIMIT = "-";
+                dataVm.Faktur.KODE_ANGKUTAN = "-";
+                dataVm.Faktur.JENIS_MOBIL = "-";
+                dataVm.Faktur.JTRAN = "SI";
+                dataVm.Faktur.JENIS = "1";
+                dataVm.Faktur.NAMA_CUST = "-";
+                dataVm.Faktur.TUKAR = 1;
+                dataVm.Faktur.TUKAR_PPN = 1;
+                dataVm.Faktur.SOPIR = "-";
+                dataVm.Faktur.KET = "-";
+                dataVm.Faktur.PPNBM = 0;
+                dataVm.Faktur.NILAI_PPNBM = 0;
+                dataVm.Faktur.KODE_SALES = "-";
+                dataVm.Faktur.KODE_WIL = "-";
+                dataVm.Faktur.U_MUKA = 0;
+                dataVm.Faktur.U_MUKA_FA = 0;
+                dataVm.Faktur.TERM = pesananInDb.TERM;
+                dataVm.Faktur.TGL_JT_TEMPO = pesananInDb.TGL_JTH_TEMPO;
+                dataVm.Faktur.BRUTO = pesananInDb.BRUTO;
+                dataVm.Faktur.PPN = pesananInDb.PPN;
+                dataVm.Faktur.NILAI_PPN = pesananInDb.NILAI_PPN;
+                dataVm.Faktur.DISCOUNT = pesananInDb.DISCOUNT;
+                dataVm.Faktur.NILAI_DISC = pesananInDb.NILAI_DISC;
+                dataVm.Faktur.MATERAI = pesananInDb.ONGKOS_KIRIM;
+                dataVm.Faktur.NETTO = pesananInDb.NETTO;
+                dataVm.Faktur.TGLINPUT = DateTime.Now;
+
+                #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NILAI_DISC)))
+                {
+                    dataVm.Faktur.NILAI_DISC = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_SO)))
+                {
+                    dataVm.Faktur.NO_SO = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_REF)))
+                {
+                    dataVm.Faktur.NO_REF = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.DISCOUNT)))
+                {
+                    dataVm.Faktur.DISCOUNT = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.CUST_QQ)))
+                {
+                    dataVm.Faktur.CUST_QQ = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NAMA_CUST_QQ)))
+                {
+                    dataVm.Faktur.NAMA_CUST_QQ = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.STATUS_LOADING)))
+                {
+                    dataVm.Faktur.STATUS_LOADING = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NO_PO_CUST)))
+                {
+                    dataVm.Faktur.NO_PO_CUST = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.PENGIRIM)))
+                {
+                    dataVm.Faktur.PENGIRIM = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.NAMAPENGIRIM)))
+                {
+                    dataVm.Faktur.NAMAPENGIRIM = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.ZONA)))
+                {
+                    dataVm.Faktur.ZONA = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.UCAPAN)))
+                {
+                    dataVm.Faktur.UCAPAN = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.N_UCAPAN)))
+                {
+                    dataVm.Faktur.N_UCAPAN = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.PEMESAN)))
+                {
+                    dataVm.Faktur.PEMESAN = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.SUPP)))
+                {
+                    dataVm.Faktur.SUPP = "-";
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.KOMISI)))
+                {
+                    dataVm.Faktur.KOMISI = 0;
+                }
+                if (string.IsNullOrEmpty(Convert.ToString(dataVm.Faktur.N_KOMISI)))
+                {
+                    dataVm.Faktur.N_KOMISI = 0;
+                }
+                #endregion
+
+                ErasoftDbContext.SIT01A.Add(dataVm.Faktur);
                 ErasoftDbContext.SaveChanges();
+
+                dataVm.FakturDetail.NO_BUKTI = noOrder;
+                dataVm.FakturDetail.USERNAME = uname;
+                dataVm.FakturDetail.CATATAN = "-";
+                dataVm.FakturDetail.JENIS_FORM = "2";
+                dataVm.FakturDetail.TGLINPUT = DateTime.Now;
+
+                foreach (var pesananDetail in listBarangPesananInDb)
+                {
+                    dataVm.FakturDetail.NILAI_DISC = pesananDetail.NILAI_DISC_1 + pesananDetail.NILAI_DISC_2;
+                    dataVm.FakturDetail.BRG = pesananDetail.BRG;
+                    dataVm.FakturDetail.SATUAN = pesananDetail.SATUAN;
+                    dataVm.FakturDetail.H_SATUAN = pesananDetail.H_SATUAN;
+                    dataVm.FakturDetail.GUDANG = pesananDetail.LOKASI;
+                    dataVm.FakturDetail.QTY = pesananDetail.QTY;
+                    dataVm.FakturDetail.DISCOUNT = pesananDetail.DISCOUNT;
+                    dataVm.FakturDetail.NILAI_DISC_1 = pesananDetail.NILAI_DISC_1;
+                    dataVm.FakturDetail.DISCOUNT_2 = pesananDetail.DISCOUNT_2;
+                    dataVm.FakturDetail.NILAI_DISC_2 = pesananDetail.NILAI_DISC_2;
+                    dataVm.FakturDetail.HARGA = pesananDetail.HARGA;
+
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_KIRIM)))
+                    {
+                        dataVm.FakturDetail.QTY_KIRIM = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_RETUR)))
+                    {
+                        dataVm.FakturDetail.QTY_RETUR = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_3)))
+                    {
+                        dataVm.FakturDetail.DISCOUNT_3 = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_4)))
+                    {
+                        dataVm.FakturDetail.DISCOUNT_4 = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.DISCOUNT_5)))
+                    {
+                        dataVm.FakturDetail.DISCOUNT_5 = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_3)))
+                    {
+                        dataVm.FakturDetail.NILAI_DISC_3 = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_4)))
+                    {
+                        dataVm.FakturDetail.NILAI_DISC_4 = 0;
+                    }
+                    if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.NILAI_DISC_5)))
+                    {
+                        dataVm.FakturDetail.NILAI_DISC_5 = 0;
+                    }
+
+                    ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
+                    ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
+                    ErasoftDbContext.SaveChanges();
+                }
+
+                // End Bagian Save Faktur Generated
+
+                return Json(pesananInDb.NO_BUKTI, JsonRequestBehavior.AllowGet);
             }
-
-            // End Bagian Save Faktur Generated
-
-            return Json(pesananInDb.NO_BUKTI, JsonRequestBehavior.AllowGet);
+            catch (DbEntityValidationException e)
+            {
+                foreach (var eve in e.EntityValidationErrors)
+                {
+                    System.Diagnostics.Debug.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                        eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                    foreach (var ve in eve.ValidationErrors)
+                    {
+                        System.Diagnostics.Debug.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                            ve.PropertyName, ve.ErrorMessage);
+                    }
+                }
+                throw;
+            }
         }
 
         [HttpGet]

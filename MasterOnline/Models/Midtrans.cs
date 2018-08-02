@@ -23,6 +23,7 @@ namespace MasterOnline.Models
         public string fraud_status { get; set; }
         public string bank { get; set; }
         public string gross_amount { get; set; }
+        public string signature_key { get; set; }
     }
     public class BindReqSnap
     {
