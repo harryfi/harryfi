@@ -351,8 +351,9 @@ namespace MasterOnline.Controllers
             var barangVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
-                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.NAMA).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
 
@@ -629,22 +630,22 @@ namespace MasterOnline.Controllers
             foreach (var customer in custInDb)
             {
                 #region BLIBLI get token
-                    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+                if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+                {
+                    var BliApi = new BlibliController();
+                    BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
                     {
-                        var BliApi = new BlibliController();
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                        {
-                            API_client_username = customer.API_CLIENT_U,
-                            API_client_password = customer.API_CLIENT_P,
-                            API_secret_key = customer.API_KEY,
-                            mta_username_email_merchant = customer.EMAIL,
-                            mta_password_password_merchant = customer.PASSWORD,
-                            merchant_code = customer.Sort1_Cust,
-                            token = customer.TOKEN
-                        };
-                        await BliApi.GetCategoryTree(data);
-                        //BliApi.GetCategoryTree(data);
-                    }
+                        API_client_username = customer.API_CLIENT_U,
+                        API_client_password = customer.API_CLIENT_P,
+                        API_secret_key = customer.API_KEY,
+                        mta_username_email_merchant = customer.EMAIL,
+                        mta_password_password_merchant = customer.PASSWORD,
+                        merchant_code = customer.Sort1_Cust,
+                        token = customer.TOKEN
+                    };
+                    await BliApi.GetCategoryTree(data);
+                    //BliApi.GetCategoryTree(data);
+                }
                 #endregion
             }
             return "";
@@ -698,7 +699,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STF02H.Add(dataHarga);
                 }
 
-                
+
             }
             else
             {
@@ -1668,8 +1669,9 @@ namespace MasterOnline.Controllers
                 {
                     Stf02 = ErasoftDbContext.STF02.Single(b => b.BRG == barangId),
                     ListStf02S = ErasoftDbContext.STF02.ToList(),
-                    ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.PERSO).ToList(),
-                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList()
+                    ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
+                    ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList()
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -1685,8 +1687,9 @@ namespace MasterOnline.Controllers
             var vm = new BarangViewModel()
             {
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
-                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.PERSO).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
 
