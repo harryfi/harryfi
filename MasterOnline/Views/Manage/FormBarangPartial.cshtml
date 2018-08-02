@@ -354,6 +354,7 @@
                                     @for (var i = 0; i < listMarket.ToList().Count; i++)
                                     {
                                         var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                        var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
                                         if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
                                         {
                                             <div>
@@ -363,7 +364,6 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    
                                                 </div>
                                             </div>
                                         }

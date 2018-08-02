@@ -995,6 +995,13 @@ namespace MasterOnline.Controllers
 
             return Json(listKategori, JsonRequestBehavior.AllowGet);
         }
+        //[HttpGet]
+        //public ActionResult GetKategoriBlibliByCode(string code)
+        //{
+        //    //var listKategori = MoDbContext.CategoryBlibli.Where(k => k.LEVEL == "1").OrderBy(m => m.KET).ToList();
+
+        //    //return Json(listKategori, JsonRequestBehavior.AllowGet);
+        //}
 
         [HttpGet]
         public ActionResult GetMerkBarang()
