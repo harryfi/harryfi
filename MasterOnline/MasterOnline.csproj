@@ -401,6 +401,10 @@
     <Compile Include="Migrations\201808022257468_AddFieldPhotoKtpBase64.Designer.cs">
       <DependentUpon>201808022257468_AddFieldPhotoKtpBase64.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808032211271_IgnoreAttributeBlibli.cs" />
+    <Compile Include="Migrations\201808032211271_IgnoreAttributeBlibli.Designer.cs">
+      <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -5320,6 +5324,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808022257468_AddFieldPhotoKtpBase64.resx">
       <DependentUpon>201808022257468_AddFieldPhotoKtpBase64.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808032211271_IgnoreAttributeBlibli.resx">
+      <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
