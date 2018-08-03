@@ -827,9 +827,10 @@
             }
         }
 
-        function ResetCategoryBlibli(divIDpertama,divIDselanjutnya){
+        function ResetCategoryBlibli(divIDpertama,divIDselanjutnya,divIDattribute){
             $('#' + divIDpertama).html('');
             $('#' + divIDselanjutnya).html('');
+            $('#' + divIDattribute).html('');
             getKategoriPertamaBlibli();
         }
         function getKategoriPertamaBlibli() {
@@ -901,6 +902,7 @@
             else if (values[1] == "1") {
                 $(fieldCategoryCode).val(values[0]);
                 $(fieldCategoryName).val($('#' + selectCategoryBlibliID + " option:selected").text());
+                getAttributeBlibli(values[0],listMarketRecNum,fieldCategoryCode);
             }
         }
         function getKategoriSelanjutnyaBlibli(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
@@ -917,7 +919,6 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
-                    console.log(selectCategoryBlibliID);
                     var listKategori = [];
 
                     $.each(data,
@@ -926,6 +927,66 @@
                                 id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
                                 text: item.CATEGORY_NAME
                             };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function getCol(matrix, col){
+            var column = [];
+            for(var i=0; i<matrix.length; i++){
+                column.push(matrix[i][col]);
+            }
+            return column;
+        }
+        function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode){
+            var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
+
+            var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+
+                    $.each(data,
+                        function (i, item) {
+                            for (var i = 0; i < 30; i++) {
+                                var ACODE = (i * 4) + 3;
+                                var ATYPE = (i * 4) + 4;
+                                var ANAME = (i * 4) + 5;
+                                var AOPTION = (i * 4) + 6;
+                                if (item[0][ACODE] != "") {
+                                    var label = '<label class="control-label col-md-2 col-sm-2 col-xs-12">'+ item[0][ANAME] +'</label>';
+                                    var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE'+ (i + 1) + '" type="hidden" value="'+ item[0][ACODE] +'" maxlength="50">';
+                                    var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__ANAME'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ANAME'+ (i + 1) + '" type="hidden" value="'+ item[0][ANAME] +'" maxlength="250">';
+                                    var fieldAVALUE = '<div class="col-md-4 col-sm-4 col-xs-12"><input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__AVALUE'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE'+ (i + 1) + '" type="text" value="" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                    $('#attribute_blibli_' + listMarketRecNum).append(label);
+                                    $('#attribute_blibli_' + listMarketRecNum).append(fieldACODE);
+                                    $('#attribute_blibli_' + listMarketRecNum).append(fieldANAME);
+                                    $('#attribute_blibli_' + listMarketRecNum).append(fieldAVALUE);
+                                }
+                            }
+                            //var listKategori = [];
+                            //listKategori[i] = {
+                            //    id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                            //    text: item.CATEGORY_NAME
+                            //};
+
                         });
 
                     var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({

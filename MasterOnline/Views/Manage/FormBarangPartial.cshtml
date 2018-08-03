@@ -373,15 +373,22 @@
                                                     {
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE)
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME)
-                                                        <div class="col-md-1 col-sm-1 col-xs-12">
-                                                            <label>Category</label>
+                                                        <div class="row">
+                                                            <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                <label>Category</label>
+                                                            </div>
+                                                            <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                            </div>
+                                                            <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-7 col-sm-7 col-xs-12">
+                                                            </div>
+                                                            <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                <button type="button" onclick="ResetCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01);">Clear</button>
+                                                            </div>
                                                         </div>
-                                                        <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
-                                                        </div>
-                                                        <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-7 col-sm-7 col-xs-12">
-                                                        </div>
-                                                        <div class="col-md-1 col-sm-1 col-xs-12">
-                                                            <button type="button" onclick="ResetCategoryBlibli('category_blibli_pertama_' + @recnumArf01,'category_blibli_selanjutnya_' + @recnumArf01);">Clear</button>
+                                                        <div class="row">
+                                                            <div id="attribute_blibli_@Convert.ToString(recnumArf01)">
+
+                                                            </div>
                                                         </div>
                                                     }
                                                 </div>

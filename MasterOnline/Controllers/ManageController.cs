@@ -1012,6 +1012,20 @@ namespace MasterOnline.Controllers
 
             return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public ActionResult GetAttributeBlibli(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeBlibli = MoDbContext.AttributeBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptBlibli(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
+            return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public ActionResult GetMerkBarang()
