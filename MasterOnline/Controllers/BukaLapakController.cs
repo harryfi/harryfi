@@ -450,7 +450,7 @@ namespace MasterOnline.Controllers
                     //int i = 1;
                     var connIDARF01C = Guid.NewGuid().ToString();
                     string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-
+                    var dtNow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                     foreach (Transaction order in bindOrder.transactions)
                     {
                         if (!order.buyer.email.Equals(email))//cek email pembeli != email user untuk mendapatkan order penjualan
@@ -533,7 +533,7 @@ namespace MasterOnline.Controllers
 
                             insertPembeli += "('" + order.buyer.name + "','" + order.consignee.address + "','" + order.consignee.phone + "','" + order.buyer.email + "',0,0,'0','01',";
                             insertPembeli += "1, 'IDR', '01', '" + order.consignee.address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.consignee.post_code + "', '" + order.buyer.email + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city + "', '" + order.consignee.province + "', '" + connIDARF01C + "')";
+                            insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.consignee.post_code + "', '" + order.buyer.email + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city + "', '" + order.consignee.province + "', '" + connIDARF01C + "')";
 
                             //if (i < bindOrder.transactions.Length)
                             insertQ += " ,";

@@ -121,18 +121,18 @@ namespace MasterOnline.Controllers
                     var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID.Equals(notification_data.transaction_id) && m.STATUS_CODE.Equals(notification_data.status_code));
                     if (dataMidtrans == null)
                     {
-                        dataMidtrans = new MIDTRANS_DATA();
-                        dataMidtrans.BANK = notification_data.bank;
-                        dataMidtrans.GROSS_AMOUNT = notification_data.gross_amount;
-                        dataMidtrans.ORDER_ID = notification_data.order_id;
-                        dataMidtrans.PAYMENT_TYPE = notification_data.payment_type;
-                        dataMidtrans.SIGNATURE_KEY = notification_data.signature_key;
-                        dataMidtrans.STATUS_CODE = notification_data.status_code;
-                        dataMidtrans.TRANSACTION_ID = notification_data.transaction_id;
-                        dataMidtrans.TRANSACTION_STATUS = notification_data.transaction_status;
-                        dataMidtrans.TRANSACTION_TIME = notification_data.transaction_time;
+                        var newData = new MIDTRANS_DATA();
+                        newData.BANK = notification_data.bank;
+                        newData.GROSS_AMOUNT = notification_data.gross_amount;
+                        newData.ORDER_ID = notification_data.order_id;
+                        newData.PAYMENT_TYPE = notification_data.payment_type;
+                        newData.SIGNATURE_KEY = notification_data.signature_key;
+                        newData.STATUS_CODE = notification_data.status_code;
+                        newData.TRANSACTION_ID = notification_data.transaction_id;
+                        newData.TRANSACTION_STATUS = notification_data.transaction_status;
+                        newData.TRANSACTION_TIME = notification_data.transaction_time;
 
-                        MoDbContext.MidtransData.Add(dataMidtrans);
+                        MoDbContext.MidtransData.Add(newData);
                     }
 
                     if (notification_data.status_code.Equals("200") && notification_data.transaction_status.Equals("settlement"))
