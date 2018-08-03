@@ -861,6 +861,41 @@
             });
         }
 
+        function getKategoriBlibli() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetKategoriBarang", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.KODE,
+                                text: item.KET
+                            };
+                        });
+
+                    var kategoriSelect = $('#KATEGORI').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            $('#Stf02_Sort1').val(value);
+                            $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                        }
+                    });
+
+                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
         function getFotoProduk() {
             //var $link1 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
             //var $link2 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
