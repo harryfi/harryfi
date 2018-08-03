@@ -165,7 +165,7 @@ namespace MasterOnline.Controllers
                     var createFile = System.IO.File.Create(path);
                     createFile.Close();
                     TextWriter tw = new StreamWriter(path);
-                    tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") +" : " + ex.ToString());
+                    tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + ex.ToString());
                     tw.Close();
                 }
                 else if (System.IO.File.Exists(path))
@@ -184,5 +184,6 @@ namespace MasterOnline.Controllers
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }
+        
     }
 }

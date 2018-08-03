@@ -489,15 +489,15 @@ namespace MasterOnline.Controllers
                                     statusEra = "99";
                                     break;
                             }
-                            //jika status pesanan sudah diubah di mo, dari 01 -> 02, status tidak dikembalikan ke 01
+                            //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                             if (statusEra == "01")
                             {
                                 var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.id + "'", "STATUS_TRANSAKSI").ToString();
                                 if (!string.IsNullOrEmpty(currentStatus))
-                                    if (currentStatus == "02")
-                                        statusEra = "02";
+                                    if (currentStatus == "02" || currentStatus == "03")
+                                        statusEra = currentStatus;
                             }
-                            //end jika status pesanan sudah diubah di mo, dari 01 -> 02, status tidak dikembalikan ke 01
+                            //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
 
                             insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier + "','" + order.buyer_notes + "'," + order.shipping_fee + ",";
                             insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss") + "','";
