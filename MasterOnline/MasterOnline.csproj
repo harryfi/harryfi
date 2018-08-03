@@ -356,10 +356,6 @@
     <Compile Include="ErasoftContextMigrations\201808020342526_TambahFielddiSTF02HdanFieldKodediARF01JadiNvarcharMax.Designer.cs">
       <DependentUpon>201808020342526_TambahFielddiSTF02HdanFieldKodediARF01JadiNvarcharMax.cs</DependentUpon>
     </Compile>
-    <Compile Include="ErasoftContextMigrations\201808031141365_Addtableblablaba.cs" />
-    <Compile Include="ErasoftContextMigrations\201808031141365_Addtableblablaba.Designer.cs">
-      <DependentUpon>201808031141365_Addtableblablaba.cs</DependentUpon>
-    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5210,9 +5206,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808020342526_TambahFielddiSTF02HdanFieldKodediARF01JadiNvarcharMax.resx">
       <DependentUpon>201808020342526_TambahFielddiSTF02HdanFieldKodediARF01JadiNvarcharMax.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ErasoftContextMigrations\201808031141365_Addtableblablaba.resx">
-      <DependentUpon>201808031141365_Addtableblablaba.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
