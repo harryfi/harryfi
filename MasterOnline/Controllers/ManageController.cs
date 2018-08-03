@@ -3941,7 +3941,8 @@ namespace MasterOnline.Controllers
                 case "03":
                     if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                     {
-                        blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                            blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
                     }
                     break;
             }
@@ -4071,8 +4072,19 @@ namespace MasterOnline.Controllers
         public ActionResult SaveResi(int? recNum, string noResi)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            //add by Tri, check if user input new resi
+            bool changeStat = false;
+            if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
+                changeStat = true;
+            //end add by Tri, check if user input new resi
+
             pesananInDb.TRACKING_SHIPMENT = noResi;
             ErasoftDbContext.SaveChanges();
+
+            //add by Tri, call mp api if user input new resi
+            if (changeStat)
+                ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03");
+            //end add by Tri, call mp api if user input new resi
 
             return new EmptyResult();
         }
