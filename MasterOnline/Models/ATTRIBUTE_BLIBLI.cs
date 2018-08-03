@@ -174,6 +174,86 @@ namespace MasterOnline.Models
         public string ANAME_20 { get; set; }
         [StringLength(1)]
         public string AOPTIONS_20 { get; set; }
+        [StringLength(50)]
+        public string ACODE_21 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_21 { get; set; }
+        [StringLength(250)]
+        public string ANAME_21 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_21 { get; set; }
+        [StringLength(50)]
+        public string ACODE_22 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_22 { get; set; }
+        [StringLength(250)]
+        public string ANAME_22 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_22 { get; set; }
+        [StringLength(50)]
+        public string ACODE_23 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_23 { get; set; }
+        [StringLength(250)]
+        public string ANAME_23 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_23 { get; set; }
+        [StringLength(50)]
+        public string ACODE_24 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_24 { get; set; }
+        [StringLength(250)]
+        public string ANAME_24 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_24 { get; set; }
+        [StringLength(50)]
+        public string ACODE_25 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_25 { get; set; }
+        [StringLength(250)]
+        public string ANAME_25 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_25 { get; set; }
+        [StringLength(50)]
+        public string ACODE_26 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_26 { get; set; }
+        [StringLength(250)]
+        public string ANAME_26 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_26 { get; set; }
+        [StringLength(50)]
+        public string ACODE_27 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_27 { get; set; }
+        [StringLength(250)]
+        public string ANAME_27 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_27 { get; set; }
+        [StringLength(50)]
+        public string ACODE_28 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_28 { get; set; }
+        [StringLength(250)]
+        public string ANAME_28 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_28 { get; set; }
+        [StringLength(50)]
+        public string ACODE_29 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_29 { get; set; }
+        [StringLength(250)]
+        public string ANAME_29 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_29 { get; set; }
+        [StringLength(50)]
+        public string ACODE_30 { get; set; }
+        [StringLength(50)]
+        public string ATYPE_30 { get; set; }
+        [StringLength(250)]
+        public string ANAME_30 { get; set; }
+        [StringLength(1)]
+        public string AOPTIONS_30 { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

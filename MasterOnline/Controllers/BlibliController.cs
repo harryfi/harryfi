@@ -399,7 +399,7 @@ namespace MasterOnline.Controllers
                                     string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
                                     string a = "";
                                     #region Generate Parameters dan CommandText
-                                    for (int i = 1; i <= 20; i++)
+                                    for (int i = 1; i <= 30; i++)
                                     {
                                         a = Convert.ToString(i);
                                         sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
@@ -414,7 +414,7 @@ namespace MasterOnline.Controllers
                                     oCommand.CommandText = sSQL;
                                     oCommand.Parameters[0].Value = categoryCode;
                                     oCommand.Parameters[1].Value = categoryName;
-                                    for (int i = 0; i < 20; i++)
+                                    for (int i = 0; i < 30; i++)
                                     {
                                         a = Convert.ToString(i * 4 + 2);
                                         oCommand.Parameters[(i * 4) + 2].Value = "";
@@ -444,7 +444,7 @@ namespace MasterOnline.Controllers
                                     oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
                                     oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
                                     string a = "";
-                                    for (int i = 0; i < 20; i++)
+                                    for (int i = 0; i < 30; i++)
                                     {
                                         a = Convert.ToString(i + 1);
                                         try
