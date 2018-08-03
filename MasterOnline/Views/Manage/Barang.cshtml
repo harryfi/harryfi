@@ -607,6 +607,7 @@
                 refreshFormBarang();
             });
 
+            getKategoriPertamaBlibli();
             getKategori();
             getMerk();
 
@@ -826,6 +827,122 @@
             }
         }
 
+        function ResetCategoryBlibli(divIDpertama,divIDselanjutnya){
+            $('#' + divIDpertama).html('');
+            $('#' + divIDselanjutnya).html('');
+            getKategoriPertamaBlibli();
+        }
+        function getKategoriPertamaBlibli() {
+            @{
+                var context_ = new MoDbContext();
+            }
+            var idMarketBlibli = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("BLIBLI")).IdMarket));
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketBlibli.toString()) {
+                    if (listMarket[i].Kode != null) {
+                        var link = '@Url.Action("GetKategoriBlibliByCode", "Manage", new { code = "replaceCode" })';
+                        link = link.replace("replaceCode", listMarket[i].Kode);
+
+                        var selectCategoryBlibliID = 'Category_Blibli_' + listMarket[i].RecNum;
+                        var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
+                        var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
+                        var nextselectID = "Category_Blibli_2_" + listMarket[i].RecNum;
+                        var categoryBlibliSelanjutnya =  '#category_blibli_selanjutnya_' + listMarket[i].RecNum;
+                        var listMarketRecNum = listMarket[i].RecNum;
+
+                        //buat select pertama
+                        var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" required="required"></select>';
+                        $('#category_blibli_pertama_' + listMarket[i].RecNum).append(nextselect);
+                        //end buat select pertama
+
+                        $.ajax({
+                            type: "GET",
+                            url: link,
+                            contentType: 'application/json',
+                            cache: false,
+                            success: function (data) {
+                                var listKategori = [];
+
+                                $.each(data,
+                                    function (i, item) {
+                                        listKategori[i] = {
+                                            id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                            text: item.CATEGORY_NAME
+                                        };
+                                    });
+
+                                var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
+                                    valueField: 'id',
+                                    searchField: 'text',
+                                    options: listKategori,
+                                    onChange: function (value) {
+                                        KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                                    }
+                                });
+                            },
+                            error: function (xhr) {
+                                console.log(xhr);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+        function KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,s){
+            s.disable();
+            var values = value.split('|;|');
+            $('#' + nextselectID).remove();
+            if (values[1] == "0") {
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                $(categoryBlibliSelanjutnya).append(nextselect);
+                getKategoriSelanjutnyaBlibli(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
+            }
+            else if (values[1] == "1") {
+                $(fieldCategoryCode).val(values[0]);
+                $(fieldCategoryName).val($('#' + selectCategoryBlibliID + " option:selected").text());
+            }
+        }
+        function getKategoriSelanjutnyaBlibli(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
+            var link = '@Url.Action("GetKategoriBlibliByParentCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode);
+
+            var nextselectID = "Category_Blibli_"+ next +"_" + listMarketRecNum;
+            var categoryBlibliSelanjutnya =  '#category_blibli_selanjutnya_' + listMarketRecNum;
+            var selectCategoryBlibliID = SelectID;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    console.log(selectCategoryBlibliID);
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
         function getKategori() {
             $.ajax({
                 type: "GET",
@@ -861,40 +978,6 @@
             });
         }
 
-        function getKategoriBlibli() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetKategoriBarang", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKategori = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listKategori[i] = {
-                                id: item.KODE,
-                                text: item.KET
-                            };
-                        });
-
-                    var kategoriSelect = $('#KATEGORI').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listKategori,
-                        onChange: function (value) {
-                            $('#Stf02_Sort1').val(value);
-                            $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
-                        }
-                    });
-
-                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
 
         function getFotoProduk() {
             //var $link1 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';

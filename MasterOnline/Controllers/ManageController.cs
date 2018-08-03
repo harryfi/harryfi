@@ -996,13 +996,22 @@ namespace MasterOnline.Controllers
 
             return Json(listKategori, JsonRequestBehavior.AllowGet);
         }
-        //[HttpGet]
-        //public ActionResult GetKategoriBlibliByCode(string code)
-        //{
-        //    //var listKategori = MoDbContext.CategoryBlibli.Where(k => k.LEVEL == "1").OrderBy(m => m.KET).ToList();
+        [HttpGet]
+        public ActionResult GetKategoriBlibliByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriBlibli = MoDbContext.CategoryBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
 
-        //    //return Json(listKategori, JsonRequestBehavior.AllowGet);
-        //}
+            return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriBlibliByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriBlibli = MoDbContext.CategoryBlibli.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
+        }
 
         [HttpGet]
         public ActionResult GetMerkBarang()
