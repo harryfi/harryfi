@@ -420,6 +420,7 @@
     <Compile Include="Models\APFSY.cs" />
     <Compile Include="Models\Api\JsonApi.cs" />
     <Compile Include="Models\Api\JsonApiWithListData.cs" />
+    <Compile Include="Models\Api\JsonData.cs" />
     <Compile Include="Models\APLINK.cs" />
     <Compile Include="Models\APT01A.cs" />
     <Compile Include="Models\APT01B.cs" />
