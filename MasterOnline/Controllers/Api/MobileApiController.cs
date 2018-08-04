@@ -303,7 +303,7 @@ namespace MasterOnline.Controllers.Api
         {
             try
             {
-                ErasoftDbContext = new ErasoftContext();
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
 
                 var selectedDate = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
                     CultureInfo.InvariantCulture) : DateTime.Today.Date);
@@ -418,7 +418,75 @@ namespace MasterOnline.Controllers.Api
                 var result = new JsonApi()
                 {
                     code = 500,
-                    message = e.Message + data.SelDate,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/pesananawal")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPesananAwal([FromBody]JsonData data)
+        {
+            try
+            {
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new PesananViewModel()
+                {
+                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "0").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                };
+
+                var ListData = new List<object>();
+
+                foreach (var pesanan in vm.ListPesanan)
+                {
+                    var buyer = vm.ListPembeli.Single(m => m.BUYER_CODE == pesanan.PEMESAN);
+                    var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
+                    var idMarket = 0;
+
+                    if (pelanggan != null)
+                    {
+                        idMarket = Convert.ToInt32(pelanggan.NAMA);
+                    }
+
+                    var market = vm.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+                    var namaMarket = "";
+
+                    if (market != null)
+                    {
+                        namaMarket = market.NamaMarket;
+                    }
+
+                    ListData.Add(new
+                    {
+                        Pesanan = pesanan,
+                        MarketName = namaMarket,
+                        BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
+                    });
+                }
+
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = "Success",
+                    data = ListData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
                     data = null
                 };
 

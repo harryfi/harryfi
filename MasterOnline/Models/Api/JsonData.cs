@@ -7,6 +7,7 @@ namespace MasterOnline.Models.Api
 {
     public class JsonData
     {
+        public string UserId { get; set; }
         public string SelDate { get; set; }
     }
 }
