@@ -220,5 +220,94 @@ namespace MasterOnline
         [StringLength(250)]
         public string AVALUE_20 { get; set; }
 
+        [StringLength(50)]
+        public string ACODE_21 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_21 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_21 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_22 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_22 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_22 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_23 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_23 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_23 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_24 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_24 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_24 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_25 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_25 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_25 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_26 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_26 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_26 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_27 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_27 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_27 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_28 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_28 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_28 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_29 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_29 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_29 { get; set; }
+
+        [StringLength(50)]
+        public string ACODE_30 { get; set; }
+
+        [StringLength(250)]
+        public string ANAME_30 { get; set; }
+
+        [StringLength(250)]
+        public string AVALUE_30 { get; set; }
     }
 }

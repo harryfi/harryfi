@@ -827,7 +827,7 @@
             }
         }
 
-        function ResetCategoryBlibli(divIDpertama,divIDselanjutnya,divIDattribute){
+        function ClearCategoryBlibli(divIDpertama,divIDselanjutnya,divIDattribute){
             $('#' + divIDpertama).html('');
             $('#' + divIDselanjutnya).html('');
             $('#' + divIDattribute).html('');
@@ -943,13 +943,6 @@
                 }
             });
         }
-        function getCol(matrix, col){
-            var column = [];
-            for(var i=0; i<matrix.length; i++){
-                column.push(matrix[i][col]);
-            }
-            return column;
-        }
         function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode){
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
@@ -966,36 +959,36 @@
                     $.each(data,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
-                                var ACODE = (i * 4) + 3;
-                                var ATYPE = (i * 4) + 4;
-                                var ANAME = (i * 4) + 5;
-                                var AOPTION = (i * 4) + 6;
-                                if (item[0][ACODE] != "") {
-                                    var label = '<label class="control-label col-md-2 col-sm-2 col-xs-12">'+ item[0][ANAME] +'</label>';
-                                    var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE'+ (i + 1) + '" type="hidden" value="'+ item[0][ACODE] +'" maxlength="50">';
-                                    var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__ANAME'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ANAME'+ (i + 1) + '" type="hidden" value="'+ item[0][ANAME] +'" maxlength="250">';
+                                var ACODE = item["ACODE_" + (i + 1)];
+                                var ATYPE = item["ATYPE_" + (i + 1)];
+                                var ANAME = item["ANAME_" + (i + 1)];
+                                var AOPTIONS = item["AOPTIONS_" + (i + 1)];
+                                if (ACODE != null && ACODE != "") {
+                                    var label = '<label class="control-label col-md-2 col-sm-2 col-xs-12">'+ ANAME +'</label>';
+                                    var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
+                                    var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__ANAME_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ANAME_'+ (i + 1) + '" type="hidden" value="'+ ANAME +'" maxlength="250">';
 
                                     $('#attribute_blibli_' + listMarketRecNum).append(label);
                                     $('#attribute_blibli_' + listMarketRecNum).append(fieldACODE);
                                     $('#attribute_blibli_' + listMarketRecNum).append(fieldANAME);
 
-                                    if (item[0][AOPTION] == "1")
+                                    var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE_'+ (i + 1);
+                                    if (AOPTIONS == "1")
                                     {
                                         //hidden
-                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE'+ (i + 1);
-                                        var fieldAVALUE = '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE'+ (i + 1) + '" value="" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                        var fieldAVALUE = '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
                                         $('#attribute_blibli_' + listMarketRecNum).append(fieldAVALUE);
 
                                         //select
-                                        var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ ACODE;
+                                        var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
                                         var select = '<div class="col-md-4 col-sm-4 col-xs-12"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
                                         $('#attribute_blibli_' + listMarketRecNum).append(select);
-                                        getAttributeOptionBlibli(item[0][ACODE],listMarketRecNum,selectID,fieldAVALUE_ID);
+                                        getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID);
                                     }
                                     else
                                     {
                                         //textbox
-                                        var fieldAVALUE = '<div class="col-md-4 col-sm-4 col-xs-12"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__AVALUE'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE'+ (i + 1) + '" value="" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                        var fieldAVALUE = '<div class="col-md-4 col-sm-4 col-xs-12"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                         $('#attribute_blibli_' + listMarketRecNum).append(fieldAVALUE);
                                     }
                                 }
