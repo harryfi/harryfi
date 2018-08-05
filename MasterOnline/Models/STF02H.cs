@@ -309,5 +309,8 @@ namespace MasterOnline
 
         [StringLength(250)]
         public string AVALUE_30 { get; set; }
+
+        [StringLength(30)]
+        public string PICKUP_POINT { get; set; }
     }
 }

@@ -239,11 +239,12 @@
                             @for (var i = 0; i < listMarket.ToList().Count; i++)
                             {
                                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].USERNAME, new { Value = username })
                                 <div class="form-group">
                                     @if (Model.ListHargaJualPermarketView.Count > 0)
                                     {
-                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView[i].RecNum })
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.RecNum })
                                     }
                                     else
                                     {
@@ -258,7 +259,7 @@
                                     <div class="col-md-6 col-sm-6 col-xs-12">
                                         @if (Model.ListHargaJualPermarketView.Count > 0)
                                         {
-                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.ListHargaJualPermarketView?[i].HJUAL ?? 0) })
+                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0) })
                                         }
                                         else
                                         {
@@ -268,10 +269,10 @@
                                     <div class="col-md-3 col-sm-3 col-xs-12">
                                         @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
                                         {
-                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView[i]?.DISPLAY })
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY })
                                             <label class="checkbox-container">
                                                 Tampilkan
-                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView[i]?.DISPLAY == true ? "checked" : null) />
+                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
                                                 <span class="checkmark"></span>
                                             </label>
                                         }
@@ -371,22 +372,48 @@
                                                     }
                                                     else
                                                     {
-                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE)
-                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME)
+                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
                                                         <div class="row">
                                                             <div class="col-md-1 col-sm-1 col-xs-12">
                                                                 <label>Category</label>
                                                             </div>
                                                             <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
                                                             </div>
-                                                            <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-7 col-sm-7 col-xs-12">
+                                                            <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
                                                             </div>
-                                                            <div class="col-md-1 col-sm-1 col-xs-12">
-                                                                <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01);">Clear</button>
+                                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.CATEGORY_CODE != null)
+                                                                {
+                                                                    <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, true);">Undo</button>
+                                                                }
+                                                                <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, false);">Clear</button>
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12 col-sm-12 col-xs-12">
+                                                            <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12">
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            @Html.LabelFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, "Pickup Point *", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                                                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                <div class="input-group text">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td>
+                                                                                @Html.TextBox("PickupPoint" + i + "Blibli", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                            </td>
+                                                                            <td>
+                                                                                <span class="input-group-btn">
+                                                                                    <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptPickupPointBlibli(@i,@($"({listMarket[i].Sort1_Cust})"))">
+                                                                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                    </button>
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     }
@@ -420,7 +447,7 @@
                                                                     </td>
                                                                     <td>
                                                                         <span class="input-group-btn">
-                                                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({listMarket[i].RecNum})"))">
+                                                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({recnumArf01})"))">
                                                                                 <span class="glyphicon glyphicon-option-horizontal"></span>
                                                                             </button>
                                                                         </span>

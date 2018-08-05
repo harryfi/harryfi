@@ -1013,6 +1013,30 @@ namespace MasterOnline.Controllers
             return Json(listKategoriBlibli, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
+        public ActionResult GetKategoriBlibliByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_BLIBLI> listKategoriBlibli = new List<CATEGORY_BLIBLI>();
+            var category = MoDbContext.CategoryBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            listKategoriBlibli.Add(category);
+
+            if (category.PARENT_CODE != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    listKategoriBlibli.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriBlibli.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
         public ActionResult GetAttributeBlibli(string code)
         {
             string[] codelist = code.Split(';');
@@ -1852,8 +1876,7 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                //var PromptModel = ErasoftDbContext.DeliveryTemplateElevenia.Where(a => a.RECNUM_ARF01.ToString() == recnum).ToList();
-                var PromptModel = ErasoftDbContext.DeliveryTemplateElevenia.ToList();
+                var PromptModel = ErasoftDbContext.DeliveryTemplateElevenia.Where(a => a.RECNUM_ARF01.ToString() == recnum).ToList();
                 return View("PromptDeliveryTempElevenia", PromptModel);
             }
             catch (Exception ex)
@@ -1861,6 +1884,19 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
+        public ActionResult PromptPickupPointBlibli(string merchant_code)
+        {
+            try
+            {
+                var PromptModel = ErasoftDbContext.PICKUP_POINT_BLIBLI.Where(a => a.MERCHANT_CODE.ToString() == merchant_code).ToList();
+                return View("PromptPickupPointBlibli", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        
 
         protected JsonResult JsonErrorMessage(string message)
         {

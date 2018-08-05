@@ -242,9 +242,9 @@ namespace MasterOnline.Controllers
                             API_client_password = tblCustomer.API_CLIENT_P,
                             API_secret_key = tblCustomer.API_KEY,
                             mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
                         };
-                        BliApi.GetToken(data, false);
+                        BliApi.GetToken(data, true);
                     }
                 }
             }
