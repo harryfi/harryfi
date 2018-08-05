@@ -10,8 +10,6 @@
 {
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
-    <script src="~/Content/build/js/bootstrap-multiselect.js"></script>
-    <link href="~/Content/build/css/bootstrap-multiselect.css" rel="stylesheet" />
     <style>
         #Stf02_Deskripsi {
             resize: vertical;
@@ -1049,18 +1047,11 @@
                                             var fieldAVALUE = '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
                                             //select
-                                            if (ATYPE == "DEFINING_ATTRIBUTE") {
-                                                var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
+                                            var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
+                                            var select = '<select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select>';
 
-                                                getAttributeMultiSelectOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,selectID);
-                                            }
-                                            else {
-                                                var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
-                                                var select = '<select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select>';
-
-                                                $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-4" style="margin-top:10px; margin-bottom:10px;">' + fieldAVALUE + select + '</div>');
-                                                getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue);
-                                            }
+                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-4" style="margin-top:10px; margin-bottom:10px;">' + fieldAVALUE + select + '</div>');
+                                            getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                         }
                                         else
                                         {
@@ -1078,7 +1069,7 @@
                 }
             });
         }
-        function getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue){
+        function getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE){
             var link = '@Url.Action("GetAttributeOptBlibli", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ACODE);
 
@@ -1098,67 +1089,44 @@
                             };
                         });
 
-                    var AttributeOptSelect = $('#' + selectID).selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listAttributeOpt,
-                        onChange: function (value) {
-                            $('#' + fieldAVALUE_ID).val(value);
-                        }
-                    });
+                    if (ATYPE == "DEFINING_ATTRIBUTE") {
 
-                    if (adaValue != "") {
-                        AttributeOptSelect[0].selectize.setValue(adaValue, true);
-                    }
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-        function getAttributeMultiSelectOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,selectID){
-            var link = '@Url.Action("GetAttributeOptBlibli", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", ACODE);
-
-            var select = '<select id="'+ selectID +'" placeholder="Harap pilih" required="required">';
-            var adaValues;
-            if (adaValue != ""){
-                adaValues = adaValue.split(";");
-            }
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listAttributeOpt = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            select += '<option value="'+ item.OPTION_VALUE + '"';
-                            
-                            if (adaValue != "") {
-                                if (adaValues.includes(item.OPTION_VALUE)) {
-                                    select += ' selected="selected" ';
-                                }
+                        var AttributeOptSelect = $('#' + selectID).selectize({
+                            maxItems : 7,
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listAttributeOpt,
+                            onChange: function (value) {
+                                $('#' + fieldAVALUE_ID).val(value);
                             }
-                            select += '>' + item.OPTION_VALUE + '</option>';
                         });
 
+                        if (adaValue != ""){
+                            AttributeOptSelect[0].selectize.setValue(adaValue.replace(), true);
+                        }
+                    }
+                    else {
+                        var AttributeOptSelect = $('#' + selectID).selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listAttributeOpt,
+                            onChange: function (value) {
+                                $('#' + fieldAVALUE_ID).val(value.replace(',',';'));
+                            }
+                        });
+
+                        if (adaValue != "") {
+                            AttributeOptSelect[0].selectize.setValue(adaValue.replace(';',','), true);
+                        }
+                    }
+
                 },
                 error: function (xhr) {
                     console.log(xhr);
                 }
             });
-            select += '</select>';
-            $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-4" style="margin-top:10px; margin-bottom:10px;">' + fieldAVALUE + select + '</div>');
-            $('#' + selectID).multiselect({
-                nonSelectedText : 'Harap pilih',
-                enableFiltering : true,
-                enableCaseInsensitiveFiltering : true,
-                buttonWidth: '100%'
-                });
         }
+       
         function getKategori() {
             $.ajax({
                 type: "GET",

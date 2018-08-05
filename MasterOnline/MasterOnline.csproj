@@ -1009,10 +1009,8 @@
     <Content Include="Content\admin\fonts\ubuntu\UFL.txt" />
     <Content Include="Content\admin\util.css" />
     <Content Include="Content\build\css\bootstrap-datepicker.min.css" />
-    <Content Include="Content\build\css\bootstrap-multiselect.css" />
     <Content Include="Content\build\css\selectivity-jquery.min.css" />
     <Content Include="Content\build\js\bootstrap-datepicker.min.js" />
-    <Content Include="Content\build\js\bootstrap-multiselect.js" />
     <Content Include="Content\build\js\bootstrap-wysiwyg.min.js" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
