@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -294,6 +295,203 @@ namespace MasterOnline.Controllers.Api
             };
 
             return Json(result);
+        }
+
+        [System.Web.Http.Route("api/mobile/dashboard")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DashboardResult([FromBody]JsonData data)
+        {
+            try
+            {
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var selectedDate = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture) : DateTime.Today.Date);
+
+                var selectedMonth = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture).Month : DateTime.Today.Month);
+
+                var vm = new DashboardViewModel()
+                {
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListPesananDetail = ErasoftDbContext.SOT01B.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                    ListFakturDetail = ErasoftDbContext.SIT01B.ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListAkunMarketplace = ErasoftDbContext.ARF01.ToList(),
+                    ListMarket = MoDbContext.Marketplaces.ToList(),
+                    ListBarangUntukCekQty = ErasoftDbContext.STF08A.ToList(),
+                    ListStok = ErasoftDbContext.STT01B.ToList()
+                };
+
+                // Pesanan
+                vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Count();
+                vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+                vm.JumlahPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Count();
+                vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                // Faktur
+                vm.JumlahFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Count();
+                vm.NilaiFakturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+                vm.JumlahFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Count();
+                vm.NilaiFakturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "2").Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                // Retur
+                vm.JumlahReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Count();
+                vm.NilaiReturHariIni = vm.ListFaktur?.Where(p => p.TGL == selectedDate && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+                vm.JumlahReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Count();
+                vm.NilaiReturBulanIni = vm.ListFaktur?.Where(p => p.TGL.Month == selectedMonth && p.JENIS_FORM == "3").Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                if (vm.ListAkunMarketplace.Count > 0)
+                {
+                    foreach (var marketplace in vm.ListAkunMarketplace)
+                    {
+                        var idMarket = Convert.ToInt32(marketplace.NAMA);
+                        var namaMarket = vm.ListMarket.Single(m => m.IdMarket == idMarket).NamaMarket;
+
+                        var jumlahPesananToday = vm.ListPesanan?
+                            .Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Count();
+                        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+
+                        var jumlahPesananMonth = vm.ListPesanan?
+
+                            .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
+                        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+
+                        vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
+                        {
+                            NamaMarket = $"{namaMarket} ({marketplace.PERSO})",
+                            JumlahPesananHariIni = jumlahPesananToday.ToString(),
+                            NilaiPesananHariIni = nilaiPesananToday,
+                            JumlahPesananBulanIni = jumlahPesananMonth.ToString(),
+                            NilaiPesananBulanIni = nilaiPesananMonth
+                        });
+                    }
+                }
+
+                foreach (var barang in vm.ListBarang)
+                {
+                    var listBarangTerpesan = vm.ListPesananDetail.Where(b => b.BRG == barang.BRG).ToList();
+
+                    if (listBarangTerpesan.Count > 0)
+                    {
+                        var qtyBarang = listBarangTerpesan.Where(b => b.TGL_INPUT?.Month >= (selectedMonth - 3) &&
+                                                                      b.TGL_INPUT?.Month <= selectedMonth).Sum(b => b.QTY);
+                        vm.ListBarangLaku.Add(new PenjualanBarang
+                        {
+                            KodeBrg = barang.BRG,
+                            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                            Qty = qtyBarang,
+                            Laku = true
+                        });
+                    }
+                }
+
+                foreach (var barang in vm.ListBarang.Where(b => b.Tgl_Input?.Month >= (selectedMonth - 3) && b.Tgl_Input?.Month <= selectedMonth))
+                {
+                    var barangTerpesan = vm.ListPesananDetail.FirstOrDefault(b => b.BRG == barang.BRG);
+                    var stokBarang = vm.ListStok.FirstOrDefault(b => b.Kobar == barang.BRG);
+
+                    if (barangTerpesan == null)
+                    {
+                        vm.ListBarangTidakLaku.Add(new PenjualanBarang
+                        {
+                            KodeBrg = barang.BRG,
+                            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                            Qty = Convert.ToDouble(stokBarang?.Qty),
+                            Laku = false
+                        });
+                    }
+                }
+
+                var result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = vm
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/pesananawal")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPesananAwal([FromBody]JsonData data)
+        {
+            try
+            {
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new PesananViewModel()
+                {
+                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "0").ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                };
+
+                var ListData = new List<object>();
+
+                foreach (var pesanan in vm.ListPesanan)
+                {
+                    var buyer = vm.ListPembeli.Single(m => m.BUYER_CODE == pesanan.PEMESAN);
+                    var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
+                    var idMarket = 0;
+
+                    if (pelanggan != null)
+                    {
+                        idMarket = Convert.ToInt32(pelanggan.NAMA);
+                    }
+
+                    var market = vm.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+                    var namaMarket = "";
+
+                    if (market != null)
+                    {
+                        namaMarket = market.NamaMarket;
+                    }
+
+                    ListData.Add(new
+                    {
+                        Pesanan = pesanan,
+                        MarketName = namaMarket,
+                        BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
+                    });
+                }
+
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = "Success",
+                    data = ListData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
         }
     }
 }
