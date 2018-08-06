@@ -4496,9 +4496,15 @@ namespace MasterOnline.Controllers
             foreach (var barang in listBarangPesanan)
             {
                 brutoPesanan += barang.HARGA;
-            }
+            }        
 
             pesananInDb.BRUTO = brutoPesanan;
+
+            //add by nurul 6/8/2018
+            //var ppnBaru = 0d;
+            pesananInDb.NILAI_PPN = (pesananInDb.PPN * pesananInDb.BRUTO) / 100;            
+            //end add
+
             pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN + pesananInDb.ONGKOS_KIRIM;
 
             ErasoftDbContext.SaveChanges();
