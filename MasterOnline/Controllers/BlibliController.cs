@@ -51,7 +51,7 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        public async Task<BliBliToken> GetToken(BlibliAPIData data, bool getCategory)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
+        public BliBliToken GetToken(BlibliAPIData data, bool syncData)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
             //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
@@ -73,7 +73,7 @@ namespace MasterOnline.Controllers
             //StreamReader reader = new StreamReader(dataStream);
             string responseFromServer = "";
 
-            using (WebResponse response = await myReq.GetResponseAsync())
+            using (WebResponse response = myReq.GetResponse())
             {
                 using (Stream stream = response.GetResponseStream())
                 {
@@ -96,51 +96,156 @@ namespace MasterOnline.Controllers
                         arf01inDB.TOKEN = ret.access_token;
                         arf01inDB.REFRESH_TOKEN = ret.refresh_token;
                         ErasoftDbContext.SaveChanges();
-                        if (getCategory)
+                        if (syncData)
                         {
                             data.merchant_code = arf01inDB.Sort1_Cust;
                             data.token = ret.access_token;
-                            await GetCategoryTree(data);
+                            GetPickupPoint(data);
                         }
                     }
                 }
             }
             return ret;
         }
+        public string GetPickupPoint(BlibliAPIData data)
+        {
+            string ret = "";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+
+            string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+            string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+            //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
+
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getPickupPoint?businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
+
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + data.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    if (result.content.Count > 0)
+                    {
+                        using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                oCommand.CommandText = "DELETE FROM [PICKUP_POINT_BLIBLI] WHERE [MERCHANT_CODE]='" + data.merchant_code + "'";
+                                oCommand.ExecuteNonQuery();
+
+                                //oCommand.Transaction = oTransaction;
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.CommandText = "INSERT INTO [PICKUP_POINT_BLIBLI] ([KODE], [KETERANGAN], [MERCHANT_CODE]) VALUES (@KODE, @KETERANGAN, @MERCHANT_CODE)";
+                                oCommand.Parameters.Add(new SqlParameter("@KODE", SqlDbType.NVarChar, 30));
+                                oCommand.Parameters.Add(new SqlParameter("@KETERANGAN", SqlDbType.NVarChar, 250));
+                                oCommand.Parameters.Add(new SqlParameter("@MERCHANT_CODE", SqlDbType.NVarChar, 30));
+
+                                try
+                                {
+                                    oCommand.Parameters[2].Value = data.merchant_code;
+                                    foreach (var item in result.content)
+                                    {
+                                        oCommand.Parameters[0].Value = item.code.Value;
+                                        oCommand.Parameters[1].Value = item.name.Value;
+                                        if (oCommand.ExecuteNonQuery() == 1)
+                                        {
+                                        }
+                                    }
+                                    //oTransaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    //oTransaction.Rollback();
+                                }
+                            }
+                            //}
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
         public string UploadProduk(BlibliProductData data)
         {
+            //if merchant code diisi. barulah upload produk
             string ret = "";
             string aksesToken = data.ID_Merchant;// "58b755b8-2acc-45f6-bd46-78021c218645";
             string emailuser = "fierywings5@gmail.com";
             string clientScreet = "123era";
-            string myData = "{\"merchantCode\": \"ID MERCHANT\",  \"products\": [   { " +  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
-            "\"merchantCode\": \"" + data.ID_Merchant + "\",  " +
-            "\"categoryCode\": \"KATEGORI \", " +                                       //LIHAT BAGIAN GETKATEGORI
-            "\"productName\": \"" + data.nama + "\", " +                                 // NAMA PRODUK
-            "\"url\": \"\", " +                   // LINK URL IKLAN KALO ADA
-            "\"merchantSku\": \"" + data.kode + "\",    " +                                   // SKU
-            "\"tipePenanganan\": 1,     " +                                             // 1= reguler produk (dikirim oleh blili)| 2= dikirim oleh kurir | 3 =ambil sendiri di toko
-            "\"price\": " + data.Price + ", " +                                                      //harga reguler (no diskon)
-            "\"salePrice\": " + data.MarketPrice + ",  " +                                                  // harga yg tercantum di display blibli
-            "\"stock\": " + data.Qty + ",  " +
-            "\"minimumStock\": " + data.MinQty + ", " +
-            "\"pickupPointCode\": \"PP-3000179\", " +                                   //pick up poin code, baca GetPickUp
-            "\"length\": " + data.Length + ",  " +
-            "\"width\": " + data.Width + ", " +
-            "\"height\": " + data.Height + ", " +
-            "\"weight\": " + data.berat + ", " + // dalam gram, sama seperti MO
-            "\"desc\": \"" + data.Keterangan + "\", " +
-            "\"uniqueSellingPoint\": \"\", " + //ex : Unique selling point of current product
-            "\"productStory\": \"\", " + //ex : This product is launched at 25 Des 2016, made in Indonesia
-            "\"upcCode\": \"\",  " + //barcode, ex :1231230010
-            "\"display\": " + data.display + ",   " + // true=tampil                
-            "\"buyable\": true,  " +
-            "\"installation\": false, " +
-            "\"features\": [{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, " +
-            "               {\"name\": \"Berat\",\"value\": \"" + Convert.ToString(Convert.ToInt32(data.berat) / 1000).Replace(",", ".") + " Kg\"}, " +
-            "               {\"name\" : \"Dimensi Produk\",\"value\" : \"" + data.Length + "cm x " + data.Width + "cm x " + data.Height + "cm\"}], " +
-            "\"variasi\": [{\"name\": \"Warna\",\"value\": \"Black\"},{\"name\": \"Warna\",\"value\": \"Red\"},{\"name\": \"Ukuran\",\"value\": \"35\"},{\"name\": \"Ukuran\",\"value\": \"36\"}], " +
-            "\"images\": [{\"locationPath\": \"samsung_product-merchant_full01.jpg\",\"sequence\": 0},{\"locationPath\": \"samsung_product-merchant_full02.jpg\",\"sequence\": 1},]}}";
+            string myData = "{";
+            myData += "\"merchantCode\": \"" + data.ID_Merchant + "\", ";
+            myData += "\"products\": ";
+            myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
+            {
+                myData += "\"merchantCode\": \"" + data.ID_Merchant + "\",  ";
+                myData += "\"categoryCode\": \"" + data.CategoryCode + " \", ";                                       //LIHAT BAGIAN GETKATEGORI
+                myData += "\"productName\": \"" + data.nama + "\", ";                                 // NAMA PRODUK
+                myData += "\"url\": \"\", ";                   // LINK URL IKLAN KALO ADA
+                myData += "\"merchantSku\": \"" + data.kode + "\", ";                                // SKU
+                myData += "\"tipePenanganan\": 1, ";                                            // 1= reguler produk (dikirim oleh blili)| 2= dikirim oleh kurir | 3 =ambil sendiri di toko
+                myData += "\"price\": " + data.Price + ", ";                                                      //harga reguler (no diskon)
+                myData += "\"salePrice\": " + data.MarketPrice + ", ";                                                // harga yg tercantum di display blibli
+                myData += "\"stock\": " + data.Qty + ", ";
+                myData += "\"minimumStock\": " + data.MinQty + ", ";
+                myData += "\"pickupPointCode\": \"" + data.PickupPoint + "\", ";                                   //pick up poin code, baca GetPickUp
+                myData += "\"length\": " + data.Length + ", ";
+                myData += "\"width\": " + data.Width + ", ";
+                myData += "\"height\": " + data.Height + ", ";
+                myData += "\"weight\": " + data.berat + ", "; // dalam gram, sama seperti MO
+                myData += "\"desc\": \"" + data.Keterangan + "\", ";
+                myData += "\"uniqueSellingPoint\": \"\", "; //ex : Unique selling point of current product
+                myData += "\"productStory\": \"\", "; //ex : This product is launched at 25 Des 2016, made in Indonesia
+                myData += "\"upcCode\": \"\", "; //barcode, ex :1231230010
+                myData += "\"display\": " + data.display + ", "; // true=tampil                
+                myData += "\"buyable\": true, ";
+                myData += "\"installation\": false, ";
+                myData += "\"features\": [";
+                //for (int i = 0; i < length; i++)
+                //{
+                //    myData += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
+                //}
+                myData += "], ";
+                myData += "\"variasi\": [{\"name\": \"Warna\",\"value\": \"Black\"},{\"name\": \"Warna\",\"value\": \"Red\"},{\"name\": \"Ukuran\",\"value\": \"35\"},{\"name\": \"Ukuran\",\"value\": \"36\"}], ";
+                myData += "\"images\": [{\"locationPath\": \"samsung_product-merchant_full01.jpg\",\"sequence\": 0},{\"locationPath\": \"samsung_product-merchant_full02.jpg\",\"sequence\": 1}]";
+            }
+            myData += "}]";
+            myData += "}";
 
             //cara penulisan nama file untuk gambar produk lihat uploadGambar
 
@@ -514,11 +619,10 @@ namespace MasterOnline.Controllers
         }
         public static long CurrentTimeMillis()
         {
-            //TimeSpan span = DateTime.Now - Jan1st1970;
-            //return (long)span.TotalMilliseconds;
-            return (long)DateTime.Now.ToUniversalTime().Subtract(
-    new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
-    ).TotalMilliseconds;
+            //        return (long)DateTime.Now.ToUniversalTime().Subtract(
+            //new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+            //).TotalMilliseconds;
+            return (long)DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
         public class BlibliAPIData
         {
@@ -551,15 +655,10 @@ namespace MasterOnline.Controllers
             public string Brand { get; set; }
             public string IDMarket { get; set; }
             public string kode_mp { get; set; }
+            public string CategoryCode { get; set; }
+            public string PickupPoint { get; set; }
+            
 
-        }
-        public class BlibliGetCategoryReturn
-        {
-            public string requestId { get; set; }
-            public string errorMessage { get; set; }
-            public string errorCode { get; set; }
-            public string success { get; set; }
-            public string content { get; set; }
         }
         public class BliBliToken
         {
