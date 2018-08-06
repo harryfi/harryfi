@@ -7,13 +7,13 @@ namespace MasterOnline.ErasoftContextMigrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class PickupPoint_di_STF02H : IMigrationMetadata
+    public sealed partial class AddTablePickupPointAndAddColumnPIckupPointSTF02H : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(PickupPoint_di_STF02H));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddTablePickupPointAndAddColumnPIckupPointSTF02H));
         
         string IMigrationMetadata.Id
         {
-            get { return "201808050807456_PickupPoint_di_STF02H"; }
+            get { return "201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H"; }
         }
         
         string IMigrationMetadata.Source

@@ -3,7 +3,7 @@ namespace MasterOnline.ErasoftContextMigrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class PickupPoint_di_STF02H : DbMigration
+    public partial class AddTablePickupPointAndAddColumnPIckupPointSTF02H : DbMigration
     {
         public override void Up()
         {
