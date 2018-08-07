@@ -360,9 +360,9 @@
     <Compile Include="ErasoftContextMigrations\201808040749262_STF02H_AddFieldAttribute21_30.Designer.cs">
       <DependentUpon>201808040749262_STF02H_AddFieldAttribute21_30.cs</DependentUpon>
     </Compile>
-    <Compile Include="ErasoftContextMigrations\201808050807456_PickupPoint_di_STF02H.cs" />
-    <Compile Include="ErasoftContextMigrations\201808050807456_PickupPoint_di_STF02H.Designer.cs">
-      <DependentUpon>201808050807456_PickupPoint_di_STF02H.cs</DependentUpon>
+    <Compile Include="ErasoftContextMigrations\201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H.cs" />
+    <Compile Include="ErasoftContextMigrations\201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H.Designer.cs">
+      <DependentUpon>201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
@@ -5089,6 +5089,7 @@
     <Content Include="Views\Admin\AktivitasSubscription.cshtml" />
     <Content Include="Views\Midtrans\PaymentMidtrans.cshtml" />
     <Content Include="Views\Manage\PromptPickupPointBlibli.cshtml" />
+    <Content Include="Views\Manage\BarangPesananSudahDibayarPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5225,8 +5226,8 @@
     <EmbeddedResource Include="ErasoftContextMigrations\201808040749262_STF02H_AddFieldAttribute21_30.resx">
       <DependentUpon>201808040749262_STF02H_AddFieldAttribute21_30.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ErasoftContextMigrations\201808050807456_PickupPoint_di_STF02H.resx">
-      <DependentUpon>201808050807456_PickupPoint_di_STF02H.cs</DependentUpon>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H.resx">
+      <DependentUpon>201808060628239_AddTablePickupPointAndAddColumnPIckupPointSTF02H.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

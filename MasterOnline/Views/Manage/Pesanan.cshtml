@@ -392,7 +392,7 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
-                    <div class="row">
+                    <div class="row pesanan_sudah_dibayar_section">
                         <div class="col-lg-4 col-sm-6">
                             <div class="input-group">
                                 <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
@@ -411,12 +411,38 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" style="margin-top: 5px;">
+                    <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
                         <div id="loading_sudah_dibayar_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
                             @Html.Partial("TablePesananSudahDibayarPartial")
+                        </div>
+                    </div>
+                    <div class="row pesanan_editor_sudah_dibayar_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Pesanan</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-3" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                {
+                                    foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                    {
+                                        <div class="alert alert-danger">
+                                            <span class="message-error">@modelError.ErrorMessage</span>
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    }
+                                }
+                                <div id="form-partial-sudah-dibayar">
+                                    @Html.Partial("BarangPesananSudahDibayarPartial")
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -927,6 +953,11 @@
             $('#close-editor-2').on('click', function() {
                 $('.pesanan_selesai_section').show();
                 $('.pesanan_editor_selesai_section').hide();
+            });
+
+            $('#close-editor-3').on('click', function () {
+                $('.pesanan_sudah_dibayar_section').show();
+                $('.pesanan_editor_sudah_dibayar_section').hide();
             });
 
             if ($('.message-error').text() !== '') {
@@ -2322,6 +2353,43 @@
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
                     $('.pesanan_editor_selesai_section').show();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            @*var link = '@Url.Action("LihatFaktur", "Manage", new { noBukPesanan = "replaceNoBuk" })';
+            link = link.replace('replaceNoBuk', nobuk);
+
+            var win = window.open(link, '_blank');
+            if (win) {
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }*@
+        }
+
+        function lihatPesananSudahDibayar(idPesanan) {
+            var link = '@Url.Action("LihatPesanan", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", idPesanan);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#form-partial-sudah-dibayar').html(response);
+                    $('#see_tgl_pesanan').removeAttr('style');
+                    //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
+                    //$('#see_expedisi_pesanan').val($('#Pesanan_EXPEDISI').val()).show();
+                    //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    $('#TGL').parent().hide();
+                    $('.pesanan_sudah_dibayar_section').hide();
+                    $('.pesanan_editor_sudah_dibayar_section').show();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
