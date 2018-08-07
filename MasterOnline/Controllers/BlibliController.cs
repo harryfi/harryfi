@@ -118,8 +118,8 @@ namespace MasterOnline.Controllers
             string userMTA = data.mta_username_email_merchant;//<-- email user merchant
             string passMTA = data.mta_password_password_merchant;//<-- pass merchant
 
-            //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
-            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
+            //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getPickupPoint", data.API_secret_key);
 
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getPickupPoint?businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
 
@@ -165,11 +165,11 @@ namespace MasterOnline.Controllers
                             //{
                             using (SqlCommand oCommand = oConnection.CreateCommand())
                             {
+                                oCommand.CommandType = CommandType.Text;
                                 oCommand.CommandText = "DELETE FROM [PICKUP_POINT_BLIBLI] WHERE [MERCHANT_CODE]='" + data.merchant_code + "'";
                                 oCommand.ExecuteNonQuery();
 
                                 //oCommand.Transaction = oTransaction;
-                                oCommand.CommandType = CommandType.Text;
                                 oCommand.CommandText = "INSERT INTO [PICKUP_POINT_BLIBLI] ([KODE], [KETERANGAN], [MERCHANT_CODE]) VALUES (@KODE, @KETERANGAN, @MERCHANT_CODE)";
                                 oCommand.Parameters.Add(new SqlParameter("@KODE", SqlDbType.NVarChar, 30));
                                 oCommand.Parameters.Add(new SqlParameter("@KETERANGAN", SqlDbType.NVarChar, 250));
@@ -201,19 +201,22 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public string UploadProduk(BlibliProductData data)
+        public string UploadProduk(BlibliAPIData iden ,BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
-            string aksesToken = data.ID_Merchant;// "58b755b8-2acc-45f6-bd46-78021c218645";
-            string emailuser = "fierywings5@gmail.com";
-            string clientScreet = "123era";
+            string aksesToken = iden.merchant_code;// "58b755b8-2acc-45f6-bd46-78021c218645";
+            string emailuser = iden.mta_username_email_merchant;// "fierywings5@gmail.com";
+            string clientScreet = iden.API_secret_key;// "123era";
+            string features = "";
+            string variasi = "";
+            string gambar = "";
             string myData = "{";
-            myData += "\"merchantCode\": \"" + data.ID_Merchant + "\", ";
+            myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
             myData += "\"products\": ";
             myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
             {
-                myData += "\"merchantCode\": \"" + data.ID_Merchant + "\",  ";
+                myData += "\"merchantCode\": \"" + iden.merchant_code + "\",  ";
                 myData += "\"categoryCode\": \"" + data.CategoryCode + " \", ";                                       //LIHAT BAGIAN GETKATEGORI
                 myData += "\"productName\": \"" + data.nama + "\", ";                                 // NAMA PRODUK
                 myData += "\"url\": \"\", ";                   // LINK URL IKLAN KALO ADA
@@ -238,18 +241,31 @@ namespace MasterOnline.Controllers
                 myData += "\"features\": [";
                 //for (int i = 0; i < length; i++)
                 //{
-                //    myData += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
+                //    features += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
                 //}
-                myData += "], ";
-                myData += "\"variasi\": [{\"name\": \"Warna\",\"value\": \"Black\"},{\"name\": \"Warna\",\"value\": \"Red\"},{\"name\": \"Ukuran\",\"value\": \"35\"},{\"name\": \"Ukuran\",\"value\": \"36\"}], ";
-                myData += "\"images\": [{\"locationPath\": \"samsung_product-merchant_full01.jpg\",\"sequence\": 0},{\"locationPath\": \"samsung_product-merchant_full02.jpg\",\"sequence\": 1}]";
+                features = features.Substring(0, features.Length - 1);
+                myData += features + "], ";
+                myData += "\"variasi\": [";
+                //for (int i = 0; i < length; i++)
+                //{
+                //    variasi += "{\"name\": \"Warna\",\"value\": \"Black\"},";
+                //}
+                variasi = variasi.Substring(0, variasi.Length - 1);
+                myData += variasi + "], ";
+                myData += "\"images\": [";
+                //for (int i = 0; i < length; i++)
+                //{
+                //    gambar += "{\"locationPath\": \"samsung_product-merchant_full01.jpg\",\"sequence\": 0},";
+                //}
+                gambar = gambar.Substring(0, gambar.Length - 1);
+                myData += gambar + "]";
             }
             myData += "}]";
             myData += "}";
 
             //cara penulisan nama file untuk gambar produk lihat uploadGambar
 
-            string signature = CreateToken("POST\n" + aksesToken + "\napplication/json \n" + String.Format("{0:ddd MMM d HH:mm:ss WIB yyyy}", DateTime.Now) + "\n//mtaapi/api/businesspartner/v1/product/createProduct ", clientScreet);
+            string signature = CreateToken("POST\n" + aksesToken + "\napplication/json \n" + String.Format("{0:ddd MMM dd HH:mm:ss WIB yyyy}", DateTime.Now) + "\n//mtaapi/api/businesspartner/v1/product/createProduct ", clientScreet);
 
             //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create("https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/createProduct");
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create("https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct");
@@ -284,26 +300,26 @@ namespace MasterOnline.Controllers
 
             string ret = "";
 
-            string milis = CurrentTimeMillis().ToString();
-            DateTime milisBack = Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
             string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
             string userMTA = data.mta_username_email_merchant;//<-- email user merchant
             string passMTA = data.mta_password_password_merchant;//<-- pass merchant
 
-            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategory", data.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + Uri.EscapeDataString(milis) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategory", data.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategory?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
 
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", ("bearer " + data.token));
             myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-            myReq.Headers.Add("x-blibli-mta-date-milis", (milis));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", milis);
-            myReq.Headers.Add("sessionId", milis);
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
             myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
             try
@@ -436,27 +452,27 @@ namespace MasterOnline.Controllers
                 //    string categoryCode = "3 -1000001";
                 //string categoryName = "3 Kamar +";
 
-                string milis = CurrentTimeMillis().ToString();
-                DateTime milisBack = Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
                 string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
                 string userMTA = data.mta_username_email_merchant;//<-- email user merchant
                 string passMTA = data.mta_password_password_merchant;//<-- pass merchant
 
-                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
-                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode);
-                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM d HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode);
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
                 //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
 
                 HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 myReq.Method = "GET";
                 myReq.Headers.Add("Authorization", ("bearer " + data.token));
                 myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-                myReq.Headers.Add("x-blibli-mta-date-milis", (milis));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
                 myReq.Accept = "application/json";
                 myReq.ContentType = "application/json";
-                myReq.Headers.Add("requestId", milis);
-                myReq.Headers.Add("sessionId", milis);
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
                 myReq.Headers.Add("username", userMTA);
                 string responseFromServer = "";
                 try
@@ -636,8 +652,6 @@ namespace MasterOnline.Controllers
         }
         public class BlibliProductData
         {
-            public string ID_Merchant { get; set; }
-            public string api_key { get; set; }
             public string kode { get; set; }
             public string nama { get; set; }
             public string display { get; set; }
@@ -656,8 +670,10 @@ namespace MasterOnline.Controllers
             public string IDMarket { get; set; }
             public string kode_mp { get; set; }
             public string CategoryCode { get; set; }
+            public string[] attribute { get; set; }
+            public string feature { get; set; }
             public string PickupPoint { get; set; }
-            
+
 
         }
         public class BliBliToken

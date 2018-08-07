@@ -1445,7 +1445,7 @@
         }
 
         function showPromptPickupPointBlibliTextBoxWindow(val) {
-            var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { recnum = "replaceKodeMerchant"})';
+            var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { merchant_code = "replaceKodeMerchant"})';
             $link = $link.replace("replaceKodeMerchant", val);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
