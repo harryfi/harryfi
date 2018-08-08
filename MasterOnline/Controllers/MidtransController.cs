@@ -19,6 +19,7 @@ namespace MasterOnline.Controllers
         public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code)
         {
             MoDbContext = new MoDbContext();
+            var dtNow = DateTime.Now;
             PaymentMidtransViewModel dataClass = new PaymentMidtransViewModel();
             if (!string.IsNullOrEmpty(code))
             {
@@ -52,7 +53,7 @@ namespace MasterOnline.Controllers
                     };
                     data.transaction_details = new TransactionDetail();
                     data.transaction_details.gross_amount = Convert.ToInt64(dataClass.price);
-                    data.transaction_details.order_id = DateTime.Now.ToString("yyyyMMddHHmmss");
+                    data.transaction_details.order_id = dtNow.ToString("yyyyMMddHHmmss");
                     data.credit_card = new CreditCard();
                     data.credit_card.secure = true;
                     data.credit_card.save_card = true;
@@ -69,6 +70,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(bindTransferCharge.token))
                         {
                             MoDbContext = new MoDbContext();
+
                             #region auto number no_transaksi
                             var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
                             int lastNum = 0;
@@ -81,12 +83,39 @@ namespace MasterOnline.Controllers
                             #endregion
                             var dataTrans = new TransaksiMidtrans();
                             dataTrans.NO_TRANSAKSI = noTrans;
-                            dataTrans.TGL_INPUT = DateTime.Now;
+                            dataTrans.TGL_INPUT = dtNow;
                             dataTrans.TYPE = code;
                             dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
                             dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
+
+                            var dataSub = new AktivitasSubscription();
+                            dataSub.Account = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            dataSub.Email = sessionData?.Account != null ? sessionData.Account.Email : sessionData.User.Email;
+                            dataSub.Nilai = dataTrans.VALUE;
+                            dataSub.TanggalBayar = dtNow;
+                            dataSub.TipeSubs = code;
+                            MoDbContext.AktivitasSubscription.Add(dataSub);
+
+                            if (sessionData?.Account != null)
+                            {
+                                var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.Account.AccountId);
+                                if (dataAccount != null)
+                                {
+                                    dataAccount.KODE_SUBSCRIPTION = code;
+                                    dataAccount.TGL_SUBSCRIPTION = dtNow;
+                                }
+                            }
+                            else
+                            {
+                                var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.User.AccountId);
+                                if (dataAccount != null)
+                                {
+                                    dataAccount.KODE_SUBSCRIPTION = code;
+                                    dataAccount.TGL_SUBSCRIPTION = dtNow;
+                                }
+                            }
                             MoDbContext.SaveChanges();
                             return Json(bindTransferCharge.token, JsonRequestBehavior.AllowGet);
                         }
@@ -184,6 +213,6 @@ namespace MasterOnline.Controllers
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }
-        
+
     }
 }
