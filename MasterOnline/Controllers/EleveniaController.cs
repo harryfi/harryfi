@@ -672,6 +672,52 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        public object CallBukaLapakAPI(string APIMethod, string url, string myData, string BukaLapakID, string BukaLapakToken, Type typeObj)
+        {
+            try
+            {
+                string urll = "https://api.bukalapak.com/v2/" + url;
+                WebRequest myReq = WebRequest.Create(urll);
+                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(BukaLapakID + ":" + BukaLapakToken))));
+
+                Stream dataStream;
+                if (!string.IsNullOrEmpty(APIMethod))
+                {
+                    myReq.Method = APIMethod;
+                    myReq.ContentType = "application/json";
+                    dataStream = myReq.GetRequestStream();
+
+                    if (!string.IsNullOrEmpty(myData))
+                    {
+                        dataStream.Write(Encoding.UTF8.GetBytes(myData), 0, Encoding.UTF8.GetBytes(myData).Length);
+                        dataStream.Close();
+                    }
+                }
+
+                //Stream dataStream = response.GetResponseStream();
+
+
+                WebResponse response = myReq.GetResponse();
+                //Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                dataStream = response.GetResponseStream();
+
+                StreamReader reader = new StreamReader(dataStream);
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+
+                dynamic retObj = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeObj);
+
+                return retObj;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+
         public class EleveniaProductData
         {
             public string api_key { get; set; }
