@@ -27,26 +27,27 @@
     </div>
     @foreach (var subs in Model?.ListSubs)
     {
-        <div class="plan @(subs.KODE == "02" ? "featured" : null)">
-            <header>
-                <h4 class="plan-title">
-                    @subs.KETERANGAN
-                </h4>
-                <div class="plan-cost">
-                    <span class="plan-price">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</span>
-                    <span class="plan-type">/bulan</span>
-                </div>
-            </header>
-            <ul class="plan-features">
-                <li><i class="ion-checkmark"> </i>@subs.JUMLAH_MP marketplace</li>
-                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN == 999999999 ? "> 100" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
-                @*<li><i class="ion-checkmark"> </i>Unlimited Email</li>
-                    <li><i class="ion-checkmark"> </i>250Gb mo Transfer</li>
-                    <li><i class="ion-checkmark"> </i>24/7 Tech Support</li>
-                    <li><i class="ion-checkmark"> </i>Daily Backups</li>*@
-            </ul>
-            <div class="plan-select"><a href="">@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>
-        </div>
+    <div class="plan @(subs.KODE == "02" ? "featured" : null)">
+        <header>
+            <h4 class="plan-title">
+                @subs.KETERANGAN
+            </h4>
+            <div class="plan-cost">
+                <span class="plan-price">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</span>
+                <span class="plan-type">/bulan</span>
+            </div>
+        </header>
+        <ul class="plan-features">
+            <li><i class="ion-checkmark"> </i>@subs.JUMLAH_MP marketplace</li>
+            <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN == 999999999 ? "> 100" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
+            @*<li><i class="ion-checkmark"> </i>Unlimited Email</li>
+            <li><i class="ion-checkmark"> </i>250Gb mo Transfer</li>
+            <li><i class="ion-checkmark"> </i>24/7 Tech Support</li>
+            <li><i class="ion-checkmark"> </i>Daily Backups</li>*@
+        </ul>
+        @*<div class="plan-select"><a href="">@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>*@
+        <div class="plan-select" onclick="clickSub(String(@subs.KODE))"><a>@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>
+    </div>
     }
 </div>
 <div class="text-center" style="margin-top: -30px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: #ffffff6b;">
