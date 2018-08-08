@@ -243,7 +243,7 @@ namespace MasterOnline.Controllers
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                         };
-                        //BliApi.GetToken(data,true);
+                        BliApi.GetToken(data, true);
                     }
                 }
             }
