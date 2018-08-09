@@ -56,7 +56,7 @@ namespace MasterOnline.Controllers.Api
             {
                 result = new JsonApi()
                 {
-                    code = 400,
+                    code = 401,
                     message = "Wrong API KEY!",
                     data = null
                 };
@@ -186,7 +186,7 @@ namespace MasterOnline.Controllers.Api
             {
                 result = new JsonApi()
                 {
-                    code = 400,
+                    code = 401,
                     message = "Wrong API KEY!",
                     data = null
                 };
@@ -198,7 +198,7 @@ namespace MasterOnline.Controllers.Api
             {
                 result = new JsonApi()
                 {
-                    code = 200,
+                    code = 204,
                     message = "Password dan konfirmasi password berbeda!",
                     data = null
                 };
@@ -212,7 +212,7 @@ namespace MasterOnline.Controllers.Api
             {
                 result = new JsonApi()
                 {
-                    code = 200,
+                    code = 204,
                     message = "Email sudah terdaftar di database kami!",
                     data = null
                 };
@@ -224,7 +224,7 @@ namespace MasterOnline.Controllers.Api
             {
                 result = new JsonApi()
                 {
-                    code = 200,
+                    code = 204,
                     message = "Harap sertakan foto / scan KTP Anda!",
                     data = null
                 };
@@ -426,9 +426,9 @@ namespace MasterOnline.Controllers.Api
             }
         }
 
-        [System.Web.Http.Route("api/mobile/pesananawal")]
+        [System.Web.Http.Route("api/mobile/pesanan")]
         [System.Web.Http.HttpPost]
-        public IHttpActionResult DataPesananAwal([FromBody]JsonData data)
+        public IHttpActionResult DataPesanan([FromBody]JsonData data)
         {
             try
             {
@@ -436,14 +436,14 @@ namespace MasterOnline.Controllers.Api
 
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "0").ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == data.StatusTransaksi).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
-                var ListData = new List<object>();
+                var listData = new List<object>();
 
                 foreach (var pesanan in vm.ListPesanan)
                 {
@@ -464,7 +464,7 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    ListData.Add(new
+                    listData.Add(new
                     {
                         Pesanan = pesanan,
                         MarketName = namaMarket,
@@ -474,9 +474,9 @@ namespace MasterOnline.Controllers.Api
 
                 var result = new JsonApi()
                 {
-                    code = 500,
+                    code = 200,
                     message = "Success",
-                    data = ListData
+                    data = listData
                 };
 
                 return Json(result);
@@ -492,6 +492,111 @@ namespace MasterOnline.Controllers.Api
 
                 return Json(result);
             }
+        }
+
+        [System.Web.Http.Route("api/mobile/pesanan/ubahstatus")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult UbahStatusPesanan([FromBody]JsonData data)
+        {
+            JsonApi result;
+            string apiKey = "";
+
+            var re = Request;
+            var headers = re.Headers;
+
+            if (headers.Contains("X-API-KEY"))
+            {
+                apiKey = headers.GetValues("X-API-KEY").First();
+            }
+
+            if (apiKey != "M@STERONLINE4P1K3Y")
+            {
+                result = new JsonApi()
+                {
+                    code = 401,
+                    message = "Wrong API KEY!",
+                    data = null
+                };
+
+                return Json(result);
+            }
+
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == data.RecNumPesanan);
+
+            if (data.StatusTransaksi == "04") // validasi di tab Siap dikirim
+            {
+                if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                {
+                    var resultError = new JsonApi()
+                    {
+                        code = 204,
+                        message = "Resi belum diisi",
+                        data = null
+                    };
+
+                    return Json(resultError);
+                }
+
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                bool valid = true;
+                foreach (var item in pesananDetailInDb)
+                {
+                    if (item.LOKASI.Trim() == "")
+                    {
+                        valid = false;
+                    }
+                }
+
+                if (!valid)
+                {
+                    result = new JsonApi()
+                    {
+                        code = 204,
+                        message = "Gd & Qty belum lengkap",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+            }
+
+            pesananInDb.STATUS_TRANSAKSI = data.StatusTransaksi;
+            ErasoftDbContext.SaveChanges();
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI);
+
+            result = new JsonApi()
+            {
+                code = 200,
+                message = "Status pesanan berhasil diubah",
+                data = null
+            };
+
+            return Json(result);
+        }
+
+        public void ChangeStatusPesanan(string nobuk, string status)
+        {
+            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            var blAPI = new BukaLapakController();
+            switch (status)
+            {
+                case "02":
+                    if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
+                    {
+
+                    }
+                    break;
+                case "03":
+                    if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
+                    {
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                            blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                    }
+                    break;
+            }
+
         }
     }
 }

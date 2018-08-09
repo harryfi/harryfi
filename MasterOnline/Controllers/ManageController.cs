@@ -3890,10 +3890,7 @@ namespace MasterOnline.Controllers
                 if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
                 {
 
-                    var vmError = new StokViewModel()
-                    {
-
-                    };
+                    var vmError = new StokViewModel();
                     vmError.Errors.Add("Resi belum diisi");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
@@ -3910,15 +3907,11 @@ namespace MasterOnline.Controllers
 
                 if (!valid)
                 {
-                    var vmError = new StokViewModel()
-                    {
-
-                    };
+                    var vmError = new StokViewModel();
                     vmError.Errors.Add("Gd & Qty belum lengkap");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
             }
-
 
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
@@ -4095,6 +4088,7 @@ namespace MasterOnline.Controllers
 
         }
         //end add by Tri, call marketplace api to change status
+
         public ActionResult LihatPesanan(int? orderId)
         {
             try
