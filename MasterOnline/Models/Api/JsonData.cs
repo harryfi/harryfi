@@ -9,5 +9,7 @@ namespace MasterOnline.Models.Api
     {
         public string UserId { get; set; }
         public string SelDate { get; set; }
+        public string StatusTransaksi { get; set; }
+        public int? RecNumPesanan { get; set; }
     }
 }
