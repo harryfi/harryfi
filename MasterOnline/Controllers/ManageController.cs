@@ -1407,125 +1407,125 @@ namespace MasterOnline.Controllers
             //add by tri call marketplace api to create product
             if (insert)
             {
-                //#region lazada
-                //if (listLazadaShop.Count > 0)
-                //{
-                //    foreach (ARF01 tblCustomer in listLazadaShop)
-                //    {
-                //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-                //        {
-                //            //string[] imageUrl = new string[Request.Files.Count];
-                //            for (int i = 0; i < imgPath.Length; i++)
-                //            {
-                //                if (!string.IsNullOrEmpty(imgPath[i]))
-                //                {
-                //                    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                //                    if (uploadImg.status == 1)
-                //                        imageUrl[i] = uploadImg.message;
-                //                }
-                //            }
-                //            BrgViewModel dataLazada = new BrgViewModel
-                //            {
-                //                deskripsi = dataBarang.Stf02.Deskripsi,
-                //                harga = dataBarang.Stf02.HJUAL.ToString(),
-                //                height = dataBarang.Stf02.TINGGI.ToString(),
-                //                kdBrg = dataBarang.Stf02.BRG,
-                //                length = dataBarang.Stf02.PANJANG.ToString(),
-                //                nama = dataBarang.Stf02.NAMA,
-                //                nama2 = dataBarang.Stf02.NAMA2,
-                //                weight = dataBarang.Stf02.BERAT.ToString(),
-                //                width = dataBarang.Stf02.LEBAR.ToString(),
-                //                user = tblCustomer.EMAIL,
-                //                key = tblCustomer.API_KEY,
-                //                qty = "1",
-                //                token = tblCustomer.TOKEN,
-                //                idMarket = tblCustomer.RecNum.ToString(),
-                //            };
+                #region lazada
+                if (listLazadaShop.Count > 0)
+                {
+                    foreach (ARF01 tblCustomer in listLazadaShop)
+                    {
+                        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+                        {
+                            //string[] imageUrl = new string[Request.Files.Count];
+                            for (int i = 0; i < imgPath.Length; i++)
+                            {
+                                if (!string.IsNullOrEmpty(imgPath[i]))
+                                {
+                                    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                                    if (uploadImg.status == 1)
+                                        imageUrl[i] = uploadImg.message;
+                                }
+                            }
+                            BrgViewModel dataLazada = new BrgViewModel
+                            {
+                                deskripsi = dataBarang.Stf02.Deskripsi,
+                                harga = dataBarang.Stf02.HJUAL.ToString(),
+                                height = dataBarang.Stf02.TINGGI.ToString(),
+                                kdBrg = dataBarang.Stf02.BRG,
+                                length = dataBarang.Stf02.PANJANG.ToString(),
+                                nama = dataBarang.Stf02.NAMA,
+                                nama2 = dataBarang.Stf02.NAMA2,
+                                weight = dataBarang.Stf02.BERAT.ToString(),
+                                width = dataBarang.Stf02.LEBAR.ToString(),
+                                user = tblCustomer.EMAIL,
+                                key = tblCustomer.API_KEY,
+                                qty = "1",
+                                token = tblCustomer.TOKEN,
+                                idMarket = tblCustomer.RecNum.ToString(),
+                            };
 
-                //            dataLazada.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                //            var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
-                //            dataLazada.harga = productMarketPlace.HJUAL.ToString();
-                //            dataLazada.activeProd = productMarketPlace.DISPLAY;
+                            dataLazada.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                            var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
+                            dataLazada.harga = productMarketPlace.HJUAL.ToString();
+                            dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                //            if (!string.IsNullOrEmpty(imageUrl[2]))
-                //            {
-                //                dataLazada.imageUrl3 = imageUrl[2];
-                //            }
-                //            if (!string.IsNullOrEmpty(imageUrl[1]))
-                //            {
-                //                dataLazada.imageUrl2 = imageUrl[1];
-                //            }
-                //            if (!string.IsNullOrEmpty(imageUrl[0]))
-                //            {
-                //                dataLazada.imageUrl = imageUrl[0];
-                //            }
-                //            var result = lzdApi.CreateProduct(dataLazada);
-                //        }
+                            if (!string.IsNullOrEmpty(imageUrl[2]))
+                            {
+                                dataLazada.imageUrl3 = imageUrl[2];
+                            }
+                            if (!string.IsNullOrEmpty(imageUrl[1]))
+                            {
+                                dataLazada.imageUrl2 = imageUrl[1];
+                            }
+                            if (!string.IsNullOrEmpty(imageUrl[0]))
+                            {
+                                dataLazada.imageUrl = imageUrl[0];
+                            }
+                            var result = lzdApi.CreateProduct(dataLazada);
+                        }
 
-                //    }
-                //}
-                //#endregion
-                //#region Bukalapak
-                ////var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-                ////var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-                //if (listBLShop.Count > 0)
-                //{
-                //    foreach (ARF01 tblCustomer in listBLShop)
-                //    {
-                //        string[] imgID = new string[Request.Files.Count];
-                //        for (int i = 0; i < imgPath.Length; i++)
-                //        {
-                //            if (!string.IsNullOrEmpty(imgPath[i]))
-                //            {
-                //                var uploadImg = blApi.uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
-                //                if (uploadImg.status == 1)
-                //                    imgID[i] = uploadImg.message;
-                //            }
-                //        }
-                //        BrgViewModel data = new BrgViewModel
-                //        {
-                //            deskripsi = dataBarang.Stf02.Deskripsi,
-                //            harga = dataBarang.Stf02.HJUAL.ToString(),
-                //            height = dataBarang.Stf02.TINGGI.ToString(),
-                //            kdBrg = dataBarang.Stf02.BRG,
-                //            length = dataBarang.Stf02.PANJANG.ToString(),
-                //            nama = dataBarang.Stf02.NAMA,
-                //            nama2 = dataBarang.Stf02.NAMA2,
-                //            weight = dataBarang.Stf02.BERAT.ToString(),
-                //            width = dataBarang.Stf02.LEBAR.ToString(),
-                //            user = tblCustomer.EMAIL,
-                //            key = tblCustomer.API_KEY,
-                //            qty = "1",
-                //            token = tblCustomer.TOKEN,
-                //            idMarket = tblCustomer.RecNum.ToString(),
-                //            //merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET
-                //        };
-                //        data.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                //        var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
-                //        data.harga = productMarketPlace.HJUAL.ToString();
-                //        if (!string.IsNullOrEmpty(imgID[2]))
-                //        {
-                //            data.imageId3 = imgID[2];
-                //        }
-                //        if (!string.IsNullOrEmpty(imgID[1]))
-                //        {
-                //            data.imageId2 = imgID[1];
-                //        }
-                //        if (!string.IsNullOrEmpty(imgID[0]))
-                //        {
-                //            data.imageId = imgID[0];
-                //        }
+                    }
+                }
+                #endregion
+                #region Bukalapak
+                //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+                //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+                if (listBLShop.Count > 0)
+                {
+                    foreach (ARF01 tblCustomer in listBLShop)
+                    {
+                        string[] imgID = new string[Request.Files.Count];
+                        for (int i = 0; i < imgPath.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(imgPath[i]))
+                            {
+                                var uploadImg = blApi.uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                if (uploadImg.status == 1)
+                                    imgID[i] = uploadImg.message;
+                            }
+                        }
+                        BrgViewModel data = new BrgViewModel
+                        {
+                            deskripsi = dataBarang.Stf02.Deskripsi,
+                            harga = dataBarang.Stf02.HJUAL.ToString(),
+                            height = dataBarang.Stf02.TINGGI.ToString(),
+                            kdBrg = dataBarang.Stf02.BRG,
+                            length = dataBarang.Stf02.PANJANG.ToString(),
+                            nama = dataBarang.Stf02.NAMA,
+                            nama2 = dataBarang.Stf02.NAMA2,
+                            weight = dataBarang.Stf02.BERAT.ToString(),
+                            width = dataBarang.Stf02.LEBAR.ToString(),
+                            user = tblCustomer.EMAIL,
+                            key = tblCustomer.API_KEY,
+                            qty = "1",
+                            token = tblCustomer.TOKEN,
+                            idMarket = tblCustomer.RecNum.ToString(),
+                            //merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET
+                        };
+                        data.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                        var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
+                        data.harga = productMarketPlace.HJUAL.ToString();
+                        if (!string.IsNullOrEmpty(imgID[2]))
+                        {
+                            data.imageId3 = imgID[2];
+                        }
+                        if (!string.IsNullOrEmpty(imgID[1]))
+                        {
+                            data.imageId2 = imgID[1];
+                        }
+                        if (!string.IsNullOrEmpty(imgID[0]))
+                        {
+                            data.imageId = imgID[0];
+                        }
 
-                //        var result = blApi.CreateProduct(data);
-                //        if (result.status == 1)
-                //            if (!productMarketPlace.DISPLAY)
-                //            {
-                //                //panggil api utk non-aktif barang yg baru di insert
-                //                result = blApi.prodNonAktif(result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
-                //            }
-                //    }
-                //}
-                //#endregion
+                        var result = blApi.CreateProduct(data);
+                        if (result.status == 1)
+                            if (!productMarketPlace.DISPLAY)
+                            {
+                                //panggil api utk non-aktif barang yg baru di insert
+                                result = blApi.prodNonAktif(result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                            }
+                    }
+                }
+                #endregion
                 //#region Elevenia
                 //saveBarangElevenia(1, dataBarang);
                 //#endregion
