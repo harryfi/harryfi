@@ -404,6 +404,36 @@ namespace MasterOnline.Controllers.Api
                     }
                 }
 
+                foreach (var barang in vm.ListBarang)
+                {
+                    var barangUtkCek = vm.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
+
+                    var qtyOnHand = 0d;
+
+                    if (barangUtkCek != null)
+                    {
+                        qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                                    + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                                    + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                                    - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                                    - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+
+                        if (qtyOnHand < barang.MINI)
+                        {
+                            vm.ListBarangMiniStok.Add(new PenjualanBarang
+                            {
+                                KodeBrg = barang.BRG,
+                                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                                Qty = qtyOnHand
+                            });
+                        }
+                    }
+                }
+
+                vm.ListBarangLaku = vm.ListBarangLaku.OrderByDescending(b => b.Qty).Take(10).ToList();
+                vm.ListBarangTidakLaku = vm.ListBarangTidakLaku.OrderByDescending(b => b.Qty).Take(10).ToList();
+                vm.ListBarangMiniStok = vm.ListBarangMiniStok.OrderByDescending(b => b.Qty).Take(10).ToList();
+
                 var result = new JsonApi()
                 {
                     code = 200,
