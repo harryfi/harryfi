@@ -196,10 +196,35 @@ namespace MasterOnline.Controllers
             var connectionID = Guid.NewGuid().ToString();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = sessionData.Account.Username;
+            int bliAcc = 0;
             int lazadaAcc = 0;
             int blAcc = 0;
             int elAcc = 0;
 
+            //GetOrderList
+            //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            //var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            //if (listBliShop.Count > 0)
+            //{
+            //    bliAcc = 1;
+            //    foreach (ARF01 tblCustomer in listBliShop)
+            //    {
+            //        var bliApi = new BlibliController();
+
+            //        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+            //        {
+            //            merchant_code = tblCustomer.Sort1_Cust,
+            //            API_client_password = tblCustomer.API_CLIENT_P,
+            //            API_client_username = tblCustomer.API_CLIENT_U,
+            //            API_secret_key = tblCustomer.API_KEY,
+            //            token = tblCustomer.TOKEN,
+            //            mta_username_email_merchant = tblCustomer.EMAIL,
+            //            mta_password_password_merchant = tblCustomer.PASSWORD
+            //        };
+
+            //        bliApi.GetOrderList(iden);
+            //    }
+            //}
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
