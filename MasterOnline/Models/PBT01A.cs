@@ -73,7 +73,7 @@ namespace MasterOnline
         [StringLength(15)]
         public string KODE_REF_PESANAN { get; set; }
 
-        public bool DROPSHIPPER { get; set; }
+        public bool? DROPSHIPPER { get; set; }
 
         [StringLength(25)]
         public string F_PAJAK { get; set; }
