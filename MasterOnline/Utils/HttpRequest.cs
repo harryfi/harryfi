@@ -568,6 +568,77 @@ namespace MasterOnline.Utils
             }
             return "";
         }
+
+        public object CallElevAPI(PROTOCOL protocol, RESTServices service, METHOD method, string RouteMap, string myData, Type retObject, string Auth)
+        {
+            try
+            {
+                string url = string.Format(protocol + "://api.elevenia.co.id/", string.Empty) + service.ToString() + "/" + RouteMap;
+
+                WebRequest myReq = WebRequest.Create(url);
+                myReq.Headers.Add("openapikey", Auth);
+
+                Stream dataStream;
+                switch (method)
+                {
+                    case METHOD.GET:
+                        myReq.Method = "GET";
+                        break;
+                    case METHOD.POST:
+                        myReq.Method = "POST";
+                        myReq.ContentType = "application/xml";
+                        dataStream = myReq.GetRequestStream();
+                        if (!string.IsNullOrEmpty(myData))
+                        {
+                            dataStream.Write(Encoding.UTF8.GetBytes(myData), 0, Encoding.UTF8.GetBytes(myData).Length);
+                            dataStream.Close();
+                        }
+                        break;
+                    case METHOD.PUT:
+                        myReq.Method = "PUT";
+                        myReq.ContentType = "application/xml";
+                        dataStream = myReq.GetRequestStream();
+                        if (!string.IsNullOrEmpty(myData))
+                        {
+                            dataStream.Write(Encoding.UTF8.GetBytes(myData), 0, Encoding.UTF8.GetBytes(myData).Length);
+                            dataStream.Close();
+                        }
+                        break;
+                }
+                //Stream dataStream = response.GetResponseStream();
+
+
+                WebResponse response = myReq.GetResponse();
+                //Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                dataStream = response.GetResponseStream();
+
+                StreamReader reader = new StreamReader(dataStream);
+                string responseFromServer = reader.ReadToEnd();
+
+                reader.Close();
+                dataStream.Close();
+                response.Close();
+
+                //dynamic retObj = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, retObject);
+
+                if (retObject == typeof(string))
+                {
+                    return responseFromServer;
+                }
+                else
+                {
+                    XmlSerializer serializer = new XmlSerializer(retObject);
+                    StringReader rdr = new StringReader(responseFromServer);
+                    dynamic retObj = serializer.Deserialize(rdr);
+                    return retObj;
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         #endregion
         #region buka lapak
         public object CallBukaLapakAPI(string APIMethod, string url, string myData, string BukaLapakID, string BukaLapakToken, Type typeObj)
