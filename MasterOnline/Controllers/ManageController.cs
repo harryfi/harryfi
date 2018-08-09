@@ -2484,7 +2484,9 @@ namespace MasterOnline.Controllers
         public ActionResult GetFakturByMarketplace(string kodeMarket)
         {
             var listFaktur = ErasoftDbContext.SIT01A
-                            .Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && String.IsNullOrEmpty(f.NO_REF))
+                            // change by ega 9/8/2018 , katanya calvin dibikin kaya gini aja, jadi tanya dia aja
+                            //.Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && String.IsNullOrEmpty(f.NO_REF))
+                            .Where(f => f.JENIS_FORM == "2" && f.CUST == kodeMarket && (String.IsNullOrEmpty(f.NO_REF) || f.NO_REF == "-"))
                             .OrderBy(f => f.NO_BUKTI).ToList();
             var listKodeFaktur = new List<FakturJson>();
 
