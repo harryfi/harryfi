@@ -125,7 +125,7 @@ namespace MasterOnline.Controllers
             xmlString = "<Request><Product><PrimaryCategory>13411</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
             xmlString += "<short_description>" + data.deskripsi + "</short_description>";
-            xmlString += "<brand>" + data.merk + "</brand>";
+            xmlString += "<brand>No Brand</brand>";
             xmlString += "<model>" + data.kdBrg + "</model>";
             xmlString += "<warranty_type>No Warranty</warranty_type>";
             xmlString += "</Attributes>";

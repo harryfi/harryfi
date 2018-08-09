@@ -1016,7 +1016,9 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
-
+                    var loop = 0;
+                    var fieldAVALUE = "";
+                    var SelectList = [];
                     $.each(data,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
@@ -1026,11 +1028,13 @@
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
                                 if (ACODE != null) {
                                     if (ACODE != "") {
+                                        
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
                                         var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__ANAME_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ANAME_'+ (i + 1) + '" type="hidden" value="'+ ANAME +'" maxlength="250">';
 
-                                        $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
+                                        fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
+                                        //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
                                         var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE_'+ (i + 1);
 
@@ -1044,20 +1048,47 @@
                                         if (AOPTIONS == "1")
                                         {
                                             //hidden
-                                            var fieldAVALUE = '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
                                             //select
                                             var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
-                                            var select = '<select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select>';
+                                            SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
+                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
 
-                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-4" style="margin-top:10px; margin-bottom:10px;">' + fieldAVALUE + select + '</div>');
-                                            getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
+                                            //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                         }
                                         else
                                         {
                                             //textbox
-                                            var fieldAVALUE = '<input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-4" style="margin-top:10px;">' + fieldAVALUE + '</div>');
+                                            fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                        }
+
+
+                                        if (loop == 0) {
+                                            
+                                            loop = 1;
+                                        }
+                                        else if (loop == 1) {
+                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+
+                                            fieldAVALUE = "";
+                                            loop = 0;
+                                        }
+                                    }
+                                    else {
+                                        if (loop == 1) {
+                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            fieldAVALUE = "";
+                                            loop = 2;
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                            }
+                                        }
+                                        else if (loop == 0) {
+                                            loop = 2;
+                                            for (var i = 0; i < (SelectList.length / 6); i++) {
+                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                            }
                                         }
                                     }
                                 }
@@ -1091,18 +1122,19 @@
 
                     if (ATYPE == "DEFINING_ATTRIBUTE") {
 
-                        var AttributeOptSelect = $('#' + selectID).selectize({
+                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
                             maxItems : 7,
                             valueField: 'id',
                             searchField: 'text',
                             options: listAttributeOpt,
                             onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
+                                $('#' + fieldAVALUE_ID).val(value.toString().replace(',',';'));
                             }
                         });
 
                         if (adaValue != ""){
-                            AttributeOptSelect[0].selectize.setValue(adaValue.replace(), true);
+                            var adaValues = adaValue.split(';');
+                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                         }
                     }
                     else {
@@ -1111,12 +1143,12 @@
                             searchField: 'text',
                             options: listAttributeOpt,
                             onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value.replace(',',';'));
+                                $('#' + fieldAVALUE_ID).val(value);
                             }
                         });
 
                         if (adaValue != "") {
-                            AttributeOptSelect[0].selectize.setValue(adaValue.replace(';',','), true);
+                            AttributeOptSelect[0].selectize.setValue(adaValue, true);
                         }
                     }
 
@@ -1445,7 +1477,7 @@
         }
 
         function showPromptPickupPointBlibliTextBoxWindow(val) {
-            var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { recnum = "replaceKodeMerchant"})';
+            var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { merchant_code = "replaceKodeMerchant"})';
             $link = $link.replace("replaceKodeMerchant", val);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }

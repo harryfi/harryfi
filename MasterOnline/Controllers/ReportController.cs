@@ -157,7 +157,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public string Preview7(ReportViewModel.Report7 data)
         {
-            return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/FrmLapSTT09_TanpaPosting.aspx?iJenisForm=SETELAH_POSTING&UserID={0}&Gudang={1}&From={2}&To={3}&FromMonth={4}&CutOff={5}",
+            return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/FrmLapSTT09_TanpaPosting.aspx?iJenisForm=SETELAH_POSTING&UserID={0}&Gudang={1}&FromBrg={2}&ToBrg={3}&FromMonth={4}&CutOff={5}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.Gudang),
                 Uri.EscapeDataString(data.FromBrg),
@@ -302,7 +302,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public string Preview15(ReportViewModel.Report15 data)
         {
-            return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/FrmLapSTT09.aspx?iJenisForm=SETELAH_POSTING&UserID={0}&Gudang={1}&From={2}&To={3}&FromMonth={4}&CutOff={5}",
+            return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/FrmLapSTT09.aspx?iJenisForm=SETELAH_POSTING&UserID={0}&Gudang={1}&FromBrg={2}&ToBrg={3}&FromMonth={4}&CutOff={5}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.Gudang),
                 Uri.EscapeDataString(data.FromBrg),

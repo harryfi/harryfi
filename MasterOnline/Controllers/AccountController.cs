@@ -74,7 +74,6 @@ namespace MasterOnline.Controllers
                 }
 
                 _viewModel.User = userFromDb;
-
                 //var accByUser = MoDbContext.Account.Single(a => a.AccountId == userFromDb.AccountId);
                 //connectionConfiguration.ConnectionStrings.ConnectionStrings["PerAccContext"].ConnectionString = $"Server=202.67.14.92\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{accByUser.UserId};user id=masteronline;password=M@ster123;multipleactiveresultsets=True;application name=EntityFramework";
             }
@@ -442,6 +441,10 @@ namespace MasterOnline.Controllers
         public ActionResult LoggingOut()
         {
             Session["SessionInfo"] = null;
+            //add by Tri, clear session id from cookies
+            Session.Abandon();
+            Response.Cookies.Add(new System.Web.HttpCookie("ASP.NET_SessionId", ""));
+            //end add by Tri, clear session id from cookies
             return RedirectToAction("Index", "Home");
         }
 
