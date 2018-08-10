@@ -339,9 +339,52 @@ namespace MasterOnline.Controllers
 
         public ActionResult PromptCustomer()
         {
-            var listCust = ErasoftDbContext.ARF01.ToList();
+            //var listCust = ErasoftDbContext.ARF01.ToList();
+            //var listCust = ErasoftDbContext.ARF01.
+            //                            Join(
+            //                                MoDbContext.Marketplaces,
+            //                                kode => kode.NAMA,
+            //                                nama => Convert.ToString(nama.IdMarket),
+            //                                (kode, nama) => new { Nama = nama.NamaMarket, Kode = kode.PERSO, Id = kode.CUST }
+            //                            ).ToList();
+
+            //var IDs = (from a in db1.Table1
+            //            join b in db1.Table2 on a.Id equals b.Id
+            //            orderby a.Status
+            //            where b.Id == 1 && a.Status == "new"
+            //            select new a.Id).ToArray();
+
+            // var query = from c in db2.Company
+            //             join a in IDs on c.Id equals a.Id
+            //             select new { Id = a.Id, CompanyId = c.CompanyId };
+
+            var ListMarketplaces = (from c in MoDbContext.Marketplaces
+                                    select new { Id = c.IdMarket, Nama = c.NamaMarket }).ToList();
+
+            var ListARF01 = (from a in ErasoftDbContext.ARF01
+                             select new { Cust = a.CUST, Id_market = a.NAMA, Perso = a.PERSO }).ToList();
+
+            var listCust = (from a in ListARF01
+                            join c in ListMarketplaces on a.Id_market equals c.Id.ToString()
+                            select new mdlPromptCust { CUST = a.Cust, NAMA = c.Nama, PERSO = a.Perso }).ToList();
+
+            var listCust2 = ErasoftDbContext.ARF01.ToList();
+
+            //listCust.ForEach(
+            //    delegate (String CUST)
+            //    {
+            //        Console.WriteLine(CUST);
+            //        Console.WriteLine(NAMA);
+            //    });
 
             return View("PromptCustomer", listCust);
+        }
+        public class mdlPromptCust
+        {
+            public string CUST { get; set; }
+            public string NAMA { get; set; }
+            public string PERSO { get; set; }
+
         }
         public ActionResult PromptSupplier()
         {
