@@ -1498,7 +1498,7 @@ namespace MasterOnline.Controllers
                 ////update harga, qty, dll
                 //saveBarangElevenia(2, dataBarang);
                 #region Blibli
-                saveBarangBlibli(2, dataBarang);
+                saveBarangBlibli(1, dataBarang);
                 #endregion
                 //if (updateHarga)
                 //{
@@ -1629,45 +1629,53 @@ namespace MasterOnline.Controllers
                                 {
                                     if (!string.IsNullOrEmpty(tblCustomer.Kode))
                                     {
-                                        if (string.IsNullOrEmpty(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).BRG_MP))
+                                        //if (string.IsNullOrEmpty(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).BRG_MP))
+                                        //{
+
+                                        //var fileExtension = Path.GetExtension(file.FileName);
+                                        //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
+                                        //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+
+                                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                         {
-                                            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-                                            {
-                                                merchant_code = tblCustomer.Sort1_Cust,
-                                                API_client_password = tblCustomer.API_CLIENT_P,
-                                                API_client_username = tblCustomer.API_CLIENT_U,
-                                                API_secret_key = tblCustomer.API_KEY,
-                                                token = tblCustomer.TOKEN,
-                                                mta_username_email_merchant = tblCustomer.EMAIL,
-                                                mta_password_password_merchant = tblCustomer.PASSWORD
-                                            };
-                                            BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
-                                            {
-                                                kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                                nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
-                                                berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                                Keterangan = dataBarang.Stf02.Deskripsi,
-                                                Qty = "0",
-                                                MinQty = "0",
-                                                PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
-                                                IDMarket = tblCustomer.RecNum.ToString(),
-                                                Length = Convert.ToString(dataBarang.Stf02.PANJANG),
-                                                Width = Convert.ToString(dataBarang.Stf02.LEBAR),
-                                                Height = Convert.ToString(dataBarang.Stf02.TINGGI)
-                                            };
-                                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                            data.Price = Convert.ToString(dataBarang.Stf02.HJUAL);
-                                            data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                                            data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
-                                            var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
-                                            data.display = display ? "true" : "false";
-                                            new BlibliController().UploadProduk(iden, data);
-                                        }
+                                            merchant_code = tblCustomer.Sort1_Cust,
+                                            API_client_password = tblCustomer.API_CLIENT_P,
+                                            API_client_username = tblCustomer.API_CLIENT_U,
+                                            API_secret_key = tblCustomer.API_KEY,
+                                            token = tblCustomer.TOKEN,
+                                            mta_username_email_merchant = tblCustomer.EMAIL,
+                                            mta_password_password_merchant = tblCustomer.PASSWORD
+                                        };
+                                        BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                        {
+                                            kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
+                                            nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
+                                            berat = (dataBarang.Stf02.BERAT).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                            Keterangan = dataBarang.Stf02.Deskripsi,
+                                            Qty = "0",
+                                            MinQty = "0",
+                                            PickupPoint = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).PICKUP_POINT.ToString(),
+                                            IDMarket = tblCustomer.RecNum.ToString(),
+                                            Length = Convert.ToString(dataBarang.Stf02.PANJANG),
+                                            Width = Convert.ToString(dataBarang.Stf02.LEBAR),
+                                            Height = Convert.ToString(dataBarang.Stf02.TINGGI)
+                                        };
+                                        data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                                        data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                        data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
+                                        data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        data.display = display ? "true" : "false";
+                                        //new BlibliController().UploadProduk(iden, data);
+                                        new BlibliController().GetQueueFeedDetail(iden, null);
+                                        //}
                                     }
                                 }
                             }
                             break;
                         #endregion
+                        case 2:
+                            break;
                         //#region Update Product
                         //case 2:
                         //    {

@@ -1128,12 +1128,12 @@
                             searchField: 'text',
                             options: listAttributeOpt,
                             onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value.toString().replace(',',';'));
+                                $('#' + fieldAVALUE_ID).val(value);
                             }
                         });
 
                         if (adaValue != ""){
-                            var adaValues = adaValue.split(';');
+                            var adaValues = adaValue.split(',');
                             AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                         }
                     }
