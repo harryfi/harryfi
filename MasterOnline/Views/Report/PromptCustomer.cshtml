@@ -25,29 +25,33 @@
     </thead>
     <tbody>
         @foreach (var cust in Model)
-        {
-            <tr>
-                <td>@cust.CUST</td>
-                <td>@cust.NAMA</td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="pilihPrompt('@cust.CUST')">
-                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
-                    </button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+         {
+                //Model.ForEach(p => {
 
-@section scripts
+
+                <tr>
+                    <td> @cust.CUST </td>
+                    <td> @cust.NAMA - @cust.PERSO </td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-primary" onclick="pilihPrompt('@cust.CUST')">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
+                //});
+         }
+        </tbody>
+    </table>
+
+    @section scripts
 {
-    <script>
-        function pilihPrompt($value) {
-            self.window.close();
-            window.onunload = refreshTextBox;
-            function refreshTextBox() {
-                window.opener.afterPromptCustomer($value);
+        <script>
+            function pilihPrompt($value) {
+                self.window.close();
+                window.onunload = refreshTextBox;
+                function refreshTextBox() {
+                    window.opener.afterPromptCustomer($value);
+                }
             }
-        }
-    </script>
-}
+        </script>
+    }
