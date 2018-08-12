@@ -466,7 +466,7 @@ namespace MasterOnline.Controllers.Api
 
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == data.StatusTransaksi).ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == data.StatusTransaksi).OrderByDescending(p => p.TGL).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
