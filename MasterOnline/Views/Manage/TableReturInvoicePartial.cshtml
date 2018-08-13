@@ -5,6 +5,7 @@
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Retur</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 117px;">No. Invoice</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Supplier</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
@@ -20,6 +21,7 @@
             <tr>
                 <td>@invoice.INV</td>
                 <td>@(invoice.TGL?.ToString("dd/MM/yyyy"))</td>
+                <td>@invoice.REF</td>
                 <td>@invoice.NAMA</td>
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NETTO)</td>
                 @if (Convert.ToString(invoice.POSTING) == "Y")

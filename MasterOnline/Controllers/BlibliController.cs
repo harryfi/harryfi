@@ -27,7 +27,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
-
+        string username;
         public BlibliController()
         {
             MoDbContext = new MoDbContext();
@@ -40,6 +40,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
 
                 EDB = new DatabaseSQL(sessionData.Account.UserId);
+                username = sessionData.Account.Username;
             }
             else
             {
@@ -48,6 +49,7 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
                     EDB = new DatabaseSQL(accFromUser.UserId);
+                    username = accFromUser.Username;
                 }
             }
         }
@@ -168,8 +170,9 @@ namespace MasterOnline.Controllers
                         {
                             data.merchant_code = arf01inDB.Sort1_Cust;
                             data.token = ret.access_token;
-                            GetPickupPoint(data); // untuk prompt pickup point saat insert barang
-                            SetCategoryCode(data); // untuk category code yg muncul saat insert barang
+                            GetProdukInReviewList(data);
+                            //GetPickupPoint(data); // untuk prompt pickup point saat insert barang
+                            //SetCategoryCode(data); // untuk category code yg muncul saat insert barang
                         }
                     }
                 }
@@ -284,7 +287,7 @@ namespace MasterOnline.Controllers
                                                                  //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=FP";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -316,7 +319,280 @@ namespace MasterOnline.Controllers
             {
 
             }
-                return ret;
+            return ret;
+        }
+
+        public string GetOrderDetail(BlibliAPIData iden,string orderNo,string orderItemNo)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+                                                                 //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
+            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/orderDetail";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&orderNo="+ orderNo +"&orderItemNo=" + orderItemNo;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            if (responseFromServer != null)
+            {
+
+            }
+            return ret;
+        }
+        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode)
+        {
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("POST\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/postImage", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/postImage";
+
+            //string boundary = "WebKitFormBoundary" + DateTime.Now.Ticks.ToString("x");
+            string boundary = "WebKitFormBoundary7MA4YWxkTrZu0gW";
+            string delimiter = "-------------" + boundary;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "multipart/form-data; boundary=" + delimiter;
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string[,] postFields = new string[,]
+            {
+                {"username",userMTA },
+                {"merchantCode",iden.merchant_code },
+                {"productCode",ProductCode }
+            };
+
+            Stream postDataStream = GetPostStream(postFields, imgPaths, boundary);
+
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = postDataStream.Length;
+                postDataStream.Position = 0;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = 0;
+
+                    while ((bytesRead = postDataStream.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        dataStream.Write(buffer, 0, bytesRead);
+                    }
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    //INSERT QUEUE FEED
+                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                    {
+                        oConnection.Open();
+                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                        //{
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                            //oCommand.ExecuteNonQuery();
+                            //oCommand.Transaction = oTransaction;
+                            oCommand.CommandType = CommandType.Text;
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS]) VALUES (@REQUESTID,'postImage',@MERCHANTCODE,'1')";
+                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
+
+                            try
+                            {
+                                oCommand.Parameters[0].Value = result.requestId.Value;
+                                oCommand.Parameters[1].Value = iden.merchant_code;
+
+                                if (oCommand.ExecuteNonQuery() == 1)
+                                {
+                                    BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                                    {
+                                        request_id = result.requestId.Value
+                                    };
+                                    GetQueueFeedDetail(iden, queueData);
+                                }
+                                //oTransaction.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                //oTransaction.Rollback();
+                            }
+                        }
+                        //}
+                    }
+                }
+            }
+            return ret;
+        }
+        private static Stream GetPostStream(string[,] fields, string[] files, string boundary)
+        {
+            Stream postDataStream = new System.IO.MemoryStream();
+            string postData = "";
+            string eol = "\r\n";
+            string delimiter = "-------------" + boundary;
+
+            for (int i = 0; i < fields.GetLength(0); i++)
+            {
+                postData += "--" + delimiter + eol
+                    + "Content-Disposition: form-data; name=\"" + fields[i, 0] + "\"" + eol + eol
+                    + fields[i, 1] + eol;
+
+            }
+            postDataStream.Write(System.Text.Encoding.UTF8.GetBytes(postData), 0, postData.Length);
+            int imageKe = 0;
+            for (int i = 0; i < files.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(Convert.ToString(files[i])))
+                {
+                    string filePath = files[i];
+                    FileInfo fileInfo = new FileInfo(filePath);
+
+                    string filepostData = "";
+
+                    //start
+                    filepostData = "--" + delimiter + eol
+                    + "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"" + eol
+                    + "Content-Transfer-Encoding: binary" + eol + eol;
+
+                    byte[] filepostDataBytes = System.Text.Encoding.UTF8.GetBytes(string.Format(filepostData,
+                    "productImages[" + Convert.ToString(imageKe) + "]", "productImages[" + Convert.ToString(imageKe) + "]"));
+
+                    postDataStream.Write(filepostDataBytes, 0, filepostDataBytes.Length);
+                    //end start
+
+                    //content
+                    FileStream fileStream = fileInfo.OpenRead();
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = 0;
+                    while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                    {
+                        postDataStream.Write(buffer, 0, bytesRead);
+                    }
+                    fileStream.Close();
+                    //end content
+
+                    //finish
+                    filepostData = eol;
+                    byte[] endfilepostDataBytes = System.Text.Encoding.UTF8.GetBytes(filepostData);
+                    postDataStream.Write(endfilepostDataBytes, 0, endfilepostDataBytes.Length);
+                    //end finish
+
+                    imageKe++;
+                }
+            }
+
+            string endpostDataStream = "--" + delimiter + "--" + eol;
+            byte[] endpostDataBytes = System.Text.Encoding.UTF8.GetBytes(endpostDataStream);
+            postDataStream.Write(endpostDataBytes, 0, endpostDataBytes.Length);
+
+            return postDataStream;
+        }
+        public void GetProdukInReviewList(BlibliAPIData iden)
+        {
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+
+                }
+            }
         }
         public string UploadProduk(BlibliAPIData iden, BlibliProductData data)
         {
@@ -354,7 +630,7 @@ namespace MasterOnline.Controllers
             }
             for (int i = 0; i < dsVariasi.Tables[0].Rows.Count; i++)
             {
-                string[] values = Convert.ToString(dsVariasi.Tables[0].Rows[i]["VALUE"]).Split(';');
+                string[] values = Convert.ToString(dsVariasi.Tables[0].Rows[i]["VALUE"]).Split(',');
                 for (int a = 0; a < values.Length; a++)
                 {
                     variasi += "{\"name\": \"" + Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\",\"value\": \"" + values[a] + "\"},";
@@ -465,22 +741,21 @@ namespace MasterOnline.Controllers
                             //oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE]) VALUES (@REQUESTID,'createProduct',@MERCHANTCODE";
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS]) VALUES (@REQUESTID,'createProduct',@MERCHANTCODE,'1')";
                             //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
 
                             try
                             {
-                                oCommand.Parameters[0].Value = result.requestId;
+                                oCommand.Parameters[0].Value = result.requestId.Value;
                                 oCommand.Parameters[1].Value = iden.merchant_code;
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
                                     {
-                                        request_id = result.requestId,
-                                        update_BRG_MP = true
+                                        request_id = result.requestId.Value
                                     };
                                     GetQueueFeedDetail(iden, queueData);
                                 }
@@ -498,6 +773,65 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        public void fillOrderAWB(BlibliAPIData iden, string awbNo,string orderNo,string orderItemNo)
+        {
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            string myData = "{";
+            myData += "\"type\": 1, ";
+            myData += "\"awbNo\": \""+ awbNo +"\", ";
+            myData += "\"orderNo\": \""+ orderNo + "\", ";
+            myData += "\"orderItemNo\": \""+ orderItemNo + "\" ";
+            myData += "}";
+
+            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/fulfillRegular", iden.API_secret_key);
+            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/fulfillRegular";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/fulfillRegular?requestId="+ Uri.EscapeDataString(milis.ToString()) +"&storeId=10001";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            if (responseFromServer != null)
+            {
+            }
+        }
+
         public string UpdateProdukQOH_Display(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
@@ -516,7 +850,7 @@ namespace MasterOnline.Controllers
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
             string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(data.kode_mp);
-            
+
             HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
             myReq_1.Method = "POST";
             myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
@@ -741,15 +1075,124 @@ namespace MasterOnline.Controllers
         {
             string ret = "";
 
+            if (feed != null)//satu requestId
+            {
+                prosesQueueFeedDetail(data, feed.request_id);
+            }
+            else
+            {
+                DataSet dsRequestIdList = new DataSet();
+                dsRequestIdList = EDB.GetDataSet("sCon", "QUEUE_FEED_BLIBLI", "SELECT * FROM [QUEUE_FEED_BLIBLI] WHERE MERCHANT_CODE='" + data.merchant_code + "' AND [STATUS] = '1'");
+                if (dsRequestIdList.Tables[0].Rows.Count > 0)
+                {
+                    for (int i = 0; i < dsRequestIdList.Tables[0].Rows.Count; i++)
+                    {
+                        prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["REQUESTID"]));
+                    }
+                }
+            }
+
+
+            return ret;
+        }
+        protected void getProduct(BlibliAPIData iden, string productCode)
+        {
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(productCode);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+
+            }
+        }
+        protected void getProductDetail(BlibliAPIData iden, string productCode)
+        {
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+            string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(productCode) + "&username=" + iden.API_client_username;
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+
+            }
+        }
+
+
+        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId)
+        {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
             string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
             string userMTA = data.mta_username_email_merchant;//<-- email user merchant
             string passMTA = data.mta_password_password_merchant;//<-- pass merchant
-
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/feed/detail", data.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/feed/detail?requestId=" + Uri.EscapeDataString(feed.request_id) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/feed/detail?requestId=" + Uri.EscapeDataString(requestId) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -785,35 +1228,50 @@ namespace MasterOnline.Controllers
                 {
                     if (result.value.queueHistory.Count > 0)
                     {
-                        using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                        foreach (var item in result.value.queueHistory)
                         {
-                            oConnection.Open();
-                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                            //{
-                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            if (Convert.ToBoolean(item.isSuccess))
                             {
-
-                                foreach (var item in result.value.queueHistory)
+                                dynamic values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
+                                if (Convert.ToString(values.type) == "createProduct")
                                 {
-                                    if (Convert.ToBoolean(item.isSuccess))
+                                    //SET BRG_MP
+                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                     {
-                                        dynamic values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
-
-                                        if (Convert.ToString(values.type) == "createProduct" && feed.update_BRG_MP)
+                                        oConnection.Open();
+                                        using (SqlCommand oCommand = oConnection.CreateCommand())
                                         {
                                             oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE";
+                                            oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
                                             oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
                                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
                                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
 
                                             try
                                             {
-                                                oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku);
-                                                oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku);
+                                                oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku.Value) + ';' + Convert.ToString(values.productCode.Value);
+                                                oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
                                                 oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
                                                 if (oCommand.ExecuteNonQuery() == 1)
                                                 {
+                                                    oCommand.CommandType = CommandType.Text;
+                                                    oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                    if (oCommand.ExecuteNonQuery() == 1)
+                                                    {
+                                                        string[] imgPath = new string[3];
+                                                        for (int i = 0; i < 3; i++)
+                                                        {
+                                                            var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
+                                                            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                                                            var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
+                                                            if (System.IO.File.Exists(path))
+                                                            {
+                                                                imgPath[i] = path;
+                                                            }
+                                                        }
+
+                                                        UploadImage(data, imgPath, Convert.ToString(values.productCode.Value));
+                                                    }
                                                 }
                                             }
                                             catch (Exception ex)
@@ -822,14 +1280,41 @@ namespace MasterOnline.Controllers
                                             }
                                         }
                                     }
+
+                                    //UPLOAD GAMBAR
+
                                 }
                             }
-                            //}
+                            else
+                            {
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+
+                                        try
+                                        {
+                                            oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                            if (oCommand.ExecuteNonQuery() == 1)
+                                            {
+
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
-            return ret;
         }
         public async Task<string> GetCategoryTree(BlibliAPIData data)
         {
@@ -1189,8 +1674,6 @@ namespace MasterOnline.Controllers
         public class BlibliQueueFeedData
         {
             public string request_id { get; set; }
-            public bool update_BRG_MP { get; set; }
-
         }
         public class BlibliProductData
         {
