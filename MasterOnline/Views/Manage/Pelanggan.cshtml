@@ -806,7 +806,7 @@
         function clickSub(sendKode)
         {
             var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", "0" + sendKode);
+            link = link.replace("replaceCode", sendKode);
             $.ajax({
                 type: "GET",
                 url: link,
