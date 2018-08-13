@@ -94,9 +94,9 @@ namespace MasterOnline.Models
     public class Shipment_Providers
     {
         public string name { get; set; }
-        public int cod { get; set; }
-        public int is_default { get; set; }
-        public int api_integration { get; set; }
+        public string cod { get; set; }
+        public string is_default { get; set; }
+        public string api_integration { get; set; }
     }
 
     public class LazadaToDeliver : LazadaCommonRes
