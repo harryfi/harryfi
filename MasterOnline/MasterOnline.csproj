@@ -368,6 +368,10 @@
     <Compile Include="ErasoftContextMigrations\201808090132403_AlterDropshipperInPBT01A.Designer.cs">
       <DependentUpon>201808090132403_AlterDropshipperInPBT01A.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.cs" />
+    <Compile Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.Designer.cs">
+      <DependentUpon>201808130337086_addTableDeliveryProdiverLazada.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -422,6 +426,7 @@
     <Compile Include="Models\APF01A.cs" />
     <Compile Include="Models\APF02.cs" />
     <Compile Include="Models\APF02A.cs" />
+    <Compile Include="Models\DELIVERY_PROVIDER_LAZADA.cs" />
     <Compile Include="Models\APF02B.cs" />
     <Compile Include="Models\APF03.cs" />
     <Compile Include="Models\APF03A.cs" />
@@ -5094,6 +5099,7 @@
     <Content Include="Views\Midtrans\PaymentMidtrans.cshtml" />
     <Content Include="Views\Manage\PromptPickupPointBlibli.cshtml" />
     <Content Include="Views\Manage\BarangPesananSudahDibayarPartial.cshtml" />
+    <Content Include="Views\Manage\PromptDeliveryProvider.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5235,6 +5241,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808090132403_AlterDropshipperInPBT01A.resx">
       <DependentUpon>201808090132403_AlterDropshipperInPBT01A.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.resx">
+      <DependentUpon>201808130337086_addTableDeliveryProdiverLazada.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

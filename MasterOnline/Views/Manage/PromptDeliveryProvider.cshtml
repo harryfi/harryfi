@@ -1,0 +1,53 @@
+﻿@{
+    ViewBag.Title = "Prompt Delivery Template Elevenia";
+    Layout = "~/Views/Shared/_LayoutManage.cshtml";
+}
+@section styles
+{
+    <style>
+        .top_nav {
+            display: none !important;
+        }
+
+        .close-btn {
+            display: none;
+        }
+    </style>
+}
+
+<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+    <thead>
+        <tr role="row">
+            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">Kode Template</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Nama Template</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.KODE</td>
+                <td>@item.KETERANGAN</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" onclick="pilihPrompt('@item.KODE')">
+                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts
+{
+    <script>
+        function pilihPrompt($value) {
+            self.window.close();
+            window.onunload = refreshTextBox;
+            function refreshTextBox() {
+                window.opener.afterPromptDelTempEl($value);
+            }
+        }
+    </script>
+}

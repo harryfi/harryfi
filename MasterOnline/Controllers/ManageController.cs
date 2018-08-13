@@ -2018,6 +2018,21 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
+
+        [Route("manage/promptDeliveryProvLazada")]
+        public ActionResult PromptDeliveryProvLazada(string recnum)
+        {
+            try
+            {
+                var PromptModel = ErasoftDbContext.DeliveryTemplateElevenia.Where(a => a.RECNUM_ARF01.ToString() == recnum).ToList();
+                return View("PromptDeliveryTempElevenia", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
         public ActionResult PromptPickupPointBlibli(string merchant_code)
         {
             try
