@@ -466,7 +466,7 @@ namespace MasterOnline.Controllers.Api
 
                 var vm = new PesananViewModel()
                 {
-                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == data.StatusTransaksi).ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == data.StatusTransaksi).OrderByDescending(p => p.TGL).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -477,7 +477,7 @@ namespace MasterOnline.Controllers.Api
 
                 foreach (var pesanan in vm.ListPesanan)
                 {
-                    var buyer = vm.ListPembeli.Single(m => m.BUYER_CODE == pesanan.PEMESAN);
+                    var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
                     var idMarket = 0;
 
