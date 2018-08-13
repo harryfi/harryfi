@@ -413,6 +413,7 @@ namespace MasterOnline
         public virtual DbSet<tmp_STF09A> tmp_STF09A { get; set; }
         public virtual DbSet<DeliveryTemplateElevenia> DeliveryTemplateElevenia { get; set; }
         public virtual DbSet<PICKUP_POINT_BLIBLI> PICKUP_POINT_BLIBLI { get; set; }
+        public virtual DbSet<DELIVERY_PROVIDER_LAZADA> DELIVERY_PROVIDER_LAZADA { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
