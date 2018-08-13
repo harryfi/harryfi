@@ -27,6 +27,8 @@ namespace MasterOnline
                     StringComparison.InvariantCultureIgnoreCase,
                     true,
                     "application/json"));
+
+            GlobalConfiguration.Configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
         }
     }
 }
