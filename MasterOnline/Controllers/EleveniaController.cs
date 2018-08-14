@@ -68,7 +68,7 @@ namespace MasterOnline.Controllers
             Completed = 5
         }
 
-        public async Task<ClientMessage> CreateProduct(EleveniaProductData data, bool display)
+        public ClientMessage CreateProduct(EleveniaProductData data, bool display)
         {
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
@@ -134,10 +134,13 @@ namespace MasterOnline.Controllers
             xmlString += "<rtngExchDetail>Hubungi toko untuk retur</rtngExchDetail>";//return/exchange information
             //xmlString += "<prdNo>25908965</prdNo>";//return/exchange information
             xmlString += "</Product>";
-            var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
+            //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
-            //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.RESTServices.rest, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
-            ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            
+            //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString,typeof(ClientMessage), auth) as ClientMessage;
+
+
             if (result != null)
             {
                 if (Convert.ToString(result.resultCode).Equals("200"))
@@ -161,7 +164,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ClientMessage> UpdateProduct(EleveniaProductData data)
+        public ClientMessage UpdateProduct(EleveniaProductData data)
         {
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
@@ -227,10 +230,10 @@ namespace MasterOnline.Controllers
             xmlString += "<rtngExchDetail>Hubungi toko untuk retur</rtngExchDetail>";//return/exchange information
             xmlString += "<prdNo>" + data.kode_mp + "</prdNo>";//Marketplace Product ID
             xmlString += "</Product>";
-            var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
+            //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
-            //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.RESTServices.rest, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
-            ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString, typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 if (Convert.ToString(result.resultCode).Equals("200"))
@@ -243,7 +246,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ClientMessage> UpdateProductQOH_Price(EleveniaProductData data)
+        public ClientMessage UpdateProductQOH_Price(EleveniaProductData data)
         {
             //string val = form.data;
             //EleveniaCreateProductData data = Newtonsoft.Json.JsonConvert.DeserializeObject(val, typeof(EleveniaCreateProductData)) as EleveniaCreateProductData;
@@ -309,10 +312,11 @@ namespace MasterOnline.Controllers
             xmlString += "<rtngExchDetail>Hubungi toko untuk retur</rtngExchDetail>";//return/exchange information
             xmlString += "<prdNo>" + data.kode_mp + "</prdNo>";//Marketplace Product ID
             xmlString += "</Product>";
-            var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
+            //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
             //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.RESTServices.rest, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
-            ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
+            ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString, typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 //if (Convert.ToString(result.resultCode).Equals("200"))
@@ -325,14 +329,15 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ClientMessage> DisplayItem(EleveniaProductData data)
+        public ClientMessage DisplayItem(EleveniaProductData data)
         {
             var ret = new ClientMessage();
             string auth = data.api_key;
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/restartdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/restartdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/restartdisplay/" + data.kode, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;
@@ -341,14 +346,15 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<ClientMessage> HideItem(EleveniaProductData data)
+        public ClientMessage HideItem(EleveniaProductData data)
         {
             var ret = new ClientMessage();
             string auth = data.api_key;
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/stopdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
+            //var result = req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/stopdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/stopdisplay/" + data.kode, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;
@@ -358,7 +364,7 @@ namespace MasterOnline.Controllers
         }
 
         //public async Task<DeliveryTemplates> GetDeliveryTemp(EleveniaProductData data)
-        public async Task<ActionResult> GetDeliveryTemp(string recNum, string auth)
+        public ActionResult GetDeliveryTemp(string recNum, string auth)
         {
             //string auth = "";
             //ManageController MC = new ManageController();
@@ -377,7 +383,8 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
             if (result != null)
             {
                 System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
@@ -435,7 +442,7 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
 
-        public async Task<BindingBase> GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
+        public BindingBase GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             var connIdARF01C = Guid.NewGuid().ToString();
             var ret = new BindingBase();
@@ -472,7 +479,8 @@ namespace MasterOnline.Controllers
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
             string param = "ordStat=" + status + "&dateFrom=" + fromDt + "&dateTo=" + toDt;
-            var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
+            //var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
+            var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
             if (!string.IsNullOrEmpty(test))
             {
                 XmlDocument doc = new XmlDocument();
@@ -590,11 +598,11 @@ namespace MasterOnline.Controllers
                             {
                                 string ordNo = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_NO"));
                                 string ordPrdSeq = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_PROD_NO"));
-                                await AcceptOrder(auth, ordNo, ordPrdSeq);
+                                AcceptOrder(auth, ordNo, ordPrdSeq);
                             }
                         }
                         //setelah cek status order paid, cek status order packagingINP
-                        await GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
+                        GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
                     }
                     if (stat == StatusOrder.PackagingINP)
                     {
@@ -616,7 +624,7 @@ namespace MasterOnline.Controllers
                                     string ordNo = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_NO"]);
                                     string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
                                     string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                                    await UpdateAWBNumber(auth, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                                    UpdateAWBNumber(auth, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
                                 }
                             }
                         }
@@ -631,7 +639,7 @@ namespace MasterOnline.Controllers
                         if (stat == StatusOrder.Paid)
                         {
                             //jika tidak ada data PAID, lanjut ke PackagingINP
-                            await GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
+                            GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
                         }
                     }
                     else
@@ -644,13 +652,14 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<ClientMessage> AcceptOrder(string auth, string ordNo, string ordPrdSeq)
+        public ClientMessage AcceptOrder(string auth, string ordNo, string ordPrdSeq)
         {
             var ret = new ClientMessage();
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/accept?ordNo=" + ordNo + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/accept?ordNo=" + ordNo + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/accept?ordNo=" + ordNo + "&ordPrdSeq=" + ordPrdSeq, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;
@@ -658,13 +667,14 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<ClientMessage> UpdateAWBNumber(string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
+        public ClientMessage UpdateAWBNumber(string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
         {
             var ret = new ClientMessage();
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;

@@ -21,7 +21,7 @@ namespace MasterOnline
         [StringLength(1)]
         public string COD { get; set; }
 
-        [Column(Order = 2)]
-        public int RECNUM { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int? RECNUM { get; set; }
     }
 }
