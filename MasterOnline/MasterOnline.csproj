@@ -368,9 +368,9 @@
     <Compile Include="ErasoftContextMigrations\201808090132403_AlterDropshipperInPBT01A.Designer.cs">
       <DependentUpon>201808090132403_AlterDropshipperInPBT01A.cs</DependentUpon>
     </Compile>
-    <Compile Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.cs" />
-    <Compile Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.Designer.cs">
-      <DependentUpon>201808130337086_addTableDeliveryProdiverLazada.cs</DependentUpon>
+    <Compile Include="ErasoftContextMigrations\201808140206028_AddDeliveryProviderLazada.cs" />
+    <Compile Include="ErasoftContextMigrations\201808140206028_AddDeliveryProviderLazada.Designer.cs">
+      <DependentUpon>201808140206028_AddDeliveryProviderLazada.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
@@ -5242,8 +5242,8 @@
     <EmbeddedResource Include="ErasoftContextMigrations\201808090132403_AlterDropshipperInPBT01A.resx">
       <DependentUpon>201808090132403_AlterDropshipperInPBT01A.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="ErasoftContextMigrations\201808130337086_addTableDeliveryProdiverLazada.resx">
-      <DependentUpon>201808130337086_addTableDeliveryProdiverLazada.cs</DependentUpon>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808140206028_AddDeliveryProviderLazada.resx">
+      <DependentUpon>201808140206028_AddDeliveryProviderLazada.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

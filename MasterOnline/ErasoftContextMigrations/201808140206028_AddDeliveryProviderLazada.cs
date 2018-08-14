@@ -3,7 +3,7 @@ namespace MasterOnline.ErasoftContextMigrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class addTableDeliveryProdiverLazada : DbMigration
+    public partial class AddDeliveryProviderLazada : DbMigration
     {
         public override void Up()
         {

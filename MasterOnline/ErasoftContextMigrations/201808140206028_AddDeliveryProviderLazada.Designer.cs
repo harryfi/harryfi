@@ -7,13 +7,13 @@ namespace MasterOnline.ErasoftContextMigrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.2.0-61023")]
-    public sealed partial class addTableDeliveryProdiverLazada : IMigrationMetadata
+    public sealed partial class AddDeliveryProviderLazada : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(addTableDeliveryProdiverLazada));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddDeliveryProviderLazada));
         
         string IMigrationMetadata.Id
         {
-            get { return "201808130337086_addTableDeliveryProdiverLazada"; }
+            get { return "201808140206028_AddDeliveryProviderLazada"; }
         }
         
         string IMigrationMetadata.Source
