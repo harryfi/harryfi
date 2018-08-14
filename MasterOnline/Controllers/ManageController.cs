@@ -1485,9 +1485,9 @@ namespace MasterOnline.Controllers
                     }
                 }
                 #endregion
-                //#region Elevenia
-                //saveBarangElevenia(1, dataBarang);
-                //#endregion
+                #region Elevenia
+                saveBarangElevenia(1, dataBarang);
+                #endregion
                 #region Blibli
                 saveBarangBlibli(1, dataBarang);
                 #endregion
@@ -1495,8 +1495,8 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
-                ////update harga, qty, dll
-                //saveBarangElevenia(2, dataBarang);
+                //update harga, qty, dll
+                saveBarangElevenia(2, dataBarang);
                 #region Blibli
                 saveBarangBlibli(1, dataBarang);
                 #endregion
@@ -1545,9 +1545,9 @@ namespace MasterOnline.Controllers
                         }
                     }
                     #endregion
-                    //    #region Elevenia
-                    //    saveBarangElevenia(3, dataBarang);
-                    //    #endregion
+                    #region Elevenia
+                    saveBarangElevenia(3, dataBarang);
+                    #endregion
                     #region Bukalapak
                     if (listBLShop.Count > 0)
                 {
@@ -1666,8 +1666,8 @@ namespace MasterOnline.Controllers
                                         data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
                                         var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         data.display = display ? "true" : "false";
-                                        //new BlibliController().UploadProduk(iden, data);
-                                        new BlibliController().GetQueueFeedDetail(iden, null);
+                                        new BlibliController().UploadProduk(iden, data);
+                                        //new BlibliController().GetQueueFeedDetail(iden, null);
                                         //}
                                     }
                                 }
