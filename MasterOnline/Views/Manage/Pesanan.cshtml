@@ -732,8 +732,25 @@
                 <h4 class="modal-title" id="isiResiLabel">Isi Resi</h4>
             </div>
             <div class="modal-body">
+                @* add by Tri, pilih shipment provider *@
                 <div class="row">
                     <div class="form-group">
+                        <div class="col-md-4 col-sm-4 col-xs-12" id="divLblShip"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td id="divTextShip"></td>
+                                        <td id="divBtnShip"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @*end add by Tri, pilih shipment provider *@
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
                         @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
@@ -922,7 +939,7 @@
 
             Initialize();
         });
-        
+
         //add by Tri, call midtrans api get token
         function clickSub(sendKode)
         {
@@ -2197,6 +2214,39 @@
                 }
             });
         }
+        //ADD BY TRI 10 AUG 2018, SHOW/HIDE DELIVERY PROVIDER FOR LAZADA + PROMPT
+        function showShipment(NamaMarket) {
+            $('#lblShipment').remove();
+            $('#txtShipment').remove();
+            $('#btnShipment').remove();
+                
+            if (NamaMarket.toUpperCase() == "LAZADA") {
+                $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
+                $('#divTextShip').append('<input id="txtShipment" disabled="disabled"></input>');
+                $('#divBtnShip').append('<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick=""><span class="glyphicon glyphicon-option-horizontal"></span></button>');
+
+            }
+
+        }
+
+        //var PromptDeliveryProvLazadaTextBox = "";
+        function PromptDeliveryProvLazada(r) {
+            //PromptDeliveryProvLazadaTextBox = i;
+            showPromptDeliveryProvLazadaTextBoxWindow(r);
+        }
+
+        function showPromptDeliveryProvLazadaTextBoxWindow(val) {
+            var $link = '@Url.Action("promptDeliveryProvLazada", "Manage",new { recnum = "replaceRecnum"})';
+            $link = $link.replace("replaceRecnum", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+
+        function afterPromptDelTempEl(val) {
+            $('#txtShipment').val(val);
+            //$('#ListHargaJualPermarket_' + PromptDeliveryProvLazadaTextBox + '__DeliveryProvLazada').val(val);
+        }
+      
+        //END ADD BY TRI 10 AUG 2018, SHOW/HIDE DELIVERY PROVIDER FOR LAZADA + PROMPT
 
         function getResi(rec) {
             var link = '@Url.Action("GetResi", "Manage", new { recNum = "replaceRecNum" })';
@@ -2246,23 +2296,6 @@
             if (status == '04') {
                 getResi(rec);
             }
-            //remark by Tri, use api UbahStatusPesanan
-            //add by Tri, call marketplace api to change status
-
-                @*var link = '@Html.Raw(Url.Action("ChangeStatusPesanan", "Manage", new { nobuk = "replaceNoBuk", status = "02" }))';
-                link = link.replace("replaceNoBuk", nobuk);
-                 $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-                });*@
-
-            //end add by Tri, call marketplace api to change status
-            //end remark by Tri, use api UbahStatusPesanan
 
         }
 

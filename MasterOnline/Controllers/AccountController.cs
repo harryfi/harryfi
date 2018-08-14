@@ -197,6 +197,7 @@ namespace MasterOnline.Controllers
                     {
                         #region refresh token lazada
                         lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
                         #endregion
                         var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
                         foreach (var item in stf02hinDB)

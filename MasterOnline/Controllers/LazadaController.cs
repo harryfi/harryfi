@@ -25,16 +25,17 @@ namespace MasterOnline.Controllers
         // GET: Lazada
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
+        ErasoftContext ErasoftDbContext;
 
         public LazadaController()
         {
             MoDbContext = new MoDbContext();
             if (sessionData?.Account != null)
             {
-                //if (sessionData.Account.UserId == "admin_manage")
-                //    ErasoftDbContext = new ErasoftContext();
-                //else
-                //    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+                if (sessionData.Account.UserId == "admin_manage")
+                    ErasoftDbContext = new ErasoftContext();
+                else
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
                 EDB = new DatabaseSQL(sessionData.Account.UserId);
 
             }
@@ -44,6 +45,7 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.UserId);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
                 }
             }
         }
@@ -263,15 +265,37 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public ShipmentLazada GetShipment(string accessToken)
+        public BindingBase GetShipment(string cust, string accessToken)
         {
+            var ret = new BindingBase();
+            ret.status = 0;
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/shipment/providers/get");
             request.SetHttpMethod("GET");
             LazopResponse response = client.Execute(request, accessToken);
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
-            //return response.Body;
+            var bindDelivery = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
+            if(bindDelivery != null)
+            {
+                if(bindDelivery.data.shipment_providers.Count() > 0)
+                {
+                    foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
+                    {
+                        if(ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                        {
+                            var newProvider = new DELIVERY_PROVIDER_LAZADA();
+                            newProvider.CUST = cust;
+                            newProvider.NAME = shipProv.name;
+                            newProvider.COD = shipProv.cod;
+
+                            ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Add(newProvider);
+                        }
+                        ErasoftDbContext.SaveChanges();
+
+                    }
+                }
+            }
+            return ret;
         }
 
         public LazadaToDeliver GetToPacked(List<string> orderItemId, string shippingProvider, string accessToken)
