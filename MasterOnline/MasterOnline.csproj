@@ -1040,6 +1040,7 @@
     <Content Include="Content\Images\american-express.png" />
     <Content Include="Content\Images\bank.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
+    <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
