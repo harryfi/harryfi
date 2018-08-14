@@ -1497,9 +1497,9 @@ namespace MasterOnline.Controllers
             {
                 //update harga, qty, dll
                 saveBarangElevenia(2, dataBarang);
-                #region Blibli
-                saveBarangBlibli(1, dataBarang);
-                #endregion
+                //#region Blibli
+                //saveBarangBlibli(1, dataBarang);
+                //#endregion
                 if (updateHarga)
                 {
                     #region lazada
