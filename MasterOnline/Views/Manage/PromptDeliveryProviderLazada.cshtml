@@ -30,7 +30,7 @@
                 <td>@item.NAME</td>
                 <td>@item.COD</td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="">
+                    <button class="btn btn-primary" onclick="pilihPrompt('@item.NAME')">
                         <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
                     </button>
                 </td>
@@ -46,7 +46,7 @@
             self.window.close();
             window.onunload = refreshTextBox;
             function refreshTextBox() {
-                window.opener.afterPromptDelTempEl($value);
+                window.opener.afterPromptDelTempLzd($value);
             }
         }
     </script>
