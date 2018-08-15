@@ -4224,6 +4224,7 @@ namespace MasterOnline.Controllers
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
             var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
             var blAPI = new BukaLapakController();
+            var lzdAPI = new LazadaController();
             switch (status)
             {
                 case "02":
@@ -4237,6 +4238,24 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                    }
+                    else if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+                    {
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT) && !string.IsNullOrEmpty(pesanan.SHIPMENT))
+                        {
+                            var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                            if(pesananChild.Count > 0)
+                            {
+                                List<string> ordItemId = new List<string>();
+                                foreach (SOT01B item in pesananChild)
+                                {
+                                    ordItemId.Add(item.ORDER_ITEM_ID);
+                                }
+                                lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
+                                lzdAPI.GetToDeliver(ordItemId , pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+
+                            }
+                        }
                     }
                     break;
             }

@@ -515,7 +515,7 @@ namespace MasterOnline.Controllers
                                         namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
                                     }
                                     insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg + "',";
-                                    insertOrderItems += items.price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
+                                    insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
                                     insertOrderItems += " ,";
                                 }
                             }
