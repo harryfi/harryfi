@@ -4618,6 +4618,36 @@ namespace MasterOnline.Controllers
             barangPesananInDb.LOKASI = gd;
             barangPesananInDb.QTY = qty;
 
+
+
+            //add by calvin, 22 juni 2018 validasi QOH
+            //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
+            //foreach (var item in stokDetailInDb)
+            //{
+                var qtyOnHand = 0d;
+                {
+                    object[] spParams = {
+                    new SqlParameter("@BRG",barangPesananInDb.BRG),
+                    new SqlParameter("@GD",gd),
+                    new SqlParameter("@Satuan", "2"),
+                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+
+                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                }
+                if (qtyOnHand - qty < 0)
+                {
+                    var vmError = new StokViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            //}
+            //end add by calvin, validasi QOH
+
             if (Math.Abs(barangPesananInDb.DISCOUNT) > 0)
             {
                 barangPesananInDb.NILAI_DISC_1 = (barangPesananInDb.DISCOUNT * barangPesananInDb.H_SATUAN * qty) / 100;

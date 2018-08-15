@@ -2130,6 +2130,10 @@
 
         function saveGudangQty() {
             var $isSuccess = 0;
+            var ret = 0;
+            var jmlgd = 0;
+
+            $('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function () { jmlgd++; });
 
             $('#modal-gudang-qty-body div[data-jenis="gudang"]').each(function() {
                 var $this = $(this);
@@ -2178,20 +2182,28 @@
                     url: link,
                     contentType: 'application/json',
                     cache: false,
-                    success: function () {
-                        if ($isSuccess < 1) {
-                            refreshTableSiapKirim();
-                            alert('Data berhasil disimpan!');
-                            $('#modalGudangDanQty').modal('hide');
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $isSuccess++;
+                            //if ($isSuccess < 1) {
+                            if ($isSuccess == jmlgd) {
+                                refreshTableSiapKirim();
+                                alert('Data berhasil disimpan!');
+                                $('#modalGudangDanQty').modal('hide');
+                            }
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                            $('#loading_spinner').hide();
                         }
-
-                        $isSuccess++;
                     },
                     error: function (xhr) {
                         console.log(xhr);
                     }
                 });
             });
+
+
         }
 
         function getGudang() {
@@ -2219,7 +2231,7 @@
             $('#lblShipment').remove();
             $('#txtShipment').remove();
             $('#btnShipment').remove();
-                
+
             if (NamaMarket.toUpperCase() == "LAZADA") {
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip').append('<input id="txtShipment" disabled="disabled"></input>');
@@ -2245,7 +2257,7 @@
             $('#txtShipment').val(val);
             //$('#ListHargaJualPermarket_' + PromptDeliveryProvLazadaTextBox + '__DeliveryProvLazada').val(val);
         }
-      
+
         //END ADD BY TRI 10 AUG 2018, SHOW/HIDE DELIVERY PROVIDER FOR LAZADA + PROMPT
 
         function getResi(rec) {
