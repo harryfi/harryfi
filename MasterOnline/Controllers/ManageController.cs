@@ -684,6 +684,13 @@ namespace MasterOnline.Controllers
                 customer.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(customer, JsonRequestBehavior.AllowGet);
             }
+            //add by nurul 15/8/2018
+            //if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket.ToString()))
+            //{
+            //    customer.Errors.Add("Akun anda harus official store di Tokopedia. Silahkan hubungi kami apabila anda sudah official store!");
+            //    return Json(customer, JsonRequestBehavior.AllowGet);
+            //}
+            //end add
             string kdCustomer = "";
             if (customer.Customers.RecNum == null)
             {
@@ -1485,9 +1492,9 @@ namespace MasterOnline.Controllers
                     }
                 }
                 #endregion
-                //#region Elevenia
-                //saveBarangElevenia(1, dataBarang);
-                //#endregion
+                #region Elevenia
+                saveBarangElevenia(1, dataBarang);
+                #endregion
                 #region Blibli
                 saveBarangBlibli(1, dataBarang);
                 #endregion
@@ -1495,11 +1502,8 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
-                ////update harga, qty, dll
-                //saveBarangElevenia(2, dataBarang);
-                #region Blibli
-                saveBarangBlibli(1, dataBarang);
-                #endregion
+                //update harga, qty, dll
+                saveBarangElevenia(2, dataBarang);
                 if (updateHarga)
                 {
                     #region lazada
@@ -1545,62 +1549,62 @@ namespace MasterOnline.Controllers
                         }
                     }
                     #endregion
-                    //    #region Elevenia
-                    //    saveBarangElevenia(3, dataBarang);
-                    //    #endregion
+                    #region Elevenia
+                    saveBarangElevenia(3, dataBarang);
+                    #endregion
                     #region Bukalapak
                     if (listBLShop.Count > 0)
-                {
-                    foreach (ARF01 tblCustomer in listBLShop)
                     {
-                        var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
-                        var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-
-                        if (tokoBl.DISPLAY)
+                        foreach (ARF01 tblCustomer in listBLShop)
                         {
-                            var result = blApi.prodAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
-                        }
-                        else
-                        {
-                            var result = blApi.prodNonAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                            var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
+                            var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
+
+                            if (tokoBl.DISPLAY)
+                            {
+                                var result = blApi.prodAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                            }
+                            else
+                            {
+                                var result = blApi.prodNonAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+
+                            }
 
                         }
-
                     }
+                    #endregion
                 }
-                #endregion
+                //if (updateGambar)
+                //{
+
+                //}
+
+
+                //if (updateGambar)
+                //{
+                //    #region Bukalapak
+                //    if (listBLShop.Count > 0)
+                //    {
+                //        foreach (ARF01 tblCustomer in listBLShop)
+                //        {
+                //            var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum);
+                //            var resultBL = new BukaLapakController().updateProduk(tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
+
+                //            string[] imgID = new string[Request.Files.Count];
+                //            for (int i = 0; i < imgPath.Length; i++)
+                //            {
+                //                if (!string.IsNullOrEmpty(imgPath[i]))
+                //                {
+                //                    var uploadImg = new BukaLapakController().uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
+                //                    if (uploadImg.status == 1)
+                //                        imgID[i] = uploadImg.message;
+                //                }
+                //            }
+
+                //        }
+                //    }
+                //}
             }
-            //if (updateGambar)
-            //{
-
-            //}
-
-
-            //if (updateGambar)
-            //{
-            //    #region Bukalapak
-            //    if (listBLShop.Count > 0)
-            //    {
-            //        foreach (ARF01 tblCustomer in listBLShop)
-            //        {
-            //            var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum);
-            //            var resultBL = new BukaLapakController().updateProduk(tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
-
-            //            string[] imgID = new string[Request.Files.Count];
-            //            for (int i = 0; i < imgPath.Length; i++)
-            //            {
-            //                if (!string.IsNullOrEmpty(imgPath[i]))
-            //                {
-            //                    var uploadImg = new BukaLapakController().uploadGambar(imgPath[i], tblCustomer.API_KEY, tblCustomer.TOKEN);
-            //                    if (uploadImg.status == 1)
-            //                        imgID[i] = uploadImg.message;
-            //                }
-            //            }
-
-            //        }
-            //    }
-            //}
-        }
             #endregion
             ModelState.Clear();
 
@@ -1666,8 +1670,8 @@ namespace MasterOnline.Controllers
                                         data.CategoryCode = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).CATEGORY_CODE.ToString();
                                         var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
                                         data.display = display ? "true" : "false";
-                                        //new BlibliController().UploadProduk(iden, data);
-                                        new BlibliController().GetQueueFeedDetail(iden, null);
+                                        new BlibliController().UploadProduk(iden, data);
+                                        //new BlibliController().GetQueueFeedDetail(iden, null);
                                         //}
                                     }
                                 }
@@ -7255,8 +7259,10 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                namaPT = namaPT.Trim();
+                uname = uname.Trim();
                 var namaFile = $"LogoUsaha-{uname}-{namaPT}.jpg";
-                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
                 if (System.IO.File.Exists(path))
                 {
                     System.IO.File.Delete(path);
@@ -7286,8 +7292,10 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     var fileExtension = Path.GetExtension(file.FileName);
-                    var namaFile = $"LogoUsaha-{dataVm.DataUsaha.USERNAME}-{dataVm.DataUsaha.NAMA_PT}{fileExtension}";
-                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                    string namaPT = dataVm.DataUsaha.USERNAME.Trim();
+                    string uname = dataVm.DataUsaha.NAMA_PT.Trim();
+                    var namaFile = $"LogoUsaha-{namaPT}-{uname}{fileExtension}";
+                    var path = Path.Combine(Server.MapPath("~/Content/Logo_Perusahaan/"), namaFile);
                     file.SaveAs(path);
                 }
             }
