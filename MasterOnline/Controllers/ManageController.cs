@@ -684,6 +684,13 @@ namespace MasterOnline.Controllers
                 customer.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(customer, JsonRequestBehavior.AllowGet);
             }
+            //add by nurul 15/8/2018
+            //if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket.ToString()))
+            //{
+            //    customer.Errors.Add("Akun anda harus official store di Tokopedia. Silahkan hubungi kami apabila anda sudah official store!");
+            //    return Json(customer, JsonRequestBehavior.AllowGet);
+            //}
+            //end add
             string kdCustomer = "";
             if (customer.Customers.RecNum == null)
             {
