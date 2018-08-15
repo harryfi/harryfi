@@ -2019,13 +2019,13 @@ namespace MasterOnline.Controllers
             }
         }
 
-        [Route("manage/promptDeliveryProvLazada")]
-        public ActionResult PromptDeliveryProvLazada(string cust)
+        [Route("manage/PromptDeliveryProviderLazada")]
+        public ActionResult PromptDeliveryProviderLazada(string cust)
         {
             try
             {
                 var PromptModel = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(a => a.CUST == cust).ToList();
-                return View("PromptDeliveryTempElevenia", PromptModel);
+                return View("PromptDeliveryProviderLazada", PromptModel);
             }
             catch (Exception ex)
             {
@@ -4356,11 +4356,15 @@ namespace MasterOnline.Controllers
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
 
-            return Json(pesananInDb.TRACKING_SHIPMENT, JsonRequestBehavior.AllowGet);
+            string[] shipment = new string[2];
+            shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            shipment[1] = pesananInDb.SHIPMENT;
+
+            return Json(shipment, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
-        public ActionResult SaveResi(int? recNum, string noResi)
+        public ActionResult SaveResi(int? recNum, string noResi, string deliveryProv)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             //add by Tri, check if user input new resi
@@ -4369,6 +4373,10 @@ namespace MasterOnline.Controllers
                 changeStat = true;
             //end add by Tri, check if user input new resi
 
+            //add by Tri, delivery provider lazada
+            if (!string.IsNullOrEmpty(deliveryProv))
+                pesananInDb.SHIPMENT = deliveryProv;
+            //end add by Tri, delivery provider lazada
             pesananInDb.TRACKING_SHIPMENT = noResi;
             ErasoftDbContext.SaveChanges();
 

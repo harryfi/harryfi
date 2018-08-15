@@ -5099,7 +5099,7 @@
     <Content Include="Views\Midtrans\PaymentMidtrans.cshtml" />
     <Content Include="Views\Manage\PromptPickupPointBlibli.cshtml" />
     <Content Include="Views\Manage\BarangPesananSudahDibayarPartial.cshtml" />
-    <Content Include="Views\Manage\PromptDeliveryProvider.cshtml" />
+    <Content Include="Views\Manage\PromptDeliveryProviderLazada.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -735,6 +735,7 @@
                 @* add by Tri, pilih shipment provider *@
                 <div class="row">
                     <div class="form-group">
+                        @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
                         <div class="col-md-4 col-sm-4 col-xs-12" id="divLblShip"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>
@@ -753,7 +754,7 @@
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" }) 
                         </div>
                     </div>
                 </div>
@@ -2215,15 +2216,15 @@
             });
         }
         //ADD BY TRI 10 AUG 2018, SHOW/HIDE DELIVERY PROVIDER FOR LAZADA + PROMPT
-        function showShipment(NamaMarket) {
+        function showShipment(NamaMarket, cust) {
             $('#lblShipment').remove();
             $('#txtShipment').remove();
             $('#btnShipment').remove();
                 
             if (NamaMarket.toUpperCase() == "LAZADA") {
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
-                $('#divTextShip').append('<input id="txtShipment" disabled="disabled"></input>');
-                $('#divBtnShip').append('<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick=""><span class="glyphicon glyphicon-option-horizontal"></span></button>');
+                $('#divTextShip').append('<input id="txtShipment" disabled="disabled" required="required" class="form-control"></input>');
+                $('#divBtnShip').append('<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada(\'' + cust + '\')"><span class="glyphicon glyphicon-option-horizontal"></span></button>');
 
             }
 
@@ -2236,16 +2237,29 @@
         }
 
         function showPromptDeliveryProvLazadaTextBoxWindow(val) {
-            var $link = '@Url.Action("promptDeliveryProvLazada", "Manage",new { recnum = "replaceRecnum"})';
-            $link = $link.replace("replaceRecnum", val);
+            var $link = '@Url.Action("PromptDeliveryProviderLazada", "Manage",new { cust = "replaceCust"})';
+            $link = $link.replace("replaceCust", val);
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
 
-        function afterPromptDelTempEl(val) {
+        function afterPromptDelTempLzd(val) {
             $('#txtShipment').val(val);
+            $('#Pesanan_SHIPMENT').val(val);
+
             //$('#ListHargaJualPermarket_' + PromptDeliveryProvLazadaTextBox + '__DeliveryProvLazada').val(val);
         }
-      
+
+        function cekValidasi() {
+            var ret = true;
+            if (document.getElementById("txtShipment") != null) {
+                if ($("#Pesanan_SHIPMENT").val() == undefined || $("#Pesanan_SHIPMENT").val() == '') {
+                    alert("Shipment Provider harus diisi.");
+                    ret = false;
+                    $("#btnShipment").focus();
+                }
+            }
+            return ret;
+        }
         //END ADD BY TRI 10 AUG 2018, SHOW/HIDE DELIVERY PROVIDER FOR LAZADA + PROMPT
 
         function getResi(rec) {
@@ -2258,7 +2272,10 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (response) {
-                    $('#Pesanan_TRACKING_SHIPMENT').val(response);
+                    $('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
+                    $('#txtShipment').val(response[1]);
+                    $('#Pesanan_SHIPMENT').val(response[1]);
+
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -2267,23 +2284,27 @@
         }
 
         function saveResi() {
-            var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new { recNum = "replaceRecNum", noResi = "replaceResi" }))';
-            link = link.replace("replaceRecNum", this.$recResi);
-            link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
+            if (cekValidasi()) {
+                //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new { recNum = "replaceRecNum", noResi = "replaceResi" }))';
+                var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new { recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv" }))';
+                link = link.replace("replaceRecNum", this.$recResi);
+                link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
+                link = link.replace("replaceDeliveryProv", $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());
 
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function () {
-                    $('#modalIsiResi').modal('hide');
-                    refreshTableSiapKirim();
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function () {
+                        $('#modalIsiResi').modal('hide');
+                        refreshTableSiapKirim();
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
         }
 
         function passRecStatus(rec, status, nobuk) {
