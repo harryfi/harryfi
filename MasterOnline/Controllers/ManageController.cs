@@ -34,6 +34,7 @@ namespace MasterOnline.Controllers
     {
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
 
         public ManageController()
         {
@@ -45,6 +46,9 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext();
                 else
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+
+                EDB = new DatabaseSQL(sessionData.Account.UserId);
+
             }
             else
             {
@@ -52,6 +56,8 @@ namespace MasterOnline.Controllers
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+
+                    EDB = new DatabaseSQL(accFromUser.UserId);
                 }
             }
 
@@ -1506,7 +1512,6 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
-                saveBarangBlibli(1, dataBarang);
                 //update harga, qty, dll
                 saveBarangElevenia(2, dataBarang);
                 if (updateHarga)
@@ -4235,7 +4240,18 @@ namespace MasterOnline.Controllers
                 case "02":
                     if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                     {
-
+                        if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+                        {
+                            DataSet dsTEMP_ELV_ORDERS = new DataSet();
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                            if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
+                            {
+                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
+                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
+                                var elApi = new EleveniaController();
+                                elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
+                            }
+                        }
                     }
                     break;
                 case "03":
@@ -4249,7 +4265,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT) && !string.IsNullOrEmpty(pesanan.SHIPMENT))
                         {
                             var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
-                            if(pesananChild.Count > 0)
+                            if (pesananChild.Count > 0)
                             {
                                 List<string> ordItemId = new List<string>();
                                 foreach (SOT01B item in pesananChild)
@@ -4257,11 +4273,32 @@ namespace MasterOnline.Controllers
                                     ordItemId.Add(item.ORDER_ITEM_ID);
                                 }
                                 lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
-                                lzdAPI.GetToDeliver(ordItemId , pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+                                lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
 
                             }
                         }
                     }
+                    if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+                    {
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                        {
+                            DataSet dsTEMP_ELV_ORDERS = new DataSet();
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                            if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
+                            {
+                                string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
+                                string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
+                                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
+                                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
+                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
+                                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
+                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
+                                var elApi = new EleveniaController();
+                                elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                            }
+                        }
+                    }
+
                     break;
             }
 
@@ -4663,27 +4700,27 @@ namespace MasterOnline.Controllers
             //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             //foreach (var item in stokDetailInDb)
             //{
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
+            var qtyOnHand = 0d;
+            {
+                object[] spParams = {
                     new SqlParameter("@BRG",barangPesananInDb.BRG),
                     new SqlParameter("@GD",gd),
                     new SqlParameter("@Satuan", "2"),
                     new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
                     new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
-                if (qtyOnHand - qty < 0)
+                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+            }
+            if (qtyOnHand - qty < 0)
+            {
+                var vmError = new StokViewModel()
                 {
-                    var vmError = new StokViewModel()
-                    {
 
-                    };
-                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
-                }
+                };
+                vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
             //}
             //end add by calvin, validasi QOH
 
