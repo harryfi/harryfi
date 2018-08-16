@@ -126,7 +126,7 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>13411</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
-            xmlString += "<short_description>" + data.deskripsi + "</short_description>";
+            xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<brand>No Brand</brand>";
             xmlString += "<model>" + data.kdBrg + "</model>";
             xmlString += "<warranty_type>No Warranty</warranty_type>";
@@ -139,11 +139,11 @@ namespace MasterOnline.Controllers
             xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
             xmlString += "<Images>";
             if (!string.IsNullOrEmpty(data.imageUrl))
-                xmlString += "<Image>" + data.imageUrl + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl2))
-                xmlString += "<Image>" + data.imageUrl2 + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl3))
-                xmlString += "<Image>" + data.imageUrl3 + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
             xmlString += "</Images>";
             xmlString += "</Sku></Skus></Product></Request>";
 

@@ -879,41 +879,45 @@
                             ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
                                 return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
                             });
-                            $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
-                            var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                            var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
-                            link = link.replace("replaceCode", fieldCategoryCodeValue);
+                            if (ListHargaJualPermarketView[0] != undefined) {
 
-                            $.ajax({
-                                type: "GET",
-                                url: link,
-                                contentType: 'application/json',
-                                cache: false,
-                                success: function (data) {
-                                    var listKategori = [];
+                                $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
-                                    //generate category
-                                    $.each(data,
-                                        function (i, item) {
-                                            if (i == 0) {
-                                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
-                                                $('#category_blibli_pertama_' + listMarketRecNum).append(textbox);
-                                            }
-                                            else {
-                                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
-                                                $('#category_blibli_selanjutnya_' + listMarketRecNum).append(textbox);
-                                            }
-                                        });
+                                var fieldCategoryCodeValue = $(fieldCategoryCode).val();
+                                var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
+                                link = link.replace("replaceCode", fieldCategoryCodeValue);
 
-                                    //generate attribute
-                                    getAttributeBlibli(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+                                $.ajax({
+                                    type: "GET",
+                                    url: link,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (data) {
+                                        var listKategori = [];
 
-                                },
-                                error: function (xhr) {
-                                    console.log(xhr);
-                                }
-                            });
+                                        //generate category
+                                        $.each(data,
+                                            function (i, item) {
+                                                if (i == 0) {
+                                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
+                                                    $('#category_blibli_pertama_' + listMarketRecNum).append(textbox);
+                                                }
+                                                else {
+                                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
+                                                    $('#category_blibli_selanjutnya_' + listMarketRecNum).append(textbox);
+                                                }
+                                            });
+
+                                        //generate attribute
+                                        getAttributeBlibli(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
+                            }
 
                         }
                         else {

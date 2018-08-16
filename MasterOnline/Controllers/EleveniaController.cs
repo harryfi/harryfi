@@ -79,7 +79,7 @@ namespace MasterOnline.Controllers
             Utils.HttpRequest req = new Utils.HttpRequest();
 
             string xmlString = "<Product>";
-            xmlString += "<selMnbdNckNm>" + data.nama + "</selMnbdNckNm>";//nickname
+            xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
             xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
@@ -97,7 +97,7 @@ namespace MasterOnline.Controllers
             xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
             xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
 
-            xmlString += "<prdNm>" + data.nama + "</prdNm>";//product name
+            xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
             xmlString += "<prdWght>" + data.berat + "</prdWght>";//weight in kg
             xmlString += "<dlvGrntYn>N</dlvGrntYn>";//guarantee of delivery Y/N value
@@ -120,8 +120,8 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            xmlString += "<htmlDetail>" + data.Keterangan + "</htmlDetail>";//item detail(html supported)
-            xmlString += "<sellerPrdCd>" + data.kode + "</sellerPrdCd>";//seller sku(optional)
+            xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported)
+            xmlString += "<sellerPrdCd><![CDATA[" + data.kode + "]]></sellerPrdCd>";//seller sku(optional)
             xmlString += "<selTermUseYn>N</selTermUseYn>";//whether to use sales period Y/N value
             //xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
             xmlString += "<selPrc>" + data.Price + "</selPrc>";//product price
@@ -136,7 +136,6 @@ namespace MasterOnline.Controllers
             xmlString += "</Product>";
             //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
-            
             //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
             ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString,typeof(ClientMessage), auth) as ClientMessage;
 
@@ -175,7 +174,7 @@ namespace MasterOnline.Controllers
             Utils.HttpRequest req = new Utils.HttpRequest();
 
             string xmlString = "<Product>";
-            xmlString += "<selMnbdNckNm>" + data.nama + "</selMnbdNckNm>";//nickname
+            xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
             xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
@@ -193,7 +192,7 @@ namespace MasterOnline.Controllers
             xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
             xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
 
-            xmlString += "<prdNm>" + data.nama + "</prdNm>";//product name
+            xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
             xmlString += "<prdWght>" + data.berat + "</prdWght>";//weight in kg
             xmlString += "<dlvGrntYn>N</dlvGrntYn>";//guarantee of delivery Y/N value
@@ -216,8 +215,8 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            xmlString += "<htmlDetail>" + data.Keterangan + "</htmlDetail>";//item detail(html supported)
-            xmlString += "<sellerPrdCd>" + data.kode + "</sellerPrdCd>";//seller sku(optional)
+            xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported)
+            xmlString += "<sellerPrdCd><![CDATA[" + data.kode + "]]></sellerPrdCd>";//seller sku(optional)
             xmlString += "<selTermUseYn>N</selTermUseYn>";//whether to use sales period Y/N value
             //xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
             xmlString += "<selPrc>" + data.Price + "</selPrc>";//product price
@@ -257,7 +256,7 @@ namespace MasterOnline.Controllers
             Utils.HttpRequest req = new Utils.HttpRequest();
 
             string xmlString = "<Product>";
-            xmlString += "<selMnbdNckNm>" + data.nama + "</selMnbdNckNm>";//nickname
+            xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
             xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
@@ -275,7 +274,7 @@ namespace MasterOnline.Controllers
             xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
             xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
 
-            xmlString += "<prdNm>" + data.nama + "</prdNm>";//product name
+            xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
             xmlString += "<prdWght>" + data.berat + "</prdWght>";//weight in kg
             xmlString += "<dlvGrntYn>N</dlvGrntYn>";//guarantee of delivery Y/N value
@@ -298,8 +297,8 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            xmlString += "<htmlDetail>" + data.Keterangan + "</htmlDetail>";//item detail(html supported)
-            xmlString += "<sellerPrdCd>" + data.kode + "</sellerPrdCd>";//seller sku(optional)
+            xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported)
+            xmlString += "<sellerPrdCd><![CDATA[" + data.kode + "]]></sellerPrdCd>";//seller sku(optional)
             xmlString += "<selTermUseYn>N</selTermUseYn>";//whether to use sales period Y/N value
             //xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
             xmlString += "<selPrc>" + data.Price + "</selPrc>";//product price
@@ -674,7 +673,7 @@ namespace MasterOnline.Controllers
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
             //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
-            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, "", typeof(ClientMessage), auth) as ClientMessage;
+            var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + Uri.EscapeDataString(awb) + "&dlvNo=" + Uri.EscapeDataString(dlvNo) + "&dlvMthdCd=" + Uri.EscapeDataString(dlvMthdCd) + "&dlvEtprsCd=" + Uri.EscapeDataString(dlvEtprsCd) + "&ordNo=" + Uri.EscapeDataString(ordNo) + "&dlvEtprsNm=" + Uri.EscapeDataString(dlvEtprsNm) + "&ordPrdSeq=" + Uri.EscapeDataString(ordPrdSeq), "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;
