@@ -322,7 +322,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public string GetOrderDetail(BlibliAPIData iden,string orderNo,string orderItemNo)
+        public string GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -336,7 +336,7 @@ namespace MasterOnline.Controllers
                                                                  //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderDetail", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/orderDetail";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&orderNo="+ orderNo +"&orderItemNo=" + orderItemNo;
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderDetail?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&orderNo=" + orderNo + "&orderItemNo=" + orderItemNo;
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -366,7 +366,66 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    //INSERT TEMP ORDER
+                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                    {
+                        oConnection.Open();
+                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                        //{
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                            //oCommand.ExecuteNonQuery();
+                            //oCommand.Transaction = oTransaction;
+                            oCommand.CommandType = CommandType.Text;
+                            string sSQL = "INSERT INTO [TEMP_BLI_ORDERDETAIL] (";
+                            sSQL += "[orderNo],[orderItemNo],[qty],[orderDate],[autoCancelDate],";
+                            sSQL += "[productName],[productItemName],[productPrice],[total],[itemWeightInKg],";
+                            sSQL += "[custName],[orderStatus],[orderStatusString],[customerAddress],[customerEmail],";
+                            sSQL += "[logisticsService],[currentLogisticService],[pickupPoint],[gdnSku],[gdnItemSku],";
+                            sSQL += "[merchantSku],[totalWeight],[merchantDeliveryType],[awbNumber],[awbStatus],";
+                            sSQL += "[shippingStreetAddress],[shippingCity],[shippingSubDistrict],[shippingDistrict],[shippingProvince],";
+                            sSQL += "[shippingZipCode],[shippingCost],[shippingMobile],[shippingInsuredAmount],[startOperationalTime],";
+                            sSQL += "[endOperationalTime],[issuer],[refundResolution],[unFullFillReason],[unFullFillQuantity],";
+                            sSQL += "[productTypeCode],[productTypeName],[custNote],[shippingRecipientName],[logisticsProductCode],";
+                            sSQL += "[logisticsProductName],[logisticsOptionCode],[logisticsOptionName],[originLongitude],[originLatitude],";
+                            sSQL += "[destinationLongitude],[destinationLatitude]";
+                            sSQL += ") VALUES (";
+                            sSQL += "@orderNo,@orderItemNo,@qty,@orderDate,@autoCancelDate,";
+                            sSQL += "@productName,@productItemName,@productPrice,@total,@itemWeightInKg,";
+                            sSQL += "@custName,@orderStatus,@orderStatusString,@customerAddress,@customerEmail,";
+                            sSQL += "@logisticsService,@currentLogisticService,@pickupPoint,@gdnSku,@gdnItemSku,";
+                            sSQL += "@merchantSku,@totalWeight,@merchantDeliveryType,@awbNumber,@awbStatus,";
+                            sSQL += "@shippingStreetAddress,@shippingCity,@shippingSubDistrict,@shippingDistrict,@shippingProvince,";
+                            sSQL += "@shippingZipCode,@shippingCost,@shippingMobile,@shippingInsuredAmount,@startOperationalTime,";
+                            sSQL += "@endOperationalTime,@issuer,@refundResolution,@unFullFillReason,@unFullFillQuantity,";
+                            sSQL += "@productTypeCode,@productTypeName,@custNote,@shippingRecipientName,@logisticsProductCode,";
+                            sSQL += "@logisticsProductName,@logisticsOptionCode,@logisticsOptionName,@originLongitude,@originLatitude,";
+                            sSQL += "@destinationLongitude,@destinationLatitude";
+                            sSQL += ")";
+                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
 
+                            try
+                            {
+                                oCommand.Parameters[0].Value = result.requestId.Value;
+                                oCommand.Parameters[1].Value = iden.merchant_code;
+
+                                if (oCommand.ExecuteNonQuery() == 1)
+                                {
+
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                            }
+                        }
+                    }
+                }
             }
             return ret;
         }
@@ -626,14 +685,14 @@ namespace MasterOnline.Controllers
             features += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
             for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
             {
-                features += "{ \"name\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\", \"value\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]) + "\"},";
+                features += "{ \"name\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\", \"value\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim() + "\"},";
             }
             for (int i = 0; i < dsVariasi.Tables[0].Rows.Count; i++)
             {
                 string[] values = Convert.ToString(dsVariasi.Tables[0].Rows[i]["VALUE"]).Split(',');
                 for (int a = 0; a < values.Length; a++)
                 {
-                    variasi += "{\"name\": \"" + Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\",\"value\": \"" + values[a] + "\"},";
+                    variasi += "{\"name\": \"" + Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\",\"value\": \"" + Convert.ToString(values[a]).Trim() + "\"},";
                 }
             }
 
@@ -644,9 +703,9 @@ namespace MasterOnline.Controllers
             {
                 myData += "\"merchantCode\": \"" + iden.merchant_code + "\",  ";
                 myData += "\"categoryCode\": \"" + data.CategoryCode + " \", ";                                       //LIHAT BAGIAN GETKATEGORI
-                myData += "\"productName\": \"" + data.nama + "\", ";                                 // NAMA PRODUK
+                myData += "\"productName\": \"" + EscapeForJson(data.nama) + "\", ";                                 // NAMA PRODUK
                 myData += "\"url\": \"\", ";                   // LINK URL IKLAN KALO ADA
-                myData += "\"merchantSku\": \"" + data.kode + "\", ";                                // SKU
+                myData += "\"merchantSku\": \"" + EscapeForJson(data.kode) + "\", ";                                // SKU
                 myData += "\"tipePenanganan\": 1, ";                                            // 1= reguler produk (dikirim oleh blili)| 2= dikirim oleh kurir | 3 =ambil sendiri di toko
                 myData += "\"price\": " + data.Price + ", ";                                                      //harga reguler (no diskon)
                 myData += "\"salePrice\": " + data.MarketPrice + ", ";                                                // harga yg tercantum di display blibli
@@ -657,9 +716,9 @@ namespace MasterOnline.Controllers
                 myData += "\"width\": " + data.Width + ", ";
                 myData += "\"height\": " + data.Height + ", ";
                 myData += "\"weight\": " + data.berat + ", "; // dalam gram, sama seperti MO
-                myData += "\"desc\": \"" + data.Keterangan + "\", ";
-                myData += "\"uniqueSellingPoint\": \"" + data.Keterangan + "\", "; //ex : Unique selling point of current product
-                myData += "\"productStory\": \"" + data.Keterangan + "\", "; //ex : This product is launched at 25 Des 2016, made in Indonesia
+                myData += "\"desc\": \"" + EscapeForJson(data.Keterangan) + "\", ";
+                myData += "\"uniqueSellingPoint\": \"" + EscapeForJson(data.Keterangan) + "\", "; //ex : Unique selling point of current product
+                myData += "\"productStory\": \"" + EscapeForJson(data.Keterangan) + "\", "; //ex : This product is launched at 25 Des 2016, made in Indonesia
                 myData += "\"upcCode\": \"\", "; //barcode, ex :1231230010
                 myData += "\"display\": " + data.display + ", "; // true=tampil                
                 myData += "\"buyable\": true, ";
@@ -688,6 +747,8 @@ namespace MasterOnline.Controllers
             myData += "}]";
             myData += "}";
 
+            //myData = myData.Replace(System.Environment.NewLine, "\\r\\n");
+            myData = System.Text.RegularExpressions.Regex.Replace(myData, @"\r\n?|\n", "\\n");
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
@@ -773,8 +834,13 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-
-        public void fillOrderAWB(BlibliAPIData iden, string awbNo,string orderNo,string orderItemNo)
+        protected string EscapeForJson(string s)
+        {
+            //string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
+            string quoted = System.Web.Helpers.Json.Encode(s.Replace("–", "-"));
+            return quoted.Substring(1, quoted.Length - 2);
+        }
+        public void fillOrderAWB(BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -786,15 +852,15 @@ namespace MasterOnline.Controllers
 
             string myData = "{";
             myData += "\"type\": 1, ";
-            myData += "\"awbNo\": \""+ awbNo +"\", ";
-            myData += "\"orderNo\": \""+ orderNo + "\", ";
-            myData += "\"orderItemNo\": \""+ orderItemNo + "\" ";
+            myData += "\"awbNo\": \"" + awbNo + "\", ";
+            myData += "\"orderNo\": \"" + orderNo + "\", ";
+            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
             myData += "}";
 
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/fulfillRegular", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/order/fulfillRegular";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/fulfillRegular?requestId="+ Uri.EscapeDataString(milis.ToString()) +"&storeId=10001";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/fulfillRegular?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&storeId=10001";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
@@ -1526,108 +1592,127 @@ namespace MasterOnline.Controllers
                     {
                         if (result.value.attributes.Count > 0)
                         {
+                            bool insertAttribute = false;
                             using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
                             {
                                 oConnection.Open();
                                 using (SqlCommand oCommand = oConnection.CreateCommand())
                                 {
-                                    oCommand.CommandType = CommandType.Text;
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                    string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
-                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-                                    string a = "";
-                                    #region Generate Parameters dan CommandText
-                                    for (int i = 1; i <= 30; i++)
-                                    {
-                                        a = Convert.ToString(i);
-                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
-                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
-                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
-                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
-                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
-                                    }
-                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-                                    #endregion
-                                    oCommand.CommandText = sSQL;
-                                    oCommand.Parameters[0].Value = categoryCode;
-                                    oCommand.Parameters[1].Value = categoryName;
-                                    for (int i = 0; i < 30; i++)
-                                    {
-                                        a = Convert.ToString(i * 4 + 2);
-                                        oCommand.Parameters[(i * 4) + 2].Value = "";
-                                        oCommand.Parameters[(i * 4) + 3].Value = "";
-                                        oCommand.Parameters[(i * 4) + 4].Value = "";
-                                        oCommand.Parameters[(i * 4) + 5].Value = "";
-                                        try
-                                        {
-                                            oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
-                                            oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
-                                            oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
-                                            oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
-                                        }
-                                        catch (Exception ex)
-                                        {
+                                    var AttributeInDb = MoDbContext.AttributeBlibli.ToList();
 
-                                        }
-                                    }
-                                    oCommand.ExecuteNonQuery();
-                                }
-                                using (SqlCommand oCommand2 = oConnection.CreateCommand())
-                                {
-                                    oCommand2.CommandType = CommandType.Text;
-                                    oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
-                                    oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
-                                    oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
-                                    oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
-                                    oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
-                                    string a = "";
-                                    var AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
-                                    for (int i = 0; i < 30; i++)
+                                    //cek jika sudah ada di database
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(categoryCode.ToUpper())
+                                    && p.CATEGORY_NAME.ToUpper().Equals(categoryName.ToUpper())
+                                    ).ToList();
+                                    //cek jika sudah ada di database
+
+                                    if (cari.Count == 0)
                                     {
-                                        a = Convert.ToString(i + 1);
-                                        try
+                                        insertAttribute = true;
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        #region Generate Parameters dan CommandText
+                                        for (int i = 1; i <= 30; i++)
                                         {
-                                            if (result.value.attributes[i].options.Count > 0)
+                                            a = Convert.ToString(i);
+                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        #endregion
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = categoryCode;
+                                        oCommand.Parameters[1].Value = categoryName;
+                                        for (int i = 0; i < 30; i++)
+                                        {
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
+                                            try
                                             {
-                                                string ACODE = "";
-                                                string ATYPE = "";
-                                                string ANAME = "";
-                                                string OPTION_VALUE = "";
-                                                for (int j = 0; j < result.value.attributes[i].options.Count; j++)
-                                                {
-                                                    ACODE = result.value.attributes[i].attributeCode.Value;
-                                                    ATYPE = result.value.attributes[i].attributeType.Value;
-                                                    ANAME = result.value.attributes[i].name.Value;
-                                                    OPTION_VALUE = result.value.attributes[i].options[j].Value;
-
-                                                    //cek jika sudah ada di database
-                                                    var cari = AttributeOptInDb.Where(p => p.ACODE.ToUpper().Equals(ACODE.ToUpper())
-                                                    && p.ATYPE.ToUpper().Equals(ATYPE.ToUpper())
-                                                    && p.ANAME.ToUpper().Equals(ANAME.ToUpper())
-                                                    && p.OPTION_VALUE.ToUpper().Equals(OPTION_VALUE.ToUpper())
-                                                    ).ToList();
-                                                    //cek jika sudah ada di database
-
-                                                    if (cari.Count == 0)
-                                                    {
-                                                        oCommand2.Parameters[0].Value = ACODE;
-                                                        oCommand2.Parameters[1].Value = ATYPE;
-                                                        oCommand2.Parameters[2].Value = ANAME;
-                                                        oCommand2.Parameters[3].Value = OPTION_VALUE;
-                                                        oCommand2.ExecuteNonQuery();
-
-                                                        AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
-                                                    }
-
-                                                }
+                                                oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                                                oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                                                oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                                                oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
                                             }
+                                            catch (Exception ex)
+                                            {
 
+                                            }
                                         }
-                                        catch (Exception ex)
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                                if (insertAttribute)
+                                {
+                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                    {
+                                        oCommand2.CommandType = CommandType.Text;
+                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
+                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
+                                        string a = "";
+                                        var AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                        for (int i = 0; i < 30; i++)
                                         {
+                                            a = Convert.ToString(i + 1);
+                                            try
+                                            {
+                                                if (result.value.attributes[i].options.Count > 0)
+                                                {
+                                                    string ACODE = "";
+                                                    string ATYPE = "";
+                                                    string ANAME = "";
+                                                    string OPTION_VALUE = "";
+                                                    if (Convert.ToString(result.value.attributes[i].attributeCode.Value) != "WA-0000002") // warna
+                                                    {
+                                                        for (int j = 0; j < result.value.attributes[i].options.Count; j++)
+                                                        {
+                                                            ACODE = result.value.attributes[i].attributeCode.Value;
+                                                            ATYPE = result.value.attributes[i].attributeType.Value;
+                                                            ANAME = result.value.attributes[i].name.Value;
+                                                            OPTION_VALUE = result.value.attributes[i].options[j].Value;
 
+                                                            //cek jika sudah ada di database
+                                                            var cari = AttributeOptInDb.Where(p => p.ACODE.ToUpper().Equals(ACODE.ToUpper())
+                                                            && p.ATYPE.ToUpper().Equals(ATYPE.ToUpper())
+                                                            && p.ANAME.ToUpper().Equals(ANAME.ToUpper())
+                                                            && p.OPTION_VALUE.ToUpper().Equals(OPTION_VALUE.ToUpper())
+                                                            ).ToList();
+                                                            //cek jika sudah ada di database
+
+                                                            if (cari.Count == 0)
+                                                            {
+                                                                oCommand2.Parameters[0].Value = ACODE;
+                                                                oCommand2.Parameters[1].Value = ATYPE;
+                                                                oCommand2.Parameters[2].Value = ANAME;
+                                                                oCommand2.Parameters[3].Value = OPTION_VALUE;
+                                                                oCommand2.ExecuteNonQuery();
+
+                                                                AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
                                         }
                                     }
                                 }
