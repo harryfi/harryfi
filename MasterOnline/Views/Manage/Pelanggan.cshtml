@@ -599,8 +599,21 @@
                         $('#loading_spinner').hide();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                     } else {
-                        console.log(response.Errors);
-                        alert('Ada data yang tidak valid!');
+                        if ($('#MARKET').val() == "Tokopedia" || $('#MARKET').val() == "15" ) {
+                            //alert(response.Errors[0]);
+                            alert('Akun anda harus official store di Tokopedia. Silahkan hubungi kami apabila anda sudah official store!');
+                            Initialize();
+                            $('#close-editor').click();
+                            $('#loading_spinner').hide();
+                            $("html, body").animate({ scrollTop: 0 }, "slow");
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                            Initialize();
+                            $('#close-editor').click();
+                            $('#loading_spinner').hide();
+                            $("html, body").animate({ scrollTop: 0 }, "slow");
+                        }
                     }
                 },
                 error: function (xhr, status, error) {
