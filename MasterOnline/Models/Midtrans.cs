@@ -24,6 +24,8 @@ namespace MasterOnline.Models
         public string bank { get; set; }
         public string gross_amount { get; set; }
         public string signature_key { get; set; }
+        public string saved_token_id { get; set; }
+        public string saved_token_id_expired_at { get; set; }
     }
     public class BindReqSnap
     {
@@ -33,10 +35,21 @@ namespace MasterOnline.Models
         public string user_id { get; set; }
         //public List<string> enabled_payments { get; set; }
     }
+    public class AutoDebetCC
+    {
+        public string payment_type { get; set; }
+        public TransactionDetail transaction_details { get; set; }
+        public AutoCC credit_card { get; set; }
+    }
+    public class AutoCC
+    {
+        public string token_id { get; set; }
+    }
     public class CreditCard
     {
         public bool secure { get; set; }
         public bool save_card { get; set; }
+        public bool save_token_id { get; set; }
     }
     public class TransactionDetail
     {
