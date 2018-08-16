@@ -813,6 +813,15 @@
             });
 
             $('#box_upload_1').on('click', function () {
+            });
+
+            $('#box_upload_2').on('click', function () {
+            });
+
+            $('#box_upload_3').on('click', function () {
+
+            });
+            $('#box_upload_1').on('click', function () {
                 $('#foto_produk_1').click();
             });
 
@@ -1312,16 +1321,51 @@
         function cekValidasi() {
             var ret = true;
             if ($("#Stf02_Deskripsi").val().length < 30) {
-                alert("Deskripsi barang minimal 30 karakter");
+                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
                 ret = false;
-                $("#Stf02_Deskripsi").focus();
+            }
+            if (convertToAngka($("#Stf02_HJUAL").val()) <= 0) {
+                addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
+                ret = false;
             }
             return ret;
         }
-
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">'+msg+'</span>');
+            }
+        }
         function simpanBarang1(btnClicked) {
-            if (!validateForm()) return false;
-            if (!cekValidasi()) return false;
+
+            var valid = validateForm();
+            var valid2 = cekValidasi();
+
+            if (!valid || !valid2) return false;
+            if (!valid || !valid2) return false;
+
+
+            //$('form .selectized[required="required"]').each(function () {
+            //    var $this = $(this);
+            //    var $inputSelectize = $this.parent().find('.item');
+
+            //    if ($inputSelectize.length == 0) {
+            //        $this.parent().parent('.form-group').addClass('has-error');
+            //        $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
+
+            //        if (!$this.closest('div').find('.text-danger').length) {
+            //            if ($this.closest('div').hasClass('input-group')) {
+            //                $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+            //            } else {
+            //                $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+            //            }
+            //        }
+
+            //        $isValid = false;
+            //    }
+            //});
+
 
             var input = $("#Stf02_HJUAL").val();
             var angka = convertToAngka(input);
@@ -1446,7 +1490,8 @@
                         alert(response.Errors[0]);
                     } else {
                         $('#table-barang-1-partial').html(response);
-                        Initialize();
+                        //Initialize();
+                        refreshTableBarang();
                         $('#konfHapusBarang').modal('hide');
                     }
                     //end change

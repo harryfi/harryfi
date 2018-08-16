@@ -126,7 +126,7 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString = "<Request><Product><PrimaryCategory>13411</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
-            xmlString += "<short_description>" + data.deskripsi + "</short_description>";
+            xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<brand>No Brand</brand>";
             xmlString += "<model>" + data.kdBrg + "</model>";
             xmlString += "<warranty_type>No Warranty</warranty_type>";
@@ -139,11 +139,11 @@ namespace MasterOnline.Controllers
             xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
             xmlString += "<Images>";
             if (!string.IsNullOrEmpty(data.imageUrl))
-                xmlString += "<Image>" + data.imageUrl + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl2))
-                xmlString += "<Image>" + data.imageUrl2 + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl3))
-                xmlString += "<Image>" + data.imageUrl3 + "</Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
             xmlString += "</Images>";
             xmlString += "</Sku></Skus></Product></Request>";
 
@@ -275,13 +275,13 @@ namespace MasterOnline.Controllers
             request.SetHttpMethod("GET");
             LazopResponse response = client.Execute(request, accessToken);
             var bindDelivery = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
-            if(bindDelivery != null)
+            if (bindDelivery != null)
             {
-                if(bindDelivery.data.shipment_providers.Count() > 0)
+                if (bindDelivery.data.shipment_providers.Count() > 0)
                 {
                     foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
                     {
-                        if(ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                        if (ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
                         {
                             var newProvider = new DELIVERY_PROVIDER_LAZADA();
                             newProvider.CUST = cust;
@@ -505,11 +505,21 @@ namespace MasterOnline.Controllers
                             i = i + 1;
                         }
 
-                        //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                        //ret.status = 1;
-                        //ret.message = a.ToString();
+                        insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                        a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+
+                        ret.status = 1;
+                        ret.message = a.ToString();
 
                         SqlCommand CommandSQL = new SqlCommand();
+
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                        EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
                         CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                         CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
                         CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
@@ -519,7 +529,7 @@ namespace MasterOnline.Controllers
                         CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
 
 
-                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
 
                         getMultiOrderItems(listOrderId, accessToken, connectionID);
                     }
@@ -684,7 +694,7 @@ namespace MasterOnline.Controllers
                         foreach (Datum order in bindOrderItems.data)
                         {
                             if (order.order_items.Count() > 0)
-                            {                                
+                            {
                                 //var connectionID = Guid.NewGuid().ToString();
 
                                 foreach (Order_Items items in order.order_items)
@@ -737,24 +747,21 @@ namespace MasterOnline.Controllers
                                     insertQ += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
 
                                     //if (i < bindOrderItems.data.Count)
-                                        insertQ += ",";
+                                    insertQ += ",";
                                     //i = i + 1;
                                 }
-                                
+
                             }
                         }
                         insertQ = insertQ.Substring(0, insertQ.Length - 1);
-
-                        //var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                        //ret.status = 1;
-                        //ret.message = a.ToString();
+                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
 
                         SqlCommand CommandSQL = new SqlCommand();
                         CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                         CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
                         //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
 
-                        //EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
                     }
                     else
                     {

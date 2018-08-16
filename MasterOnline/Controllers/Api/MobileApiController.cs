@@ -551,6 +551,7 @@ namespace MasterOnline.Controllers.Api
                 return Json(result);
             }
 
+            ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == data.RecNumPesanan);
 
             if (data.StatusTransaksi == "04") // validasi di tab Siap dikirim

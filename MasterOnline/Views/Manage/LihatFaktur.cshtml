@@ -132,6 +132,7 @@
                             <div class="col-md-6">
                                 <img src="@Url.Content(Model.LogoMarket)" width="250" />
                                 <img src="@Url.Content($"~/Content/Logo_Perusahaan/LogoUsaha-{username}-{Model.NamaPerusahaan}.jpg")" width="100" />
+                                @*var namaFile = $"LogoUsaha-{dataVm.DataUsaha.USERNAME}-{dataVm.DataUsaha.NAMA_PT}{fileExtension}";*@
                             </div>
                         </div>
                         <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
@@ -237,7 +238,7 @@
                         </div>
                         <h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2>
                         <p class="sub_title">
-                            <span class="block_subtitle">Penjual</span> @(Model?.Faktur?.NAMA_CUST)
+                            <span class="block_subtitle">Penjual</span> @Model.NamaToko
                         </p>
                         <p class="sub_title">
                             <span class="block_subtitle">Pembeli</span> @pembeli.NAMA
@@ -246,7 +247,10 @@
                             <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
                         </p>
                         <p class="sub_title">
-                            <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL) @(Model.Faktur.AL2) @(Model.Faktur.AL3)
+                            <span class="block_subtitle">Alamat</span> @(pembeli.AL) @(pembeli.AL2) @(pembeli.AL3)
+                        </p>
+                        <p class="sub_title">
+                            <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
                         </p>
                     }
                 </div>
