@@ -1502,6 +1502,7 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
+                saveBarangBlibli(1, dataBarang);
                 //update harga, qty, dll
                 saveBarangElevenia(2, dataBarang);
                 if (updateHarga)

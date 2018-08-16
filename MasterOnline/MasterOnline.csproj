@@ -421,6 +421,10 @@
     <Compile Include="Migrations\201808032211271_IgnoreAttributeBlibli.Designer.cs">
       <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201808160725546_add_token_cc_at_account.cs" />
+    <Compile Include="Migrations\201808160725546_add_token_cc_at_account.Designer.cs">
+      <DependentUpon>201808160725546_add_token_cc_at_account.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -5362,6 +5366,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808032211271_IgnoreAttributeBlibli.resx">
       <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808160725546_add_token_cc_at_account.resx">
+      <DependentUpon>201808160725546_add_token_cc_at_account.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

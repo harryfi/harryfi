@@ -837,7 +837,7 @@ namespace MasterOnline.Controllers
         protected string EscapeForJson(string s)
         {
             //string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
-            string quoted = System.Web.Helpers.Json.Encode(s.Replace("–", "-"));
+            string quoted = System.Web.Helpers.Json.Encode(s.Replace("–", "-").Replace("\"\"","''"));
             return quoted.Substring(1, quoted.Length - 2);
         }
         public void fillOrderAWB(BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
