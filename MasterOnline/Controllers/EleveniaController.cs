@@ -583,51 +583,55 @@ namespace MasterOnline.Controllers
                     CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
                     CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
                     CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 1;
+                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
 
                     EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                    //setelah ambil pesanan yang berstatus paid, sync ( cek SO berstatus paid di MO berdasarkan delivery_no, jika sudha jadi 02 ( siap dikirim ), jalankan API 
-                    if (stat == StatusOrder.Paid)
-                    {
-                        //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SIAP DIKIRIM, JIKA YA, JALANKAN API ACCEPT_ORDER
-                        DataSet dsMO = new DataSet();
-                        dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='02'");
-                        if (dsMO.Tables[0].Rows.Count > 0)
-                        {
-                            for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
-                            {
-                                string ordNo = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_NO"));
-                                string ordPrdSeq = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_PROD_NO"));
-                                AcceptOrder(auth, ordNo, ordPrdSeq);
-                            }
-                        }
-                        //setelah cek status order paid, cek status order packagingINP
-                        GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
-                    }
-                    if (stat == StatusOrder.PackagingINP)
-                    {
-                        //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SUDAH DIKIRIM, JIKA YA, JALANKAN API Update Airway Bill Number
-                        DataSet dsMO = new DataSet();
-                        dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI,TRACKING_SHIPMENT FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='03' AND ISNULL(TRACKING_SHIPMENT,'') <> ''");
-                        if (dsMO.Tables[0].Rows.Count > 0)
-                        {
-                            for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
-                            {
-                                DataSet dsTEMP_ELV_ORDER = new DataSet();
-                                dsTEMP_ELV_ORDER = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "' ");
-                                if (dsTEMP_ELV_ORDER.Tables[0].Rows.Count > 0)
-                                {
-                                    string awb = Convert.ToString(dsMO.Tables[0].Rows[i]["TRACKING_SHIPMENT"]);
-                                    string dlvNo = Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]);
-                                    string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
-                                    string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
-                                    string ordNo = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_NO"]);
-                                    string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
-                                    string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                                    UpdateAWBNumber(auth, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
-                                }
-                            }
-                        }
-                    }
+                    ////remark by calvin, dipindah ke saat ChangeStatusPesanan di managecontroller
+                    ////setelah ambil pesanan yang berstatus paid, sync ( cek SO berstatus paid di MO berdasarkan delivery_no, jika sudha jadi 02 ( siap dikirim ), jalankan API 
+                    //if (stat == StatusOrder.Paid)
+                    //{
+                    //    //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SIAP DIKIRIM, JIKA YA, JALANKAN API ACCEPT_ORDER
+                    //    DataSet dsMO = new DataSet();
+                    //    dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='02'");
+                    //    if (dsMO.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
+                    //        {
+                    //            string ordNo = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_NO"));
+                    //            string ordPrdSeq = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_PROD_NO"));
+                    //            AcceptOrder(auth, ordNo, ordPrdSeq);
+                    //        }
+                    //    }
+                    //    //setelah cek status order paid, cek status order packagingINP
+                    //    GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
+                    //}
+                    //if (stat == StatusOrder.PackagingINP)
+                    //{
+                    //    //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SUDAH DIKIRIM, JIKA YA, JALANKAN API Update Airway Bill Number
+                    //    DataSet dsMO = new DataSet();
+                    //    dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI,TRACKING_SHIPMENT FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='03' AND ISNULL(TRACKING_SHIPMENT,'') <> ''");
+                    //    if (dsMO.Tables[0].Rows.Count > 0)
+                    //    {
+                    //        for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
+                    //        {
+                    //            DataSet dsTEMP_ELV_ORDER = new DataSet();
+                    //            dsTEMP_ELV_ORDER = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "' ");
+                    //            if (dsTEMP_ELV_ORDER.Tables[0].Rows.Count > 0)
+                    //            {
+                    //                string awb = Convert.ToString(dsMO.Tables[0].Rows[i]["TRACKING_SHIPMENT"]);
+                    //                string dlvNo = Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]);
+                    //                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
+                    //                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
+                    //                string ordNo = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_NO"]);
+                    //                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
+                    //                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_PROD_NO"]);
+                    //                UpdateAWBNumber(auth, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                    //            }
+                    //        }
+                    //    }
+                    //}
+                    ////end remark by calvin, dipindah ke saat ChangeStatusPesanan
+
                 }
                 else
                 {
