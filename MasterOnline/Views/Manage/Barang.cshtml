@@ -813,6 +813,15 @@
             });
 
             $('#box_upload_1').on('click', function () {
+            });
+
+            $('#box_upload_2').on('click', function () {
+            });
+
+            $('#box_upload_3').on('click', function () {
+
+            });
+            $('#box_upload_1').on('click', function () {
                 $('#foto_produk_1').click();
             });
 
@@ -1477,7 +1486,8 @@
                         alert(response.Errors[0]);
                     } else {
                         $('#table-barang-1-partial').html(response);
-                        Initialize();
+                        //Initialize();
+                        refreshTableBarang();
                         $('#konfHapusBarang').modal('hide');
                     }
                     //end change

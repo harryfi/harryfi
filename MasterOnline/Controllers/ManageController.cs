@@ -2023,13 +2023,13 @@ namespace MasterOnline.Controllers
             }
         }
 
-        [Route("manage/promptDeliveryProvLazada")]
-        public ActionResult PromptDeliveryProvLazada(string cust)
+        [Route("manage/PromptDeliveryProviderLazada")]
+        public ActionResult PromptDeliveryProviderLazada(string cust)
         {
             try
             {
                 var PromptModel = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(a => a.CUST == cust).ToList();
-                return View("PromptDeliveryTempElevenia", PromptModel);
+                return View("PromptDeliveryProviderLazada", PromptModel);
             }
             catch (Exception ex)
             {
@@ -4224,6 +4224,7 @@ namespace MasterOnline.Controllers
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
             var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
             var blAPI = new BukaLapakController();
+            var lzdAPI = new LazadaController();
             switch (status)
             {
                 case "02":
@@ -4237,6 +4238,24 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                    }
+                    else if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+                    {
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT) && !string.IsNullOrEmpty(pesanan.SHIPMENT))
+                        {
+                            var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                            if(pesananChild.Count > 0)
+                            {
+                                List<string> ordItemId = new List<string>();
+                                foreach (SOT01B item in pesananChild)
+                                {
+                                    ordItemId.Add(item.ORDER_ITEM_ID);
+                                }
+                                lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
+                                lzdAPI.GetToDeliver(ordItemId , pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+
+                            }
+                        }
                     }
                     break;
             }
@@ -4360,11 +4379,15 @@ namespace MasterOnline.Controllers
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
 
-            return Json(pesananInDb.TRACKING_SHIPMENT, JsonRequestBehavior.AllowGet);
+            string[] shipment = new string[2];
+            shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            shipment[1] = pesananInDb.SHIPMENT;
+
+            return Json(shipment, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
-        public ActionResult SaveResi(int? recNum, string noResi)
+        public ActionResult SaveResi(int? recNum, string noResi, string deliveryProv)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             //add by Tri, check if user input new resi
@@ -4373,6 +4396,10 @@ namespace MasterOnline.Controllers
                 changeStat = true;
             //end add by Tri, check if user input new resi
 
+            //add by Tri, delivery provider lazada
+            if (!string.IsNullOrEmpty(deliveryProv))
+                pesananInDb.SHIPMENT = deliveryProv;
+            //end add by Tri, delivery provider lazada
             pesananInDb.TRACKING_SHIPMENT = noResi;
             ErasoftDbContext.SaveChanges();
 
@@ -4624,6 +4651,36 @@ namespace MasterOnline.Controllers
             var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
             barangPesananInDb.LOKASI = gd;
             barangPesananInDb.QTY = qty;
+
+
+
+            //add by calvin, 22 juni 2018 validasi QOH
+            //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
+            //foreach (var item in stokDetailInDb)
+            //{
+                var qtyOnHand = 0d;
+                {
+                    object[] spParams = {
+                    new SqlParameter("@BRG",barangPesananInDb.BRG),
+                    new SqlParameter("@GD",gd),
+                    new SqlParameter("@Satuan", "2"),
+                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+
+                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                }
+                if (qtyOnHand - qty < 0)
+                {
+                    var vmError = new StokViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            //}
+            //end add by calvin, validasi QOH
 
             if (Math.Abs(barangPesananInDb.DISCOUNT) > 0)
             {
