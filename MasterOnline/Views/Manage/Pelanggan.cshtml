@@ -537,6 +537,8 @@
         }
 
         function getPelanggan() {
+            var showPricing = false;
+
             $.ajax({
                 type: "GET",
                 /**/
@@ -562,14 +564,19 @@
                         searchField: 'text',
                         options: customerList,
                         onChange: function (value) {
+                            if (showPricing) {
+                                $('#tambah_market_pricing').click();
+                            }
+
                             var obj = $(this);
                             var isExist = isInArray(parseInt(value), $listNamaMarketTerpakai);
 
                             if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
-                                //obj[0].setValue(null);
                                 $("#Customers_NAMA").val(null);
-                                $('#tambah_market_pricing').click();
+                                showPricing = true;
+                                obj[0].setValue(null);
                             } else {
+                                showPricing = false;
                                 $("#Customers_NAMA").val(value);
 
                                 @{
