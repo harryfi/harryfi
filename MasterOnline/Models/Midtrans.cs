@@ -37,6 +37,7 @@ namespace MasterOnline.Models
     {
         public bool secure { get; set; }
         public bool save_card { get; set; }
+        public bool save_token_id { get; set; }
     }
     public class TransactionDetail
     {

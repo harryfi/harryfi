@@ -69,5 +69,8 @@ namespace MasterOnline.Models
         public DateTime? TGL_SUBSCRIPTION { get; set; }
 
         public string PhotoKtpBase64 { get; set; }
+
+        [StringLength(100)]
+        public string TOKEN_CC { get; set; }
     }
 }
