@@ -139,11 +139,11 @@ namespace MasterOnline.Controllers
             xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
             xmlString += "<Images>";
             if (!string.IsNullOrEmpty(data.imageUrl))
-                xmlString += "<![CDATA[<Image>" + data.imageUrl + "]]></Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl2))
-                xmlString += "<![CDATA[<Image>" + data.imageUrl2 + "]]></Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
             if (!string.IsNullOrEmpty(data.imageUrl3))
-                xmlString += "<![CDATA[<Image>" + data.imageUrl3 + "]]></Image>";
+                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
             xmlString += "</Images>";
             xmlString += "</Sku></Skus></Product></Request>";
 
