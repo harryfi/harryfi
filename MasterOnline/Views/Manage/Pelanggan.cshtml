@@ -440,6 +440,7 @@
         var $customerId = "";
         var $jumlahMarketplace = 0;
         var $jumlahMarketplaceMax = 0;
+        var $listNamaMarketTerpakai = [];
 
         $(document).on('ready',
             function () {
@@ -456,22 +457,24 @@
                 success: function (res) {
                     $jumlahMarketplaceMax = res.JumlahMarketplaceMax;
                     $jumlahMarketplace = res.JumlahMarketplace;
+                    $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
 
                     console.log($jumlahMarketplace);
                     console.log($jumlahMarketplaceMax);
+                    console.log($listNamaMarketTerpakai);
 
-                    if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
-                        $('#tambah_market').remove();
-                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                            'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
-                    } else {
-                        $('#tambah_market').remove();
+                    //if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
+                    //    $('#tambah_market').remove();
+                    //    $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                    //        'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
+                    //} else {
+                        //$('#tambah_market').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                         $('#tambah_market').on('click', function () {
                             $('.customer_table_section').hide();
                             $('.customer_editor_section').show();
                         });
-                    }
+                    //}
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -529,6 +532,33 @@
             });
         }
 
+        var contains = function(needle) {
+            // Per spec, the way to identify NaN is that it is not equal to itself
+            var findNaN = needle !== needle;
+            var indexOf;
+
+            if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+                indexOf = Array.prototype.indexOf;
+            } else {
+                indexOf = function(needle) {
+                    var i = -1, index = -1;
+
+                    for(i = 0; i < this.length; i++) {
+                        var item = this[i];
+
+                        if((findNaN && item !== item) || item === needle) {
+                            index = i;
+                            break;
+                        }
+                    }
+
+                    return index;
+                };
+            }
+
+            return indexOf.call(this, needle) > -1;
+        };
+
         function getPelanggan() {
             $.ajax({
                 type: "GET",
@@ -554,12 +584,17 @@
                         valueField: 'id',
                         searchField: 'text',
                         options: customerList,
-                        onChange: function(value) {
+                        onChange: function (value) {
+                            if (!contains.call($listNamaMarketTerpakai, value)) {
+                                alert('Dilarang!');
+                                return;
+                            }
+
                             $("#Customers_NAMA").val(value);
 
                             @{
-                                var bklapak = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK")).IdMarket.ToString();
-                                var blibli = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("Blibli")).IdMarket.ToString();
+                                var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
+                                var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                             }
                             if (@bklapak == value ||  @blibli == value ) {
                                 $('#password-akun').show();

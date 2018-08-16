@@ -12,5 +12,6 @@ namespace MasterOnline.Models
         public int JumlahMarketplace { get; set; }
         public short? JumlahMarketplaceMax { get; set; }
         public bool SudahSampaiBatasTanggal { get; set; }
+        public List<int> ListNamaMarketTerpakai { get; set; } = new List<int>();
     }
 }
