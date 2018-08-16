@@ -468,12 +468,12 @@
                     //    $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                     //        'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
                     //} else {
-                        //$('#tambah_market').remove();
-                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
-                        $('#tambah_market').on('click', function () {
-                            $('.customer_table_section').hide();
-                            $('.customer_editor_section').show();
-                        });
+                    $('#tambah_market').remove();
+                    $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
+                    $('#tambah_market').on('click', function () {
+                        $('.customer_table_section').hide();
+                        $('.customer_editor_section').show();
+                    });
                     //}
                 },
                 error: function (xhr, status, error) {
@@ -532,32 +532,9 @@
             });
         }
 
-        var contains = function(needle) {
-            // Per spec, the way to identify NaN is that it is not equal to itself
-            var findNaN = needle !== needle;
-            var indexOf;
-
-            if(!findNaN && typeof Array.prototype.indexOf === 'function') {
-                indexOf = Array.prototype.indexOf;
-            } else {
-                indexOf = function(needle) {
-                    var i = -1, index = -1;
-
-                    for(i = 0; i < this.length; i++) {
-                        var item = this[i];
-
-                        if((findNaN && item !== item) || item === needle) {
-                            index = i;
-                            break;
-                        }
-                    }
-
-                    return index;
-                };
-            }
-
-            return indexOf.call(this, needle) > -1;
-        };
+        function isInArray(value, array) {
+            return array.indexOf(value) > -1;
+        }
 
         function getPelanggan() {
             $.ajax({
@@ -585,28 +562,34 @@
                         searchField: 'text',
                         options: customerList,
                         onChange: function (value) {
-                            if (!contains.call($listNamaMarketTerpakai, value)) {
-                                alert('Dilarang!');
-                                return;
-                            }
+                            var obj = $(this);
+                            var isExist = isInArray(parseInt(value), $listNamaMarketTerpakai);
 
-                            $("#Customers_NAMA").val(value);
-
-                            @{
-                                var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
-                                var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
-                            }
-                            if (@bklapak == value ||  @blibli == value ) {
-                                $('#password-akun').show();
-                                $('#Customers_PASSWORD').attr('required', 'checked');
+                            if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
+                                //obj[0].setValue(null);
+                                $("#Customers_NAMA").val(null);
+                                $('#tambah_market_pricing').click();
                             } else {
-                                $('#password-akun').hide();
-                                $('#Customers_PASSWORD').removeAttr('required');
+                                $("#Customers_NAMA").val(value);
+
+                                @{
+                                    var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
+                                    var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
+                                }
+                                if (@bklapak == value ||  @blibli == value ) {
+                                    $('#password-akun').show();
+                                    $('#Customers_PASSWORD').attr('required', 'checked');
+                                } else {
+                                    $('#password-akun').hide();
+                                    $('#Customers_PASSWORD').removeAttr('required');
+                                }
                             }
                         }
                     });
 
                     namaMarket[0].selectize.setValue($('#Customers_NAMA').val());
+
+                    
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -661,6 +644,9 @@
 
         function Initialize() {
             cekJumlahMarketplace();
+
+            $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                'data-target="#modalPricing" id="tambah_market_pricing" style="display: none;">Modal Pricing</button>');
 
             var table = $('#datatable').DataTable();
 
