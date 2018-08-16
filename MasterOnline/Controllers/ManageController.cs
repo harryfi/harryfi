@@ -619,6 +619,7 @@ namespace MasterOnline.Controllers
                 .GroupBy(m => m.NAMA)
                 .Select(g => new
                 {
+                    NamaMarket = g.FirstOrDefault().NAMA,
                     Jumlah = g.Select(o => o.NAMA).Distinct().Count()
                 });
 
@@ -632,16 +633,19 @@ namespace MasterOnline.Controllers
 
             var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
             var jumlahSemuaAkun = 0;
+            var namaMarketTerpakai = new List<int>();
 
             foreach (var market in jumlahAkunMarketplace)
             {
+                namaMarketTerpakai.Add(Convert.ToInt32(market.NamaMarket));
                 jumlahSemuaAkun += market.Jumlah;
             }
 
             var valSubs = new ValidasiSubs()
             {
                 JumlahMarketplace = jumlahSemuaAkun,
-                JumlahMarketplaceMax = accSubs?.JUMLAH_MP
+                JumlahMarketplaceMax = accSubs?.JUMLAH_MP,
+                ListNamaMarketTerpakai = namaMarketTerpakai
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
@@ -1502,6 +1506,7 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
+                saveBarangBlibli(1, dataBarang);
                 //update harga, qty, dll
                 saveBarangElevenia(2, dataBarang);
                 if (updateHarga)

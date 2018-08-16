@@ -372,6 +372,10 @@
     <Compile Include="ErasoftContextMigrations\201808140206028_AddDeliveryProviderLazada.Designer.cs">
       <DependentUpon>201808140206028_AddDeliveryProviderLazada.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808160158569_AlterRecnumDelivery.cs" />
+    <Compile Include="ErasoftContextMigrations\201808160158569_AlterRecnumDelivery.Designer.cs">
+      <DependentUpon>201808160158569_AlterRecnumDelivery.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -420,6 +424,10 @@
     <Compile Include="Migrations\201808032211271_IgnoreAttributeBlibli.cs" />
     <Compile Include="Migrations\201808032211271_IgnoreAttributeBlibli.Designer.cs">
       <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808160725546_add_token_cc_at_account.cs" />
+    <Compile Include="Migrations\201808160725546_add_token_cc_at_account.Designer.cs">
+      <DependentUpon>201808160725546_add_token_cc_at_account.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
@@ -5246,6 +5254,9 @@
     <EmbeddedResource Include="ErasoftContextMigrations\201808140206028_AddDeliveryProviderLazada.resx">
       <DependentUpon>201808140206028_AddDeliveryProviderLazada.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808160158569_AlterRecnumDelivery.resx">
+      <DependentUpon>201808160158569_AlterRecnumDelivery.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
     </EmbeddedResource>
@@ -5362,6 +5373,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808032211271_IgnoreAttributeBlibli.resx">
       <DependentUpon>201808032211271_IgnoreAttributeBlibli.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808160725546_add_token_cc_at_account.resx">
+      <DependentUpon>201808160725546_add_token_cc_at_account.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
