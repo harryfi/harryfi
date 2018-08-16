@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -90,32 +91,32 @@ namespace MasterOnline.Controllers
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
 
-                            var dataSub = new AktivitasSubscription();
-                            dataSub.Account = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-                            dataSub.Email = sessionData?.Account != null ? sessionData.Account.Email : sessionData.User.Email;
-                            dataSub.Nilai = dataTrans.VALUE;
-                            dataSub.TanggalBayar = dtNow;
-                            dataSub.TipeSubs = code;
-                            MoDbContext.AktivitasSubscription.Add(dataSub);
+                            //var dataSub = new AktivitasSubscription();
+                            //dataSub.Account = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+                            //dataSub.Email = sessionData?.Account != null ? sessionData.Account.Email : sessionData.User.Email;
+                            //dataSub.Nilai = dataTrans.VALUE;
+                            //dataSub.TanggalBayar = dtNow;
+                            //dataSub.TipeSubs = code;
+                            //MoDbContext.AktivitasSubscription.Add(dataSub);
 
-                            if (sessionData?.Account != null)
-                            {
-                                var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.Account.AccountId);
-                                if (dataAccount != null)
-                                {
-                                    dataAccount.KODE_SUBSCRIPTION = code;
-                                    dataAccount.TGL_SUBSCRIPTION = dtNow;
-                                }
-                            }
-                            else
-                            {
-                                var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.User.AccountId);
-                                if (dataAccount != null)
-                                {
-                                    dataAccount.KODE_SUBSCRIPTION = code;
-                                    dataAccount.TGL_SUBSCRIPTION = dtNow;
-                                }
-                            }
+                            //if (sessionData?.Account != null)
+                            //{
+                            //    var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.Account.AccountId);
+                            //    if (dataAccount != null)
+                            //    {
+                            //        dataAccount.KODE_SUBSCRIPTION = code;
+                            //        dataAccount.TGL_SUBSCRIPTION = dtNow;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    var dataAccount = MoDbContext.Account.SingleOrDefault(m => m.AccountId == sessionData.User.AccountId);
+                            //    if (dataAccount != null)
+                            //    {
+                            //        dataAccount.KODE_SUBSCRIPTION = code;
+                            //        dataAccount.TGL_SUBSCRIPTION = dtNow;
+                            //    }
+                            //}
                             MoDbContext.SaveChanges();
                             return Json(bindTransferCharge.token, JsonRequestBehavior.AllowGet);
                         }
@@ -172,13 +173,19 @@ namespace MasterOnline.Controllers
                         {
                             //transaksi sudah ada di tabel transaksi midtrans
                             var insertTrans = new AktivitasSubscription();
+
                             var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
+                            userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
+                            userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
+                            if (!string.IsNullOrEmpty(notification_data.saved_token_id))
+                                userData.TOKEN_CC = notification_data.saved_token_id;
+
                             insertTrans.Account = userData.Username;
                             insertTrans.Email = userData.Email;
                             insertTrans.Nilai = tranMidtrans.VALUE;
-                            insertTrans.TanggalBayar = tranMidtrans.TGL_INPUT;
+                            insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
                             insertTrans.TipeSubs = tranMidtrans.TYPE;
-
+                            
                             MoDbContext.AktivitasSubscription.Add(insertTrans);
                         }
                     }
@@ -206,6 +213,47 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        public void AutoChargeCC()
+        {
+            string url = "https://api.sandbox.midtrans.com/v2/charge";
+            string serverKey = "";
+            System.Net.WebRequest myReq = System.Net.WebRequest.Create(url);
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("Accept", "application/json");
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(serverKey + ":"))));
+
+            var bindData = new AutoDebetCC();
+            bindData.payment_type = "credit_card";
+            bindData.credit_card = new AutoCC
+            {
+                token_id = ""
+            };
+            bindData.transaction_details = new TransactionDetail
+            {
+                gross_amount = 20000,
+                order_id = "test-auto-1"
+            };
+            string myData = Newtonsoft.Json.JsonConvert.SerializeObject(bindData);
+
+            Stream dataStream;
+            dataStream = myReq.GetRequestStream();
+            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+            dataStream.Close();
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+            System.Net.WebResponse response = myReq.GetResponse();
+            dataStream = response.GetResponseStream();
+
+            StreamReader reader = new StreamReader(dataStream);
+            string responseFromServer = reader.ReadToEnd();
+
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+        }
+
         public static string Base64Encode()
         {
 
