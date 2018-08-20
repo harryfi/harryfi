@@ -1110,113 +1110,120 @@ namespace MasterOnline.Controllers
             int QOHBlibli = 0;
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
-            string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(data.kode_mp);
+            string[] brg_mp = data.kode_mp.Split(';');
+            if (brg_mp.Length == 2)
+            {
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]);
 
-            HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
-            myReq_1.Method = "POST";
-            myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
-            myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq_1.Accept = "application/json";
-            myReq_1.ContentType = "application/json";
-            myReq_1.Headers.Add("requestId", milis.ToString());
-            myReq_1.Headers.Add("sessionId", milis.ToString());
-            myReq_1.Headers.Add("username", userMTA);
-            string responseFromServer_1 = "";
-            try
-            {
-                using (WebResponse response = myReq_1.GetResponse())
+                HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("requestId", milis.ToString());
+                myReq_1.Headers.Add("sessionId", milis.ToString());
+                myReq_1.Headers.Add("username", userMTA);
+                string responseFromServer_1 = "";
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = myReq_1.GetResponse())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer_1 = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            if (responseFromServer_1 != null)
-            {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
-                {
-                    if (result.content.Count > 0)
-                    {
-                        foreach (var item in result.content)
+                        using (Stream stream = response.GetResponseStream())
                         {
-                            QOHBlibli = item.stockAvailableLv2.Value;
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer_1 = reader.ReadToEnd();
                         }
                     }
                 }
-            }
-            #endregion
-
-            if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak beda
-            {
-                QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
-            }
-
-            string myData = "{";
-            myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
-            myData += "\"productRequests\": ";
-            myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
-            {
-                myData += "\"gdnSku\": \"" + data.kode_mp + "\",  ";
-                myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
-                myData += "\"minimumStock\": " + data.MinQty + ", ";
-                myData += "\"price\": " + data.Price + ", ";
-                myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                myData += "\"buyable\": " + data.display + ", ";
-                myData += "\"display\": " + data.display + " "; // true=tampil                
-            }
-            myData += "}]";
-            myData += "}";
-
-            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
-            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
-            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "POST";
-            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", milis.ToString());
-            myReq.Headers.Add("sessionId", milis.ToString());
-            myReq.Headers.Add("username", userMTA);
-            string responseFromServer = "";
-            try
-            {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+                catch (Exception ex)
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+
                 }
-                using (WebResponse response = myReq.GetResponse())
+                if (responseFromServer_1 != null)
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1);
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        if (result.content.Count > 0)
+                        {
+                            foreach (var item in result.content)
+                            {
+                                QOHBlibli = item.stockAvailableLv2.Value;
+                            }
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+                #endregion
 
-            }
-            if (responseFromServer != null)
-            {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak beda
                 {
+                    QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
+                }
 
+                if (QOHBlibli != 0)
+                {
+                    string myData = "{";
+                    myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
+                    myData += "\"productRequests\": ";
+                    myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
+                    {
+                        myData += "\"gdnSku\": \"" + data.kode_mp + "\",  ";
+                        myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
+                        myData += "\"minimumStock\": " + data.MinQty + ", ";
+                        myData += "\"price\": " + data.Price + ", ";
+                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                        myData += "\"buyable\": " + data.display + ", ";
+                        myData += "\"display\": " + data.display + " "; // true=tampil                
+                    }
+                    myData += "}]";
+                    myData += "}";
+
+                    //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+                    string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
+                    //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+                    string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                    myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                    myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                    myReq.Accept = "application/json";
+                    myReq.ContentType = "application/json";
+                    myReq.Headers.Add("requestId", milis.ToString());
+                    myReq.Headers.Add("sessionId", milis.ToString());
+                    myReq.Headers.Add("username", userMTA);
+                    string responseFromServer = "";
+                    try
+                    {
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
+                        {
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        }
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    if (responseFromServer != null)
+                    {
+                        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                        if (string.IsNullOrEmpty(result.errorCode.Value))
+                        {
+
+                        }
+                    }
                 }
             }
 
