@@ -21,17 +21,30 @@ namespace MasterOnline.Controllers
         {
             MoDbContext = new MoDbContext();
             var dtNow = DateTime.Now;
-            PaymentMidtransViewModel dataClass = new PaymentMidtransViewModel();
+            //PaymentMidtransViewModel dataClass = new PaymentMidtransViewModel();
             if (!string.IsNullOrEmpty(code))
             {
-                dataClass.price = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA.ToString();
-                if (!dataClass.price.Equals("0"))
+                var price = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA.ToString();
+                if (!price.Equals("0"))
                 {
-                    dataClass.typeSubscription = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).KETERANGAN.ToString();
-                    dataClass.subDesc = "Jumlah marketplace :" + MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).JUMLAH_MP.ToString() + " \nJumlah pesanan :" + MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).JUMLAH_PESANAN.ToString();
+                    //dataClass.typeSubscription = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).KETERANGAN.ToString();
+                    //dataClass.subDesc = "Jumlah marketplace :" + MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).JUMLAH_MP.ToString() + " \nJumlah pesanan :" + MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).JUMLAH_PESANAN.ToString();
 
 
-                    dataClass.urlView = "http://localhost:50108/midtrans/PaymentMidtrans";
+                    //dataClass.urlView = "http://localhost:50108/midtrans/PaymentMidtrans";
+                    string currentYear = DateTime.Today.ToString("yy");
+
+                    #region auto number no_transaksi
+                    var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
+                    int lastNum = 0;
+                    if (listTrans.Count > 0)
+                    {
+                        lastNum = listTrans.Last().RECNUM.Value;
+                    }
+                    lastNum = lastNum + 1;
+                    string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
+                    #endregion
+
                     BindReqSnap data = new BindReqSnap
                     {
                         //transaction_details = new TransactionDetail(),
@@ -53,15 +66,33 @@ namespace MasterOnline.Controllers
                         //user_id = sessionData.User.NoHp,
                     };
                     data.transaction_details = new TransactionDetail();
-                    data.transaction_details.gross_amount = Convert.ToInt64(dataClass.price);
-                    data.transaction_details.order_id = dtNow.ToString("yyyyMMddHHmmss");
+                    data.transaction_details.gross_amount = Convert.ToInt64(price);
+                    data.transaction_details.order_id = noTrans;
                     data.credit_card = new CreditCard();
                     data.credit_card.secure = true;
                     data.credit_card.save_card = true;
+                    data.credit_card.save_token_id = true;
                     data.customer_details = new CustomerDetail();
-                    //data.customer_details.first_name = sessionData.User.Username;
-                    //data.user_id = sessionData.User.NoHp;
-                    string currentYear = DateTime.Today.ToString("yy");
+
+                    if (sessionData?.Account != null)
+                    {
+
+                        //EDB = new DatabaseSQL(sessionData.Account.UserId);
+                        data.customer_details.email = sessionData.Account.Email;
+                        data.customer_details.phone = sessionData.Account.NoHp;
+                        data.user_id = sessionData.Account.AccountId.ToString();
+                    }
+                    else
+                    {
+                        if (sessionData?.User != null)
+                        {
+                            //var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            data.customer_details.email = sessionData.User.Email;
+                            data.customer_details.phone = sessionData.User.NoHp;
+                            data.user_id = sessionData.User.UserId.ToString();
+                        }
+                    }
+                    
                     string dataPost = Newtonsoft.Json.JsonConvert.SerializeObject(data);
                     Utils.HttpRequest req = new Utils.HttpRequest();
                     System.Net.Http.HttpContent content = new System.Net.Http.StringContent(dataPost);
@@ -71,17 +102,7 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(bindTransferCharge.token))
                         {
                             MoDbContext = new MoDbContext();
-
-                            #region auto number no_transaksi
-                            var listTrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI.Substring(0, 2).Equals(currentYear)).OrderBy(t => t.RECNUM).ToList();
-                            int lastNum = 0;
-                            if (listTrans.Count > 0)
-                            {
-                                lastNum = listTrans.Last().RECNUM.Value;
-                            }
-                            lastNum = lastNum + 1;
-                            string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
-                            #endregion
+                            
                             var dataTrans = new TransaksiMidtrans();
                             dataTrans.NO_TRANSAKSI = noTrans;
                             dataTrans.TGL_INPUT = dtNow;
@@ -165,7 +186,7 @@ namespace MasterOnline.Controllers
                         MoDbContext.MidtransData.Add(newData);
                     }
 
-                    if (notification_data.status_code.Equals("200") && notification_data.transaction_status.Equals("settlement"))
+                    if (notification_data.status_code.Equals("200") && (notification_data.transaction_status.Equals("settlement") || notification_data.transaction_status.Equals("capture")))
                     {
                         //transaction complete
                         var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
