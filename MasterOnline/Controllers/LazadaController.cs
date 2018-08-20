@@ -251,16 +251,24 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest();
             request.SetApiName("/product/price_quantity/update");
             request.AddApiParameter("payload", xmlString);
-            LazopResponse response = client.Execute(request, token);
-            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
-            if (res.code.Equals("0"))
+            try
             {
-                ret.status = 1;
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                }
+                else
+                {
+                    ret.message = res.message;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = res.message;
+                ret.message = ex.ToString();
             }
+            
 
             return ret;
         }

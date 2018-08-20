@@ -58,9 +58,9 @@ namespace MasterOnline.Models
     }
     public class CustomerDetail
     {
-        public string first_name { get; set; }
-        public string last_name { get; set; }
-        //public string email { get; set; }
+        //public string first_name { get; set; }
+        //public string last_name { get; set; }
+        public string email { get; set; }
         public string phone { get; set; }
         //public Address billing_address { get; set; }
         //public Address shipping_address { get; set; }
