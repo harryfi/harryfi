@@ -207,30 +207,32 @@ namespace MasterOnline.Controllers
             int blAcc = 0;
             int elAcc = 0;
 
-            //GetOrderList
-            //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            //var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
-            //if (listBliShop.Count > 0)
-            //{
-            //    bliAcc = 1;
-            //    foreach (ARF01 tblCustomer in listBliShop)
-            //    {
-            //        var bliApi = new BlibliController();
+            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            if (listBliShop.Count > 0)
+            {
+                bliAcc = 1;
+                foreach (ARF01 tblCustomer in listBliShop)
+                {
+                    if (!string.IsNullOrEmpty( tblCustomer.Sort1_Cust))
+                    {
+                        var bliApi = new BlibliController();
 
-            //        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-            //        {
-            //            merchant_code = tblCustomer.Sort1_Cust,
-            //            API_client_password = tblCustomer.API_CLIENT_P,
-            //            API_client_username = tblCustomer.API_CLIENT_U,
-            //            API_secret_key = tblCustomer.API_KEY,
-            //            token = tblCustomer.TOKEN,
-            //            mta_username_email_merchant = tblCustomer.EMAIL,
-            //            mta_password_password_merchant = tblCustomer.PASSWORD
-            //        };
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD
+                        };
 
-            //        bliApi.GetOrderList(iden);
-            //    }
-            //}
+                        bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    }
+                }
+            }
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
@@ -4257,17 +4259,18 @@ namespace MasterOnline.Controllers
                 case "02":
                     if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                     {
-                        if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+
+                    }
+                    if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+                    {
+                        DataSet dsTEMP_ELV_ORDERS = new DataSet();
+                        dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                        if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                         {
-                            DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
-                            if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
-                            {
-                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
-                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                                var elApi = new EleveniaController();
-                                elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
-                            }
+                            string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
+                            string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
+                            var elApi = new EleveniaController();
+                            elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
                         }
                     }
                     break;
@@ -4295,7 +4298,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+                    else if(mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                     {
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                         {

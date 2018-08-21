@@ -420,8 +420,8 @@ namespace MasterOnline.Controllers
                         //{
                         using (SqlCommand oCommand = oConnection.CreateCommand())
                         {
-                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-                            //oCommand.ExecuteNonQuery();
+                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL] WHERE CUST = '"+ CUST + "'";
+                            oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
                             string sSQL = "INSERT INTO [TEMP_BLI_ORDERDETAIL] (";
@@ -431,9 +431,9 @@ namespace MasterOnline.Controllers
                             sSQL += "[custName],[orderStatus],[orderStatusString],[customerAddress],[customerEmail],";
                             sSQL += "[logisticsService],[currentLogisticService],[pickupPoint],[gdnSku],[gdnItemSku],";
                             sSQL += "[merchantSku],[totalWeight],[merchantDeliveryType],[awbNumber],[awbStatus],";
-                            sSQL += "[shippingStreetAddress],[shippingCity],[shippingSubDistrict],[shippingDistrict],[shippingProvince],";
+                            sSQL += "[shippingAddress],[shippingCity],[shippingSubDistrict],[shippingDistrict],[shippingProvince],";
                             sSQL += "[shippingZipCode],[shippingCost],[shippingMobile],[shippingInsuredAmount],[startOperationalTime],";
-                            sSQL += "[endOperationalTime],[issuer],[refundResolution],[unFullFillReason],[unFullFillQuantity],";
+                            sSQL += "[endOperationalTime],[issuer],[refundResolution],[unFullFillReason],[unFullFillQty],";
                             sSQL += "[productTypeCode],[productTypeName],[custNote],[shippingRecipientName],[logisticsProductCode],";
                             sSQL += "[logisticsProductName],[logisticsOptionCode],[logisticsOptionName],";
                             sSQL += "[destinationLongitude],[destinationLatitude]";
@@ -487,7 +487,7 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters.Add(new SqlParameter("@awbNumber", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@awbStatus", SqlDbType.NVarChar, 50));
 
-                            oCommand.Parameters.Add(new SqlParameter("@shippingAddress", SqlDbType.NVarChar));
+                            oCommand.Parameters.Add(new SqlParameter("@shippingStreetAddress", SqlDbType.NVarChar));
                             oCommand.Parameters.Add(new SqlParameter("@shippingCity", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@shippingSubDistrict", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@shippingDistrict", SqlDbType.NVarChar, 200));
@@ -503,7 +503,7 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters.Add(new SqlParameter("@issuer", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@refundResolution", SqlDbType.NVarChar, 200));
                             oCommand.Parameters.Add(new SqlParameter("@unFullFillReason", SqlDbType.NVarChar));
-                            oCommand.Parameters.Add(new SqlParameter("@unFullFillQty", SqlDbType.Float));
+                            oCommand.Parameters.Add(new SqlParameter("@unFullFillQuantity", SqlDbType.Float));
 
                             oCommand.Parameters.Add(new SqlParameter("@productTypeCode", SqlDbType.NVarChar, 10));
                             oCommand.Parameters.Add(new SqlParameter("@productTypeName", SqlDbType.NVarChar, 200));
@@ -526,8 +526,8 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@orderNo"].Value = result.value.orderNo.Value;
                                 oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo.Value;
                                 oCommand.Parameters["@qty"].Value = result.value.qty.Value;
-                                oCommand.Parameters["@orderDate"].Value = result.value.orderDate.Value;
-                                oCommand.Parameters["@autoCancelDate"].Value = result.value.autoCancelDate.Value;
+                                oCommand.Parameters["@orderDate"].Value = result.value.orderDate.Value != null ? DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate.Value).UtcDateTime.AddHours(7) : null;
+                                oCommand.Parameters["@autoCancelDate"].Value = result.value.autoCancelDate.Value != null ? DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate.Value).UtcDateTime.AddHours(7) : null; ;
 
                                 oCommand.Parameters["@productName"].Value = result.value.productName.Value;
                                 oCommand.Parameters["@productItemName"].Value = result.value.productItemName.Value;
@@ -536,24 +536,24 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg.Value;
 
                                 oCommand.Parameters["@custName"].Value = result.value.custName.Value;
-                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus.Value;
-                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString.Value;
-                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress.Value;
-                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail.Value;
+                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus.Value != null ? result.value.orderStatus.Value : "";
+                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString.Value != null ? result.value.orderStatusString.Value : "";
+                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress.Value != null ? result.value.customerAddress.Value : "";
+                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail.Value != null ? result.value.customerEmail.Value : "";
 
-                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService.Value;
-                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService.Value;
-                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint.Value;
+                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService.Value != null ? result.value.logisticsService.Value : "";
+                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService.Value != null ? result.value.currentLogisticService.Value : "";
+                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint.Value != null ? result.value.pickupPoint.Value : "";
                                 oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku.Value;
                                 oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku.Value;
 
                                 oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku.Value;
                                 oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight.Value;
                                 oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType.Value;
-                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber.Value;
-                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus.Value;
+                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber.Value != null ? result.value.awbNumber.Value : "";
+                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus.Value != null ? result.value.awbStatus.Value : "";
 
-                                oCommand.Parameters["@shippingAddress"].Value = result.value.shippingAddress.Value;
+                                oCommand.Parameters["@shippingStreetAddress"].Value = result.value.shippingStreetAddress.Value;
                                 oCommand.Parameters["@shippingCity"].Value = result.value.shippingCity.Value;
                                 oCommand.Parameters["@shippingSubDistrict"].Value = result.value.shippingSubDistrict.Value;
                                 oCommand.Parameters["@shippingDistrict"].Value = result.value.shippingSubDistrict.Value;
@@ -563,35 +563,39 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost.Value;
                                 oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile.Value;
                                 oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount.Value;
-                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime.Value;
+                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime.Value != null ? result.value.startOperationalTime.Value : "";
 
-                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime.Value;
-                                oCommand.Parameters["@issuer"].Value = result.value.issuer.Value;
-                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution.Value;
-                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason.Value;
-                                oCommand.Parameters["@unFullFillQty"].Value = result.value.unFullFillQty.Value;
+                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime.Value != null ? result.value.endOperationalTime.Value : "";
+                                oCommand.Parameters["@issuer"].Value = result.value.issuer.Value != null ? result.value.issuer.Value : "";
+                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution.Value != null ? result.value.refundResolution.Value : "";
+                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason.Value != null ? result.value.unFullFillReason.Value : "";
+                                oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity.Value != null ? result.value.unFullFillQuantity.Value : 0;
 
-                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode.Value;
-                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName.Value;
-                                oCommand.Parameters["@custNote"].Value = result.value.custNote.Value;
-                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName.Value;
-                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode.Value;
+                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode.Value != null ? result.value.productTypeCode.Value : "";
+                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName.Value != null ? result.value.productTypeName.Value : "";
+                                oCommand.Parameters["@custNote"].Value = result.value.custNote.Value != null ? result.value.custNote.Value : "";
+                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName.Value != null ? result.value.shippingRecipientName.Value : "";
+                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode.Value != null ? result.value.logisticsProductCode.Value : "";
 
-                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName.Value;
-                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode.Value;
-                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName.Value;
-                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude.Value;
-                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude.Value;
+                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName.Value != null ? result.value.logisticsProductName.Value : "";
+                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode.Value != null ? result.value.logisticsOptionCode.Value : "";
+                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName.Value != null ? result.value.logisticsOptionName.Value : "";
+                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude.Value != null ? result.value.destinationLongitude.Value : "";
+                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude.Value != null ? result.value.destinationLatitude.Value : "";
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
                                     var connIdARF01C = Guid.NewGuid().ToString();
+
+                                    var kabKot = "3174";
+                                    var prov = "31";
+
                                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                    insertPembeli += "('" + result.value.custName.Value + "','" + result.value.shippingAddress.Value + "','" + result.value.shippingMobile.Value + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingAddress.Value + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode.Value + "', '" + result.value.customerEmail.Value + "', '" + result.value.shippingSubDistrict.Value + "', '" + result.value.shippingProvince.Value + "', '', '','" + connIdARF01C + "')";
+                                    insertPembeli += "('" + result.value.custName.Value + "','" + result.value.shippingStreetAddress.Value + "','" + result.value.shippingMobile.Value + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress.Value + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode.Value + "', '" + result.value.customerEmail.Value + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
                                     SqlCommand CommandSQL = new SqlCommand();
@@ -1110,113 +1114,120 @@ namespace MasterOnline.Controllers
             int QOHBlibli = 0;
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
-            string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(data.kode_mp);
+            string[] brg_mp = data.kode_mp.Split(';');
+            if (brg_mp.Length == 2)
+            {
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]);
 
-            HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
-            myReq_1.Method = "POST";
-            myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
-            myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq_1.Accept = "application/json";
-            myReq_1.ContentType = "application/json";
-            myReq_1.Headers.Add("requestId", milis.ToString());
-            myReq_1.Headers.Add("sessionId", milis.ToString());
-            myReq_1.Headers.Add("username", userMTA);
-            string responseFromServer_1 = "";
-            try
-            {
-                using (WebResponse response = myReq_1.GetResponse())
+                HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("requestId", milis.ToString());
+                myReq_1.Headers.Add("sessionId", milis.ToString());
+                myReq_1.Headers.Add("username", userMTA);
+                string responseFromServer_1 = "";
+                try
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    using (WebResponse response = myReq_1.GetResponse())
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer_1 = reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-
-            }
-            if (responseFromServer_1 != null)
-            {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
-                {
-                    if (result.content.Count > 0)
-                    {
-                        foreach (var item in result.content)
+                        using (Stream stream = response.GetResponseStream())
                         {
-                            QOHBlibli = item.stockAvailableLv2.Value;
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer_1 = reader.ReadToEnd();
                         }
                     }
                 }
-            }
-            #endregion
-
-            if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak beda
-            {
-                QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
-            }
-
-            string myData = "{";
-            myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
-            myData += "\"productRequests\": ";
-            myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
-            {
-                myData += "\"gdnSku\": \"" + data.kode_mp + "\",  ";
-                myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
-                myData += "\"minimumStock\": " + data.MinQty + ", ";
-                myData += "\"price\": " + data.Price + ", ";
-                myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                myData += "\"buyable\": " + data.display + ", ";
-                myData += "\"display\": " + data.display + " "; // true=tampil                
-            }
-            myData += "}]";
-            myData += "}";
-
-            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
-            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
-            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
-
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "POST";
-            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
-            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            myReq.Accept = "application/json";
-            myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", milis.ToString());
-            myReq.Headers.Add("sessionId", milis.ToString());
-            myReq.Headers.Add("username", userMTA);
-            string responseFromServer = "";
-            try
-            {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+                catch (Exception ex)
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+
                 }
-                using (WebResponse response = myReq.GetResponse())
+                if (responseFromServer_1 != null)
                 {
-                    using (Stream stream = response.GetResponseStream())
+                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1);
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        if (result.content.Count > 0)
+                        {
+                            foreach (var item in result.content)
+                            {
+                                QOHBlibli = item.stockAvailableLv2.Value;
+                            }
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
+                #endregion
 
-            }
-            if (responseFromServer != null)
-            {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak beda
                 {
+                    QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
+                }
 
+                if (QOHBlibli != 0)
+                {
+                    string myData = "{";
+                    myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
+                    myData += "\"productRequests\": ";
+                    myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
+                    {
+                        myData += "\"gdnSku\": \"" + data.kode_mp + "\",  ";
+                        myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
+                        myData += "\"minimumStock\": " + data.MinQty + ", ";
+                        myData += "\"price\": " + data.Price + ", ";
+                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                        myData += "\"buyable\": " + data.display + ", ";
+                        myData += "\"display\": " + data.display + " "; // true=tampil                
+                    }
+                    myData += "}]";
+                    myData += "}";
+
+                    //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+                    string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
+                    //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+                    string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                    myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                    myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                    myReq.Accept = "application/json";
+                    myReq.ContentType = "application/json";
+                    myReq.Headers.Add("requestId", milis.ToString());
+                    myReq.Headers.Add("sessionId", milis.ToString());
+                    myReq.Headers.Add("username", userMTA);
+                    string responseFromServer = "";
+                    try
+                    {
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
+                        {
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                        }
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    if (responseFromServer != null)
+                    {
+                        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                        if (string.IsNullOrEmpty(result.errorCode.Value))
+                        {
+
+                        }
+                    }
                 }
             }
 
