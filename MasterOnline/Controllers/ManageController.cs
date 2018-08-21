@@ -1383,6 +1383,7 @@ namespace MasterOnline.Controllers
             //add by tri call marketplace api to create product
             if (insert)
             {
+                var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
                 #region lazada
                 if (listLazadaShop.Count > 0)
                 {
@@ -1400,12 +1401,13 @@ namespace MasterOnline.Controllers
                                         imageUrl[i] = uploadImg.message;
                                 }
                             }
+
                             BrgViewModel dataLazada = new BrgViewModel
                             {
                                 deskripsi = dataBarang.Stf02.Deskripsi,
                                 harga = dataBarang.Stf02.HJUAL.ToString(),
                                 height = dataBarang.Stf02.TINGGI.ToString(),
-                                kdBrg = dataBarang.Stf02.BRG,
+                                kdBrg = barangInDb.BRG,
                                 length = dataBarang.Stf02.PANJANG.ToString(),
                                 nama = dataBarang.Stf02.NAMA,
                                 nama2 = dataBarang.Stf02.NAMA2,
@@ -1418,8 +1420,23 @@ namespace MasterOnline.Controllers
                                 idMarket = tblCustomer.RecNum.ToString(),
                             };
 
+                            ////string[] imgID = new string[3];
+                            ////if (Request.Files.Count > 0)
+                            ////{
+                            //for (int i = 0; i < 3; i++)
+                            //{
+                            //    //var file = Request.Files[i];
+
+                            //    //if (file != null && file.ContentLength > 0)
+                            //    //{
+                            //    //    var fileExtension = Path.GetExtension(file.FileName);
+                            //    imageUrl[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{dataBarang.Username}-{dataBarang.Stf02.BRG}-foto-{i + 1}.jpg";
+                            //    imageUrl[i] = Convert.ToString(imageUrl[i]).Replace(" ", "%20");
+                            //    //}
+                            //}
+
                             dataLazada.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                            var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
+                            var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
                             dataLazada.harga = productMarketPlace.HJUAL.ToString();
                             dataLazada.activeProd = productMarketPlace.DISPLAY;
 
@@ -1463,7 +1480,7 @@ namespace MasterOnline.Controllers
                             deskripsi = dataBarang.Stf02.Deskripsi,
                             harga = dataBarang.Stf02.HJUAL.ToString(),
                             height = dataBarang.Stf02.TINGGI.ToString(),
-                            kdBrg = dataBarang.Stf02.BRG,
+                            kdBrg = barangInDb.BRG,
                             length = dataBarang.Stf02.PANJANG.ToString(),
                             nama = dataBarang.Stf02.NAMA,
                             nama2 = dataBarang.Stf02.NAMA2,
@@ -1477,7 +1494,7 @@ namespace MasterOnline.Controllers
                             //merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET
                         };
                         data.merk = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                        var productMarketPlace = dataBarang.ListHargaJualPermarket.SingleOrDefault(m => m.BRG == dataBarang.Stf02.BRG && m.IDMARKET == tblCustomer.RecNum);
+                        var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
                         data.harga = productMarketPlace.HJUAL.ToString();
                         if (!string.IsNullOrEmpty(imgID[2]))
                         {
@@ -6409,6 +6426,15 @@ namespace MasterOnline.Controllers
                 ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
+            //add by Tri, panggil api marketplace to change stock
+            List<string> listBrg = new List<string>();
+            //foreach (var brg in vm.ListBarang)
+            //{
+                listBrg.Add(dataVm.BarangStok.Kobar);
+            //}
+            updateStockMarketPlace(listBrg);
+            //end add by Tri, panggil api marketplace to change stock
+
             return PartialView("BarangTransaksiMasukPartial", vm);
         }
 
@@ -6467,7 +6493,7 @@ namespace MasterOnline.Controllers
         public ActionResult DeleteTransaksiMasuk(int? stokId)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
-
+            List<string> brg = new List<string>();//add by Tri, 21 agustus 2018
             //add by calvin, 22 juni 2018 validasi QOH
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
@@ -6493,6 +6519,7 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                brg.Add(item.Kobar);//add by Tri, 21 agustus 2018
             }
             //end add by calvin, validasi QOH
 
@@ -6503,6 +6530,10 @@ namespace MasterOnline.Controllers
             {
                 ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("IN")).ToList()
             };
+
+            //add by Tri, panggil api marketplace to change stock            
+            updateStockMarketPlace(brg);
+            //end add by Tri, panggil api marketplace to change stock
 
             return PartialView("TableTransaksiMasukPartial", vm);
         }
@@ -6539,6 +6570,11 @@ namespace MasterOnline.Controllers
                 }
                 //end add by calvin, validasi QOH
 
+                //add by Tri, panggil api marketplace to change stock
+                List<string> brg = new List<string>();
+                brg.Add(barangStokInDb.Kobar);
+                //end add by Tri, panggil api marketplace to change stock
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -6550,6 +6586,10 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
                 };
+
+                //add by Tri, panggil api marketplace to change stock
+                updateStockMarketPlace(brg);
+                //end add by Tri, panggil api marketplace to change stock
 
                 return PartialView("BarangTransaksiMasukPartial", vm);
             }
@@ -6570,6 +6610,44 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian Transaksi Masuk Barang (END)
+
+        public void updateStockMarketPlace(List<string> listBrg)
+        {
+            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
+            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
+            var blApi = new BukaLapakController();
+            var lzdApi = new LazadaController();
+            foreach (string kdBrg in listBrg)
+            {
+                var qtyOnHand = 0d;
+                {
+                    object[] spParams = {
+                                            new SqlParameter("@BRG", kdBrg),
+                                            new SqlParameter("@GD","ALL"),
+                                            new SqlParameter("@Satuan", "2"),
+                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                        };
+
+                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                }
+
+                var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrg && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                foreach (var stf02h in brgMarketplace)
+                {
+                    var marketPlace = ErasoftDbContext.ARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
+                    if (marketPlace.NAMA.Equals(kdBL.ToString()))
+                    {
+                        blApi.updateProduk(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.API_KEY, marketPlace.TOKEN);
+                    }
+                    else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
+                    {
+                        lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.TOKEN);
+                    }
+                }
+            }
+        }
 
         // =============================================== Bagian Transaksi Keluar Barang (START)
 
@@ -6730,6 +6808,15 @@ namespace MasterOnline.Controllers
                 ListGudang = ErasoftDbContext.STF18.ToList()
             };
 
+            //add by Tri, panggil api marketplace to change stock
+            List<string> listBrg = new List<string>();
+            //foreach (var brg in vm.ListBarang)
+            //{
+            listBrg.Add(dataVm.BarangStok.Kobar);
+            //}
+            updateStockMarketPlace(listBrg);
+            //end add by Tri, panggil api marketplace to change stock
+
             return PartialView("BarangTransaksiKeluarPartial", vm);
         }
 
@@ -6789,6 +6876,15 @@ namespace MasterOnline.Controllers
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
 
+            //add by Tri, 21 agustus 2018
+            List<string> brg = new List<string>();
+            var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
+            foreach (var item in stokDetailInDb)
+            {
+                brg.Add(item.Kobar);
+            }
+            //end add by Tri, 21 agustus 2018
+
             ErasoftDbContext.STT01A.Remove(stokInDb);
             ErasoftDbContext.SaveChanges();
 
@@ -6796,6 +6892,10 @@ namespace MasterOnline.Controllers
             {
                 ListStok = ErasoftDbContext.STT01A.ToList()
             };
+
+            //add by Tri, panggil api marketplace to change stock
+            updateStockMarketPlace(brg);
+            //end add by Tri, panggil api marketplace to change stock
 
             return PartialView("TableTransaksiKeluarPartial", vm);
         }
@@ -6808,6 +6908,11 @@ namespace MasterOnline.Controllers
                 var barangStokInDb = ErasoftDbContext.STT01B.Single(b => b.No == noUrut);
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
+                //add by Tri, panggil api marketplace to change stock
+                List<string> brg = new List<string>();
+                brg.Add(barangStokInDb.Kobar);
+                //end add by Tri, panggil api marketplace to change stock
+
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
 
@@ -6819,6 +6924,10 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
                 };
+
+                //add by Tri, panggil api marketplace to change stock
+                updateStockMarketPlace(brg);
+                //end add by Tri, panggil api marketplace to change stock
 
                 return PartialView("BarangTransaksiKeluarPartial", vm);
             }

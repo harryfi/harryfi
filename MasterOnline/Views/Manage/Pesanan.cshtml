@@ -754,7 +754,7 @@
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" }) 
+                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
                     </div>
                 </div>
@@ -2231,13 +2231,17 @@
         function showShipment(NamaMarket, cust) {
             $('#lblShipment').remove();
             $('#txtShipment').remove();
+            $('#txtShipmentBL').remove();
             $('#btnShipment').remove();
 
             if (NamaMarket.toUpperCase() == "LAZADA") {
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip').append('<input id="txtShipment" disabled="disabled" required="required" class="form-control"></input>');
                 $('#divBtnShip').append('<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada(\'' + cust + '\')"><span class="glyphicon glyphicon-option-horizontal"></span></button>');
-
+            }
+            else if (NamaMarket.toUpperCase() == "BUKALAPAK") {
+                $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
+                $('#divTextShip').append('<input id="txtShipmentBL" class="form-control"></input>');
             }
 
         }
@@ -2301,8 +2305,14 @@
                 var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new { recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv" }))';
                 link = link.replace("replaceRecNum", this.$recResi);
                 link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
-                link = link.replace("replaceDeliveryProv", $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());
+                if (document.getElementById("txtShipment") != null) {
+                    link = link.replace("replaceDeliveryProv", $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());
+                }
+                else if (document.getElementById("txtShipmentBL") != null)
+                {
+                    link = link.replace("replaceDeliveryProv", $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
 
+                }
                 $.ajax({
                     type: "GET",
                     url: link,
