@@ -357,7 +357,7 @@ namespace MasterOnline.Controllers
                     {
                         foreach (var item in result.content)
                         {
-                            GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value,connId,CUST,NAMA_CUST);
+                            GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
                         }
                     }
                 }
@@ -420,7 +420,7 @@ namespace MasterOnline.Controllers
                         //{
                         using (SqlCommand oCommand = oConnection.CreateCommand())
                         {
-                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL] WHERE CUST = '"+ CUST + "'";
+                            oCommand.CommandText = "DELETE FROM [TEMP_BLI_ORDERDETAIL] WHERE CUST = '" + CUST + "'";
                             oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
@@ -852,6 +852,52 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+        public class Features {
+            public string name { get; set; }
+            public string value { get; set; }
+        }
+        public class Variasi
+        {
+            public string name { get; set; }
+            public string value { get; set; }
+        }
+        public class imagess {
+            public string locationPath { get; set; }
+            public int sequence { get; set; }
+        }
+        public class UploadProdukNewData {
+            public string merchantCode { get; set; }
+            public List<UploadProdukNewDataProduct> products { get; set; }
+
+        }
+        public class UploadProdukNewDataProduct
+        {
+            public string merchantCode { get; set; }
+            public string categoryCode { get; set; }
+            public string productName { get; set; }
+            public string url { get; set; }
+            public string merchantSku { get; set; }
+            public int tipePenanganan { get; set; }
+            public int price { get; set; }
+            public int salePrice { get; set; }
+            public int stock { get; set; }
+            public int minimumStock { get; set; }
+            public string pickupPointCode { get; set; }
+            public double length { get; set; }
+            public double width { get; set; }
+            public double height { get; set; }
+            public double weight { get; set; }
+            public string desc { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string productStory { get; set; }
+            public string upcCode { get; set; }
+            public bool display { get; set; }
+            public bool buyable { get; set; }
+            public List<Features> features { get; set; }
+            public List<Variasi> variasi { get; set; }
+            public List<imagess> images { get; set; }
+
+        }
         public string UploadProduk(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
@@ -881,20 +927,77 @@ namespace MasterOnline.Controllers
 
             DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
             DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
+
             features += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
+            List<Features> featuresList = new List<Features>();
+            featuresList.Add(new Features {
+                name = "Brand",
+                value = data.Brand
+            });
             for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
             {
                 features += "{ \"name\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\", \"value\": \"" + Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim() + "\"},";
+                featuresList.Add(new Features
+                {
+                    name = Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_NAME"]),
+                    value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                });
             }
+            List<Variasi> VariasiList = new List<Variasi>();
             for (int i = 0; i < dsVariasi.Tables[0].Rows.Count; i++)
             {
                 string[] values = Convert.ToString(dsVariasi.Tables[0].Rows[i]["VALUE"]).Split(',');
                 for (int a = 0; a < values.Length; a++)
                 {
+                    VariasiList.Add(new Variasi {
+                        name = Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]),
+                        value = Convert.ToString(values[a]).Trim()
+                    });
                     variasi += "{\"name\": \"" + Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]) + "\",\"value\": \"" + Convert.ToString(values[a]).Trim() + "\"},";
                 }
             }
-
+            List<imagess> ImagesList = new List<imagess>();
+            for (int i = 0; i < 3; i++)
+            {
+                ImagesList.Add(new imagess
+                {
+                    locationPath = data.Brand + "_" + data.nama + "_full0" + Convert.ToString(i + 1) + ".jpg",
+                    sequence = i
+                });
+            }
+            List<UploadProdukNewDataProduct> products = new List<UploadProdukNewDataProduct>();
+            products.Add(new UploadProdukNewDataProduct
+            {
+                merchantCode = iden.merchant_code,
+                categoryCode = data.CategoryCode,
+                productName = data.nama,
+                url = "-",
+                merchantSku = data.kode,
+                tipePenanganan = 1,
+                price = Convert.ToInt32(data.Price),
+                salePrice = Convert.ToInt32(data.MarketPrice),
+                stock = Convert.ToInt32(data.Qty),
+                minimumStock = Convert.ToInt32(data.MarketPrice),
+                pickupPointCode = data.PickupPoint,
+                length = Convert.ToDouble(data.Length),
+                width = Convert.ToDouble(data.Width),
+                height = Convert.ToDouble(data.Height),
+                weight = Convert.ToDouble(data.berat),
+                desc = data.Keterangan,
+                uniqueSellingPoint = data.Keterangan,
+                productStory = data.Keterangan,
+                upcCode = "-",
+                display = data.display == "true" ? true : false,
+                buyable = true,
+                features = featuresList,
+                variasi = VariasiList,
+                images = ImagesList
+            });
+            UploadProdukNewData newData = new UploadProdukNewData
+            {
+                merchantCode = iden.merchant_code,
+                products = products
+            };
             string myData = "{";
             myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
             myData += "\"products\": ";
@@ -946,9 +1049,12 @@ namespace MasterOnline.Controllers
             myData += "}]";
             myData += "}";
 
+            myData = JsonConvert.SerializeObject(newData);
+
             //myData = myData.Replace(System.Environment.NewLine, "\\r\\n");
-            myData = System.Text.RegularExpressions.Regex.Replace(myData, @"\r\n?|\n", "\\n");
+            //myData = System.Text.RegularExpressions.Regex.Replace(myData, @"\r\n?|\n", "\\n");
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/createProduct";
@@ -1033,10 +1139,12 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
         protected string EscapeForJson(string s)
         {
-            //string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
-            string quoted = System.Web.Helpers.Json.Encode(s.Replace("–", "-").Replace("\"\"", "''"));
+            //string quoted = System.Web.Helpers.Json.Encode(s.Replace("–", "-").Replace("\"\"", "''"));
+            //return quoted.Substring(1, quoted.Length - 2);
+            string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
             return quoted.Substring(1, quoted.Length - 2);
         }
         public void fillOrderAWB(BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
@@ -1111,13 +1219,13 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
             #region Get Product List ( untuk dapatkan QOH di Blibi )
-            int QOHBlibli = 0;
+            double QOHBlibli = 0;
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]);
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
                 myReq_1.Method = "GET";
@@ -1152,86 +1260,111 @@ namespace MasterOnline.Controllers
                     {
                         if (result.content.Count > 0)
                         {
+                            List<ProductSummaryResult> availableGdnSkus = new List<ProductSummaryResult>();
+
                             foreach (var item in result.content)
                             {
-                                QOHBlibli = item.stockAvailableLv2.Value;
+                                if (item.gdnSku.Value.Contains(brg_mp[0]))
+                                {
+                                    availableGdnSkus.Add(new ProductSummaryResult
+                                    {
+                                        gdnSku = (item.gdnSku.Value),
+                                        stockAvailableLv2 = item.stockAvailableLv2.Value
+                                    });
+                                }
+                            }
+
+                            //foreach (var item in result.content)
+                            //{
+                            //    QOHBlibli = item.stockAvailableLv2.Value;
+                            //}
+
+                            string myData = "{";
+                            myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
+                            myData += "\"productRequests\": ";
+                            myData += "[ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
+                            {
+                                foreach (var item in availableGdnSkus)
+                                {
+                                    QOHBlibli = item.stockAvailableLv2;
+                                    if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak sama
+                                    {
+                                        QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
+                                    }
+                                    if (QOHBlibli != 0)
+                                    {
+                                        myData += "{";
+                                        myData += "\"gdnSku\": \"" + item.gdnSku + "\",  ";
+                                        myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
+                                        myData += "\"minimumStock\": " + data.MinQty + ", ";
+                                        myData += "\"price\": " + data.Price + ", ";
+                                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                                        myData += "\"buyable\": " + data.display + ", ";
+                                        myData += "\"display\": " + data.display + " "; // true=tampil    
+                                        myData += "},";
+                                    }
+                                }
+                            }
+                            myData = myData.Remove(myData.Length - 1);
+                            myData += "]";
+                            myData += "}";
+
+                            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+                            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
+                            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+                            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                            myReq.Method = "POST";
+                            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                            myReq.Accept = "application/json";
+                            myReq.ContentType = "application/json";
+                            myReq.Headers.Add("requestId", milis.ToString());
+                            myReq.Headers.Add("sessionId", milis.ToString());
+                            myReq.Headers.Add("username", userMTA);
+                            string responseFromServer = "";
+                            try
+                            {
+                                myReq.ContentLength = myData.Length;
+                                using (var dataStream = myReq.GetRequestStream())
+                                {
+                                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                                }
+                                using (WebResponse response = myReq.GetResponse())
+                                {
+                                    using (Stream stream = response.GetResponseStream())
+                                    {
+                                        StreamReader reader = new StreamReader(stream);
+                                        responseFromServer = reader.ReadToEnd();
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                            if (responseFromServer != null)
+                            {
+                                dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                                if (string.IsNullOrEmpty(result2.errorCode.Value))
+                                {
+
+                                }
                             }
                         }
                     }
                 }
                 #endregion
-
-                if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak beda
-                {
-                    QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
-                }
-
-                if (QOHBlibli != 0)
-                {
-                    string myData = "{";
-                    myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
-                    myData += "\"productRequests\": ";
-                    myData += "[{ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
-                    {
-                        myData += "\"gdnSku\": \"" + data.kode_mp + "\",  ";
-                        myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
-                        myData += "\"minimumStock\": " + data.MinQty + ", ";
-                        myData += "\"price\": " + data.Price + ", ";
-                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                        myData += "\"buyable\": " + data.display + ", ";
-                        myData += "\"display\": " + data.display + " "; // true=tampil                
-                    }
-                    myData += "}]";
-                    myData += "}";
-
-                    //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
-                    string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
-                    //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-                    string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
-
-                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                    myReq.Method = "POST";
-                    myReq.Headers.Add("Authorization", ("bearer " + iden.token));
-                    myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
-                    myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-                    myReq.Accept = "application/json";
-                    myReq.ContentType = "application/json";
-                    myReq.Headers.Add("requestId", milis.ToString());
-                    myReq.Headers.Add("sessionId", milis.ToString());
-                    myReq.Headers.Add("username", userMTA);
-                    string responseFromServer = "";
-                    try
-                    {
-                        myReq.ContentLength = myData.Length;
-                        using (var dataStream = myReq.GetRequestStream())
-                        {
-                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                        }
-                        using (WebResponse response = myReq.GetResponse())
-                        {
-                            using (Stream stream = response.GetResponseStream())
-                            {
-                                StreamReader reader = new StreamReader(stream);
-                                responseFromServer = reader.ReadToEnd();
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-
-                    }
-                    if (responseFromServer != null)
-                    {
-                        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                        if (string.IsNullOrEmpty(result.errorCode.Value))
-                        {
-
-                        }
-                    }
-                }
             }
 
             return ret;
+        }
+        public class ProductSummaryResult
+        {
+            public string gdnSku { get; set; }
+            public double stockAvailableLv2 { get; set; }
         }
         public string SetCategoryCode(BlibliAPIData data)
         {
@@ -2006,7 +2139,10 @@ namespace MasterOnline.Controllers
         {
             // step 1, calculate MD5 hash from input
             MD5 md5 = System.Security.Cryptography.MD5.Create();
+            //byte[] encodedBytes = Encoding.UTF8.GetBytes(input);
+            //Encoding.Convert(Encoding.UTF8, Encoding.Unicode, encodedBytes);
             byte[] inputBytes = System.Text.Encoding.ASCII.GetBytes(input);
+            //byte[] inputBytes = Encoding.UTF8.GetBytes(input);
             byte[] hash = md5.ComputeHash(inputBytes);
             // step 2, convert byte array to hex string
             StringBuilder sb = new StringBuilder();

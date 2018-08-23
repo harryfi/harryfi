@@ -214,7 +214,7 @@ namespace MasterOnline.Controllers
                 bliAcc = 1;
                 foreach (ARF01 tblCustomer in listBliShop)
                 {
-                    if (!string.IsNullOrEmpty( tblCustomer.Sort1_Cust))
+                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
                     {
                         var bliApi = new BlibliController();
 
@@ -1532,6 +1532,7 @@ namespace MasterOnline.Controllers
             else
             {
                 //update harga, qty, dll
+                saveBarangBlibli(2, dataBarang);
                 saveBarangElevenia(2, dataBarang);
                 if (updateHarga)
                 {
@@ -1708,6 +1709,53 @@ namespace MasterOnline.Controllers
                             break;
                         #endregion
                         case 2:
+                            {
+                                var qtyOnHand = 0d;
+                                {
+                                    object[] spParams = {
+                                            new SqlParameter("@BRG",string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG),
+                                            new SqlParameter("@GD","ALL"),
+                                            new SqlParameter("@Satuan", "2"),
+                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                        };
+
+                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                                }
+                                foreach (ARF01 tblCustomer in listBlibli)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Kode))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            
+                                            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust,
+                                                API_client_password = tblCustomer.API_CLIENT_P,
+                                                API_client_username = tblCustomer.API_CLIENT_U,
+                                                API_secret_key = tblCustomer.API_KEY,
+                                                token = tblCustomer.TOKEN,
+                                                mta_username_email_merchant = tblCustomer.EMAIL,
+                                                mta_password_password_merchant = tblCustomer.PASSWORD
+                                            };
+                                            BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                            {
+                                                kode_mp = stf02h.BRG_MP,
+                                                Qty = Convert.ToString(qtyOnHand),
+                                                MinQty = "0"
+                                            };
+                                            data.Price = stf02h.HJUAL.ToString();
+                                            data.MarketPrice = stf02h.HJUAL.ToString();
+                                            var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                            data.display = display ? "true" : "false";
+                                            new BlibliController().UpdateProdukQOH_Display(iden, data);
+                                        }
+                                    }
+                                }
+                            }
                             break;
                         //#region Update Product
                         //case 2:
@@ -4298,7 +4346,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    else if(mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
+                    else if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                     {
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                         {
@@ -6433,7 +6481,7 @@ namespace MasterOnline.Controllers
             List<string> listBrg = new List<string>();
             //foreach (var brg in vm.ListBarang)
             //{
-                listBrg.Add(dataVm.BarangStok.Kobar);
+            listBrg.Add(dataVm.BarangStok.Kobar);
             //}
             updateStockMarketPlace(listBrg);
             //end add by Tri, panggil api marketplace to change stock
@@ -6618,6 +6666,7 @@ namespace MasterOnline.Controllers
         {
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
+            var kdBli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
             var blApi = new BukaLapakController();
             var lzdApi = new LazadaController();
             foreach (string kdBrg in listBrg)
@@ -6647,6 +6696,36 @@ namespace MasterOnline.Controllers
                     else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                     {
                         lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.TOKEN);
+                    }
+                    else if (marketPlace.NAMA.Equals(kdBli.ToString()))
+                    {
+                        if (!string.IsNullOrEmpty(marketPlace.Kode))
+                        {
+                            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
+
+                            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                            {
+                                merchant_code = marketPlace.Sort1_Cust,
+                                API_client_password = marketPlace.API_CLIENT_P,
+                                API_client_username = marketPlace.API_CLIENT_U,
+                                API_secret_key = marketPlace.API_KEY,
+                                token = marketPlace.TOKEN,
+                                mta_username_email_merchant = marketPlace.EMAIL,
+                                mta_password_password_merchant = marketPlace.PASSWORD
+                            };
+                            BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                            {
+                                kode_mp = stf02h.BRG_MP,
+                                Qty = Convert.ToString(qtyOnHand),
+                                MinQty = "0"
+                            };
+                            data.Price = stf02h.HJUAL.ToString();
+                            data.MarketPrice = stf02h.HJUAL.ToString();
+                            var display = Convert.ToBoolean(stf02h.DISPLAY);
+                            data.display = display ? "true" : "false";
+                            new BlibliController().UpdateProdukQOH_Display(iden, data);
+
+                        }
                     }
                 }
             }
