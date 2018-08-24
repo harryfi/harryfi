@@ -3941,6 +3941,12 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataBarangPromosi(int? promoId)
         {
             var listBarang = ErasoftDbContext.STF02.ToList();
+
+            if (promoId == null)
+            {
+                return Json(listBarang, JsonRequestBehavior.AllowGet);
+            }
+
             var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
             List<STF02> listBarangUntukPromo = null;
 
