@@ -852,7 +852,8 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        public class Features {
+        public class Features
+        {
             public string name { get; set; }
             public string value { get; set; }
         }
@@ -861,11 +862,13 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public string value { get; set; }
         }
-        public class imagess {
+        public class imagess
+        {
             public string locationPath { get; set; }
             public int sequence { get; set; }
         }
-        public class UploadProdukNewData {
+        public class UploadProdukNewData
+        {
             public string merchantCode { get; set; }
             public List<UploadProdukNewDataProduct> products { get; set; }
 
@@ -930,7 +933,8 @@ namespace MasterOnline.Controllers
 
             features += "{ \"name\": \"Brand\", \"value\": \"" + data.Brand + "\"}, ";
             List<Features> featuresList = new List<Features>();
-            featuresList.Add(new Features {
+            featuresList.Add(new Features
+            {
                 name = "Brand",
                 value = data.Brand
             });
@@ -949,7 +953,8 @@ namespace MasterOnline.Controllers
                 string[] values = Convert.ToString(dsVariasi.Tables[0].Rows[i]["VALUE"]).Split(',');
                 for (int a = 0; a < values.Length; a++)
                 {
-                    VariasiList.Add(new Variasi {
+                    VariasiList.Add(new Variasi
+                    {
                         name = Convert.ToString(dsVariasi.Tables[0].Rows[i]["CATEGORY_NAME"]),
                         value = Convert.ToString(values[a]).Trim()
                     });
@@ -1147,6 +1152,19 @@ namespace MasterOnline.Controllers
             string quoted = Newtonsoft.Json.JsonConvert.ToString(s);
             return quoted.Substring(1, quoted.Length - 2);
         }
+        public class fillOrderAWBData
+        {
+            public int type { get; set; }
+            public string awbNo { get; set; }
+            public string orderNo { get; set; }
+            public string orderItemNo { get; set; }
+            public List<fillOrderAWBCombineShipping> combineShipping { get; set; }
+        }
+        public class fillOrderAWBCombineShipping
+        {
+            public string orderNo { get; set; }
+            public string orderItemNo { get; set; }
+        }
         public void fillOrderAWB(BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
         {
             long milis = CurrentTimeMillis();
@@ -1162,7 +1180,29 @@ namespace MasterOnline.Controllers
             myData += "\"awbNo\": \"" + awbNo + "\", ";
             myData += "\"orderNo\": \"" + orderNo + "\", ";
             myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
+            myData += "\"combineShipping\":[{";
+            myData += "\"orderNo\": \"" + orderNo + "\", ";
+            myData += "\"orderItemNo\": \"" + orderItemNo + "\" ";
+            myData += "}] ";
             myData += "}";
+
+            List<fillOrderAWBCombineShipping> combineShipping = new List<fillOrderAWBCombineShipping>();
+            combineShipping.Add(new fillOrderAWBCombineShipping
+            {
+                orderNo = orderNo,
+                orderItemNo = orderItemNo
+            });
+
+            fillOrderAWBData thisData = new fillOrderAWBData();
+
+            thisData.type = 1;
+            thisData.awbNo = awbNo;
+            thisData.orderNo = orderNo;
+            thisData.orderItemNo = orderItemNo;
+            thisData.combineShipping = combineShipping;
+
+            myData = JsonConvert.SerializeObject(thisData);
+
 
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/fulfillRegular", iden.API_secret_key);

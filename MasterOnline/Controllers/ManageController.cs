@@ -4330,7 +4330,46 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    else if (mp.NamaMarket.ToUpper().Contains("BLIBLI"))
+                    {
+                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
+                        {
+                            if (!string.IsNullOrEmpty(Convert.ToString(pesanan.NO_REFERENSI)))
+                            {
+                                string[] orderReference = pesanan.NO_REFERENSI.Split(';');
+                                if (orderReference.Count() == 2)
+                                {
+                                    var bliAPI = new BlibliController();
+                                    BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                                    {
+                                        merchant_code = marketPlace.Sort1_Cust,
+                                        API_client_password = marketPlace.API_CLIENT_P,
+                                        API_client_username = marketPlace.API_CLIENT_U,
+                                        API_secret_key = marketPlace.API_KEY,
+                                        token = marketPlace.TOKEN,
+                                        mta_username_email_merchant = marketPlace.EMAIL,
+                                        mta_password_password_merchant = marketPlace.PASSWORD
+                                    };
+                                    bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT,orderReference[0], orderReference[1]);
+                                }
 
+                            }
+
+                            DataSet dsTEMP_ELV_ORDERS = new DataSet();
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                            if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
+                            {
+                                string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
+                                string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
+                                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
+                                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
+                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
+                                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
+                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
+                            }
+                        }
+                    }
+                    
                     break;
             }
 

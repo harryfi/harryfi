@@ -376,6 +376,10 @@
     <Compile Include="ErasoftContextMigrations\201808160158569_AlterRecnumDelivery.Designer.cs">
       <DependentUpon>201808160158569_AlterRecnumDelivery.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.cs" />
+    <Compile Include="ErasoftContextMigrations\201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.Designer.cs">
+      <DependentUpon>201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5256,6 +5260,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808160158569_AlterRecnumDelivery.resx">
       <DependentUpon>201808160158569_AlterRecnumDelivery.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.resx">
+      <DependentUpon>201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
