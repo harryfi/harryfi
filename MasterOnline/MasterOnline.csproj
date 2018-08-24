@@ -5109,6 +5109,7 @@
     <Content Include="Views\Manage\PromptPickupPointBlibli.cshtml" />
     <Content Include="Views\Manage\BarangPesananSudahDibayarPartial.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderLazada.cshtml" />
+    <Content Include="Views\Manage\APIBCA.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
