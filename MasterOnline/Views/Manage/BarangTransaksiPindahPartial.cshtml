@@ -143,11 +143,11 @@
                     <th width="75">Kode Brg</th>
                     <th width="150">Nama Brg</th>
                     <th width="80">Stn</th>
-                    <th width="120">Harga</th>
+                    @*<th width="120">Harga</th>*@
                     <th width="90">Dari Gd</th>
                     <th width="90">Ke Gd</th>
                     <th width="45">Qty</th>
-                    <th width="120">Total</th>
+                    @*<th width="120">Total</th>*@
                     <th width="45">Simpan</th>
                     <th width="45">Hapus</th>
                 </tr>
@@ -188,9 +188,9 @@
                             }*@
                             @stnbarang
                         </td>
-                        <td class="harga-barang">
+                        @*<td class="harga-barang">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
-                        </td>
+                        </td>*@
                         <td class="dr-gd-barang">
                             @stok.Dr_Gd
                         </td>
@@ -200,9 +200,9 @@
                         <td class="qty-barang">
                             @stok.Qty
                         </td>
-                        <td class="netto-barang">
+                        @*<td class="netto-barang">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
-                        </td>
+                        </td>*@
                         <td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled">
                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
@@ -229,10 +229,10 @@
                         -
                         @Html.HiddenFor(m => m.BarangStok.Satuan)
                     </td>
-                    <td class="harga-barang">
+                    @*<td class="harga-barang">
                         0,00
                         @Html.HiddenFor(m => m.BarangStok.Harsat)
-                    </td>
+                    </td>*@
                     <td class="dr-gd-barang">
                         <span id="dr-gudang-kode">-</span>
                         <div id="dr-gudang-select" style="display: none;">
@@ -251,10 +251,10 @@
                         0
                         @Html.HiddenFor(m => m.BarangStok.Qty)
                     </td>
-                    <td class="netto-barang">
+                    @*<td class="netto-barang">
                         0,00
                         @Html.HiddenFor(m => m.BarangStok.Harga)
-                    </td>
+                    </td>*@
                     <td class="edit-hapus-col">
                         <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanbrg('brg-0')">
                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
