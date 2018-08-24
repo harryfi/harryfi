@@ -936,19 +936,6 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            if (listBarangTidakLaku.Count == 0)
-            {
-                listBarangTidakLaku.Add(new PenjualanBarang
-                {
-                    KodeBrg = "---",
-                    NamaBrg = "---",
-                    Kategori = "---",
-                    Merk = "---",
-                    HJual = 0,
-                    Laku = false
-                });
-            }
-
             return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderBy(b => b.NamaBrg).ToList());
         }
 
@@ -983,18 +970,6 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            if (listBarangMiniStok.Count == 0)
-            {
-                listBarangMiniStok.Add(new PenjualanBarang
-                {
-                    KodeBrg = "---",
-                    NamaBrg = "---",
-                    Kategori = "---",
-                    Merk = "---",
-                    HJual = 0,
-                });
-            }
-
             return PartialView("TableBarangDibawahMinimumStokPartial", listBarangMiniStok.OrderBy(b => b.NamaBrg).ToList());
         }
 
@@ -1019,17 +994,6 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            if (listBarangLaku.Count == 0)
-            {
-                listBarangLaku.Add(new PenjualanBarang
-                {
-                    KodeBrg = "---",
-                    NamaBrg = "---",
-                    Kategori = "---",
-                    Merk = "---",
-                    HJual = 0,
-                });
-            }
             return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderBy(b => b.NamaBrg).ToList());
         }
 
