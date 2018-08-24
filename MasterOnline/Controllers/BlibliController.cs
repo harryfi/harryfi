@@ -977,7 +977,7 @@ namespace MasterOnline.Controllers
                 price = Convert.ToInt32(data.Price),
                 salePrice = Convert.ToInt32(data.MarketPrice),
                 stock = Convert.ToInt32(data.Qty),
-                minimumStock = Convert.ToInt32(data.MarketPrice),
+                minimumStock = Convert.ToInt32(data.MinQty),
                 pickupPointCode = data.PickupPoint,
                 length = Convert.ToDouble(data.Length),
                 width = Convert.ToDouble(data.Width),
