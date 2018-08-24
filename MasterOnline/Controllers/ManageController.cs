@@ -3938,6 +3938,27 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public ActionResult GetDataBarangPromosi(int? promoId)
+        {
+            var listBarang = ErasoftDbContext.STF02.ToList();
+
+            if (promoId == null)
+            {
+                return Json(listBarang, JsonRequestBehavior.AllowGet);
+            }
+
+            var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
+            List<STF02> listBarangUntukPromo = null;
+
+            if (listBarangSesuaiPromo != null && listBarangSesuaiPromo.Count > 0)
+            {
+                listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
+            }
+
+            return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public ActionResult GetEkspedisi()
         {
             var listEkspedisi = MoDbContext.Ekspedisi.ToList();
@@ -7591,10 +7612,10 @@ namespace MasterOnline.Controllers
             dataPerusahaanInDb.NPWP = dataVm.DataUsaha.NPWP;
             dataPerusahaanInDb.METODA_NO = dataVm.DataUsaha.METODA_NO;
             dataPerusahaanInDb.KODE_BRG_STYLE = dataVm.DataUsaha.KODE_BRG_STYLE;
-            dataPerusahaanInDb.BCA_API_KEY = dataVm.DataUsaha.BCA_API_KEY;
-            dataPerusahaanInDb.BCA_API_SECRET = dataVm.DataUsaha.BCA_API_SECRET;
-            dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
-            dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
+            //dataPerusahaanInDb.BCA_API_KEY = dataVm.DataUsaha.BCA_API_KEY;
+            //dataPerusahaanInDb.BCA_API_SECRET = dataVm.DataUsaha.BCA_API_SECRET;
+            //dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
+            //dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
 
             var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.Single(p => p.RecNum == 1);
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
@@ -7611,6 +7632,51 @@ namespace MasterOnline.Controllers
 
         // =============================================== Bagian Data Perusahaan (END)
 
+        // =============================================== ADD BY NURUL 24/8/2018 -- Bagian Data APIBCA (START)
+
+        public ActionResult APIBCA()
+        {
+            var APIBCAVm = new DataPerusahaanViewModel()
+            {
+                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
+            };
+
+            return View(APIBCAVm);
+        }
+
+        
+        [HttpPost]
+        public ActionResult SaveAPIBCA(DataPerusahaanViewModel dataVm)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataVm, JsonRequestBehavior.AllowGet);
+            }
+
+            if (Request.Files.Count > 0)
+            {
+                var file = Request.Files[0];
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    var fileExtension = Path.GetExtension(file.FileName);
+                    string namaPT = dataVm.DataUsaha.USERNAME.Trim();
+                }
+            }
+
+            var dataPerusahaanInDb = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1);
+            dataPerusahaanInDb.BCA_API_KEY = dataVm.DataUsaha.BCA_API_KEY;
+            dataPerusahaanInDb.BCA_API_SECRET = dataVm.DataUsaha.BCA_API_SECRET;
+            dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
+            dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
+            
+            ErasoftDbContext.SaveChanges();
+
+            return new EmptyResult();
+        }
+
+        // =============================================== END ADD BY NURUL -- Bagian Data API BCA (END)
         // =============================================== Bagian Promosi (START)
 
         [Route("manage/master/promosi-barang")]
