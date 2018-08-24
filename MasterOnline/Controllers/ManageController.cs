@@ -3938,6 +3938,21 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public ActionResult GetDataBarangPromosi(int? promoId)
+        {
+            var listBarang = ErasoftDbContext.STF02.ToList();
+            var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
+            List<STF02> listBarangUntukPromo = null;
+
+            if (listBarangSesuaiPromo != null && listBarangSesuaiPromo.Count > 0)
+            {
+                listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
+            }
+
+            return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public ActionResult GetEkspedisi()
         {
             var listEkspedisi = MoDbContext.Ekspedisi.ToList();
