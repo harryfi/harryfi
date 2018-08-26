@@ -1071,18 +1071,21 @@
             var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang) - $totDisc;
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) + '<input data-val="true" data-val-number="The field THARGA must be a number." data-val-required="The THARGA field is required." id="InvoiceDetail_THARGA" name="InvoiceDetail.THARGA" type="hidden" value="">');
+            console.log($total);
+            console.log($totalAwal);
+            console.log($nettoSebelumnya);
             $('#Invoice_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
 
             refreshNetto();
         }
 
         function refreshNetto() {
-            $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
+            $bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
 
-            var $nPpn = Math.ceil($bakalNetto * $('#Invoice_PPN').val() / 100);
+            var $nPpn = Math.ceil($bakalNetto * parseInt($('#Invoice_PPN').val()) / 100);
             $('#Invoice_NPPN').val(convertToRupiah($nPpn));
 
-            $bakalNetto -= convertToAngka($('#Invoice_NDISC1').val());
+            $bakalNetto -= parseInt(convertToAngka($('#Invoice_NDISC1').val()));
             $bakalNetto += $nPpn;
 
             $('#Invoice_NETTO').val(convertToRupiah($bakalNetto));
@@ -1242,6 +1245,7 @@
                             }
 
                             refreshNettoBarang($trId);
+                            refreshNetto();
                         }
                     },
                     focus: function() {
@@ -1647,18 +1651,24 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $('#konfHapusInvoice').modal('hide');
                     if (response.Errors == null) {
                         $('#table-invoice-partial').html(response);
+                        $('#tambah_invoice').remove();
                         Initialize();
                     } else {
                         //console.log(response.Errors);
                         alert(response.Errors[0]);
                     }
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -1689,6 +1699,7 @@
                         $nettoSebelumnya = 0;
                         $bakalNetto = 0;
                         $('#form-partial').html(response);
+                        refreshNetto();
                         $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                         getTanggal();
                         getSupplier();
@@ -1826,8 +1837,9 @@
                         success: function (response) {
                             if (response.Errors == null) {
                                 $('#form-partial').html(response);
-                                $nettoSebelumnya = parseInt(convertToAngka($('#Invoice_NETTO').val()));
+                                $nettoSebelumnya = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
                                 refreshInputan();
+                                refreshNetto();
                                 getTanggal();
                                 getDataBarang();
                                 getSupplier();

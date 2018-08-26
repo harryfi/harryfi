@@ -3361,6 +3361,7 @@ namespace MasterOnline.Controllers
                 invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
                 invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
                 invoiceInDb.PPN = dataVm.Invoice.PPN;
+                invoiceInDb.NPPN = dataVm.Invoice.NPPN;
                 invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
                 invoiceInDb.KODE_REF_PESANAN = dataVm.Invoice.KODE_REF_PESANAN;
 
