@@ -18,7 +18,7 @@ namespace MasterOnline.Models
         public string PERSON { get; set; }
 
         [Required]
-        [StringLength(30)]
+        [StringLength(50)]
         public string EMAIL { get; set; }
 
         [Required]
