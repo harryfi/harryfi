@@ -152,7 +152,8 @@
                                 <tr>
                                     <th>Nama Produk</th>
                                     <th style="text-align: right;">Jumlah Barang</th>
-                                    <th style="text-align: right;">Berat Barang</th>
+                                    @*<th style="text-align: right;">Berat Barang</th>*@
+                                    <th style="text-align: right;">Diskon</th>
                                     <th style="text-align: right;">Harga Barang</th>
                                     <th style="text-align: right;">Subtotal</th>
                                 </tr>
@@ -162,7 +163,8 @@
                                 {
                                     var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
                                     var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                    var beratBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.BERAT;
+                                    @*var beratBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.BERAT;*@
+                                    var discTotal = fakturDetail.DISCOUNT + fakturDetail.DISCOUNT_2;
                                     var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
                                     var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
                                     <tr>
@@ -177,8 +179,11 @@
                                             @fakturDetail.QTY @satuan
                                         </td>
                                         <td style="text-align: right;">
-                                            @(fakturDetail.QTY * beratBarang) gr
+                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
                                         </td>
+                                        @*<td style="text-align: right;">
+                                            @(fakturDetail.QTY * beratBarang) gr
+                                        </td>*@
                                         <td style="text-align: right;">
                                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
                                         </td>
@@ -247,7 +252,7 @@
                             <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
                         </p>
                         <p class="sub_title">
-                            <span class="block_subtitle">Alamat</span> @(pembeli.AL) @(pembeli.AL2) @(pembeli.AL3)
+                            <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
                         </p>
                         <p class="sub_title">
                             <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
