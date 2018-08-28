@@ -4074,6 +4074,12 @@ namespace MasterOnline.Controllers
                 pesananInDb.PPN = dataVm.Pesanan.PPN;
                 pesananInDb.NILAI_PPN = dataVm.Pesanan.NILAI_PPN;
                 pesananInDb.ONGKOS_KIRIM = dataVm.Pesanan.ONGKOS_KIRIM;
+                pesananInDb.ALAMAT_KIRIM = dataVm.Pesanan.ALAMAT_KIRIM;
+                pesananInDb.TERM = dataVm.Pesanan.TERM;
+                pesananInDb.TGL_JTH_TEMPO = dataVm.Pesanan.TGL_JTH_TEMPO;
+                pesananInDb.CUST = dataVm.Pesanan.CUST;
+                pesananInDb.PEMESAN = dataVm.Pesanan.PEMESAN;
+                pesananInDb.NAMAPEMESAN = dataVm.Pesanan.NAMAPEMESAN;
 
                 dataVm.PesananDetail.NO_BUKTI = dataVm.Pesanan.NO_BUKTI;
                 dataVm.PesananDetail.NILAI_DISC = dataVm.PesananDetail.NILAI_DISC_1 + dataVm.PesananDetail.NILAI_DISC_2;
