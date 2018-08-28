@@ -50,7 +50,7 @@
 @Html.HiddenFor(m => m.Pesanan.N_KOMISI1, new { Value = 0 })
 @Html.HiddenFor(m => m.Pesanan.STATUS, new { Value = "0" })
 @Html.HiddenFor(m => m.Pesanan.USER_NAME, new { Value = username })
-@Html.HiddenFor(m => m.Pesanan.NO_REFERENSI, new { Value = "" })
+@*Remark by nurul 28/8/2018 -- @Html.HiddenFor(m => m.Pesanan.NO_REFERENSI, new { Value = "" })*@
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
@@ -73,7 +73,8 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.NO_REFERENSI, "No. Referensi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextBoxFor(m => m.Pesanan.NO_REFERENSI, new { @class = "form-control", disabled = "disabled" })
+                    @*Remark by nurul 28/8/2018 -- @Html.TextBoxFor(m => m.Pesanan.NO_REFERENSI, new { @class = "form-control", disabled = "disabled" })*@
+                    @Html.TextBoxFor(m => m.Pesanan.NO_REFERENSI, new { @class = "form-control" })
                 </div>
             </div>
         </div>
