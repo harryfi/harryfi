@@ -4794,8 +4794,6 @@ namespace MasterOnline.Controllers
             barangPesananInDb.LOKASI = gd;
             barangPesananInDb.QTY = qty;
 
-
-
             //add by calvin, 22 juni 2018 validasi QOH
             //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             //foreach (var item in stokDetailInDb)
