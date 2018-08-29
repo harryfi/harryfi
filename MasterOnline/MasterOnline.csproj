@@ -5117,6 +5117,8 @@
     <Content Include="Views\Manage\BarangPesananSudahDibayarPartial.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryProviderLazada.cshtml" />
     <Content Include="Views\Manage\APIBCA.cshtml" />
+    <Content Include="Views\Manage\MenuBarang.cshtml" />
+    <Content Include="Views\Manage\TableMenuBarang1Partial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
