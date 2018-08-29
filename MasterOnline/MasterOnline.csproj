@@ -1118,6 +1118,9 @@
     <Content Include="Content\Images\twitter.png" />
     <Content Include="Content\Images\user.png" />
     <Content Include="Content\Images\visa.png" />
+    <Content Include="Content\Logo_Perusahaan\LogoUsaha-mochhazam-PT JackMa.jpg" />
+    <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PT. DHE.jpg" />
+    <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PTDHE.jpg" />
     <Content Include="Content\ManageSite.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\ReferenceTambahan\AKSHASP.dll" />
