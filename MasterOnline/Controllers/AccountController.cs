@@ -102,7 +102,6 @@ namespace MasterOnline.Controllers
             Session["SessionInfo"] = _viewModel;
 
             ErasoftContext erasoftContext = null;
-
             if (_viewModel?.Account != null)
             {
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.UserId);
@@ -118,39 +117,38 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncMarketplace();
-                return RedirectToAction("Index", "Manage");
+                //SyncMarketplace(erasoftContext);
+                return RedirectToAction("Index", "Manage","SyncMarketplace");
             }
 
             return RedirectToAction("Bantuan", "Manage");
         }
 
-        public ErasoftContext ErasoftDbContext { get; set; }
-        protected void SyncMarketplace()
+        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext)
         {
-            MoDbContext = new MoDbContext();
+            //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
-            {
-                if (sessionData.Account.UserId == "admin_manage")
-                    ErasoftDbContext = new ErasoftContext();
-                else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
-            }
-            else
-            {
-                if (sessionData?.User != null)
-                {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
-                }
-            }
+            //if (sessionData?.Account != null)
+            //{
+            //    if (sessionData.Account.UserId == "admin_manage")
+            //        ErasoftDbContext = new ErasoftContext();
+            //    else
+            //        ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+            //}
+            //else
+            //{
+            //    if (sessionData?.User != null)
+            //    {
+            //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //        ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+            //    }
+            //}
             var connectionID = Guid.NewGuid().ToString();
             string username = sessionData.Account.Username;
 
             #region bukalapak
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             var blApi = new BukaLapakController();
             if (listBLShop.Count > 0)
             {
@@ -158,10 +156,10 @@ namespace MasterOnline.Controllers
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
-                        var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                        var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
                         foreach (var item in stf02hinDB)
                         {
-                            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                            var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
                             if (barangInDb != null)
                             {
                                 var qtyOnHand = 0d;
@@ -174,7 +172,7 @@ namespace MasterOnline.Controllers
                                             new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
                                         };
 
-                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                    LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
                                     qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
                                 }
                                 blApi.updateProduk(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.API_KEY, tblCustomer.TOKEN);
@@ -228,7 +226,7 @@ namespace MasterOnline.Controllers
             //#endregion
             #region Blibli
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            var listBLIShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBLIShop.Count > 0)
             {
                 var BliApi = new BlibliController();
@@ -251,7 +249,7 @@ namespace MasterOnline.Controllers
             #endregion
             #region elevenia
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+            var listELShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
                 var elApi = new EleveniaController();
@@ -261,10 +259,10 @@ namespace MasterOnline.Controllers
                     elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum), Convert.ToString(tblCustomer.API_KEY));
 
                     //cari yang brg_mp tidak null, per market
-                    var stf02hinDB = ErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
+                    var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
                     foreach (var item in stf02hinDB)
                     {
-                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
+                        var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
                         if (barangInDb != null)
                         {
                             {
@@ -286,7 +284,7 @@ namespace MasterOnline.Controllers
                                             new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
                                         };
 
-                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                                    LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
                                     qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
                                 }
                                 EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
@@ -301,7 +299,7 @@ namespace MasterOnline.Controllers
                                     DeliveryTempNo = item.DeliveryTempElevenia,
                                     IDMarket = tblCustomer.RecNum.ToString(),
                                 };
-                                data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
+                                data.Brand = LocalErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
                                 data.Price = item.HJUAL.ToString();
                                 data.kode_mp = item.BRG_MP;
                                 elApi.UpdateProductQOH_Price(data);
