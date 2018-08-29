@@ -134,7 +134,7 @@
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="barang-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
                 </li>
-                @* remark by nurul 29/8/2018 -- <li role="presentation" class="">
+                <li role="presentation" class="">
                     <a href="#tab_content2" role="tab" id="kosong-tab" data-toggle="tab" aria-expanded="false">Barang Kosong</a>
                 </li>
                 <li role="presentation" class="">
@@ -145,7 +145,7 @@
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content7" role="tab" id="palinglaku-tab" data-toggle="tab" aria-expanded="false">Barang Paling Laku</a>
-                </li>*@
+                </li>
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="barang-tab">
@@ -171,7 +171,7 @@
                                     <button type="button" class=" btn btn-default" data-style="expand-right">
                                         <span>Import Harga</span>
                                     </button>*@
-                                <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>
+                                @* remark by nurul 28/8/2108 -- <button class="btn btn-primary btn_tambah_data" id="tambah_barang">Tambah Baru</button>*@
                             </div>
                         </div>
                     </div>
@@ -180,7 +180,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
-                            @Html.Partial("TableBarang1Partial")
+                            @Html.Partial("TableMenuBarang1Partial")
                         </div>
                     </div>
                     <div class="row barang_editor_section" style="display: none;">
