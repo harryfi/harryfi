@@ -451,6 +451,9 @@
     <Compile Include="Models\APF02.cs" />
     <Compile Include="Models\APF02A.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE.cs" />
+    <Compile Include="Models\ATTRIBUTE_LAZADA.cs" />
+    <Compile Include="Models\ATTRIBUTE_OPT_LAZADA.cs" />
+    <Compile Include="Models\CATEGORY_LAZADA.cs" />
     <Compile Include="Models\DELIVERY_PROVIDER_LAZADA.cs" />
     <Compile Include="Models\APF02B.cs" />
     <Compile Include="Models\APF03.cs" />
