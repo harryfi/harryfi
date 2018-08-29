@@ -414,6 +414,7 @@ namespace MasterOnline
         public virtual DbSet<DeliveryTemplateElevenia> DeliveryTemplateElevenia { get; set; }
         public virtual DbSet<PICKUP_POINT_BLIBLI> PICKUP_POINT_BLIBLI { get; set; }
         public virtual DbSet<DELIVERY_PROVIDER_LAZADA> DELIVERY_PROVIDER_LAZADA { get; set; }
+        public virtual DbSet<API_LOG_MARKETPLACE> API_LOG_MARKETPLACE { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
