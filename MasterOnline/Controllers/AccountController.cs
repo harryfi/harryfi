@@ -245,6 +245,8 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                         };
                         BliApi.GetToken(data, true);
+                        BliApi.GetQueueFeedDetail(data, null);
+
                     }
                 }
             }

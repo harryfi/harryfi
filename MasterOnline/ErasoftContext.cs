@@ -415,6 +415,9 @@ namespace MasterOnline
         public virtual DbSet<PICKUP_POINT_BLIBLI> PICKUP_POINT_BLIBLI { get; set; }
         public virtual DbSet<DELIVERY_PROVIDER_LAZADA> DELIVERY_PROVIDER_LAZADA { get; set; }
         public virtual DbSet<API_LOG_MARKETPLACE> API_LOG_MARKETPLACE { get; set; }
+        public virtual DbSet<CATEGORY_LAZADA> CATEGORY_LAZADA { get; set; }
+        public virtual DbSet<ATTRIBUTE_LAZADA> ATTRIBUTE_LAZADA { get; set; }
+        public virtual DbSet<ATTRIBUTE_OPT_LAZADA> ATTRIBUTE_OPT_LAZADA { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

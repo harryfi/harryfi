@@ -1252,13 +1252,15 @@ namespace MasterOnline.Controllers
             public string orderNo { get; set; }
             public string orderItemNo { get; set; }
         }
-        protected enum api_status {
+        protected enum api_status
+        {
             Pending = 1,
             Success = 2,
             Failed = 3,
             Exception = 4
         }
-        protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, BlibliAPIData iden, API_LOG_MARKETPLACE data) {
+        protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, BlibliAPIData iden, API_LOG_MARKETPLACE data)
+        {
             switch (action)
             {
                 case api_status.Pending:
@@ -1292,28 +1294,37 @@ namespace MasterOnline.Controllers
                 case api_status.Success:
                     {
                         var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        apiLogInDb.REQUEST_STATUS = "Success";
-                        apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
-                        apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                        ErasoftDbContext.SaveChanges();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
                     }
                     break;
                 case api_status.Failed:
                     {
                         var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        apiLogInDb.REQUEST_STATUS = "Failed";
-                        apiLogInDb.REQUEST_RESULT =  data.REQUEST_RESULT;
-                        apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                        ErasoftDbContext.SaveChanges();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
                     }
                     break;
                 case api_status.Exception:
                     {
                         var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        apiLogInDb.REQUEST_STATUS = "Failed";
-                        apiLogInDb.REQUEST_RESULT = "Exception";
-                        apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                        ErasoftDbContext.SaveChanges();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
                     }
                     break;
             }
@@ -1356,11 +1367,12 @@ namespace MasterOnline.Controllers
 
             myData = JsonConvert.SerializeObject(thisData);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE{
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
                 REQUEST_ID = milis.ToString(),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 =orderNo,
+                REQUEST_ATTRIBUTE_1 = orderNo,
                 REQUEST_ATTRIBUTE_2 = orderItemNo,
                 REQUEST_ATTRIBUTE_3 = awbNo,
                 REQUEST_STATUS = "Pending",
@@ -1902,7 +1914,7 @@ namespace MasterOnline.Controllers
                                                 oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
                                                 if (oCommand.ExecuteNonQuery() == 1)
                                                 {
-                                                    
+
 
                                                     oCommand.CommandType = CommandType.Text;
                                                     oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
@@ -1953,7 +1965,7 @@ namespace MasterOnline.Controllers
                                             oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
                                             if (oCommand.ExecuteNonQuery() == 1)
                                             {
-                                                
+
                                             }
                                         }
                                         catch (Exception ex)
