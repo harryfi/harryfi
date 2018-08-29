@@ -76,6 +76,10 @@
     <Reference Include="HtmlRenderer, Version=1.5.0.5, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlRenderer.Core.1.5.0.5\lib\net45\HtmlRenderer.dll</HintPath>
     </Reference>
+    <Reference Include="InteractivePreGeneratedViews, Version=1.0.0.0, Culture=neutral, PublicKeyToken=46c4868af4307d2c, processorArchitecture=MSIL">
+      <HintPath>..\packages\EFInteractiveViews.1.0.1\lib\net45\InteractivePreGeneratedViews.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Interop.CRAXDRT, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
@@ -380,6 +384,14 @@
     <Compile Include="ErasoftContextMigrations\201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.Designer.cs">
       <DependentUpon>201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808290320063_AL_AL2_AL3_SIT01A_jadi_max.cs" />
+    <Compile Include="ErasoftContextMigrations\201808290320063_AL_AL2_AL3_SIT01A_jadi_max.Designer.cs">
+      <DependentUpon>201808290320063_AL_AL2_AL3_SIT01A_jadi_max.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErasoftContextMigrations\201808290510311_API_LOG_MARKETPLACE.cs" />
+    <Compile Include="ErasoftContextMigrations\201808290510311_API_LOG_MARKETPLACE.Designer.cs">
+      <DependentUpon>201808290510311_API_LOG_MARKETPLACE.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -438,6 +450,7 @@
     <Compile Include="Models\APF01A.cs" />
     <Compile Include="Models\APF02.cs" />
     <Compile Include="Models\APF02A.cs" />
+    <Compile Include="Models\API_LOG_MARKETPLACE.cs" />
     <Compile Include="Models\DELIVERY_PROVIDER_LAZADA.cs" />
     <Compile Include="Models\APF02B.cs" />
     <Compile Include="Models\APF03.cs" />
@@ -5269,6 +5282,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.resx">
       <DependentUpon>201808240944308_FIELD_EMAIL_SIFSYS_TAMBAHAN_LENGTH.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808290320063_AL_AL2_AL3_SIT01A_jadi_max.resx">
+      <DependentUpon>201808290320063_AL_AL2_AL3_SIT01A_jadi_max.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808290510311_API_LOG_MARKETPLACE.resx">
+      <DependentUpon>201808290510311_API_LOG_MARKETPLACE.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

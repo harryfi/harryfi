@@ -122,16 +122,16 @@ namespace MasterOnline
         [StringLength(3)]
         public string JTRAN { get; set; }
 
-        [StringLength(40)]
+        //[StringLength(40)]
         public string AL3 { get; set; }
 
-        [StringLength(40)]
+        //[StringLength(40)]
         public string AL2 { get; set; }
 
-        [StringLength(40)]
+        //[StringLength(40)]
         public string AL1 { get; set; }
 
-        [StringLength(40)]
+        //[StringLength(40)]
         public string AL { get; set; }
 
         public double? U_MUKA { get; set; }
