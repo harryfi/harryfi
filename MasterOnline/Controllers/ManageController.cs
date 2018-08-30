@@ -2960,7 +2960,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -2977,7 +2977,7 @@ namespace MasterOnline.Controllers
             IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI)).OrderByDescending(f => f.TGL)
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
                             .ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
@@ -2994,7 +2994,7 @@ namespace MasterOnline.Controllers
             //IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3011,7 +3011,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3026,7 +3026,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3596,7 +3596,7 @@ namespace MasterOnline.Controllers
             IEnumerable<APT01D> InvBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3611,7 +3611,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3626,7 +3626,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -5926,7 +5926,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.OrderByDescending(f => f.TGL).ToList(),
+                ListPiutang = ErasoftDbContext.ART03A.ToList(),
                 ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
@@ -6098,7 +6098,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.OrderByDescending(f => f.TGL).ToList()
+                ListPiutang = ErasoftDbContext.ART03A.ToList()
             };
 
             return PartialView("TableBayarPiutangPartial", vm);
@@ -6127,7 +6127,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.OrderByDescending(f => f.TGL).ToList(),
+                ListHutang = ErasoftDbContext.APT03A.ToList(),
                 ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
@@ -6306,7 +6306,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.OrderByDescending(f => f.TGL).ToList()
+                ListHutang = ErasoftDbContext.APT03A.ToList()
             };
 
             return PartialView("TableBayarHutangPartial", vm);
