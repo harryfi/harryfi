@@ -685,7 +685,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode)
+        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode,string merchantSku)
         {
             string ret = "";
             long milis = CurrentTimeMillis();
@@ -708,7 +708,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = milis.ToString(),
                 REQUEST_ACTION = "Upload Image",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = ProductCode,
+                REQUEST_ATTRIBUTE_1 = merchantSku,
+                REQUEST_ATTRIBUTE_2 = ProductCode,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -1454,17 +1455,6 @@ namespace MasterOnline.Controllers
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-
-                MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-                {
-                    REQUEST_ID = milis.ToString(),
-                    REQUEST_ACTION = "Update QOH dan Display",
-                    REQUEST_DATETIME = milisBack,
-                    REQUEST_ATTRIBUTE_1 = brg_mp[0],
-                    REQUEST_STATUS = "Pending",
-                };
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-
                 string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
@@ -1491,8 +1481,6 @@ namespace MasterOnline.Controllers
                 }
                 catch (Exception ex)
                 {
-                    currentLog.REQUEST_EXCEPTION = ex.InnerException.Message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
                 if (responseFromServer_1 != null)
                 {
@@ -1554,6 +1542,18 @@ namespace MasterOnline.Controllers
                             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
                             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
                             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = milis.ToString(),
+                                REQUEST_ACTION = "Update QOH dan Display",
+                                REQUEST_DATETIME = milisBack,
+                                REQUEST_ATTRIBUTE_1 = data.kode,
+                                REQUEST_ATTRIBUTE_2 = brg_mp[1], //product_code
+                                REQUEST_ATTRIBUTE_3 = brg_mp[0], //gdnsku
+                                REQUEST_STATUS = "Pending",
+                            };
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
                             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                             myReq.Method = "POST";
@@ -1932,7 +1932,7 @@ namespace MasterOnline.Controllers
                                                             }
                                                         }
 
-                                                        UploadImage(data, imgPath, Convert.ToString(values.productCode.Value));
+                                                        UploadImage(data, imgPath, Convert.ToString(values.productCode.Value),Convert.ToString(values.merchantSku.Value));
                                                     }
                                                 }
                                             }

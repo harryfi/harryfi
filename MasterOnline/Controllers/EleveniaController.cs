@@ -255,6 +255,64 @@ namespace MasterOnline.Controllers
 
             Utils.HttpRequest req = new Utils.HttpRequest();
 
+            //////string xmlString = "<Product>";
+            //////xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
+            //////xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
+            //////xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
+
+            ////////var attr = await GetAttribute("");
+
+            ////////foreach (productCtgrAttributesProductCtgrAttribute prodAttr in attr.productCtgrAttribute)
+            ////////{
+            ////////    xmlString += "<ProductCtgrAttribute><prdAttrCd>" + prodAttr.prdAttrCd + "</prdAttrCd>";//category attribute code
+            ////////    xmlString += "<prdAttrNm>" + prodAttr.prdAttrNm + "</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            ////////    xmlString += "<prdAttrNo>" + prodAttr.prdAttrNo + "</prdAttrNo>";//category attribute id
+            ////////    xmlString += "<prdAttrVal>(Check Product Details)</prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            ////////}
+            //////xmlString += "<ProductCtgrAttribute><prdAttrCd>2000005</prdAttrCd>";//category attribute code
+            //////xmlString += "<prdAttrNm>Brand</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+            //////xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
+            //////xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
+
+            //////xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
+            //////xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
+            //////xmlString += "<prdWght>" + data.berat + "</prdWght>";//weight in kg
+            //////xmlString += "<dlvGrntYn>N</dlvGrntYn>";//guarantee of delivery Y/N value
+            //////xmlString += "<minorSelCnYn>Y</minorSelCnYn>";//minor(under 17 years old) can buy
+            //////xmlString += "<suplDtyfrPrdClfCd>02</suplDtyfrPrdClfCd>";//VAT : 01 = item with tax ; 02 = item without tax
+
+            //////int prodImageCount = 1;
+            //////for (int i = 0; i < data.imgUrl.Length; i++)
+            //////{
+            //////    if (data.imgUrl[i].Length > 0)
+            //////    {
+            //////        xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+            //////        //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+            //////        prodImageCount++;
+            //////    }
+            //////    else if (i == 0)
+            //////    {
+            //////        xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+            //////        prodImageCount++;
+            //////    }
+            //////}
+
+            //////xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported)
+            //////xmlString += "<sellerPrdCd><![CDATA[" + data.kode + "]]></sellerPrdCd>";//seller sku(optional)
+            //////xmlString += "<selTermUseYn>N</selTermUseYn>";//whether to use sales period Y/N value
+            ////////xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
+            //////xmlString += "<selPrc>" + data.Price + "</selPrc>";//product price
+            //////xmlString += "<prdSelQty>" + data.Qty + "</prdSelQty>";//product stock
+            //////xmlString += "<dscAmtPercnt></dscAmtPercnt>";//discount value(optional)
+            //////xmlString += "<cupnDscMthdCd></cupnDscMthdCd>";//discount unit(optional) : 01 = in Rp ; 02 = in %
+            //////xmlString += "<cupnIssEndDy></cupnIssEndDy>";//discount end date(optional)
+            //////xmlString += "<tmpltSeq>" + data.DeliveryTempNo + "</tmpltSeq>";//number of delivery
+            //////xmlString += "<asDetail></asDetail>";//after service information(garansi)
+            //////xmlString += "<rtngExchDetail>Hubungi toko untuk retur</rtngExchDetail>";//return/exchange information
+            //////xmlString += "<prdNo>" + data.kode_mp + "</prdNo>";//Marketplace Product ID
+            //////xmlString += "</Product>";
+            ////////var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
+
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
@@ -284,7 +342,7 @@ namespace MasterOnline.Controllers
             int prodImageCount = 1;
             for (int i = 0; i < data.imgUrl.Length; i++)
             {
-                if (data.imgUrl[i].Length > 0)
+                if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
                     //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
@@ -303,15 +361,14 @@ namespace MasterOnline.Controllers
             //xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
             xmlString += "<selPrc>" + data.Price + "</selPrc>";//product price
             xmlString += "<prdSelQty>" + data.Qty + "</prdSelQty>";//product stock
-            xmlString += "<dscAmtPercnt></dscAmtPercnt>";//discount value(optional)
-            xmlString += "<cupnDscMthdCd></cupnDscMthdCd>";//discount unit(optional) : 01 = in Rp ; 02 = in %
-            xmlString += "<cupnIssEndDy></cupnIssEndDy>";//discount end date(optional)
+            //xmlString += "<dscAmtPercnt></dscAmtPercnt>";//discount value(optional)
+            //xmlString += "<cupnDscMthdCd></cupnDscMthdCd>";//discount unit(optional) : 01 = in Rp ; 02 = in %
+            //xmlString += "<cupnIssEndDy></cupnIssEndDy>";//discount end date(optional)
             xmlString += "<tmpltSeq>" + data.DeliveryTempNo + "</tmpltSeq>";//number of delivery
             xmlString += "<asDetail></asDetail>";//after service information(garansi)
             xmlString += "<rtngExchDetail>Hubungi toko untuk retur</rtngExchDetail>";//return/exchange information
             xmlString += "<prdNo>" + data.kode_mp + "</prdNo>";//Marketplace Product ID
             xmlString += "</Product>";
-            //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
             //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.RESTServices.rest, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
             //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
