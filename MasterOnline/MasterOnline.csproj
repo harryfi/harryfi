@@ -392,6 +392,10 @@
     <Compile Include="ErasoftContextMigrations\201808290510311_API_LOG_MARKETPLACE.Designer.cs">
       <DependentUpon>201808290510311_API_LOG_MARKETPLACE.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808291000403_category_attribute_attributeOpt_lazada_stf02h_31_50.cs" />
+    <Compile Include="ErasoftContextMigrations\201808291000403_category_attribute_attributeOpt_lazada_stf02h_31_50.Designer.cs">
+      <DependentUpon>201808291000403_category_attribute_attributeOpt_lazada_stf02h_31_50.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5291,6 +5295,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808290510311_API_LOG_MARKETPLACE.resx">
       <DependentUpon>201808290510311_API_LOG_MARKETPLACE.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808291000403_category_attribute_attributeOpt_lazada_stf02h_31_50.resx">
+      <DependentUpon>201808291000403_category_attribute_attributeOpt_lazada_stf02h_31_50.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
