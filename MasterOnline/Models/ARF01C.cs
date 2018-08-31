@@ -170,7 +170,7 @@ namespace MasterOnline
         public string KODEPOS { get; set; }
 
         [Required]
-        [StringLength(30)]
+        [StringLength(50)]
         public string EMAIL { get; set; }
 
         [Required]
