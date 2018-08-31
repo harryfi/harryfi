@@ -486,7 +486,14 @@
                 language: 'id'
             }).datepicker('setDate', '0').change(function () {
                 $('#Jurnal_tgl').val($(this).val());
-            });
+                });
+
+            //add by nurul 31/8/2018
+            if ($('#Jurnal_tgl').val() != '') {
+                $('#TGL').val($('#Jurnal_tgl').val().substr(0, 10));
+            } else {
+                $('#Jurnal_tgl').val($('#TGL').val());
+            }
         }
 
         var $flagPerubahan = 0;

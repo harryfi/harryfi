@@ -2337,9 +2337,11 @@ namespace MasterOnline.Controllers
             if (viewModel.User.UserId == null)
             {
                 var checkUser = MoDbContext.User.SingleOrDefault(u => u.Email == viewModel.User.Email);
+                var checkAkun = MoDbContext.Account.SingleOrDefault(u => u.Email == viewModel.User.Email);
 
-                if (checkUser == null)
+                if (checkUser == null && checkAkun == null)
                 {
+                    viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
                 else
