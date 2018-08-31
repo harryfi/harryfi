@@ -844,6 +844,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-stok-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[0, 1, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     Initialize();
                     $('#konfHapusStok').modal('hide');
                 },

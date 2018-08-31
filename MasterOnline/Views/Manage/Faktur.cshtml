@@ -1687,6 +1687,10 @@
                 },
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[0, 1, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     Initialize();
                     $('#loading_spinner').hide();
                     $('#konfHapusFaktur').modal('hide');

@@ -1661,6 +1661,10 @@
                     if (response.Errors == null) {
                         $('#table-invoice-partial').html(response);
                         $('#tambah_invoice').remove();
+                        var table = $('#datatable').DataTable({
+                            "order": [[0, 1, "desc"]], //or asc
+                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        });
                         Initialize();
                     } else {
                         //console.log(response.Errors);
