@@ -27,6 +27,9 @@ namespace MasterOnline
         public DbSet<ATTRIBUTE_OPT_BLIBLI> AttributeOptBlibli { get; set; }
         public DbSet<CATEGORY_BLIBLI> CategoryBlibli { get; set; }
         public DbSet<MIDTRANS_DATA> MidtransData { get; set; }
+        public virtual DbSet<CATEGORY_LAZADA> CATEGORY_LAZADA { get; set; }
+        public virtual DbSet<ATTRIBUTE_LAZADA> ATTRIBUTE_LAZADA { get; set; }
+        public virtual DbSet<ATTRIBUTE_OPT_LAZADA> ATTRIBUTE_OPT_LAZADA { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
