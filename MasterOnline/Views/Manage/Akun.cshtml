@@ -172,8 +172,7 @@
                         $('#close-editor').click();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                     } else {
-                        console.log(response.Errors);
-                        alert('Ada data yang tidak valid!');
+                        alert(response.Errors);
                     }
                 },
                 error: function (xhr, status, error) {
