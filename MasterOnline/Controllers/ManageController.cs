@@ -2340,6 +2340,7 @@ namespace MasterOnline.Controllers
 
                 if (checkUser == null)
                 {
+                    viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
                 else

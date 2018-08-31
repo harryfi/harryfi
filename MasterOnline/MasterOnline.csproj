@@ -400,6 +400,10 @@
     <Compile Include="ErasoftContextMigrations\201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.Designer.cs">
       <DependentUpon>201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.cs" />
+    <Compile Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.Designer.cs">
+      <DependentUpon>201808310123546_AlterFieldEmailLength.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5309,6 +5313,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.resx">
       <DependentUpon>201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.resx">
+      <DependentUpon>201808310123546_AlterFieldEmailLength.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
