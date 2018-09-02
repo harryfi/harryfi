@@ -7976,5 +7976,20 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian Harga Jual Barang (END)
+
+        // =============================================== Bagian Subscription (START)
+
+        [Route("manage/Subscription")]
+        public ActionResult Subscription()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            return View(vm);
+        }
+
+        // =============================================== Bagian Subscription (END)
     }
 }

@@ -5152,6 +5152,8 @@
     <Content Include="Views\Manage\APIBCA.cshtml" />
     <Content Include="Views\Manage\MenuBarang.cshtml" />
     <Content Include="Views\Manage\TableMenuBarang1Partial.cshtml" />
+    <Content Include="Views\Manage\Subscription.cshtml" />
+    <Content Include="Views\Manage\PricingSubsPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
