@@ -4326,7 +4326,7 @@ namespace MasterOnline.Controllers
                         dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                         if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                         {
-                            for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count - 1; i++)
+                            for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                             {
                                 string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
                                 string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_PROD_NO"]);
@@ -4369,7 +4369,7 @@ namespace MasterOnline.Controllers
                             dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
-                                for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count - 1; i++)
+                                for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
                                 {
                                     string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
                                     string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);

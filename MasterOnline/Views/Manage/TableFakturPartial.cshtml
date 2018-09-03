@@ -69,8 +69,7 @@
                     }
                     </td>
                     <td class="edit-hapus-col">
-                        @* remark by nurul 29/8/2018 -- @if (pesananSesuaiFaktur?.STATUS_TRANSAKSI == "04" || Convert.ToString(faktur.ST_POSTING) == "Y" || nFaktur != null)*@
-                    @if ( faktur.NO_SO != "" || Convert.ToString(faktur.ST_POSTING) == "Y" || nFaktur != null)
+                    @if (pesananSesuaiFaktur?.STATUS_TRANSAKSI == "04" || Convert.ToString(faktur.ST_POSTING) == "Y" || nFaktur != null)
                     {
                     <button class="btn btn-danger" onclick="undeleteableFaktur()">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
