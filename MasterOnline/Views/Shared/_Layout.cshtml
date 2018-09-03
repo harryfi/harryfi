@@ -98,7 +98,7 @@
                         <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
                     </a>
                     @*add by nurul 13/8/2018 (tambah blog)*@
-                    <a href="http://13.250.30.255/blog" style="margin: 0 10px;">
+                    <a href="http://13.250.30.255/blog">
                         <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
                     </a>
                     @*<a href="#gplus">
@@ -183,9 +183,7 @@
                     $this.closest('.form-group').addClass('has-error');
 
                     if (!$this.closest('div').find('.text-danger').length) {
-                        $this.closest('div').append('<span class="text-danger">
-        
-                            </span > ');
+                        $this.closest('div').append('<span class="text-danger"></span >');
                     }
 
                     $isValid = false;
