@@ -861,6 +861,10 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#table-stok-partial').html(response);
+                        var table = $('#datatable').DataTable({
+                            "order": [[0, 1, "desc"]], //or asc
+                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        });
                         Initialize();
                     } else {
                         alert(response.Errors[0]);

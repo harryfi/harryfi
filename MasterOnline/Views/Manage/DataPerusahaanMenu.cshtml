@@ -7,16 +7,19 @@
 
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
     var username = "";
+    var userId = "";
     var context = new MoDbContext();
     if (dataSession?.User != null)
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
+        userId = context.Account.Single(a => a.AccountId == accId).UserId;
         context.Dispose();
     }
     else
     {
         username = dataSession?.Account.Username;
+        userId = dataSession?.Account.UserId;
     }
 }
 
@@ -276,6 +279,7 @@
         function Initialize() {
             getKabKot();
             resetKabKot();
+            getDataPengusaha();
 
             $('#DataUsaha_Metoda').change(function() {
                 $('#DataUsaha_METODA_NO').val($(this).val());
@@ -445,6 +449,23 @@
                 placeholder: 'Harap pilih'
             });
             $('#KODEKABKOT').selectivity('value', 'Harap pilih');
+        }
+
+        function getDataPengusaha() {
+            var link = '@Url.Action("GetDataPengusaha", "Manage", new { userId = "replaceUserId" })';
+            link = link.replace("replaceUserId", '@userId');
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#DataUsahaTambahan_EMAIL').val(response.Email);
+                    $('#DataUsahaTambahan_TELEPON').val(response.Telepon);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
 
         function loadDataKabupatenKota(kdProv) {

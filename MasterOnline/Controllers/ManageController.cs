@@ -7612,6 +7612,24 @@ namespace MasterOnline.Controllers
             return View(dataPerusahaanVm);
         }
 
+        [HttpGet]
+        public ActionResult GetDataPengusaha(string userId)
+        {
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.UserId == userId);
+
+            if (accInDb == null)
+                return Json("No Data Found!", JsonRequestBehavior.AllowGet);
+
+            var res = new DataPengusaha()
+            {
+                NamaLengkap = accInDb.Username,
+                Email = accInDb.Email,
+                Telepon = accInDb.NoHp
+            };
+
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult DeleteLogoPerusahaan(string namaPT, string uname)
         {
             try
@@ -7937,6 +7955,41 @@ namespace MasterOnline.Controllers
             return View("HargaJualMenu", vm);
         }
 
+        [HttpGet]
+        public ActionResult UbahHargaJual(int? recNum, double hargaJualBaru)
+        {
+            var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
+
+            if (hJualInDb == null) return Json("No Data Found!", JsonRequestBehavior.AllowGet);
+
+            hJualInDb.HJUAL = hargaJualBaru;
+            ErasoftDbContext.SaveChanges();
+
+            var vm = new HargaJualViewModel()
+            {
+                ListBarang = ErasoftDbContext.STF02.ToList(),
+                ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
+                ListHargaTerakhir = ErasoftDbContext.STF10.ToList()
+            };
+
+            return PartialView("TableHargaJualPartial", vm);
+        }
+
         // =============================================== Bagian Harga Jual Barang (END)
+
+        // =============================================== Bagian Subscription (START)
+
+        [Route("manage/Subscription")]
+        public ActionResult Subscription()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            return View(vm);
+        }
+
+        // =============================================== Bagian Subscription (END)
     }
 }

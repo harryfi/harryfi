@@ -393,7 +393,7 @@
             //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             //var tableSelesai = $('#datatable_selesai').DataTable();
-
+       
             $('#search_jurnal').keyup(function () {
                 table.search($(this).val()).draw();
             });
@@ -744,6 +744,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-jurnal-partial').html(response);
+                    var table = $('#datatable').DataTable({
+                        "order": [[1, 0, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     Initialize();
                     $('#konfHapusJurnal').modal('hide');
                 },
