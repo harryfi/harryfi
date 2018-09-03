@@ -776,6 +776,7 @@
                 cache: false,
                 success: function (response) {
                     $('#form-partial').html(response);
+                    refreshInputan();
                     getTanggal();
                     getMarketplace();
                     getFaktur($("#Piutang_CUST").val());

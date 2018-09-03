@@ -786,6 +786,7 @@
                 },
                 success: function (response) {
                     $('#form-partial').html(response);
+                    refreshInputan();
                     getTanggal();
                     getSupplier();
                     getInvoice($("#Hutang_SUPP").val());
