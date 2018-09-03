@@ -1936,7 +1936,7 @@ namespace MasterOnline.Controllers
                                     {
                                         api_key = tblCustomer.API_KEY,
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                        nama = dataBarang.Stf02.NAMA,
+                                        nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
                                         imgUrl = imgID,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
