@@ -685,7 +685,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode,string merchantSku)
+        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode, string merchantSku)
         {
             string ret = "";
             long milis = CurrentTimeMillis();
@@ -1893,58 +1893,82 @@ namespace MasterOnline.Controllers
                                 if (Convert.ToBoolean(item.isSuccess))
                                 {
                                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
-
-                                    dynamic values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
-                                    if (Convert.ToString(values.type) == "createProduct")
+                                    dynamic values = null;
+                                    try
                                     {
-                                        //SET BRG_MP
-                                        using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                        values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        if (Convert.ToString(item.value.Value).Contains("postImage"))
                                         {
-                                            oConnection.Open();
-                                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                                            using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                             {
-                                                oCommand.CommandType = CommandType.Text;
-                                                oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
-                                                oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
-                                                oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-
-                                                try
+                                                oConnection.Open();
+                                                using (SqlCommand oCommand = oConnection.CreateCommand())
                                                 {
-                                                    oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku.Value) + ';' + Convert.ToString(values.productCode.Value);
-                                                    oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
-                                                    oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
-                                                    if (oCommand.ExecuteNonQuery() == 1)
-                                                    {
-
-
-                                                        oCommand.CommandType = CommandType.Text;
-                                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                        if (oCommand.ExecuteNonQuery() == 1)
-                                                        {
-                                                            string[] imgPath = new string[3];
-                                                            for (int i = 0; i < 3; i++)
-                                                            {
-                                                                var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
-                                                                //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                                                                var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
-                                                                if (System.IO.File.Exists(path))
-                                                                {
-                                                                    imgPath[i] = path;
-                                                                }
-                                                            }
-
-                                                            UploadImage(data, imgPath, Convert.ToString(values.productCode.Value), Convert.ToString(values.merchantSku.Value));
-                                                        }
-                                                    }
-                                                }
-                                                catch (Exception ex)
-                                                {
-
+                                                    oCommand.CommandType = CommandType.Text;
+                                                    oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+                                                    oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                                    oCommand.ExecuteNonQuery();
                                                 }
                                             }
                                         }
+                                    }
+                                    if (values != null)
+                                    {
+                                        if (Convert.ToString(values.type) == "createProduct")
+                                        {
+                                            //SET BRG_MP
+                                            using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                            {
+                                                oConnection.Open();
+                                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                                {
+                                                    oCommand.CommandType = CommandType.Text;
+                                                    oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                                                    oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
+                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
 
+                                                    try
+                                                    {
+                                                        oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku.Value) + ';' + Convert.ToString(values.productCode.Value);
+                                                        oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
+                                                        oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
+                                                        if (oCommand.ExecuteNonQuery() == 1)
+                                                        {
+
+
+                                                            oCommand.CommandType = CommandType.Text;
+                                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                            if (oCommand.ExecuteNonQuery() == 1)
+                                                            {
+                                                                string[] imgPath = new string[3];
+                                                                for (int i = 0; i < 3; i++)
+                                                                {
+                                                                    var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
+                                                                    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                                                                    var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
+                                                                    if (System.IO.File.Exists(path))
+                                                                    {
+                                                                        imgPath[i] = path;
+                                                                    }
+                                                                }
+
+                                                                UploadImage(data, imgPath, Convert.ToString(values.productCode.Value), Convert.ToString(values.merchantSku.Value));
+                                                            }
+                                                        }
+                                                    }
+                                                    catch (Exception ex)
+                                                    {
+
+                                                    }
+                                                }
+                                            }
+
+                                        }
                                     }
                                 }
                                 else
