@@ -773,9 +773,11 @@ namespace MasterOnline.Controllers
                 custInDb.KODEPOS = customer.Customers.KODEPOS;
                 custInDb.PERSO = customer.Customers.PERSO;
                 custInDb.EMAIL = customer.Customers.EMAIL;
+                custInDb.PASSWORD = customer.Customers.PASSWORD;
                 custInDb.TLP = customer.Customers.TLP;
                 //add by Tri, add api key
                 custInDb.API_KEY = customer.Customers.API_KEY;
+                custInDb.Sort1_Cust = customer.Customers.Sort1_Cust;
                 kdCustomer = custInDb.CUST;
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;

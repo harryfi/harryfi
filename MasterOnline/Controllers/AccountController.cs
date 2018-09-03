@@ -118,7 +118,7 @@ namespace MasterOnline.Controllers
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
                 SyncMarketplace(erasoftContext);
-                return RedirectToAction("Index", "Manage","SyncMarketplace");
+                return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
             return RedirectToAction("Bantuan", "Manage");
@@ -246,7 +246,6 @@ namespace MasterOnline.Controllers
                         };
                         BliApi.GetToken(data, true);
                         BliApi.GetQueueFeedDetail(data, null);
-
                     }
                 }
             }
