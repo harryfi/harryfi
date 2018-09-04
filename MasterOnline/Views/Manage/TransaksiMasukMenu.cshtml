@@ -448,8 +448,8 @@
                 $('input, select, .btn-danger').each(function () {
                     $(this).removeAttr('disabled');
                 });
-                $('.stok_table_section').show();
-                $('.stok_editor_section').hide();
+                //$('.stok_table_section').show();
+                //$('.stok_editor_section').hide();
                 refresh();
                 refreshTableStok();
 
@@ -833,8 +833,16 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
+                    $('#loading_spinner').hide();
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+
                     $('#form-partial').html(response);
+
                     Initialize();
                 },
                 error: function (xhr, status, error) {
