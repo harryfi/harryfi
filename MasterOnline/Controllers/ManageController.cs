@@ -403,12 +403,28 @@ namespace MasterOnline.Controllers
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
-                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
+                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
             };
 
             return View(barangVm);
         }
         //end add by nurul
+
+        //add by calvin 4 september 2018
+        [Route("manage/master/marketplacelog")]
+        public ActionResult MarketPlaceLog()
+        {
+            var barangVm = new BarangViewModel()
+            {
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.ToList(),
+            };
+
+            return View(barangVm);
+        }
+        //end add by calvin
 
         [Route("manage/ganti-password")]
         public ActionResult GantiPassword()
@@ -1726,6 +1742,7 @@ namespace MasterOnline.Controllers
                                             };
                                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                             {
+                                                kode = barangInDb.BRG,
                                                 kode_mp = stf02h.BRG_MP,
                                                 Qty = Convert.ToString(qtyOnHand),
                                                 MinQty = "0"
@@ -2012,7 +2029,8 @@ namespace MasterOnline.Controllers
                     ListStf02S = ErasoftDbContext.STF02.ToList(),
                     ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList()
+                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
+                    StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p=> p.REQUEST_ATTRIBUTE_1 == barangId).ToList(),
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -2032,6 +2050,7 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
             };
 
             return PartialView("FormBarangPartial", vm);
@@ -6792,6 +6811,7 @@ namespace MasterOnline.Controllers
                             };
                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                             {
+                                kode = kdBrg,
                                 kode_mp = stf02h.BRG_MP,
                                 Qty = Convert.ToString(qtyOnHand),
                                 MinQty = "0"

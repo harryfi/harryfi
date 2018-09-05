@@ -415,7 +415,8 @@ namespace MasterOnline
         public virtual DbSet<PICKUP_POINT_BLIBLI> PICKUP_POINT_BLIBLI { get; set; }
         public virtual DbSet<DELIVERY_PROVIDER_LAZADA> DELIVERY_PROVIDER_LAZADA { get; set; }
         public virtual DbSet<API_LOG_MARKETPLACE> API_LOG_MARKETPLACE { get; set; }
-
+        public virtual DbSet<API_LOG_MARKETPLACE_PER_ITEM> API_LOG_MARKETPLACE_PER_ITEM { get; set; }
+        
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<APF01>()
@@ -12805,6 +12806,10 @@ namespace MasterOnline
             modelBuilder.Entity<tmp_STF09A>()
                 .Property(e => e.jtran)
                 .IsUnicode(false);
+
+            modelBuilder.Entity<API_LOG_MARKETPLACE_PER_ITEM>()
+                .HasKey(e => new { e.IDMARKET, e.REQUEST_ATTRIBUTE_1 })
+                .ToTable("API_LOG_MARKETPLACE_PER_ITEM");
         }
     }
 }
