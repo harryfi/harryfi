@@ -24,7 +24,8 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
-        public EleveniaController() {
+        public EleveniaController()
+        {
             MoDbContext = new MoDbContext();
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             if (sessionData?.Account != null)
@@ -67,7 +68,83 @@ namespace MasterOnline.Controllers
             ShippingINP = 4,
             Completed = 5
         }
-
+        public enum api_status
+        {
+            Pending = 1,
+            Success = 2,
+            Failed = 3,
+            Exception = 4
+        }
+        public void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string iden, API_LOG_MARKETPLACE data)
+        {
+            switch (action)
+            {
+                case api_status.Pending:
+                    {
+                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.API_KEY == iden).FirstOrDefault();
+                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                        {
+                            CUST = arf01 != null ? arf01.CUST : "",
+                            CUST_ATTRIBUTE_1 = arf01.PERSO,
+                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                            MARKETPLACE = "Elevenia",
+                            REQUEST_ACTION = data.REQUEST_ACTION,
+                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                            REQUEST_DATETIME = data.REQUEST_DATETIME,
+                            REQUEST_ID = data.REQUEST_ID,
+                            REQUEST_STATUS = data.REQUEST_STATUS,
+                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                        };
+                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    break;
+                case api_status.Success:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Failed:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Exception:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+            }
+        }
         public ClientMessage CreateProduct(EleveniaProductData data, bool display)
         {
             //string val = form.data;
@@ -77,6 +154,19 @@ namespace MasterOnline.Controllers
             string auth = data.api_key;//"f6875334a817a9ee4c20387a5b8b9d0b";
 
             Utils.HttpRequest req = new Utils.HttpRequest();
+
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Create Product",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
 
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
@@ -137,13 +227,14 @@ namespace MasterOnline.Controllers
             //var content = new System.Net.Http.StringContent(xmlString, Encoding.UTF8, "text/xml");
 
             //ClientMessage result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", content, typeof(ClientMessage), auth) as ClientMessage;
-            ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString,typeof(ClientMessage), auth) as ClientMessage;
+            ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString, typeof(ClientMessage), auth) as ClientMessage;
 
 
             if (result != null)
             {
                 if (Convert.ToString(result.resultCode).Equals("200"))
                 {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
                     EDB.ExecuteSQL("", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(result.productNo) + "' WHERE BRG = '" + data.kode + "' AND IDMARKET = '" + data.IDMarket + "'");
                     #region Hide Item
                     if (!display)
@@ -156,6 +247,23 @@ namespace MasterOnline.Controllers
                         var resultHide = new EleveniaController().HideItem(data2);
                     }
                     #endregion
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                    }
                 }
                 ret = result;
             }
@@ -172,6 +280,20 @@ namespace MasterOnline.Controllers
             string auth = data.api_key;//"f6875334a817a9ee4c20387a5b8b9d0b";
 
             Utils.HttpRequest req = new Utils.HttpRequest();
+
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Update Product",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_ATTRIBUTE_3 = data.kode_mp,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
 
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
@@ -237,7 +359,24 @@ namespace MasterOnline.Controllers
             {
                 if (Convert.ToString(result.resultCode).Equals("200"))
                 {
-
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                    }
                 }
                 ret = result;
             }
@@ -254,6 +393,19 @@ namespace MasterOnline.Controllers
             string auth = data.api_key;//"f6875334a817a9ee4c20387a5b8b9d0b";
 
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Update QOH",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_ATTRIBUTE_3 = data.kode_mp,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
 
             //////string xmlString = "<Product>";
             //////xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
@@ -375,11 +527,27 @@ namespace MasterOnline.Controllers
             ClientMessage result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "prodservices/product", xmlString, typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
-                //if (Convert.ToString(result.resultCode).Equals("200"))
-                //{
-
-                //}
-                //ret = result;
+                if (Convert.ToString(result.resultCode).Equals("200"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                }
             }
 
             return ret;
@@ -392,11 +560,44 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Display Item",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
+
             //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/restartdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
             var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/restartdisplay/" + data.kode, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
                 ret = result;
+                if (Convert.ToString(result.resultCode).Contains("200"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                }
             }
 
             return ret;
@@ -409,11 +610,43 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Hide Item",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.api_key, currentLog);
+
             //var result = req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/stopdisplay/" + data.kode, content, typeof(ClientMessage), auth) as ClientMessage;
             var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.PUT, "prodstatservice/stat/stopdisplay/" + data.kode, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
-                ret = result;
+                if (Convert.ToString(result.resultCode).Contains("200"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.api_key, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
+                    }
+                }
             }
 
             return ret;
@@ -428,7 +661,7 @@ namespace MasterOnline.Controllers
             //var listELShop = MC.ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString() && m.RecNum.ToString().Equals(recNum)).ToList();
             //if (listELShop.Count > 0)
             //{
-                //foreach (ARF01 tblCustomer in listELShop)
+            //foreach (ARF01 tblCustomer in listELShop)
             //    {
             //        auth = tblCustomer.API_KEY;
             //    }
@@ -439,6 +672,18 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Get Delivery Temp",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = auth,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+
             //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
             var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
             if (result != null)
@@ -462,7 +707,15 @@ namespace MasterOnline.Controllers
                         }
                         sSQL += ")";
                         sSQL = sSQL.Replace(",()", "");
-                        EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL);
+                        if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = "Internal Error";
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        }
 
                         DataSet ds = new DataSet();
                         ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
@@ -482,8 +735,15 @@ namespace MasterOnline.Controllers
                         EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
                         string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
                         sSQL += "'" + res.DeliveryTemplates.template.dlvTmpltSeq + "','" + res.DeliveryTemplates.template.dlvTmpltNm + "'," + Convert.ToString(recNum) + ")";
-                        EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL);
-
+                        if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = "Internal Error";
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        }
                         DataSet ds = new DataSet();
                         ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
                         if (ds.Tables[0].Rows.Count > 0)
@@ -493,6 +753,11 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+            }
+            else
+            {
+                currentLog.REQUEST_RESULT = "Not Found";
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
             }
 
             return Json(ret, JsonRequestBehavior.AllowGet);
@@ -535,6 +800,21 @@ namespace MasterOnline.Controllers
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
             string param = "ordStat=" + status + "&dateFrom=" + fromDt + "&dateTo=" + toDt;
+
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Get Order",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = auth,
+                REQUEST_ATTRIBUTE_2 = stat.ToString(),
+                REQUEST_ATTRIBUTE_3 = param,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+
             //var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
             var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
             if (!string.IsNullOrEmpty(test))
@@ -613,7 +893,10 @@ namespace MasterOnline.Controllers
                         }
                     }
                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                    EDB.ExecuteSQL("Constring", CommandType.Text, sSQL);
+                    if (EDB.ExecuteSQL("Constring", CommandType.Text, sSQL) == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                    }
                     //SqlCommand CommandSQL = new SqlCommand();
                     //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                     //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
@@ -695,6 +978,8 @@ namespace MasterOnline.Controllers
                     var res3 = new JavaScriptSerializer().Deserialize<ClientMessage>(json);
                     if (res3 != null)
                     {
+                        currentLog.REQUEST_RESULT = "No Orders";
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "error\n" + json;
                         if (stat == StatusOrder.Paid)
                         {
@@ -704,10 +989,16 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        currentLog.REQUEST_RESULT = "Internal Error";
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "unknown error";
-
                     }
                 }
+            }
+            else
+            {
+                currentLog.REQUEST_RESULT = "Internal Error";
+                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
             }
 
             return ret;
@@ -718,10 +1009,45 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Accept Order",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = auth,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
+                REQUEST_ATTRIBUTE_3 = "orderProductSequence : " + ordPrdSeq,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+
             //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/accept?ordNo=" + ordNo + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
             var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/accept?ordNo=" + ordNo + "&ordPrdSeq=" + ordPrdSeq, "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
+                if (Convert.ToString(result.resultCode).Equals("200"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, auth, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                    }
+                }
                 ret = result;
             }
 
@@ -733,10 +1059,46 @@ namespace MasterOnline.Controllers
 
             var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
             Utils.HttpRequest req = new Utils.HttpRequest();
+            long milis = BlibliController.CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Update AWB No.",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = auth,
+                REQUEST_ATTRIBUTE_2 = "Order No : " + ordNo,
+                REQUEST_ATTRIBUTE_3 = "Order Product Sequence : " + ordPrdSeq,
+                REQUEST_ATTRIBUTE_4 = "AWB No : " + awb,
+                REQUEST_ATTRIBUTE_5 = "Delivery No : " + dlvNo,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
             //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + awb + "&dlvNo=" + dlvNo + "&dlvMthdCd=" + dlvMthdCd + "&dlvEtprsCd=" + dlvEtprsCd + "&ordNo=" + ordNo + "&dlvEtprsNm=" + dlvEtprsNm + "&ordPrdSeq=" + ordPrdSeq, content, typeof(ClientMessage), auth) as ClientMessage;
             var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + Uri.EscapeDataString(awb) + "&dlvNo=" + Uri.EscapeDataString(dlvNo) + "&dlvMthdCd=" + Uri.EscapeDataString(dlvMthdCd) + "&dlvEtprsCd=" + Uri.EscapeDataString(dlvEtprsCd) + "&ordNo=" + Uri.EscapeDataString(ordNo) + "&dlvEtprsNm=" + Uri.EscapeDataString(dlvEtprsNm) + "&ordPrdSeq=" + Uri.EscapeDataString(ordPrdSeq), "", typeof(ClientMessage), auth) as ClientMessage;
             if (result != null)
             {
+                if (Convert.ToString(result.resultCode).Equals("200"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                }
+                else
+                {
+                    if (Convert.ToString(result.resultCode).Contains("Ex;"))
+                    {
+                        if (result.resultCode.Split(';').Count() > 1)
+                        {
+                            currentLog.REQUEST_RESULT = result.resultCode.Split(';')[1];
+                        }
+                        currentLog.REQUEST_EXCEPTION = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, auth, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.Message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                    }
+                }
                 ret = result;
             }
 

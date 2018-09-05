@@ -20,10 +20,9 @@
 
 @Html.AntiForgeryToken()
 @Html.HiddenFor(m => m.Faktur.RecNum)
-@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN)
 @Html.HiddenFor(m => m.Faktur.USERNAME, new { Value = username })
+@Html.HiddenFor(m => m.Faktur.JENIS_RETUR, new { Value = "2" })
 @Html.HiddenFor(m => m.Faktur.JENIS_FORM, new { Value = "3" })
-@Html.HiddenFor(m => m.Faktur.JENIS_RETUR, new { Value = "1" })
 @Html.HiddenFor(m => m.Faktur.STATUS, new { Value = "1" })
 @Html.HiddenFor(m => m.Faktur.ST_POSTING, new { Value = "T" })
 @Html.HiddenFor(m => m.Faktur.VLT, new { Value = "IDR" })
@@ -32,9 +31,21 @@
 @Html.HiddenFor(m => m.Faktur.GROUP_LIMIT, new { Value = "-" })
 @Html.HiddenFor(m => m.Faktur.KODE_ANGKUTAN, new { Value = "-" })
 @Html.HiddenFor(m => m.Faktur.JENIS_MOBIL, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.NAMA_CUST, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.TUKAR, new { Value = 1 })
+@Html.HiddenFor(m => m.Faktur.TUKAR_PPN, new { Value = 1 })
+@Html.HiddenFor(m => m.Faktur.SOPIR, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.KET, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.PPNBM, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.KODE_SALES, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.KODE_WIL, new { Value = "-" })
+@Html.HiddenFor(m => m.Faktur.U_MUKA, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.U_MUKA_FA, new { Value = 0 })
 @Html.HiddenFor(m => m.Faktur.JTRAN, new { Value = "SI" })
 @Html.HiddenFor(m => m.Faktur.JENIS, new { Value = "1" })
 @Html.HiddenFor(m => m.Faktur.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+@Html.HiddenFor(m => m.Faktur.NILAI_PPNBM, new { Value = 0 })
+@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN)
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">

@@ -21,5 +21,7 @@ namespace MasterOnline
         public string REQUEST_STATUS { get; set; }
 
         public string REQUEST_ATTRIBUTE_1 { get; set; }
+        public string REQUEST_RESULT { get; set; }
+        public string REQUEST_EXCEPTION { get; set; }
     }
 }

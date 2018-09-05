@@ -6,6 +6,57 @@
     ViewBag.Title = "Aktivitas Marketplace";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 }
+
+@section styles
+{
+<style>
+    [data-tip] {
+	    position:relative;
+    }
+    [data-tip]:before {
+	    content:'';
+	    /* hides the tooltip when not hovered */
+	    display:none;
+	    content:'';
+	    border-left: 5px solid transparent;
+	    border-right: 5px solid transparent;
+	    border-bottom: 5px solid #1a1a1a;	
+	    position:absolute;
+	    top:30px;
+	    left:35px;
+	    z-index:8;
+	    font-size:0;
+	    line-height:0;
+	    width:0;
+	    height:0;
+    }
+    [data-tip]:after {
+	    display:none;
+	    content:attr(data-tip);
+	    position:absolute;
+	    top:35px;
+	    left:0px;
+	    padding:2px 5px;
+	    background:#1a1a1a;
+	    color:#fff;
+	    z-index:9;
+	    font-size: 0.85em;
+	    height:auto;
+        line-break:normal;
+        max-width:200px;
+	    line-height:18px;
+	    -webkit-border-radius: 3px;
+	    -moz-border-radius: 3px;
+	    border-radius: 3px;
+	    white-space:normal;
+	    word-wrap:normal;
+    }
+    [data-tip]:hover:before,
+    [data-tip]:hover:after {
+	    display:block;
+    }
+</style>
+}
 @{
     var context = new MoDbContext();
 }
@@ -22,6 +73,7 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Tanggal</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Status</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Barang</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 185px;">Message</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -39,6 +91,11 @@
                                 <td style="text-align:center">@aktivitas.REQUEST_STATUS</td>
                                 <td>
                                     @namaDepanBarang @namaBelakangBarang
+                                </td>
+                                <td style="text-align:center">
+                                    <div data-tip="@aktivitas.REQUEST_EXCEPTION">
+                                        @aktivitas.REQUEST_RESULT
+                                    </div>
                                 </td>
                             </tr>
                         }

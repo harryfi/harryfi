@@ -1996,7 +1996,7 @@ namespace MasterOnline.Controllers
                                             oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
                                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
 
-                                            currentLog.REQUEST_RESULT = "";
+                                            currentLog.REQUEST_RESULT = item.errorMessage.Value;
                                             currentLog.REQUEST_EXCEPTION = "";
                                             manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
 

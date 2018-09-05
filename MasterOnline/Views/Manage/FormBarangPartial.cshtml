@@ -296,7 +296,9 @@
                                             }
                                             else
                                             {
-                                                @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
+                                                <div data-tip="@getLatestLog.REQUEST_RESULT">
+                                                    @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
+                                                </div>
                                             }
                                         }
                                         else
