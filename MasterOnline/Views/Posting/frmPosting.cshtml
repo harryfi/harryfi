@@ -1,7 +1,7 @@
 ﻿@using MasterOnline.ViewModels
 
 @{
-    ViewBag.Title = "TestReport";
+    ViewBag.Title = "Posting";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var context = new MoDbContext();
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
@@ -73,11 +73,32 @@
                 0% Complete (success)
             </div>
         </div>
-        <div>
-            @Html.TextArea("infoPosting", null, new { @class = "form-control", @Rows = 10, @ReadOnly = true })
-        </div>
-        <div class="infoPost"></div>
     </div>
+</div>
+<div class="row">
+    <div class="col-md-10">
+        @Html.TextArea("infoPosting", null, new { @class = "form-control", @Rows = 12, @ReadOnly = true })
+    </div>
+    <div class="col-md-2">
+        <ul class="list-group">
+            <li id="bannerPembelian" style="text-align:center;margin-bottom:2px" class="list-group-item list-group-item-light">Posting Pembelian</li>
+            <li id="bannerPersediaan" style="text-align:center;margin-bottom:2px" class="list-group-item list-group-item-light">Posting Persediaan</li>
+            <li id="bannerPenjualan" style="text-align:center;margin-bottom:2px" class="list-group-item list-group-item-light">Posting Penjualan</li>
+            <li id="bannerHutang" style="text-align:center;margin-bottom:2px" class="list-group-item list-group-item-light">Posting Hutang</li>
+            <li id="bannerPiutang" style="text-align:center;margin-bottom:2px" class="list-group-item list-group-item-light">Posting Piutang</li>
+            <li id="bannerJurnal" style="text-align:center" class="list-group-item list-group-item-light">Posting Jurnal</li>
+
+            @*<li class="list-group-item list-group-item-success">Success item</li>
+            <li class="list-group-item list-group-item-secondary">Secondary item</li>
+            <li class="list-group-item list-group-item-info">Info item</li>
+            <li class="list-group-item list-group-item-warning">Warning item</li>
+            <li class="list-group-item list-group-item-danger">Danger item</li>
+            <li class="list-group-item list-group-item-primary">Primary item</li>
+            <li class="list-group-item list-group-item-dark">Dark item</li>
+            <li class="list-group-item list-group-item-light">Light item</li>*@
+        </ul>
+    </div>
+    <div class="infoPost"></div>
 </div>
 
 @section scripts
@@ -112,6 +133,12 @@
 
             $('#process-posting').click(function () {
                 $('.labelPosting').html('Status : Proses sedang dimulai..');
+                $('#bannerPembelian').attr('class', 'list-group-item list-group-item-light');
+                $('#bannerPersediaan').attr('class', 'list-group-item list-group-item-light');
+                $('#bannerPenjualan').attr('class', 'list-group-item list-group-item-light');
+                $('#bannerHutang').attr('class', 'list-group-item list-group-item-light');
+                $('#bannerPiutang').attr('class', 'list-group-item list-group-item-light');
+                $('#bannerJurnal').attr('class', 'list-group-item list-group-item-light');
                 previewing();
             });
         });
@@ -145,19 +172,19 @@
 
             }
             else {
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("doPosting", "Posting")',
-                data: JSON.stringify({
-                    UserId: '@(userId)',
-                    Month: FormatMonth(),
-                    Year: $('#Tahun').val(),
-                    From: $('#DrTgl').val(),
-                    To: $('#SdTgl').val()
-                }),
-                contentType: 'application/json; charset=UTF-8',
-                cache: false,
-                success: function (data) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("doPosting", "Posting")',
+                    data: JSON.stringify({
+                        UserId: '@(userId)',
+                        Month: FormatMonth(),
+                        Year: $('#Tahun').val(),
+                        From: $('#DrTgl').val(),
+                        To: $('#SdTgl').val()
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function (data) {
                         $("<iframe id='LoadPostingMO' width='802px' height='90px' frameBorder='0'>")// create a new iframe element
                             .hide()//invisible
                             .load(function () {
@@ -167,11 +194,11 @@
                             .appendTo(".infoPost");
                         //console.log(data);
 
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
             }
         }
 
@@ -189,12 +216,14 @@
                     $('.progress-bar').css('width', '100%').attr('aria-valuenow', 100);
                     $('.progress-bar').html('100% Complete');
                     $('#infoPosting').val($('#infoPosting').val() + event.data.data.trim() + '\r\n');
+                    $('#banner' + event.data.nama).attr('class', 'list-group-item list-group-item-success');
                 }
                 else if (event.data.event_id == 'infoPostingSelesai') {
                     $('.labelPosting').html('Status : Proses Selesai.');
                     $('.progress-bar').css('width', '100%').attr('aria-valuenow', 100);
                     $('.progress-bar').html('100% Complete');
                     $('#infoPosting').val($('#infoPosting').val() + event.data.data.trim() + '\r\n');
+                    $('#bannerJurnal').attr('class', 'list-group-item list-group-item-success');
                     setTimeout(function () { $("#LoadPostingMO").remove(); }, 2000);
                 }
             } else {

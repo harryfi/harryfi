@@ -785,21 +785,24 @@ namespace MasterOnline.Controllers
                             //oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS]) VALUES (@REQUESTID,'postImage',@MERCHANTCODE,'1')";
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS],[LOG_REQUEST_ID]) VALUES (@REQUESTID,'postImage',@MERCHANTCODE,'1',@LOG_REQUEST_ID)";
                             //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
-
+                            oCommand.Parameters.Add(new SqlParameter("@LOG_REQUEST_ID", SqlDbType.NVarChar, 50));
+                            
                             try
                             {
                                 oCommand.Parameters[0].Value = result.requestId.Value;
                                 oCommand.Parameters[1].Value = iden.merchant_code;
-
+                                oCommand.Parameters[2].Value = currentLog.REQUEST_ID;
+                                
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
                                     {
-                                        request_id = result.requestId.Value
+                                        request_id = result.requestId.Value,
+                                        log_request_id = currentLog.REQUEST_ID
                                     };
                                     GetQueueFeedDetail(iden, queueData);
                                 }
@@ -1204,21 +1207,24 @@ namespace MasterOnline.Controllers
                             //oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS]) VALUES (@REQUESTID,'createProduct',@MERCHANTCODE,'1')";
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS],[LOG_REQUEST_ID]) VALUES (@REQUESTID,'createProduct',@MERCHANTCODE,'1',@LOG_REQUEST_ID)";
                             //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@LOG_REQUEST_ID", SqlDbType.NVarChar, 50));
 
                             try
                             {
                                 oCommand.Parameters[0].Value = result.requestId.Value;
                                 oCommand.Parameters[1].Value = iden.merchant_code;
+                                oCommand.Parameters[2].Value = currentLog.REQUEST_ID;
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
                                     {
-                                        request_id = result.requestId.Value
+                                        request_id = result.requestId.Value,
+                                        log_request_id = currentLog.REQUEST_ID
                                     };
                                     GetQueueFeedDetail(iden, queueData);
                                 }
@@ -1738,7 +1744,7 @@ namespace MasterOnline.Controllers
 
             if (feed != null)//satu requestId
             {
-                prosesQueueFeedDetail(data, feed.request_id);
+                prosesQueueFeedDetail(data, feed.request_id,feed.log_request_id);
             }
             else
             {
@@ -1748,7 +1754,7 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < dsRequestIdList.Tables[0].Rows.Count; i++)
                     {
-                        prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["REQUESTID"]));
+                        prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["REQUESTID"]), Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["LOG_REQUEST_ID"]));
                     }
                 }
             }
@@ -1844,7 +1850,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId)
+        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId,string log_request_id)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1886,7 +1892,7 @@ namespace MasterOnline.Controllers
             {
                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
-                    REQUEST_ID = requestId
+                    REQUEST_ID = log_request_id
                 };
 
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
@@ -2488,6 +2494,8 @@ namespace MasterOnline.Controllers
         public class BlibliQueueFeedData
         {
             public string request_id { get; set; }
+            public string log_request_id { get; set; }
+            
         }
         public class BlibliProductData
         {
