@@ -883,7 +883,7 @@ namespace MasterOnline.Controllers
                         var apiLog = new MasterOnline.API_LOG_MARKETPLACE
                         {
                             CUST = arf01 != null ? arf01.CUST : "",
-                            CUST_ATTRIBUTE_1 = arf01.PERSO,
+                            CUST_ATTRIBUTE_1 = arf01 != null ? arf01.PERSO : "",
                             CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
                             CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
                             CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
