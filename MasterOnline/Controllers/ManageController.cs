@@ -1093,7 +1093,63 @@ namespace MasterOnline.Controllers
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
             return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
         }
+        #region lzd
+        [HttpGet]
+        public ActionResult GetKategoriLazadaByCode(/*string code*/)
+        {
+            //string[] codelist = code.Split(';');
+            //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
+            var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => string.IsNullOrEmpty(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
 
+            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriLazadaByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
+
+            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriLazadaByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_LAZADA> listKategoriLazada = new List<CATEGORY_LAZADA>();
+            var category = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).FirstOrDefault();
+            listKategoriLazada.Add(category);
+
+            if (category.PARENT_ID != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CATEGORY_LAZADA.Where(k => k.CATEGORY_ID.Equals(category.PARENT_ID)).FirstOrDefault();
+                    listKategoriLazada.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_ID))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriLazada.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeLazada(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeLazada = MoDbContext.ATTRIBUTE_LAZADA.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptLazada(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME)).ToList();
+            return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -1283,6 +1339,26 @@ namespace MasterOnline.Controllers
                             dataHarga.ACODE_28 = dataBaru.ACODE_28;
                             dataHarga.ACODE_29 = dataBaru.ACODE_29;
                             dataHarga.ACODE_30 = dataBaru.ACODE_30;
+                            dataHarga.ACODE_31 = dataBaru.ACODE_31;
+                            dataHarga.ACODE_32 = dataBaru.ACODE_32;
+                            dataHarga.ACODE_33 = dataBaru.ACODE_33;
+                            dataHarga.ACODE_34 = dataBaru.ACODE_34;
+                            dataHarga.ACODE_35 = dataBaru.ACODE_35;
+                            dataHarga.ACODE_36 = dataBaru.ACODE_36;
+                            dataHarga.ACODE_37 = dataBaru.ACODE_37;
+                            dataHarga.ACODE_38 = dataBaru.ACODE_38;
+                            dataHarga.ACODE_39 = dataBaru.ACODE_39;
+                            dataHarga.ACODE_30 = dataBaru.ACODE_40;
+                            dataHarga.ACODE_41 = dataBaru.ACODE_41;
+                            dataHarga.ACODE_42 = dataBaru.ACODE_42;
+                            dataHarga.ACODE_43 = dataBaru.ACODE_43;
+                            dataHarga.ACODE_44 = dataBaru.ACODE_44;
+                            dataHarga.ACODE_45 = dataBaru.ACODE_45;
+                            dataHarga.ACODE_46 = dataBaru.ACODE_46;
+                            dataHarga.ACODE_47 = dataBaru.ACODE_47;
+                            dataHarga.ACODE_48 = dataBaru.ACODE_48;
+                            dataHarga.ACODE_49 = dataBaru.ACODE_49;
+                            dataHarga.ACODE_50 = dataBaru.ACODE_50;
 
                             dataHarga.ANAME_1 = dataBaru.ANAME_1;
                             dataHarga.ANAME_2 = dataBaru.ANAME_2;
@@ -1314,6 +1390,26 @@ namespace MasterOnline.Controllers
                             dataHarga.ANAME_28 = dataBaru.ANAME_28;
                             dataHarga.ANAME_29 = dataBaru.ANAME_29;
                             dataHarga.ANAME_30 = dataBaru.ANAME_30;
+                            dataHarga.ANAME_31 = dataBaru.ANAME_31;
+                            dataHarga.ANAME_32 = dataBaru.ANAME_32;
+                            dataHarga.ANAME_33 = dataBaru.ANAME_33;
+                            dataHarga.ANAME_34 = dataBaru.ANAME_34;
+                            dataHarga.ANAME_35 = dataBaru.ANAME_35;
+                            dataHarga.ANAME_36 = dataBaru.ANAME_36;
+                            dataHarga.ANAME_37 = dataBaru.ANAME_37;
+                            dataHarga.ANAME_38 = dataBaru.ANAME_38;
+                            dataHarga.ANAME_39 = dataBaru.ANAME_39;
+                            dataHarga.ANAME_40 = dataBaru.ANAME_40;
+                            dataHarga.ANAME_41 = dataBaru.ANAME_41;
+                            dataHarga.ANAME_42 = dataBaru.ANAME_42;
+                            dataHarga.ANAME_43 = dataBaru.ANAME_43;
+                            dataHarga.ANAME_44 = dataBaru.ANAME_44;
+                            dataHarga.ANAME_45 = dataBaru.ANAME_45;
+                            dataHarga.ANAME_46 = dataBaru.ANAME_46;
+                            dataHarga.ANAME_47 = dataBaru.ANAME_47;
+                            dataHarga.ANAME_48 = dataBaru.ANAME_48;
+                            dataHarga.ANAME_49 = dataBaru.ANAME_49;
+                            dataHarga.ANAME_50 = dataBaru.ANAME_50;
 
                             dataHarga.AVALUE_1 = dataBaru.AVALUE_1;
                             dataHarga.AVALUE_2 = dataBaru.AVALUE_2;
@@ -1345,6 +1441,26 @@ namespace MasterOnline.Controllers
                             dataHarga.AVALUE_28 = dataBaru.AVALUE_28;
                             dataHarga.AVALUE_29 = dataBaru.AVALUE_29;
                             dataHarga.AVALUE_30 = dataBaru.AVALUE_30;
+                            dataHarga.AVALUE_31 = dataBaru.AVALUE_31;
+                            dataHarga.AVALUE_32 = dataBaru.AVALUE_32;
+                            dataHarga.AVALUE_33 = dataBaru.AVALUE_33;
+                            dataHarga.AVALUE_34 = dataBaru.AVALUE_34;
+                            dataHarga.AVALUE_35 = dataBaru.AVALUE_35;
+                            dataHarga.AVALUE_36 = dataBaru.AVALUE_36;
+                            dataHarga.AVALUE_37 = dataBaru.AVALUE_37;
+                            dataHarga.AVALUE_38 = dataBaru.AVALUE_38;
+                            dataHarga.AVALUE_39 = dataBaru.AVALUE_39;
+                            dataHarga.AVALUE_40 = dataBaru.AVALUE_40;
+                            dataHarga.AVALUE_41 = dataBaru.AVALUE_41;
+                            dataHarga.AVALUE_42 = dataBaru.AVALUE_42;
+                            dataHarga.AVALUE_43 = dataBaru.AVALUE_43;
+                            dataHarga.AVALUE_44 = dataBaru.AVALUE_44;
+                            dataHarga.AVALUE_45 = dataBaru.AVALUE_45;
+                            dataHarga.AVALUE_46 = dataBaru.AVALUE_46;
+                            dataHarga.AVALUE_47 = dataBaru.AVALUE_47;
+                            dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
+                            dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
+                            dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
                             #endregion
                         }
                     }
@@ -1402,6 +1518,16 @@ namespace MasterOnline.Controllers
                                         imageUrl[i] = uploadImg.message;
                                 }
                             }
+
+                            //string[] imgID = new string[3];
+                            //for (int i = 0; i < 3; i++)
+                            //{
+                            //    //    if (!string.IsNullOrEmpty(imgPath[i]))
+                            //    //    {
+                            //    imageUrl[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                            //    imageUrl[i] = Convert.ToString(imageUrl[i]).Replace(" ", "%20");
+                            //    //    }
+                            //}
 
                             BrgViewModel dataLazada = new BrgViewModel
                             {
