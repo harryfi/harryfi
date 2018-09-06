@@ -40,7 +40,7 @@
 @Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
 @Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
 @Html.HiddenFor(m => m.Stf02.STN)
-@Html.HiddenFor(m => m.Stf02.Metoda, new { Value = Model?.DataUsaha?.METODA_NO })
+@Html.HiddenFor(m => m.Stf02.Metoda, new { Value = "1" })
 @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.Hidden("UrlUpload")
