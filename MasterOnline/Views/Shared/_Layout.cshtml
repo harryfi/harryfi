@@ -120,7 +120,7 @@
                 <ul class="nav navbar-nav navbar">
                     <li>
                         <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Index", "Home") ? "daftarBtn" : null)" href="@Url.Action("Index", "Home")">HOME</a>
+                            <a class="" href="@Url.Action("Index", "Home")">HOME</a>
                         </div>
                         <div class="col-xs-6 text-center">
                             <a class="" href="#features">FITUR</a>
@@ -128,10 +128,10 @@
                     </li>
                     <li>
                         <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Login", "Account") ? "daftarBtn" : null)" href="@Url.Action("Login", "Account")">LOGIN</a>
+                            <a class="" href="@Url.Action("Login", "Account")">LOGIN</a>
                         </div>
                         <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Register", "Account") ? "daftarBtn" : null)" href="@Url.Action("Register", "Account")">DAFTAR</a>
+                            <a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a>
                         </div>
                     </li>
                     @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
