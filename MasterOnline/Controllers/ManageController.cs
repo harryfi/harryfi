@@ -5254,6 +5254,15 @@ namespace MasterOnline.Controllers
                 hutangInDb.JTGL = dataVm.Hutang.JTGL;
             }
 
+            dataVm.Hutang.KET = "-";
+            dataVm.Hutang.PO = "";
+            dataVm.Hutang.SATUAN = "";
+            dataVm.Hutang.F_PAJAK = "";
+            dataVm.Hutang.INV_2 = "-";
+            dataVm.Hutang.RANGKA = "";
+            dataVm.Hutang.MESIN = "";
+            dataVm.Hutang.TAHUN = 0;
+
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
@@ -5384,6 +5393,7 @@ namespace MasterOnline.Controllers
                 piutangInDb.JTGL = dataVm.Piutang.JTGL;
             }
 
+            dataVm.Piutang.KET = "-";
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
@@ -5668,6 +5678,20 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
+                    #region add by calvin 14 juni 2018, agar field yg penting di stt01b tidak null
+                    dataVm.BarangStok.Dr_Gd = "";
+                    dataVm.BarangStok.WO = "";
+                    dataVm.BarangStok.Rak = "";
+                    dataVm.BarangStok.JTran = "M";
+                    dataVm.BarangStok.KLINK = "";
+                    dataVm.BarangStok.NO_WO = "";
+                    dataVm.BarangStok.KET = "";
+                    dataVm.BarangStok.BRG_ORIGINAL = "";
+                    dataVm.BarangStok.QTY3 = 0;
+                    dataVm.BarangStok.BUKTI_DS = "";
+                    dataVm.BarangStok.BUKTI_REFF = "";
+                    #endregion
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
                 }
             }
@@ -6658,6 +6682,20 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            #region add by calvin 14 juni 2018, agar field yg penting di stt01b tidak null
+            dataVm.BarangStok.Dr_Gd = "";
+            dataVm.BarangStok.WO = "";
+            dataVm.BarangStok.Rak = "";
+            dataVm.BarangStok.JTran = "M";
+            dataVm.BarangStok.KLINK = "";
+            dataVm.BarangStok.NO_WO = "";
+            dataVm.BarangStok.KET = "";
+            dataVm.BarangStok.BRG_ORIGINAL = "";
+            dataVm.BarangStok.QTY3 = 0;
+            dataVm.BarangStok.BUKTI_DS = "";
+            dataVm.BarangStok.BUKTI_REFF = "";
+            #endregion
+
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
@@ -6906,7 +6944,7 @@ namespace MasterOnline.Controllers
                         {
                             api_key = marketPlace.API_KEY,
                             kode = barangInDb.BRG,
-                            nama = barangInDb.NAMA,
+                            nama = barangInDb.NAMA + ' ' + barangInDb.NAMA2 + ' ' + barangInDb.NAMA3,
                             berat = (barangInDb.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
                             imgUrl = imgID,
                             Keterangan = barangInDb.Deskripsi,
@@ -7100,6 +7138,20 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
                 }
             }
+
+            #region add by calvin 14 juni 2018, agar field yg penting di stt01b tidak null
+            dataVm.BarangStok.Ke_Gd = "";
+            dataVm.BarangStok.WO = "";
+            dataVm.BarangStok.Rak = "";
+            dataVm.BarangStok.JTran = "K";
+            dataVm.BarangStok.KLINK = "";
+            dataVm.BarangStok.NO_WO = "";
+            dataVm.BarangStok.KET = "";
+            dataVm.BarangStok.BRG_ORIGINAL = "";
+            dataVm.BarangStok.QTY3 = 0;
+            dataVm.BarangStok.BUKTI_DS = "";
+            dataVm.BarangStok.BUKTI_REFF = "";
+            #endregion
 
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
@@ -7380,6 +7432,18 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            #region add by calvin 14 juni 2018, agar field yg penting di stt01b tidak null
+            dataVm.BarangStok.WO = "";
+            dataVm.BarangStok.Rak = "";
+            dataVm.BarangStok.JTran = "P";
+            dataVm.BarangStok.KLINK = "";
+            dataVm.BarangStok.NO_WO = "";
+            dataVm.BarangStok.KET = "";
+            dataVm.BarangStok.BRG_ORIGINAL = "";
+            dataVm.BarangStok.QTY3 = 0;
+            dataVm.BarangStok.BUKTI_DS = "";
+            dataVm.BarangStok.BUKTI_REFF = "";
+            #endregion
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
