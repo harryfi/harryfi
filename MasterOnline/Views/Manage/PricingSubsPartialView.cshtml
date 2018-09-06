@@ -79,12 +79,31 @@
                     <p>---- Pilih jumlah bulan ----</p>
                 </div>
             }
-            <div class="text-center btn-section" style="@(subs.KODE == "01" ? "margin-top: 84px;" : null)">
+            <div class="text-center btn-section">
                 @if (subs.KODE != "01")
                 {
-                    <button id="btn_times_" type="button" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">3 bln</button>
-                    <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="5">6 bln</button>
-                    <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="10">12 bln</button>
+                    <div class="row">
+                        <button id="btn_times_" type="button" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
+                            3 bulan<br/>
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="5">
+                            6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="10">
+                            12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <img src="~/Content/Images/gratis_new.png" />
                 }
             </div>
             <div class="plan-select" onclick="clickSub(String(@subs.KODE))">
