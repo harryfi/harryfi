@@ -25,10 +25,10 @@
 <div class="snip1404">
     <div>
         <label>
-            Selamat bisnis Anda telah berkembang! Saat ini status keanggotaan Anda ialah sebagai berikut,
+            Terima kasih Anda telah bergabung bersama MasterOnline. Silakan pilih paket langganan yang sesuai dengan bisnis Anda.
         </label>
         <p>
-            Jenis Langganan:
+            JENIS LANGGANAN:
             <span style="color: #2ac52a;">
                 @{
                     switch (kodeSubs)
@@ -46,7 +46,7 @@
                 }
             </span>
         </p>
-        <p>Tanggal Berakhir: <span style="color: red;">@tglBerakhir</span></p>
+        <p>TANGGAL BERAKHIR: <span style="color: red;">@(kodeSubs == "01" ? "-" : tglBerakhir)</span></p>
         @if (kodeSubs != "01")
         {
             <button style="margin-bottom: 35px;" class="btn btn-danger" data-toggle="modal" data-target="#konfBerhentiBerlangganan" type="button" id="btn_unsubscribe">Berhenti Berlangganan</button>
@@ -76,7 +76,7 @@
             @if (subs.KODE != "01")
             {
                 <div class="text-center" style="color: #fff; font-size: 12px;">
-                    <p>---- Pilih jumlah bulan ----</p>
+                    <p>---- Pilih Paket Langganan ----</p>
                 </div>
             }
             <div class="text-center btn-section">
@@ -107,10 +107,11 @@
                 }
             </div>
             <div class="plan-select" onclick="clickSub(String(@subs.KODE))">
+                <p class="plan-month-total" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
                 <span class="plan-price-total">
-                    Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</span></span>
+                    Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
                 </span>
-                <a class="btn-pindah-paket" style="margin-top: 10px;">@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a>
+                <a class="btn-pindah-paket" style="margin-top: 10px;">Pilih Paket Ini</a>
             </div>
         </div>
     }

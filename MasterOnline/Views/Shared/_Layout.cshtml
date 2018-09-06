@@ -76,6 +76,14 @@
         .header-menu-new .col-md-2 a span {
             padding: 0 20px;
         }
+
+        .nav-row {
+            padding: 15px;
+        }
+
+        .nav-row > div > a {
+            padding: 7px;
+        }
     </style>
 
     @RenderSection("styles", required: false)
@@ -117,27 +125,20 @@
                 </div>
             </div>
             <div id="navbar" class="navbar-collapse collapse hidden-lg hidden-md">
-                <ul class="nav navbar-nav navbar">
-                    <li>
-                        <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Index", "Home") ? "daftarBtn" : null)" href="@Url.Action("Index", "Home")">HOME</a>
-                        </div>
-                        <div class="col-xs-6 text-center">
-                            <a class="" href="#features">FITUR</a>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Login", "Account") ? "daftarBtn" : null)" href="@Url.Action("Login", "Account")">LOGIN</a>
-                        </div>
-                        <div class="col-xs-6 text-center">
-                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Register", "Account") ? "daftarBtn" : null)" href="@Url.Action("Register", "Account")">DAFTAR</a>
-                        </div>
-                    </li>
-                    @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
-        <li>@Html.ActionLink("About", "About", "Home")</li>
-        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-                </ul>
+                <div class="row nav-row">
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="@Url.Action("Index", "Home")">HOME</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="#features">FITUR</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="@Url.Action("Login", "Account")">LOGIN</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container-fluid hidden-sm hidden-xs" style="background-color: #891539;">

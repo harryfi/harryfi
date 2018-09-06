@@ -122,6 +122,12 @@
                 color: #fff;
             }
 
+        .snip1404 .plan-month-total {
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #fff;
+        }
+
             .snip1404 .plan-features {
                 color: #fff;
                 padding: 0 0 10px;
@@ -274,9 +280,20 @@
                 var $kodeSubs = $this.attr('data-plan-btn');
                 var $bulanPilihan = parseInt($this.attr('data-kali'));
                 var $harga = parseInt($('#subs-price-' + $kodeSubs).attr('data-harga'));
+                var $pilihan = "";
 
                 $('#plan-' + $kodeSubs + ' .btn-section .btn').removeClass('subs_active');
                 $this.addClass('subs_active');
+
+                if ($bulanPilihan == 3) {
+                    $pilihan = "Paket 3 Bulan";
+                } else if ($bulanPilihan == 5) {
+                    $pilihan = "Paket 6 Bulan";
+                } else if ($bulanPilihan == 10) {
+                    $pilihan = "Paket 12 Bulan";
+                }
+
+                $('#selected-package-' + $kodeSubs).text($pilihan);
                 $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
             });
         });
