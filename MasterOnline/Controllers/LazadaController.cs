@@ -78,6 +78,18 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest("/auth/token/create");
             request.SetHttpMethod("GET");
             request.AddApiParameter("code", accessToken);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "get token",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_ATTRIBUTE_2 = accessToken,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
+
             try
             {
                 LazopResponse response = client.Execute(request);
@@ -87,11 +99,27 @@ namespace MasterOnline.Controllers
                 {
                     var bindAuth = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token + "', REFRESH_TOKEN = '" + bindAuth.refresh_token + "' WHERE CUST = '" + cust + "'");
+                    if (result == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = response.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }
                 return ret;
             }
             catch (Exception ex)
             {
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
                 return ex.ToString();
             }
 
@@ -109,12 +137,46 @@ namespace MasterOnline.Controllers
             LazopResponse response = client.Execute(request);
             //Console.WriteLine(response.IsError());
             //Console.WriteLine(response.Body);
-            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
-            if (!response.IsError())
-            {
-                //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "' WHERE CUST = '" + cust + "'");
 
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "refresh token",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_ATTRIBUTE_2 = refreshToken,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
+            try
+            {
+
+                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
+                if (!response.IsError())
+                {
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "' WHERE CUST = '" + cust + "'");
+                    if (result == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "failed to update token;execute result=" + result;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = response.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
+                return null;
             }
             return ret;
         }
@@ -123,6 +185,17 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "create brg",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = data.kdBrg,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
             string sSQL = "SELECT * FROM (";
             for (int i = 1; i <= 50; i++)
@@ -140,7 +213,7 @@ namespace MasterOnline.Controllers
 
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
-            xmlString = "<Request><Product><PrimaryCategory>"+EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code") + "</PrimaryCategory>";
+            xmlString = "<Request><Product><PrimaryCategory>" + EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code") + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
             xmlString += "<description><![CDATA[" + data.deskripsi + "]]></description>";
@@ -188,19 +261,37 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("payload", xmlString);
 
             LazopResponse response = client.Execute(request, data.token);
-            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
-            if (res.code.Equals("0"))
+            try
             {
-                ret.status = 1;
-                //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + data.kdBrg + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + data.kdBrg + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                    if (result == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                    }
+                }
+                else
+                {
+                    ret.message = res.message;
+                    currentLog.REQUEST_EXCEPTION = res.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                }
 
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = res.message;
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
             }
-
             return ret;
         }
 
@@ -208,6 +299,16 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "display brg",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = kdBrg,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, token, currentLog);
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
@@ -221,17 +322,29 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("payload", xmlString);
 
             LazopResponse response = client.Execute(request, token);
-            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
-            if (res.code.Equals("0"))
+            try
             {
-                ret.status = 1;
-                ret.message = response.Body;
-            }
-            else
-            {
-                ret.message = res.message;
-            }
 
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    ret.message = response.Body;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
+                }
+                else
+                {
+                    ret.message = res.message;
+                    currentLog.REQUEST_EXCEPTION = res.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+            }
             return ret;
         }
 
@@ -239,6 +352,16 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "set promo",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = data.kdBrg,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
             xmlString += "<Request><Product><Skus><Sku>";
@@ -254,15 +377,26 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("payload", xmlString);
 
             LazopResponse response = client.Execute(request, data.token);
-            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
-            if (res.code.Equals("0"))
+            try
             {
-                ret.status = 1;
-                ret.message = response.Body;
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    ret.message = response.Body;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.token, currentLog);
+                }
+                else
+                {
+                    ret.message = res.message;
+                    currentLog.REQUEST_EXCEPTION = res.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = res.message;
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
             }
 
             return ret;
@@ -272,6 +406,18 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "update price/stok product",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = kdBrg,
+                REQUEST_ATTRIBUTE_2 = harga,
+                REQUEST_ATTRIBUTE_3 = qty,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, token, currentLog);
 
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
@@ -293,17 +439,22 @@ namespace MasterOnline.Controllers
                 if (res.code.Equals("0"))
                 {
                     ret.status = 1;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
                 }
                 else
                 {
                     ret.message = res.message;
+                    currentLog.REQUEST_EXCEPTION = res.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
             }
             catch (Exception ex)
             {
                 ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
             }
-            
+
 
             return ret;
         }
@@ -312,31 +463,62 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "get shipment",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = cust,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/shipment/providers/get");
             request.SetHttpMethod("GET");
             LazopResponse response = client.Execute(request, accessToken);
-            var bindDelivery = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
-            if (bindDelivery != null)
+            try
             {
-                if (bindDelivery.data.shipment_providers.Count() > 0)
+                var bindDelivery = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
+                if (bindDelivery != null)
                 {
-                    foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
+                    if (bindDelivery.code.Equals("0"))
                     {
-                        if (ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                        if (bindDelivery.data.shipment_providers.Count() > 0)
                         {
-                            var newProvider = new DELIVERY_PROVIDER_LAZADA();
-                            newProvider.CUST = cust;
-                            newProvider.NAME = shipProv.name;
-                            newProvider.COD = shipProv.cod;
+                            foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
+                            {
+                                if (ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                                {
+                                    var newProvider = new DELIVERY_PROVIDER_LAZADA();
+                                    newProvider.CUST = cust;
+                                    newProvider.NAME = shipProv.name;
+                                    newProvider.COD = shipProv.cod;
 
-                            ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Add(newProvider);
+                                    ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Add(newProvider);
+                                }
+                                ErasoftDbContext.SaveChanges();
+
+                            }
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+
                         }
-                        ErasoftDbContext.SaveChanges();
-
+                    }
+                    else
+                    {
+                        ret.message = bindDelivery.message;
+                        currentLog.REQUEST_EXCEPTION = bindDelivery.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
         }
@@ -358,15 +540,45 @@ namespace MasterOnline.Controllers
             {
                 ordItems = orderItemId[0];
             }
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "set status order to packed",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = ordItems,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/order/pack");
             request.AddApiParameter("shipping_provider", shippingProvider);
             request.AddApiParameter("delivery_type", "dropship");
             request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
-            LazopResponse response = client.Execute(request, accessToken);
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+                if (ret.code.Equals("0"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            }
 
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+            return ret;
 
         }
 
@@ -387,6 +599,17 @@ namespace MasterOnline.Controllers
             {
                 ordItems = orderItemId[0];
             }
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "set status order to packed",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = ordItems,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/order/rts");
@@ -394,9 +617,27 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("delivery_type", "dropship");
             request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
             request.AddApiParameter("tracking_number", trackingNumber);
-            LazopResponse response = client.Execute(request, accessToken);
-
-            return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+                if (ret.code.Equals("0"))
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            }
+            return ret;
 
         }
 
@@ -404,20 +645,43 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBase();
             ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "upload image Produk",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = imagePath,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/image/upload");
             request.AddFileParameter("image", new FileItem(imagePath));
-            LazopResponse response = client.Execute(request, accessToken);
-            var bindImg = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ImageLzd)) as ImageLzd;
-            if (bindImg.code.Equals("0"))
+            try
             {
-                ret.status = 1;
-                ret.message = bindImg.data.image.url;
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindImg = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ImageLzd)) as ImageLzd;
+                if (bindImg.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    ret.message = bindImg.data.image.url;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                }
+                else
+                {
+                    ret.message = bindImg.message;
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = bindImg.message;
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
         }
@@ -429,6 +693,16 @@ namespace MasterOnline.Controllers
 
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Konfirmasi Pengiriman",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = connectionID,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -825,164 +1099,83 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-
-        public async Task<string> GetAttributeList(/*BlibliAPIData data*/)
+        
+        public enum api_status
         {
-            var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
-            string ret = "";
-            foreach (var item in category)
+            Pending = 1,
+            Success = 2,
+            Failed = 3,
+            Exception = 4
+        }
+        public void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string iden, API_LOG_MARKETPLACE data)
+        {
+            switch (action)
             {
-                string categoryCode = item.CATEGORY_CODE;
-                string categoryName = item.CATEGORY_NAME;
-                //    string categoryCode = "3 -1000001";
-                //string categoryName = "3 Kamar +";
-
-                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-                LazopRequest request = new LazopRequest();
-                request.SetApiName("/category/tree/get");
-                request.SetHttpMethod("GET");
-                LazopResponse response = client.Execute(request);
-
-                
-                if (response != null)
-                {
-                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
-                    if (response.Code.Equals("0"))
+                case api_status.Pending:
                     {
-                        if (result.children.Count > 0)
+                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.TOKEN == iden).FirstOrDefault();
+                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
                         {
-                            bool insertAttribute = false;
-                            using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
-                            {
-                                oConnection.Open();
-                                using (SqlCommand oCommand = oConnection.CreateCommand())
-                                {
-                                    var AttributeInDb = MoDbContext.AttributeBlibli.ToList();
-
-                                    //cek jika sudah ada di database
-                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(categoryCode.ToUpper())
-                                    && p.CATEGORY_NAME.ToUpper().Equals(categoryName.ToUpper())
-                                    ).ToList();
-                                    //cek jika sudah ada di database
-
-                                    if (cari.Count == 0)
-                                    {
-                                        insertAttribute = true;
-                                        oCommand.CommandType = CommandType.Text;
-                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                        string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
-                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-                                        string a = "";
-                                        #region Generate Parameters dan CommandText
-                                        for (int i = 1; i <= 30; i++)
-                                        {
-                                            a = Convert.ToString(i);
-                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
-                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
-                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
-                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
-                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
-                                        }
-                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-                                        #endregion
-                                        oCommand.CommandText = sSQL;
-                                        oCommand.Parameters[0].Value = categoryCode;
-                                        oCommand.Parameters[1].Value = categoryName;
-                                        for (int i = 0; i < 30; i++)
-                                        {
-                                            a = Convert.ToString(i * 4 + 2);
-                                            oCommand.Parameters[(i * 4) + 2].Value = "";
-                                            oCommand.Parameters[(i * 4) + 3].Value = "";
-                                            oCommand.Parameters[(i * 4) + 4].Value = "";
-                                            oCommand.Parameters[(i * 4) + 5].Value = "";
-                                            try
-                                            {
-                                                oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
-                                                oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
-                                                oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
-                                                oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
-                                            }
-                                            catch (Exception ex)
-                                            {
-
-                                            }
-                                        }
-                                        oCommand.ExecuteNonQuery();
-                                    }
-                                }
-                                if (insertAttribute)
-                                {
-                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
-                                    {
-                                        oCommand2.CommandType = CommandType.Text;
-                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
-                                        oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
-                                        oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
-                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
-                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
-                                        string a = "";
-                                        var AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
-                                        for (int i = 0; i < 30; i++)
-                                        {
-                                            a = Convert.ToString(i + 1);
-                                            try
-                                            {
-                                                if (result.value.attributes[i].options.Count > 0)
-                                                {
-                                                    string ACODE = "";
-                                                    string ATYPE = "";
-                                                    string ANAME = "";
-                                                    string OPTION_VALUE = "";
-                                                    if (Convert.ToString(result.value.attributes[i].attributeCode.Value) != "WA-0000002") // warna
-                                                    {
-                                                        for (int j = 0; j < result.value.attributes[i].options.Count; j++)
-                                                        {
-                                                            ACODE = result.value.attributes[i].attributeCode.Value;
-                                                            ATYPE = result.value.attributes[i].attributeType.Value;
-                                                            ANAME = result.value.attributes[i].name.Value;
-                                                            OPTION_VALUE = result.value.attributes[i].options[j].Value;
-
-                                                            //cek jika sudah ada di database
-                                                            var cari = AttributeOptInDb.Where(p => p.ACODE.ToUpper().Equals(ACODE.ToUpper())
-                                                            && p.ATYPE.ToUpper().Equals(ATYPE.ToUpper())
-                                                            && p.ANAME.ToUpper().Equals(ANAME.ToUpper())
-                                                            && p.OPTION_VALUE.ToUpper().Equals(OPTION_VALUE.ToUpper())
-                                                            ).ToList();
-                                                            //cek jika sudah ada di database
-
-                                                            if (cari.Count == 0)
-                                                            {
-                                                                oCommand2.Parameters[0].Value = ACODE;
-                                                                oCommand2.Parameters[1].Value = ATYPE;
-                                                                oCommand2.Parameters[2].Value = ANAME;
-                                                                oCommand2.Parameters[3].Value = OPTION_VALUE;
-                                                                oCommand2.ExecuteNonQuery();
-
-                                                                AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
-                                                            }
-
-                                                        }
-                                                    }
-                                                }
-
-                                            }
-                                            catch (Exception ex)
-                                            {
-
-                                            }
-                                        }
-                                    }
-                                }
-                                //}
-                            }
+                            CUST = arf01 != null ? arf01.CUST : "",
+                            CUST_ATTRIBUTE_1 = arf01.PERSO,
+                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                            MARKETPLACE = "Lazada",
+                            REQUEST_ACTION = data.REQUEST_ACTION,
+                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                            REQUEST_DATETIME = data.REQUEST_DATETIME,
+                            REQUEST_ID = data.REQUEST_ID,
+                            REQUEST_STATUS = data.REQUEST_STATUS,
+                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                        };
+                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    break;
+                case api_status.Success:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
                         }
                     }
-                }
+                    break;
+                case api_status.Failed:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Exception:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
             }
-
-            return ret;
         }
     }
 }
