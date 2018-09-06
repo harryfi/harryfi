@@ -52,7 +52,12 @@
             }
 
         .nav li a {
-            padding: 14px 20px 14px 25px;
+            /*padding: 14px 20px 14px 25px;*/
+            padding: 10px;
+        }
+
+        .nav li div {
+            padding: 15px;
         }
 
         .navbar-brand {
@@ -71,6 +76,14 @@
         .header-menu-new .col-md-2 a span {
             padding: 0 20px;
         }
+
+        .nav-row {
+            padding: 15px;
+        }
+
+        .nav-row > div > a {
+            padding: 7px;
+        }
     </style>
 
     @RenderSection("styles", required: false)
@@ -79,12 +92,12 @@
     <nav class="navbar navbar-default navbar-fixed-top" id="top">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                </button>
+                </button>*@
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">
                     <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" class="col-md-10 col-xs-6">
                 </a>
@@ -112,15 +125,20 @@
                 </div>
             </div>
             <div id="navbar" class="navbar-collapse collapse hidden-lg hidden-md">
-                <ul class="nav navbar-nav navbar">
-                    <li><a class="" href="@Url.Action("Index", "Home")">HOME</a></li>
-                    <li><a class="" href="#features">FITUR</a></li>
-                    <li><a class="" href="@Url.Action("Login", "Account")">LOGIN</a></li>
-                    <li><a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a></li>
-                    @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
-                <li>@Html.ActionLink("About", "About", "Home")</li>
-                <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
-                </ul>
+                <div class="row nav-row">
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="@Url.Action("Index", "Home")">HOME</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="#features">FITUR</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="" href="@Url.Action("Login", "Account")">LOGIN</a>
+                    </div>
+                    <div class="col-xs-3 text-center">
+                        <a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="container-fluid hidden-sm hidden-xs" style="background-color: #891539;">

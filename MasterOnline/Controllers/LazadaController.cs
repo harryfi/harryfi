@@ -124,18 +124,44 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
 
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 50; i++)
+            {
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
+                sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
+                if (i < 50)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
+
+            DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+
+
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
-            xmlString = "<Request><Product><PrimaryCategory>13411</PrimaryCategory>";
+            xmlString = "<Request><Product><PrimaryCategory>"+EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code") + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
-            xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
+            //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
+            xmlString += "<description><![CDATA[" + data.deskripsi + "]]></description>";
             xmlString += "<brand>No Brand</brand>";
-            xmlString += "<model>" + data.kdBrg + "</model>";
-            xmlString += "<warranty_type>No Warranty</warranty_type>";
+            //xmlString += "<model>" + data.kdBrg + "</model>";
+            //xmlString += "<warranty_type>No Warranty</warranty_type>";
+
+            for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
+                xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            }
+
             xmlString += "</Attributes>";
             xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
             xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
-            xmlString += "<color_family>Not Specified</color_family>";
-            xmlString += "<size>Int: One size</size><quantity>1</quantity><price>" + data.harga + "</price>";
+            //xmlString += "<color_family>Not Specified</color_family>";
+            //xmlString += "<quantity>1</quantity>";
+            xmlString += "<price>" + data.harga + "</price>";
+            //xmlString += "<size>Int: One size</size>";
             xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
             xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
             xmlString += "<Images>";
@@ -146,6 +172,14 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(data.imageUrl3))
                 xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
             xmlString += "</Images>";
+
+            for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            }
+
             xmlString += "</Sku></Skus></Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
