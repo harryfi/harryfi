@@ -636,7 +636,10 @@ namespace MasterOnline.Utils
             }
             catch (Exception ex)
             {
-                return null;
+                return new Controllers.EleveniaController.ClientMessage() {
+                    resultCode = "Ex;" + ex.InnerException.HResult,
+                    Message = ex.InnerException.Message
+                };
             }
         }
         #endregion

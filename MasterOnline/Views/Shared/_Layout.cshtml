@@ -52,7 +52,12 @@
             }
 
         .nav li a {
-            padding: 14px 20px 14px 25px;
+            /*padding: 14px 20px 14px 25px;*/
+            padding: 10px;
+        }
+
+        .nav li div {
+            padding: 15px;
         }
 
         .navbar-brand {
@@ -79,12 +84,12 @@
     <nav class="navbar navbar-default navbar-fixed-top" id="top">
         <div class="container">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
-                </button>
+                </button>*@
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">
                     <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" class="col-md-10 col-xs-6">
                 </a>
@@ -98,7 +103,7 @@
                         <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
                     </a>
                     @*add by nurul 13/8/2018 (tambah blog)*@
-                    <a href="http://13.250.30.255/blog" style="margin: 0 10px;">
+                    <a href="http://13.250.30.255/blog">
                         <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
                     </a>
                     @*<a href="#gplus">
@@ -113,13 +118,25 @@
             </div>
             <div id="navbar" class="navbar-collapse collapse hidden-lg hidden-md">
                 <ul class="nav navbar-nav navbar">
-                    <li><a class="" href="@Url.Action("Index", "Home")">HOME</a></li>
-                    <li><a class="" href="#features">FITUR</a></li>
-                    <li><a class="" href="@Url.Action("Login", "Account")">LOGIN</a></li>
-                    <li><a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a></li>
+                    <li>
+                        <div class="col-xs-6 text-center">
+                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Index", "Home") ? "daftarBtn" : null)" href="@Url.Action("Index", "Home")">HOME</a>
+                        </div>
+                        <div class="col-xs-6 text-center">
+                            <a class="" href="#features">FITUR</a>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="col-xs-6 text-center">
+                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Login", "Account") ? "daftarBtn" : null)" href="@Url.Action("Login", "Account")">LOGIN</a>
+                        </div>
+                        <div class="col-xs-6 text-center">
+                            <a class="@(Request?.Url?.AbsolutePath == Url.Action("Register", "Account") ? "daftarBtn" : null)" href="@Url.Action("Register", "Account")">DAFTAR</a>
+                        </div>
+                    </li>
                     @*<li>@Html.ActionLink("Home", "Index", "Home")</li>
-                <li>@Html.ActionLink("About", "About", "Home")</li>
-                <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
+        <li>@Html.ActionLink("About", "About", "Home")</li>
+        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>*@
                 </ul>
             </div>
         </div>
@@ -183,9 +200,7 @@
                     $this.closest('.form-group').addClass('has-error');
 
                     if (!$this.closest('div').find('.text-danger').length) {
-                        $this.closest('div').append('<span class="text-danger">
-        
-                            </span > ');
+                        $this.closest('div').append('<span class="text-danger"></span >');
                     }
 
                     $isValid = false;

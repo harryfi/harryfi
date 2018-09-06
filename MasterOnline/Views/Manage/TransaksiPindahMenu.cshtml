@@ -372,6 +372,7 @@
 
 @section scripts
 {
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -399,6 +400,11 @@
             $('#search_siapproses').keyup(function () {
                 tableSiapProses.search($(this).val()).draw();
             });
+        });
+
+        var table = $('#datatable').DataTable({
+            "order": [[0, 1, "desc"]], //or asc
+            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
         function Initialize() {
@@ -811,7 +817,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-stok-partial').html(response);
-                    var table = $('#datatable').DataTable();
+                    var table = $('#datatable').DataTable({
+                        "order": [[0, 1, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     $('#search_stok').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -828,7 +837,14 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
+                    $('#loading_spinner').hide();
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+
                     $('#form-partial').html(response);
                     Initialize();
                 },
@@ -852,6 +868,10 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#table-stok-partial').html(response);
+                        var table = $('#datatable').DataTable({
+                            "order": [[0, 1, "desc"]], //or asc
+                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        });
                         Initialize();
                     } else {
                         alert(response.Errors[0]);

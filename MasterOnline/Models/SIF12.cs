@@ -61,7 +61,7 @@ namespace MasterOnline
         [StringLength(30)]
         public string FAX { get; set; }
 
-        [StringLength(30)]
+        [StringLength(50)]
         public string EMAIL { get; set; }
 
         [StringLength(50)]

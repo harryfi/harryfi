@@ -400,6 +400,18 @@
     <Compile Include="ErasoftContextMigrations\201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.Designer.cs">
       <DependentUpon>201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.cs" />
+    <Compile Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.Designer.cs">
+      <DependentUpon>201808310123546_AlterFieldEmailLength.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErasoftContextMigrations\201809050429558_api_log_marketplace_view_dan_LOG_REQUEST_ID_di_queueFeedBlibli.cs" />
+    <Compile Include="ErasoftContextMigrations\201809050429558_api_log_marketplace_view_dan_LOG_REQUEST_ID_di_queueFeedBlibli.Designer.cs">
+      <DependentUpon>201809050429558_api_log_marketplace_view_dan_LOG_REQUEST_ID_di_queueFeedBlibli.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs" />
+    <Compile Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.Designer.cs">
+      <DependentUpon>201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -459,6 +471,7 @@
     </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
+    <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
     <Compile Include="Models\APF02.cs" />
     <Compile Include="Models\APF02A.cs" />
@@ -466,6 +479,7 @@
     <Compile Include="Models\ATTRIBUTE_LAZADA.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_LAZADA.cs" />
     <Compile Include="Models\CATEGORY_LAZADA.cs" />
+    <Compile Include="Models\DataPengusaha.cs" />
     <Compile Include="Models\DELIVERY_PROVIDER_LAZADA.cs" />
     <Compile Include="Models\APF02B.cs" />
     <Compile Include="Models\APF03.cs" />
@@ -1089,6 +1103,7 @@
     <Content Include="Content\Images\erasoft_indonesia_pt_fb.png" />
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\google-plus.png" />
+    <Content Include="Content\Images\gratis_new.png" />
     <Content Include="Content\Images\Home-Akunting.PNG" />
     <Content Include="Content\Images\Home-Barang.PNG" />
     <Content Include="Content\Images\Home-Dashboard.PNG" />
@@ -5147,6 +5162,9 @@
     <Content Include="Views\Manage\APIBCA.cshtml" />
     <Content Include="Views\Manage\MenuBarang.cshtml" />
     <Content Include="Views\Manage\TableMenuBarang1Partial.cshtml" />
+    <Content Include="Views\Manage\Subscription.cshtml" />
+    <Content Include="Views\Manage\PricingSubsPartialView.cshtml" />
+    <Content Include="Views\Manage\MarketPlaceLog.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5309,6 +5327,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.resx">
       <DependentUpon>201808300251340_hapus_table_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201808310123546_AlterFieldEmailLength.resx">
+      <DependentUpon>201808310123546_AlterFieldEmailLength.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201809050429558_api_log_marketplace_view_dan_LOG_REQUEST_ID_di_queueFeedBlibli.resx">
+      <DependentUpon>201809050429558_api_log_marketplace_view_dan_LOG_REQUEST_ID_di_queueFeedBlibli.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.resx">
+      <DependentUpon>201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

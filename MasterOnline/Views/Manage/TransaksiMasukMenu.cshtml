@@ -371,6 +371,7 @@
 
 @section scripts
 {
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -398,6 +399,11 @@
             $('#search_siapproses').keyup(function () {
                 tableSiapProses.search($(this).val()).draw();
             });
+        });
+
+        var table = $('#datatable').DataTable({
+            "order": [[0, 1, "desc"]], //or asc
+            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
         function Initialize() {
@@ -442,8 +448,8 @@
                 $('input, select, .btn-danger').each(function () {
                     $(this).removeAttr('disabled');
                 });
-                $('.stok_table_section').show();
-                $('.stok_editor_section').hide();
+                //$('.stok_table_section').show();
+                //$('.stok_editor_section').hide();
                 refresh();
                 refreshTableStok();
 
@@ -696,8 +702,10 @@
                             $($trElement + ' .nama-barang').text('-');
                             $($trElement + ' .stn-barang').html('-' +'<input data-val="true" data-val-length="The field Satuan must be a string with a maximum length of 10." data-val-length-max="10" id="BarangStok_Satuan" name="BarangStok.Satuan" type="hidden" value="">');
                             $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
-                            $($trElement + ' .gd-barang').html('<span id="gudang-kode">-</span><div id="gudang-select" style="display: none;"><div id="GUDANG" class="selectivity-input" tabindex="0"></div></div>' +
-                                                            '<input data-val="true" data-val-number="The field Ke_Gd must be a number." data-val-required="The Ke_Gd field is required." id="BarangStok_Ke_Gd" name="BarangStok.Ke_Gd" type="hidden" value="">');
+                            //remark by nurul 5/9/2018
+                            //$($trElement + ' .gd-barang').html('0' + '<input data-val="true" data-val-number="The field QTY3 must be a number." data-val-required="The QTY3 field is required." id="BarangStok_QTY3" name="BarangStok.QTY3" type="hidden" value="">');
+                            //$($trElement + ' .gd-barang').html('<span id="gudang-kode">-</span><div id="gudang-select" style="display: none;"><div id="GUDANG" class="selectivity-input" tabindex="0"></div></div>' +
+                            //                                '<input data-val="true" data-val-number="The field Ke_Gd must be a number." data-val-required="The Ke_Gd field is required." id="BarangStok_Ke_Gd" name="BarangStok.Ke_Gd" type="hidden" value="">');
                             $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="">');
                             $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harga field is required." id="BarangStok_Harga" name="BarangStok.Harga" type="hidden" value="">');
                             $($trElement + ' .btn-primary').attr('disabled', 'disabled');
@@ -774,7 +782,7 @@
                     console.log(error);
                 }
             });
-            
+
         }
         function editStok(idStok) {
             var link = '@Url.Action("EditTransaksiMasuk", "Manage", new { stokId = "replaceId" })';
@@ -807,7 +815,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-stok-partial').html(response);
-                    var table = $('#datatable').DataTable();
+                    var table = $('#datatable').DataTable({
+                        "order": [[0, 1, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     $('#search_stok').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -824,8 +835,16 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
+                    $('#loading_spinner').hide();
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+
                     $('#form-partial').html(response);
+
                     Initialize();
                 },
                 error: function (xhr, status, error) {
@@ -848,6 +867,10 @@
                 success: function (response) {
                     if (response.Errors == null) {
                         $('#table-stok-partial').html(response);
+                        var table = $('#datatable').DataTable({
+                            "order": [[0, 1, "desc"]], //or asc
+                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        });
                         Initialize();
                     } else {
                         alert(response.Errors[0]);

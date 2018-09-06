@@ -403,12 +403,28 @@ namespace MasterOnline.Controllers
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
-                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
+                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
             };
 
             return View(barangVm);
         }
         //end add by nurul
+
+        //add by calvin 4 september 2018
+        [Route("manage/master/marketplacelog")]
+        public ActionResult MarketPlaceLog()
+        {
+            var barangVm = new BarangViewModel()
+            {
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.ToList(),
+            };
+
+            return View(barangVm);
+        }
+        //end add by calvin
 
         [Route("manage/ganti-password")]
         public ActionResult GantiPassword()
@@ -773,9 +789,11 @@ namespace MasterOnline.Controllers
                 custInDb.KODEPOS = customer.Customers.KODEPOS;
                 custInDb.PERSO = customer.Customers.PERSO;
                 custInDb.EMAIL = customer.Customers.EMAIL;
+                custInDb.PASSWORD = customer.Customers.PASSWORD;
                 custInDb.TLP = customer.Customers.TLP;
                 //add by Tri, add api key
                 custInDb.API_KEY = customer.Customers.API_KEY;
+                custInDb.Sort1_Cust = customer.Customers.Sort1_Cust;
                 kdCustomer = custInDb.CUST;
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
@@ -1837,7 +1855,7 @@ namespace MasterOnline.Controllers
                                         var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
                                         if (stf02h != null)
                                         {
-                                            
+
                                             BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                             {
                                                 merchant_code = tblCustomer.Sort1_Cust,
@@ -1850,6 +1868,7 @@ namespace MasterOnline.Controllers
                                             };
                                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                             {
+                                                kode = barangInDb.BRG,
                                                 kode_mp = stf02h.BRG_MP,
                                                 Qty = Convert.ToString(qtyOnHand),
                                                 MinQty = "0"
@@ -2062,7 +2081,7 @@ namespace MasterOnline.Controllers
                                     {
                                         api_key = tblCustomer.API_KEY,
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                        nama = dataBarang.Stf02.NAMA,
+                                        nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
                                         imgUrl = imgID,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
@@ -2136,7 +2155,8 @@ namespace MasterOnline.Controllers
                     ListStf02S = ErasoftDbContext.STF02.ToList(),
                     ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList()
+                    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
+                    StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p=> p.REQUEST_ATTRIBUTE_1 == barangId).ToList(),
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -2155,7 +2175,8 @@ namespace MasterOnline.Controllers
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
-                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
+                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
+                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
             };
 
             return PartialView("FormBarangPartial", vm);
@@ -2463,9 +2484,11 @@ namespace MasterOnline.Controllers
             if (viewModel.User.UserId == null)
             {
                 var checkUser = MoDbContext.User.SingleOrDefault(u => u.Email == viewModel.User.Email);
+                var checkAkun = MoDbContext.Account.SingleOrDefault(u => u.Email == viewModel.User.Email);
 
-                if (checkUser == null)
+                if (checkUser == null && checkAkun == null)
                 {
+                    viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
                 else
@@ -3086,7 +3109,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3103,7 +3126,7 @@ namespace MasterOnline.Controllers
             IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI)).OrderByDescending(f => f.TGL)
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
                             .ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
@@ -3120,7 +3143,7 @@ namespace MasterOnline.Controllers
             //IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3137,7 +3160,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").OrderByDescending(f => f.TGL).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3152,7 +3175,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3722,7 +3745,7 @@ namespace MasterOnline.Controllers
             IEnumerable<APT01D> InvBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3737,7 +3760,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3752,7 +3775,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderBy(f => f.TGL).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -4447,13 +4470,16 @@ namespace MasterOnline.Controllers
                     if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                     {
                         DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                        dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                        dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT ORDER_NO,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY ORDER_NO,ORDER_PROD_NO");
                         if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                         {
-                            string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
-                            string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                            var elApi = new EleveniaController();
-                            elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
+                            for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
+                            {
+                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
+                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_PROD_NO"]);
+                                var elApi = new EleveniaController();
+                                elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
+                            }
                         }
                     }
                     break;
@@ -4485,19 +4511,23 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                         {
+
                             DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
+                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                             if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
                             {
-                                string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
-                                string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
-                                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
-                                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
-                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
-                                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
-                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                                var elApi = new EleveniaController();
-                                elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                                for (int i = 0; i < dsTEMP_ELV_ORDERS.Tables[0].Rows.Count; i++)
+                                {
+                                    string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
+                                    string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
+                                    string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_MTD_CD"]);
+                                    string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_ETR_CD"]);
+                                    string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
+                                    string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_ETR_NAME"]);
+                                    string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_PROD_NO"]);
+                                    var elApi = new EleveniaController();
+                                    elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                                }
                             }
                         }
                     }
@@ -4521,26 +4551,12 @@ namespace MasterOnline.Controllers
                                         mta_username_email_merchant = marketPlace.EMAIL,
                                         mta_password_password_merchant = marketPlace.PASSWORD
                                     };
-                                    bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT,orderReference[0], orderReference[1]);
+                                    bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, orderReference[0], orderReference[1]);
                                 }
-
-                            }
-
-                            DataSet dsTEMP_ELV_ORDERS = new DataSet();
-                            dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT TOP 1 DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "'");
-                            if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
-                            {
-                                string awb = Convert.ToString(pesanan.TRACKING_SHIPMENT);
-                                string dlvNo = Convert.ToString(pesanan.NO_REFERENSI);
-                                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
-                                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
-                                string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_NO"]);
-                                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
-                                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[0]["ORDER_PROD_NO"]);
                             }
                         }
                     }
-                    
+
                     break;
             }
 
@@ -4723,6 +4739,10 @@ namespace MasterOnline.Controllers
                 else
                 {
                     var lastRecNum = listFakturInDb.Last().RecNum;
+                    if (lastRecNum == 0)
+                    {
+                        lastRecNum = 1;
+                    }
                     lastRecNum++;
 
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
@@ -6055,7 +6075,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.OrderByDescending(f => f.TGL).ToList(),
+                ListPiutang = ErasoftDbContext.ART03A.ToList(),
                 ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
@@ -6227,7 +6247,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.OrderByDescending(f => f.TGL).ToList()
+                ListPiutang = ErasoftDbContext.ART03A.ToList()
             };
 
             return PartialView("TableBayarPiutangPartial", vm);
@@ -6256,7 +6276,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.OrderByDescending(f => f.TGL).ToList(),
+                ListHutang = ErasoftDbContext.APT03A.ToList(),
                 ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
             };
@@ -6435,7 +6455,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.OrderByDescending(f => f.TGL).ToList()
+                ListHutang = ErasoftDbContext.APT03A.ToList()
             };
 
             return PartialView("TableBayarHutangPartial", vm);
@@ -6840,8 +6860,10 @@ namespace MasterOnline.Controllers
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket;
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
             var kdBli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
+            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
             var blApi = new BukaLapakController();
             var lzdApi = new LazadaController();
+            var eleApi = new EleveniaController();
             foreach (string kdBrg in listBrg)
             {
                 var qtyOnHand = 0d;
@@ -6870,6 +6892,33 @@ namespace MasterOnline.Controllers
                     {
                         lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.TOKEN);
                     }
+                    else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
+                    {
+                        var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
+                        string[] imgID = new string[3];
+                        for (int i = 0; i < 3; i++)
+                        {
+                            imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                            imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                        }
+
+                        EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                        {
+                            api_key = marketPlace.API_KEY,
+                            kode = barangInDb.BRG,
+                            nama = barangInDb.NAMA,
+                            berat = (barangInDb.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                            imgUrl = imgID,
+                            Keterangan = barangInDb.Deskripsi,
+                            Qty = Convert.ToString(qtyOnHand),
+                            DeliveryTempNo = stf02h.DeliveryTempElevenia,
+                            IDMarket = marketPlace.RecNum.ToString(),
+                        };
+                        data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
+                        data.Price = stf02h.HJUAL.ToString();
+                        data.kode_mp = stf02h.BRG_MP;
+                        eleApi.UpdateProductQOH_Price(data);
+                    }
                     else if (marketPlace.NAMA.Equals(kdBli.ToString()))
                     {
                         if (!string.IsNullOrEmpty(marketPlace.Kode))
@@ -6888,6 +6937,7 @@ namespace MasterOnline.Controllers
                             };
                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                             {
+                                kode = kdBrg,
                                 kode_mp = stf02h.BRG_MP,
                                 Qty = Convert.ToString(qtyOnHand),
                                 MinQty = "0"
@@ -7710,6 +7760,24 @@ namespace MasterOnline.Controllers
             return View(dataPerusahaanVm);
         }
 
+        [HttpGet]
+        public ActionResult GetDataPengusaha(string userId)
+        {
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.UserId == userId);
+
+            if (accInDb == null)
+                return Json("No Data Found!", JsonRequestBehavior.AllowGet);
+
+            var res = new DataPengusaha()
+            {
+                NamaLengkap = accInDb.Username,
+                Email = accInDb.Email,
+                Telepon = accInDb.NoHp
+            };
+
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult DeleteLogoPerusahaan(string namaPT, string uname)
         {
             try
@@ -7793,7 +7861,7 @@ namespace MasterOnline.Controllers
             return View(APIBCAVm);
         }
 
-        
+
         [HttpPost]
         public ActionResult SaveAPIBCA(DataPerusahaanViewModel dataVm)
         {
@@ -7819,7 +7887,7 @@ namespace MasterOnline.Controllers
             dataPerusahaanInDb.BCA_API_SECRET = dataVm.DataUsaha.BCA_API_SECRET;
             dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
             dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
-            
+
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -8035,6 +8103,41 @@ namespace MasterOnline.Controllers
             return View("HargaJualMenu", vm);
         }
 
+        [HttpGet]
+        public ActionResult UbahHargaJual(int? recNum, double hargaJualBaru)
+        {
+            var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
+
+            if (hJualInDb == null) return Json("No Data Found!", JsonRequestBehavior.AllowGet);
+
+            hJualInDb.HJUAL = hargaJualBaru;
+            ErasoftDbContext.SaveChanges();
+
+            var vm = new HargaJualViewModel()
+            {
+                ListBarang = ErasoftDbContext.STF02.ToList(),
+                ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
+                ListHargaTerakhir = ErasoftDbContext.STF10.ToList()
+            };
+
+            return PartialView("TableHargaJualPartial", vm);
+        }
+
         // =============================================== Bagian Harga Jual Barang (END)
+
+        // =============================================== Bagian Subscription (START)
+
+        [Route("manage/Subscription")]
+        public ActionResult Subscription()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            return View(vm);
+        }
+
+        // =============================================== Bagian Subscription (END)
     }
 }
