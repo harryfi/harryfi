@@ -31,5 +31,8 @@ namespace MasterOnline.Models
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RECNUM { get; set; }
+
+        [Required]
+        public int BULAN { get; set; }
     }
 }

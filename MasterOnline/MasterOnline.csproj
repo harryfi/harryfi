@@ -469,6 +469,10 @@
     <Compile Include="Migrations\201808300307125_Category_attribute_attributeOpt_lazada.Designer.cs">
       <DependentUpon>201808300307125_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201809070842203_AddFieldBulanInTabelTransMidtran.cs" />
+    <Compile Include="Migrations\201809070842203_AddFieldBulanInTabelTransMidtran.Designer.cs">
+      <DependentUpon>201809070842203_AddFieldBulanInTabelTransMidtran.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
@@ -5459,6 +5463,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201808300307125_Category_attribute_attributeOpt_lazada.resx">
       <DependentUpon>201808300307125_Category_attribute_attributeOpt_lazada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201809070842203_AddFieldBulanInTabelTransMidtran.resx">
+      <DependentUpon>201809070842203_AddFieldBulanInTabelTransMidtran.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

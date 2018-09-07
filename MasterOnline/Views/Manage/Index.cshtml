@@ -68,6 +68,8 @@
             var link = '@Url.Action("DashboardPartial", "Manage", new { selDate = "replaceDate" })';
             link = link.replace("replaceDate", $selectedDate);
 
+            console.log($selectedDate);
+
             $.ajax({
                 type: "GET",
                 url: link,
