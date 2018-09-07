@@ -197,7 +197,8 @@ namespace MasterOnline.Controllers
 
                             var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
                             userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
-                            userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
+                            //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
+                            userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(1);
                             if (!string.IsNullOrEmpty(notification_data.saved_token_id))
                                 userData.TOKEN_CC = notification_data.saved_token_id;
 

@@ -308,5 +308,33 @@
         function convertToAngka(rupiah) {
             return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
         }
+
+        function setBln(kode, bln) {
+            switch (kode){
+                case "01":
+                    break;
+                case "02":
+                    txtBln_02.value = bln;
+                    break;
+                case "03":
+                    txtBln_03.value = bln;
+                    break;
+            }
+        }
+
+        function clickSub(kode) {
+            var bln = 0;
+            switch (kode) {
+                case "01":
+                    break;
+                case "02":
+                    bln = txtBln_02.value;
+                    break;
+                case "03":
+                    bln = txtBln_03.value;
+                    break;
+            }
+            //alert('kode:' + kode + '\nbln:' + bln);
+        }
     </script>
 }

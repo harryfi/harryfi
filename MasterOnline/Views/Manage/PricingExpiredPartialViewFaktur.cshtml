@@ -47,7 +47,7 @@
             <li><i class="ion-checkmark"> </i>Daily Backups</li>*@
         </ul>
         @*<div class="plan-select"><a href="">@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>*@
-        <div class="plan-select" onclick="clickSub(String(@subs.KODE))"><a>@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>
+        <div class="plan-select" onclick="clickSub('@subs.KODE')"><a>@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>
     </div>
     }
 </div>
