@@ -905,6 +905,9 @@
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
                 }
+                else {
+                    $(fieldCategoryCode).val('undo');
+                }
                 getKategoriPertamaLazada();
             }
         }
@@ -1249,7 +1252,10 @@
                     $(fieldCategoryCode).val('');
                     $(fieldCategoryName).val('');
                 }
-                getKategoriPertamaLazada();
+                else {
+                    $(fieldCategoryCode).val('undo');
+                }
+                getKategoriPertamaBlibli();
             }
         }
         function getKategoriPertamaBlibli() {
