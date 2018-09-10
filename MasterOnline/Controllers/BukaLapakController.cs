@@ -645,7 +645,7 @@ namespace MasterOnline.Controllers
                             //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
 
                             insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier + "','" + order.buyer_notes + "'," + order.shipping_fee + ",";
-                            insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                            insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + /*Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + /*Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
                             insertQ += order.buyer.email + "','" + order.buyer.id + "','" + order.buyer.name + "','" + order.buyer.username + "','" + order.buyer_logistic_choice + "','" + order.consignee.address + "','" + order.consignee.area + "','" + order.consignee.city + "','";
                             insertQ += order.consignee.name + "','" + order.consignee.phone + "','" + order.consignee.post_code + "','" + order.consignee.province + "','" + Cust + "','" + username + "','" + connectionID + "')";
 
@@ -660,7 +660,7 @@ namespace MasterOnline.Controllers
                                         namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
                                     }
                                     insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg + "',";
-                                    insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
+                                    insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
                                     insertOrderItems += " ,";
                                 }
                             }

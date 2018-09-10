@@ -17,7 +17,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
-        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code)
+        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan)
         {
             MoDbContext = new MoDbContext();
             var dtNow = DateTime.Now;
@@ -108,6 +108,7 @@ namespace MasterOnline.Controllers
                             dataTrans.TGL_INPUT = dtNow;
                             dataTrans.TYPE = code;
                             dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
+                            dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
                             dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
@@ -198,7 +199,7 @@ namespace MasterOnline.Controllers
                             var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
                             userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
                             //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
-                            userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(1);
+                            userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
                             if (!string.IsNullOrEmpty(notification_data.saved_token_id))
                                 userData.TOKEN_CC = notification_data.saved_token_id;
 

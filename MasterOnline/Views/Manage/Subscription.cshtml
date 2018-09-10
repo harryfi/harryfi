@@ -36,7 +36,6 @@
                 top: 0;
                 height: 100%;
                 z-index: -1;*/
-
                 width: 75%;
                 margin-bottom: 13px;
                 z-index: 0;
@@ -122,11 +121,11 @@
                 color: #fff;
             }
 
-        .snip1404 .plan-month-total {
-            font-weight: 600;
-            font-size: 0.9em;
-            color: #fff;
-        }
+            .snip1404 .plan-month-total {
+                font-weight: 600;
+                font-size: 0.9em;
+                color: #fff;
+            }
 
             .snip1404 .plan-features {
                 color: #fff;
@@ -258,7 +257,7 @@
                 <div class="row text-center">
                     <h4>Apakah Anda yakin ingin menghapus berhenti berlangganan?</h4>
                     <h5>
-                        Dengan berhenti berlangganan, Anda <b>tidak dapat melakukan <i>login</i></b> kembali <br/> di Master Online dan data Anda akan <b>di hapus</b>!
+                        Dengan berhenti berlangganan, Anda <b>tidak dapat melakukan <i>login</i></b> kembali <br /> di Master Online dan data Anda akan <b>di hapus</b>!
                     </h5>
                 </div>
             </div>
@@ -272,6 +271,8 @@
 
 @section scripts
 {
+    @*add by Tri snap js*@
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-kNpQZUsTHkQzk9BZ"></script>
     <script>
         $(document).ready(function () {
             $('.btn-subs').click(function () {
@@ -335,6 +336,29 @@
                     break;
             }
             //alert('kode:' + kode + '\nbln:' + bln);
+            @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+            link = link.replace("replaceCode", kode);
+            link = link.replace("replaceBulan", String(bln));*@
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        snap.pay(response, { skipOrderSummary: true });
+                        //alert(response);
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
     </script>
 }
