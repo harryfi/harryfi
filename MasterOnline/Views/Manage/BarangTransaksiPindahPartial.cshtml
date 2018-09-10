@@ -36,7 +36,7 @@
 @Html.HiddenFor(m => m.Stok.Ket, new { Value = "-" })
 @Html.HiddenFor(m => m.Stok.ST_Posting, new { Value = "-" })
 @Html.HiddenFor(m => m.Stok.Ref, new { Value = "-" })
-@Html.HiddenFor(m => m.Stok.Jenis_Form, new { Value = 1 })
+@Html.HiddenFor(m => m.Stok.Jenis_Form, new { Value = 0 })
 @Html.HiddenFor(m => m.Stok.TUKAR, new { Value = 1 })
 @Html.HiddenFor(m => m.Stok.VALUTA, new { Value = "IDR" })
 @Html.HiddenFor(m => m.Stok.Retur_Penuh, new { Value = false })
@@ -121,7 +121,7 @@
     <hr />
 </div>
 @Html.HiddenFor(m => m.BarangStok.UserName, new { Value = username })
-@Html.HiddenFor(m => m.BarangStok.Jenis_Form, new { Value = 1 })
+@Html.HiddenFor(m => m.BarangStok.Jenis_Form, new { Value = 0 })
 @Html.HiddenFor(m => m.BarangStok.Qty_Retur, new { Value = 0 })
 @Html.HiddenFor(m => m.BarangStok.Qty_Berat, new { Value = 0 })
 @Html.HiddenFor(m => m.BarangStok.TOTAL_LOT, new { Value = 0 })
