@@ -79,12 +79,12 @@
                     <img src="~/Content/Images/gratis_new.png" />
                 }
             </div>
-            <div class="plan-select" onclick="clickSub(String(@subs.KODE))">
+            <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@>
                 <p class="plan-month-total" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
                 <span class="plan-price-total">
                     Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
                 </span>
-                <a class="btn-pindah-paket" style="margin-top: 10px;">Pilih Paket Ini</a>
+                <a class="btn-pindah-paket" onclick="clickSub('@subs.KODE')" style="margin-top: 10px;">Pilih Paket Ini</a>
             </div>
         </div>
     }

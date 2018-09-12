@@ -731,8 +731,22 @@
         //add by Tri, call midtrans api get token
         function clickSub(sendKode)
         {
-            var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", "0" + sendKode);
+            var bln = 0;
+            switch (sendKode) {
+                case "01":
+                    break;
+                case "02":
+                    bln = txtBln_02.value;
+                    break;
+                case "03":
+                    bln = txtBln_03.value;
+                    break;
+            }
+
+            @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", "0" + sendKode);*@
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln;
             $.ajax({
                 type: "GET",
                 url: link,

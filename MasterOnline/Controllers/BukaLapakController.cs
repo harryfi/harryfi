@@ -184,8 +184,8 @@ namespace MasterOnline.Controllers
                 {
                     ret.status = 1;
                     ret.message = bindResponse.product_detail.id;
-                    var a =EDB.ExecuteSQL("", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + bindResponse.product_detail.id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
-                    if(a == 1)
+                    var a = EDB.ExecuteSQL("", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + bindResponse.product_detail.id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                    if (a == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                     }
@@ -267,7 +267,7 @@ namespace MasterOnline.Controllers
                     {
                         ret.status = 1;
                         ret.message = stringRes.id;
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                     }
                     else
                     {
@@ -395,7 +395,7 @@ namespace MasterOnline.Controllers
                     {
                         if (stat)
                         {
-                            var res = prodAktif(id, userId, token);
+                            var res = prodAktif(kdBrg, id, userId, token);
                             ret.status = res.status;
                             ret.message = res.message;
 
@@ -512,7 +512,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        public BindingBase prodAktif(string id, string userId, string token)
+        public BindingBase prodAktif(string brg, string id, string userId, string token)
         {
             var ret = new BindingBase { status = 0 };
             Utils.HttpRequest req = new Utils.HttpRequest();
@@ -535,6 +535,22 @@ namespace MasterOnline.Controllers
                 {
                     ret.status = 1;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                    //call api to set product stock, buka lapak non active product = 0 stock
+
+                    var qtyOnHand = 0d;
+                    {
+                        object[] spParams = {
+                                                    new SqlParameter("@BRG", brg),
+                                                    new SqlParameter("@GD","ALL"),
+                                                    new SqlParameter("@Satuan", "2"),
+                                                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                                };
+
+                        ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                        qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+                    }
+                    updateProduk(id, "", qtyOnHand > 0 ? qtyOnHand.ToString() : "1", userId, token);
                 }
                 else
                 {
@@ -566,7 +582,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Konfirmasi Pengiriman",
+                REQUEST_ACTION = "Get Order",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = email,

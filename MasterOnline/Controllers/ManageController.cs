@@ -1717,7 +1717,7 @@ namespace MasterOnline.Controllers
 
                             if (tokoBl.DISPLAY)
                             {
-                                var result = blApi.prodAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                var result = blApi.prodAktif(barang.BRG, tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
                             }
                             else
                             {
