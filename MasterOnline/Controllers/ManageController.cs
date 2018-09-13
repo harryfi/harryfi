@@ -2156,7 +2156,7 @@ namespace MasterOnline.Controllers
                     ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
-                    StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p=> p.REQUEST_ATTRIBUTE_1 == barangId).ToList(),
+                    StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => p.REQUEST_ATTRIBUTE_1 == barangId).ToList(),
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -6802,6 +6802,10 @@ namespace MasterOnline.Controllers
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 brg.Add(item.Kobar);//add by Tri, 21 agustus 2018
+                //add by nurul 13/9/2018
+                ErasoftDbContext.STT01B.Remove(item);
+                ErasoftDbContext.SaveChanges();
+                //end add by nurul 13/9/2018
             }
             //end add by calvin, validasi QOH
 
@@ -7239,6 +7243,10 @@ namespace MasterOnline.Controllers
             foreach (var item in stokDetailInDb)
             {
                 brg.Add(item.Kobar);
+                //add by nurul 13/9/2018
+                ErasoftDbContext.STT01B.Remove(item);
+                ErasoftDbContext.SaveChanges();
+                //end add by nurul 13/9/2018
             }
             //end add by Tri, 21 agustus 2018
 
@@ -7540,6 +7548,10 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa dihapus, Qty di gudang " + Convert.ToString(item.Ke_Gd) + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                //add by nurul 13/9/2018
+                ErasoftDbContext.STT01B.Remove(item);
+                ErasoftDbContext.SaveChanges();
+                //end add by nurul 13/9/2018
             }
             //end add by calvin, validasi QOH
 
