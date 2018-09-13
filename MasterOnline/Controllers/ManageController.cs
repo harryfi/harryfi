@@ -4537,10 +4537,10 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(Convert.ToString(pesanan.NO_REFERENSI)))
                             {
-                                string[] orderReference = pesanan.NO_REFERENSI.Split(';');
-                                if (orderReference.Count() == 2)
+                                var bliAPI = new BlibliController();
+                                var listDetail = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                                foreach (var item in listDetail)
                                 {
-                                    var bliAPI = new BlibliController();
                                     BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                     {
                                         merchant_code = marketPlace.Sort1_Cust,
@@ -4551,7 +4551,7 @@ namespace MasterOnline.Controllers
                                         mta_username_email_merchant = marketPlace.EMAIL,
                                         mta_password_password_merchant = marketPlace.PASSWORD
                                     };
-                                    bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, orderReference[0], orderReference[1]);
+                                    bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID);
                                 }
                             }
                         }
