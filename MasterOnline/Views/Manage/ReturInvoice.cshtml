@@ -1152,7 +1152,7 @@
             alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
         }
         function lihatInvoice(idInvoice) {
-            var link = '@Url.Action("EditInvoice", "Manage", new { orderId = "replaceId" })';
+            var link = '@Url.Action("EditReturInvoice", "Manage", new { orderId = "replaceId" })';
             link = link.replace("replaceId", idInvoice);
 
             $.ajax({
