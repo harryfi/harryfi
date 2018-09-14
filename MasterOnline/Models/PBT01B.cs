@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -111,8 +113,10 @@ namespace MasterOnline
         [StringLength(20)]
         public string LKU { get; set; }
 
+        [JsonIgnore]
         public virtual PBT01A PBT01A { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PBT01E> PBT01E { get; set; }
     }

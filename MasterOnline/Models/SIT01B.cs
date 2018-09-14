@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -109,6 +111,7 @@ namespace MasterOnline
 
         public double? QOH { get; set; }
 
+        [JsonIgnore]
         public virtual SIT01A SIT01A { get; set; }
     }
 }

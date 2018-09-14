@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -177,18 +179,23 @@ namespace MasterOnline
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PBT01B> PBT01B { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PBT01B1> PBT01B1 { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PBT01C> PBT01C { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<PBT01D> PBT01D { get; set; }
 
+        [JsonIgnore]
         public virtual PBT01F PBT01F { get; set; }
     }
 }

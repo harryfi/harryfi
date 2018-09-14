@@ -303,6 +303,29 @@ namespace MasterOnline.Controllers.Api
         {
             try
             {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
                 ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
 
                 var selectedDate = (data.SelDate != "" ? DateTime.ParseExact(data.SelDate, "dd/MM/yyyy",
@@ -434,7 +457,7 @@ namespace MasterOnline.Controllers.Api
                 vm.ListBarangTidakLaku = vm.ListBarangTidakLaku.OrderByDescending(b => b.Qty).Take(10).ToList();
                 vm.ListBarangMiniStok = vm.ListBarangMiniStok.OrderByDescending(b => b.Qty).Take(10).ToList();
 
-                var result = new JsonApi()
+                result = new JsonApi()
                 {
                     code = 200,
                     message = "Success",
@@ -462,6 +485,29 @@ namespace MasterOnline.Controllers.Api
         {
             try
             {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
                 ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
 
                 var vm = new PesananViewModel()
@@ -502,7 +548,7 @@ namespace MasterOnline.Controllers.Api
                     });
                 }
 
-                var result = new JsonApi()
+                result = new JsonApi()
                 {
                     code = 200,
                     message = "Success",
@@ -611,6 +657,7 @@ namespace MasterOnline.Controllers.Api
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
             var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
             var blAPI = new BukaLapakController();
+
             switch (status)
             {
                 case "02":
@@ -629,5 +676,496 @@ namespace MasterOnline.Controllers.Api
             }
 
         }
+
+        // --- PEMBELIAN (BEGIN) --- //
+
+        [System.Web.Http.Route("api/mobile/invoice")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataInvoice([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new InvoiceViewModel()
+                {
+                    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").OrderByDescending(f => f.TGL).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListSubs = MoDbContext.Subscription.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var invoice in vm.ListInvoice)
+                {
+                    var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == invoice.SUPP);
+
+                    listData.Add(new
+                    {
+                        Invoice = invoice,
+                        Supplier = suppInDb?.NAMA,
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/returinvoice")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataReturInvoice([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new InvoiceViewModel()
+                {
+                    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var returInvoice in vm.ListInvoice)
+                {
+                    var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == returInvoice.SUPP);
+
+                    listData.Add(new
+                    {
+                        ReturInvoice = returInvoice,
+                        Supplier = suppInDb?.NAMA,
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/pembayaranbeli")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPembayaranPembelian([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new BayarHutangViewModel()
+                {
+                    ListHutang = ErasoftDbContext.APT03A.ToList(),
+                    ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var hutang in vm.ListHutang)
+                {
+                    listData.Add(new
+                    {
+                        Hutang = hutang
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        // --- PEMBELIAN (END) --- //
+
+        // --- PENJUALAN (BEGIN) --- //
+
+        [System.Web.Http.Route("api/mobile/faktur")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataFaktur([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new FakturViewModel()
+                {
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+                    ListSubs = MoDbContext.Subscription.ToList(),
+                };
+
+                var listData = new List<object>();
+
+                foreach (var faktur in vm.ListPesanan)
+                {
+                    var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == faktur.PEMESAN);
+                    var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
+                    var idMarket = 0;
+
+                    if (pelanggan != null)
+                    {
+                        idMarket = Convert.ToInt32(pelanggan.NAMA);
+                    }
+
+                    var market = vm.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+                    var namaMarket = "";
+
+                    if (market != null)
+                    {
+                        namaMarket = market.NamaMarket;
+                    }
+
+                    listData.Add(new
+                    {
+                        Faktur = faktur,
+                        MarketName = namaMarket,
+                        BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/returfaktur")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataReturFaktur([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new FakturViewModel()
+                {
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").OrderByDescending(f => f.TGL).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var returFaktur in vm.ListPesanan)
+                {
+                    var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == returFaktur.PEMESAN);
+                    var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == returFaktur.CUST);
+                    var idMarket = 0;
+
+                    if (pelanggan != null)
+                    {
+                        idMarket = Convert.ToInt32(pelanggan.NAMA);
+                    }
+
+                    var market = vm.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+                    var namaMarket = "";
+
+                    if (market != null)
+                    {
+                        namaMarket = market.NamaMarket;
+                    }
+
+                    listData.Add(new
+                    {
+                        ReturFaktur = returFaktur,
+                        MarketName = namaMarket,
+                        BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        [System.Web.Http.Route("api/mobile/pembayaranjual")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPembayaranPenjualan([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new BayarPiutangViewModel()
+                {
+                    ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                    ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var piutang in vm.ListPiutang)
+                {
+                    listData.Add(new
+                    {
+                        Piutang = piutang
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
+        // --- PENJUALAN (END) --- //
+
+        // --- BARANG (BEGIN) --- //
+
+
+
+        // --- BARANG (END) --- //
     }
 }
