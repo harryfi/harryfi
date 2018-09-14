@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -183,6 +185,7 @@ namespace MasterOnline
         [StringLength(70)]
         public string NO_REFERENSI { get; set; }
 
+        [JsonIgnore]
         public virtual SOT01D SOT01D { get; set; }
     }
 }

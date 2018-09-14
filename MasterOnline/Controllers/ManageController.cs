@@ -338,7 +338,6 @@ namespace MasterOnline.Controllers
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 ListNInvoice = ErasoftDbContext.APT03B.ToList()
-
             };
 
             return View(vm);

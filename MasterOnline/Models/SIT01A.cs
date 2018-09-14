@@ -263,6 +263,7 @@ namespace MasterOnline
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<SIT01C> SIT01C { get; set; }
 
+        [JsonIgnore]
         public virtual SIT01F SIT01F { get; set; }
     }
 }
