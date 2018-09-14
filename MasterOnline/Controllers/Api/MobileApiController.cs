@@ -831,6 +831,76 @@ namespace MasterOnline.Controllers.Api
             }
         }
 
+        [System.Web.Http.Route("api/mobile/pembayaranbeli")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPembayaranPembelian([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new BayarHutangViewModel()
+                {
+                    ListHutang = ErasoftDbContext.APT03A.ToList(),
+                    ListHutangDetail = ErasoftDbContext.APT03B.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var hutang in vm.ListHutang)
+                {
+                    listData.Add(new
+                    {
+                        Hutang = hutang
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
         // --- PEMBELIAN (END) --- //
 
         // --- PENJUALAN (BEGIN) --- //
@@ -1020,7 +1090,82 @@ namespace MasterOnline.Controllers.Api
             }
         }
 
+        [System.Web.Http.Route("api/mobile/pembayaranjual")]
+        [System.Web.Http.HttpPost]
+        public IHttpActionResult DataPembayaranPenjualan([FromBody]JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                ErasoftDbContext = data.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(data.UserId);
+
+                var vm = new BayarPiutangViewModel()
+                {
+                    ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                    ListPiutangDetail = ErasoftDbContext.ART03B.ToList(),
+                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList()
+                };
+
+                var listData = new List<object>();
+
+                foreach (var piutang in vm.ListPiutang)
+                {
+                    listData.Add(new
+                    {
+                        Piutang = piutang
+                    });
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = listData
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                var result = new JsonApi()
+                {
+                    code = 500,
+                    message = e.Message,
+                    data = null
+                };
+
+                return Json(result);
+            }
+        }
+
         // --- PENJUALAN (END) --- //
 
+        // --- BARANG (BEGIN) --- //
+
+
+
+        // --- BARANG (END) --- //
     }
 }
