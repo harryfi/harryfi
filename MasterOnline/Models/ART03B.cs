@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -30,6 +32,7 @@ namespace MasterOnline
         [StringLength(30)]
         public string USERNAME { get; set; }
 
+        [JsonIgnore]
         public virtual ART03A ART03A { get; set; }
     }
 }
