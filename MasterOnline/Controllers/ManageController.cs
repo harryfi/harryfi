@@ -3866,7 +3866,7 @@ namespace MasterOnline.Controllers
 
                 return PartialView("BarangInvoicePartial", vm);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return HttpNotFound();
             }
