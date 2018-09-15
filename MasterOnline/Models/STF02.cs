@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace MasterOnline
 {
     using System;
@@ -248,14 +250,18 @@ namespace MasterOnline
 
         public bool DISPLAY_MARKET { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STF02B> STF02B { get; set; }
 
+        [JsonIgnore]
         public virtual STF02C STF02C { get; set; }
 
+        [JsonIgnore]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<STF02D> STF02D { get; set; }
 
+        [JsonIgnore]
         public virtual STF02F STF02F { get; set; }
     }
 }

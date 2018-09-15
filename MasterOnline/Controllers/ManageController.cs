@@ -956,6 +956,7 @@ namespace MasterOnline.Controllers
             {
                 var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
 
+                // Kalo barangTerpesan == null tandanya ga laku
                 if (barangTerpesan == null)
                 {
                     listBarangTidakLaku.Add(new PenjualanBarang
