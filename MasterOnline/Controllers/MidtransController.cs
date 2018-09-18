@@ -45,6 +45,12 @@ namespace MasterOnline.Controllers
                     string noTrans = currentYear + lastNum.ToString().PadLeft(10, '0');
                     #endregion
 
+                    int bln = string.IsNullOrEmpty(bulan) ? 3 : Convert.ToInt32(bulan);
+                    if (bln == 12)
+                        bln = 10;
+                    if (bln == 6)
+                        bln = 5;
+
                     BindReqSnap data = new BindReqSnap
                     {
                         //transaction_details = new TransactionDetail(),
@@ -66,7 +72,7 @@ namespace MasterOnline.Controllers
                         //user_id = sessionData.User.NoHp,
                     };
                     data.transaction_details = new TransactionDetail();
-                    data.transaction_details.gross_amount = Convert.ToInt64(price);
+                    data.transaction_details.gross_amount = Convert.ToInt64(price) * bln;
                     data.transaction_details.order_id = noTrans;
                     data.credit_card = new CreditCard();
                     data.credit_card.secure = true;
