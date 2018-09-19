@@ -38,7 +38,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/logging")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult LoggingIn([FromBody] Account account)
         {
             JsonApi result;
@@ -168,7 +168,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/register")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public async Task<IHttpActionResult> SaveAccount([FromBody]Account account)
         {
             JsonApi result;
@@ -298,7 +298,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/dashboard")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DashboardResult([FromBody]JsonData data)
         {
             try
@@ -480,7 +480,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/pesanan")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataPesanan([FromBody]JsonData data)
         {
             try
@@ -571,7 +571,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/pesanan/ubahstatus")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult UbahStatusPesanan([FromBody]JsonData data)
         {
             JsonApi result;
@@ -680,7 +680,7 @@ namespace MasterOnline.Controllers.Api
         // --- PEMBELIAN (BEGIN) --- //
 
         [System.Web.Http.Route("api/mobile/invoice")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataInvoice([FromBody]JsonData data)
         {
             try
@@ -757,7 +757,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/returinvoice")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataReturInvoice([FromBody]JsonData data)
         {
             try
@@ -832,7 +832,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/pembayaranbeli")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataPembayaranPembelian([FromBody]JsonData data)
         {
             try
@@ -906,7 +906,7 @@ namespace MasterOnline.Controllers.Api
         // --- PENJUALAN (BEGIN) --- //
 
         [System.Web.Http.Route("api/mobile/faktur")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataFaktur([FromBody]JsonData data)
         {
             try
@@ -1000,7 +1000,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/returfaktur")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataReturFaktur([FromBody]JsonData data)
         {
             try
@@ -1091,7 +1091,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/pembayaranjual")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataPembayaranPenjualan([FromBody]JsonData data)
         {
             try
@@ -1165,7 +1165,7 @@ namespace MasterOnline.Controllers.Api
         // --- BARANG (BEGIN) --- //
 
         [System.Web.Http.Route("api/mobile/barang")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataBarang([FromBody]JsonData data)
         {
             try
@@ -1237,7 +1237,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/barangkosong")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataBarangKosong([FromBody]JsonData data)
         {
             try
@@ -1329,7 +1329,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/barangtidaklaku")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataBarangTidakLaku([FromBody]JsonData data)
         {
             try
@@ -1412,7 +1412,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/barangminimumstok")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataBarangMinimumStok([FromBody]JsonData data)
         {
             try
@@ -1503,7 +1503,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/barangpalinglaku")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataBarangPalingLaku([FromBody]JsonData data)
         {
             try
@@ -1584,7 +1584,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/promosibarang")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataPromosiBarang([FromBody]JsonData data)
         {
             try
@@ -1655,7 +1655,7 @@ namespace MasterOnline.Controllers.Api
         }
 
         [System.Web.Http.Route("api/mobile/hargajualbarang")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataHargaJualBarang([FromBody]JsonData data)
         {
             try
@@ -1737,7 +1737,7 @@ namespace MasterOnline.Controllers.Api
         // --- AKUNTING (BEGIN) --- //
 
         [System.Web.Http.Route("api/mobile/jurnal")]
-        [System.Web.Http.HttpPost]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DataJurnalAkunting([FromBody]JsonData data)
         {
             try
