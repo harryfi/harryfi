@@ -200,12 +200,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -261,7 +261,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -327,12 +327,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i].Length > 0)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -374,7 +374,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -497,12 +497,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -544,7 +544,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -594,7 +595,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -643,7 +645,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -1044,7 +1047,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                     }
                 }
@@ -1095,7 +1099,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                     }
                 }
@@ -1430,7 +1435,7 @@ namespace MasterOnline.Controllers
                     this.messageField = value;
                 }
             }
-
+            public string message { get; set; }
             /// <remarks/>
             public string productNo
             {
