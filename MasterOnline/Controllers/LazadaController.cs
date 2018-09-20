@@ -56,6 +56,8 @@ namespace MasterOnline.Controllers
         {
             DatabaseSQL EDB = new DatabaseSQL(user);
             var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + lzdID + "'");
+
+            GetToken(user, lzdID, code);
         }
 
         [HttpGet]
@@ -68,12 +70,12 @@ namespace MasterOnline.Controllers
             return uri;
         }
 
-        public string GetToken(string cust, string accessToken)
+        public string GetToken(string user, string cust, string accessToken)
         {
             string ret;
             string url;
             url = "https://auth.lazada.com/rest";
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            DatabaseSQL EDB = new DatabaseSQL(user);
             ILazopClient client = new LazopClient(url, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest("/auth/token/create");
             request.SetHttpMethod("GET");
