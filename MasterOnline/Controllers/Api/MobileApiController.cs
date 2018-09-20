@@ -297,6 +297,107 @@ namespace MasterOnline.Controllers.Api
             return Json(result);
         }
 
+        [System.Web.Http.Route("api/mobile/ubahpassword")]
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        public IHttpActionResult UbahPassword([FromBody] JsonData data)
+        {
+            try
+            {
+                JsonApi result;
+                string apiKey = "";
+
+                var re = Request;
+                var headers = re.Headers;
+
+                if (headers.Contains("X-API-KEY"))
+                {
+                    apiKey = headers.GetValues("X-API-KEY").First();
+                }
+
+                if (apiKey != "M@STERONLINE4P1K3Y")
+                {
+                    result = new JsonApi()
+                    {
+                        code = 401,
+                        message = "Wrong API KEY!",
+                        data = null
+                    };
+
+                    return Json(result);
+                }
+
+                var accInDb = MoDbContext.Account.SingleOrDefault(a => a.UserId == data.UserId);
+
+                if (accInDb == null)
+                {
+                    var userInDb = MoDbContext.User.Single(u => u.Username == data.UserId);
+                    var accByUserInDb = MoDbContext.Account.Single(a => a.AccountId == userInDb.AccountId);
+
+                    var pass = userInDb.Password;
+                    var hashCode = accByUserInDb.VCode;
+                    var encodingPassString = Helper.EncodePassword(data.PassLama, hashCode);
+
+                    if (pass == encodingPassString)
+                    {
+                        var encodingPassNewString = Helper.EncodePassword(data.PassBaru, hashCode);
+
+                        accInDb.Password = encodingPassNewString;
+                        accInDb.ConfirmPassword = encodingPassNewString;
+                    }
+                    else
+                    {
+                        result = new JsonApi()
+                        {
+                            code = 401,
+                            message = "Password lama salah!",
+                            data = null
+                        };
+
+                        return Json(result);
+                    }
+                }
+                else
+                {
+                    var pass = accInDb.Password;
+                    var hashCode = accInDb.VCode;
+                    var encodingPassString = Helper.EncodePassword(data.PassLama, hashCode);
+
+                    if (pass == encodingPassString)
+                    {
+                        var encodingPassNewString = Helper.EncodePassword(data.PassBaru, hashCode);
+
+                        accInDb.Password = encodingPassNewString;
+                        accInDb.ConfirmPassword = encodingPassNewString;
+                    }
+                    else
+                    {
+                        result = new JsonApi()
+                        {
+                            code = 401,
+                            message = "Password lama salah!",
+                            data = null
+                        };
+
+                        return Json(result);
+                    }
+                }
+
+                result = new JsonApi()
+                {
+                    code = 200,
+                    message = "Success",
+                    data = null
+                };
+
+                return Json(result);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
         [System.Web.Http.Route("api/mobile/dashboard")]
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         public IHttpActionResult DashboardResult([FromBody]JsonData data)
