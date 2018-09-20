@@ -30,20 +30,21 @@
         <p>
             JENIS LANGGANAN:
             <span style="color: #2ac52a;">
-                @{
-                    switch (kodeSubs)
-                    {
-                        case "01":
-                            @("BASIC")
-                            break;
-                        case "02":
-                            @("PREMIUM")
-                            break;
-                        case "03":
-                            @("ENTERPRISE")
-                            break;
-                    }
-                }
+                @*@{
+            switch (kodeSubs)
+            {
+                case "01":
+                    @("BASIC")
+                    break;
+                case "02":
+                    @("PREMIUM")
+                    break;
+                case "03":
+                    @("ENTERPRISE")
+                    break;
+            }
+        }*@
+                @context.Subscription.Where(m => m.KODE == kodeSubs).SingleOrDefault().KETERANGAN
             </span>
         </p>
         <p>TANGGAL BERAKHIR: <span style="color: red;">@(kodeSubs == "01" ? "-" : tglBerakhir)</span></p>
