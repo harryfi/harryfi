@@ -34,13 +34,13 @@
                     switch (kodeSubs)
                     {
                         case "01":
-                            @("FREE")
-                            break;
-                        case "02":
                             @("BASIC")
                             break;
-                        case "03":
+                        case "02":
                             @("PREMIUM")
+                            break;
+                        case "03":
+                            @("ENTERPRISE")
                             break;
                     }
                 }
@@ -79,40 +79,51 @@
                     <p>---- Pilih Paket Langganan ----</p>
                 </div>
             }
-                <div class="text-center btn-section">
-                    @if (subs.KODE != "01")
-                    {
-                        <div class="row">
-                            <button id="btn_times_" type="button" onclick="setBln('@subs.KODE', 3)" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
-                                3 bulan<br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
-                            </button>
-                        </div>
-                        <div class="row">
-                            <button type="button" class="btn btn-subs" onclick="setBln('@subs.KODE', 6)" data-plan-btn="@subs.KODE" data-kali="5">
-                                6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
-                            </button>
-                        </div>
-                        <div class="row">
-                            <button type="button" class="btn btn-subs" onclick="setBln('@subs.KODE', 12)" data-plan-btn="@subs.KODE" data-kali="10">
-                                12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
-                            </button>
-                        </div>
-                        <input id="txtBln_@subs.KODE" value="3" style="visibility:hidden" />
-                    }
-                    else
-                    {
-                        <img src="~/Content/Images/gratis_new.png" />
-                    }
-                </div>
+            <div class="text-center btn-section">
+                @if (subs.KODE != "01")
+                {
+                    <div class="row">
+                        <button id="btn_times_" type="button" onclick="setBln('@subs.KODE', 3)" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
+                            3 bulan<br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-subs" onclick="setBln('@subs.KODE', 6)" data-plan-btn="@subs.KODE" data-kali="5">
+                            6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" class="btn btn-subs" onclick="setBln('@subs.KODE', 12)" data-plan-btn="@subs.KODE" data-kali="10">
+                            12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
+                        </button>
+                    </div>
+                    <input id="txtBln_@subs.KODE" value="3" style="visibility:hidden" />
+                }
+                else
+                {
+                    <img src="~/Content/Images/gratis_new.png" />
+                }
+            </div>
             <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@>
-                <p class="plan-month-total" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
-                <span class="plan-price-total">
-                    Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
-                </span>
-                <a class="btn-pindah-paket" style="margin-top: 10px;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                @if (subs.KODE != "01")
+                {
+                    <p class="plan-month-total" id="selected-package-@subs.KODE">Paket 3 Bulan</p>
+                    <span class="plan-price-total">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <a class="btn-pindah-paket" style="margin-top: 10px;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
+                else
+                {
+                    <p class="plan-month-total" style="visibility:hidden" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
+                    <span class="plan-price-total" style="visibility:hidden">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE" style="visibility:hidden">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <a class="btn-pindah-paket" style="margin-top: 10px;visibility:hidden;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
             </div>
         </div>
     }
