@@ -11,5 +11,7 @@ namespace MasterOnline.Models.Api
         public string SelDate { get; set; }
         public string StatusTransaksi { get; set; }
         public int? RecNumPesanan { get; set; }
+        public string PassLama { get; set; }
+        public string PassBaru { get; set; }
     }
 }

@@ -805,10 +805,10 @@ namespace MasterOnline.Controllers
             {
                 var getKey = new BukaLapakController().GetAccessKey(kdCustomer, customer.Customers.EMAIL, customer.Customers.PASSWORD);
             }
-            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
-            {
-                var getToken = new LazadaController().GetToken(kdCustomer, customer.Customers.API_KEY);
-            }
+            //else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
+            //{
+            //    var getToken = new LazadaController().GetToken(kdCustomer, customer.Customers.API_KEY);
+            //}
             #region Elevenia get deliveryTemp
             else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString()))
             {
