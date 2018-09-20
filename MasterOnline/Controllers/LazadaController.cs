@@ -20,8 +20,8 @@ namespace MasterOnline.Controllers
         string urlLazada = "https://api.lazada.co.id/rest";
         string eraAppKey = "101775";
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
-        //string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
-        string eraCallbackUrl = "https://example.com/lzd/code?user=";
+        string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
+        //string eraCallbackUrl = "https://example.com/lzd/code?user=";
         //string eraAppKey = "";
         // GET: Lazada
         DatabaseSQL EDB;
