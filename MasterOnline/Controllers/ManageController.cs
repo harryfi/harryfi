@@ -719,6 +719,34 @@ namespace MasterOnline.Controllers
             }
             return "";
         }
+        [HttpGet]
+        public async System.Threading.Tasks.Task<string> GetCategoryElevenia()
+        {
+            //var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
+            //var custInDb = ErasoftDbContext.ARF01.Where(c => c.NAMA == idmarket).ToList();
+            //foreach (var customer in custInDb)
+            //{
+            //    #region BLIBLI get token
+            //    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+            //    {
+            //        var BliApi = new BlibliController();
+            //        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+            //        {
+            //            API_client_username = customer.API_CLIENT_U,
+            //            API_client_password = customer.API_CLIENT_P,
+            //            API_secret_key = customer.API_KEY,
+            //            mta_username_email_merchant = customer.EMAIL,
+            //            mta_password_password_merchant = customer.PASSWORD,
+            //            merchant_code = customer.Sort1_Cust,
+            //            token = customer.TOKEN
+            //        };
+            //        await BliApi.GetCategoryTree(data);
+            //        //BliApi.GetCategoryTree(data);
+            //    }
+            //    #endregion
+            //}
+            return "";
+        }
 
         [HttpPost]
         public ActionResult SaveCustomer(CustomerViewModel customer)
@@ -1655,6 +1683,7 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
+                //saveBarangBlibli(1, dataBarang);
                 //update harga, qty, dll
                 saveBarangBlibli(2, dataBarang);
                 saveBarangElevenia(2, dataBarang);
