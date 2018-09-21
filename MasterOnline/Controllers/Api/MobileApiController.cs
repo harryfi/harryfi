@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
+using System.Web.Security;
 using MasterOnline.Models;
 using MasterOnline.Models.Api;
 using MasterOnline.Utils;
@@ -160,7 +161,9 @@ namespace MasterOnline.Controllers.Api
                 data = new
                 {
                     logged = true,
-                    userId = _viewModel.Account != null ? _viewModel.Account.UserId : _viewModel.User.UserId.ToString()
+                    userId = _viewModel.Account != null ? _viewModel.Account.UserId : _viewModel.User.UserId.ToString(),
+                    name = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username,
+                    email = _viewModel.Account != null ? _viewModel.Account.Email : _viewModel.User.Email,
                 }
             };
 
@@ -297,9 +300,9 @@ namespace MasterOnline.Controllers.Api
             return Json(result);
         }
 
-        [System.Web.Http.Route("api/mobile/ubahpassword")]
+        [System.Web.Http.Route("api/mobile/lupapassword")]
         [System.Web.Http.AcceptVerbs("GET", "POST")]
-        public IHttpActionResult UbahPassword([FromBody] JsonData data)
+        public async Task<IHttpActionResult> LupaPassword([FromBody]JsonData data)
         {
             try
             {
@@ -326,61 +329,53 @@ namespace MasterOnline.Controllers.Api
                     return Json(result);
                 }
 
-                var accInDb = MoDbContext.Account.SingleOrDefault(a => a.UserId == data.UserId);
+                var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == data.Email);
 
                 if (accInDb == null)
                 {
-                    var userInDb = MoDbContext.User.Single(u => u.Username == data.UserId);
-                    var accByUserInDb = MoDbContext.Account.Single(a => a.AccountId == userInDb.AccountId);
-
-                    var pass = userInDb.Password;
-                    var hashCode = accByUserInDb.VCode;
-                    var encodingPassString = Helper.EncodePassword(data.PassLama, hashCode);
-
-                    if (pass == encodingPassString)
+                    result = new JsonApi()
                     {
-                        var encodingPassNewString = Helper.EncodePassword(data.PassBaru, hashCode);
+                        code = 400,
+                        message = "Email tidak terdaftar!",
+                        data = null
+                    };
 
-                        accInDb.Password = encodingPassNewString;
-                        accInDb.ConfirmPassword = encodingPassNewString;
-                    }
-                    else
-                    {
-                        result = new JsonApi()
-                        {
-                            code = 401,
-                            message = "Password lama salah!",
-                            data = null
-                        };
-
-                        return Json(result);
-                    }
+                    return Json(result);
                 }
-                else
+
+                var randPassword = Membership.GeneratePassword(7, 3);
+                var encNewPassword = Helper.EncodePassword(randPassword, accInDb.VCode);
+                var email = new MailAddress(data.Email);
+                var body = "<p>Password baru Anda adalah {0}</p>" +
+                           "<p>Silakan ubah password Anda di website MasterOnline dan simpan baik-baik password Anda.</p>" +
+                           "<p>Semoga sukses selalu dalam bisnis Anda di MasterOnline.</p><p>&nbsp;</p>" +
+                           "<p>Best regards,</p>" +
+                           "<p>CS MasterOnline.</p>";
+
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Password Akun MasterOnline";
+                message.Body = string.Format(body, randPassword);
+                message.IsBodyHtml = true;
+
+                using (var smtp = new SmtpClient())
                 {
-                    var pass = accInDb.Password;
-                    var hashCode = accInDb.VCode;
-                    var encodingPassString = Helper.EncodePassword(data.PassLama, hashCode);
-
-                    if (pass == encodingPassString)
+                    var credential = new NetworkCredential
                     {
-                        var encodingPassNewString = Helper.EncodePassword(data.PassBaru, hashCode);
-
-                        accInDb.Password = encodingPassNewString;
-                        accInDb.ConfirmPassword = encodingPassNewString;
-                    }
-                    else
-                    {
-                        result = new JsonApi()
-                        {
-                            code = 401,
-                            message = "Password lama salah!",
-                            data = null
-                        };
-
-                        return Json(result);
-                    }
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "erasoft123"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
                 }
+
+                accInDb.Password = encNewPassword;
+                accInDb.ConfirmPassword = encNewPassword;
+                MoDbContext.SaveChanges();
 
                 result = new JsonApi()
                 {

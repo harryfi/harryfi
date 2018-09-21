@@ -7857,8 +7857,8 @@ namespace MasterOnline.Controllers
         {
             var dataPerusahaanVm = new DataPerusahaanViewModel()
             {
-                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.Single(p => p.RecNum == 1)
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault(p => p.RecNum == 1)
             };
 
             return View(dataPerusahaanVm);
