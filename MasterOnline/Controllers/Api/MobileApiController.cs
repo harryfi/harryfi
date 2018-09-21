@@ -331,42 +331,51 @@ namespace MasterOnline.Controllers.Api
 
                 var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == data.Email);
 
-                if (accInDb != null)
+                if (accInDb == null)
                 {
-                    var randPassword = Membership.GeneratePassword(7, 3);
-                    var encNewPassword = Helper.EncodePassword(randPassword, accInDb.VCode);
-                    var email = new MailAddress(data.Email);
-                    var body = "<p>Password baru Anda adalah {0}</p>" +
-                               "<p>Silakan ubah password Anda di website MasterOnline dan simpan baik-baik password Anda.</p>" +
-                               "<p>Semoga sukses selalu dalam bisnis Anda di MasterOnline.</p><p>&nbsp;</p>" +
-                               "<p>Best regards,</p>" +
-                               "<p>CS MasterOnline.</p>";
-
-                    var message = new MailMessage();
-                    message.To.Add(email);
-                    message.From = new MailAddress("csmasteronline@gmail.com");
-                    message.Subject = "Password Akun MasterOnline";
-                    message.Body = string.Format(body, randPassword);
-                    message.IsBodyHtml = true;
-
-                    using (var smtp = new SmtpClient())
+                    result = new JsonApi()
                     {
-                        var credential = new NetworkCredential
-                        {
-                            UserName = "csmasteronline@gmail.com",
-                            Password = "erasoft123"
-                        };
-                        smtp.Credentials = credential;
-                        smtp.Host = "smtp.gmail.com";
-                        smtp.Port = 587;
-                        smtp.EnableSsl = true;
-                        await smtp.SendMailAsync(message);
-                    }
+                        code = 400,
+                        message = "Email tidak terdaftar!",
+                        data = null
+                    };
 
-                    accInDb.Password = encNewPassword;
-                    accInDb.ConfirmPassword = encNewPassword;
-                    MoDbContext.SaveChanges();
+                    return Json(result);
                 }
+
+                var randPassword = Membership.GeneratePassword(7, 3);
+                var encNewPassword = Helper.EncodePassword(randPassword, accInDb.VCode);
+                var email = new MailAddress(data.Email);
+                var body = "<p>Password baru Anda adalah {0}</p>" +
+                           "<p>Silakan ubah password Anda di website MasterOnline dan simpan baik-baik password Anda.</p>" +
+                           "<p>Semoga sukses selalu dalam bisnis Anda di MasterOnline.</p><p>&nbsp;</p>" +
+                           "<p>Best regards,</p>" +
+                           "<p>CS MasterOnline.</p>";
+
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Password Akun MasterOnline";
+                message.Body = string.Format(body, randPassword);
+                message.IsBodyHtml = true;
+
+                using (var smtp = new SmtpClient())
+                {
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "erasoft123"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+
+                accInDb.Password = encNewPassword;
+                accInDb.ConfirmPassword = encNewPassword;
+                MoDbContext.SaveChanges();
 
                 result = new JsonApi()
                 {
