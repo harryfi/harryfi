@@ -139,6 +139,17 @@ namespace MasterOnline.Controllers
                     command.ExecuteNonQuery();
                     con.Close();
                     con.Dispose();
+
+                    //add by Tri 20-09-2018, save nama toko ke SIFSYS
+                    ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
+                    var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                    if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
+                    {
+                        dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                        ErasoftDbContext.SaveChanges();
+                    }                    
+                    //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
                 }
                 else
                 {

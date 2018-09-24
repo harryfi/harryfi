@@ -755,6 +755,14 @@ namespace MasterOnline.Controllers
                 }
                 kdCustomer = noCust;
                 customer.Customers.CUST = noCust;
+                //add by Tri, not null hidden field > blank
+                //customer.Customers.AL = "";
+                //customer.Customers.KODEKABKOT = "";
+                //customer.Customers.KODEPOS = "";
+                //customer.Customers.KODEPROV = "";
+                //customer.Customers.TLP = "";
+                //end add by Tri, not null hidden field > blank
+
                 ErasoftDbContext.ARF01.Add(customer.Customers);
                 ErasoftDbContext.SaveChanges();
 
@@ -1682,7 +1690,7 @@ namespace MasterOnline.Controllers
                         {
                             var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
                             var tokoBl = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
-                            var resultBL = blApi.updateProduk(tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
+                            var resultBL = blApi.updateProduk(barang.BRG, tokoBl.BRG_MP, tokoBl.HJUAL.ToString(), "", tblCustomer.API_KEY, tblCustomer.TOKEN);
                         }
                     }
 
@@ -6928,7 +6936,7 @@ namespace MasterOnline.Controllers
                     var marketPlace = ErasoftDbContext.ARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
                     if (marketPlace.NAMA.Equals(kdBL.ToString()))
                     {
-                        blApi.updateProduk(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.API_KEY, marketPlace.TOKEN);
+                        blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.API_KEY, marketPlace.TOKEN);
                     }
                     else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                     {
@@ -7830,7 +7838,7 @@ namespace MasterOnline.Controllers
             var dataPerusahaanVm = new DataPerusahaanViewModel()
             {
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.Single(p => p.RecNum == 1)
+                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault()
             };
 
             return View(dataPerusahaanVm);
@@ -7910,7 +7918,7 @@ namespace MasterOnline.Controllers
             //dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;
             //dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
 
-            var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.Single(p => p.RecNum == 1);
+            var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
             dataPerusahaanTambahanInDb.KODEPROV = dataVm.DataUsahaTambahan.KODEPROV;
             dataPerusahaanTambahanInDb.KODEKABKOT = dataVm.DataUsahaTambahan.KODEKABKOT;

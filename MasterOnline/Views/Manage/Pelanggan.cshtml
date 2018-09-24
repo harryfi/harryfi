@@ -298,6 +298,11 @@
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
                                             @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
                                             @Html.HiddenFor(m => m.Customers.RecNum)
+                                            @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
+                                            @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
+                                            @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
@@ -337,12 +342,12 @@
                                                     @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                </div>
-                                            </div>
+                                            @*<div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                                                    </div>
+                                                </div>*@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-6">
@@ -352,38 +357,46 @@
                                                     <h5>Hari</h5>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                            @*<div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
+                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                                                    </div>
                                                 </div>
-                                            </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                                                    </div>
+                                                </div>*@
+                                            @*<div class="form-group">
+                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-6">
+                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                                                    </div>
+                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                                </div>*@
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                </div>
+                                                <div id="divAPIKey"></div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                            </div>
+                                            <div id="descAPIKey" class="form-group">
+                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>
+                                                <label id="lblDesc" style="visibility:hidden" onclick="openModalDesc(MARKET.value)"><u>Klik di sini untuk melihat cara mendapatkan API key</u></label>
                                             </div>
                                             <div id="BlibliMerchantID" class="form-group">
                                             </div>
@@ -427,6 +440,71 @@
     <div class="modal-dialog" id="modal-pricing" role="document">
         <div class="modal-content">
             @Html.Partial("MarketplacePricingPartialView")
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalLazadaAPIKey" tabindex="-1" role="dialog" aria-labelledby="lazadaDescLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Lazada API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Isi data Marketplace Lazada anda(API key bisa dikosongkan terlebih dahulu) dan Simpan.</h4>
+                    <h4>2. Edit kembali data marketplace anda tadi, kemudian Klik button Generate.</h4>
+                    <h4>3. Pilih negara, dan Isi data email dan password akun Lazada anda.</h4>
+                    <h4>4. Jika Sukses API key akan tersimpan secara otomatis.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalEleveniaAPIKey" tabindex="-1" role="dialog" aria-labelledby="eleveniaDescLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Elevenia API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Login akun elevenia anda sebagai seller di web : http://soffice.elevenia.co.id/login.do </h4>
+                    <h4>2. Masuk ke menu Akun Saya, lalu API penjual.</h4>
+                    <h4>3. Copy API key pada halaman itu ke Master Online.</h4>
+                    <h4>4. Simpan, jika semua data sudah terisi.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalBlibliAPIKey" tabindex="-1" role="dialog" aria-labelledby="blibliDescLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Blibli API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>1. Login akun Blibli anda sebagai seller di web : https://merchant.blibli.com/MTA/login </h4>
+                    <h4>2. Klik Email anda di kanan atas, kemudian pilih menu Dokumentasi API.</h4>
+                    <h4>3. Klik API Client Manager pada menu di sebelah kiri.</h4>
+                    <h4>4. Isi API client username dan password, kemudian klik Generate.</h4>
+                    <h4>5. Isi API secret key, kemudian klik Register API secret key.</h4>
+                    <h4>6. Setelah sukses, copy data-data tadi ke Master Online.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
 </div>
@@ -474,6 +552,13 @@
                     $('#tambah_market').on('click', function () {
                         $('.customer_table_section').hide();
                         $('.customer_editor_section').show();
+                        $('#generate_code').remove();
+                        Customers_TLP.value = '.';
+                        Customers_AL.value = '.';
+                        Customers_KODEPOS.value = '.';
+                        Customers_KODEKABKOT.value = '3174';
+                        Customers_KODEPROV.value = '31';
+
                     });
                     //}
                 },
@@ -574,6 +659,8 @@
                                 @{
                                     var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
                                     var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
+                                    var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();
+
                                 }
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
@@ -582,6 +669,26 @@
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
                                 }
+                                //add by Tri, API key bukalapak auto generate
+                                $('#lbl_Customers_API_KEY').remove();
+                                $('#txtAPI_Key').remove();
+                                //$('#emptyDiv').remove();
+                                //$('#txtDescAPIKey').remove();
+
+                                if (@bklapak != value && @tokped != value) {
+                                    var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                                    var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" value="" maxlength="100"></div>';                                    
+                                    $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+
+                                    //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
+                                    //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
+                                    //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
+                                    //$('descAPIKey').append(lblDescAPIKey);
+                                    lblDesc.style.visibility = 'visible'
+                                } else {
+                                    lblDesc.style.visibility = 'hidden'
+                                }
+                                //end add by Tri, API key bukalapak auto generate
                             }
                         }
                     });
@@ -593,6 +700,24 @@
                 }
             });
         }
+        //add by Tri, function to open modal on how to get api key each marketplace
+        function openModalDesc(codeMarketplace) {
+                @{
+                    var kdLzd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("LAZADA"))?.IdMarket.ToString();
+                    var kdBlibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
+                    var kdElevenia = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
+                 }
+            if (codeMarketplace == @kdLzd) {
+                $('#modalLazadaAPIKey').modal('show');
+            }
+            else if (codeMarketplace == @kdBlibli){
+                $('#modalBlibliAPIKey').modal('show');
+            }
+            else if (codeMarketplace == @kdElevenia){
+                $('#modalEleveniaAPIKey').modal('show');
+            }
+        }
+        //end add by Tri, function to open modal on how to get api key each marketplace
 
         function simpanCustomer(btnClicked) {
             if (!validateForm()) return false;
@@ -614,7 +739,7 @@
                         $('#loading_spinner').hide();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                     } else {
-                        //change by nurul 16 / 8 / 2018 req pak dani 
+                        //change by nurul 16 / 8 / 2018 req pak dani
                         //console.log(response.Errors);
                         //alert('Ada data yang tidak valid!');
                         if ($('#MARKET').val() == "Tokopedia" || $('#MARKET').val() == "15" ) {
@@ -776,6 +901,19 @@
                     $('#Customers_TLP').val(response.Customers.TLP);
                     $('#Customers_TOP').val(response.Customers.TOP);
                     $('#Customers_API_KEY').val(response.Customers.API_KEY);
+
+                    @*//add by Tri, API key bukalapak auto generate
+                    $('#lbl_Customers_API_KEY').remove();
+                    $('#txtAPI_Key').remove();
+                    @{
+                        var blCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("LAZADA")).IdMarket.ToString();
+                    }
+                    if (@blCode != response.Customers.NAMA) {
+                        var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                        var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" value="" maxlength="100"></div>';
+                        $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+                    }
+                    //end add by Tri, API key bukalapak auto generate*@
                     //add by Tri, button for generate lazada code
                     $('#generate_code').remove();
                     @{
@@ -826,7 +964,7 @@
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
                         $('#labelAPI_CLIENT_U').html("API client username *");
                     }
-                    //end add by Tri, button for generate lazada code
+                    //end add by calvin, button for generate lazada code
 
                     $('.customer_table_section').hide();
                     $('.customer_editor_section').show();
@@ -945,7 +1083,7 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

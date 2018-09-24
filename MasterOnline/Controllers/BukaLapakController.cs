@@ -58,7 +58,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "get access key",
+                REQUEST_ACTION = "Get API Key",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_ATTRIBUTE_2 = email,
@@ -167,7 +167,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "create Produk",
+                REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = data.token,
                 REQUEST_ATTRIBUTE_2 = data.kdBrg,
@@ -221,7 +221,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "upload image Produk",
+                REQUEST_ACTION = "Upload Image Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = imagePath,
@@ -329,17 +329,18 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public CreateProductBukaLapak updateProduk(string brgMp, string price, string stock, string userId, string token)
+        public CreateProductBukaLapak updateProduk(string brg, string brgMp, string price, string stock, string userId, string token)
         {
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "update price/stock Produk",
+                REQUEST_ACTION = "Update Price/Stock Product",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
+                REQUEST_ATTRIBUTE_1 = brg,
                 REQUEST_ATTRIBUTE_2 = price,
                 REQUEST_ATTRIBUTE_3 = stock,
+                REQUEST_ATTRIBUTE_4 = token,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
@@ -479,7 +480,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Mengnon-aktifkan Produk",
+                REQUEST_ACTION = "Hide Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = id,
@@ -520,7 +521,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Mengaktifkan Produk",
+                REQUEST_ACTION = "Show Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = id,
@@ -805,7 +806,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Konfirmasi Pengiriman",
+                REQUEST_ACTION = "Confirm Shipment",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = shipCode,

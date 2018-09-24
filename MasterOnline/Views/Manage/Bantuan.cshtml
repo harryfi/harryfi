@@ -43,7 +43,7 @@
     </div>
 </div>
 <div class="row animated fadeInRight">
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="x_panel">
             <div class="x_title">
                 <h5>
@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-3">
         <div class="x_panel">
             <div class="x_title">
                 <h5>
@@ -117,7 +117,40 @@
             </div>
         </div>
     </div>
-    <!--<div class="col-md-3">
+    <div class="col-md-3">
+        <div class="x_panel">
+            <div class="x_title">
+                <h5>
+                    <strong>Isi Master Data</strong>
+                    @*@if (dataUsahaInDb.NAMA_PT != "PT ERAKOMP INFONUSA")
+                        {
+                            <span class="fa fa-check-circle langkah-done"></span>
+                        }*@
+                </h5>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <img alt="masterdata" class="img-responsive-35 center-block" src="~/Content/Images/masterdata.png">
+                <br />
+                <p>
+                    Isi Master Data Toko Anda seperti:
+                    <strong> Gudang, Merk, Barang dan Supplier</strong>
+                </p>
+                <br>
+                <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-primary btn-lg btn-block invisible" href="@Url.Action("DataPerusahaanMenu")">
+                                <i class="fa fa-pencil"></i> Isi Data
+                            </a>
+                            @*<a class="btn btn-danger btn-md btn-block" href="#">
+                                <i class="fa fa-question-circle"></i> Panduan step by step
+                            </a>*@
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
         <div class="x_panel">
             <div class="x_title">
                 <h5><strong>Masukkan saldo awal akunting</strong></h5>
@@ -129,41 +162,66 @@
                 <p>Masukkan <strong>saldo awal akunting</strong> anda. Skip kalau anda tidak memerlukan akunting.</p>
                 <br>
                 <div class="row">
-                    <div class="col-md-12 text-center">
-                        <a class="btn btn-primary btn-lg btn-block" href="#">
-                            <i class="fa fa-pencil"></i> Isi data
-                        </a>
-                        <a class="btn btn-danger btn-md btn-block" href="#">
-                            <i class="fa fa-question-circle"></i> Panduan step by step
-                        </a>
+                        <div class="col-md-12 text-center" style="">
+                            <a class="btn btn-primary btn-lg btn-block invisible" href="#">
+                                <i class="fa fa-pencil"></i> Isi data
+                            </a>
+                            @*<a class="btn btn-danger btn-md btn-block" href="#">
+                                <i class="fa fa-question-circle"></i> Panduan step by step
+                            </a>*@
+                        </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3" style="min-height: 365.06px;">
-        <div class="x_panel" style="min-height: 355.06px;">
+    @*<div class="col-md-3" style="min-height: 365.06px;">
+            <div class="x_panel" style="min-height: 355.06px;">
+                <div class="x_title">
+                    <h5><strong>Selesai</strong></h5>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <img alt="Selesai" class="img-responsive-35 center-block" src="~/Content/Images/done.png">
+                    <br />
+                    <p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-primary btn-lg btn-block" href="#">
+                                <i class="fa fa-cogs"></i> Pengaturan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+</div>
+<div class="row">
+    <div class="col-md-3">
+
+    </div>
+    <div class="col-md-6 center">
+        <div class="x_panel">
             <div class="x_title">
-                <h5><strong>Selesai</strong></h5>
+                <center>
+                    <h4><strong>Selesai</strong></h4>
+                </center>
                 <div class="clearfix"></div>
             </div>
             <div class="x_content">
-                <img alt="Selesai" class="img-responsive-35 center-block" src="~/Content/Images/done.png">
-                <br />
-                <p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p>
-                <br>
-                <div class="row">
+                <center><p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p></center>
+                @*<br>*@
+                @*<div class="row">
                     <div class="col-md-12 text-center">
                         <a class="btn btn-primary btn-lg btn-block" href="#">
                             <i class="fa fa-cogs"></i> Pengaturan
                         </a>
                     </div>
-                </div>
+                </div>*@
             </div>
         </div>
-    </div>-->
+    </div>
 </div>
-
 @section scripts
 {
     <script>
@@ -175,14 +233,14 @@
 
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
-        var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-        (function(){
-            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-            s1.async=true;
-            s1.src='https://embed.tawk.to/5b0f46fd8859f57bdc7bb3f2/1cf46d1np';
-            s1.charset='UTF-8';
-            s1.setAttribute('crossorigin','*');
-            s0.parentNode.insertBefore(s1,s0);
+        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+        (function () {
+            var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/5b0f46fd8859f57bdc7bb3f2/1cf46d1np';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
         })();
     </script>
     <!--End of Tawk.to Script-->
