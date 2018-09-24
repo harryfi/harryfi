@@ -8251,5 +8251,22 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian Subscription (END)
+
+        // =============================================== Bagian Support (START)
+
+        [Route("manage/SupportOnline")]
+        public ActionResult SupportOnline()
+        {
+
+            return View();
+        }
+
+        [Route("manage/SupportOffline")]
+        public ActionResult SupportOffline()
+        {
+
+            return View();
+        }
+        // =============================================== Bagian Support (END)
     }
 }

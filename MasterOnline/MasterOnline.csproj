@@ -5171,6 +5171,7 @@
     <Content Include="Views\Manage\PricingSubsPartialView.cshtml" />
     <Content Include="Views\Manage\MarketPlaceLog.cshtml" />
     <Content Include="Views\Manage\SupportOnline.cshtml" />
+    <Content Include="Views\Manage\SupportOffline.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
