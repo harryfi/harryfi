@@ -551,7 +551,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
                         qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
                     }
-                    updateProduk(id, "", qtyOnHand > 0 ? qtyOnHand.ToString() : "1", userId, token);
+                    updateProduk(brg,id, "", qtyOnHand > 0 ? qtyOnHand.ToString() : "1", userId, token);
                 }
                 else
                 {
