@@ -200,12 +200,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -261,7 +261,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -327,12 +327,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i].Length > 0)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -374,7 +374,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -497,12 +497,12 @@ namespace MasterOnline.Controllers
                 if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
-                    //xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
+
                     prodImageCount++;
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[http://soffice.11st.co.kr/img/layout/logo.gif]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -544,7 +544,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -594,7 +595,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -643,7 +645,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.api_key, currentLog);
                     }
                 }
@@ -762,6 +765,103 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
+
+        //public async ActionResult GetCategoryElevenia(string auth)
+        //{
+        //    var ret = string.Empty;
+
+        //    var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
+        //    Utils.HttpRequest req = new Utils.HttpRequest();
+        //    long milis = BlibliController.CurrentTimeMillis();
+        //    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+        //    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+        //    {
+        //        REQUEST_ID = milis.ToString(),
+        //        REQUEST_ACTION = "Get Delivery Temp",
+        //        REQUEST_DATETIME = milisBack,
+        //        REQUEST_ATTRIBUTE_1 = auth,
+        //        REQUEST_STATUS = "Pending",
+        //    };
+        //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+
+        //    //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
+        //    var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
+        //    if (result != null)
+        //    {
+        //        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+        //        doc.LoadXml(result.Substring(55));
+        //        string json = JsonConvert.SerializeXmlNode(doc);
+
+        //        try
+        //        {
+        //            var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootM>(json);
+        //            //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
+        //            if (res.DeliveryTemplates != null)
+        //            {
+
+        //                EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
+        //                string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
+        //                foreach (var item in res.DeliveryTemplates.template)
+        //                {
+        //                    sSQL += "'" + item.dlvTmpltSeq + "','" + item.dlvTmpltNm + "'," + Convert.ToString(recNum) + "),(";
+        //                }
+        //                sSQL += ")";
+        //                sSQL = sSQL.Replace(",()", "");
+        //                if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+        //                }
+        //                else
+        //                {
+        //                    currentLog.REQUEST_RESULT = "Internal Error";
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+        //                }
+
+        //                DataSet ds = new DataSet();
+        //                ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
+        //                if (ds.Tables[0].Rows.Count > 0)
+        //                {
+        //                    ret = recNum;
+        //                }
+        //            }
+        //        }
+        //        catch (Exception ex)
+        //        {
+        //            var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootS>(json);
+        //            //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
+        //            if (res.DeliveryTemplates != null)
+        //            {
+
+        //                EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
+        //                string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
+        //                sSQL += "'" + res.DeliveryTemplates.template.dlvTmpltSeq + "','" + res.DeliveryTemplates.template.dlvTmpltNm + "'," + Convert.ToString(recNum) + ")";
+        //                if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+        //                {
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+        //                }
+        //                else
+        //                {
+        //                    currentLog.REQUEST_RESULT = "Internal Error";
+        //                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+        //                }
+        //                DataSet ds = new DataSet();
+        //                ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
+        //                if (ds.Tables[0].Rows.Count > 0)
+        //                {
+        //                    ret = recNum;
+        //                }
+        //            }
+        //        }
+
+        //    }
+        //    else
+        //    {
+        //        currentLog.REQUEST_RESULT = "Not Found";
+        //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+        //    }
+
+        //    return Json(ret, JsonRequestBehavior.AllowGet);
+        //}
 
         public BindingBase GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
@@ -1044,7 +1144,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                     }
                 }
@@ -1095,7 +1196,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = result.Message;
+                        //currentLog.REQUEST_RESULT = result.Message;
+                        currentLog.REQUEST_RESULT = string.IsNullOrEmpty(result.Message) ? result.message : result.Message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                     }
                 }
@@ -1430,7 +1532,7 @@ namespace MasterOnline.Controllers
                     this.messageField = value;
                 }
             }
-
+            public string message { get; set; }
             /// <remarks/>
             public string productNo
             {

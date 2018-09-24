@@ -719,6 +719,34 @@ namespace MasterOnline.Controllers
             }
             return "";
         }
+        [HttpGet]
+        public async System.Threading.Tasks.Task<string> GetCategoryElevenia()
+        {
+            //var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
+            //var custInDb = ErasoftDbContext.ARF01.Where(c => c.NAMA == idmarket).ToList();
+            //foreach (var customer in custInDb)
+            //{
+            //    #region BLIBLI get token
+            //    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
+            //    {
+            //        var BliApi = new BlibliController();
+            //        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+            //        {
+            //            API_client_username = customer.API_CLIENT_U,
+            //            API_client_password = customer.API_CLIENT_P,
+            //            API_secret_key = customer.API_KEY,
+            //            mta_username_email_merchant = customer.EMAIL,
+            //            mta_password_password_merchant = customer.PASSWORD,
+            //            merchant_code = customer.Sort1_Cust,
+            //            token = customer.TOKEN
+            //        };
+            //        await BliApi.GetCategoryTree(data);
+            //        //BliApi.GetCategoryTree(data);
+            //    }
+            //    #endregion
+            //}
+            return "";
+        }
 
         [HttpPost]
         public ActionResult SaveCustomer(CustomerViewModel customer)
@@ -824,26 +852,25 @@ namespace MasterOnline.Controllers
                 elApi.GetDeliveryTemp(Convert.ToString(customer.Customers.RecNum), Convert.ToString(customer.Customers.API_KEY));
             }
             #endregion
-            //#region BLIBLI get category dan attribute
-            //else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
-            //{
-            //    if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
-            //    {
-            //        var BliApi = new BlibliController();
-            //        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-            //        {
-            //            API_client_username = customer.Customers.API_CLIENT_U,
-            //            API_client_password = customer.Customers.API_CLIENT_P,
-            //            API_secret_key = customer.Customers.API_KEY,
-            //            mta_username_email_merchant = customer.Customers.EMAIL,
-            //            mta_password_password_merchant = customer.Customers.PASSWORD,
-            //            merchant_code = customer.Customers.Sort1_Cust,
-            //            token = customer.Customers.TOKEN
-            //        };
-            //        BliApi.GetPickupPoint(data);
-            //    }
-            //}
-            //#endregion
+            #region BLIBLI get category dan attribute
+            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
+            {
+                if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
+                {
+                    var BliApi = new BlibliController();
+                    BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                    {
+                        API_client_username = customer.Customers.API_CLIENT_U,
+                        API_client_password = customer.Customers.API_CLIENT_P,
+                        API_secret_key = customer.Customers.API_KEY,
+                        mta_username_email_merchant = customer.Customers.EMAIL,
+                        mta_password_password_merchant = customer.Customers.PASSWORD,
+                    };
+                    BliApi.GetPickupPoint(data);
+                    BliApi.GetToken(data, true);
+                }
+            }
+            #endregion
 
             //end add by Tri call bl/lzd api get access key
             ModelState.Clear();
@@ -1664,6 +1691,7 @@ namespace MasterOnline.Controllers
             //end add by tri call marketplace api to create product
             else
             {
+                //saveBarangBlibli(1, dataBarang);
                 //update harga, qty, dll
                 saveBarangBlibli(2, dataBarang);
                 saveBarangElevenia(2, dataBarang);
@@ -2021,7 +2049,7 @@ namespace MasterOnline.Controllers
                                     //if (file != null && file.ContentLength > 0)
                                     //{
                                     //    var fileExtension = Path.GetExtension(file.FileName);
-                                    imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
                                     imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
                                     //}
                                 }
@@ -2064,7 +2092,7 @@ namespace MasterOnline.Controllers
                                     //if (file != null && file.ContentLength > 0)
                                     //{
                                     //    var fileExtension = Path.GetExtension(file.FileName);
-                                    imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
                                     imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
                                     //}
                                 }
@@ -6948,7 +6976,7 @@ namespace MasterOnline.Controllers
                         string[] imgID = new string[3];
                         for (int i = 0; i < 3; i++)
                         {
-                            imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                            imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
                             imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
                         }
 
@@ -7837,8 +7865,8 @@ namespace MasterOnline.Controllers
         {
             var dataPerusahaanVm = new DataPerusahaanViewModel()
             {
-                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault()
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault(p => p.RecNum == 1)
             };
 
             return View(dataPerusahaanVm);

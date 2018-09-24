@@ -1624,6 +1624,21 @@
             });
         }
 
+        function GetCategoryElevenia(){
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetCategoryElevenia", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
         function getFotoProduk() {
             //var $link1 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
             //var $link2 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';

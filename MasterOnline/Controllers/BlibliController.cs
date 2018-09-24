@@ -1953,8 +1953,6 @@ namespace MasterOnline.Controllers
                                                         oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
                                                         if (oCommand.ExecuteNonQuery() == 1)
                                                         {
-
-
                                                             oCommand.CommandType = CommandType.Text;
                                                             oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
                                                             if (oCommand.ExecuteNonQuery() == 1)

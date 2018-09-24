@@ -81,8 +81,19 @@
                         {
                             var market = Model.ListMarket.FirstOrDefault(m => m.RecNum == aktivitas.IDMARKET);
                             var namaMarket = context.Marketplaces.FirstOrDefault(m => m.IdMarket.Value.ToString() == market.NAMA)?.NamaMarket;
-                            var namaDepanBarang = Model?.ListStf02S?.FirstOrDefault(b => b.BRG == aktivitas.REQUEST_ATTRIBUTE_1)?.NAMA;
-                            var namaBelakangBarang = Model?.ListStf02S?.FirstOrDefault(b => b.BRG == aktivitas.REQUEST_ATTRIBUTE_1)?.NAMA2;
+                            var namaDepanBarang = "";
+                            var namaBelakangBarang = "";
+                            if (aktivitas.REQUEST_ATTRIBUTE_1 != "")
+                            {
+                                //namaDepanBarang = Model?.ListStf02S?.FirstOrDefault(b => b.BRG == aktivitas.REQUEST_ATTRIBUTE_1)?.NAMA;
+                                //namaBelakangBarang = Model?.ListStf02S?.FirstOrDefault(b => b.BRG == aktivitas.REQUEST_ATTRIBUTE_1)?.NAMA2;
+                                var brg = Model?.ListStf02S?.FirstOrDefault(b => b.BRG == aktivitas.REQUEST_ATTRIBUTE_1);
+                                if (brg != null)
+                                {
+                                    namaDepanBarang = brg.NAMA;
+                                    namaBelakangBarang = brg.NAMA2;
+                                }
+                            }
                             <tr>
                                 <td style="text-align:center">@namaMarket</td>
                                 <td style="text-align:center">@market.PERSO</td>
