@@ -60,7 +60,6 @@ namespace MasterOnline.Controllers
                     EDB = new DatabaseSQL(accFromUser.UserId);
                 }
             }
-
         }
 
         protected override void Dispose(bool disposing)
@@ -403,7 +402,7 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
+                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
 
             return View(barangVm);
@@ -418,7 +417,7 @@ namespace MasterOnline.Controllers
             {
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
-                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.ToList(),
+                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM").ToList()
             };
 
             return View(barangVm);
@@ -2192,7 +2191,7 @@ namespace MasterOnline.Controllers
                     ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
-                    StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => p.REQUEST_ATTRIBUTE_1 == barangId).ToList(),
+                    StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '"+ barangId +"'").ToList()
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -2212,7 +2211,7 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.API_LOG_MARKETPLACE_PER_ITEM.Where(p => 0 == 1).ToList(),
+                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
 
             return PartialView("FormBarangPartial", vm);
