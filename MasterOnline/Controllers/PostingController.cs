@@ -54,7 +54,8 @@ namespace MasterOnline.Controllers
         public string doPosting(PostingViewModel.DataPosting data)
         {
             //return string.Format("http://localhost/masteronline/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
-            return string.Format("http://202.67.14.92:3535/MOReport/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
+            //return string.Format("http://202.67.14.92:3535/MOReport/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
+            return string.Format("https://report.masteronline.co.id/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
 				Uri.EscapeDataString(data.UserID),
 				Uri.EscapeDataString(data.Month),
 				Uri.EscapeDataString(data.Year),
