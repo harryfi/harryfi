@@ -774,15 +774,6 @@ namespace MasterOnline.Controllers
         //    Utils.HttpRequest req = new Utils.HttpRequest();
         //    long milis = BlibliController.CurrentTimeMillis();
         //    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
-        //    MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-        //    {
-        //        REQUEST_ID = milis.ToString(),
-        //        REQUEST_ACTION = "Get Delivery Temp",
-        //        REQUEST_DATETIME = milisBack,
-        //        REQUEST_ATTRIBUTE_1 = auth,
-        //        REQUEST_STATUS = "Pending",
-        //    };
-        //    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
 
         //    //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
         //    var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;

@@ -9,53 +9,56 @@
 
 @section styles
 {
-<style>
-    [data-tip] {
-	    position:relative;
-    }
-    [data-tip]:before {
-	    content:'';
-	    /* hides the tooltip when not hovered */
-	    display:none;
-	    content:'';
-	    border-left: 5px solid transparent;
-	    border-right: 5px solid transparent;
-	    border-bottom: 5px solid #1a1a1a;	
-	    position:absolute;
-	    top:30px;
-	    left:35px;
-	    z-index:8;
-	    font-size:0;
-	    line-height:0;
-	    width:0;
-	    height:0;
-    }
-    [data-tip]:after {
-	    display:none;
-	    content:attr(data-tip);
-	    position:absolute;
-	    top:35px;
-	    left:0px;
-	    padding:2px 5px;
-	    background:#1a1a1a;
-	    color:#fff;
-	    z-index:9;
-	    font-size: 0.85em;
-	    height:auto;
-        line-break:normal;
-        max-width:200px;
-	    line-height:18px;
-	    -webkit-border-radius: 3px;
-	    -moz-border-radius: 3px;
-	    border-radius: 3px;
-	    white-space:normal;
-	    word-wrap:normal;
-    }
-    [data-tip]:hover:before,
-    [data-tip]:hover:after {
-	    display:block;
-    }
-</style>
+    <style>
+        [data-tip] {
+            position: relative;
+        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
+    </style>
 }
 @{
     var context = new MoDbContext();
@@ -70,7 +73,7 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Marketplace</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Akun Marketplace</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Aktivitas</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Tanggal</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tanggal</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Status</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Barang</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 185px;">Message</th>
@@ -105,7 +108,14 @@
                                 </td>
                                 <td style="text-align:center">
                                     <div data-tip="@aktivitas.REQUEST_EXCEPTION">
-                                        @aktivitas.REQUEST_RESULT
+                                        @if (aktivitas.REQUEST_RESULT != "")
+                                        {
+                                            @aktivitas.REQUEST_RESULT
+                                        }
+                                        else
+                                        {
+                                            @aktivitas.REQUEST_EXCEPTION
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -116,3 +126,20 @@
         </div>
     </div>
 </div>
+@section scripts{
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    @*<script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+        <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+        <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
+        <script src="~/Content/selectize.js" type="text/javascript"></script>
+        <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
+        <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>*@
+
+    <script type="text/javascript">
+
+        var table = $('#datatable').DataTable({
+            "order": [[3, "desc"]], //or asc
+            "columnDefs": [{ "targets": 3, "type": "date-id" }],
+        });
+    </script>
+}

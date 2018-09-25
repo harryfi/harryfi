@@ -289,7 +289,7 @@
                                     <div class="col-md-3 col-sm-3 col-xs-12">
                                         @if (Model?.StatusLog?.Count > 0 && Model?.Stf02?.ID != null)
                                         {
-                                            var getLatestLog = Model.StatusLog.SingleOrDefault(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : ""));
+                                            var getLatestLog = Model.StatusLog.Where(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : "")).OrderByDescending(p => p.REQUEST_DATETIME).FirstOrDefault();
                                             if (getLatestLog == null)
                                             {
                                                 @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })

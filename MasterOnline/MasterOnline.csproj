@@ -62,12 +62,14 @@
     </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.Extended, Version=6.0.0.0, Culture=neutral, PublicKeyToken=05b7e29bdd433584, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.Extended.6.1.0.168\lib\net45\EntityFramework.Extended.dll</HintPath>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="EraControls, Version=1.0.0.32194, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -411,6 +413,10 @@
     <Compile Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs" />
     <Compile Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.Designer.cs">
       <DependentUpon>201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErasoftContextMigrations\201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.cs" />
+    <Compile Include="ErasoftContextMigrations\201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.Designer.cs">
+      <DependentUpon>201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
@@ -5340,6 +5346,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.resx">
       <DependentUpon>201809050940272_Tambah_Field_Request_rsult_danException_di_API_LOG_MARKETPLACE_PER_ITEM_VIEW.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.resx">
+      <DependentUpon>201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
