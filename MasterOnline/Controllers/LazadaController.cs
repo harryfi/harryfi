@@ -136,9 +136,12 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest("/auth/token/refresh");
             request.SetHttpMethod("GET");
             request.AddApiParameter("refresh_token", refreshToken);
-            LazopResponse response = client.Execute(request);
-            //Console.WriteLine(response.IsError());
-            //Console.WriteLine(response.Body);
+            //moved to inside try catch
+            //LazopResponse response = client.Execute(request);
+            //end moved to inside try catch
+
+            ////Console.WriteLine(response.IsError());
+            ////Console.WriteLine(response.Body);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -152,6 +155,10 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
             try
             {
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+               
 
                 ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
                 if (!response.IsError())
