@@ -616,8 +616,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListPesanan.Where(p => p.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.NAMAPEMESAN.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var pesanan in vm.ListPesanan)
+                foreach (var pesanan in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
@@ -647,7 +649,7 @@ namespace MasterOnline.Controllers.Api
                 result = new JsonApi()
                 {
                     code = 200,
-                    message = "Success",
+                    message = $"{listData.Count} data has been found!",
                     data = listData
                 };
 
@@ -1639,8 +1641,8 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
-                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchBarang.ToLower()) ||
-                                                             b.NAMA2.ToLower().Contains(data.SearchBarang.ToLower())).ToList();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
                 foreach (var barang in listFinalData)
                 {
