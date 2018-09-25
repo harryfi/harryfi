@@ -538,10 +538,6 @@
                     $jumlahMarketplace = res.JumlahMarketplace;
                     $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
 
-                    console.log($jumlahMarketplace);
-                    console.log($jumlahMarketplaceMax);
-                    console.log($listNamaMarketTerpakai);
-
                     //if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
                     //    $('#tambah_market').remove();
                     //    $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
@@ -558,7 +554,6 @@
                         Customers_KODEPOS.value = '.';
                         Customers_KODEKABKOT.value = '3174';
                         Customers_KODEPROV.value = '31';
-
                     });
                     //}
                 },
@@ -795,7 +790,7 @@
                 $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
                 $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
                 var namaMarket = $('#MARKET').selectize();
-                namaMarket[0].selectize.setValue('');
+                namaMarket[0].selectize.setValue(null, true);
                 resetError();
             });
 

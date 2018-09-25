@@ -176,7 +176,7 @@
 
         $(document).on('ready',
             function () {
-                var table = $('#datatable').dataTable();
+                var table = $('#datatable').DataTable();
 
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
