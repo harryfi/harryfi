@@ -1675,7 +1675,7 @@ namespace MasterOnline.Controllers
                             if (!productMarketPlace.DISPLAY)
                             {
                                 //panggil api utk non-aktif barang yg baru di insert
-                                result = blApi.prodNonAktif(result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                result = blApi.prodNonAktif(barangInDb.BRG, result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
                             }
                     }
                 }
@@ -1756,7 +1756,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                var result = blApi.prodNonAktif(tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
+                                var result = blApi.prodNonAktif(barang.BRG, tokoBl.BRG_MP, tblCustomer.API_KEY, tblCustomer.TOKEN);
 
                             }
 
