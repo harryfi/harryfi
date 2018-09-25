@@ -84,7 +84,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "get token",
+                REQUEST_ACTION = "Get Token",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_ATTRIBUTE_2 = accessToken,
@@ -136,14 +136,17 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest("/auth/token/refresh");
             request.SetHttpMethod("GET");
             request.AddApiParameter("refresh_token", refreshToken);
-            LazopResponse response = client.Execute(request);
-            //Console.WriteLine(response.IsError());
-            //Console.WriteLine(response.Body);
+            //moved to inside try catch
+            //LazopResponse response = client.Execute(request);
+            //end moved to inside try catch
+
+            ////Console.WriteLine(response.IsError());
+            ////Console.WriteLine(response.Body);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "refresh token",
+                REQUEST_ACTION = "Refresh Token",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_ATTRIBUTE_2 = refreshToken,
@@ -152,6 +155,10 @@ namespace MasterOnline.Controllers
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
             try
             {
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+               
 
                 ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
                 if (!response.IsError())
@@ -192,7 +199,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "create brg",
+                REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
@@ -305,7 +312,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "display brg",
+                REQUEST_ACTION = "Show Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_STATUS = "Pending",
@@ -358,7 +365,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "set promo",
+                REQUEST_ACTION = "Set Promo",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = data.kdBrg,
                 REQUEST_STATUS = "Pending",
@@ -412,7 +419,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "update price/stok product",
+                REQUEST_ACTION = "Update Price/Stok Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_ATTRIBUTE_2 = harga,
@@ -469,7 +476,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "get shipment",
+                REQUEST_ACTION = "Get Shipment Provider",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = cust,
                 REQUEST_STATUS = "Pending",
@@ -546,7 +553,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "set status order to packed",
+                REQUEST_ACTION = "Set Status Order to Packed",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = ordItems,
                 REQUEST_STATUS = "Pending",
@@ -605,7 +612,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "set status order to packed",
+                REQUEST_ACTION = "Set Status Order to Deliver",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = ordItems,
                 REQUEST_STATUS = "Pending",
@@ -651,7 +658,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "upload image Produk",
+                REQUEST_ACTION = "Upload Image Product",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = imagePath,
                 REQUEST_STATUS = "Pending",
@@ -699,7 +706,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Konfirmasi Pengiriman",
+                REQUEST_ACTION = "Get Order",
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = connectionID,
                 REQUEST_STATUS = "Pending",

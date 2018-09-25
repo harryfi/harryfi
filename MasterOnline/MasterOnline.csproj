@@ -1138,6 +1138,7 @@
     <Content Include="Content\Images\Logo_Top_MO_Manage.png" />
     <Content Include="Content\Images\macbook.png" />
     <Content Include="Content\Images\mastercard.png" />
+    <Content Include="Content\Images\masterdata.png" />
     <Content Include="Content\Images\media.jpg" />
     <Content Include="Content\Images\MO_new_logo.png" />
     <Content Include="Content\Images\MO_new_logo_bottom.png" />
@@ -5175,6 +5176,8 @@
     <Content Include="Views\Manage\Subscription.cshtml" />
     <Content Include="Views\Manage\PricingSubsPartialView.cshtml" />
     <Content Include="Views\Manage\MarketPlaceLog.cshtml" />
+    <Content Include="Views\Manage\SupportOnline.cshtml" />
+    <Content Include="Views\Manage\SupportOffline.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
