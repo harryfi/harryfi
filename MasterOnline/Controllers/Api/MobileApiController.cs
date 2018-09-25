@@ -1639,8 +1639,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchBarang.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchBarang.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -1651,7 +1653,7 @@ namespace MasterOnline.Controllers.Api
                 result = new JsonApi()
                 {
                     code = 200,
-                    message = "Success",
+                    message = $"{listData.Count} data has been found!",
                     data = listData
                 };
 
