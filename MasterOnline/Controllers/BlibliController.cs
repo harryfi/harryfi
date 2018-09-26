@@ -115,7 +115,7 @@ namespace MasterOnline.Controllers
             var ret = new BliBliToken();
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
             if (arf01inDB != null)
-            {
+            { 
                 //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
                 string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
                 string userMTA = data.mta_username_email_merchant;//<-- email user merchant
