@@ -819,7 +819,7 @@ namespace MasterOnline.Controllers.Api
                     ListNInvoice = ErasoftDbContext.APT03B.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataInvoice>();
                 var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
@@ -828,11 +828,27 @@ namespace MasterOnline.Controllers.Api
                 {
                     var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == invoice.SUPP);
 
-                    listData.Add(new
+                    listData.Add(new ResultDataInvoice
                     {
                         Invoice = invoice,
                         Supplier = suppInDb?.NAMA,
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Invoice.INV).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Invoice.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.Supplier).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.Invoice.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -899,17 +915,36 @@ namespace MasterOnline.Controllers.Api
                     ListNInvoice = ErasoftDbContext.APT03B.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataInvoice>();
                 var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
                 foreach (var invoice in listFinalData)
                 {
-                    listData.Add(new
+                    var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == invoice.SUPP);
+
+                    listData.Add(new ResultDataInvoice
                     {
-                        Invoice = invoice
+                        Invoice = invoice,
+                        Supplier = suppInDb?.NAMA,
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Invoice.INV).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Invoice.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.Supplier).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.Invoice.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -973,17 +1008,36 @@ namespace MasterOnline.Controllers.Api
                     ListNInvoice = ErasoftDbContext.APT03B.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataInvoice>();
                 var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
                 foreach (var invoice in listFinalData)
                 {
-                    listData.Add(new
+                    var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == invoice.SUPP);
+
+                    listData.Add(new ResultDataInvoice
                     {
                         Invoice = invoice,
+                        Supplier = suppInDb?.NAMA,
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Invoice.INV).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Invoice.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.Supplier).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.Invoice.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1048,7 +1102,7 @@ namespace MasterOnline.Controllers.Api
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataInvoice>();
                 var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
@@ -1057,11 +1111,27 @@ namespace MasterOnline.Controllers.Api
                 {
                     var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == returInvoice.SUPP);
 
-                    listData.Add(new
+                    listData.Add(new ResultDataInvoice
                     {
                         ReturInvoice = returInvoice,
                         Supplier = suppInDb?.NAMA,
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.ReturInvoice.INV).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.ReturInvoice.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.Supplier).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.ReturInvoice.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1128,6 +1198,22 @@ namespace MasterOnline.Controllers.Api
                 var listFinalData = vm.ListHutang.Where(h => h.NSUPP.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              h.BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              h.TGL.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower())).ToList();
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BUKTI).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.TGL).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.TPOT).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.TBAYAR).ToList();
+                        break;
+                }
 
                 foreach (var hutang in listFinalData)
                 {
@@ -1206,7 +1292,7 @@ namespace MasterOnline.Controllers.Api
                     ListSubs = MoDbContext.Subscription.ToList(),
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataFaktur>();
                 var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.AL.ToLower().Contains(data.SearchParam.ToLower()) || 
@@ -1231,12 +1317,31 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataFaktur
                     {
                         Faktur = faktur,
                         MarketName = namaMarket,
                         BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Faktur.NO_BUKTI).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Faktur.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.MarketName).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.BuyerName).ToList();
+                        break;
+                    case 5:
+                        listData = listData.OrderBy(d => d.Faktur.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1306,7 +1411,7 @@ namespace MasterOnline.Controllers.Api
                     ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataFaktur>();
                 var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
@@ -1332,13 +1437,32 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataFaktur
                     {
                         Faktur = faktur,
                         TglJatuhTempo = tglJtTempo,
                         MarketName = namaMarket,
                         BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Faktur.NO_BUKTI).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Faktur.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.MarketName).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.BuyerName).ToList();
+                        break;
+                    case 5:
+                        listData = listData.OrderBy(d => d.Faktur.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1405,7 +1529,7 @@ namespace MasterOnline.Controllers.Api
                     ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataFaktur>();
                 var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
@@ -1431,13 +1555,32 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataFaktur
                     {
                         Faktur = faktur,
                         TglJatuhTempo = tglJtTempo,
                         MarketName = namaMarket,
                         BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Faktur.NO_BUKTI).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Faktur.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.MarketName).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.BuyerName).ToList();
+                        break;
+                    case 5:
+                        listData = listData.OrderBy(d => d.Faktur.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1502,7 +1645,7 @@ namespace MasterOnline.Controllers.Api
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataFaktur>();
                 var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
@@ -1527,12 +1670,34 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataFaktur
                     {
                         ReturFaktur = returFaktur,
                         MarketName = namaMarket,
                         BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.ReturFaktur.NO_BUKTI).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.ReturFaktur.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.ReturFaktur.NO_REF).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.MarketName).ToList();
+                        break;
+                    case 5:
+                        listData = listData.OrderBy(d => d.BuyerName).ToList();
+                        break;
+                    case 6:
+                        listData = listData.OrderBy(d => d.ReturFaktur.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -1599,6 +1764,25 @@ namespace MasterOnline.Controllers.Api
                 var listFinalData = vm.ListPiutang.Where(h => h.NCUST.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              h.BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              h.TGL.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower())).ToList();
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BUKTI).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.TGL).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.TBAYAR).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.TPOT).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => (d.TPOT + d.TBAYAR)).ToList();
+                        break;
+                }
 
                 foreach (var piutang in listFinalData)
                 {
@@ -1678,6 +1862,25 @@ namespace MasterOnline.Controllers.Api
                 var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BRG).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT1).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT2).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => d.HJUAL).ToList();
+                        break;
+                }
+
                 foreach (var barang in listFinalData)
                 {
                     listData.Add(new
@@ -1751,6 +1954,25 @@ namespace MasterOnline.Controllers.Api
                 var listData = new List<object>();
                 var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BRG).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT1).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT2).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => d.HJUAL).ToList();
+                        break;
+                }
 
                 foreach (var barang in listFinalData)
                 {
@@ -1846,6 +2068,25 @@ namespace MasterOnline.Controllers.Api
                 var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BRG).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT1).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT2).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => d.HJUAL).ToList();
+                        break;
+                }
+
                 foreach (var barang in listFinalData)
                 {
                     var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
@@ -1930,6 +2171,25 @@ namespace MasterOnline.Controllers.Api
                 var listData = new List<object>();
                 var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BRG).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT1).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT2).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => d.HJUAL).ToList();
+                        break;
+                }
 
                 foreach (var barang in listFinalData)
                 {
@@ -2024,6 +2284,25 @@ namespace MasterOnline.Controllers.Api
                 var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.BRG).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT1).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.KET_SORT2).ToList();
+                        break;
+                    case 5:
+                        listFinalData = listFinalData.OrderBy(d => d.HJUAL).ToList();
+                        break;
+                }
+
                 foreach (var barang in listFinalData)
                 {
                     var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
@@ -2108,6 +2387,22 @@ namespace MasterOnline.Controllers.Api
                                                               p.TGL_MULAI.ToString().Contains(data.SearchParam.ToLower()) ||
                                                               p.TGL_AKHIR.ToString().Contains(data.SearchParam.ToLower())).ToList();
 
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA_PROMOSI).ToList();
+                        break;
+                    case 2:
+                        listFinalData = listFinalData.OrderBy(d => d.NAMA_MARKET).ToList();
+                        break;
+                    case 3:
+                        listFinalData = listFinalData.OrderBy(d => d.TGL_MULAI).ToList();
+                        break;
+                    case 4:
+                        listFinalData = listFinalData.OrderBy(d => d.TGL_AKHIR).ToList();
+                        break;
+                }
+
                 foreach (var barang in listFinalData)
                 {
                     listData.Add(new
@@ -2176,7 +2471,7 @@ namespace MasterOnline.Controllers.Api
                     ListHargaTerakhir = ErasoftDbContext.STF10.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataHargaJualBarang>();
                 var listFinalData = vm.ListHargaJualPerMarket.Where(p => p.AKUNMARKET.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               p.BRG.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               p.CATEGORY_NAME.ToString().Contains(data.SearchParam.ToLower()) ||
@@ -2189,13 +2484,29 @@ namespace MasterOnline.Controllers.Api
                     var namaBelakangBarang = vm?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA2;
                     var hargaTerakhir = vm?.ListHargaTerakhir?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.HPOKOK;
 
-                    listData.Add(new
+                    listData.Add(new ResultDataHargaJualBarang()
                     {
                         Barang = barangDijualPerMarket,
                         NamaBarang = $"{namaDepanBarang} {namaBelakangBarang}",
                         AkunMarket = $"{namaMarket} ({barangDijualPerMarket.AKUNMARKET})",
                         HargaTerakhir = hargaTerakhir
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Barang.BRG).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.NamaBarang).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.AkunMarket).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.HargaTerakhir).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
@@ -2262,7 +2573,7 @@ namespace MasterOnline.Controllers.Api
                     ListJurnalDetail = ErasoftDbContext.GLFTRAN2.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataJurnalAkunting>();
                 var listFinalData = vm.ListJurnal.Where(j => j.bukti.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                              j.tgl.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower()) ||
                                                              j.tdebet.ToString("N").Contains(data.SearchParam) ||
@@ -2290,12 +2601,25 @@ namespace MasterOnline.Controllers.Api
                         }
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataJurnalAkunting
                     {
                         Jurnal = jurnal,
                         Debet = totalDebet,
                         Kredit = totalKredit
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Jurnal.bukti).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Debet).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.Kredit).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
