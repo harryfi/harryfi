@@ -615,7 +615,7 @@ namespace MasterOnline.Controllers.Api
                     ListMarketplace = MoDbContext.Marketplaces.ToList()
                 };
 
-                var listData = new List<object>();
+                var listData = new List<ResultDataPesanan>();
                 var listFinalData = vm.ListPesanan.Where(p => p.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
                                                               p.NAMAPEMESAN.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
@@ -638,12 +638,31 @@ namespace MasterOnline.Controllers.Api
                         namaMarket = market.NamaMarket;
                     }
 
-                    listData.Add(new
+                    listData.Add(new ResultDataPesanan
                     {
                         Pesanan = pesanan,
                         MarketName = namaMarket,
                         BuyerName = buyer?.NAMA + " (" + buyer?.PERSO + ")"
                     });
+                }
+
+                switch (data.SortBy)
+                {
+                    case 1:
+                        listData = listData.OrderBy(d => d.Pesanan.NO_BUKTI).ToList();
+                        break;
+                    case 2:
+                        listData = listData.OrderBy(d => d.Pesanan.TGL).ToList();
+                        break;
+                    case 3:
+                        listData = listData.OrderBy(d => d.MarketName).ToList();
+                        break;
+                    case 4:
+                        listData = listData.OrderBy(d => d.BuyerName).ToList();
+                        break;
+                    case 5:
+                        listData = listData.OrderBy(d => d.Pesanan.NETTO).ToList();
+                        break;
                 }
 
                 result = new JsonApi()
