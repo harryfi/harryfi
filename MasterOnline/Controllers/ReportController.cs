@@ -60,7 +60,7 @@ namespace MasterOnline.Controllers
             //202.67.14.92:3535
             //https://report.masteronline.co.id
             //return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
-            return string.Format("https://report.masteronline.co.id/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
@@ -77,7 +77,7 @@ namespace MasterOnline.Controllers
         public string Preview2(ReportViewModel.Report2 data)
         {
             //return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/frmLaporanMutasiTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
-            return string.Format("https://report.masteronline.co.id/MOReport/Report/Form/frmLaporanMutasiTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frmLaporanMutasiTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromSupp),
                 Uri.EscapeDataString(data.ToSupp),

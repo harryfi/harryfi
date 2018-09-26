@@ -158,7 +158,7 @@ namespace MasterOnline.Controllers
                 LazopResponse response = client.Execute(request);
                 //Console.WriteLine(response.IsError());
                 //Console.WriteLine(response.Body);
-               
+
 
                 ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
                 if (!response.IsError())
@@ -269,9 +269,11 @@ namespace MasterOnline.Controllers
             request.SetApiName("/product/create");
             request.AddApiParameter("payload", xmlString);
 
-            LazopResponse response = client.Execute(request, data.token);
+            //LazopResponse response = client.Execute(request, data.token);
             try
             {
+                LazopResponse response = client.Execute(request, data.token);
+
                 var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
                 if (res.code.Equals("0"))
                 {
@@ -330,9 +332,10 @@ namespace MasterOnline.Controllers
             request.SetApiName("/product/update");
             request.AddApiParameter("payload", xmlString);
 
-            LazopResponse response = client.Execute(request, token);
+            //LazopResponse response = client.Execute(request, token);
             try
             {
+                LazopResponse response = client.Execute(request, token);
 
                 var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
                 if (res.code.Equals("0"))
@@ -385,9 +388,10 @@ namespace MasterOnline.Controllers
             request.SetApiName("/product/update");
             request.AddApiParameter("payload", xmlString);
 
-            LazopResponse response = client.Execute(request, data.token);
+            //LazopResponse response = client.Execute(request, data.token);
             try
             {
+                LazopResponse response = client.Execute(request, data.token);
                 var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
                 if (res.code.Equals("0"))
                 {
@@ -487,9 +491,10 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest();
             request.SetApiName("/shipment/providers/get");
             request.SetHttpMethod("GET");
-            LazopResponse response = client.Execute(request, accessToken);
+            //LazopResponse response = client.Execute(request, accessToken);
             try
             {
+                LazopResponse response = client.Execute(request, accessToken);
                 var bindDelivery = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(ShipmentLazada)) as ShipmentLazada;
                 if (bindDelivery != null)
                 {
@@ -723,159 +728,173 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("offset", "0");
             request.AddApiParameter("limit", "100");
             request.AddApiParameter("sort_by", "updated_at");
-            LazopResponse response = client.Execute(request, accessToken);
-            var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
-            if (bindOrder != null)
+            try
             {
-                //ret = bindOrder;
-                if (bindOrder.code.Equals("0"))
+
+
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
+                if (bindOrder != null)
                 {
-                    string listOrderId = "[";
-                    if (bindOrder.data.orders.Count > 0)
+                    //ret = bindOrder;
+                    if (bindOrder.code.Equals("0"))
                     {
-                        string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
-                        insertQ += ",[DELIVERY_INFO],[PRICE],[GIFT_OPTION],[GIFT_MESSAGE],[VOUCHER_CODE],[CREATED_AT],[UPDATED_AT],[BILLING_FIRSTNAME],[BILLING_LASTNAME]";
-                        insertQ += ",[BILLING_PHONE],[BILLING_PHONE2],[BILLING_ADDRESS],[BILLING_ADDRESS2],[BILLING_ADDRESS3],[BILLING_ADDRESS4],[BILLING_ADDRESS5]";
-                        insertQ += ",[BILLING_EMAIL],[BILLING_CITY],[BILLING_POSTCODE],[BILLING_COUNTRY],[SHIPPING_FIRSTNAME],[SHIPPING_LASTNAME],[SHIPPING_PHONE],[SHIPPING_PHONE2]";
-                        insertQ += ",[SHIPPING_ADDRESS],[SHIPPING_ADDRESS2],[SHIPPING_ADDRESS3],[SHIPPING_ADDRESS4],[SHIPPING_ADDRESS5],[SHIPPING_EMAIL],[SHIPPING_CITY]";
-                        insertQ += ",[SHIPPING_POSTCODE],[SHIPPING_COUNTRY],[NATIONAL_REGISTRASION_NUM],[ITEM_COUNT],[PROMISED_SHIPPING_TIME],[EXTRA_ATTRIBUTES],[STATUSES]";
-                        insertQ += ",[VOUCHER],[SHIPPING_FEE],[TAXCODE],[BRANCH_NUMBER],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
-
-                        string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
-                        insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
-                        insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
-
-                        int i = 1;
-                        var connIDARF01C = Guid.NewGuid().ToString();
-                        string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-
-                        foreach (Order order in bindOrder.data.orders)
+                        string listOrderId = "[";
+                        if (bindOrder.data.orders.Count > 0)
                         {
-                            var giftOptionBit = (order.gift_option.Equals("")) ? 1 : 0;
-                            var price = order.price.Split('.');
-                            var statusEra = "";
-                            switch (order.statuses[0].ToString())
+                            string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
+                            insertQ += ",[DELIVERY_INFO],[PRICE],[GIFT_OPTION],[GIFT_MESSAGE],[VOUCHER_CODE],[CREATED_AT],[UPDATED_AT],[BILLING_FIRSTNAME],[BILLING_LASTNAME]";
+                            insertQ += ",[BILLING_PHONE],[BILLING_PHONE2],[BILLING_ADDRESS],[BILLING_ADDRESS2],[BILLING_ADDRESS3],[BILLING_ADDRESS4],[BILLING_ADDRESS5]";
+                            insertQ += ",[BILLING_EMAIL],[BILLING_CITY],[BILLING_POSTCODE],[BILLING_COUNTRY],[SHIPPING_FIRSTNAME],[SHIPPING_LASTNAME],[SHIPPING_PHONE],[SHIPPING_PHONE2]";
+                            insertQ += ",[SHIPPING_ADDRESS],[SHIPPING_ADDRESS2],[SHIPPING_ADDRESS3],[SHIPPING_ADDRESS4],[SHIPPING_ADDRESS5],[SHIPPING_EMAIL],[SHIPPING_CITY]";
+                            insertQ += ",[SHIPPING_POSTCODE],[SHIPPING_COUNTRY],[NATIONAL_REGISTRASION_NUM],[ITEM_COUNT],[PROMISED_SHIPPING_TIME],[EXTRA_ATTRIBUTES],[STATUSES]";
+                            insertQ += ",[VOUCHER],[SHIPPING_FEE],[TAXCODE],[BRANCH_NUMBER],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                            int i = 1;
+                            var connIDARF01C = Guid.NewGuid().ToString();
+                            string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            foreach (Order order in bindOrder.data.orders)
                             {
-                                case "processing":
-                                    statusEra = "01";
-                                    break;
-                                case "ready_to_ship":
-                                    statusEra = "02";
-                                    break;
-                                case "delivered":
-                                    statusEra = "03";
-                                    break;
-                                case "shipped":
-                                    statusEra = "04";
-                                    break;
-                                case "pending":
-                                    statusEra = "05";
-                                    break;
-                                case "returned":
-                                    statusEra = "06";
-                                    break;
-                                case "return_waiting_for_approval":
-                                    statusEra = "07";
-                                    break;
-                                case "return_shipped_by_customer":
-                                    statusEra = "08";
-                                    break;
-                                case "return_rejected":
-                                    statusEra = "09";
-                                    break;
-                                case "failed":
-                                    statusEra = "10";
-                                    break;
-                                case "canceled":
-                                    statusEra = "11";
-                                    break;
-                                default:
-                                    statusEra = "99";
-                                    break;
+                                var giftOptionBit = (order.gift_option.Equals("")) ? 1 : 0;
+                                var price = order.price.Split('.');
+                                var statusEra = "";
+                                switch (order.statuses[0].ToString())
+                                {
+                                    case "processing":
+                                        statusEra = "01";
+                                        break;
+                                    case "ready_to_ship":
+                                        statusEra = "02";
+                                        break;
+                                    case "delivered":
+                                        statusEra = "03";
+                                        break;
+                                    case "shipped":
+                                        statusEra = "04";
+                                        break;
+                                    case "pending":
+                                        statusEra = "05";
+                                        break;
+                                    case "returned":
+                                        statusEra = "06";
+                                        break;
+                                    case "return_waiting_for_approval":
+                                        statusEra = "07";
+                                        break;
+                                    case "return_shipped_by_customer":
+                                        statusEra = "08";
+                                        break;
+                                    case "return_rejected":
+                                        statusEra = "09";
+                                        break;
+                                    case "failed":
+                                        statusEra = "10";
+                                        break;
+                                    case "canceled":
+                                        statusEra = "11";
+                                        break;
+                                    default:
+                                        statusEra = "99";
+                                        break;
+                                }
+                                insertQ += "('" + order.order_id + "','" + order.customer_first_name + "','" + order.customer_last_name + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name + "','" + order.address_billing.last_name;
+                                insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1 + "','" + order.address_billing.address2 + "','" + order.address_billing.address3 + "','" + order.address_billing.address4 + "','" + order.address_billing.address5;
+                                insertQ += "','" + order.address_billing.customer_email + "','" + order.address_billing.city + "','" + order.address_billing.post_code + "','" + order.address_billing.country + "','" + order.address_shipping.first_name + "','" + order.address_shipping.last_name + "','" + order.address_shipping.phone + "','" + order.address_shipping.phone2;
+                                insertQ += "','" + order.address_shipping.address1 + "','" + order.address_shipping.address2 + "','" + order.address_shipping.address3 + "','" + order.address_shipping.address4 + "','" + order.address_shipping.address5 + "','" + order.address_shipping.customer_email + "','" + order.address_shipping.city;
+                                insertQ += "','" + order.address_shipping.post_code + "','" + order.address_shipping.country + "','" + order.national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
+                                insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + order.tax_code + "','" + order.branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
+
+                                var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
+                                var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+
+                                var kabKot = "3174";//set default value jika tidak ada di db
+                                var prov = "31";//set default value jika tidak ada di db
+
+                                if (tblProv.Tables[0].Rows.Count > 0)
+                                    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                if (tblKabKot.Tables[0].Rows.Count > 0)
+                                    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                insertPembeli += "('" + order.address_billing.first_name + "','" + order.address_billing.address1 + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1 + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+
+                                listOrderId += order.order_id;
+
+                                if (i < bindOrder.data.orders.Count)
+                                {
+                                    insertQ += " , ";
+                                    insertPembeli += " , ";
+                                    listOrderId += ",";
+                                }
+                                else
+                                {
+                                    listOrderId += "]";
+                                }
+                                i = i + 1;
                             }
-                            insertQ += "('" + order.order_id + "','" + order.customer_first_name + "','" + order.customer_last_name + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
-                            insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name + "','" + order.address_billing.last_name;
-                            insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1 + "','" + order.address_billing.address2 + "','" + order.address_billing.address3 + "','" + order.address_billing.address4 + "','" + order.address_billing.address5;
-                            insertQ += "','" + order.address_billing.customer_email + "','" + order.address_billing.city + "','" + order.address_billing.post_code + "','" + order.address_billing.country + "','" + order.address_shipping.first_name + "','" + order.address_shipping.last_name + "','" + order.address_shipping.phone + "','" + order.address_shipping.phone2;
-                            insertQ += "','" + order.address_shipping.address1 + "','" + order.address_shipping.address2 + "','" + order.address_shipping.address3 + "','" + order.address_shipping.address4 + "','" + order.address_shipping.address5 + "','" + order.address_shipping.customer_email + "','" + order.address_shipping.city;
-                            insertQ += "','" + order.address_shipping.post_code + "','" + order.address_shipping.country + "','" + order.national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
-                            insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + order.tax_code + "','" + order.branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
 
-                            var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
-                            var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+                            insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                            var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
 
-                            var kabKot = "3174";//set default value jika tidak ada di db
-                            var prov = "31";//set default value jika tidak ada di db
+                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                            a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
 
-                            if (tblProv.Tables[0].Rows.Count > 0)
-                                prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
-                            if (tblKabKot.Tables[0].Rows.Count > 0)
-                                kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+                            ret.status = 1;
+                            ret.message = a.ToString();
 
-                            insertPembeli += "('" + order.address_billing.first_name + "','" + order.address_billing.address1 + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
-                            insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1 + "', 0, 0, 0, 0, '1', 0, 0, ";
-                            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+                            SqlCommand CommandSQL = new SqlCommand();
 
-                            listOrderId += order.order_id;
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                            EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
 
-                            if (i < bindOrder.data.orders.Count)
-                            {
-                                insertQ += " , ";
-                                insertPembeli += " , ";
-                                listOrderId += ",";
-                            }
-                            else
-                            {
-                                listOrderId += "]";
-                            }
-                            i = i + 1;
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+
+
+                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+
+                            getMultiOrderItems(listOrderId, accessToken, connectionID);
                         }
-
-                        insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
-
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
-                        a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
-
-                        ret.status = 1;
-                        ret.message = a.ToString();
-
-                        SqlCommand CommandSQL = new SqlCommand();
-
-                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
-                        EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
-
-                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
-                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
-                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
-                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                        CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
-                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-
-
-                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-
-                        getMultiOrderItems(listOrderId, accessToken, connectionID);
+                        else
+                        {
+                            ret.message = "no order";
+                        }
                     }
                     else
                     {
-                        ret.message = "no order";
+                        currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                        ret.message = "lazada api return error";
+                        if (string.IsNullOrEmpty(bindOrder.message))
+                            ret.message += "\n" + bindOrder.message.ToString();
+
                     }
                 }
                 else
                 {
-                    ret.message = "lazada api return error";
-                    if (string.IsNullOrEmpty(bindOrder.message))
-                        ret.message += "\n" + bindOrder.message.ToString();
-
+                    ret.message = "failed to call lazada api";
                 }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = "failed to call lazada api";
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
         }
@@ -997,118 +1016,140 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
 
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Get Order Items",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = orderIds,
+                REQUEST_ATTRIBUTE_2 = connectionID,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/orders/items/get");
             request.SetHttpMethod("GET");
             request.AddApiParameter("order_ids", orderIds);
-            LazopResponse response = client.Execute(request, accessToken);
-
-            var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
-            if (bindOrderItems != null)
+            try
             {
-                if (bindOrderItems.code.Equals("0"))
+                LazopResponse response = client.Execute(request, accessToken);
+
+                var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
+                if (bindOrderItems != null)
                 {
-                    if (bindOrderItems.data.Count > 0)
+                    if (bindOrderItems.code.Equals("0"))
                     {
-                        string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
-                        insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
-                        insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
-                        insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
-                        insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
-                        string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-
-                        foreach (Datum order in bindOrderItems.data)
+                        if (bindOrderItems.data.Count > 0)
                         {
-                            if (order.order_items.Count() > 0)
+                            string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
+                            insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
+                            insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
+                            insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
+                            insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
+                            string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            foreach (Datum order in bindOrderItems.data)
                             {
-                                //var connectionID = Guid.NewGuid().ToString();
-
-                                foreach (Order_Items items in order.order_items)
+                                if (order.order_items.Count() > 0)
                                 {
-                                    //var isDigital = (items.IsDigital == 1) ? 1 : 0;
-                                    var statusEra = "";
-                                    switch (items.status.ToString())
+                                    //var connectionID = Guid.NewGuid().ToString();
+
+                                    foreach (Order_Items items in order.order_items)
                                     {
-                                        case "processing":
-                                            statusEra = "01";
-                                            break;
-                                        case "ready_to_ship":
-                                            statusEra = "02";
-                                            break;
-                                        case "delivered":
-                                            statusEra = "03";
-                                            break;
-                                        case "shipped":
-                                            statusEra = "04";
-                                            break;
-                                        case "pending":
-                                            statusEra = "05";
-                                            break;
-                                        case "returned":
-                                            statusEra = "06";
-                                            break;
-                                        case "return_waiting_for_approval":
-                                            statusEra = "07";
-                                            break;
-                                        case "return_shipped_by_customer":
-                                            statusEra = "08";
-                                            break;
-                                        case "return_rejected":
-                                            statusEra = "09";
-                                            break;
-                                        case "failed":
-                                            statusEra = "10";
-                                            break;
-                                        case "canceled":
-                                            statusEra = "11";
-                                            break;
-                                        default:
-                                            statusEra = "99";
-                                            break;
+                                        //var isDigital = (items.IsDigital == 1) ? 1 : 0;
+                                        var statusEra = "";
+                                        switch (items.status.ToString())
+                                        {
+                                            case "processing":
+                                                statusEra = "01";
+                                                break;
+                                            case "ready_to_ship":
+                                                statusEra = "02";
+                                                break;
+                                            case "delivered":
+                                                statusEra = "03";
+                                                break;
+                                            case "shipped":
+                                                statusEra = "04";
+                                                break;
+                                            case "pending":
+                                                statusEra = "05";
+                                                break;
+                                            case "returned":
+                                                statusEra = "06";
+                                                break;
+                                            case "return_waiting_for_approval":
+                                                statusEra = "07";
+                                                break;
+                                            case "return_shipped_by_customer":
+                                                statusEra = "08";
+                                                break;
+                                            case "return_rejected":
+                                                statusEra = "09";
+                                                break;
+                                            case "failed":
+                                                statusEra = "10";
+                                                break;
+                                            case "canceled":
+                                                statusEra = "11";
+                                                break;
+                                            default:
+                                                statusEra = "99";
+                                                break;
+                                        }
+                                        insertQ += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name + "','" + items.sku + "','" + items.shop_sku + "','" + items.shipping_type;
+                                        insertQ += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
+                                        insertQ += ",'" + statusEra + "','" + items.shipment_provider + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason + "','" + items.reason_detail + "','" + items.purchase_order_id;
+                                        insertQ += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
+                                        insertQ += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
+
+                                        //if (i < bindOrderItems.data.Count)
+                                        insertQ += ",";
+                                        //i = i + 1;
                                     }
-                                    insertQ += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name + "','" + items.sku + "','" + items.shop_sku + "','" + items.shipping_type;
-                                    insertQ += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
-                                    insertQ += ",'" + statusEra + "','" + items.shipment_provider + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason + "','" + items.reason_detail + "','" + items.purchase_order_id;
-                                    insertQ += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
-                                    insertQ += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
 
-                                    //if (i < bindOrderItems.data.Count)
-                                    insertQ += ",";
-                                    //i = i + 1;
                                 }
-
                             }
+                            insertQ = insertQ.Substring(0, insertQ.Length - 1);
+                            var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                            SqlCommand CommandSQL = new SqlCommand();
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                            //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
+
+                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
                         }
-                        insertQ = insertQ.Substring(0, insertQ.Length - 1);
-                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
-
-                        SqlCommand CommandSQL = new SqlCommand();
-                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                        //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
-
-                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
+                        else
+                        {
+                            ret.message = "no item";
+                        }
                     }
                     else
                     {
-                        ret.message = "no item";
+                        currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
+                        if (!string.IsNullOrEmpty(bindOrderItems.message))
+                            ret.message += "\n" + bindOrderItems.message;
                     }
                 }
                 else
                 {
-                    ret.message = "lazada api return error";
-                    if (!string.IsNullOrEmpty(bindOrderItems.message))
-                        ret.message += "\n" + bindOrderItems.message;
+                    ret.message = "failed to call lazada api";
                 }
             }
-            else
+            catch (Exception ex)
             {
-                ret.message = "failed to call lazada api";
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
         }
-        
+
         public enum api_status
         {
             Pending = 1,

@@ -616,8 +616,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListPesanan.Where(p => p.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.NAMAPEMESAN.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var pesanan in vm.ListPesanan)
+                foreach (var pesanan in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
@@ -647,7 +649,7 @@ namespace MasterOnline.Controllers.Api
                 result = new JsonApi()
                 {
                     code = 200,
-                    message = "Success",
+                    message = $"{listData.Count} data has been found!",
                     data = listData
                 };
 
@@ -818,8 +820,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var invoice in vm.ListInvoice)
+                foreach (var invoice in listFinalData)
                 {
                     var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == invoice.SUPP);
 
@@ -895,8 +900,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var invoice in vm.ListInvoice)
+                foreach (var invoice in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -966,8 +974,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var invoice in vm.ListInvoice)
+                foreach (var invoice in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -1038,8 +1049,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListInvoice.Where(i => i.INV.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              i.TGL.ToString().ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var returInvoice in vm.ListInvoice)
+                foreach (var returInvoice in listFinalData)
                 {
                     var suppInDb = ErasoftDbContext.APF01.SingleOrDefault(s => s.SUPP == returInvoice.SUPP);
 
@@ -1111,8 +1125,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListHutang.Where(h => h.NSUPP.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             h.BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             h.TGL.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var hutang in vm.ListHutang)
+                foreach (var hutang in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -1190,8 +1207,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.AL.ToLower().Contains(data.SearchParam.ToLower()) || 
+                                                             i.TGL.ToString("dd/MM/yyyy").ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var faktur in vm.ListPesanan)
+                foreach (var faktur in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == faktur.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
@@ -1286,8 +1307,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.TGL.ToString("dd/MM/yyyy").ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var faktur in vm.ListFaktur)
+                foreach (var faktur in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == faktur.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
@@ -1381,8 +1406,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.TGL.ToString("dd/MM/yyyy").ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var faktur in vm.ListFaktur)
+                foreach (var faktur in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == faktur.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
@@ -1474,8 +1503,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListFaktur.Where(i => i.NO_BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.NO_REF.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.AL.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             i.TGL.ToString("dd/MM/yyyy").ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var returFaktur in vm.ListPesanan)
+                foreach (var returFaktur in listFinalData)
                 {
                     var buyer = vm.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == returFaktur.PEMESAN);
                     var pelanggan = vm.ListPelanggan.FirstOrDefault(m => m.CUST == returFaktur.CUST);
@@ -1563,8 +1596,11 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListPiutang.Where(h => h.NCUST.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             h.BUKTI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             h.TGL.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var piutang in vm.ListPiutang)
+                foreach (var piutang in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -1639,8 +1675,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -1651,7 +1689,7 @@ namespace MasterOnline.Controllers.Api
                 result = new JsonApi()
                 {
                     code = 200,
-                    message = "Success",
+                    message = $"{listData.Count} data has been found!",
                     data = listData
                 };
 
@@ -1711,8 +1749,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                     var qtyOnHand = 0d;
@@ -1803,8 +1843,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
 
@@ -1886,8 +1928,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                     var qtyOnHand = 0d;
@@ -1977,8 +2021,10 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListStf02S.Where(b => b.NAMA.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             b.NAMA2.ToLower().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListStf02S)
+                foreach (var barang in listFinalData)
                 {
                     var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
 
@@ -2057,8 +2103,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListPromosi.Where(p => p.NAMA_MARKET.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.NAMA_PROMOSI.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.TGL_MULAI.ToString().Contains(data.SearchParam.ToLower()) ||
+                                                              p.TGL_AKHIR.ToString().Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barang in vm.ListPromosi)
+                foreach (var barang in listFinalData)
                 {
                     listData.Add(new
                     {
@@ -2127,8 +2177,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListHargaJualPerMarket.Where(p => p.AKUNMARKET.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.BRG.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                              p.CATEGORY_NAME.ToString().Contains(data.SearchParam.ToLower()) ||
+                                                              p.HJUAL.ToString("N").Contains(data.SearchParam.ToLower())).ToList();
 
-                foreach (var barangDijualPerMarket in vm.ListHargaJualPerMarket)
+                foreach (var barangDijualPerMarket in listFinalData)
                 {
                     var namaMarket = MoDbContext.Marketplaces.FirstOrDefault(m => m.IdMarket == barangDijualPerMarket.IDMARKET)?.NamaMarket;
                     var namaDepanBarang = vm?.ListBarang?.FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.NAMA;
@@ -2209,8 +2263,12 @@ namespace MasterOnline.Controllers.Api
                 };
 
                 var listData = new List<object>();
+                var listFinalData = vm.ListJurnal.Where(j => j.bukti.ToLower().Contains(data.SearchParam.ToLower()) ||
+                                                             j.tgl.ToString("dd/MM/yyyy").Contains(data.SearchParam.ToLower()) ||
+                                                             j.tdebet.ToString("N").Contains(data.SearchParam) ||
+                                                             j.tkredit.ToString("N").Contains(data.SearchParam)).ToList();
 
-                foreach (var jurnal in vm.ListJurnal)
+                foreach (var jurnal in listFinalData)
                 {
                     var bukti = jurnal.bukti;
                     var lks = jurnal.lks;
