@@ -89,13 +89,13 @@
             <li id="bannerJurnal" style="text-align:center" class="list-group-item list-group-item-light">Posting Jurnal</li>
 
             @*<li class="list-group-item list-group-item-success">Success item</li>
-            <li class="list-group-item list-group-item-secondary">Secondary item</li>
-            <li class="list-group-item list-group-item-info">Info item</li>
-            <li class="list-group-item list-group-item-warning">Warning item</li>
-            <li class="list-group-item list-group-item-danger">Danger item</li>
-            <li class="list-group-item list-group-item-primary">Primary item</li>
-            <li class="list-group-item list-group-item-dark">Dark item</li>
-            <li class="list-group-item list-group-item-light">Light item</li>*@
+                <li class="list-group-item list-group-item-secondary">Secondary item</li>
+                <li class="list-group-item list-group-item-info">Info item</li>
+                <li class="list-group-item list-group-item-warning">Warning item</li>
+                <li class="list-group-item list-group-item-danger">Danger item</li>
+                <li class="list-group-item list-group-item-primary">Primary item</li>
+                <li class="list-group-item list-group-item-dark">Dark item</li>
+                <li class="list-group-item list-group-item-light">Light item</li>*@
         </ul>
     </div>
     <div class="infoPost"></div>
@@ -204,7 +204,8 @@
 
         window.addEventListener('message', function (event) {
 
-            if (~event.origin.indexOf('http://202.67.14.92')) {
+            //if (~event.origin.indexOf('http://202.67.14.92')) {
+            if (~event.origin.indexOf('https://report.masteronline.co.id')) {
                 if (event.data.event_id == 'progressbar') {
 
                     $('.labelPosting').html('Status : ' + event.data.nama);
