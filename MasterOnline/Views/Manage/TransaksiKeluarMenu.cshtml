@@ -468,7 +468,8 @@
                     format: 'dd/mm/yyyy',
                     language: 'id'
                 }).change(function () {
-                    if ($flagPerubahan == 1) {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
                         $('#btn-simpan-perubahan-row').show();
                     }
 
@@ -479,7 +480,8 @@
                     format: 'dd/mm/yyyy',
                     language: 'id'
                 }).datepicker('setDate', '0').change(function () {
-                    if ($flagPerubahan == 1) {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
                         $('#btn-simpan-perubahan-row').show();
                     }
 
@@ -513,7 +515,9 @@
                     type: "POST",
                     url: '@Url.Action("UpdateStok", "Manage")',
                     data: JSON.stringify({
-                        NoBuktiStok: "@(Model?.Stok?.Nobuk)",
+                        //change by nurul 25/9/2018
+                        //NoBuktiStok: "@(Model?.Stok?.Nobuk)",
+                        NoBuktiStok: $('#Stok_Nobuk').val(),
                         TglInput: $('#Stok_Tgl').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',

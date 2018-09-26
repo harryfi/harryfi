@@ -5901,7 +5901,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateStok(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -6924,7 +6926,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiMasuk(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);            
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -7341,7 +7345,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiKeluar(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -7657,7 +7663,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiPindah(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
