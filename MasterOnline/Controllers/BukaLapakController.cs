@@ -169,8 +169,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = data.token,
-                REQUEST_ATTRIBUTE_2 = data.kdBrg,
+                REQUEST_ATTRIBUTE_1 = data.kdBrg,
+                REQUEST_ATTRIBUTE_2 = data.token,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.key, currentLog);
@@ -403,7 +403,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            var res = prodNonAktif(id, userId, token);
+                            var res = prodNonAktif(kdBrg, id, userId, token);
                             ret.status = res.status;
                             ret.message = res.message;
                         }
@@ -472,7 +472,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase prodNonAktif(string id, string userId, string token)
+        public BindingBase prodNonAktif(string kdBrg, string id, string userId, string token)
         {
             var ret = new BindingBase { status = 0 };
             Utils.HttpRequest req = new Utils.HttpRequest();
@@ -482,8 +482,9 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Hide Product",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
+                REQUEST_ATTRIBUTE_1 = kdBrg,
                 REQUEST_ATTRIBUTE_2 = id,
+                REQUEST_ATTRIBUTE_3 = token,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
@@ -523,8 +524,9 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Show Product",
                 REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
+                REQUEST_ATTRIBUTE_1 = brg,
                 REQUEST_ATTRIBUTE_2 = id,
+                REQUEST_ATTRIBUTE_3 = token,
                 REQUEST_STATUS = "Pending",
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);

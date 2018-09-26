@@ -481,6 +481,11 @@
     </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
+    <Compile Include="Models\Api\ResultDataFaktur.cs" />
+    <Compile Include="Models\Api\ResultDataHargaJualBarang.cs" />
+    <Compile Include="Models\Api\ResultDataInvoice.cs" />
+    <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
+    <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
     <Compile Include="Models\APF02.cs" />
