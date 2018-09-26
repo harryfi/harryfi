@@ -286,7 +286,10 @@ namespace MasterOnline.Controllers
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListSubs = MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                //add by nurul 26/9/2018
+                ListBarangMarket = ErasoftDbContext.STF02H.ToList()
+                //end add 
             };
 
             return View(vm);
