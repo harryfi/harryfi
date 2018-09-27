@@ -1833,14 +1833,21 @@
         }
 
         function convertToRupiah(angka) {
-            var rupiah = '';
-            var angkarev = angka.toString().split('').reverse().join('');
-            for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
-            return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            //change by calvin 26 september 2018
+            //var rupiah = '';
+            //var angkarev = angka.toString().split('').reverse().join('');
+            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            return $.number(angka, 2);
+            //end change by calvin 26 september 2018
         }
 
         function convertToAngka(rupiah) {
-            return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            return parseFloat(rupiah.replace(',', ''));
+            //end change by calvin 26 september 2018
         }
 
         $idBarang = "";
