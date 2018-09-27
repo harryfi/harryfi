@@ -60,11 +60,19 @@ namespace MasterOnline.Controllers
             //202.67.14.92:3535
             //https://report.masteronline.co.id
             //return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
+#if AWS
             return string.Format("https://report.masteronline.co.id/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
-                Uri.EscapeDataString(data.UserId),
+            Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
                 Uri.EscapeDataString(data.CutOffDate));
+#else
+            return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
+            Uri.EscapeDataString(data.UserId),
+                Uri.EscapeDataString(data.FromCust),
+                Uri.EscapeDataString(data.ToCust),
+                Uri.EscapeDataString(data.CutOffDate));
+#endif
         }
 
         [Route("reports/2")]

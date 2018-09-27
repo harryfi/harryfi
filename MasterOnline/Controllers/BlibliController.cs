@@ -115,7 +115,7 @@ namespace MasterOnline.Controllers
             var ret = new BliBliToken();
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
             if (arf01inDB != null)
-            { 
+            {
                 //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
                 string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
                 string userMTA = data.mta_username_email_merchant;//<-- email user merchant
@@ -790,13 +790,13 @@ namespace MasterOnline.Controllers
                             oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@LOG_REQUEST_ID", SqlDbType.NVarChar, 50));
-                            
+
                             try
                             {
                                 oCommand.Parameters[0].Value = result.requestId.Value;
                                 oCommand.Parameters[1].Value = iden.merchant_code;
                                 oCommand.Parameters[2].Value = currentLog.REQUEST_ID;
-                                
+
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
@@ -1744,7 +1744,7 @@ namespace MasterOnline.Controllers
 
             if (feed != null)//satu requestId
             {
-                prosesQueueFeedDetail(data, feed.request_id,feed.log_request_id);
+                prosesQueueFeedDetail(data, feed.request_id, feed.log_request_id);
             }
             else
             {
@@ -1850,7 +1850,7 @@ namespace MasterOnline.Controllers
         }
 
 
-        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId,string log_request_id)
+        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId, string log_request_id)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2081,7 +2081,7 @@ namespace MasterOnline.Controllers
                                 //oCommand.ExecuteNonQuery();
                                 //oCommand.Transaction = oTransaction;
                                 oCommand.CommandType = CommandType.Text;
-                                
+
                                 oCommand.CommandText = "UPDATE [ARF01] SET KODE=@CATEGORY_CODE WHERE Sort1_Cust = @MERCHANT_CODE";
                                 oCommand.Parameters.Add(new SqlParameter("@MERCHANT_CODE", SqlDbType.NVarChar, 30));
                                 oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar));
@@ -2179,9 +2179,13 @@ namespace MasterOnline.Controllers
                     {
                         //Data Source = 202.67.14.92; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
                         //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+#if AWS
+                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                        string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
 
-
-                        using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
+                        using (SqlConnection oConnection = new SqlConnection(con))
                         {
                             oConnection.Open();
                             //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
@@ -2326,7 +2330,12 @@ namespace MasterOnline.Controllers
                         if (result.value.attributes.Count > 0)
                         {
                             bool insertAttribute = false;
-                            using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
+#if AWS
+                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
                             {
                                 oConnection.Open();
                                 using (SqlCommand oCommand = oConnection.CreateCommand())
@@ -2493,7 +2502,7 @@ namespace MasterOnline.Controllers
         {
             public string request_id { get; set; }
             public string log_request_id { get; set; }
-            
+
         }
         public class BlibliProductData
         {
