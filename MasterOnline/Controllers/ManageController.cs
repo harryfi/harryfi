@@ -286,7 +286,10 @@ namespace MasterOnline.Controllers
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListSubs = MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                //add by nurul 26/9/2018
+                ListBarangMarket = ErasoftDbContext.STF02H.ToList()
+                //end add 
             };
 
             return View(vm);
@@ -5427,6 +5430,22 @@ namespace MasterOnline.Controllers
                 piutangInDb.TOTAL = dataVm.Piutang.TOTAL;
                 piutangInDb.JTGL = dataVm.Piutang.JTGL;
             }
+
+            //add by nurul 27/9/2018
+            var vmError = new StokViewModel() { };
+            var date1 = dataVm.Piutang.TGL.Value.Year;
+            //var date2 = DateTime.Now.Year;
+            if (date1 > 2078)
+            {
+                vmError.Errors.Add("Maximum Year is 2078 !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (dataVm.Piutang.CUST == null)
+            {
+                vmError.Errors.Add("Customer is null !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add 
 
             dataVm.Piutang.KET = "-";
             ErasoftDbContext.SaveChanges();
