@@ -14,13 +14,21 @@ namespace MasterOnline
         {
         }
 
+#if AWS
+        public ErasoftContext(string userId)
+            : base($"Server=localhost;initial catalog=ERASOFT_{userId};" +
+                   $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
+#else
         public ErasoftContext(string userId)
             : base($"Server=202.67.14.92\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{userId};" +
                    $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {
         }
-
+#endif
         public virtual DbSet<Promosi> PROMOSI { get; set; }
         public virtual DbSet<DetailPromosi> DETAILPROMOSI { get; set; }
         public virtual DbSet<APF01> APF01 { get; set; }
