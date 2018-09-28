@@ -914,7 +914,10 @@
                                     var $ndisc2 = 0;
 
                                     if ($ndisc1Exist != 0) {
-                                        $ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
+                                        //change by nurul 27/9/2018
+                                        //$ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
+                                        $ndisc2 = convertToRupiah(this.value * (($hargaBarang * parseInt($($trElement + ' .qty-barang').text())) - $ndisc1Exist) / 100);
+                                        //end change
                                     }
 
                                     $($trElement + ' .ndisc2-barang')
@@ -1149,7 +1152,7 @@
 
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replace(',', ''));
+            return parseFloat(rupiah.replaceAll(',', ''));
             //end change by calvin 26 september 2018
         }
 

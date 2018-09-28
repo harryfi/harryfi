@@ -783,7 +783,10 @@
                                         .html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
                                 } else {
                                     var $ndisc1Exist = convertToAngka($($trElement + ' .ndisc1-barang').text());
-                                    var $ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
+                                    //change by nurul 27/9/2018
+                                    //var $ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
+                                    var $ndisc2 = convertToRupiah(this.value * (($hargaBarang * parseInt($($trElement + ' .qty-barang').text())) - $ndisc1Exist) / 100);
+                                    //end change
 
                                     $($trElement + ' .ndisc2-barang')
                                         .removeClass('editable')
@@ -1100,7 +1103,7 @@
 
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replace(',', ''));
+            return parseFloat(rupiah.replaceAll(',', ''));
             //end change by calvin 26 september 2018
         }
 

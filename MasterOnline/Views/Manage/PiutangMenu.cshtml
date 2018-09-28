@@ -314,21 +314,16 @@
                             $("html, body").animate({ scrollTop: 0 }, "slow");
                             $('#loading_spinner').hide();
                         } else {
+                            //add by nurul 27/9/2018
                             if (response.Errors[0] != null) {
                                 alert(response.Errors[0]);
                                 $('#loading_spinner').hide();
+                            //end add
                             } else {
                                 console.log(response.Errors);
                                 alert('Ada data yang tidak valid!');
                                 $('#loading_spinner').hide();
                             }
-                        //else if (response.Errors = ["Maximum Year is 2078 !"]) {
-                        //    alert(response.Errors[0]);
-                        //    $('#loading_spinner').hide();
-                        //}else {
-                        //    console.log(response.Errors);
-                        //    alert('Ada data yang tidak valid!');
-                        //    $('#loading_spinner').hide();
                         }
                     },
                     error: function (xhr, status, error) {

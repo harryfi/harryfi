@@ -2634,9 +2634,12 @@ namespace MasterOnline.Controllers.Api
                         listData = listData.OrderBy(d => d.Jurnal.bukti).ToList();
                         break;
                     case 2:
-                        listData = listData.OrderBy(d => d.Debet).ToList();
+                        listData = listData.OrderBy(d => d.Jurnal.tgl).ToList();
                         break;
                     case 3:
+                        listData = listData.OrderBy(d => d.Debet).ToList();
+                        break;
+                    case 4:
                         listData = listData.OrderBy(d => d.Kredit).ToList();
                         break;
                 }
