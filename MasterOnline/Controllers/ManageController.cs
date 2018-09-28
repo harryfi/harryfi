@@ -108,8 +108,8 @@ namespace MasterOnline.Controllers
             };
 
             // Pesanan
-            vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Count();
-            vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+            vm.JumlahPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Count();
+            vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL?.Date == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
             vm.JumlahPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Count();
             vm.NilaiPesananBulanIni = vm.ListPesanan?.Where(p => p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC);
 
@@ -286,7 +286,10 @@ namespace MasterOnline.Controllers
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListSubs = MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                //add by nurul 26/9/2018
+                ListBarangMarket = ErasoftDbContext.STF02H.ToList()
+                //end add 
             };
 
             return View(vm);
@@ -4142,9 +4145,14 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetDataBarang()
+        public ActionResult GetDataBarang(string code)
         {
-            var listBarang = ErasoftDbContext.STF02.ToList();
+            //var listBarang = ErasoftDbContext.STF02.ToList();
+            var listBarang = (from a in ErasoftDbContext.STF02 
+                              join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
+                              join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
+                              where c.CUST == code
+                              select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
@@ -5438,6 +5446,22 @@ namespace MasterOnline.Controllers
                 piutangInDb.JTGL = dataVm.Piutang.JTGL;
             }
 
+            //add by nurul 27/9/2018
+            var vmError = new StokViewModel() { };
+            var date1 = dataVm.Piutang.TGL.Value.Year;
+            //var date2 = DateTime.Now.Year;
+            if (date1 > 2078)
+            {
+                vmError.Errors.Add("Maximum Year is 2078 !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (dataVm.Piutang.CUST == null)
+            {
+                vmError.Errors.Add("Customer is null !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add 
+
             dataVm.Piutang.KET = "-";
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
@@ -5911,7 +5935,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateStok(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -6934,7 +6960,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiMasuk(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);            
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -7351,7 +7379,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiKeluar(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -7667,7 +7697,9 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateTransaksiPindah(UpdateData dataUpdate)
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
-            stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //remark by nurul 25/9/2018
+            //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();

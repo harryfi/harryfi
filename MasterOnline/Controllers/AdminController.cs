@@ -130,9 +130,13 @@ namespace MasterOnline.Controllers
                     sql = $"RESTORE DATABASE ERASOFT_{userId} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
                                  $" WITH MOVE 'erasoft' TO '{path}/ERASOFT_{userId}.mdf'," +
                                  $" MOVE 'erasoft_log' TO '{path}/ERASOFT_{userId}.ldf';";
-
+#if AWS
+                    SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                                                          "user id=sa;password=admin123^;");
+#else
                     SqlConnection con = new SqlConnection("Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                           "user id=masteronline;password=M@ster123;");
+#endif
                     SqlCommand command = new SqlCommand(sql, con);
 
                     con.Open();
@@ -153,8 +157,13 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+#if AWS
+                    System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog=ERASOFT_{userId};persist security info=True;" +
+                                                       "user id=sa;password=admin123^;");
+#else
                     System.Data.Entity.Database.Delete($"Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=ERASOFT_{userId};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
+#endif
                 }
             }
             catch (Exception e)

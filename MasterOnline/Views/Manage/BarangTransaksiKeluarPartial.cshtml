@@ -177,23 +177,40 @@
                                 //change by nurul 26/7/2018
                                 //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
                                 var nm = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
                                     nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
                                 }
-                                //end change 
+                                //end change
                             }
                             @nm
                         </td>
                         <td class="stn-barang">
-                            @if (stok.Satuan == "1")
-                            {
-                                @("BESAR")
+                            @{
+                                //change by nurul 26/7/2018
+                                @*@if (stok.Satuan == "1")
+                                    {
+                                        @("BESAR")
+                                    }
+                                    else
+                                    {
+                                        @("KECIL")
+                                    }*@
+                                var sstn = "";
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
+                                {
+                                    sstn = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN;
+                                }
+
+                                var sstn2 = "";
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
+                                {
+                                    sstn2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
+                                }
+                                //end change
                             }
-                            else
-                            {
-                                @("KECIL")
-                            }
+                            @(stok.Satuan == "1" ? sstn : sstn2)
+
                         </td>
                         @*<td class="harga-barang">
                                 @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)

@@ -20,5 +20,7 @@ namespace MasterOnline.ViewModels
         public List<Ekspedisi> ListEkspedisi { get; set; } = new List<Ekspedisi>();
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
         public List<String> Errors { get; set; } = new List<String>();
+        //add by nurul 26/9/2018
+        public List<STF02H> ListBarangMarket { get; set; } = new List<STF02H>();
     }
 }
