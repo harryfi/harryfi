@@ -1,7 +1,20 @@
-﻿
+﻿@using MasterOnline.ViewModels
 @{
     ViewBag.Title = "Subscription";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
 }
 
 @section styles {
@@ -272,6 +285,7 @@
 
 @section scripts
 {
+    <script src="~/Scripts/moment-with-locales.js" type="text/javascript"></script>
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-kNpQZUsTHkQzk9BZ"></script>
     <script>
@@ -336,7 +350,24 @@
                     bln = txtBln_03.value;
                     break;
             }
-            //alert('kode:' + kode + '\nbln:' + bln);
+            @{
+                var accountId = dataSession.Account.AccountId;
+                var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
+            }
+            moment.locale('id');
+            var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
+                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
+            var tglSub2 = moment(tglSub);
+
+            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+
+                //tglSub.setMonth(tglSub.getMonth() + bln);
+                var msg = "Masa berlangganan anda s/d " + tglSub2.calendar() + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub2.add(2, 'months').calendar() + "?";
+                if (confirm(msg))
+                {
+                     //alert('kode:' + kode + '\nbln:' + bln);
             @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
             link = link.replace("replaceCode", kode);
             link = link.replace("replaceBulan", String(bln));*@
@@ -361,5 +392,11 @@
                 }
             });
         }
+                } else {
+
+                }
+            }
+
+
     </script>
 }

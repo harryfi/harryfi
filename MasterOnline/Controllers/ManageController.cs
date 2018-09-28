@@ -832,6 +832,8 @@ namespace MasterOnline.Controllers
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
+
+                kdCustomer = custInDb.CUST;
             }
 
             ErasoftDbContext.SaveChanges();
@@ -876,10 +878,18 @@ namespace MasterOnline.Controllers
 
             var partialVm = new CustomerViewModel()
             {
-                ListCustomer = ErasoftDbContext.ARF01.ToList()
+                ListCustomer = ErasoftDbContext.ARF01.ToList(),
+                kodeCust = kdCustomer,
             };
+            if(customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
+            {
+                return Json(partialVm, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableCustomerPartial", partialVm);
+            }
+            else
+            {
+                return PartialView("TableCustomerPartial", partialVm);
+            }
         }
 
         public ActionResult EditCustomer(int recNum)

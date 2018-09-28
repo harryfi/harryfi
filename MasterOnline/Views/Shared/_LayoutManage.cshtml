@@ -201,7 +201,7 @@
                                         if (parent.Show)
                                         {
                                             <li class="parent-li" id="@parent.ScrId">
-                                                <a @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
                                                     <i class="fa @parent.Icon"></i> @parent.NamaForm
                                                     @if (parent.HaveChild)
                                                     {
@@ -246,7 +246,7 @@
                                                                 else
                                                                 {
                                                                     <li class="parent-li" id="@child.ScrId">
-                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                        <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
                                                                             <i class="fa @child.Icon"></i> @child.NamaForm
                                                                             @if (child.HaveChild)
                                                                             {
@@ -292,8 +292,25 @@
                                 }
                                 else
                                 {
-                                    <li>
-                                        <a href="@Url.Action("Bantuan", "Manage")"><i class="fa fa-question-circle"></i> Bantuan</a>
+                                    @*<li>
+                                            <a href="@Url.Action("Bantuan", "Manage")"><i class="fa fa-question-circle"></i> Bantuan</a>
+                                        </li>*@
+                                    <li class="parent-li" id="53">
+                                        <a href="">
+                                            <i class="fa fa-question-circle"></i> Bantuan
+                                            <span class="fa fa-chevron-down"></span>
+                                        </a>
+                                        <ul class="nav child_menu">
+                                            <li>
+                                                <a href="@Url.Action("Bantuan", "Manage")"><i class="fa"></i> Cara Memulai</a>
+                                            </li>
+                                            <li>
+                                                <a href="@Url.Action("SupportOnline", "Manage")"><i class="fa"></i> Support</a>
+                                            </li>
+                                            @*<li>
+                                                <a href="@Url.Action("SupportOffline", "Manage")"><i class="fa"></i> Support Offline</a>
+                                            </li>*@
+                                        </ul>
                                     </li>
                                 }
                             </ul>
