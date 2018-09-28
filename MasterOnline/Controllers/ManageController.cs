@@ -4135,9 +4135,14 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetDataBarang()
+        public ActionResult GetDataBarang(string code)
         {
-            var listBarang = ErasoftDbContext.STF02.ToList();
+            //var listBarang = ErasoftDbContext.STF02.ToList();
+            var listBarang = (from a in ErasoftDbContext.STF02 
+                              join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
+                              join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
+                              where c.CUST == code
+                              select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
