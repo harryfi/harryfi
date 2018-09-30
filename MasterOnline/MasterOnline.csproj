@@ -4998,8 +4998,9 @@
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\WebFont\Linearicons-Free.woff2" />
     <Content Include="fonts\rounded_elegance.ttf" />
     <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
+    <None Include="Properties\PublishProfiles\AWS.pubxml" />
+    <None Include="Properties\PublishProfiles\DEV.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\Server 2 Erasoft.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
