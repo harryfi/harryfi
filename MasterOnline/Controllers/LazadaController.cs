@@ -18,12 +18,12 @@ namespace MasterOnline.Controllers
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         string urlLazada = "https://api.lazada.co.id/rest";
-        string eraAppKey = "101775";
-        string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
-        string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
-        //string eraCallbackUrl = "https://example.com/lzd/code?user=";
-        //string eraAppKey = "";
-        // GET: Lazada
+        string eraAppKey = "106147";
+        string eraAppSecret = "So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU";
+        //string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
+        string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=&lzdID=";
+        //string eraAppKey = "";101775
+        // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;
@@ -113,7 +113,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    currentLog.REQUEST_EXCEPTION = response.Message;
+                    currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }
                 return ret;
@@ -177,7 +177,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    currentLog.REQUEST_EXCEPTION = response.Message;
+                    currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }
             }
@@ -292,8 +292,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.message;
-                    currentLog.REQUEST_EXCEPTION = res.message;
+                    ret.message = res.detail[0].message;
+                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
 
@@ -346,8 +346,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.message;
-                    currentLog.REQUEST_EXCEPTION = res.message;
+                    ret.message = res.detail[0].message;
+                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
 
@@ -401,8 +401,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.message;
-                    currentLog.REQUEST_EXCEPTION = res.message;
+                    ret.message = res.detail[0].message;
+                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
             }
@@ -456,8 +456,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.message;
-                    currentLog.REQUEST_EXCEPTION = res.message;
+                    ret.message = res.detail[0].message;
+                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
             }

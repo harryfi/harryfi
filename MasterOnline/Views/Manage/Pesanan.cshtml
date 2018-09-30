@@ -1561,6 +1561,12 @@
                     });
 
                     custSelect[0].selectize.setValue($('#Pesanan_CUST').val());
+                    if ($('#Pesanan_CUST').val() != null) {
+                        $('#CUSTOMER').attr('disabled', 'disabled');
+                        //$('input, select, .btn-danger').each(function() {
+                        //    $(this).attr('disabled', 'disabled');
+                        //});
+                    }
                     $('#btn-simpan-perubahan-row').hide();
                 },
                 error: function (xhr) {
@@ -1691,6 +1697,8 @@
                             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
 
                             if (val != null) {
+                                $('#CUSTOMER').attr('disabled', 'disabled');
+
                                 $.each(data,
                                     function (i, item) {
                                         if (item.BRG === val) {
@@ -1714,11 +1722,8 @@
                                 $($trElement + ' .btn-primary').removeAttr('disabled');
                                 offTab();
                                 modeEditTd();
-
-                                $('.qty-barang').trigger('click');
-                                $('.qty-barang').trigger('blur');
-
                             } else {
+                                $('#CUSTOMER').removeAttr('disabled');
                                 $($trElement + ' .nama-barang').text('-');
                                 $($trElement + ' .stn-barang').html('-' +'<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                 $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
@@ -1775,20 +1780,21 @@
         }
 
         function convertToRupiah(angka) {
-            //change by nurul 26/9/2018
+            //change by calvin 26 september 2018
             //var rupiah = '';
             //var angkarev = angka.toString().split('').reverse().join('');
             //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
             //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
-            return $.number(angka, 2);
-            //end change
+            return $.number(angka, 2, ',', '.');
+            //end change by calvin 26 september 2018
         }
 
         function convertToAngka(rupiah) {
-            //change by nurul 26/9/2018
+
+            //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll(',', ''));
-            //end change 
+            return parseFloat(rupiah.replaceAll('.', ''));
+            //end change by calvin 26 september 2018
         }
 
         function editPesanan1(idPesanan) {

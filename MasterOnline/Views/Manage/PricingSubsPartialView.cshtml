@@ -66,8 +66,8 @@
                 </div>
             </header>
             <ul class="plan-features">
-                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_MP == 99 ? "UNLIMITED" : subs.JUMLAH_MP.ToString()) marketplace</li>
-                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN == 999999999 ? "UNLIMITED" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
+                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_MP >= 99 ? "UNLIMITED" : subs.JUMLAH_MP.ToString()) marketplace</li>
+                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN >= 999 ? "UNLIMITED" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
                 @*<li><i class="ion-checkmark"> </i>Unlimited Email</li>
                     <li><i class="ion-checkmark"> </i>250Gb mo Transfer</li>
                     <li><i class="ion-checkmark"> </i>24/7 Tech Support</li>

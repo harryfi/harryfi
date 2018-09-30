@@ -395,8 +395,12 @@
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
                                             </div>
                                             <div id="descAPIKey" class="form-group">
-                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>
-                                                <label id="lblDesc" style="visibility:hidden" onclick="openModalDesc(MARKET.value)"><u>Klik di sini untuk melihat cara mendapatkan API key</u></label>
+                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                                <label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>
+                                                <br />
+                                                <label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>
+                                                <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
+                                                <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
                                             </div>
                                             <div id="BlibliMerchantID" class="form-group">
                                             </div>
@@ -464,6 +468,25 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalConfirmLazadaAPIKey" tabindex="-1" role="dialog" aria-labelledby="lazadaConfirmLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Lazada API Key</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-left">
+                    <h4>Lanjutkan untuk mendapatkan Lazada API Key.</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="GenerateLazadaCode(custCode); return false;">Get API Key</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalEleveniaAPIKey" tabindex="-1" role="dialog" aria-labelledby="eleveniaDescLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -475,8 +498,10 @@
                 <div class="row text-left">
                     <h4>1. Login akun elevenia anda sebagai seller di web : http://soffice.elevenia.co.id/login.do </h4>
                     <h4>2. Masuk ke menu Akun Saya, lalu API penjual.</h4>
-                    <h4>3. Copy API key pada halaman itu ke Master Online.</h4>
-                    <h4>4. Simpan, jika semua data sudah terisi.</h4>
+                    <h4>3. Klik button Ajukan OPEN API, kemudian isi data anda di Form yang muncul  dan klik Ajukan</h4>
+                    <h4>4. Jika sudah diverifikasi oleh Elevenia, maka akan muncul API key pada halaman tsb.</h4>
+                    <h4>5. Copy API key pada halaman itu ke Master Online.</h4>
+                    <h4>6. Simpan, jika semua data sudah terisi.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -655,7 +680,7 @@
                                     var bklapak = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("BUKALAPAK"))?.IdMarket.ToString();
                                     var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                                     var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();
-
+                                    var lzd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Lazada"))?.IdMarket.ToString();
                                 }
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
@@ -664,31 +689,42 @@
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
                                 }
-                                //add by Tri, API key bukalapak auto generate
+                                //add by Tri, remove/append api_key
                                 $('#lbl_Customers_API_KEY').remove();
                                 $('#txtAPI_Key').remove();
                                 //$('#emptyDiv').remove();
                                 //$('#txtDescAPIKey').remove();
+                                if ('@Model.Customers' != null) {
 
+                                }
                                 if (@bklapak != value && @tokped != value) {
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
-                                    var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" value="" maxlength="100"></div>';                                    
+                                    var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
                                     $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
 
                                     //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
                                     //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
                                     //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
                                     //$('descAPIKey').append(lblDescAPIKey);
-                                    lblDesc.style.visibility = 'visible'
+                                    lblDesc.style.visibility = 'visible';
+                                    lblDesc2.style.visibility = 'visible';
+                                    if (@lzd == value) {
+                                        lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya'
+                                    } else {
+                                        lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
+                                        lblPopUp.style.visibility = 'visible';
+                                    }
                                 } else {
-                                    lblDesc.style.visibility = 'hidden'
+                                    lblDesc.style.visibility = 'hidden';
+                                    lblDesc2.style.visibility = 'hidden';
+                                    lblPopUp.style.visibility = 'hidden';
                                 }
-                                //end add by Tri, API key bukalapak auto generate
+                                //end add by Tri, remove/append api_key
                             }
                         }
                     });
 
-                    namaMarket[0].selectize.setValue($('#Customers_NAMA').val());
+                    namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), true);
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -702,10 +738,12 @@
                     var kdBlibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                     var kdElevenia = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
                  }
-            if (codeMarketplace == @kdLzd) {
+            @*if (codeMarketplace == @kdLzd) {
                 $('#modalLazadaAPIKey').modal('show');
             }
-            else if (codeMarketplace == @kdBlibli){
+            else*@
+
+                if (codeMarketplace == @kdBlibli) {
                 $('#modalBlibliAPIKey').modal('show');
             }
             else if (codeMarketplace == @kdElevenia){
@@ -713,7 +751,7 @@
             }
         }
         //end add by Tri, function to open modal on how to get api key each marketplace
-
+        var custCode = ""
         function simpanCustomer(btnClicked) {
             if (!validateForm()) return false;
 
@@ -727,12 +765,30 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    if (response.Errors == null) {
-                        $('#table-customer-partial').html(response);
-                        Initialize();
-                        $('#close-editor').click();
-                        $('#loading_spinner').hide();
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                    if (response.Errors == null || response.kodeCust != null) {
+                        //add by Tri 26-9-2018
+                        if (response.kodeCust != undefined) {
+                            custCode = response.kodeCust;
+                            $('#loading_spinner').hide();
+                            //$('#modalConfirmLazadaAPIKey').modal('show');
+                            if (confirm("Generate New API Key?")) {
+                                GenerateLazadaCode(custCode);
+                            } else {
+
+                            }
+                               //window.open( , '_self');
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            //return true;
+                        } else {
+                            $('#table-customer-partial').html(response);
+                            Initialize();
+                            $('#close-editor').click();
+                            $('#loading_spinner').hide();
+                            $("html, body").animate({ scrollTop: 0 }, "slow");
+                        }
+                        //end add by Tri 26-9-2018
+
+
                     } else {
                         //change by nurul 16 / 8 / 2018 req pak dani
                         //console.log(response.Errors);
@@ -801,6 +857,7 @@
             getPelanggan();
             getKabKot();
             resetKabKot();
+
         }
 
         function resetKabKot() {
@@ -895,8 +952,40 @@
                     $('#Customers_KODEKABKOT').val(response.Customers.KODEKABKOT);
                     $('#Customers_TLP').val(response.Customers.TLP);
                     $('#Customers_TOP').val(response.Customers.TOP);
-                    $('#Customers_API_KEY').val(response.Customers.API_KEY);
+                    //$('#Customers_API_KEY').val(response.Customers.API_KEY);
+                    //add by Tri, remove/append api_key
+                                $('#lbl_Customers_API_KEY').remove();
+                                $('#txtAPI_Key').remove();
+                                //$('#emptyDiv').remove();
+                                //$('#txtDescAPIKey').remove();
 
+                    if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
+                        var valuetxtAPI_Key = "";
+                        if (response.Customers.API_KEY != null) {
+                            valuetxtAPI_Key = response.Customers.API_KEY;
+                        }
+                        var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                        var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key +'" id="Customers_API_KEY" name="Customers.API_KEY" required="required" type="text"></div>';
+                        $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+
+                                    //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
+                                    //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
+                                    //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
+                                    //$('descAPIKey').append(lblDescAPIKey);
+                        lblDesc.style.visibility = 'visible';
+                        lblDesc2.style.visibility = 'visible';
+                        if (@lzd == response.Customers.NAMA) {
+                            lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya'
+                        } else {
+                            lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
+                            lblPopUp.style.visibility = 'visible';
+                        }
+                    } else {
+                        lblDesc.style.visibility = 'hidden';
+                        lblDesc2.style.visibility = 'hidden';
+                        lblPopUp.style.visibility = 'hidden';
+                    }
+                                //end add by Tri, remove/append api_key
                     @*//add by Tri, API key bukalapak auto generate
                     $('#lbl_Customers_API_KEY').remove();
                     $('#txtAPI_Key').remove();
@@ -910,13 +999,15 @@
                     }
                     //end add by Tri, API key bukalapak auto generate*@
                     //add by Tri, button for generate lazada code
-                    $('#generate_code').remove();
+                    //remark by Tri, auto pop up when user save
+                    @*$('#generate_code').remove();
                     @{
                         var lzdCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("LAZADA")).IdMarket.ToString();
                     }
                     if (@lzdCode == response.Customers.NAMA) {
                         $('#buttonGen').append('<button class="btn btn-primary" onclick="GenerateLazadaCode('+response.Customers.CUST+'); return false;" id="generate_code">Generate</button>');
-                    }
+                    }*@
+                    //end remark by Tri, auto pop up when user save
                     //end add by Tri, button for generate lazada code
                     //add by calvin, textbox for client api blibli
                     $('#labelSort1_Cust').remove();
@@ -1000,7 +1091,7 @@
 
         //add by Tri, get link to generate lazada code
         function GenerateLazadaCode(kdCust) {
-
+            //alert(kdCust);
             var link = '@Url.Action("LazadaUrl", "Lazada", new { cust = "replaceCust" })';
             link = link.replace("replaceCust", kdCust);
 
@@ -1008,21 +1099,8 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    //opendialog(response);
-                    //close edit form
-                    @*$('.customer_table_section').show();
-                    $('.customer_editor_section').hide();
-                    $('#Customers_KODEPOS, #Customers_NAMA, #Customers_EMAIL, #Customers_AL, #Customers_RecNum, ' +
-                    '#Customers_CUST, #Customers_TLP, #Customers_KODEPROV, #Customers_KODEKABKOT, #Customers_TOP, #Customers_PERSO, #Customers_API_KEY').val('');
-                    $('#CUSTNUMBER').val('[AUTO]');
-                    $('#Customers_USERNAME').val('@(username)');
-                    $('#Customers_TGL_INPUT').val('@(DateTime.Now.ToString("dd/MM/yyyy"))');
-                    $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
-                    var namaMarket = $('#MARKET').selectize();
-                    namaMarket[0].selectize.setValue('');
-                    resetError();*@
-                    //end close edit form
-                    window.open(response, "Lazada Authentication", "width=600, height=400, scrollbars=yes");
+
+                    window.open(response, "Lazada Authentication", "width=1000, height=600, scrollbars=yes");
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
