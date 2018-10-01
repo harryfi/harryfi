@@ -18,6 +18,7 @@
 
         body {
             font-family: 'RoundedElegance' !important;
+            padding-top: 0;
         }
 
         nav .container {
@@ -69,16 +70,18 @@
             color: #ed1338;
         }
 
-        .header-menu-new .col-md-2 a:hover {
+        .header-menu-new .col-md-2 a:hover span {
             color: #FFA500;
         }
 
         .header-menu-new .col-md-2 a span {
             padding: 0 20px;
+            font-size: 16px;
+            color: #891539;
         }
 
         .nav-row {
-            padding: 15px;
+            padding: 30px;
         }
 
         .nav-row > div > a {
@@ -89,7 +92,7 @@
     @RenderSection("styles", required: false)
 </head>
 <body>
-    <nav class="navbar navbar-default navbar-fixed-top" id="top">
+    <nav class="navbar" id="top">
         <div class="container">
             <div class="navbar-header">
                 @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -102,71 +105,33 @@
                     <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" class="col-md-10 col-xs-6">
                 </a>
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-6 text-right hidden-xs hidden-sm" style="margin-top: 30px; margin-left: 40px;">
-                <div class="row">
-                    <a href="https://www.facebook.com/csmasteronline">
-                        <img src="~/Content/Images/facebook.png" alt="Facebook" width="24" height="24" />
-                    </a>
-                    <a href="https://www.instagram.com/csmasteronline" style="margin: 0 10px;">
-                        <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
-                    </a>
-                    @*add by nurul 13/8/2018 (tambah blog)*@
-                    <a href="http://13.250.30.255/blog">
-                        <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
-                    </a>
-                    @*<a href="#gplus">
-            <img src="~/Content/Images/google-plus.png" alt="Facebook" width="24" height="24" />
-        </a>*@
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <h4>csmasteronline@gmail.com <span class="bar">|</span> Tel: 021-634-9318</h4>
+            <div class="col-md-6 col-sm-6 col-xs-6 hidden-xs hidden-sm" style="margin-top: 56px; float: right;">
+                <div class="row header-menu-new">
+                    <div class="col-md-2">
+                        <a href="@Url.Action("Index", "Home")">
+                            <span>HOME</span>
+                        </a>
                     </div>
-                </div>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse hidden-lg hidden-md">
-                <div class="row nav-row">
-                    <div class="col-xs-3 text-center">
-                        <a class="" href="@Url.Action("Index", "Home")">HOME</a>
+                    <div class="col-md-2">
+                        <a href="#features">
+                            <span>FITUR</span>
+                        </a>
                     </div>
-                    <div class="col-xs-3 text-center">
-                        <a class="" href="#features">FITUR</a>
+                    <div class="col-md-2">
+                        <a href="@Url.Action("About", "Home")">
+                            <span>ABOUT</span>
+                        </a>
                     </div>
-                    <div class="col-xs-3 text-center">
-                        <a class="" href="@Url.Action("Login", "Account")">LOGIN</a>
+                    <div class="col-md-2">
+                        <a href="@Url.Action("Login", "Account")">
+                            <span>LOGIN</span>
+                        </a>
                     </div>
-                    <div class="col-xs-3 text-center">
-                        <a class="daftarBtn" href="@Url.Action("Register", "Account")">DAFTAR</a>
+                    <div class="col-md-2">
+                        <a href="@Url.Action("Register", "Account")">
+                            <span>DAFTAR</span>
+                        </a>
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="container-fluid hidden-sm hidden-xs" style="background-color: #891539;">
-            <div class="row header-menu-new" style="padding-left: 75px;">
-                <div class="col-md-2 col-md-offset-1">
-                    <a href="@Url.Action("Index", "Home")">
-                        <span>HOME</span>
-                    </a>
-                </div>
-                <div class="col-md-2">
-                    <a href="#features">
-                        <span>FITUR</span>
-                    </a>
-                </div>
-                <div class="col-md-2">
-                    <a href="@Url.Action("About", "Home")">
-                        <span>ABOUT</span>
-                    </a>
-                </div>
-                <div class="col-md-2">
-                    <a href="@Url.Action("Login", "Account")">
-                        <span>LOGIN</span>
-                    </a>
-                </div>
-                <div class="col-md-2">
-                    <a href="@Url.Action("Register", "Account")">
-                        <span>DAFTAR</span>
-                    </a>
                 </div>
             </div>
         </div>
