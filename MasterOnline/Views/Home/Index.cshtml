@@ -40,7 +40,7 @@
 
             h2.mobile-title {
                 color: #891539;
-                font-size: 38px;
+                font-size: 30px;
                 line-height: 58px;
                 letter-spacing: 3px;
                 font-weight: 700;
@@ -80,9 +80,17 @@
             color: #f37100;
         }
 
-        #btn-daftar {
+        #btn-daftar-pc {
+            margin: 0 auto;
             border-radius: 10px !important;
             width: 20%;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
             margin-top: 25px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
         }
@@ -282,12 +290,13 @@
     </div>
     <div class="container-fluid">
         <div class="col-md-12 text-center">
-            <h2 class="hidden-md hidden-lg mobile-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
+            <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">SOLUSI CERDAS PEBISNIS ONLINE</h2>
             <h2 class="hidden-xs hidden-sm pc-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
             <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
             <p>Kontrol Bisnis Anda dari Satu Tempat</p>
             <p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>
-            <a class="btn btn-lg" id="btn-daftar" href="/register" role="button">DAFTAR (FREE)</a>
+            <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
+            <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
         </div>
         <div class="col-md-12 col-xs-12 no-padding">
             <div class="videoBox">
@@ -299,27 +308,55 @@
 <!--End of Top Slogan-->
 <!--Start Marketplaces-->
 <div id="marketplace">
-    <div class="container logo-container">
-        <div class="mp-logo col-md-2 col-xs-4">
+    <div class="container logo-container hidden-sm hidden-xs">
+        <div class="mp-logo col-md-2">
             <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
         </div>
-        <div class="mp-logo col-md-2 col-xs-4">
+        <div class="mp-logo col-md-2">
             <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
         </div>
-        <div class="mp-logo col-md-2 col-xs-4">
+        <div class="mp-logo col-md-2">
             <img src="~/Content/Images/logo-blibli.png" alt="zalora" class="img-responsive">
         </div>
-        <div class="mp-logo col-md-2 col-xs-4">
+        <div class="mp-logo col-md-2">
             <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
         </div>
-        <div class="mp-logo col-md-2 col-xs-4">
+        <div class="mp-logo col-md-2">
             <img src="~/Content/Images/logo-shopee.png" alt="shopee" class="img-responsive">
+        </div>
+    </div>
+
+    <div class="container hidden-md hidden-lg" style="padding: 10px 0; margin-bottom: 40px;">
+        <div class="row">
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-shopee.png" alt="shopee" class="img-responsive">
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-blibli.png" alt="zalora" class="img-responsive">
+            </div>
         </div>
     </div>
 </div>
 <!--End of Marketplaces-->
 <!--Start Smart And Be Easy-->
-<div class="container-fluid" style="padding-bottom: 50px;">
+<div class="container-fluid hidden-xs hidden-sm feature-pc" style="padding-bottom: 50px;">
     <div class="col-md-12 text-center">
         <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">BE SMART AND EASY</h2>
         <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">TO CONTROL YOUR BUSINESS IN MARKETPLACE</p>
@@ -373,6 +410,63 @@
         <div class="col-md-3"></div>
     </div>
 </div>
+
+<div class="container-fluid hidden-lg hidden-md feature-mobile" style="padding-bottom: 10px;">
+    <div class="col-md-12 text-center">
+        <h2 class="mobile-title" style="line-height: 40px;">BE SMART AND EASY</h2>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 10px;">TO CONTROL YOUR BUSINESS IN MARKETPLACE</p>
+    </div>
+    <div style="padding: 30px">
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <img width="85%" src="~/Content/Images/barang_terpusat_icon.png" />
+                    </div>
+                    <div class="col-xs-8 col-sm-8">
+                        <p class="sub-title-features">Pengaturan Barang <br />Secara Terpusat</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <img width="85%" style="margin-top: 10px;" src="~/Content/Images/pack_ship_icon.png" />
+                    </div>
+                    <div class="col-xs-8 col-sm-8">
+                        <p class="sub-title-features">Pick, Pack, <br /> and Ship</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-3"></div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <img width="85%" style="margin-top: 10px;" src="~/Content/Images/akunting_icon.png" />
+                    </div>
+                    <div class="col-xs-8 col-sm-8">
+                        <p class="sub-title-features">Terintegrasi dengan <br />Akunting</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-xs-4 col-sm-4">
+                        <img width="85%" style="margin-top: 8px;" src="~/Content/Images/real_time_stock_icon.png" />
+                    </div>
+                    <div class="col-xs-8 col-sm-8">
+                        <p class="sub-title-features">Update Stok Barang <br /> Secara Real Time</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+</div>
 <!--End of Smart And Be Easy-->
 <div class="container-fluid grayish-white" style="padding: 35px 0 35px 0;">
     <img width="85%" style="display: block; margin: 0 auto;" src="~/Content/Images/chart_mo.png"/>
@@ -380,11 +474,12 @@
 <div class="container-fluid" style="padding: 20px 0 40px 0;">
     <div class="col-md-12 text-center">
         <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
+        <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
         <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">BISNIS ANDA DENGAN MODUL AKUNTING YANG TERINTEGRASI SECARA 'BUILT-IN'</p>
     </div>
     <div class="row" style="margin-top: 60px;">
         <div class="col-md-3"></div>
-        <div class="col-md-6">
+        <div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
             <img width="100%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP.png" />
             <div class="row" style="margin-top: 25px;">
                 <div class="col-md-6">
@@ -392,6 +487,7 @@
                         <img style="display: block; margin: 0 auto;" width="50%" src="~/Content/Images/app_store.png" />
                     </a>
                 </div>
+                <br class="hidden-md hidden-lg" />
                 <div class="col-md-6">
                     <a href="#">
                         <img style="display: block; margin: 0 auto;" width="50%" src="~/Content/Images/play_store.png" />
@@ -405,9 +501,9 @@
 <!--Start Footer-->
 <footer>
     <div class="container">
-        <div class="col-md-3 col-md-offset-1 col-xs-6">
+        <div class="col-md-3 col-md-offset-1 col-xs-12 col-sm-12 text-center">
             <a href="http://www.masteronline.co.id">
-                <img width="75%" src="~/Content/Images/MO_new_logo_bottom.png" alt="MasterOnline" class="img-responsive">
+                <img width="75%" style="display: block; margin: 0 auto;" src="~/Content/Images/MO_new_logo_bottom.png" alt="MasterOnline" class="img-responsive">
             </a><br /><br />
             <span style="color: #f7f7f7">
                 PT Erasoft Teknologi Indonesia.<br/>
@@ -419,6 +515,7 @@
             </span>
             <br>
         </div>
+        <br class="hidden-md hidden-lg"/>
         <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
             <h3>Hubungi Kami</h3>
             <ul>
