@@ -2536,6 +2536,14 @@ namespace MasterOnline.Controllers
 
                 if (checkUser == null && checkAkun == null)
                 {
+                    var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                    var key = accInDb.VCode;
+                    var originPassword = viewModel.User.Password;
+                    var encodedPassword = Helper.EncodePassword(originPassword, key);
+
+                    viewModel.User.Password = encodedPassword;
+                    viewModel.User.KonfirmasiPassword = encodedPassword;
                     viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
@@ -2548,13 +2556,21 @@ namespace MasterOnline.Controllers
             else
             {
                 var userInDb = MoDbContext.User.Single(c => c.UserId == viewModel.User.UserId);
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                var key = accInDb.VCode;
+                var originPassword = viewModel.User.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 userInDb.Email = viewModel.User.Email;
                 userInDb.Username = viewModel.User.Username;
                 userInDb.NoHp = viewModel.User.NoHp;
 
-                if (userInDb.Password != viewModel.User.Password)
-                    userInDb.Password = viewModel.User.Password;
+                if (userInDb.Password != encodedPassword)
+                {
+                    userInDb.Password = encodedPassword;
+                    userInDb.KonfirmasiPassword = encodedPassword;
+                }
             }
 
             MoDbContext.SaveChanges();

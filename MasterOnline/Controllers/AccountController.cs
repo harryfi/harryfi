@@ -52,6 +52,11 @@ namespace MasterOnline.Controllers
             if (accFromDb == null)
             {
                 var userFromDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
+
+                var key = accInDb.VCode;
+                var originPassword = account.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 if (userFromDb == null)
                 {
@@ -61,7 +66,7 @@ namespace MasterOnline.Controllers
 
                 var pass = userFromDb.Password;
 
-                if (!account.Password.Equals(pass))
+                if (!encodedPassword.Equals(pass))
                 {
                     ModelState.AddModelError(string.Empty, @"Password salah!");
                     return View("Login", account);
