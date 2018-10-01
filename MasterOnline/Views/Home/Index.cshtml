@@ -110,18 +110,16 @@
         }
 
         .videoBox {
-            margin-top: 40px;
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 30.25%; /* 16:9 */
             height: 0;
-            width: 100%;
         }
 
             .videoBox iframe {
                 position: absolute;
                 top: 0;
-                left: 0;
-                width: 100%;
+                left: 25%;
+                width: 50%;
                 height: 100%;
             }
 
@@ -131,6 +129,10 @@
 
         .grayish-white {
             background-color: #faf9f9;
+        }
+
+        .grayish-white-f6 {
+            background-color: #f6f6f6;
         }
 
         #marketplace .title-box-red,
@@ -286,7 +288,7 @@
 <!--Start Top Slogan-->
 <div id="cover">
     <div class="container text-center">
-        <img width="85%" src="~/Content/Images/header_image.png" />
+        <img width="60%" src="~/Content/Images/header_image.png" />
     </div>
     <div class="container-fluid">
         <div class="col-md-12 text-center">
@@ -298,10 +300,14 @@
             <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
             <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
         </div>
-        <div class="col-md-12 col-xs-12 no-padding">
-            <div class="videoBox">
-                <iframe src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
+    </div>
+    <div class="container-fluid" style="margin-top: 50px;">
+        <div class="row">
+            <div class="col-md-1 col-xs-12"></div>
+            <div class="col-md-10 col-xs-12">
+                <iframe style="display: block; margin: 0 auto;" width="65%" height="405" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
             </div>
+            <div class="col-md-1 col-xs-12"></div>
         </div>
     </div>
 </div>
@@ -469,7 +475,7 @@
 </div>
 <!--End of Smart And Be Easy-->
 <div class="container-fluid grayish-white" style="padding: 35px 0 35px 0;">
-    <img width="85%" style="display: block; margin: 0 auto;" src="~/Content/Images/chart_mo.png"/>
+    <img width="50%" style="display: block; margin: 0 auto;" src="~/Content/Images/chart_mo.png"/>
 </div>
 <div class="container-fluid" style="padding: 20px 0 40px 0;">
     <div class="col-md-12 text-center">
@@ -480,17 +486,32 @@
     <div class="row" style="margin-top: 60px;">
         <div class="col-md-3"></div>
         <div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
-            <img width="100%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP.png" />
-            <div class="row" style="margin-top: 25px;">
+            <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP.png" />
+            <div class="row hidden-xs hidden-sm" style="margin-top: 25px;">
+                <div class="col-md-1"></div>
+                <div class="col-md-4" style="margin-left: 20px;">
+                    <a href="#">
+                        <img style="display: block; float: right" width="75%" src="~/Content/Images/app_store.png" />
+                    </a>
+                </div>
+                <br class="hidden-md hidden-lg" />
+                <div class="col-md-4" style="margin-left: 20px;">
+                    <a href="#">
+                        <img style="display: block; float: right" width="75%" src="~/Content/Images/play_store.png" />
+                    </a>
+                </div>
+            </div>
+
+            <div class="row hidden-md hidden-lg" style="margin-top: 25px;">
                 <div class="col-md-6">
                     <a href="#">
-                        <img style="display: block; margin: 0 auto;" width="50%" src="~/Content/Images/app_store.png" />
+                        <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/app_store.png" />
                     </a>
                 </div>
                 <br class="hidden-md hidden-lg" />
                 <div class="col-md-6">
                     <a href="#">
-                        <img style="display: block; margin: 0 auto;" width="50%" src="~/Content/Images/play_store.png" />
+                        <img style="display: block; margin: 0 auto;" width="35%" src="~/Content/Images/play_store.png" />
                     </a>
                 </div>
             </div>
