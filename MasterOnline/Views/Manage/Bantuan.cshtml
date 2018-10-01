@@ -133,19 +133,31 @@
                 <img alt="masterdata" class="img-responsive-35 center-block" src="~/Content/Images/masterdata.png">
                 <br />
                 <p>
-                    Isi Master Data Toko Anda seperti:
-                    <strong> Gudang, Merk, Barang dan Supplier</strong>
+                    Isi Data Toko Anda :
+                    <strong> Gudang, Merk, Barang dan Supplier </strong>
+                    di menu Pengaturan, Master
                 </p>
                 <br>
                 <div class="row">
-                        <div class="col-md-12 text-center">
-                            <a class="btn btn-primary btn-lg btn-block invisible" href="@Url.Action("DataPerusahaanMenu")">
-                                <i class="fa fa-pencil"></i> Isi Data
+                    <div class="col-md-12 text-center">
+                        @if (jumlahAkunMarketplace > 0)
+                        {
+                                                                        //id menu master = 2
+                            <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(2);">
+                                <i class="fa"></i> Buka Menu Master
                             </a>
-                            @*<a class="btn btn-danger btn-md btn-block" href="#">
-                                <i class="fa fa-question-circle"></i> Panduan step by step
-                            </a>*@
-                        </div>
+                        }
+                        else
+                        {
+                            <a class="btn btn-primary btn-lg btn-block invisible" href="#">
+                                <i class="fa"></i> Buka Menu Master
+                            </a>
+                        }
+
+                        @*<a class="btn btn-danger btn-md btn-block" href="#">
+            <i class="fa fa-question-circle"></i> Panduan step by step
+        </a>*@
+                    </div>
                     </div>
             </div>
         </div>
@@ -159,17 +171,27 @@
             <div class="x_content">
                 <img alt="Saldo Awal" class="img-responsive-35 center-block" src="~/Content/Images/accounting-book.png">
                 <br />
-                <p>Masukkan <strong>saldo awal akunting</strong> anda. Skip kalau anda tidak memerlukan akunting.</p>
+                <p>Masukkan <strong>saldo awal hutang, piutang, stok</strong> anda di menu Pengaturan, Saldo Awal</p>
                 <br>
                 <div class="row">
-                        <div class="col-md-12 text-center" style="">
-                            <a class="btn btn-primary btn-lg btn-block invisible" href="#">
-                                <i class="fa fa-pencil"></i> Isi data
-                            </a>
-                            @*<a class="btn btn-danger btn-md btn-block" href="#">
-                                <i class="fa fa-question-circle"></i> Panduan step by step
-                            </a>*@
-                        </div>
+                    <div class="col-md-12 text-center" style="">
+                        @if (jumlahAkunMarketplace > 0)
+                        {
+                                                                     //id menu saldo = 43
+                        <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(43);">
+                            <i class="fa"></i>Buka Menu Saldo Awal
+                        </a>
+                        }
+                        else
+                        {
+                        <a class="btn btn-primary btn-lg btn-block invisible" href="#">
+                            <i class="fa"></i>Buka Menu Saldo Awal
+                        </a>
+                        }
+                        @*<a class="btn btn-danger btn-md btn-block" href="#">
+            <i class="fa fa-question-circle"></i> Panduan step by step
+        </a>*@
+                    </div>
                     </div>
             </div>
         </div>
@@ -228,6 +250,22 @@
         function warningDataPerusahaan() {
             alert('Isi data perusahaan terlebih dahulu!');
             return;
+        }
+
+        function openDropdownMenu(id) {
+            //open menu setting if not open yet
+            if (!$('#38').hasClass('active')) {
+                $('#a_38').click();
+            }
+            //close menu saldo if already open
+            if ($('#43').hasClass('active')) {
+                $('#a_43').click();
+            }
+            //close menu master if already open
+            if ($('#2').hasClass('active')) {
+                $('#a_2').click();
+            }
+            $('#a_' + id).click();
         }
     </script>
 

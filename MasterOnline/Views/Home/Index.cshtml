@@ -13,6 +13,10 @@
             src: url("../../fonts/rounded_elegance.ttf") format('truetype');
         }
 
+        body {
+            overflow-x: hidden;
+        }
+
         html {
             -webkit-text-stroke-width: 0.5pt;
             text-rendering: optimizeLegibility !important;
@@ -21,29 +25,26 @@
         }
 
         #cover {
-            margin-top: 65px;
             margin-bottom: 18px;
             background-size: cover;
             min-height: 350px;
         }
 
-            #cover h2.pc {
+            h2.pc-title {
+                color: #891539;
+                font-size: 45px;
+                line-height: 60px;
+                letter-spacing: 3px;
+                font-weight: 700;
+            }
+
+            h2.mobile-title {
                 color: #891539;
                 font-size: 38px;
                 line-height: 58px;
                 letter-spacing: 3px;
                 font-weight: 700;
-                margin-top: 130px;
             }
-
-        #cover h2.mobile {
-            color: #891539;
-            font-size: 38px;
-            line-height: 58px;
-            letter-spacing: 3px;
-            font-weight: 700;
-            margin-top: 40px;
-        }
 
             #cover h3 {
                 font-size: 58px;
@@ -63,7 +64,6 @@
             #cover p {
                 font-size: 18px;
                 letter-spacing: .5px;
-                margin-bottom: 30px;
             }
 
             #cover .btn {
@@ -72,8 +72,20 @@
             }
 
                 #cover .btn:hover {
-                    background-color: #b01c4b;
+                    background-color: #f37100;
                 }
+
+        .focus-text {
+            text-transform: uppercase;
+            color: #f37100;
+        }
+
+        #btn-daftar {
+            border-radius: 10px !important;
+            width: 20%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
 
         #gradient-mo {
             background: rgba(255,23,23,1);
@@ -89,26 +101,17 @@
             background-clip: text;
         }
 
-        .videoWrapper {
-            margin-top: 100px;
-            position: relative;
-        }
-
         .videoBox {
+            margin-top: 40px;
             position: relative;
-            padding-top: 20px;
-            padding-bottom: 67.5%;
+            padding-bottom: 56.25%; /* 16:9 */
             height: 0;
-            overflow: hidden;
+            width: 100%;
         }
 
             .videoBox iframe {
-                box-sizing: border-box;
-                /*background: url(../../Content/Images/macbook.png) 50% no-repeat;*/
-                background-size: contain;
-                padding: 10% 12% 14.8%;
                 position: absolute;
-                top: -10px;
+                top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
@@ -116,6 +119,10 @@
 
         #marketplace .logo-container {
             padding: 40px 0;
+        }
+
+        .grayish-white {
+            background-color: #faf9f9;
         }
 
         #marketplace .title-box-red,
@@ -250,6 +257,17 @@
             top: 175px;
             z-index: 100;
         }
+
+        .no-padding {
+            padding: 0 !important;
+        }
+
+        .sub-title-features {
+            font-size: 18px;
+            position: absolute;
+            top: 20px;
+            left: 0;
+        }
     </style>
 }
 
@@ -259,20 +277,21 @@
 
 <!--Start Top Slogan-->
 <div id="cover">
-    <div class="container">
-        <div class="col-md-5">
-            <h2 class="hidden-md hidden-lg mobile">SOLUSI CERDAS<br />PEBISNIS ONLINE</h2>
-            <h2 class="hidden-xs hidden-sm pc">SOLUSI CERDAS<br />PEBISNIS ONLINE</h2>
-            <span id="gradient-mo">master online</span>
+    <div class="container text-center">
+        <img width="85%" src="~/Content/Images/header_image.png" />
+    </div>
+    <div class="container-fluid">
+        <div class="col-md-12 text-center">
+            <h2 class="hidden-md hidden-lg mobile-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
+            <h2 class="hidden-xs hidden-sm pc-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
+            <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
+            <p>Kontrol Bisnis Anda dari Satu Tempat</p>
             <p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>
-            <p>KONTROL BISNIS ANDA DARI SATU TEMPAT</p>
-            <a class="btn btn-lg" href="/register" role="button">DAFTAR (FREE)</a>
+            <a class="btn btn-lg" id="btn-daftar" href="/register" role="button">DAFTAR (FREE)</a>
         </div>
-        <div class="col-md-7 col-xs-12">
-            <div class="videoWrapper">
-                <div class="videoBox">
-                    <iframe width="560" height="315" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
-                </div>
+        <div class="col-md-12 col-xs-12 no-padding">
+            <div class="videoBox">
+                <iframe src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
             </div>
         </div>
     </div>
@@ -280,9 +299,6 @@
 <!--End of Top Slogan-->
 <!--Start Marketplaces-->
 <div id="marketplace">
-    <div class="container title-box-red">
-        <h3>CARA MUDAH DAN CEPAT KONTROL BISNIS ANDA DI BERBAGAI MARKETPLACE</h3>
-    </div>
     <div class="container logo-container">
         <div class="mp-logo col-md-2 col-xs-4">
             <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
@@ -302,95 +318,82 @@
     </div>
 </div>
 <!--End of Marketplaces-->
-<!--Start How It Works-->
-<div class="carakerja">
-    <div class="container title-box-red">
-        <h3>CARA KERJA MASTER ONLINE</h3>
+<!--Start Smart And Be Easy-->
+<div class="container-fluid" style="padding-bottom: 50px;">
+    <div class="col-md-12 text-center">
+        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">BE SMART AND EASY</h2>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">TO CONTROL YOUR BUSINESS IN MARKETPLACE</p>
     </div>
-    <div class="container content-feature">
-        <div class="col-md-10 col-md-offset-1">
-            <img src="~/Content/Images/ilustrasi_mo.png" alt="cara kerja masteronline" class="img-responsive">
+    <div class="row" style="margin-bottom: 40px;">
+        <div class="col-md-3"></div>
+        <div class="col-md-3" style="margin-left: 55px;">
+            <div class="row">
+                <div class="col-md-4">
+                    <img width="85%" src="~/Content/Images/barang_terpusat_icon.png" />
+                </div>
+                <div class="col-md-8">
+                    <p class="sub-title-features">Pengaturan Barang <br />Secara Terpusat</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <img width="85%" style="margin-top: 10px;" src="~/Content/Images/pack_ship_icon.png" />
+                </div>
+                <div class="col-md-8">
+                    <p class="sub-title-features">Pick, Pack, <br /> and Ship</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-3" style="margin-left: 55px;">
+            <div class="row">
+                <div class="col-md-4">
+                    <img width="85%" style="margin-top: 10px;" src="~/Content/Images/akunting_icon.png" />
+                </div>
+                <div class="col-md-8">
+                    <p class="sub-title-features">Terintegrasi dengan <br />Akunting</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-4">
+                    <img width="85%" style="margin-top: 8px;" src="~/Content/Images/real_time_stock_icon.png" />
+                </div>
+                <div class="col-md-8">
+                    <p class="sub-title-features">Update Stok Barang <br /> Secara Real Time</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3"></div>
+    </div>
+</div>
+<!--End of Smart And Be Easy-->
+<div class="container-fluid grayish-white" style="padding: 35px 0 35px 0;">
+    <img width="85%" style="display: block; margin: 0 auto;" src="~/Content/Images/chart_mo.png"/>
+</div>
+<div class="container-fluid" style="padding: 20px 0 40px 0;">
+    <div class="col-md-12 text-center">
+        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">BISNIS ANDA DENGAN MODUL AKUNTING YANG TERINTEGRASI SECARA 'BUILT-IN'</p>
+    </div>
+    <div class="row" style="margin-top: 60px;">
+        <div class="col-md-3">
+
+        </div>
+        <div class="col-md-6">
+            <img width="100%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP.png"/>
+        </div>
+        <div class="col-md-3">
+
         </div>
     </div>
 </div>
-<!--End of How It Works-->
-<!--Start Features-->
-<section id="features">
-    <!-- Start Inventory -->
-    <div class="carakerja">
-        <div class="container title-box-red">
-            <h3>PENGATURAN BARANG SECARA TERPUSAT</h3>
-        </div>
-        <div class="container content-feature">
-            <div class="col-md-10 col-md-offset-1">
-                <h3>Proses upload barang ke marketplace jadi sangat mudah</h3>
-                <img src="~/Content/Images/Home-Barang.png" alt="screenshot" class="img-responsive"><br />
-                <p>Anda cukup mengisi daftar barang Anda sekali di MasterOnline. Otomatis barang-brang yang Anda isi akan di upload ke semua marketplace Anda</p>
-            </div>
-        </div>
-    </div>
-    <!-- End Inventory -->
-    <!-- Start Order -->
-    <div class="carakerja">
-        <div class="container title-box-red">
-            <h3>ATUR DAN KONTROL PESANAN ANDA, PEMBAYARAN SAMPAI PENGIRIMANNYA</h3>
-        </div>
-        <div class="container content-feature">
-            <div class="col-md-10 col-md-offset-1">
-                <h3>Proses semua pesanan online Anda dari satu tempat</h3>
-                <img src="~/Content/Images/Home-Pesanan.png" alt="screenshot" class="img-responsive"><br />
-                <p>Anda tidak perlu login ke masing-masing marketplace Anda untuk memproses pesanan.<br>Lakukan semuanya di MasterOnline, dari pengambilan barang, pengepakan, cetak label &amp; faktur, sampai input nomor resi. Marketplace Anda akan diupdate otomatis</p>
-            </div>
-        </div>
-    </div>
-    <!-- End Order -->
-    <!-- Start Qty -->
-    <div class="carakerja">
-        <div class="container title-box-red">
-            <h3>KONTROL STOK BARANG SECARA REAL TIME</h3>
-        </div>
-        <div class="container">
-            <div class="col-md-10 col-md-offset-1" style="padding-top: 20px;">
-                <h3>Apa yang terjadi kalau ada penjualan di toko online atau toko fisik Anda?</h3>
-                <p>MasterOnline akan mengupdate stok barang yang terjual di semua toko Anda secara online maupun offline, sehingga stok Anda akan selalu menampilkan stok yang sebenarnya.<br>Menghindarkan Anda dari review negatif dan penalty karena tidak dapat memenuhi pesanan</p>
-            </div>
-        </div>
-    </div>
-    <!-- End Qty -->
-    <!-- Start Dashboard -->
-    <div class="carakerja">
-        <div class="container title-box-red">
-            <h3>PANTAU BISNIS ANDA DENGAN DASHBOARD YANG KOMPREHENSIF</h3>
-        </div>
-        <div class="container content-feature">
-            <div class="col-md-10 col-md-offset-1">
-                <h3>Pantau bisnis Anda secara tepat dan akurat</h3>
-                <img src="~/Content/Images/Home-Dashboard.PNG" alt="screenshot" class="img-responsive"><br />
-                <p>MasterOnline memberikan tampilan muka untuk membantu Anda memantau proses transaksi pada bisnis yang Anda jalankan, sehingga Anda bisa melihat perkembangan dari bisnis yang Anda jalani</p>
-            </div>
-        </div>
-    </div>
-    <!-- End Dashboard -->
-    <!-- Start Accounting -->
-    <div class="carakerja">
-        <div class="container title-box-red">
-            <h3>TERINTEGRASI DENGAN AKUNTING</h3>
-        </div>
-        <div class="container content-feature">
-            <div class="col-md-10 col-md-offset-1">
-                <h3>Kontrol &amp; monitor bisnis Anda dengan<br /> modul akunting yang terintegrasi secara 'built-in'</h3>
-                <img src="~/Content/Images/Home-Akunting.png" alt="screenshot" class="img-responsive"><br />
-                <p>Catat semua transaksi akunting Anda, mulai dari pembelian barang, kas dan bank, pembayaran dll.<br>Hasilkan laporan aktifitas dan kinerja bisnis Anda secara instant dan real time</p>
-                @*<div class="text-center full-width">
-                    <img src="~/Content/Images/bca-bank-central-asia-logo.png" alt="bca" width="25%" style="display: block; margin-left: auto; margin-right: auto" class="img-responsive">
-                </div>*@<br />
-                <p>Master Online juga terintegrasi dengan API BCA, yang memudahkan Anda melakukan pembayaran ke supplier atau vendor dengan satu layar.</p>
-            </div>
-        </div>
-    </div>
-    <!-- End Accounting -->
-</section>
-<!--End of Features-->
 <!--Start Footer-->
 <footer>
     <div class="container">

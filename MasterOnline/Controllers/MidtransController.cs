@@ -191,35 +191,35 @@ namespace MasterOnline.Controllers
                         newData.TRANSACTION_TIME = notification_data.transaction_time;
 
                         MoDbContext.MidtransData.Add(newData);
-                    }
 
-                    if (notification_data.status_code.Equals("200") && (notification_data.transaction_status.Equals("settlement") || notification_data.transaction_status.Equals("capture")))
-                    {
-                        //transaction complete
-                        var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
-                        if (tranMidtrans != null)
+                        if (notification_data.status_code.Equals("200") && (notification_data.transaction_status.Equals("settlement") || notification_data.transaction_status.Equals("capture")))
                         {
-                            //transaksi sudah ada di tabel transaksi midtrans
-                            var insertTrans = new AktivitasSubscription();
+                            //transaction complete
+                            var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
+                            if (tranMidtrans != null)
+                            {
+                                //transaksi sudah ada di tabel transaksi midtrans
+                                var insertTrans = new AktivitasSubscription();
 
-                            var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
-                            userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
-                            //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
-                            userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
-                            if (!string.IsNullOrEmpty(notification_data.saved_token_id))
-                                userData.TOKEN_CC = notification_data.saved_token_id;
+                                var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
+                                userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
+                                //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
+                                userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
+                                if (!string.IsNullOrEmpty(notification_data.saved_token_id))
+                                    userData.TOKEN_CC = notification_data.saved_token_id;
 
-                            insertTrans.Account = userData.Username;
-                            insertTrans.Email = userData.Email;
-                            insertTrans.Nilai = tranMidtrans.VALUE;
-                            insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
-                            insertTrans.TipeSubs = tranMidtrans.TYPE;
-                            
-                            MoDbContext.AktivitasSubscription.Add(insertTrans);
+                                insertTrans.Account = userData.Username;
+                                insertTrans.Email = userData.Email;
+                                insertTrans.Nilai = tranMidtrans.VALUE;
+                                insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
+                                insertTrans.TipeSubs = tranMidtrans.TYPE;
+
+                                MoDbContext.AktivitasSubscription.Add(insertTrans);
+                            }
                         }
-                    }
 
-                    MoDbContext.SaveChanges();
+                        MoDbContext.SaveChanges();
+                    }                    
                 }
             }
             catch (Exception ex)

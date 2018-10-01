@@ -1106,11 +1106,14 @@
     <Content Include="Content\build\js\selectivity-jquery.min.js" />
     <Content Include="Content\hover-min.css" />
     <Content Include="Content\Images\accounting-book.png" />
+    <Content Include="Content\Images\akunting_icon.png" />
     <Content Include="Content\Images\american-express.png" />
     <Content Include="Content\Images\bank.png" />
+    <Content Include="Content\Images\barang_terpusat_icon.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
+    <Content Include="Content\Images\chart_mo.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
     <Content Include="Content\Images\daily-social-logo.png" />
@@ -1119,10 +1122,12 @@
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\google-plus.png" />
     <Content Include="Content\Images\gratis_new.png" />
+    <Content Include="Content\Images\header_image.png" />
     <Content Include="Content\Images\Home-Akunting.PNG" />
     <Content Include="Content\Images\Home-Barang.PNG" />
     <Content Include="Content\Images\Home-Dashboard.PNG" />
     <Content Include="Content\Images\Home-Pesanan.PNG" />
+    <Content Include="Content\Images\HP.png" />
     <Content Include="Content\Images\illustration.png" />
     <Content Include="Content\Images\ilustrasi_mo.png" />
     <Content Include="Content\Images\img.jpg" />
@@ -1153,8 +1158,11 @@
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />
+    <Content Include="Content\Images\pack_ship_icon.png" />
     <Content Include="Content\Images\payment_logo.png" />
     <Content Include="Content\Images\paypal.png" />
+    <Content Include="Content\Images\pengaturan_master.png" />
+    <Content Include="Content\Images\pengaturan_saldoawal.png" />
     <Content Include="Content\Images\picture.jpg" />
     <Content Include="Content\Images\prod-1.jpg" />
     <Content Include="Content\Images\prod-2.jpg" />
@@ -1162,6 +1170,7 @@
     <Content Include="Content\Images\prod-4.jpg" />
     <Content Include="Content\Images\prod-5.jpg" />
     <Content Include="Content\Images\PromoPulsa.png" />
+    <Content Include="Content\Images\real_time_stock_icon.png" />
     <Content Include="Content\Images\screenshot01.jpg" />
     <Content Include="Content\Images\screenshot02.jpg" />
     <Content Include="Content\Images\screenshot04.jpg" />
@@ -4998,8 +5007,9 @@
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\WebFont\Linearicons-Free.woff2" />
     <Content Include="fonts\rounded_elegance.ttf" />
     <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
+    <None Include="Properties\PublishProfiles\AWS.pubxml" />
+    <None Include="Properties\PublishProfiles\DEV.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\Server 2 Erasoft.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
@@ -5010,6 +5020,7 @@
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\moment-with-locales.js" />
     <Content Include="Scripts\respond.js" />
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Web.config">
