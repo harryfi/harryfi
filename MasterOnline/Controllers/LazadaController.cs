@@ -21,7 +21,7 @@ namespace MasterOnline.Controllers
         string eraAppKey = "106147";
         string eraAppSecret = "So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU";
         //string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
-        string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=&lzdID=";
+        string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
         //string eraAppKey = "";101775
         // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu
         DatabaseSQL EDB;
@@ -52,12 +52,17 @@ namespace MasterOnline.Controllers
         }
         [Route("lzd/code")]
         [HttpGet]
-        public void LazadaCode(string user, string lzdID, string code)
+        public ActionResult LazadaCode(string user, string code)
         {
-            DatabaseSQL EDB = new DatabaseSQL(user);
-            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + lzdID + "'");
+            var param = user.Split(new string[] { "_param_" }, StringSplitOptions.None);
+            if (param.Count() == 2)
+            {
+                DatabaseSQL EDB = new DatabaseSQL(param[0]);
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET API_KEY = '" + code + "' WHERE CUST = '" + param[1] + "'");
 
-            GetToken(user, lzdID, code);
+                GetToken(param[0], param[1], code);
+            }
+            return View("LazadaAuth");
         }
 
         [HttpGet]
@@ -65,8 +70,8 @@ namespace MasterOnline.Controllers
         {
             string userId = sessionData.Account.UserId;
             string lzdId = cust;
-            string compUrl = eraCallbackUrl + userId + "&lzdID=" + lzdId;
-            string uri = "https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=" + compUrl + "&client_id=" + eraAppKey;
+            string compUrl = eraCallbackUrl + userId + "_param_" + lzdId;
+            string uri = "https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=" + compUrl + "&client_id=" + eraAppKey + "&country=id";
             return uri;
         }
 
@@ -80,6 +85,8 @@ namespace MasterOnline.Controllers
             LazopRequest request = new LazopRequest("/auth/token/create");
             request.SetHttpMethod("GET");
             request.AddApiParameter("code", accessToken);
+
+            ErasoftDbContext = new ErasoftContext(user);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
