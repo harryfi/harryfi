@@ -1732,7 +1732,12 @@
 
         function applyHargaPerMarket($harga) {
             $('input[data-jenis="hjual"]').each(function () {
-                $(this).val($harga);
+                //change by nurul 1/10/2018
+                //$(this).val($harga);
+                if ($(this).val() == "0,00") {
+                    $(this).val($harga);
+                }
+                //end change 
             });
         }
 
