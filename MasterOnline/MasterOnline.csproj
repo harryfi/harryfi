@@ -1108,6 +1108,7 @@
     <Content Include="Content\Images\accounting-book.png" />
     <Content Include="Content\Images\akunting_icon.png" />
     <Content Include="Content\Images\american-express.png" />
+    <Content Include="Content\Images\app_store.png" />
     <Content Include="Content\Images\bank.png" />
     <Content Include="Content\Images\barang_terpusat_icon.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
@@ -1164,6 +1165,7 @@
     <Content Include="Content\Images\pengaturan_master.png" />
     <Content Include="Content\Images\pengaturan_saldoawal.png" />
     <Content Include="Content\Images\picture.jpg" />
+    <Content Include="Content\Images\play_store.png" />
     <Content Include="Content\Images\prod-1.jpg" />
     <Content Include="Content\Images\prod-2.jpg" />
     <Content Include="Content\Images\prod-3.jpg" />
