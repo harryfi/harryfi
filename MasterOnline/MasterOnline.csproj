@@ -1108,6 +1108,7 @@
     <Content Include="Content\Images\accounting-book.png" />
     <Content Include="Content\Images\akunting_icon.png" />
     <Content Include="Content\Images\american-express.png" />
+    <Content Include="Content\Images\app_store.png" />
     <Content Include="Content\Images\bank.png" />
     <Content Include="Content\Images\barang_terpusat_icon.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
@@ -1119,6 +1120,7 @@
     <Content Include="Content\Images\daily-social-logo.png" />
     <Content Include="Content\Images\done.png" />
     <Content Include="Content\Images\erasoft_indonesia_pt_fb.png" />
+    <Content Include="Content\Images\facebook-white.jpg" />
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\google-plus.png" />
     <Content Include="Content\Images\gratis_new.png" />
@@ -1127,7 +1129,7 @@
     <Content Include="Content\Images\Home-Barang.PNG" />
     <Content Include="Content\Images\Home-Dashboard.PNG" />
     <Content Include="Content\Images\Home-Pesanan.PNG" />
-    <Content Include="Content\Images\HP.png" />
+    <Content Include="Content\Images\HP_sample.png" />
     <Content Include="Content\Images\illustration.png" />
     <Content Include="Content\Images\ilustrasi_mo.png" />
     <Content Include="Content\Images\img.jpg" />
@@ -1164,6 +1166,7 @@
     <Content Include="Content\Images\pengaturan_master.png" />
     <Content Include="Content\Images\pengaturan_saldoawal.png" />
     <Content Include="Content\Images\picture.jpg" />
+    <Content Include="Content\Images\play_store.png" />
     <Content Include="Content\Images\prod-1.jpg" />
     <Content Include="Content\Images\prod-2.jpg" />
     <Content Include="Content\Images\prod-3.jpg" />
@@ -5195,6 +5198,7 @@
     <Content Include="Views\Manage\MarketPlaceLog.cshtml" />
     <Content Include="Views\Manage\SupportOnline.cshtml" />
     <Content Include="Views\Manage\SupportOffline.cshtml" />
+    <Content Include="Views\Lazada\LazadaAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
