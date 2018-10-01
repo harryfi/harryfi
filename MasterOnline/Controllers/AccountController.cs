@@ -419,7 +419,21 @@ namespace MasterOnline.Controllers
             message.Subject = "Pendaftaran MasterOnline berhasil!";
             message.Body = string.Format(body, account.Email, originPassword);
             message.IsBodyHtml = true;
-
+#if AWS
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "AKIAIXN2D33JPSDL7WEQ",
+                    Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
             using (var smtp = new SmtpClient())
             {
                 var credential = new NetworkCredential
@@ -433,6 +447,7 @@ namespace MasterOnline.Controllers
                 smtp.EnableSsl = true;
                 await smtp.SendMailAsync(message);
             }
+#endif
 
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
             ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
