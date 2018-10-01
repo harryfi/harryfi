@@ -5195,6 +5195,7 @@
     <Content Include="Views\Manage\MarketPlaceLog.cshtml" />
     <Content Include="Views\Manage\SupportOnline.cshtml" />
     <Content Include="Views\Manage\SupportOffline.cshtml" />
+    <Content Include="Views\Lazada\LazadaAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
