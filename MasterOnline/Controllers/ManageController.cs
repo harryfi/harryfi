@@ -4161,7 +4161,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetDataBarang(string code)
+        public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
             var listBarang = (from a in ErasoftDbContext.STF02 
@@ -4169,6 +4169,13 @@ namespace MasterOnline.Controllers
                               join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
                               where c.CUST == code
                               select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+            return Json(listBarang, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetDataBarang(string code)
+        {
+            var listBarang = ErasoftDbContext.STF02.ToList();
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }

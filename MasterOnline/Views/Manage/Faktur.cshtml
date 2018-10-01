@@ -644,7 +644,10 @@
                     var $jumlahPesananMax = res.JumlahPesananMax;
                     var $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
-                    if ($jumlahPesananBulanIni <= $jumlahPesananMax) {
+                    //change by nurul 1/10/2018
+                    //if ($jumlahPesananBulanIni <= $jumlahPesananMax) {
+                    //end change 
+                    if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
                         $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
