@@ -1697,7 +1697,7 @@
                             var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
 
                             if (val != null) {
-                                $('#CUSTOMER').attr('disabled', 'disabled');
+                                $('#CUSTOMER')[0].selectize.disable();
 
                                 $.each(data,
                                     function (i, item) {
@@ -1723,7 +1723,8 @@
                                 offTab();
                                 modeEditTd();
                             } else {
-                                $('#CUSTOMER').removeAttr('disabled');
+                                $('#CUSTOMER')[0].selectize.enable();
+
                                 $($trElement + ' .nama-barang').text('-');
                                 $($trElement + ' .stn-barang').html('-' +'<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                 $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
