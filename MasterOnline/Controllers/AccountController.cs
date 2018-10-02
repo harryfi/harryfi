@@ -149,7 +149,7 @@ namespace MasterOnline.Controllers
             //    }
             //}
             var connectionID = Guid.NewGuid().ToString();
-            string username = sessionData.Account.Username;
+            //string username = sessionData.Account.Username;
 
             //#region bukalapak
             //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
