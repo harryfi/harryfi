@@ -16,6 +16,7 @@ using System.Web.Script.Serialization;
 using System.Web.Services.Protocols;
 using System.Xml.Schema;
 using EntityFramework.Extensions;
+using System.Threading;
 
 using Erasoft.Function;
 
@@ -194,18 +195,10 @@ namespace MasterOnline.Controllers
 
         // =============================================== Menu Manage (START)
 
-        [Route("manage/order")]
-        public ActionResult Pesanan()
+        public async void GetPesanan(string connectionID,string username)
         {
-            //add by Tri call market place api getorder
-            var connectionID = Guid.NewGuid().ToString();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = sessionData.Account.Username;
-            int bliAcc = 0;
-            int lazadaAcc = 0;
-            int blAcc = 0;
-            int elAcc = 0;
 
+            int bliAcc = 0;
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -228,10 +221,24 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD
                         };
 
-                        bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                     }
                 }
             }
+        }
+
+        [Route("manage/order")]
+        public ActionResult Pesanan()
+        {
+            //add by Tri call market place api getorder
+            var connectionID = Guid.NewGuid().ToString();
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string username = sessionData.Account.Username;
+            //System.Threading.Tasks.Task.Run(GetPesanan(connectionID, username));
+
+            int lazadaAcc = 0;
+            int blAcc = 0;
+            int elAcc = 0;
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
@@ -2536,6 +2543,14 @@ namespace MasterOnline.Controllers
 
                 if (checkUser == null && checkAkun == null)
                 {
+                    var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                    var key = accInDb.VCode;
+                    var originPassword = viewModel.User.Password;
+                    var encodedPassword = Helper.EncodePassword(originPassword, key);
+
+                    viewModel.User.Password = encodedPassword;
+                    viewModel.User.KonfirmasiPassword = encodedPassword;
                     viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
@@ -2548,13 +2563,21 @@ namespace MasterOnline.Controllers
             else
             {
                 var userInDb = MoDbContext.User.Single(c => c.UserId == viewModel.User.UserId);
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                var key = accInDb.VCode;
+                var originPassword = viewModel.User.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 userInDb.Email = viewModel.User.Email;
                 userInDb.Username = viewModel.User.Username;
                 userInDb.NoHp = viewModel.User.NoHp;
 
-                if (userInDb.Password != viewModel.User.Password)
-                    userInDb.Password = viewModel.User.Password;
+                if (userInDb.Password != encodedPassword)
+                {
+                    userInDb.Password = encodedPassword;
+                    userInDb.KonfirmasiPassword = encodedPassword;
+                }
             }
 
             MoDbContext.SaveChanges();
@@ -4145,7 +4168,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetDataBarang(string code)
+        public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
             var listBarang = (from a in ErasoftDbContext.STF02 
@@ -4153,6 +4176,13 @@ namespace MasterOnline.Controllers
                               join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
                               where c.CUST == code
                               select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+            return Json(listBarang, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetDataBarang(string code)
+        {
+            var listBarang = ErasoftDbContext.STF02.ToList();
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
