@@ -109,7 +109,7 @@ namespace MasterOnline.Controllers
                     break;
                 case api_status.Success:
                     {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.FirstOrDefault(p => p.REQUEST_ID == data.REQUEST_ID);
                         if (apiLogInDb != null)
                         {
                             apiLogInDb.REQUEST_STATUS = "Success";
