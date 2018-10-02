@@ -301,7 +301,7 @@ namespace MasterOnline.Controllers
             ShippingINP = 4,
             Completed = 5
         }
-        public string GetOrderList(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
+        public async Task<string> GetOrderList(BlibliAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -365,7 +365,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -389,7 +389,7 @@ namespace MasterOnline.Controllers
                     {
                         foreach (var item in result.content)
                         {
-                            GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
                         }
                     }
                 }
@@ -403,7 +403,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public string GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string connId, string CUST, string NAMA_CUST)
+        public async Task<string> GetOrderDetail(BlibliAPIData iden, string orderNo, string orderItemNo, string connId, string CUST, string NAMA_CUST)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -444,7 +444,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {

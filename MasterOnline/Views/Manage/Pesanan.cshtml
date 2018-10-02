@@ -1398,7 +1398,7 @@
 
                             if ($class === 'qty-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananDetail_QTY" name="PesananDetail.QTY" type="hidden" value="'+ this.value +'">');
-                                $($trElement + ' .disc1-barang').trigger('click');
+                                //$($trElement + ' .disc1-barang').trigger('click');
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="'+ this.value +'">');
 
@@ -1561,11 +1561,8 @@
                     });
 
                     custSelect[0].selectize.setValue($('#Pesanan_CUST').val());
-                    if ($('#Pesanan_CUST').val() != null) {
-                        $('#CUSTOMER').attr('disabled', 'disabled');
-                        //$('input, select, .btn-danger').each(function() {
-                        //    $(this).attr('disabled', 'disabled');
-                        //});
+                    if ($('#Pesanan_CUST').val() != "") {
+                        $('#CUSTOMER')[0].selectize.disable();
                     }
                     $('#btn-simpan-perubahan-row').hide();
                 },
