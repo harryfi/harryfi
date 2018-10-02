@@ -49,9 +49,9 @@
                 top: 0;
                 height: 100%;
                 z-index: -1;*/
-                width: 75%;
-                margin-bottom: 21px;
-                margin-top: 21px;
+                width: 60%;
+                margin-bottom: 15px;
+                margin-top: 15px;
                 z-index: 0;
             }
 
@@ -109,12 +109,12 @@
                     width: 0;
                     height: 0;
                     border-style: solid;
-                    border-width: 40px 300px 0 0;
+                    border-width: 30px 250px 0 0;
                     border-color: rgba(0, 0, 0, 0.5) transparent transparent;
                 }
 
             .snip1404 .plan-cost {
-                padding: 40px 20px 10px;
+                padding: 20px 20px 10px;
                 text-align: right;
             }
 
@@ -159,7 +159,7 @@
 
             .snip1404 .plan-select {
                 border-top: 1px solid rgba(0, 0, 0, 0.2);
-                padding: 20px;
+                padding: 10px;
                 text-align: center;
             }
 
@@ -189,7 +189,7 @@
             }
 
                 .snip1404 .featured .plan-select {
-                    padding: 30px 20px;
+                    padding: 20px 10px;
                 }
 
         @@media only screen and (max-width: 767px) {
@@ -375,34 +375,55 @@
                 if (confirm(msg))
                 {
                      //alert('kode:' + kode + '\nbln:' + bln);
-            @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
-            link = link.replace("replaceCode", kode);
-            link = link.replace("replaceBulan", String(bln));*@
-            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-            link += '?code=' + kode + '&bulan=' + bln;
+                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                link = link.replace("replaceCode", kode);
+                link = link.replace("replaceBulan", String(bln));*@
+                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                link += '?code=' + kode + '&bulan=' + bln;
 
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    if (response != null) {
-                        //window.location = response.urlView;
-                        snap.pay(response, { skipOrderSummary: true });
-                        //alert(response);
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        if (response != null) {
+                            //window.location = response.urlView;
+                            snap.pay(response, { skipOrderSummary: true });
+                            //alert(response);
+                        }
+                        //window.open(response, "_self");
+                        //window.location.href(response);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
                     }
-                    //window.open(response, "_self");
-                    //window.location.href(response);
-
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-                } else {
-
+                });
                 }
             }
+            else
+            {
+                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                link += '?code=' + kode + '&bulan=' + bln;
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        if (response != null) {
+                            //window.location = response.urlView;
+                            snap.pay(response, { skipOrderSummary: true });
+                            //alert(response);
+                        }
+                        //window.open(response, "_self");
+                        //window.location.href(response);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
+        }
 
 
     </script>
