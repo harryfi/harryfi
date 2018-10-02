@@ -479,6 +479,10 @@
     <Compile Include="Migrations\201809070842203_AddFieldBulanInTabelTransMidtran.Designer.cs">
       <DependentUpon>201809070842203_AddFieldBulanInTabelTransMidtran.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810020918164_addTableCategoryElevenia.cs" />
+    <Compile Include="Migrations\201810020918164_addTableCategoryElevenia.Designer.cs">
+      <DependentUpon>201810020918164_addTableCategoryElevenia.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -5501,6 +5505,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201809070842203_AddFieldBulanInTabelTransMidtran.resx">
       <DependentUpon>201809070842203_AddFieldBulanInTabelTransMidtran.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810020918164_addTableCategoryElevenia.resx">
+      <DependentUpon>201810020918164_addTableCategoryElevenia.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

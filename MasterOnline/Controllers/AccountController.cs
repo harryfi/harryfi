@@ -52,11 +52,7 @@ namespace MasterOnline.Controllers
             if (accFromDb == null)
             {
                 var userFromDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
-                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
 
-                var key = accInDb.VCode;
-                var originPassword = account.Password;
-                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 if (userFromDb == null)
                 {
@@ -64,6 +60,10 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
 
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
+                var key = accInDb.VCode;
+                var originPassword = account.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
                 var pass = userFromDb.Password;
 
                 if (!encodedPassword.Equals(pass))
