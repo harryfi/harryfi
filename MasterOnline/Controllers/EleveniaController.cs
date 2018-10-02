@@ -766,95 +766,95 @@ namespace MasterOnline.Controllers
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
 
-        //public async ActionResult GetCategoryElevenia(string auth)
-        //{
-        //    var ret = string.Empty;
+        public async Task<ActionResult> GetCategoryElevenia(string auth)
+        {
+            var ret = string.Empty;
 
-        //    var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
-        //    Utils.HttpRequest req = new Utils.HttpRequest();
-        //    long milis = BlibliController.CurrentTimeMillis();
-        //    DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+            //var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
+            //Utils.HttpRequest req = new Utils.HttpRequest();
+            //long milis = BlibliController.CurrentTimeMillis();
+            //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
 
-        //    //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", content, typeof(string), auth) as string;
-        //    var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
-        //    if (result != null)
-        //    {
-        //        System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-        //        doc.LoadXml(result.Substring(55));
-        //        string json = JsonConvert.SerializeXmlNode(doc);
+            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/category", content, typeof(string), auth) as string;
+            ////var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
+            //if (result != null)
+            //{
+            //    System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+            //    doc.LoadXml(result.Substring(55));
+            //    string json = JsonConvert.SerializeXmlNode(doc);
 
-        //        try
-        //        {
-        //            var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootM>(json);
-        //            //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
-        //            if (res.DeliveryTemplates != null)
-        //            {
+            //    try
+            //    {
+            //        var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootM>(json);
+            //        //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
+            //        if (res.DeliveryTemplates != null)
+            //        {
 
-        //                EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
-        //                string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
-        //                foreach (var item in res.DeliveryTemplates.template)
-        //                {
-        //                    sSQL += "'" + item.dlvTmpltSeq + "','" + item.dlvTmpltNm + "'," + Convert.ToString(recNum) + "),(";
-        //                }
-        //                sSQL += ")";
-        //                sSQL = sSQL.Replace(",()", "");
-        //                if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
-        //                {
-        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
-        //                }
-        //                else
-        //                {
-        //                    currentLog.REQUEST_RESULT = "Internal Error";
-        //                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
-        //                }
+            //            EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
+            //            string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
+            //            foreach (var item in res.DeliveryTemplates.template)
+            //            {
+            //                sSQL += "'" + item.dlvTmpltSeq + "','" + item.dlvTmpltNm + "'," + Convert.ToString(recNum) + "),(";
+            //            }
+            //            sSQL += ")";
+            //            sSQL = sSQL.Replace(",()", "");
+            //            if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+            //            {
+            //                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+            //            }
+            //            else
+            //            {
+            //                currentLog.REQUEST_RESULT = "Internal Error";
+            //                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+            //            }
 
-        //                DataSet ds = new DataSet();
-        //                ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
-        //                if (ds.Tables[0].Rows.Count > 0)
-        //                {
-        //                    ret = recNum;
-        //                }
-        //            }
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootS>(json);
-        //            //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
-        //            if (res.DeliveryTemplates != null)
-        //            {
+            //            DataSet ds = new DataSet();
+            //            ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
+            //            if (ds.Tables[0].Rows.Count > 0)
+            //            {
+            //                ret = recNum;
+            //            }
+            //        }
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootS>(json);
+            //        //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
+            //        if (res.DeliveryTemplates != null)
+            //        {
 
-        //                EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
-        //                string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
-        //                sSQL += "'" + res.DeliveryTemplates.template.dlvTmpltSeq + "','" + res.DeliveryTemplates.template.dlvTmpltNm + "'," + Convert.ToString(recNum) + ")";
-        //                if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
-        //                {
-        //                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
-        //                }
-        //                else
-        //                {
-        //                    currentLog.REQUEST_RESULT = "Internal Error";
-        //                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
-        //                }
-        //                DataSet ds = new DataSet();
-        //                ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
-        //                if (ds.Tables[0].Rows.Count > 0)
-        //                {
-        //                    ret = recNum;
-        //                }
-        //            }
-        //        }
+            //            EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
+            //            string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
+            //            sSQL += "'" + res.DeliveryTemplates.template.dlvTmpltSeq + "','" + res.DeliveryTemplates.template.dlvTmpltNm + "'," + Convert.ToString(recNum) + ")";
+            //            if (EDB.ExecuteSQL("ConnectionString", CommandType.Text, sSQL) == 1)
+            //            {
+            //                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+            //            }
+            //            else
+            //            {
+            //                currentLog.REQUEST_RESULT = "Internal Error";
+            //                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+            //            }
+            //            DataSet ds = new DataSet();
+            //            ds = EDB.GetDataSet("Con", "DeliveryTemplateElevenia", "SELECT KODE,KETERANGAN,RECNUM_ARF01 FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01='" + recNum + "'");
+            //            if (ds.Tables[0].Rows.Count > 0)
+            //            {
+            //                ret = recNum;
+            //            }
+            //        }
+            //    }
 
-        //    }
-        //    else
-        //    {
-        //        currentLog.REQUEST_RESULT = "Not Found";
-        //        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
-        //    }
+            //}
+            //else
+            //{
+            //    currentLog.REQUEST_RESULT = "Not Found";
+            //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+            //}
 
-        //    return Json(ret, JsonRequestBehavior.AllowGet);
-        //}
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
 
-        public BindingBase GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
+        public async Task<BindingBase> GetOrder(string auth, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             var connIdARF01C = Guid.NewGuid().ToString();
             var ret = new BindingBase();
@@ -906,8 +906,8 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
 
-            //var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
-            var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
+            var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
+            //var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
             if (!string.IsNullOrEmpty(test))
             {
                 XmlDocument doc = new XmlDocument();
@@ -1075,7 +1075,7 @@ namespace MasterOnline.Controllers
                         if (stat == StatusOrder.Paid)
                         {
                             //jika tidak ada data PAID, lanjut ke PackagingINP
-                            GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
+                            await GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
                         }
                     }
                     else

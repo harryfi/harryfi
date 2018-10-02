@@ -195,7 +195,7 @@ namespace MasterOnline.Controllers
 
         // =============================================== Menu Manage (START)
 
-        public async void GetPesanan(string connectionID,string username)
+        public async void GetPesanan(string connectionID, string username)
         {
 
             int bliAcc = 0;
@@ -228,13 +228,41 @@ namespace MasterOnline.Controllers
         }
 
         [Route("manage/order")]
-        public ActionResult Pesanan()
+        //public ActionResult Pesanan()
+        public async System.Threading.Tasks.Task<ActionResult> Pesanan()
         {
             //add by Tri call market place api getorder
             var connectionID = Guid.NewGuid().ToString();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string username = sessionData.Account.Username;
-            //System.Threading.Tasks.Task.Run(GetPesanan(connectionID, username));
+            //GetPesanan(connectionID, username);
+            int bliAcc = 0;
+            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            if (listBliShop.Count > 0)
+            {
+                bliAcc = 1;
+                foreach (ARF01 tblCustomer in listBliShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                    {
+                        var bliApi = new BlibliController();
+
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD
+                        };
+
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    }
+                }
+            }
 
             int lazadaAcc = 0;
             int blAcc = 0;
@@ -247,7 +275,7 @@ namespace MasterOnline.Controllers
                 foreach (ARF01 tblCustomer in listELShop)
                 {
                     var elApi = new EleveniaController();
-                    elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                 }
             }
             var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
@@ -262,30 +290,6 @@ namespace MasterOnline.Controllers
                 }
 
             }
-            //remark by calvin, 13 july 2018, dipindah ke dalam masing" API
-            //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-            //SqlCommand CommandSQL = new SqlCommand();
-
-            ////add by Tri call sp to insert buyer data
-            //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-            //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-
-            //EDB.ExecuteSQL("", "MoveARF01CFromTempTable", CommandSQL);
-            ////end add by Tri call sp to insert buyer data
-
-            //CommandSQL = new SqlCommand();
-            //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-
-            //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-            //CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-            //CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-            //CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = lazadaAcc;
-            //CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = blAcc;
-
-            //EDB.ExecuteSQL("", "MoveOrderFromTempTable", CommandSQL);
-
-            ////end add by Tri call market place api getorder
-
 
             var vm = new PesananViewModel()
             {
@@ -731,29 +735,20 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public async System.Threading.Tasks.Task<string> GetCategoryElevenia()
         {
-            //var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
-            //var custInDb = ErasoftDbContext.ARF01.Where(c => c.NAMA == idmarket).ToList();
-            //foreach (var customer in custInDb)
-            //{
-            //    #region BLIBLI get token
-            //    if (!string.IsNullOrEmpty(customer.API_CLIENT_P) && !string.IsNullOrEmpty(customer.API_CLIENT_U))
-            //    {
-            //        var BliApi = new BlibliController();
-            //        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-            //        {
-            //            API_client_username = customer.API_CLIENT_U,
-            //            API_client_password = customer.API_CLIENT_P,
-            //            API_secret_key = customer.API_KEY,
-            //            mta_username_email_merchant = customer.EMAIL,
-            //            mta_password_password_merchant = customer.PASSWORD,
-            //            merchant_code = customer.Sort1_Cust,
-            //            token = customer.TOKEN
-            //        };
-            //        await BliApi.GetCategoryTree(data);
-            //        //BliApi.GetCategoryTree(data);
-            //    }
-            //    #endregion
-            //}
+            var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
+            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == idmarket).ToList();
+            if (listELShop.Count > 0)
+            {
+                var elApi = new EleveniaController();
+                foreach (ARF01 tblCustomer in listELShop)
+                {
+                    if (Convert.ToString(tblCustomer.API_KEY) != "")
+                    {
+                        await elApi.GetCategoryElevenia(Convert.ToString(tblCustomer.API_KEY));
+                        break;
+                    }
+                }
+            }
             return "";
         }
 
@@ -891,7 +886,7 @@ namespace MasterOnline.Controllers
                 ListCustomer = ErasoftDbContext.ARF01.ToList(),
                 kodeCust = kdCustomer,
             };
-            if(customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
+            if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
             {
                 return Json(partialVm, JsonRequestBehavior.AllowGet);
 
@@ -2211,7 +2206,7 @@ namespace MasterOnline.Controllers
                     ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
-                    StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '"+ barangId +"'").ToList()
+                    StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "'").ToList()
                 };
 
                 return PartialView("FormBarangPartial", vm);
@@ -4171,11 +4166,11 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
-            var listBarang = (from a in ErasoftDbContext.STF02 
+            var listBarang = (from a in ErasoftDbContext.STF02
                               join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
                               join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
                               where c.CUST == code
-                              select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+                              select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
@@ -6992,7 +6987,7 @@ namespace MasterOnline.Controllers
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataUpdate.NoBuktiStok);
             //remark by nurul 25/9/2018
             //stokInDb.TglInput = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);            
+            stokInDb.Tgl = DateTime.ParseExact(dataUpdate.TglInput, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
