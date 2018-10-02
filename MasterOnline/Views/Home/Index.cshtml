@@ -72,7 +72,7 @@
             }
 
                 #cover .btn:hover {
-                    background-color: #f37100;
+                    background-color: #f37100 !important;
                 }
 
         .focus-text {
@@ -83,12 +83,27 @@
         #btn-daftar-pc {
             margin: 0 auto;
             border-radius: 10px !important;
-            width: 20%;
             margin-top: 40px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
         }
 
         #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-pc {
+            background-color: #5db836 !important;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-mobile {
+            background-color: #5db836 !important;
             border-radius: 10px !important;
             width: 100%;
             margin-top: 25px;
@@ -107,6 +122,35 @@
             color: transparent;
             -webkit-background-clip: text;
             background-clip: text;
+        }
+
+        .videoWrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+
+        .videoWrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-dialog {
+            width: 75%;
+            height: 75%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .modal-content {
+            margin-top: 35px;
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
         }
 
         .videoBox {
@@ -297,17 +341,16 @@
             <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
             <p>Kontrol Bisnis Anda dari Satu Tempat</p>
             <p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>
-            <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
-            <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
         </div>
-    </div>
-    <div class="container-fluid" style="margin-top: 50px;">
-        <div class="row">
-            <div class="col-md-1 col-xs-12"></div>
-            <div class="col-md-10 col-xs-12">
-                <iframe style="display: block; margin: 0 auto;" width="65%" height="405" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
+        <div class="row text-center">
+            <div class="col-md-6" style="padding: 0 20px 20px 350px;">
+                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
+                <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
             </div>
-            <div class="col-md-1 col-xs-12"></div>
+            <div class="col-md-6" style="padding: 0 350px 20px 20px;">
+                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-video-pc" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
+                <a class="btn btn-lg hidden-md hidden-lg" id="btn-video-mobile" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
+            </div>
         </div>
     </div>
 </div>
@@ -519,6 +562,17 @@
         <div class="col-md-3"></div>
     </div>
 </div>
+
+<div class="modal fade" style="overflow-y: hidden;" id="modalVideo" tabindex="-1" role="dialog" aria-labelledby="modalvideo">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="videoWrapper">
+                <iframe style="display: block; margin: 0 auto;" width="100%" height="100%" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--Start Footer-->
 <footer>
     <div class="container">
