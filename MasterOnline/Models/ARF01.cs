@@ -199,5 +199,8 @@ namespace MasterOnline
 
         [StringLength(100)]
         public string API_KEY { get; set; }
+
+        //[StringLength(1)]
+        //public string STATUS_API { get; set; }
     }
 }
