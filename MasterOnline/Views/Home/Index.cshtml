@@ -7,6 +7,16 @@
     <link href="~/Content/hover-min.css" rel="stylesheet" />
 
     <style>
+        @@media (min-width: 320px) and (max-width: 480px) {
+            .modal-content {
+                margin-top: 225px !important;
+            }
+
+            .modal-dialog {
+                height: auto !important;
+            }
+        }
+
         @@font-face {
             font-family: 'RoundedElegance';
             src: url("../../fonts/rounded_elegance.svg");
@@ -15,6 +25,11 @@
 
         body {
             overflow-x: hidden;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
         }
 
         html {
@@ -30,50 +45,50 @@
             min-height: 350px;
         }
 
-            h2.pc-title {
-                color: #891539;
-                font-size: 45px;
-                line-height: 60px;
-                letter-spacing: 3px;
-                font-weight: 700;
-            }
+        h2.pc-title {
+            color: #891539;
+            font-size: 45px;
+            line-height: 60px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
 
-            h2.mobile-title {
-                color: #891539;
-                font-size: 30px;
-                line-height: 58px;
-                letter-spacing: 3px;
-                font-weight: 700;
-            }
+        h2.mobile-title {
+            color: #891539;
+            font-size: 30px;
+            line-height: 58px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
 
-            #cover h3 {
-                font-size: 58px;
-                font-weight: 700;
-                text-transform: uppercase;
-                font-family: 'RoundedElegance';
-            }
+        #cover h3 {
+            font-size: 58px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'RoundedElegance';
+        }
 
-                #cover h3 span {
-                    color: #ed5565;
-                }
+        #cover h3 span {
+            color: #ed5565;
+        }
 
-            #cover span {
-                font-size: 53px;
-            }
+        #cover span {
+            font-size: 53px;
+        }
 
-            #cover p {
-                font-size: 18px;
-                letter-spacing: .5px;
-            }
+        #cover p {
+            font-size: 18px;
+            letter-spacing: .5px;
+        }
 
-            #cover .btn {
-                background-color: #891539;
-                color: #fff;
-            }
+        #cover .btn {
+            background-color: #891539;
+            color: #fff;
+        }
 
-                #cover .btn:hover {
-                    background-color: #f37100;
-                }
+        #cover .btn:hover {
+            background-color: #f37100 !important;
+        }
 
         .focus-text {
             text-transform: uppercase;
@@ -81,14 +96,33 @@
         }
 
         #btn-daftar-pc {
+            width: 50%;
+            float: right;
             margin: 0 auto;
             border-radius: 10px !important;
-            width: 20%;
             margin-top: 40px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
         }
 
         #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-pc {
+            width: 50%;
+            float: left;
+            background-color: #5db836 !important;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-mobile {
+            background-color: #5db836 !important;
             border-radius: 10px !important;
             width: 100%;
             margin-top: 25px;
@@ -109,19 +143,48 @@
             background-clip: text;
         }
 
+        .videoWrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+
+        .videoWrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .modal-dialog {
+            width: 75%;
+            height: 75%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .modal-content {
+            margin-top: 35px;
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
+        }
+
         .videoBox {
             position: relative;
             padding-bottom: 30.25%; /* 16:9 */
             height: 0;
         }
 
-            .videoBox iframe {
-                position: absolute;
-                top: 0;
-                left: 25%;
-                width: 50%;
-                height: 100%;
-            }
+        .videoBox iframe {
+            position: absolute;
+            top: 0;
+            left: 25%;
+            width: 50%;
+            height: 100%;
+        }
 
         #marketplace .logo-container {
             padding: 40px 0;
@@ -140,21 +203,21 @@
             padding: 10px 7px;
         }
 
-            #marketplace .title-box-red h3,
-            .carakerja .title-box-red h3 {
-                font-size: 20px;
-                color: #fff;
-                font-weight: 400;
-                margin: 0px;
-                text-align: left !important;
-            }
+        #marketplace .title-box-red h3,
+        .carakerja .title-box-red h3 {
+            font-size: 20px;
+            color: #fff;
+            font-weight: 400;
+            margin: 0px;
+            text-align: left !important;
+        }
 
         #marketplace .mp-logo:first-child {
             margin-left: 60px;
         }
 
         #marketplace .mp-logo {
-            margin-right: 20px;
+            margin-right: 15px;
         }
 
         .titleSection {
@@ -169,31 +232,31 @@
             background-color: #fff;
         }
 
-            .carakerja h3, .carakerja p {
-                font-weight: 300;
-                text-align: center;
-            }
+        .carakerja h3, .carakerja p {
+            font-weight: 300;
+            text-align: center;
+        }
 
-            .carakerja h3 {
-                font-size: 22px;
-            }
+        .carakerja h3 {
+            font-size: 22px;
+        }
 
-            .carakerja p {
-                font-size: 17px;
-                line-height: 24px;
-                color: #777;
-            }
+        .carakerja p {
+            font-size: 17px;
+            line-height: 24px;
+            color: #777;
+        }
 
-            .carakerja strong {
-                font-size: 20px;
-                font-weight: 500;
-                text-align: center;
-                display: block;
-            }
+        .carakerja strong {
+            font-size: 20px;
+            font-weight: 500;
+            text-align: center;
+            display: block;
+        }
 
-            .carakerja img {
-                margin-top: 25px;
-            }
+        .carakerja img {
+            margin-top: 25px;
+        }
 
         #banner {
             background: url(../../Content/Images/shattered.png) 0 50%;
@@ -202,12 +265,12 @@
             text-align: center;
         }
 
-            #banner h2 {
-                color: #999;
-                font-size: 25px;
-                font-weight: 400;
-                margin: 30px 0 28px 0;
-            }
+        #banner h2 {
+            color: #999;
+            font-size: 25px;
+            font-weight: 400;
+            margin: 30px 0 28px 0;
+        }
 
         footer {
             background: #891539;
@@ -230,18 +293,18 @@
             list-style: none;
         }
 
-            footer ul li {
-                margin-left: -40px !important;
-                padding: 7px 0 7px 10px;
-                border-bottom: 1px solid #f9f9f9;
-            }
+        footer ul li {
+            margin-left: -40px !important;
+            padding: 7px 0 7px 10px;
+            border-bottom: 1px solid #f9f9f9;
+        }
 
-                footer ul li a {
-                    color: #f7f7f7;
-                    font-size: 12px;
-                    font-weight: 300;
-                    text-decoration: none;
-                }
+        footer ul li a {
+            color: #f7f7f7;
+            font-size: 12px;
+            font-weight: 300;
+            text-decoration: none;
+        }
 
         .title-box-red {
             background: rgba(137,21,57,1);
@@ -273,7 +336,7 @@
         }
 
         .sub-title-features {
-            font-size: 18px;
+            font-size: 14px;
             position: absolute;
             top: 20px;
             left: 0;
@@ -295,58 +358,66 @@
             <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">SOLUSI CERDAS PEBISNIS ONLINE</h2>
             <h2 class="hidden-xs hidden-sm pc-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
             <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
-            <p>Kontrol Bisnis Anda dari Satu Tempat</p>
-            <p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>
-            <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
-            <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
+            <p style="margin-bottom: 0;">Kontrol Bisnis Anda dari Satu Tempat</p>
+            @*<p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>*@
         </div>
-    </div>
-    <div class="container-fluid" style="margin-top: 50px;">
-        <div class="row">
-            <div class="col-md-1 col-xs-12"></div>
-            <div class="col-md-10 col-xs-12">
-                <iframe style="display: block; margin: 0 auto;" width="65%" height="405" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&amp;rel=0&amp;modestbranding=1&showinfo=0" frameborder="0" gesture="media" allowfullscreen=""></iframe>
+        <div class="row text-center hidden-sm hidden-xs">
+            <div class="col-md-6">
+                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
             </div>
-            <div class="col-md-1 col-xs-12"></div>
+            <div class="col-md-6">
+                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-video-pc" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
+            </div>
+        </div>
+        <div class="row text-center hidden-md hidden-lg" style="padding: 0 15px;">
+            <div class="col-xs-12">
+                <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
+            </div>
+            <div class="col-xs-12">
+                <a class="btn btn-lg hidden-md hidden-lg" id="btn-video-mobile" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
+            </div>
         </div>
     </div>
 </div>
 <!--End of Top Slogan-->
 <!--Start Marketplaces-->
 <div id="marketplace">
-    <div class="container logo-container hidden-sm hidden-xs">
-        <div class="mp-logo col-md-2">
-            <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
+    <div class="container-fluid logo-container hidden-sm hidden-xs">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-tokopedia.png" style="display: block; margin: 0 auto;" alt="tokopedia" class="img-responsive">
+            </div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-shopee.png" style="display: block; margin: 0 auto;" alt="shopee" class="img-responsive">
+            </div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-bukalapak.png" style="display: block; margin: 0 auto;" alt="bukalapak" class="img-responsive">
+            </div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-lazada.png" style="display: block; margin: 0 auto;" alt="lazada" class="img-responsive">
+            </div>
         </div>
-        <div class="mp-logo col-md-2">
-            <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
-        </div>
-        <div class="mp-logo col-md-2">
-            <img src="~/Content/Images/logo-blibli.png" alt="zalora" class="img-responsive">
-        </div>
-        <div class="mp-logo col-md-2">
-            <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
-        </div>
-        <div class="mp-logo col-md-2">
-            <img src="~/Content/Images/logo-shopee.png" alt="shopee" class="img-responsive">
+        <br />
+        <br />
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-2"></div>
+            <div class="mp-logo col-md-2" style="margin-left: 15px;">
+                <img src="~/Content/Images/logo-blibli.png" width="65%" style="display: block; margin: 0 auto;" alt="blibli" class="img-responsive">
+            </div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-elevania.png" style="display: block; margin: 0 auto;" alt="elevania" class="img-responsive">
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-2"></div>
         </div>
     </div>
 
     <div class="container hidden-md hidden-lg" style="padding: 10px 0; margin-bottom: 40px;">
         <div class="row">
             <div class="mp-logo col-xs-4 col-sm-4">
-                <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
-            </div>
-            <div class="mp-logo col-xs-4 col-sm-4">
-                <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
-            </div>
-        </div>
-        <br />
-        <div class="row">
-            <div class="mp-logo col-xs-4 col-sm-4">
-                <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
-            </div>
-            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-tokopedia.png" alt="tokopedia" class="img-responsive">
             </div>
             <div class="mp-logo col-xs-4 col-sm-4">
                 <img src="~/Content/Images/logo-shopee.png" alt="shopee" class="img-responsive">
@@ -355,7 +426,23 @@
         <br />
         <div class="row">
             <div class="mp-logo col-xs-4 col-sm-4">
-                <img src="~/Content/Images/logo-blibli.png" alt="zalora" class="img-responsive">
+                <img src="~/Content/Images/logo-bukalapak.png" alt="bukalapak" class="img-responsive">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-lazada.png" alt="lazada" class="img-responsive">
+            </div>
+        </div>
+        <br />
+        <div class="row">
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-blibli.png" alt="blibli" class="img-responsive">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
             </div>
         </div>
     </div>
@@ -364,12 +451,12 @@
 <!--Start Smart And Be Easy-->
 <div class="container-fluid hidden-xs hidden-sm feature-pc" style="padding-bottom: 50px;">
     <div class="col-md-12 text-center">
-        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">BE SMART AND EASY</h2>
-        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">TO CONTROL YOUR BUSINESS IN MARKETPLACE</p>
+        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">FITUR CERDAS DAN EFISIEN</h2>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">UNTUK MEMBANTU ANDA MENGELOLA BISNIS DENGAN BAIK</p>
     </div>
     <div class="row" style="margin-bottom: 40px;">
         <div class="col-md-3"></div>
-        <div class="col-md-3" style="margin-left: 55px;">
+        <div class="col-md-3" style="margin-left: 35px;">
             <div class="row">
                 <div class="col-md-4">
                     <img width="85%" src="~/Content/Images/barang_terpusat_icon.png" />
@@ -385,7 +472,7 @@
                     <img width="85%" style="margin-top: 10px;" src="~/Content/Images/pack_ship_icon.png" />
                 </div>
                 <div class="col-md-8">
-                    <p class="sub-title-features">Pick, Pack, <br /> and Ship</p>
+                    <p class="sub-title-features">Pengiriman yang <br /> Terintegrasi dengan Kurir</p>
                 </div>
             </div>
         </div>
@@ -393,13 +480,13 @@
     </div>
     <div class="row">
         <div class="col-md-3"></div>
-        <div class="col-md-3" style="margin-left: 55px;">
+        <div class="col-md-3" style="margin-left: 35px;">
             <div class="row">
                 <div class="col-md-4">
                     <img width="85%" style="margin-top: 10px;" src="~/Content/Images/akunting_icon.png" />
                 </div>
                 <div class="col-md-8">
-                    <p class="sub-title-features">Terintegrasi dengan <br />Akunting</p>
+                    <p class="sub-title-features">Terintegrasi dengan <br />Akunting yang Sudah Tersedia</p>
                 </div>
             </div>
         </div>
@@ -419,8 +506,8 @@
 
 <div class="container-fluid hidden-lg hidden-md feature-mobile" style="padding-bottom: 10px;">
     <div class="col-md-12 text-center">
-        <h2 class="mobile-title" style="line-height: 40px;">BE SMART AND EASY</h2>
-        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 10px;">TO CONTROL YOUR BUSINESS IN MARKETPLACE</p>
+        <h2 class="mobile-title" style="line-height: 40px;">FITUR CERDAS DAN EFISIEN</h2>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 10px;">UNTUK MEMBANTU ANDA MENGELOLA BISNIS DENGAN BAIK</p>
     </div>
     <div style="padding: 30px">
         <div class="row">
@@ -428,7 +515,7 @@
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4">
-                        <img width="85%" src="~/Content/Images/barang_terpusat_icon.png" />
+                        <img width="85%" style="margin-top: 5px;" src="~/Content/Images/barang_terpusat_icon.png" />
                     </div>
                     <div class="col-xs-8 col-sm-8">
                         <p class="sub-title-features">Pengaturan Barang <br />Secara Terpusat</p>
@@ -438,10 +525,10 @@
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4">
-                        <img width="85%" style="margin-top: 10px;" src="~/Content/Images/pack_ship_icon.png" />
+                        <img width="85%" style="margin-top: 15px;" src="~/Content/Images/pack_ship_icon.png" />
                     </div>
                     <div class="col-xs-8 col-sm-8">
-                        <p class="sub-title-features">Pick, Pack, <br /> and Ship</p>
+                        <p class="sub-title-features">Pengiriman yang <br /> Terintegrasi dengan Kurir</p>
                     </div>
                 </div>
             </div>
@@ -452,17 +539,17 @@
             <div class="col-md-3">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4">
-                        <img width="85%" style="margin-top: 10px;" src="~/Content/Images/akunting_icon.png" />
+                        <img width="85%" style="margin-top: 25px;" src="~/Content/Images/akunting_icon.png" />
                     </div>
                     <div class="col-xs-8 col-sm-8">
-                        <p class="sub-title-features">Terintegrasi dengan <br />Akunting</p>
+                        <p class="sub-title-features">Terintegrasi dengan <br />Akunting yang Sudah Tersedia</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3" style="margin-top: 10px;">
                 <div class="row">
                     <div class="col-xs-4 col-sm-4">
-                        <img width="85%" style="margin-top: 8px;" src="~/Content/Images/real_time_stock_icon.png" />
+                        <img width="85%" style="margin-top: 13px;" src="~/Content/Images/real_time_stock_icon.png" />
                     </div>
                     <div class="col-xs-8 col-sm-8">
                         <p class="sub-title-features">Update Stok Barang <br /> Secara Real Time</p>
@@ -481,12 +568,12 @@
     <div class="col-md-12 text-center">
         <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
         <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
-        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">BISNIS ANDA DENGAN MODUL AKUNTING YANG TERINTEGRASI SECARA 'BUILT-IN'</p>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
     </div>
     <div class="row" style="margin-top: 60px;">
         <div class="col-md-3"></div>
         <div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
-            <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP.png" />
+            <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP_sample.png" />
             <div class="row hidden-xs hidden-sm" style="margin-top: 25px;">
                 <div class="col-md-1"></div>
                 <div class="col-md-4" style="margin-left: 20px;">
@@ -519,6 +606,22 @@
         <div class="col-md-3"></div>
     </div>
 </div>
+
+<div class="modal fade" style="overflow-y: hidden;" id="modalVideo" tabindex="-1" role="dialog" aria-labelledby="modalvideo">
+    <div class="modal-dialog" role="document">
+        <div class="container hidden-xs hidden-sm">
+            <a id="close-video" style="position: absolute; color: white; right: -60px; top: 10px; cursor: pointer;">
+                <i class="glyphicon glyphicon-remove icon-arrow-right pull-right" style="font-size: 50px;"></i>
+            </a>
+        </div>
+        <div class="modal-content">
+            <div class="videoWrapper">
+                <iframe id="ytplayer" style="display: block; margin: 0 auto;" width="100%" height="100%" src="https://www.youtube.com/embed/1BUecLBDmlY?autoplay=0&enablejsapi=1&version=3&playerapiid=ytplayer" allow='autoplay' frameborder="0" gesture="media" allowfullscreen=""></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!--Start Footer-->
 <footer>
     <div class="container">
@@ -580,3 +683,24 @@
     </div>
 </footer>
 <!--End of Footer-->
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            // Play Video
+            $('#modalVideo').on('shown.bs.modal', function (e) {
+                $("iframe#ytplayer").attr("src", $("iframe#ytplayer").attr("src").replace("autoplay=0", "autoplay=1"));
+            });
+
+            // Stop Video
+            $('#modalVideo').on('hidden.bs.modal', function (e) {
+                $('iframe#ytplayer')[0].contentWindow.postMessage('{"event":"command","func":"' + 'stopVideo' + '","args":""}', '*');
+            });
+
+            $('#close-video').click(function() {
+                $('#modalVideo').modal('hide');
+            });
+        });
+    </script>
+}

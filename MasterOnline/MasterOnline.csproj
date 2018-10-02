@@ -1129,7 +1129,7 @@
     <Content Include="Content\Images\Home-Barang.PNG" />
     <Content Include="Content\Images\Home-Dashboard.PNG" />
     <Content Include="Content\Images\Home-Pesanan.PNG" />
-    <Content Include="Content\Images\HP.png" />
+    <Content Include="Content\Images\HP_sample.png" />
     <Content Include="Content\Images\illustration.png" />
     <Content Include="Content\Images\ilustrasi_mo.png" />
     <Content Include="Content\Images\img.jpg" />
@@ -1145,6 +1145,7 @@
     <Content Include="Content\Images\logo-masteronline-white.png" />
     <Content Include="Content\Images\logo-masteronline.png" />
     <Content Include="Content\Images\logo-shopee.png" />
+    <Content Include="Content\Images\logo-tokopedia.png" />
     <Content Include="Content\Images\logo-woocommerce.png" />
     <Content Include="Content\Images\logo-zalora.png" />
     <Content Include="Content\Images\Logo_Top_MO_Manage.png" />

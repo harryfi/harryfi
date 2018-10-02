@@ -2543,6 +2543,14 @@ namespace MasterOnline.Controllers
 
                 if (checkUser == null && checkAkun == null)
                 {
+                    var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                    var key = accInDb.VCode;
+                    var originPassword = viewModel.User.Password;
+                    var encodedPassword = Helper.EncodePassword(originPassword, key);
+
+                    viewModel.User.Password = encodedPassword;
+                    viewModel.User.KonfirmasiPassword = encodedPassword;
                     viewModel.User.Status = true; // Otomatis aktif
                     MoDbContext.User.Add(viewModel.User);
                 }
@@ -2555,13 +2563,21 @@ namespace MasterOnline.Controllers
             else
             {
                 var userInDb = MoDbContext.User.Single(c => c.UserId == viewModel.User.UserId);
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == viewModel.User.AccountId);
+
+                var key = accInDb.VCode;
+                var originPassword = viewModel.User.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 userInDb.Email = viewModel.User.Email;
                 userInDb.Username = viewModel.User.Username;
                 userInDb.NoHp = viewModel.User.NoHp;
 
-                if (userInDb.Password != viewModel.User.Password)
-                    userInDb.Password = viewModel.User.Password;
+                if (userInDb.Password != encodedPassword)
+                {
+                    userInDb.Password = encodedPassword;
+                    userInDb.KonfirmasiPassword = encodedPassword;
+                }
             }
 
             MoDbContext.SaveChanges();
@@ -4152,7 +4168,7 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetDataBarang(string code)
+        public ActionResult GetDataBarangPesanan(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList();
             var listBarang = (from a in ErasoftDbContext.STF02 
@@ -4160,6 +4176,13 @@ namespace MasterOnline.Controllers
                               join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
                               where c.CUST == code
                               select new { BRG = a.BRG,NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+            return Json(listBarang, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetDataBarang(string code)
+        {
+            var listBarang = ErasoftDbContext.STF02.ToList();
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
