@@ -777,7 +777,8 @@
 
                             }
                                //window.open( , '_self');
-                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            //window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                            $('#close-editor').click();
                             //return true;
                         } else {
                             $('#table-customer-partial').html(response);
@@ -965,7 +966,12 @@
                             valuetxtAPI_Key = response.Customers.API_KEY;
                         }
                         var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
-                        var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key +'" id="Customers_API_KEY" name="Customers.API_KEY" required="required" type="text"></div>';
+                        if (@lzd != response.Customers.NAMA) {
+                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" required="required" type="text"></div>';
+                        } else {
+                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
+                        }
+
                         $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
 
                                     //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';

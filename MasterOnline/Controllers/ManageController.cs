@@ -16,6 +16,7 @@ using System.Web.Script.Serialization;
 using System.Web.Services.Protocols;
 using System.Xml.Schema;
 using EntityFramework.Extensions;
+using System.Threading;
 
 using Erasoft.Function;
 
@@ -194,18 +195,10 @@ namespace MasterOnline.Controllers
 
         // =============================================== Menu Manage (START)
 
-        [Route("manage/order")]
-        public ActionResult Pesanan()
+        public async void GetPesanan(string connectionID,string username)
         {
-            //add by Tri call market place api getorder
-            var connectionID = Guid.NewGuid().ToString();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = sessionData.Account.Username;
-            int bliAcc = 0;
-            int lazadaAcc = 0;
-            int blAcc = 0;
-            int elAcc = 0;
 
+            int bliAcc = 0;
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -228,10 +221,24 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD
                         };
 
-                        bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                     }
                 }
             }
+        }
+
+        [Route("manage/order")]
+        public ActionResult Pesanan()
+        {
+            //add by Tri call market place api getorder
+            var connectionID = Guid.NewGuid().ToString();
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string username = sessionData.Account.Username;
+            //System.Threading.Tasks.Task.Run(GetPesanan(connectionID, username));
+
+            int lazadaAcc = 0;
+            int blAcc = 0;
+            int elAcc = 0;
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
