@@ -493,6 +493,7 @@
     <Compile Include="Models\API_LOG_MARKETPLACE.cs" />
     <Compile Include="Models\ATTRIBUTE_LAZADA.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_LAZADA.cs" />
+    <Compile Include="Models\CATEGORY_ELEVENIA.cs" />
     <Compile Include="Models\CATEGORY_LAZADA.cs" />
     <Compile Include="Models\DataPengusaha.cs" />
     <Compile Include="Models\DELIVERY_PROVIDER_LAZADA.cs" />
