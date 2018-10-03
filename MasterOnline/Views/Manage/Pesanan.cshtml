@@ -1572,7 +1572,12 @@
                                 $("#Pesanan_CUST").val(value).trigger('change');
                                 $("#Pesanan_NAMA_CUST").val($objSup[0].akun);
                                 if ($objSup[0] != null) {
-                                    $("#Pesanan_TERM").val($objSup[0].term).change();
+                                    //change by nurul 3/10/2018
+                                    //$("#Pesanan_TERM").val($objSup[0].term).change();
+                                    if ($("#Pesanan_TERM").val == "0") {
+                                        $("#Pesanan_TERM").val($objSup[0].term).change();
+                                    }
+                                    //end change 
                                 }
 
                                 getTanggal();
@@ -2598,7 +2603,15 @@
                     $this.closest('div').find('.text-danger').remove();
                 }
             }
+            //add by nurul 3/10/2018
+            if ($('#Pesanan_TERM').val() != '' && $('#Pesanan_TGL_JTH_TEMPO').val() == 'Masukkan TOP dahulu') {
+                var $tgl = moment($('#Pesanan_TGL').val(), "DD/MM/YYYY");
+                var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
+                $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+            }
+            //end add 
             return $isValid;
+            
         }
 
         function simpanbrg($id) {
@@ -2618,8 +2631,8 @@
                     $('#PesananDetail_SATUAN').val('2');
                     $('#PesananDetail_H_SATUAN').val(convertToAngka($('tr[data-pesanan-id="0"] .harga-barang').text()));
                     $('#PesananDetail_QTY').val($('tr[data-pesanan-id="0"] .qty-barang').text());
-                    $('#PesananDetail_DISCOUNT').val($('tr[data-pesanan-id="0"] .disc1-barang').text());
-                    $('#PesananDetail_DISCOUNT_2').val($('tr[data-pesanan-id="0"] .disc2-barang').text());
+                    $('#PesananDetail_DISCOUNT').val(convertToAngka($('tr[data-pesanan-id="0"] .disc1-barang').text()));
+                    $('#PesananDetail_DISCOUNT_2').val(convertToAngka($('tr[data-pesanan-id="0"] .disc2-barang').text()));
                     $('#PesananDetail_NILAI_DISC_1').val(convertToAngka($('tr[data-pesanan-id="0"] .ndisc1-barang').text()));
                     $('#PesananDetail_NILAI_DISC_2').val(convertToAngka($('tr[data-pesanan-id="0"] .ndisc2-barang').text()));
                     $('#PesananDetail_HARGA').val(convertToAngka($('tr[data-pesanan-id="0"] .netto-barang').text()));
