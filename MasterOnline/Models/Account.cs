@@ -16,7 +16,7 @@ namespace MasterOnline.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Int64 AccountId { get; set; }
 
-        [MaxLength(20)]
+        [MaxLength(50)]
         [Required]
         public String UserId { get; set; }
 

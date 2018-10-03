@@ -15,15 +15,15 @@ namespace MasterOnline
         }
 
 #if AWS
-        public ErasoftContext(string userId)
-            : base($"Server=localhost;initial catalog=ERASOFT_{userId};" +
+        public ErasoftContext(string dbName)
+            : base($"Server=localhost;initial catalog={dbName};" +
                    $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {
         }
 #else
-        public ErasoftContext(string userId)
-            : base($"Server=202.67.14.92\\SQLEXPRESS, 1433;initial catalog=ERASOFT_{userId};" +
+        public ErasoftContext(string dbName)
+            : base($"Server=202.67.14.92\\SQLEXPRESS, 1433;initial catalog={dbName};" +
                    $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {

@@ -9,13 +9,13 @@
     if (dataSession?.Account != null)
     {
         nama = dataSession.Account.Username;
-        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
     }
     else
     {
         nama = dataSession?.User.Username;
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
-        erasoftContext = new ErasoftContext(accFromUser.UserId);
+        erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
     }
 
     var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();

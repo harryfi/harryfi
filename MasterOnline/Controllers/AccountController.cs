@@ -109,12 +109,12 @@ namespace MasterOnline.Controllers
             ErasoftContext erasoftContext = null;
             if (_viewModel?.Account != null)
             {
-                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.UserId);
+                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                erasoftContext = new ErasoftContext(accFromUser.UserId);
+                erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
             }
 
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
@@ -397,7 +397,7 @@ namespace MasterOnline.Controllers
             }
 
             var email = new MailAddress(account.Email);
-            account.UserId = email.User;
+            account.UserId = email.User + "_" + email.Host.Replace(".","_");
             account.Status = false; //User tidak aktif untuk pertama kali
 
             account.KODE_SUBSCRIPTION = "01"; //Free account
