@@ -12,12 +12,12 @@
     if (dataSession?.User != null)
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        userId = context.Account.Single(a => a.AccountId == accId).UserId;
+        userId = context.Account.Single(a => a.AccountId == accId).DatabasePathErasoft;
         context.Dispose();
     }
     else
     {
-        userId = dataSession?.Account?.UserId;
+        userId = dataSession?.Account?.DatabasePathErasoft;
     }
 }
 
