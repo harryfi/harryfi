@@ -1069,12 +1069,18 @@
 
                 var $input = $('<input>', {
                     'class': $inputClass,
-                    value: $this.val(),
+                    //change by nurul 2/10/2018  value: $this.val(),
+                    value: $angka,
                     type: 'number',
                     blur: function () {
                         if (this.value === '') {
                             if ($class === 'qty-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                //end add 
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
@@ -1083,6 +1089,10 @@
                                     .addClass('editable')
                                     .prop('contentEditable', true)
                                     .css('pointer-events', 'auto');
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc2();
+                                //end add                             
                             } else if ($class === 'disc2-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
 
@@ -1099,6 +1109,10 @@
                                     .prop('contentEditable', true)
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc2();
+                                //end add 
                             } else if ($class === 'ndisc2-barang editable') {
                                 $this.html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
 
@@ -1115,12 +1129,17 @@
 
                             if ($class === 'qty-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                //end add                                 
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
-
+                                
                                 if (this.value == 0) {
                                     $($trElement + ' .ndisc1-barang')
-                                        .text(convertToRupiah(0))
+                                        // remark by nurul 1/10/2018  .text(convertToRupiah(0))
                                         .addClass('editable')
                                         .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
@@ -1134,12 +1153,16 @@
                                         .css('pointer-events', 'none')
                                         .html($ndisc1 + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
                                 }
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc2();
+                                //end add 
+
                             } else if ($class === 'disc2-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
 
                                 if (this.value == 0) {
                                     $($trElement + ' .ndisc2-barang')
-                                        .text(convertToRupiah(0))
+                                        // remark by nurul 1/10/2018   .text(convertToRupiah(0))
                                         .addClass('editable')
                                         .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
@@ -1173,6 +1196,10 @@
                                         .css('pointer-events', 'auto')
                                         .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
                                 }
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc2();
+                                //end add 
                             } else if ($class === 'ndisc2-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
 
@@ -1194,7 +1221,7 @@
                             refreshNettoBarang($trId);
                         }
                     },
-                    focus: function() {
+                    focus: function () {
                         if ($angka == 0) {
                             this.value = '';
                         } else {
@@ -1204,10 +1231,10 @@
                     keyup: function (e) {
                         if (e.which === 13) $input.blur();
                     },
-                    keypress: function(e) {
+                    keypress: function (e) {
                         if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
                     },
-                    change: function() {
+                    change: function () {
                         if ($(this).attr('class') == 'qty-input') {
                             if ($(this).val() > 999) {
                                 $(this).val(999);
@@ -1251,7 +1278,9 @@
                             customerList[i] = {
                                 id: item.CUST,
                                 text: $namaMarket + " (" + item.PERSO + ")",
-                                term: item.TOP
+                                term: item.TOP,
+                                //add by nurul 2/10/2018
+                                akun: item.PERSO
                             };
                         });
 
@@ -1266,10 +1295,16 @@
                                 $("#Faktur_CUST").val(null);
                                 $("#Faktur_TERM").val(null).change();
                             } else {
-                                $("#Faktur_CUST").val(value);
+                                //change by nurul 2/10/2018
+                                //$("#Faktur_CUST").val(value);
+                                $("#Faktur_CUST").val(value).trigger('change');
+                                //end change 
                                 if ($objSup[0] != null) {
                                     $("#Faktur_TERM").val($objSup[0].term).change();
                                 }
+                                //add by nurul 2/10/2018
+                                getDataBarang();
+                                //end add 
                             }
                             getTanggal();
                             $('#btn-simpan-perubahan-row').show();
@@ -1278,6 +1313,9 @@
                     //change by calvin 7 juni 2018, set silent jadi true, agar event onchange tidak jalan saat set Faktur_CUST saat buka form faktur
                     custSelect[0].selectize.setValue($('#Faktur_CUST').val(),true);
                     //end change by calvin 7 juni 2018
+                    if ($('#Faktur_CUST').val() != "") {
+                        $('#CUSTOMER')[0].selectize.disable();
+                    }
 
 
                     $('#btn-simpan-perubahan-row').hide();
@@ -1389,98 +1427,160 @@
             });
         }
 
-        function getDataBarang() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetDataBarang", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKodeBarang = [];
+        function hitungUlangdisc1() {
+            var $trElement = 'tr[data-faktur-id="0"]';
+            var $qty = parseInt($($trElement + ' .qty-barang').text());
+            var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
 
-                    $.each(data,
-                        function (i, item) {
-                            listKodeBarang[i] = {
-                                id: item.BRG,
-                                text: item.BRG + ' (' + item.NAMA + ')'
-                            };
-                        });
+            if ($($trElement + ' .disc1-barang').hasClass('editable')) {
+                if (convertToAngka($($trElement + ' .disc1-barang').text()) != 0) {
+                    // disc1 yang diisi
+                    var $thisvalue = convertToAngka($($trElement + ' .disc1-barang').text());
 
-                    $('#BRG').selectivity({
-                        allowClear: true,
-                        items: listKodeBarang,
-                        placeholder: 'Harap pilih'
-                    }).change(function () {
-                        var val = $(this).selectivity('value');
-                        var $trId = $(this).closest('tr').attr('data-faktur-id');
-                        var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
+                    var $ndisc1 = convertToRupiah($thisvalue * $hargaBarang * $qty / 100);
+                    $($trElement + ' .ndisc1-barang').html($ndisc1 + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="' + convertToAngka($ndisc1) + '">');
+                                                            
 
-                        if (val != null) {
-                            $.each(data,
-                                function (i, item) {
-                                    if (item.BRG === val) {
-                                        if (item.NAMA2 == null)
-                                            $($trElement + ' .nama-barang').text(item.NAMA + " ");
-                                        else
-                                            $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
-
-                                        $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
-                                        $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                                        return;
-                                    }
-                                });
-
-                            $beforeState.brutto = $('#Faktur_BRUTO').val();
-                            $beforeState.netto = $('#Faktur_NETTO').val();
-                            $beforeState.ndisc = $('#Faktur_NILAI_DISC').val();
-                            $beforeState.ppn = $('#Faktur_PPN').val();
-                            $beforeState.nppn = $('#Faktur_NILAI_PPN').val();
-                            $beforeState.ongkir = $('#Faktur_MATERAI').val();
-                            $($trElement + ' .btn-primary').removeAttr('disabled');
-                            $('#gudang-select').show();
-                            $('#gudang-kode').hide();
-                            offTab();
-                            modeEditTd();
-                        } else {
-                            $($trElement + ' .nama-barang').text('-');
-                            $($trElement + ' .stn-barang').html('-' +'<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
-                            $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
-                            $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
-                            $($trElement + ' .disc1-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
-                            $($trElement + ' .disc2-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
-                            $($trElement + ' .ndisc1-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
-                            $($trElement + ' .ndisc2-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
-                            $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
-
-                            $($trElement + ' .btn-primary').attr('disabled', 'disabled');
-                            $('#gudang-select').hide();
-                            $('#gudang-kode').show();
-
-                            if ($('#Faktur_RecNum').val() == null) {
-                                $('#Faktur_NETTO').val(convertToRupiah(0));
-                                $('#Faktur_BRUTO').val(convertToRupiah(0));
-                                $('#Faktur_NILAI_DISC').val(convertToRupiah(0));
-                                $('#Faktur_PPN').val(0);
-                                $('#Faktur_NILAI_PPN').val(convertToRupiah(0));
-                                $('#Faktur_MATERAI').val(convertToRupiah(0));
-                            } else {
-                                $('#Faktur_BRUTO').val($beforeState.brutto);
-                                $('#Faktur_NETTO').val($beforeState.netto);
-                                $('#Faktur_NILAI_DISC').val($beforeState.ndisc);
-                                $('#Faktur_PPN').val($beforeState.ppn);
-                                $('#Faktur_NILAI_PPN').val($beforeState.nppn);
-                                $('#Faktur_MATERAI').val($beforeState.ongkir);
-                            }
-
-                            onTab();
-                            modeEditOff();
-                        }
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
                 }
-            });
+            }
+        }
+        function hitungUlangdisc2() {
+            var $trElement = 'tr[data-faktur-id="0"]';
+            var $qty = parseInt($($trElement + ' .qty-barang').text());
+            var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
+
+            if ($($trElement + ' .disc2-barang').hasClass('editable')) {
+                if (convertToAngka($($trElement + ' .disc2-barang').text()) != 0) {
+                    // disc2 yang diisi
+                    var $ndisc1Exist = convertToAngka($($trElement + ' .ndisc1-barang').text());
+                    var $thisvalue = convertToAngka($($trElement + ' .disc2-barang').text());
+
+                    var $ndisc2 = convertToRupiah($thisvalue * (($hargaBarang * $qty) - $ndisc1Exist) / 100);
+                    $($trElement + ' .ndisc2-barang').html($ndisc2 + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="' + convertToAngka($ndisc2) + '">');
+
+                }
+            }
+
+        }
+
+        function getDataBarang() {
+            //add by nurul 1/10/1018
+            if ($('#Faktur_CUST').val() != '') {
+                var link = '@Url.Action("GetDataBarangPesanan", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", $('#Faktur_CUST').val());
+                //end add
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var listKodeBarang = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                listKodeBarang[i] = {
+                                    id: item.BRG,
+                                    text: item.BRG + ' (' + item.NAMA + ')'
+                                };
+                            });
+
+                        $('#BRG').selectivity({
+                            allowClear: true,
+                            items: listKodeBarang,
+                            placeholder: 'Harap pilih'
+                        }).change(function () {
+                            var val = $(this).selectivity('value');
+                            var $trId = $(this).closest('tr').attr('data-faktur-id');
+                            var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
+
+                            if (val != null) {
+                                //add by nurul 1/10/2018
+                                $('#CUSTOMER')[0].selectize.disable();
+                                //end add
+                                $.each(data,
+                                    function (i, item) {
+                                        if (item.BRG === val) {
+                                            if (item.NAMA2 == null)
+                                                $($trElement + ' .nama-barang').text(item.NAMA + " ");
+                                            else
+                                                $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
+
+                                            $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
+                                            $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                            return;
+                                        }
+                                    });
+
+                                $beforeState.brutto = $('#Faktur_BRUTO').val();
+                                $beforeState.netto = $('#Faktur_NETTO').val();
+                                $beforeState.ndisc = $('#Faktur_NILAI_DISC').val();
+                                $beforeState.ppn = $('#Faktur_PPN').val();
+                                $beforeState.nppn = $('#Faktur_NILAI_PPN').val();
+                                $beforeState.ongkir = $('#Faktur_MATERAI').val();
+                                $($trElement + ' .btn-primary').removeAttr('disabled');
+                                $('#gudang-select').show();
+                                $('#gudang-kode').hide();
+                                offTab();
+                                modeEditTd();
+
+                                //add by nurul 2/10/2018
+                                hitungUlangdisc1();
+                                hitungUlangdisc2();
+                                refreshNettoBarang('0');
+                                //end add 
+                            } else {
+                                //add by nurul 1/10/2018
+                                $('#CUSTOMER')[0].selectize.enable();
+                                //end add
+                                $($trElement + ' .nama-barang').text('-');
+                                $($trElement + ' .stn-barang').html('-' + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
+                                $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                $($trElement + ' .qty-barang').html('0' + '<input data-val="true" data-val-range-min="1" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="FakturDetail_QTY" name="FakturDetail.QTY" type="hidden" value="">');
+                                $($trElement + ' .disc1-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
+                                $($trElement + ' .disc2-barang').html('0' + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
+                                $($trElement + ' .ndisc1-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
+                                $($trElement + ' .ndisc2-barang').html('0,00' + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
+                                $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="FakturDetail_HARGA" name="FakturDetail.HARGA" type="hidden" value="">');
+
+                                $($trElement + ' .btn-primary').attr('disabled', 'disabled');
+                                $('#gudang-select').hide();
+                                $('#gudang-kode').show();
+
+                                if ($('#Faktur_RecNum').val() == null) {
+                                    $('#Faktur_NETTO').val(convertToRupiah(0));
+                                    $('#Faktur_BRUTO').val(convertToRupiah(0));
+                                    $('#Faktur_NILAI_DISC').val(convertToRupiah(0));
+                                    $('#Faktur_PPN').val(0);
+                                    $('#Faktur_NILAI_PPN').val(convertToRupiah(0));
+                                    $('#Faktur_MATERAI').val(convertToRupiah(0));
+                                } else {
+                                    $('#Faktur_BRUTO').val($beforeState.brutto);
+                                    $('#Faktur_NETTO').val($beforeState.netto);
+                                    $('#Faktur_NILAI_DISC').val($beforeState.ndisc);
+                                    $('#Faktur_PPN').val($beforeState.ppn);
+                                    $('#Faktur_NILAI_PPN').val($beforeState.nppn);
+                                    $('#Faktur_MATERAI').val($beforeState.ongkir);
+                                }
+
+                                onTab();
+                                modeEditOff();
+                                //add by nurul 2/10/2018
+                                refreshNettoBarang('0');
+                                //end add 
+                            }
+                        });
+                        //add by nurul 1/10/2018
+                        if ($('#BRG').selectivity('value') != null) {
+                            $('#BRG').trigger('change');
+                        }
+                        //end add
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
         }
 
         function modeEditOff() {

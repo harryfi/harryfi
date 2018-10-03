@@ -52,11 +52,7 @@ namespace MasterOnline.Controllers
             if (accFromDb == null)
             {
                 var userFromDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
-                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
 
-                var key = accInDb.VCode;
-                var originPassword = account.Password;
-                var encodedPassword = Helper.EncodePassword(originPassword, key);
 
                 if (userFromDb == null)
                 {
@@ -64,6 +60,10 @@ namespace MasterOnline.Controllers
                     return View("Login", account);
                 }
 
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
+                var key = accInDb.VCode;
+                var originPassword = account.Password;
+                var encodedPassword = Helper.EncodePassword(originPassword, key);
                 var pass = userFromDb.Password;
 
                 if (!encodedPassword.Equals(pass))
@@ -365,8 +365,9 @@ namespace MasterOnline.Controllers
             }
 
             var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == account.Email);
+            var userInDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
 
-            if (accInDb != null)
+            if (accInDb != null || userInDb != null)
             {
                 ModelState.AddModelError("", @"Email sudah terdaftar!");
                 return View("Register", account);
@@ -409,6 +410,7 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
+            //remark by calvin 2 oktober 2018, untuk testing dlu
             var body = "<p>Selamat, akun Anda berhasil didaftarkan pada sistem kami&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
                 "<p>&nbsp;</p>" +
                 "<p>Detail akun Anda ialah sebagai berikut,</p>" +
@@ -425,15 +427,28 @@ namespace MasterOnline.Controllers
             message.Body = string.Format(body, account.Email, originPassword);
             message.IsBodyHtml = true;
 #if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
             using (var smtp = new SmtpClient())
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "AKIAIXN2D33JPSDL7WEQ",
-                    Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
                 };
                 smtp.Credentials = credential;
-                smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+                smtp.Host = "smtp.gmail.com";
                 smtp.Port = 587;
                 smtp.EnableSsl = true;
                 await smtp.SendMailAsync(message);
@@ -453,6 +468,7 @@ namespace MasterOnline.Controllers
                 await smtp.SendMailAsync(message);
             }
 #endif
+            //end remark by calvin 2 oktober 2018, untuk testing dlu
 
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
             ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";

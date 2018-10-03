@@ -132,7 +132,7 @@ namespace MasterOnline.Controllers
                                  $" MOVE 'erasoft_log' TO '{path}/ERASOFT_{userId}.ldf';";
 #if AWS
                     SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                                          "user id=sa;password=admin123^;");
+                                                          "user id=masteronline;password=M@ster123;");
 #else
                     SqlConnection con = new SqlConnection("Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                           "user id=masteronline;password=M@ster123;");
@@ -159,7 +159,7 @@ namespace MasterOnline.Controllers
                 {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog=ERASOFT_{userId};persist security info=True;" +
-                                                       "user id=sa;password=admin123^;");
+                                                       "user id=masteronline;password=M@ster123;");
 #else
                     System.Data.Entity.Database.Delete($"Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=ERASOFT_{userId};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");

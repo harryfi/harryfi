@@ -68,9 +68,6 @@
                         <a class="btn btn-primary btn-lg btn-block" href="@Url.Action("DataPerusahaanMenu")">
                             <i class="fa fa-pencil"></i> @(dataUsahaInDb.NAMA_PT == "PT ERAKOMP INFONUSA" ? "Isi Data" : "Edit Data")
                         </a>
-                        <!--<a class="btn btn-danger btn-md btn-block" href="#">
-                            <i class="fa fa-question-circle"></i> Panduan step by step
-                        </a>-->
                     </div>
                 </div>
             </div>
@@ -80,7 +77,7 @@
         <div class="x_panel">
             <div class="x_title">
                 <h5>
-                    <strong>Hubungkan ke Marketplace</strong>
+                    <strong>Link ke Marketplace</strong>
                     @if (jumlahAkunMarketplace > 0)
                     {
                         <span class="fa fa-check-circle langkah-done"></span>
@@ -109,9 +106,6 @@
                                 <i class="fa fa-plug"></i> Sambungkan
                             </button>
                         }
-                        <!--<a class="btn btn-danger btn-md btn-block" href="#">
-                            <i class="fa fa-question-circle"></i> Panduan step by step
-                        </a>-->
                     </div>
                 </div>
             </div>
@@ -123,9 +117,9 @@
                 <h5>
                     <strong>Isi Master Data</strong>
                     @*@if (dataUsahaInDb.NAMA_PT != "PT ERAKOMP INFONUSA")
-                        {
-                            <span class="fa fa-check-circle langkah-done"></span>
-                        }*@
+                    {
+                        <span class="fa fa-check-circle langkah-done"></span>
+                    }*@
                 </h5>
                 <div class="clearfix"></div>
             </div>
@@ -142,7 +136,7 @@
                     <div class="col-md-12 text-center">
                         @if (jumlahAkunMarketplace > 0)
                         {
-                                                                        //id menu master = 2
+                            //id menu master = 2
                             <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(2);">
                                 <i class="fa"></i> Buka Menu Master
                             </a>
@@ -153,12 +147,8 @@
                                 <i class="fa"></i> Buka Menu Master
                             </a>
                         }
-
-                        @*<a class="btn btn-danger btn-md btn-block" href="#">
-            <i class="fa fa-question-circle"></i> Panduan step by step
-        </a>*@
                     </div>
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -177,46 +167,22 @@
                     <div class="col-md-12 text-center" style="">
                         @if (jumlahAkunMarketplace > 0)
                         {
-                                                                     //id menu saldo = 43
-                        <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(43);">
-                            <i class="fa"></i>Buka Menu Saldo Awal
-                        </a>
+                            //id menu saldo = 43
+                            <a class="btn btn-primary btn-lg btn-block" onclick="openDropdownMenu(43);">
+                                <i class="fa"></i>Buka Menu Saldo Awal
+                            </a>
                         }
                         else
                         {
-                        <a class="btn btn-primary btn-lg btn-block invisible" href="#">
-                            <i class="fa"></i>Buka Menu Saldo Awal
-                        </a>
+                            <a class="btn btn-primary btn-lg btn-block invisible" href="#">
+                                <i class="fa"></i>Buka Menu Saldo Awal
+                            </a>
                         }
-                        @*<a class="btn btn-danger btn-md btn-block" href="#">
-            <i class="fa fa-question-circle"></i> Panduan step by step
-        </a>*@
                     </div>
-                    </div>
+                </div>
             </div>
         </div>
     </div>
-    @*<div class="col-md-3" style="min-height: 365.06px;">
-            <div class="x_panel" style="min-height: 355.06px;">
-                <div class="x_title">
-                    <h5><strong>Selesai</strong></h5>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                    <img alt="Selesai" class="img-responsive-35 center-block" src="~/Content/Images/done.png">
-                    <br />
-                    <p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p>
-                    <br>
-                    <div class="row">
-                        <div class="col-md-12 text-center">
-                            <a class="btn btn-primary btn-lg btn-block" href="#">
-                                <i class="fa fa-cogs"></i> Pengaturan
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>*@
 </div>
 <div class="row">
     <div class="col-md-3">
@@ -234,12 +200,12 @@
                 <center><p>Untuk pengaturan-pengaturan lebih lanjut anda bisa masuk ke halaman Pengaturan.</p></center>
                 @*<br>*@
                 @*<div class="row">
-                    <div class="col-md-12 text-center">
-                        <a class="btn btn-primary btn-lg btn-block" href="#">
-                            <i class="fa fa-cogs"></i> Pengaturan
-                        </a>
-                    </div>
-                </div>*@
+                        <div class="col-md-12 text-center">
+                            <a class="btn btn-primary btn-lg btn-block" href="#">
+                                <i class="fa fa-cogs"></i> Pengaturan
+                            </a>
+                        </div>
+                    </div>*@
             </div>
         </div>
     </div>

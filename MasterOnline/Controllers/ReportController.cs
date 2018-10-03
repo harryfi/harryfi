@@ -437,7 +437,7 @@ namespace MasterOnline.Controllers
                 Uri.EscapeDataString(data.DrTanggal),
                 Uri.EscapeDataString(data.SdTanggal));
 #else
-            return string.Format("https://report.masteronline.co.id/Report/Form/frm_rptinv_1.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&DrTanggal={3}&SdTanggal={4}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_rptinv_1.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&DrTanggal={3}&SdTanggal={4}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromSupp),
                 Uri.EscapeDataString(data.ToSupp),

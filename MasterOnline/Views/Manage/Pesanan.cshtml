@@ -1030,7 +1030,7 @@
 
             $('#lihat-pembeli').click(function () {
                 var $link = '@Url.Action("EditPembeliPopup", "Manage", new { kodePembeli = "replaceId" })';
-                $link = $link.replace("replaceId", $('#Pesanan_NAMAPEMESAN').val());
+                $link = $link.replace("replaceId", $('#Pesanan_PEMESAN').val());
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes, resizable=no");
             });
 
