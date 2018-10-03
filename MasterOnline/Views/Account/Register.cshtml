@@ -66,32 +66,24 @@
                     {
                         @Html.AntiForgeryToken()
                         <div class="form-group">
-                            <div class="col-md-6" style="padding-left: 0;">
-                                @Html.LabelFor(m => m.Username, "Nama Lengkap *", new {@class = "control-label control-label-bold"})
-                                @Html.TextBoxFor(m => m.Username, new {@class = "form-control", maxlength = 50, required = "required"})
-                            </div>
-                            <div class="col-md-6" style="padding-right: 0; padding-left: 0;">
-                                @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
-                                @Html.TextBoxFor(m => m.NamaTokoOnline, new { @class = "form-control", maxlength = 50, required = "required" })
-                            </div>
+                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new {@class = "control-label control-label-bold"})
+                            @Html.TextBoxFor(m => m.Username, new {@class = "form-control", maxlength = 50, required = "required"})
                         </div>
                         @Html.HiddenFor(m => m.UserId, new { Value = "xxx" })
                         <div class="form-group">
-                            <div class="col-md-6" style="padding-left: 0; margin-top: 10px;">
-                                @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
-                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
-                            </div>
-                            <div class="col-md-6" style="padding-right: 0; padding-left: 0; margin-top: 10px;">
-                                @Html.LabelFor(m => m.NoHp, "No. HP *", new { @class = "control-label control-label-bold" })
-                                @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
-                            </div>
+                            @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            <div class="col-lg-6" style="padding-left: 0; margin-top: 10px;">
+                            @Html.LabelFor(m => m.NoHp, "No. HP *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-6" style="padding-left: 0;">
                                 @Html.LabelFor(m => m.Password, "Password *", new { @class = "control-label control-label-bold" })
                                 @Html.TextBoxFor(m => m.Password, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
                             </div>
-                            <div class="col-lg-6" style="padding-right: 0; padding-left: 0; margin-top: 10px;">
+                            <div class="col-lg-6" style="padding-right: 0; padding-left: 0">
                                 @Html.LabelFor(m => m.ConfirmPassword, "Konfirmasi Password *", new { @class = "control-label control-label-bold" })
                                 @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
                             </div>
@@ -99,6 +91,10 @@
                         <div class="form-group">
                             @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
                             <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.NamaTokoOnline, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>

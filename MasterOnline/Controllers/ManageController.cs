@@ -7932,7 +7932,7 @@ namespace MasterOnline.Controllers
             var dataPerusahaanVm = new DataPerusahaanViewModel()
             {
                 DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
-                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault(p => p.RecNum == 1)
+                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.First()
             };
 
             return View(dataPerusahaanVm);
@@ -8013,6 +8013,11 @@ namespace MasterOnline.Controllers
             //dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
 
             var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
+            var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
+
+            if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            MoDbContext.SaveChanges();
+
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
             dataPerusahaanTambahanInDb.KODEPROV = dataVm.DataUsahaTambahan.KODEPROV;
             dataPerusahaanTambahanInDb.KODEKABKOT = dataVm.DataUsahaTambahan.KODEKABKOT;
