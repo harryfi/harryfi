@@ -6762,7 +6762,21 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
-                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    //if (cekFaktur > 0 || cekPembelian > 0 || cekTransaksi > 0 || cekPesanan > 0 || cekPromosi > 0)
+                    if (dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 || dataVm.BarangStok.Harga == 0)
+                    {
+                        vmError.Errors.Add("Silakan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    }
+                    //end change 
                 }
             }
             else
