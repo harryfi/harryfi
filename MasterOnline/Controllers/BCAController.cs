@@ -82,7 +82,21 @@ namespace MasterOnline.Controllers
             string urll = urlBCAApi + "/api/oauth/token";
             string client_id = "";
             string client_secret = "";
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            DatabaseSQL EDB;
+            if (sessionData?.Account != null)
+            {                
+                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);                
+            }
+            else
+            {
+                //if (sessionData?.User != null)
+                //{
+                    MoDbContext MoDbContext = new MoDbContext();
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                //}
+            }
+
             var dsSIFSYS = EDB.GetDataSet("MOConnectionString", "SIFSYS", "SELECT TOP 1 * FROM SIFSYS");
             if (dsSIFSYS.Tables[0].Rows.Count > 0)
             {
@@ -143,7 +157,20 @@ namespace MasterOnline.Controllers
             var auth = await getAuth();
             if (auth.ErrorMessage == null)
             {
-                DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                DatabaseSQL EDB;
+                if (sessionData?.Account != null)
+                {
+                    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                }
+                else
+                {
+                    //if (sessionData?.User != null)
+                    //{
+                    MoDbContext MoDbContext = new MoDbContext();
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                    //}
+                }
 
                 var dsSIFSYS = EDB.GetDataSet("", "SIFSYS", "SELECT TOP 1 * FROM SIFSYS");
                 if (dsSIFSYS.Tables[0].Rows.Count > 0)
@@ -267,7 +294,20 @@ namespace MasterOnline.Controllers
         {
             var ret = new BindingBCA();
             ret.status = 0;
-            DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            DatabaseSQL EDB;
+            if (sessionData?.Account != null)
+            {
+                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+            }
+            else
+            {
+                //if (sessionData?.User != null)
+                //{
+                MoDbContext MoDbContext = new MoDbContext();
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                //}
+            }
             var dsAPT03 = EDB.GetDataSet("MOConnectionString", "APT03A", "SELECT * FROM APT03A WHERE BUKTI = '" + nobuk + "'");
             if (dsAPT03.Tables[0].Rows.Count > 0)
             {
