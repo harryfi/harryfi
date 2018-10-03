@@ -908,7 +908,7 @@
             if (!validateForm()) return false;
 
             if ($id == 'brg-0') {
-                if ($('#Stok_Tgl').val() != null) {
+                if ($('#Stok_Tgl').val() != "") {
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveTransaksiKeluar", "Manage")',

@@ -338,7 +338,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin menghapus transaksi keluar ini?</h4>
+                    <h4>Apakah Anda yakin ingin menghapus transaksi masuk ini?</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -930,7 +930,7 @@
             if (!validateForm()) return false;
 
             if ($id == 'brg-0') {
-                if ($('#Stok_Tgl').val() != null) {
+                if ($('#Stok_Tgl').val() != "") {
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("SaveTransaksiMasuk", "Manage")',
@@ -947,8 +947,18 @@
                                     $('#Stok_Tgl').val($('#Stok_Tgl').val().split(' ')[0]);
                                 }
                             } else {
-                                alert('Ada data yang tidak valid!');
-                                console.log(response.Errors);
+                                //alert('Ada data yang tidak valid!');
+                                //console.log(response.Errors);
+                                //add by nurul 27/9/2018
+                                if (response.Errors[0] != null) {
+                                    alert(response.Errors[0]);
+                                    $('#loading_spinner').hide();
+                                    //end add
+                                } else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                    $('#loading_spinner').hide();
+                                }
                             }
                             $('#loading_spinner').hide();
 
