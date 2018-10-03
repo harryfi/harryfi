@@ -10,12 +10,16 @@
 
     if (dataSession?.Account != null)
     {
-        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+        //change by nurul 3/10/2018
+        //erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.UserId);
+        erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
     }
     else
     {
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
-        erasoftContext = new ErasoftContext(accFromUser.UserId);
+        //change by nurul 3/10/2018
+        //erasoftContext = new ErasoftContext(accFromUser.UserId);
+        erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
     }
 
     var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);

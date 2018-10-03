@@ -18,12 +18,12 @@ namespace MasterOnline.Controllers
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         string urlLazada = "https://api.lazada.co.id/rest";
-        string eraAppKey = "106147";
-        string eraAppSecret = "So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU";
+        string eraAppKey = "101775";
+        string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         //string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
         string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
-        //string eraAppKey = "";101775
-        // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu
+        //string eraAppKey = "";101775;106147
+        // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu;So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;
@@ -36,8 +36,8 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
-                EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
 
             }
             else
@@ -45,8 +45,8 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    EDB = new DatabaseSQL(accFromUser.UserId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
                 }
             }
         }
@@ -68,7 +68,21 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public string LazadaUrl(string cust)
         {
-            string userId = sessionData.Account.UserId;
+            string userId = "";
+            if (sessionData?.Account != null)
+            {
+                userId = sessionData.Account.DatabasePathErasoft;
+
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    userId = accFromUser.DatabasePathErasoft;
+                }
+            }
+
             string lzdId = cust;
             string compUrl = eraCallbackUrl + userId + "_param_" + lzdId;
             string uri = "https://auth.lazada.com/oauth/authorize?response_type=code&force_auth=true&redirect_uri=" + compUrl + "&client_id=" + eraAppKey + "&country=id";

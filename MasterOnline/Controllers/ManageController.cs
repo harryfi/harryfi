@@ -46,9 +46,9 @@ namespace MasterOnline.Controllers
                 if (sessionData.Account.UserId == "admin_manage")
                     ErasoftDbContext = new ErasoftContext();
                 else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.UserId);
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
 
-                EDB = new DatabaseSQL(sessionData.Account.UserId);
+                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
 
             }
             else
@@ -56,9 +56,9 @@ namespace MasterOnline.Controllers
                 if (sessionData?.User != null)
                 {
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
 
-                    EDB = new DatabaseSQL(accFromUser.UserId);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 }
             }
         }
