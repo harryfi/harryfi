@@ -54,7 +54,7 @@
     </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>Content\ReferenceTambahan\EAF.dll</HintPath>
+      <HintPath>D:\Users\user\Desktop\Era Controls AWS\EAF.dll</HintPath>
     </Reference>
     <Reference Include="EAP, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -482,6 +482,10 @@
     <Compile Include="Migrations\201810020918164_addTableCategoryElevenia.cs" />
     <Compile Include="Migrations\201810020918164_addTableCategoryElevenia.Designer.cs">
       <DependentUpon>201810020918164_addTableCategoryElevenia.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810030947464_max_length_Account_user_id_20_50.cs" />
+    <Compile Include="Migrations\201810030947464_max_length_Account_user_id_20_50.Designer.cs">
+      <DependentUpon>201810030947464_max_length_Account_user_id_20_50.cs</DependentUpon>
     </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
@@ -5508,6 +5512,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810020918164_addTableCategoryElevenia.resx">
       <DependentUpon>201810020918164_addTableCategoryElevenia.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810030947464_max_length_Account_user_id_20_50.resx">
+      <DependentUpon>201810030947464_max_length_Account_user_id_20_50.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

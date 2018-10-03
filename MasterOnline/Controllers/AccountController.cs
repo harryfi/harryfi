@@ -397,7 +397,7 @@ namespace MasterOnline.Controllers
             }
 
             var email = new MailAddress(account.Email);
-            account.UserId = email.User;
+            account.UserId = email.User + "_" + email.Host.Replace(".","_");
             account.Status = false; //User tidak aktif untuk pertama kali
 
             account.KODE_SUBSCRIPTION = "01"; //Free account

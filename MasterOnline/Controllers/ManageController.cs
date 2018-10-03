@@ -763,7 +763,7 @@ namespace MasterOnline.Controllers
                 {
                     if (Convert.ToString(tblCustomer.API_KEY) != "")
                     {
-                        await elApi.GetAttributeElevenia(Convert.ToString(tblCustomer.API_KEY));
+                        await elApi.GetAttribute(Convert.ToString(tblCustomer.API_KEY));
                         break;
                     }
                 }
