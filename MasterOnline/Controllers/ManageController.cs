@@ -751,6 +751,26 @@ namespace MasterOnline.Controllers
             }
             return "";
         }
+        [HttpGet]
+        public async System.Threading.Tasks.Task<string> GetAttributeElevenia()
+        {
+            var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
+            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == idmarket).ToList();
+            if (listELShop.Count > 0)
+            {
+                var elApi = new EleveniaController();
+                foreach (ARF01 tblCustomer in listELShop)
+                {
+                    if (Convert.ToString(tblCustomer.API_KEY) != "")
+                    {
+                        await elApi.GetAttributeElevenia(Convert.ToString(tblCustomer.API_KEY));
+                        break;
+                    }
+                }
+            }
+            return "";
+        }
+        
 
         [HttpPost]
         public ActionResult SaveCustomer(CustomerViewModel customer)
