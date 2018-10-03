@@ -365,8 +365,9 @@ namespace MasterOnline.Controllers
             }
 
             var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == account.Email);
+            var userInDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
 
-            if (accInDb != null)
+            if (accInDb != null || userInDb != null)
             {
                 ModelState.AddModelError("", @"Email sudah terdaftar!");
                 return View("Register", account);
