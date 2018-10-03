@@ -614,7 +614,7 @@ namespace MasterOnline.Controllers
             {
                 var buyerVm = new BuyerViewModel()
                 {
-                    Pembeli = ErasoftDbContext.ARF01C.Single(c => c.BUYER_CODE == kodePembeli),
+                    Pembeli = ErasoftDbContext.ARF01C.SingleOrDefault(c => c.BUYER_CODE == kodePembeli),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
                 };
 
@@ -622,9 +622,9 @@ namespace MasterOnline.Controllers
 
                 return View("BuyerPopup", buyerVm);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return HttpNotFound();
+                return JsonErrorMessage(e.Message);
             }
         }
 
@@ -6762,7 +6762,20 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
-                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 || dataVm.BarangStok.Harga == 0)
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    }
+                    //end change 
                 }
             }
             else
@@ -7237,7 +7250,20 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
-                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Qty == 0 )
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    }
+                    //end change 
                 }
             }
 
@@ -7536,7 +7562,20 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
-                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 )
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    }
+                    //end change 
                 }
             }
 
@@ -7932,7 +7971,7 @@ namespace MasterOnline.Controllers
             var dataPerusahaanVm = new DataPerusahaanViewModel()
             {
                 DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
-                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault(p => p.RecNum == 1)
+                DataUsahaTambahan = ErasoftDbContext.SIFSYS_TAMBAHAN.First()
             };
 
             return View(dataPerusahaanVm);
@@ -8013,6 +8052,11 @@ namespace MasterOnline.Controllers
             //dataPerusahaanInDb.BCA_CLIENT_SECRET = dataVm.DataUsaha.BCA_CLIENT_SECRET;
 
             var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
+            var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
+
+            if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            MoDbContext.SaveChanges();
+
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
             dataPerusahaanTambahanInDb.KODEPROV = dataVm.DataUsahaTambahan.KODEPROV;
             dataPerusahaanTambahanInDb.KODEKABKOT = dataVm.DataUsahaTambahan.KODEKABKOT;
