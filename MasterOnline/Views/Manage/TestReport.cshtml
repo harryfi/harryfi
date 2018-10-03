@@ -10,18 +10,12 @@
     if (dataSession?.User != null)
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        //change by nurul 3/10/2018
-        //userId = context.Account.Single(a => a.AccountId == accId).UserId;
-        userId = context.Account.Single(a => a.AccountId == accId).DatabasePathErasoft;
-
+        userId = context.Account.Single(a => a.AccountId == accId).UserId;
         context.Dispose();
     }
     else
     {
-        //change by nurul 3/10/2018
-        //userId = dataSession?.Account?.UserId;
-        userId = dataSession?.Account?.DatabasePathErasoft;
-
+        userId = dataSession?.Account?.UserId;
     }
 }
 
