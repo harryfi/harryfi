@@ -426,15 +426,28 @@ namespace MasterOnline.Controllers
             message.Body = string.Format(body, account.Email, originPassword);
             message.IsBodyHtml = true;
 #if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
             using (var smtp = new SmtpClient())
             {
                 var credential = new NetworkCredential
                 {
-                    UserName = "AKIAIXN2D33JPSDL7WEQ",
-                    Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
                 };
                 smtp.Credentials = credential;
-                smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+                smtp.Host = "smtp.gmail.com";
                 smtp.Port = 587;
                 smtp.EnableSsl = true;
                 await smtp.SendMailAsync(message);
