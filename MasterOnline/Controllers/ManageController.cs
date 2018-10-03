@@ -614,7 +614,7 @@ namespace MasterOnline.Controllers
             {
                 var buyerVm = new BuyerViewModel()
                 {
-                    Pembeli = ErasoftDbContext.ARF01C.Single(c => c.BUYER_CODE == kodePembeli),
+                    Pembeli = ErasoftDbContext.ARF01C.SingleOrDefault(c => c.BUYER_CODE == kodePembeli),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
                 };
 
@@ -622,9 +622,9 @@ namespace MasterOnline.Controllers
 
                 return View("BuyerPopup", buyerVm);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return HttpNotFound();
+                return JsonErrorMessage(e.Message);
             }
         }
 
