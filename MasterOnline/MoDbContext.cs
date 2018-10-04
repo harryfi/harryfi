@@ -31,6 +31,7 @@ namespace MasterOnline
         public virtual DbSet<ATTRIBUTE_LAZADA> ATTRIBUTE_LAZADA { get; set; }
         public virtual DbSet<ATTRIBUTE_OPT_LAZADA> ATTRIBUTE_OPT_LAZADA { get; set; }
         public DbSet<CATEGORY_ELEVENIA> CategoryElevenia { get; set; }
+        public DbSet<ATTRIBUTE_ELEVENIA> AttributeElevenia { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
