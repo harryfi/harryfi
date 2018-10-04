@@ -16,5 +16,6 @@ namespace MasterOnline.Models.Api
         public string PassBaru { get; set; }
         public string SearchParam { get; set; }
         public int SortBy { get; set; }
+        public string DbPath { get; set; }
     }
 }
