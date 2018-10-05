@@ -1715,6 +1715,9 @@
                         $nettoSebelumnya = 0;
                         $bakalNetto = 0;
                         $('#form-partial').html(response);
+                        //add by nurul 5/10/2018
+                        refreshInputan();
+                        //end add
                         refreshNetto();
                         $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                         getTanggal();

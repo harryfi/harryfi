@@ -775,8 +775,6 @@
                     $(this).removeAttr('disabled');
                 });
 
-                $('.faktur_editor_section').hide();
-                $('.faktur_table_section').show();
                 refreshForm1();
 
                 $modeEdit = 0;
@@ -1819,6 +1817,11 @@
                     $nettoSebelumnya = 0;
                     $bakalNetto = 0;
                     $('#form-partial').html(response);
+                    //add by nurul 5/10/2018
+                    refreshInputan();
+                    refreshNetto();
+                    //end add
+
                     $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                     getTanggal();
                     getMarketplace();
@@ -1877,8 +1880,8 @@
                     getBuyer();
                     getDataBarang();
                     getGudang();
-                    $('.faktur_table_section').hide();
-                    $('.faktur_editor_section').show();
+                    $('.faktur_editor_section').hide();
+                    $('.faktur_table_section').show();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {

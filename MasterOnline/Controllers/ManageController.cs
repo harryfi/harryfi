@@ -5503,7 +5503,6 @@ namespace MasterOnline.Controllers
             //add by nurul 27/9/2018
             var vmError = new StokViewModel() { };
             var date1 = dataVm.Piutang.TGL.Value.Year;
-            //var date2 = DateTime.Now.Year;
             if (date1 > 2078)
             {
                 vmError.Errors.Add("Maximum Year is 2078 !");
@@ -5514,6 +5513,7 @@ namespace MasterOnline.Controllers
                 vmError.Errors.Add("Customer is null !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
+                        
             //end add 
 
             dataVm.Piutang.KET = "-";
@@ -6800,10 +6800,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    else
-                    {
-                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    }
+                    
+                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    
                     //end change 
                 }
             }
@@ -6816,7 +6815,19 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0 || dataVm.BarangStok.Harga == 0)
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    
+                    //end change
                 }
             }
 
@@ -7224,7 +7235,19 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Qty == 0 )
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+
+                    //end change 
                 }
             }
             else
@@ -7288,10 +7311,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    else
-                    {
-                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    }
+
+                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+
                     //end change 
                 }
             }
@@ -7555,7 +7577,19 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.BarangStok.No == null)
                 {
+                    //change by nurul 3/10/2018
+                    //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    var vmError = new StokViewModel() { };
+
+                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Ke_Gd == null || dataVm.BarangStok.Qty == 0)
+                    {
+                        vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+
+                    //end change 
                 }
             }
             else
@@ -7600,10 +7634,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    else
-                    {
-                        ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    }
+                    
+                    ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
+                    
                     //end change 
                 }
             }
