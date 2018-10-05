@@ -5496,8 +5496,6 @@ namespace MasterOnline.Controllers
             //add by nurul 27/9/2018
             var vmError = new StokViewModel() { };
             var date1 = dataVm.Piutang.TGL.Value.Year;
-            var date2 = dataVm.Piutang.JTGL.Value.Year;
-            //var date2 = DateTime.Now.Year;
             if (date1 > 2078)
             {
                 vmError.Errors.Add("Maximum Year is 2078 !");
@@ -5508,16 +5506,7 @@ namespace MasterOnline.Controllers
                 vmError.Errors.Add("Customer is null !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
-            if (date1 + dataVm.Piutang.TERM > 2078)
-            {
-                vmError.Errors.Add("Maximum Tahun Jatuh Tempo adalah 2078 !");
-                return Json(vmError, JsonRequestBehavior.AllowGet);
-            }else if(date2 > 2078)
-            {
-                vmError.Errors.Add("Maximum Tahun Jatuh Tempo adalah 2078 !");
-                return Json(vmError, JsonRequestBehavior.AllowGet);
-            }
-            
+                        
             //end add 
 
             dataVm.Piutang.KET = "-";

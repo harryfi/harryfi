@@ -273,7 +273,17 @@
                                     $("#Piutang_CUST").val(value);
                                     if ($objSup[0] != null) {
                                         $("#Piutang_NCUST").val($objSup[0].text);
-                                        $("#Piutang_TERM").val($objSup[0].term).change();
+                                        //change by nurul 3/10/2018
+                                        //$("#Piutang_TERM").val($objSup[0].term).change();
+                                        if ($("#Piutang_TERM").val == "0") {
+                                            $("#Piutang_TERM").val($objSup[0].term).change();
+                                        } else {
+                                            //$('#Piutang_JTGL').val(), "DD/MM/YYYY";
+                                            var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+                                            var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+                                            $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                                        }
+                                        //end change
                                     }
                                 }
                             }
@@ -292,8 +302,29 @@
                 });
             }
 
+        function convertToAngka(rupiah) {
+
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            return parseFloat(rupiah.replaceAll('.', ''));
+            //end change by calvin 26 september 2018
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
             function simpanPiutang(btnClicked) {
                 if (!validateForm()) return false;
+
+                //add by nurul 5/10/2018
+                if (convertToAngka($("#Piutang_TERM").val()) > 999) {
+                    addError($("#Piutang_TERM").parent(), "Maximum Term is 999 !");
+                    return false;
+                }
+                //end add
 
                 var $form = $(btnClicked).parents('form');
 
@@ -372,7 +403,7 @@
                     }
                 });
             }
-                
+
             function undeleteablePiutang() {
                 alert('Transaksi Sudah Posting! \nTidak dapat dihapus!');
             }
