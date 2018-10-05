@@ -402,7 +402,9 @@
 
                         getCustomer(term);
 
-                        $('#tambah_piutang').click();
+                        //$('#tambah_piutang').click();
+                        $('.piutang_table_section').hide();
+                        $('.piutang_editor_section').show();
 
                         $('input, .btn-danger').each(function () {
                             $(this).attr('disabled', 'disabled');
@@ -438,7 +440,10 @@
                         refreshInputan(tgl.substring(0, 10));
                         getCustomer(term);
 
-                        $('#tambah_piutang').click();
+                        //$('#tambah_piutang').click();
+                        $('.piutang_table_section').hide();
+                        $('.piutang_editor_section').show();
+
                         $('#loading_spinner').hide();
                     },
                     error: function (xhr, status, error) {
