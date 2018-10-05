@@ -3180,8 +3180,9 @@ namespace MasterOnline.Controllers
 
             var vm = new FakturViewModel()
             {
-                Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3"),
-                ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
+                Faktur = ErasoftDbContext.SIT01A.AsNoTracking().Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3"),
+                //Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3"),
+                ListFakturDetail = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -3783,7 +3784,8 @@ namespace MasterOnline.Controllers
 
             var vm = new InvoiceViewModel()
             {
-                Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
+                //Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
+                Invoice = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
                 ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),

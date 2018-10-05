@@ -817,48 +817,174 @@ namespace MasterOnline.Controllers
         public async Task<ActionResult> GetAttribute(string auth)
         {
             var ret = string.Empty;
+            var category = MoDbContext.CategoryElevenia.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+            foreach (var item in category)
+            {
+                var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
+                Utils.HttpRequest req = new Utils.HttpRequest();
+                long milis = BlibliController.CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
 
-            //var content = new System.Net.Http.StringContent("", Encoding.UTF8, "text/xml");
-            //Utils.HttpRequest req = new Utils.HttpRequest();
-            //long milis = BlibliController.CurrentTimeMillis();
-            //DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
+                var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + item.CATEGORY_CODE, content, typeof(string), auth) as string;
+                //var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/categoryAttributes/" + item.CATEGORY_CODE, "", typeof(string), auth) as string;
+                if (result != null)
+                {
+                    System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
+                    doc.LoadXml(result.Substring(55));
+                    string json = JsonConvert.SerializeXmlNode(doc);
 
-            //var result = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "cateservice/category", content, typeof(string), auth) as string;
-            ////var result = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "delivery/template", "", typeof(string), auth) as string;
-            //if (result != null)
-            //{
-            //    System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-            //    doc.LoadXml(result.Substring(55));
-            //    string json = JsonConvert.SerializeXmlNode(doc);
+                    json = json.Replace("ns2:productCtgrAttributes", "Ns2Productctgrattributes").Replace("ns2:productCtgrAttribute", "Ns2Productctgrattribute").Replace("xmlns:ns2", "xmlnsns2");
+                    if (json.Contains("}]}"))
+                    {
+                        AttributesRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributesRootobject>(json);
 
-            //    json = json.Replace("ns2:categorys", "ns2categorys").Replace("ns2:category", "ns2category");
-            //    CategoryRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<CategoryRootobject>(json);
-            //    if (res.ns2categorys != null)
-            //    {
-            //        string MasterCatCode = "";
-            //        EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM CATEGORY_ELEVENIA");
-            //        List<CATEGORY_ELEVENIA> newrecords = new List<CATEGORY_ELEVENIA>();
-            //        foreach (var cat in res.ns2categorys.ns2category)
-            //        {
-            //            if (cat.depth == "1")
-            //            {
-            //                MasterCatCode = cat.dispNo;
-            //            }
-            //            CATEGORY_ELEVENIA newrecord = new CATEGORY_ELEVENIA
-            //            {
-            //                CATEGORY_CODE = cat.dispNo,
-            //                CATEGORY_NAME = cat.dispNm,
-            //                PARENT_CODE = cat.parentDispNo,
-            //                MASTER_CATEGORY_CODE = MasterCatCode == cat.dispNo ? "" : MasterCatCode,
-            //                IS_LAST_NODE = cat.depth == "3" ? "1" : "0"
-            //            };
-            //            newrecords.Add(newrecord);
-            //        }
+                        if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                        {
+#if AWS
+                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+                                    var AttributeInDb = MoDbContext.AttributeElevenia.ToList();
 
-            //        MoDbContext.CategoryElevenia.AddRange(newrecords);
-            //        MoDbContext.SaveChanges();
-            //    }
-            //}
+                                    //cek jika sudah ada di database
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(item.CATEGORY_CODE.ToUpper())
+                                    && p.CATEGORY_NAME.ToUpper().Equals(item.CATEGORY_NAME.ToUpper())
+                                    ).ToList();
+                                    //cek jika sudah ada di database
+
+                                    if (cari.Count == 0)
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_ELEVENIA] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        #region Generate Parameters dan CommandText
+                                        for (int i = 1; i <= res.ns2productCtgrAttributes.ns2productCtgrAttribute.Count(); i++)
+                                        {
+                                            a = Convert.ToString(i);
+                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        #endregion
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = item.CATEGORY_CODE;
+                                        oCommand.Parameters[1].Value = item.CATEGORY_NAME;
+                                        for (int i = 0; i < res.ns2productCtgrAttributes.ns2productCtgrAttribute.Count(); i++)
+                                        {
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
+                                            try
+                                            {
+                                                oCommand.Parameters[(i * 4) + 2].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute[i].prdAttrCd;
+                                                oCommand.Parameters[(i * 4) + 3].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute[i].prdAttrNo;
+                                                oCommand.Parameters[(i * 4) + 4].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute[i].prdAttrNm;
+                                                oCommand.Parameters[(i * 4) + 5].Value = "0";
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+                    else
+                    {
+                        AttributeRootobject res = Newtonsoft.Json.JsonConvert.DeserializeObject<AttributeRootobject>(json);
+
+                        if (res.ns2productCtgrAttributes.ns2productCtgrAttribute != null)
+                        {
+#if AWS
+                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+                                    var AttributeInDb = MoDbContext.AttributeElevenia.ToList();
+
+                                    //cek jika sudah ada di database
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(item.CATEGORY_CODE.ToUpper())
+                                    && p.CATEGORY_NAME.ToUpper().Equals(item.CATEGORY_NAME.ToUpper())
+                                    ).ToList();
+                                    //cek jika sudah ada di database
+
+                                    if (cari.Count == 0)
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_ELEVENIA] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        #region Generate Parameters dan CommandText
+                                        for (int i = 1; i <= 1; i++)
+                                        {
+                                            a = Convert.ToString(i);
+                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        #endregion
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = item.CATEGORY_CODE;
+                                        oCommand.Parameters[1].Value = item.CATEGORY_NAME;
+                                        for (int i = 0; i < 1; i++)
+                                        {
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
+                                            try
+                                            {
+                                                oCommand.Parameters[(i * 4) + 2].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrCd;
+                                                oCommand.Parameters[(i * 4) + 3].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNo;
+                                                oCommand.Parameters[(i * 4) + 4].Value = res.ns2productCtgrAttributes.ns2productCtgrAttribute.prdAttrNm;
+                                                oCommand.Parameters[(i * 4) + 5].Value = "0";
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+
+                }
+            }
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
@@ -1562,6 +1688,35 @@ namespace MasterOnline.Controllers
         #endregion
 
         #region json Classes
+
+        public class AttributeRootobject
+        {
+            public Ns2ProductctgrattributeSingle ns2productCtgrAttributes { get; set; }
+        }
+
+        public class Ns2ProductctgrattributeSingle
+        {
+            public string xmlnsns2 { get; set; }
+            public Ns2Productctgrattribute ns2productCtgrAttribute { get; set; }
+        }
+
+        public class AttributesRootobject
+        {
+            public Ns2Productctgrattributes ns2productCtgrAttributes { get; set; }
+        }
+
+        public class Ns2Productctgrattributes
+        {
+            public string xmlnsns2 { get; set; }
+            public Ns2Productctgrattribute[] ns2productCtgrAttribute { get; set; }
+        }
+
+        public class Ns2Productctgrattribute
+        {
+            public string prdAttrCd { get; set; }
+            public string prdAttrNm { get; set; }
+            public string prdAttrNo { get; set; }
+        }
 
         public class CategoryRootobject
         {

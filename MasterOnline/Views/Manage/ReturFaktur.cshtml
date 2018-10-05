@@ -651,11 +651,10 @@
                 });
             });
 
-            $('#btn-autoload').click(function () {
-
-                autoloadFaktur();
-
-            });
+            //$('#btn-autoload').click(function () {
+            //    autoloadFaktur();
+            //});
+            $('#btn-autoload').off('click').on('click', autoloadFaktur);
         }
 
         function refreshNettoBarang($trId) {

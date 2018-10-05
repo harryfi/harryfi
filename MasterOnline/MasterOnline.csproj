@@ -54,7 +54,7 @@
     </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\Users\user\Desktop\Era Controls AWS\EAF.dll</HintPath>
+      <HintPath>D:\Users\user\Desktop\Era Controls Dev\EAF.dll</HintPath>
     </Reference>
     <Reference Include="EAP, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -85,7 +85,7 @@
     <Reference Include="Interop.CRAXDRT, Version=10.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <EmbedInteropTypes>True</EmbedInteropTypes>
-      <HintPath>Content\ReferenceTambahan\Interop.CRAXDRT.dll</HintPath>
+      <HintPath>D:\Users\user\Desktop\Era Controls Dev\Interop.CRAXDRT.dll</HintPath>
     </Reference>
     <Reference Include="LazopSdk">
       <HintPath>..\..\..\..\Desktop\lazop-sdk-net-20180422-1524824623939DUoW\net\LazopSdk.dll</HintPath>
@@ -487,6 +487,10 @@
     <Compile Include="Migrations\201810030947464_max_length_Account_user_id_20_50.Designer.cs">
       <DependentUpon>201810030947464_max_length_Account_user_id_20_50.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810040457585_AddTableAttributeElevenia.cs" />
+    <Compile Include="Migrations\201810040457585_AddTableAttributeElevenia.Designer.cs">
+      <DependentUpon>201810040457585_AddTableAttributeElevenia.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -499,6 +503,7 @@
     <Compile Include="Models\APF02.cs" />
     <Compile Include="Models\APF02A.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE.cs" />
+    <Compile Include="Models\ATTRIBUTE_ELEVENIA.cs" />
     <Compile Include="Models\ATTRIBUTE_LAZADA.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_LAZADA.cs" />
     <Compile Include="Models\CATEGORY_ELEVENIA.cs" />
@@ -5516,6 +5521,12 @@
     <EmbeddedResource Include="Migrations\201810030947464_max_length_Account_user_id_20_50.resx">
       <DependentUpon>201810030947464_max_length_Account_user_id_20_50.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810040457585_AddTableAttributeElevenia.resx">
+      <DependentUpon>201810040457585_AddTableAttributeElevenia.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

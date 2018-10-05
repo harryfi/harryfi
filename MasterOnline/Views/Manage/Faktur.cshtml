@@ -658,6 +658,7 @@
                         $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>');
                         $('#tambah_faktur').on('click', function () {
+                            
                             $('.faktur_table_section').hide();
                             $('.faktur_editor_section').show();
                         });
@@ -673,7 +674,9 @@
             cekJumlahPesananBulanIni();
 
             $('#tambah_faktur').on('click', function () {
-                refreshForm1();
+                
+                $('.faktur_table_section').hide();
+                $('.faktur_editor_section').show();
             });
 
             $('#refresh_faktur').on('click', function () {
@@ -705,6 +708,7 @@
 
                 $('.faktur_editor_section').hide();
                 $('.faktur_table_section').show();
+                refreshForm1();
 
                 $modeEdit = 0;
 
@@ -717,9 +721,7 @@
             });
 
             if ($('.message-error').text() !== '') {
-                //$('#tambah_faktur').click();
-                $('.faktur_table_section').hide();
-                $('.faktur_editor_section').show();
+                $('#tambah_faktur').click();
             }
 
             $('#table_tambah_faktur > tbody > tr > td.editable-kode').prop('contentEditable', true);
@@ -830,9 +832,7 @@
                     getDataBarang();
                     getMarketplace();
 
-                    //$('#tambah_faktur').click();
-                    $('.faktur_table_section').hide();
-                    $('.faktur_editor_section').show();
+                    $('#tambah_faktur').click();
 
                     $nettoSebelumnya += $bakalNetto;
                     $('input, select, .btn-danger').each(function() {
@@ -1636,10 +1636,8 @@
                     getGudang();
                     getMarketplace();
 
-                    //$('#tambah_faktur').click();
-                    $('.faktur_table_section').hide();
-                    $('.faktur_editor_section').show();
-
+                    $('#tambah_faktur').click();
+                    
                     $nettoSebelumnya += $bakalNetto;
                     $('#loading_spinner').hide();
                 },
