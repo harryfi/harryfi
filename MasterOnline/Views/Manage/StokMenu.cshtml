@@ -187,6 +187,8 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        var $modeEdit = 0; // 0 new, 1 edit
+
         $(document).ready(function () {
             Initialize();
             var tableSiapProses = $('#datatable_siapproses').DataTable({
@@ -245,6 +247,8 @@
             });
 
             $('#close-editor').on('click', function () {
+                $modeEdit = 0;
+
                 $('input, select, .btn-danger').each(function () {
                     $(this).removeAttr('disabled');
                 });
@@ -267,17 +271,43 @@
             getGudang();
             var $flagPerubahan = 0;
 
-            $('#Stok_Tgl').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
-                //if ($flagPerubahan == 1) {
-                if ($flagPerubahan == 0) {
-                    $('#btn-simpan-perubahan-row').show();
-                }
+            //$('#Stok_Tgl').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    //if ($flagPerubahan == 1) {
+            //    if ($flagPerubahan == 0) {
+            //        $('#btn-simpan-perubahan-row').show();
+            //    }
 
-                $flagPerubahan++;
-            });
+            //    $flagPerubahan++;
+            //    });
+            if ($modeEdit == 1) { // mode edit
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+
+                    $flagPerubahan++;
+                });
+            }
 
             $("input.num-only").on('keydown',
                 function (e) {
@@ -521,6 +551,8 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 1;
+
                     $('#form-partial').html(response);
                     Initialize();
                     //$('#tambah_stok').click();
@@ -547,6 +579,8 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $modeEdit = 1;
+
                     $('#form-partial').html(response);
                     Initialize();
                     //$('#tambah_stok').click();

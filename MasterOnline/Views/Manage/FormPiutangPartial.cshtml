@@ -57,7 +57,15 @@
             @Html.LabelFor(m => m.Piutang.FAKTUR, "No. Bukti", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
             <div class="col-md-6 col-sm-6 col-xs-12">
                 @Html.HiddenFor(m => m.Piutang.FAKTUR)
-                <input type="text" value="[AUTO]" disabled class="form-control" />
+                @* change by nurul 5/10/2018  <input type="text" value="[AUTO]" disabled class="form-control" />*@
+                @if (Model.Piutang != null)
+                {
+                    <input type="text" value="@Model.Piutang.FAKTUR" disabled class="form-control" />
+                }
+                else
+                {
+                    <input type="text" value="[AUTO]" disabled class="form-control" />
+                }
             </div>
         </div>
     </div>
@@ -138,7 +146,7 @@
         <div class="form-group">
             @Html.LabelFor(m => m.Piutang.TOTAL, "Nilai", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
             <div class="col-md-6 col-sm-6 col-xs-12">
-                @Html.TextBoxFor(m => m.Piutang.TOTAL, new { @class = "form-control", type = "number", required="required", min = 0 })
+                @Html.TextBoxFor(m => m.Piutang.TOTAL, new { @class = "form-control", type = "number", required = "required", min = 0 })
             </div>
         </div>
     </div>

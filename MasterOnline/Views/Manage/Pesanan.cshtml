@@ -1936,6 +1936,12 @@
                     $nettoSebelumnya = 0;
                     $bakalNetto = 0;
                     $('#form-partial').html(response);
+
+                    //add by nurul 5/10/2018
+                    refreshInputan();
+                    refreshNetto();
+                    //end add
+
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     getTanggal();
                     getMarketplace();
