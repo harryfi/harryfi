@@ -99,14 +99,14 @@
                         <tbody>
                             @foreach (var form in Model.ListForms)
                             {
-                                if (!form.HaveChild)
+                                if (form.HaveChild)
                                 {
                                     <tr>
-                                        <td>@form.NamaForm</td>
+                                        <td><span style="font-weight: bold;">@form.NamaForm</span></td>
                                         <td class="text-center">
-                                            <div class="btn-group" data-toggle="buttons">
+                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId">
                                                 @{
-                                                    var checkInSec = Model.ListSec.SingleOrDefault(s => s.FormId == form.ScrId);
+                                                    var checkInSec = Model.ListSec.FirstOrDefault(s => s.FormId == form.ScrId);
 
                                                     if (checkInSec == null)
                                                     {
@@ -126,6 +126,38 @@
                                             </div>
                                         </td>
                                     </tr>
+
+                                    foreach (var formChild in Model.ListForms)
+                                    {
+                                        if (formChild.ParentId == form.ScrId)
+                                        {
+                                            <tr>
+                                                <td><span style="margin-left: 30px;">@formChild.NamaForm</span></td>
+                                                <td class="text-center">
+                                                    <div class="btn-group has-parent" data-toggle="buttons" data-form-id="@formChild.ScrId" data-form-parent-id="@formChild.ParentId">
+                                                        @{
+                                                            var childCheckInSec = Model.ListSec.FirstOrDefault(s => s.FormId == formChild.ScrId);
+
+                                                            if (childCheckInSec == null)
+                                                            {
+                                                                <label class="btn btn-success">
+                                                                    <input id="@formChild.ScrId" data-parent-id="@formChild.ParentId" type="checkbox" autocomplete="off">
+                                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                                </label>
+                                                            }
+                                                            else
+                                                            {
+                                                                <label class="btn btn-success active">
+                                                                    <input id="@formChild.ScrId" data-parent-id="@formChild.ParentId" type="checkbox" autocomplete="off" checked>
+                                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                                </label>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
                                 }
                             }
                         </tbody>
@@ -140,6 +172,37 @@
 {
     <script>
         $(document).ready(function () {
+            $('.has-child').click(function() {
+                var formIdAsParent = $(this).attr('data-form-id');
+                var activated = $(this).find('label').hasClass('active');
+
+                if (!activated) {
+                    $('.has-parent').each(function() {
+                        var formParentId = $(this).attr('data-form-parent-id');
+
+                        if (formParentId === formIdAsParent) {
+                            $(this).find('label').addClass('active');
+                            $(this).find('input').attr('checked', true);
+                        }
+                    });
+                } else {
+                    $('.has-parent').each(function () {
+                        var formParentId = $(this).attr('data-form-parent-id');
+
+                        if (formParentId === formIdAsParent) {
+                            $(this).find('label').removeClass('active');
+                            $(this).find('input').attr('checked', false);
+                        }
+                    });
+                }
+            });
+
+            $('.has-parent').click(function() {
+                var formParentId = $(this).attr('data-form-parent-id');
+                $('.has-child[data-form-id="' + formParentId + '"]').find('label').addClass('active');
+                $('.has-child[data-form-id="' + formParentId + '"]').find('input').attr('checked', true);
+            });
+
             $("#submit-sec").click(function () {
                 var formSecArray = [];
                 var parentSecArray = [];
