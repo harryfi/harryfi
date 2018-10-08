@@ -3433,7 +3433,8 @@ namespace MasterOnline.Controllers
 
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
-                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                //change by nurul 8/10/2018  fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();

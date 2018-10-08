@@ -81,6 +81,20 @@
         #konfUbahStatusSudahkirim .modal-body {
             padding: 0 50px 20px 50px;
         }
+        #konfUndoStatusSiapkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusSudahkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+        #konfUndoStatusSelesai .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+
+        #konfUndoStatusBatal .modal-body {
+            padding: 0 50px 20px 50px;
+        }
         /*end add*/ 
 
         .info_pesanan {
@@ -774,8 +788,43 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>@*Apakah Anda yakin ingin mengubah status pesanan ini?*@</h4>
                     <h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dikirim?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUndoStatusSiapkirim" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dibayar?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -811,8 +860,115 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>@*Apakah Anda yakin ingin mengubah status pesanan ini?*@</h4>
                     <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Selesai?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUndoStatusSudahkirim" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Siap Dikirim?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUndoStatusSelesai" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Selesai menjadi Sudah Dikirim?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUndoStatusBatal" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin membatalkan pembatalan pesanan?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1161,7 +1317,7 @@
             });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
-            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim').on('shown.bs.modal',
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal').on('shown.bs.modal',
                 function() {
                     var link = '@Url.Action("GetPesananInfo", "Manage", new { nobuk = "replaceNoBuk" })';
                     link = link.replace("replaceNoBuk", $nobukPesanan);
@@ -1183,7 +1339,7 @@
                 });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
-            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim').on('hidden.bs.modal',
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal').on('hidden.bs.modal',
                 function () {
                     $('.no_pesanan').text('-');
                     $('.tgl_pesanan').text('-');
@@ -2603,6 +2759,10 @@
                     $('#konfUbahStatusDibayar').modal('hide');
                     $('#konfUbahStatusSiapkirim').modal('hide');
                     $('#konfUbahStatusSudahkirim').modal('hide');
+                    $('#konfUndoStatusSiapkirim').modal('hide');
+                    $('#konfUndoStatusSudahkirim').modal('hide');
+                    $('#konfUndoStatusSelesai').modal('hide');
+                    $('#konfUndoStatusBatal').modal('hide');
                     //end add 
 
                 },
