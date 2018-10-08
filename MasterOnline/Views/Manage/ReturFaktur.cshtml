@@ -553,10 +553,6 @@
                 }
             });
 
-            $('#Faktur_PPN').focus(function () {
-                $(this).val('');
-            });
-
             $('#Faktur_PPN').blur(function () {
                 if ($(this).val() === '') $(this).val(0);
                 refreshNetto();
