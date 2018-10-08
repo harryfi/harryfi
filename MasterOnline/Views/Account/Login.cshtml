@@ -49,6 +49,7 @@
 
                         Session["NotAuthorized"] = null;
                     }
+
                     @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
                     {
                         foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
@@ -61,6 +62,14 @@
                             </div>
                         }
                     }
+                    
+                    <div class="alert alert-danger" id="alert-section">
+                        <span id="message"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
                     @using (Html.BeginForm("LoggingIn", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
@@ -71,18 +80,32 @@
                             @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
                             @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @maxlength = 50, required = "required" })
                         </div>
-                        <div class="form-group">
+                        <div class="form-group password-section">
                             @Html.LabelFor(m => m.Password, "Password *", new { @class = "control-label control-label-bold" })
                             @Html.TextBoxFor(m => m.Password, new { @class = "form-control", @type = "password", @maxlength = 50, required = "required" })
                         </div>
-                        <button type="submit" class="btn btn-primary block full-width m-b">
+                        <button id="btn-login" type="submit" class="btn btn-primary full-width m-b">
                             <span>Masuk</span>
                             <i class='fa fa-spinner fa-spin pull-right hide'></i>
                         </button>
+                        <button type="button" id="btn-submit-reset-password" class="btn btn-primary full-width m-b">
+                            Kirim Password Baru
+                        </button>
                     }
                 </div>
-                <!-- react-text: 36 -->Belum punya akun?&nbsp;<!-- /react-text -->
-                <a href="/register">Daftar di sini untuk mencoba MasterOnline (Gratis)</a>
+                <div class="row">
+                    <div class="col-md-6">
+                        Belum punya akun?
+                        <a href="/register">Daftar di sini (Gratis)</a>
+                    </div>
+                    <div class="col-md-6 text-right" id="lupa-pass-text">
+                        Lupa password?
+                        <a href="#" id="reset-pass-btn">Reset password di sini</a>
+                    </div>
+                    <div class="col-md-6 text-right" id="back-login-text">
+                        <a href="#" id="back-to-login-btn">Kembali ke Login ></a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -134,10 +157,6 @@
         margin: 15px 0;
     }
 
-    .block {
-        display: block !important;
-    }
-
     .m-b {
         margin-bottom: 15px;
     }
@@ -156,12 +175,71 @@
     <script type="text/javascript" src="//laz-g-cdn.alicdn.com/sj/securesdk/0.0.3/securesdk_lzd_v1.js" id="J_secure_sdk_v2" data-appkey="101775"></script>
     <script>
         $(document).ready(function () {
+            $('#btn-submit-reset-password').hide();
+            $('#back-login-text').hide();
+            $("#alert-section").hide();
+
             initRequired();
 
             $('form:first *:input[type!=hidden]:first').focus();
 
             $('form').submit(function () {
                 $('.fa-spin').removeClass('hide');
+            });
+
+            $('#reset-pass-btn').click(function() {
+                $('.password-section').hide();
+                $('#btn-submit-reset-password').show();
+                $('#btn-login').hide();
+                $('#back-login-text').show();
+                $('#lupa-pass-text').hide();
+            });
+
+            $('#back-to-login-btn').click(function () {
+                $('.password-section').show();
+                $('#btn-submit-reset-password').hide();
+                $('#btn-login').show();
+                $('#back-login-text').hide();
+                $('#lupa-pass-text').show();
+            });
+
+            $('#btn-submit-reset-password').click(function () {
+                var $email = $('#Email').val();
+
+                if ($email === '') {
+                    $('#alert-section #message').text('Email tidak boleh kosong!');
+                    $("#alert-section").show();
+                    setTimeout(function () {
+                        $("#alert-section").slideUp(500);
+                    }, 2000);
+
+                    return;
+                }
+
+                $.ajax({
+                    type: "POST",
+                    url: '/api/lupapassword',
+                    data: JSON.stringify({
+                        Email: $email
+                    }),
+                    headers: {
+                        'X-API-KEY': 'M@STERONLINE4P1K3Y',
+                        'Content-Type':'application/json'
+                    },
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function () {
+                        alert('Password baru telah dikirim ke email Anda!');
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                        $('#loading_spinner').hide();
+                    }
+                });
             });
         });
 
