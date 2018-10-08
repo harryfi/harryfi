@@ -784,9 +784,11 @@ namespace MasterOnline.Controllers
                                 var giftOptionBit = (order.gift_option.Equals("")) ? 1 : 0;
                                 var price = order.price.Split('.');
                                 var statusEra = "";
+                                #region convert status
                                 switch (order.statuses[0].ToString())
                                 {
                                     case "processing":
+                                    case "pending":
                                         statusEra = "01";
                                         break;
                                     case "ready_to_ship":
@@ -797,9 +799,6 @@ namespace MasterOnline.Controllers
                                         break;
                                     case "shipped":
                                         statusEra = "04";
-                                        break;
-                                    case "pending":
-                                        statusEra = "05";
                                         break;
                                     case "returned":
                                         statusEra = "06";
@@ -823,6 +822,17 @@ namespace MasterOnline.Controllers
                                         statusEra = "99";
                                         break;
                                 }
+                                //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                if (statusEra == "01")
+                                {
+                                    var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.order_id + "'", "STATUS_TRANSAKSI").ToString();
+                                    if (!string.IsNullOrEmpty(currentStatus))
+                                        if (currentStatus == "02" || currentStatus == "03")
+                                            statusEra = currentStatus;
+                                }
+                                //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                #endregion convert status
+
                                 insertQ += "('" + order.order_id + "','" + order.customer_first_name + "','" + order.customer_last_name + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
                                 insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name + "','" + order.address_billing.last_name;
                                 insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1 + "','" + order.address_billing.address2 + "','" + order.address_billing.address3 + "','" + order.address_billing.address4 + "','" + order.address_billing.address5;
@@ -848,10 +858,11 @@ namespace MasterOnline.Controllers
 
                                 listOrderId += order.order_id;
 
+                                insertQ += " , ";
+                                insertPembeli += " , ";
+
                                 if (i < bindOrder.data.orders.Count)
-                                {
-                                    insertQ += " , ";
-                                    insertPembeli += " , ";
+                                {                                    
                                     listOrderId += ",";
                                 }
                                 else
@@ -868,7 +879,7 @@ namespace MasterOnline.Controllers
                             a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
 
                             ret.status = 1;
-                            ret.message = a.ToString();
+                            //ret.message = a.ToString();
 
                             SqlCommand CommandSQL = new SqlCommand();
 
@@ -876,6 +887,7 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
                             EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
 
+                            CommandSQL = new SqlCommand();
                             CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
                             CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
                             CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
@@ -1084,6 +1096,7 @@ namespace MasterOnline.Controllers
                                         switch (items.status.ToString())
                                         {
                                             case "processing":
+                                            case "pending":
                                                 statusEra = "01";
                                                 break;
                                             case "ready_to_ship":
@@ -1094,9 +1107,6 @@ namespace MasterOnline.Controllers
                                                 break;
                                             case "shipped":
                                                 statusEra = "04";
-                                                break;
-                                            case "pending":
-                                                statusEra = "05";
                                                 break;
                                             case "returned":
                                                 statusEra = "06";
@@ -1120,6 +1130,16 @@ namespace MasterOnline.Controllers
                                                 statusEra = "99";
                                                 break;
                                         }
+                                        //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                        if (statusEra == "01")
+                                        {
+                                            var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
+                                            if (!string.IsNullOrEmpty(currentStatus))
+                                                if (currentStatus == "02" || currentStatus == "03")
+                                                    statusEra = currentStatus;
+                                        }
+                                        //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+
                                         insertQ += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name + "','" + items.sku + "','" + items.shop_sku + "','" + items.shipping_type;
                                         insertQ += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
                                         insertQ += ",'" + statusEra + "','" + items.shipment_provider + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason + "','" + items.reason_detail + "','" + items.purchase_order_id;
