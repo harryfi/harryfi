@@ -3799,7 +3799,7 @@ namespace MasterOnline.Controllers
             {
                 //Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
                 Invoice = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
-                ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList(),
+                ListInvoiceDetail = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -4191,7 +4191,7 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPelangganAkunTokpedShopee()
         {
-            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList();
+            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15" || m.NAMA == "17").ToList();
 
             return Json(listPelanggan, JsonRequestBehavior.AllowGet);
         }

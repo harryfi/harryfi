@@ -63,7 +63,7 @@
                         }
                     }
                     
-                    <div class="alert alert-danger" id="alert-section">
+                    <div class="alert alert-danger" id="alert-error-section">
                         <span id="message"></span>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -177,7 +177,7 @@
         $(document).ready(function () {
             $('#btn-submit-reset-password').hide();
             $('#back-login-text').hide();
-            $("#alert-section").hide();
+            $("#alert-error-section").hide();
 
             initRequired();
 
@@ -207,10 +207,10 @@
                 var $email = $('#Email').val();
 
                 if ($email === '') {
-                    $('#alert-section #message').text('Email tidak boleh kosong!');
-                    $("#alert-section").show();
+                    $('#alert-error-section #message').text('Email tidak boleh kosong!');
+                    $("#alert-error-section").show();
                     setTimeout(function () {
-                        $("#alert-section").slideUp(500);
+                        $("#alert-error-section").slideUp(500);
                     }, 2000);
 
                     return;

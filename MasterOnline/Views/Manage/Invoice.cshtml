@@ -933,10 +933,6 @@
                 $('#TGL').val($('#Invoice_TGL').val());
             }
 
-            $('#Invoice_NDISC1').focus(function () {
-                $(this).val('');
-            });
-
             $('#Invoice_NDISC1').blur(function () {
                 var $tot = convertToAngka($('#Invoice_BRUTO').val());
                 if ($(this).val() > $tot) {
@@ -953,10 +949,6 @@
                     refreshNetto();
                     $('#btn-simpan-perubahan-row').show();
                 }
-            });
-
-            $('#Invoice_PPN').focus(function () {
-                $(this).val('');
             });
 
             $('#Invoice_PPN').blur(function () {
