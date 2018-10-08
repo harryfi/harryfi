@@ -291,6 +291,19 @@ namespace MasterOnline.Controllers
 
             }
 
+            var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
+            if (listLzdShop.Count > 0)
+            {
+                blAcc = 1;
+                foreach (ARF01 tblCustomer in listLzdShop)
+                {
+                    var lzdApi = new LazadaController();
+                    lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
+                }
+
+            }
+
             var vm = new PesananViewModel()
             {
                 ListBarang = ErasoftDbContext.STF02.ToList(),
@@ -4588,6 +4601,19 @@ namespace MasterOnline.Controllers
                                 elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
                             }
                         }
+                    }
+                    if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+                    {
+                        //List<string> orderItemIds = new List<string>();
+                        //var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                        //if(sot01b.Count > 0)
+                        //{
+                        //    foreach(var tbl in sot01b)
+                        //    {
+                        //        orderItemIds.Add(tbl.ORDER_ITEM_ID);
+                        //    }
+                        //    lzdAPI.GetToPacked(orderItemIds, "JNE", marketPlace.TOKEN);
+                        //}
                     }
                     break;
                 case "03":
