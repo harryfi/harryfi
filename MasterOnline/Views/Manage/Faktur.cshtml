@@ -386,7 +386,7 @@
                             <div class="pull-right">
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
-                                            data-target="#modalUploadFaktur">
+                                            data-target="#modalUploadFaktur" style="display:none">
                                         <span>Upload Faktur</span>
                                     </button>
                                     <button type="button" class="btn btn-default" data-style="expand-right">
@@ -1991,7 +1991,7 @@
 
                                 link = '@Url.Action("UploadFakturTokped", "Manage")';
                             }
-                            else {
+                            else if($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '17') {
                                 jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",raw:true});
 
                                 link = '@Url.Action("UploadFakturShopee", "Manage")';
