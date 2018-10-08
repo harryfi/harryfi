@@ -99,10 +99,10 @@
                         <tbody>
                             @foreach (var form in Model.ListForms)
                             {
-                                if (!form.HaveChild)
+                                if (form.HaveChild)
                                 {
                                     <tr>
-                                        <td>@form.NamaForm</td>
+                                        <td><span style="font-weight: bold;">@form.NamaForm</span></td>
                                         <td class="text-center">
                                             <div class="btn-group" data-toggle="buttons">
                                                 @{
@@ -126,6 +126,38 @@
                                             </div>
                                         </td>
                                     </tr>
+
+                                    foreach (var formChild in Model.ListForms)
+                                    {
+                                        if (formChild.ParentId == form.ScrId)
+                                        {
+                                            <tr>
+                                                <td><span style="margin-left: 30px;">@formChild.NamaForm</span></td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" data-toggle="buttons">
+                                                        @{
+                                                            var childCheckInSec = Model.ListSec.SingleOrDefault(s => s.FormId == formChild.ScrId);
+
+                                                            if (childCheckInSec == null)
+                                                            {
+                                                                <label class="btn btn-success">
+                                                                    <input id="@formChild.ScrId" data-parent-id="@formChild.ParentId" type="checkbox" autocomplete="off">
+                                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                                </label>
+                                                            }
+                                                            else
+                                                            {
+                                                                <label class="btn btn-success active">
+                                                                    <input id="@formChild.ScrId" data-parent-id="@formChild.ParentId" type="checkbox" autocomplete="off" checked>
+                                                                    <span class="glyphicon glyphicon-ok"></span>
+                                                                </label>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
                                 }
                             }
                         </tbody>

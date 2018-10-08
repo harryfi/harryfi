@@ -6,8 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Mvc;
+using System.Web.Security;
 using MasterOnline.Models;
+using MasterOnline.Models.Api;
 using MasterOnline.Utils;
 using MasterOnline.ViewModels;
 
@@ -30,14 +33,14 @@ namespace MasterOnline.Controllers
         }
 
         // Route ke halaman login
-        [Route("login")]
+        [System.Web.Mvc.Route("login")]
         public ActionResult Login()
         {
             return View();
         }
 
         // Proses Logging In dari Acc / User
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult LoggingIn(Account account)
         {
@@ -324,13 +327,13 @@ namespace MasterOnline.Controllers
         }
 
         // Route ke halaman register
-        [Route("register")]
+        [System.Web.Mvc.Route("register")]
         public ActionResult Register()
         {
             return View();
         }
 
-        [HttpGet]
+        [System.Web.Mvc.HttpGet]
         public ActionResult CekEmailPengguna(string emailPengguna)
         {
             var res = new CekKetersediaanData()
@@ -349,7 +352,7 @@ namespace MasterOnline.Controllers
         }
 
         // Proses saving data account
-        [HttpPost]
+        [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> SaveAccount(Account account)
         {
@@ -488,7 +491,7 @@ namespace MasterOnline.Controllers
         }
 
         // Route ke halaman lupa password
-        [Route("remind")]
+        [System.Web.Mvc.Route("remind")]
         public ActionResult Remind()
         {
             return View();

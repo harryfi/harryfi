@@ -743,7 +743,6 @@
             cekJumlahPesananBulanIni();
 
             $('#tambah_faktur').on('click', function () {
-
                 $('.faktur_table_section').hide();
                 $('.faktur_editor_section').show();
             });
@@ -761,6 +760,9 @@
             });
 
             $('#close-editor-1').on('click', function () {
+                $('.faktur_table_section').show();
+                $('.faktur_editor_section').hide();
+
                 if ($TabAktif == 0) {
                     refreshTableFaktur1();
                 }
