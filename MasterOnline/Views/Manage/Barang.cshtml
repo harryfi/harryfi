@@ -1766,6 +1766,19 @@
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
             }
+            //add by Tri 10-08-2018
+            for (i = 0; i < 999 ; i++) {
+                if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').length == 0) {
+                    i = 999;
+                } else {
+                    if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').val() == "") {
+                        i = 999;
+                        ret = false;
+                        alert('Anda belum memilih Kategori barang di tab per marketplace.');
+                    }
+                }
+
+            }
             return ret;
         }
         function addError(obj, msg) {

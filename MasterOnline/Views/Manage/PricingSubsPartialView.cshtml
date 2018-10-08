@@ -76,7 +76,7 @@
             @*<div class="plan-select"><a href="">@(subs.KODE == kodeSubs ? "Tetap Paket Ini" : "Pindah Paket Ini")</a></div>*@
             @if (subs.KODE != "01")
             {
-                <div class="text-center" style="color: #fff; font-size: 10px;">
+                <div class="text-center" style="color: #fff; font-size: 12px;">
                     <p>---- Pilih Paket Langganan ----</p>
                 </div>
             }
@@ -84,19 +84,19 @@
                 @if (subs.KODE != "01")
                 {
                     <div class="row">
-                        <button id="btn_times_" style="font-size: 10px;" type="button" onclick="setBln('@subs.KODE', 3)" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
+                        <button id="btn_times_" style="font-size: 12px;" type="button" onclick="setBln('@subs.KODE', 3)" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
                             3 bulan<br />
                             <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
                         </button>
                     </div>
                     <div class="row">
-                        <button type="button" style="font-size: 10px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 6)" data-plan-btn="@subs.KODE" data-kali="5">
+                        <button type="button" style="font-size: 12px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 6)" data-plan-btn="@subs.KODE" data-kali="5">
                             6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
                             <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
                         </button>
                     </div>
                     <div class="row">
-                        <button type="button" style="font-size: 10px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 12)" data-plan-btn="@subs.KODE" data-kali="10">
+                        <button type="button" style="font-size: 12px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 12)" data-plan-btn="@subs.KODE" data-kali="10">
                             12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
                             <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
                         </button>
@@ -110,7 +110,7 @@
                     <br />
                 }
             </div>
-            <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@ style="font-size: 10px;">
+            <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@ style="font-size: 12px;">
                 @if (subs.KODE != "01")
     {
             <p class="plan-month-total" id="selected-package-@subs.KODE">Paket 3 Bulan</p>
