@@ -419,6 +419,10 @@
     <Compile Include="ErasoftContextMigrations\201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.Designer.cs">
       <DependentUpon>201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201810080437563_addStatusAPI_ARF01.cs" />
+    <Compile Include="ErasoftContextMigrations\201810080437563_addStatusAPI_ARF01.Designer.cs">
+      <DependentUpon>201810080437563_addStatusAPI_ARF01.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5394,6 +5398,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.resx">
       <DependentUpon>201809240527189_HapusTableAPI_LOG_MARKETPLACE_PER_ITEM.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201810080437563_addStatusAPI_ARF01.resx">
+      <DependentUpon>201810080437563_addStatusAPI_ARF01.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

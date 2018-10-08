@@ -769,7 +769,7 @@
                         //add by Tri 26-9-2018
                         if (response.kodeCust != undefined) {
                             custCode = response.kodeCust;
-                            $('#loading_spinner').hide();
+                            //$('#loading_spinner').hide();
                             //$('#modalConfirmLazadaAPIKey').modal('show');
                             if (confirm("Generate New API Key?")) {
                                 GenerateLazadaCode(custCode);
@@ -778,7 +778,7 @@
                             }
                                //window.open( , '_self');
                             //window.location.href = '@Url.Action("Pelanggan", "Manage")';
-                            $('#close-editor').click();
+                            //$('#close-editor').click();
                             //return true;
                         } else {
                             $('#table-customer-partial').html(response);
@@ -1106,7 +1106,14 @@
                 url: link,
                 success: function (response) {
 
-                    window.open(response, "Lazada Authentication", "width=1000, height=600, scrollbars=yes");
+                    var lzdAuthPopUp = window.open(response, "Lazada Authentication", "width=1000, height=600, scrollbars=yes");
+                    var timer = setInterval(function () {
+                        if (lzdAuthPopUp.closed) {
+                            clearInterval(timer);
+                            $('#loading_spinner').hide();
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';                            
+                        }
+                    }, 1000);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
