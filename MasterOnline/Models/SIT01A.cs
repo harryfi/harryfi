@@ -40,7 +40,7 @@ namespace MasterOnline
 
         public DateTime? TGL_KIRIM { get; set; }
 
-        [StringLength(15)]
+        [StringLength(100)]
         public string NO_REF { get; set; }
 
         [StringLength(15)]
