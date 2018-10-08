@@ -71,6 +71,18 @@
             padding: 0 50px 20px 50px;
         }
 
+        /*add by nurul 8/10/2018*/
+        #konfUbahStatusDibayar .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+        #konfUbahStatusSiapkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+        #konfUbahStatusSudahkirim .modal-body {
+            padding: 0 50px 20px 50px;
+        }
+        /*end add*/ 
+
         .info_pesanan {
             padding: 20px;
             border: solid 2px #ddd;
@@ -688,7 +700,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status pesanan ini?</h4>
+                    <h4>@*Apakah Anda yakin ingin mengubah status pesanan ini?*@</h4>
+                    <h4>Apakah Anda yakin ingin mengubah status dari Pesanan menjadi Sudah Dibayar?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -715,6 +728,119 @@
         </div>
     </div>
 </div>
+@*add by nurul 8/10/2018-------------------*@
+<div class="modal fade" id="konfUbahStatusDibayar" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUbahStatusSiapkirim" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>@*Apakah Anda yakin ingin mengubah status pesanan ini?*@</h4>
+                    <h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dikirim?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUbahStatusSudahkirim" tabindex="-1" role="dialog" aria-labelledby="konfirmasiUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>@*Apakah Anda yakin ingin mengubah status pesanan ini?*@</h4>
+                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Selesai?</h4>
+                </div>
+                <div class="row info_pesanan">
+                    <p>
+                        <span class="block_subtitle">No. Pesanan</span>: <span class="no_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Tgl. Pesanan</span>: <span class="tgl_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Marketplace</span>: <span class="market_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Pembeli</span>: <span class="buyer_pesanan">-</span>
+                    </p>
+                    <p>
+                        <span class="block_subtitle">Total</span>: Rp <span class="total_pesanan">0,00</span>
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by nurul -------------------*@
+
 <div class="modal fade" id="modalIsiResi" tabindex="-1" role="dialog" aria-labelledby="isiResiLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -1034,7 +1160,8 @@
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes, resizable=no");
             });
 
-            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
+            //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim').on('shown.bs.modal',
                 function() {
                     var link = '@Url.Action("GetPesananInfo", "Manage", new { nobuk = "replaceNoBuk" })';
                     link = link.replace("replaceNoBuk", $nobukPesanan);
@@ -1055,14 +1182,15 @@
                     });
                 });
 
-            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
+            //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim').on('hidden.bs.modal',
                 function () {
                     $('.no_pesanan').text('-');
                     $('.tgl_pesanan').text('-');
                     $('.market_pesanan').text('-');
                     $('.buyer_pesanan').text('-');
                     $('.total_pesanan').text('0,00');
-                });
+                });           
 
             $('.modal').on('hidden.bs.modal',
                 function() {
@@ -1359,7 +1487,7 @@
                         if (this.value === '') {
                             if ($class === 'qty-barang editable') {
                                 $this.html(0 + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananDetail_QTY" name="PesananDetail.QTY" type="hidden" value="0">');
-                                
+
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
                             } else if ($class === 'disc1-barang editable') {
@@ -1408,7 +1536,7 @@
 
                             if ($class === 'qty-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananDetail_QTY" name="PesananDetail.QTY" type="hidden" value="'+ this.value +'">');
-                                
+
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
 
@@ -1447,7 +1575,7 @@
                                     //change by nurul 1/10/2018
                                     //var $ndisc2 = convertToRupiah(this.value * ($hargaBarang * parseInt($($trElement + ' .qty-barang').text()) - $ndisc1Exist / 100));
                                     var $ndisc2 = convertToRupiah(this.value * (($hargaBarang * parseInt($($trElement + ' .qty-barang').text())) - $ndisc1Exist) / 100);
-                                    //end change 
+                                    //end change
 
                                     $($trElement + ' .ndisc2-barang')
                                         .removeClass('editable')
@@ -1577,7 +1705,7 @@
                                     if ($("#Pesanan_TERM").val == "0") {
                                         $("#Pesanan_TERM").val($objSup[0].term).change();
                                     }
-                                    //end change 
+                                    //end change
                                 }
 
                                 getTanggal();
@@ -1694,7 +1822,7 @@
             var $qty = parseInt($($trElement + ' .qty-barang').text());
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
 
-            if($($trElement + ' .disc1-barang').hasClass('editable')) 
+            if($($trElement + ' .disc1-barang').hasClass('editable'))
             {
                 if (convertToAngka($($trElement + ' .disc1-barang').text()) != 0) {
                     // disc1 yang diisi
@@ -1710,7 +1838,7 @@
             var $qty = parseInt($($trElement + ' .qty-barang').text());
             var $hargaBarang = convertToAngka($($trElement + ' .harga-barang').text());
 
-            if($($trElement + ' .disc2-barang').hasClass('editable')) 
+            if($($trElement + ' .disc2-barang').hasClass('editable'))
             {
                 if (convertToAngka($($trElement + ' .disc2-barang').text()) != 0) {
                     // disc2 yang diisi
@@ -1721,7 +1849,7 @@
                     $($trElement + ' .ndisc2-barang').html($ndisc2 + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="'+ convertToAngka($ndisc2) +'">');
                 }
             }
-        
+
         }
         function getDataBarang() {
             if ($('#Pesanan_CUST').val() != '') {
@@ -2471,6 +2599,11 @@
                         alert(response.Errors[0]);
                     }
                     $('#konfUbahStatus').modal('hide');
+                    //add by nurul 
+                    $('#konfUbahStatusDibayar').modal('hide');
+                    $('#konfUbahStatusSiapkirim').modal('hide');
+                    $('#konfUbahStatusSudahkirim').modal('hide');
+                    //end add 
 
                 },
                 error: function (xhr) {
@@ -2615,9 +2748,9 @@
                 var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
                 $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
             }
-            //end add 
+            //end add
             return $isValid;
-            
+
         }
 
         function simpanbrg($id) {

@@ -4397,7 +4397,12 @@ namespace MasterOnline.Controllers
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             if (tipeStatus == "04") // validasi di tab Siap dikirim
             {
-                if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                var dataVm = new PesananViewModel()
+                {
+                    Pesanan = pesananInDb
+                };
+                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
                 {
 
                     var vmError = new StokViewModel();
