@@ -68,12 +68,20 @@
                             </div>
                         }
                     }
+
+                    <div class="alert alert-danger" id="alert-error-section">
+                        <span id="message"></span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
                     @using (Html.BeginForm("SaveAccount", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
                         <div class="form-group">
-                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new {@class = "control-label control-label-bold"})
-                            @Html.TextBoxFor(m => m.Username, new {@class = "form-control", maxlength = 50, required = "required"})
+                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         @Html.HiddenFor(m => m.UserId, new { Value = "xxx" })
                         <div class="form-group">
@@ -105,7 +113,7 @@
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
                         </div>
-                        <button type="submit" class="btn btn-primary block full-width m-b" data-style="expand-right">
+                        <button id="btn-submit-daftar" type="button" class="btn btn-primary block full-width m-b" data-style="expand-right">
                             <span>Daftar</span>
                             <i class='fa fa-spinner fa-spin pull-right hide'></i>
                         </button><span>Sudah punya akun?</span><a href="@Url.Action("Login", "Account")"> Login di sini</a>
@@ -190,7 +198,23 @@
 {
     <script>
         $(document).on('ready', function (event) {
+            $("#alert-error-section").hide();
+
             initRequired();
+
+            $('#btn-submit-daftar').click(function() {
+                if ($('#Password').val() !== $('#ConfirmPassword').val()) {
+                    $('#alert-error-section #message').text('Password tidak sama!');
+                    $("#alert-error-section").show();
+                    setTimeout(function () {
+                        $("#alert-error-section").slideUp(500);
+                    }, 2000);
+
+                    return;
+                }
+
+                $('form').submit();
+            });
 
             $('form').submit(function () {
                 if (!validateForm()) return false;
