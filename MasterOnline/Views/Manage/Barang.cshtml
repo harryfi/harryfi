@@ -612,7 +612,7 @@
                 });
             });
 
-            $('.collapse-link').on('click', function () {
+            $('.collapse-link').off('click').on('click', function () {
                 var $BOX_PANEL = $(this).closest('.x_panel'),
                     $ICON = $(this).find('i'),
                     $BOX_CONTENT = $BOX_PANEL.find('.x_content');
@@ -630,7 +630,7 @@
                 $ICON.toggleClass('fa-chevron-up fa-chevron-down');
             });
 
-            $('input[name="select_all"]').on('click',
+            $('input[name="select_all"]').off('click').on('click',
                 function () {
                     var attr = $(this).attr('checked');
 
@@ -643,7 +643,7 @@
                     }
                 });
 
-            $('#tambah_barang').on('click', function () {
+            $('#tambah_barang').off('click').on('click', function () {
                 $('.barang_table_section').hide();
                 $('.barang_editor_section').show();
                 $('#close-editor-1')[0].disabled = false;
@@ -655,7 +655,8 @@
                 }
             });
 
-            $('#close-editor-1').on('click', function () {
+            //$('#close-editor-1').on('click', function () {
+            $('#close-editor-1').off('click').on('click', function () {
                 $('#close-editor-1')[0].disabled = true;
                 $('.barang_table_section').show();
                 $('.barang_editor_section').hide();
@@ -666,15 +667,15 @@
             getKategori();
             getMerk();
 
-            $("#Stf02_HJUAL").focus(function () {
+            $("#Stf02_HJUAL").off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
 
-            $('#hjualmarket-section input[data-jenis="hjual"]').focus(function () {
+            $('#hjualmarket-section input[data-jenis="hjual"]').off('focus').focus(function () {
                 $(this).val(convertToAngka($(this).val()));
             });
 
-            $("#Stf02_HJUAL").on('keydown',
+            $("#Stf02_HJUAL").off('keydown').on('keydown',
                 function (e) {
                     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
@@ -690,7 +691,7 @@
                     }
                 });
 
-            $("#hjualmarket-section input").on('keydown',
+            $("#hjualmarket-section input").off('keydown').on('keydown',
                 function (e) {
                     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
@@ -706,13 +707,13 @@
                     }
                 });
 
-            $('#hjualmarket-section input[data-jenis="hjual"]').on('change', function () {
+            $('#hjualmarket-section input[data-jenis="hjual"]').off('change').on('change', function () {
                 var input = $(this).val();
                 var rupiah = convertToRupiah(input);
                 $(this).val(rupiah);
             });
 
-            $("#Stf02_HJUAL").on('change', function () {
+            $("#Stf02_HJUAL").off('change').on('change', function () {
                 if ($(this).val() == '') {
                     $(this).val(0);
                 }
@@ -725,14 +726,14 @@
                 applyHargaPerMarket($rupiah);
             });
 
-            $('#Stf02_BRG').on('change blur',
+            $('#Stf02_BRG').off('change').on('change blur',
                 function () {
                     if (!$(this).is(':disabled')) {
                         cekKode($(this), 'brg');
                     }
                 });
 
-            $("input[type=file]").on("click",
+            $("input[type=file]").off('click').on("click",
                 function (e) {
                     e.stopPropagation();
                 });
@@ -740,7 +741,7 @@
             $('#foto_produk_1, #foto_produk_2, #foto_produk_3').hide();
             $('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3').hide();
 
-            $('#btn_hapus_1').click(function () {
+            $('#btn_hapus_1').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
                 $link = $link.replace("replaceUrutan", 1);
@@ -762,7 +763,7 @@
                 return;
             });
 
-            $('#btn_hapus_2').click(function () {
+            $('#btn_hapus_2').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
                 $link = $link.replace("replaceUrutan", 2);
@@ -784,7 +785,7 @@
                 return;
             });
 
-            $('#btn_hapus_3').click(function () {
+            $('#btn_hapus_3').off('click').on('click', function () {
                 var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
                 $link = $link.replace("replaceUrutan", 3);
@@ -808,7 +809,7 @@
 
             var validImage = ["image/jpeg"];
 
-            $('#foto_produk_1').change(function () {
+            $('#foto_produk_1').off('change').on('change', function () {
                 var file = this.files[0];
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
@@ -827,7 +828,7 @@
                 }
             });
 
-            $('#foto_produk_2').change(function () {
+            $('#foto_produk_2').off('change').on('change', function () {
                 var file = this.files[0];
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
@@ -846,7 +847,7 @@
                 }
             });
 
-            $('#foto_produk_3').change(function () {
+            $('#foto_produk_3').off('change').on('change', function () {
                 var file = this.files[0];
                 var fileType = file["type"];
                 if ($.inArray(fileType, validImage) < 0) {
@@ -865,28 +866,28 @@
                 }
             });
 
-            $('#box_upload_1').on('click', function () {
+            $('#box_upload_1').off('click').on('click', function () {
             });
 
-            $('#box_upload_2').on('click', function () {
+            $('#box_upload_2').off('click').on('click', function () {
             });
 
-            $('#box_upload_3').on('click', function () {
+            $('#box_upload_3').off('click').on('click', function () {
 
             });
-            $('#box_upload_1').on('click', function () {
+            $('#box_upload_1').off('click').on('click', function () {
                 $('#foto_produk_1').click();
             });
 
-            $('#box_upload_2').on('click', function () {
+            $('#box_upload_2').off('click').on('click', function () {
                 $('#foto_produk_2').click();
             });
 
-            $('#box_upload_3').on('click', function () {
+            $('#box_upload_3').off('click').on('click', function () {
                 $('#foto_produk_3').click();
             });
 
-            if ($('#Stf02_ID').val() != '') {
+            if ($('#Stf02_ID').off('click').val() != '') {
                 getFotoProduk();
             }
         }
@@ -1106,52 +1107,52 @@
                                             label += '*';
                                         }
                                         label += '</label>';
-                                            var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="50">';
-                                            var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ALABEL + '" maxlength="250">';
+                                        var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ANAME + '" maxlength="50">';
+                                        var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_' + listmarket_i + '__ANAME_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ANAME_' + (i + 1) + '" type="hidden" value="' + ALABEL + '" maxlength="250">';
 
-                                            fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
-                                            //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
+                                        fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
+                                        //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
 
-                                            var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
+                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_' + listmarket_i + '__AVALUE_' + (i + 1);
 
-                                            var adaValue = "";
-                                            if (ListHargaJualPermarketView != null) {
-                                                if (ListHargaJualPermarketView.length > 0) {
-                                                    adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
-                                                }
+                                        var adaValue = "";
+                                        if (ListHargaJualPermarketView != null) {
+                                            if (ListHargaJualPermarketView.length > 0) {
+                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
                                             }
+                                        }
 
-                                            if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT")) {
-                                                //hidden
-                                                fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                        if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT")) {
+                                            //hidden
+                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
-                                                //select
-                                                var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
-                                                SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" required="required"></select></div>';
+                                            //select
+                                            var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
+                                            SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
+                                            fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" required="required"></select></div>';
 
-                                                //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
+                                            //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
+                                        }
+                                        else {
+                                            //textbox
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            } else {
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             }
-                                            else {
-                                                //textbox
-                                                if (AMANDATORY == "1") {
-                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                                } else {
-                                                    fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                                }
-                                            }
+                                        }
 
 
-                                            if (loop == 0) {
+                                        if (loop == 0) {
 
-                                                loop = 1;
-                                            }
-                                            else if (loop == 1) {
-                                                $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                            loop = 1;
+                                        }
+                                        else if (loop == 1) {
+                                            $('#attribute_lazada_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
 
-                                                fieldAVALUE = "";
-                                                loop = 0;
-                                            }
+                                            fieldAVALUE = "";
+                                            loop = 0;
+                                        }
                                         //}
                                     }
                                     else {
