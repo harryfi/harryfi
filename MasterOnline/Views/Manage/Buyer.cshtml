@@ -119,7 +119,7 @@
                                                     }
                                                     else
                                                     {
-                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
+                                                        <input id="BUYERCODE" type="text" value="[AUTO]" disabled class="form-control" />
                                                     }
                                                 </div>
                                             </div>
@@ -237,7 +237,7 @@
                 $('.pembeli_editor_section').hide();
                 $('#Pembeli_KODEPOS, #Pembeli_NAMA, #Pembeli_EMAIL, #Pembeli_AL, #Pembeli_RecNum,#Pembeli_PERSO, ' +
                     '#Pembeli_BUYER_CODE, #Pembeli_TLP, #Pembeli_KODEPROV, #Pembeli_KODEKABKOT').val('');
-                $('#Pembeli_BUYER_CODE').removeAttr('disabled');
+                $('#BUYERCODE').val('[AUTO]');
                 $('#Pembeli_USERNAME').val('@(username)');
                 $('#Pembeli_TGL_INPUT').val('@(DateTime.Now)');
                 $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
@@ -414,6 +414,7 @@
                 success: function (response) {
                     getKabKot();
                     resetKabKot();
+                    $('#BUYERCODE').val(response.Pembeli.BUYER_CODE);
                     $('#Pembeli_USERNAME').val(response.Pembeli.USERNAME);
                     $('#Pembeli_TGL_INPUT').val(moment(response.Pembeli.TGL_INPUT).format("YYYY-MM-DD HH:mm:ss"));
                     $('#Pembeli_RecNum').val(response.Pembeli.RecNum);

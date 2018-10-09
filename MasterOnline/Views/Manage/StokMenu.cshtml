@@ -177,6 +177,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Ada perubahan data yang belum Anda simpan. <br />Yakin ingin menutup form ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
@@ -207,6 +227,18 @@
                 tableSiapProses.search($(this).val()).draw();
             });
         });
+
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            $modeEdit = 0;
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            $('.stok_table_section').show();
+            $('.stok_editor_section').hide();
+            //refresh();
+            refreshTableStok();
+        }
 
         function Initialize() {
             var table = $('#datatable').DataTable();
@@ -247,16 +279,18 @@
             });
 
             $('#close-editor').on('click', function () {
-                $modeEdit = 0;
-
-                $('input, select, .btn-danger').each(function () {
-                    $(this).removeAttr('disabled');
-                });
-
-                $('.stok_table_section').show();
-                $('.stok_editor_section').hide();
-                //refresh();
-                refreshTableStok();
+                if ($('#btn-simpan-perubahan-row').length) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $modeEdit = 0;
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+                    //refresh();
+                    refreshTableStok();
+                }
             });
 
             if ($('.message-error').text() !== '') {
