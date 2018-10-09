@@ -8,7 +8,8 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Marketplace</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 90px;">Pembeli</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px; text-align: center;">Sdh. Dibayar</th>
+            @* change by nurul 8/10/2018 <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px; text-align: center;">Sdh. Dibayar</th>*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 90px; text-align: center;">Ubah Status</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px; text-align: center;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; text-align: center;">Hapus</th>
         </tr>
@@ -40,7 +41,8 @@
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-success" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">
-                        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>
+                        @* change by nurul 8/10/2018 <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                        <span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
                     </button>
                 </td>
                 <td class="edit-hapus-col">

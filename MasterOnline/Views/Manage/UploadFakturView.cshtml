@@ -10,9 +10,10 @@
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_CUST")
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_NAMA")
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_PERSO")
+        <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
     </div>
     <div class="col-md-4">
-        <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
+        @Html.TextBox("CUSTOMER_UPLOAD_FAKTUR_LAST_UPLOAD", "", new { @class = "form-control", @readonly = "readonly" })
     </div>
     <div class="col-md-4">
     </div>
@@ -20,19 +21,19 @@
 <br />
 
 <div class="row">
-    <div class="col-md-4">
-    </div>
     <div class="col-md-4 file_upload_section">
         <input type='file' id='file_upload_faktur' name="file_upload_faktur" onchange="checkfile(this);"
                accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-        @*<div class="box_upload" id="box_upload_1">
-            <span class="box_upload_placeholder">Upload Excel</span>
-        </div>*@
+    </div>
+    <div class="col-md-4">
+        <button type="button" class="btn btn-primary" onclick="uploadfilefaktur();" data-style="expand-right">
+            <span>Upload</span>
+        </button>
     </div>
     <div class="col-md-4">
     </div>
 </div>
-<br/>
+<br />
 
 <div id="scrollable_div">
     <div class="row">

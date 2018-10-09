@@ -37,7 +37,7 @@
                 </td>
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfUbahStatus" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">
+                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusBatal" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">
                         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
                     </button>
                 </td>
