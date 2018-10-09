@@ -717,7 +717,7 @@
 
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', ''));
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
             //end change by calvin 26 september 2018
         }
 
