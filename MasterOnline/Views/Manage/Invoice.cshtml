@@ -649,6 +649,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Ada perubahan data yang belum Anda simpan. <br />Yakin ingin menutup form ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -742,6 +762,31 @@
         }
         //end add by Tri, call midtrans api get token
 
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            if ($TabAktif == 0) {
+                refreshTableInvoice1();
+            }
+            else if ($TabAktif == 1) {
+                refreshTableInvoiceLunas();
+            }
+            else if ($TabAktif == 2) {
+                refreshTableInvoiceTempo();
+            }
+
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+
+            $('.invoice_table_section').show();
+            $('.invoice_editor_section').hide();
+            refreshForm1();
+
+            $bakalNetto = 0;
+            $totalAwal = 0;
+            $nettoSebelumnya = 0;
+        }
+
         function Initialize() {
             cekJumlahPesananBulanIni();
 
@@ -806,27 +851,31 @@
             });
 
             $('#close-editor-1').on('click', function () {
-                if ($TabAktif == 0) {
-                    refreshTableInvoice1();
-                }
-                else if ($TabAktif == 1) {
-                    refreshTableInvoiceLunas();
-                }
-                else if ($TabAktif == 2) {
-                    refreshTableInvoiceTempo();
-                }
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    if ($TabAktif == 0) {
+                        refreshTableInvoice1();
+                    }
+                    else if ($TabAktif == 1) {
+                        refreshTableInvoiceLunas();
+                    }
+                    else if ($TabAktif == 2) {
+                        refreshTableInvoiceTempo();
+                    }
 
-                $('input, select, .btn-danger').each(function () {
-                    $(this).removeAttr('disabled');
-                });
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
 
-                $('.invoice_table_section').show();
-                $('.invoice_editor_section').hide();
-                refreshForm1();
+                    $('.invoice_table_section').show();
+                    $('.invoice_editor_section').hide();
+                    refreshForm1();
 
-                $bakalNetto = 0;
-                $totalAwal = 0;
-                $nettoSebelumnya = 0;
+                    $bakalNetto = 0;
+                    $totalAwal = 0;
+                    $nettoSebelumnya = 0;
+                }
             });
 
             if ($('.message-error').text() !== '') {
@@ -1199,7 +1248,7 @@
                                     //change by nurul 27/9/2018
                                     //var $ndisc2 = convertToRupiah(this.value * ($hargaBarang - $ndisc1Exist) * parseInt($($trElement + ' .qty-barang').text()) / 100);
                                     var $ndisc2 = convertToRupiah(this.value * (($hargaBarang * parseInt($($trElement + ' .qty-barang').text())) - $ndisc1Exist) / 100);
-                                    //end change 
+                                    //end change
 
                                     $($trElement + ' .ndisc2-barang')
                                         .removeClass('editable')
