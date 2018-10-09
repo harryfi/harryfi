@@ -23,5 +23,6 @@ namespace MasterOnline.ViewModels
         public List<SOT01A> ListPesanan { get; set; } = new List<SOT01A>();
         public List<String> Errors { get; set; } = new List<string>();
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
+        public List<LOG_IMPORT_FAKTUR> ListImportFaktur { get; set; } = new List<LOG_IMPORT_FAKTUR>();
     }
 }

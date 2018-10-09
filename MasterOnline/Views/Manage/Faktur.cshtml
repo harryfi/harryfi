@@ -68,7 +68,7 @@
     <style>
         #modal-upload-faktur {
             margin: auto;
-            width: 60em;
+            width: 75em;
         }
 
             #modal-upload-faktur .modal-content {
@@ -1465,6 +1465,9 @@
                         valueField: 'id',
                         searchField: 'text',
                         options: customerList,
+                        onBlur: function(){
+                            $('#CUSTOMER_UPLOAD_FAKTUR').trigger('change');
+                        },
                         onChange: function (value) {
                             var $objSup = $.grep(customerList, function (data) { return data.id == value });
 
@@ -2014,7 +2017,10 @@
             }
         }
         function uploadfilefaktur(){
-            if ($('#file_upload_faktur')[0].files.length < 1) {
+            if ($('#CUSTOMER_UPLOAD_FAKTUR_CUST').val() == "") {
+                alert('Harap pilih akun terlebih dahulu.');
+            }
+            else if ($('#file_upload_faktur')[0].files.length < 1) {
                 $('#file_upload_faktur').click();
             }
             else {
@@ -2086,8 +2092,10 @@
                             }),
                             contentType: "application/json; charset=UTF-8",
                             cache: false,
-                            success: function(data){
+                            success: function(response){
+                                $('#modal-upload-faktur-body').html(response);
                                 document.getElementById("file_upload_faktur").value = "";
+
                             },
                             error: function(errMsg) {
                                 document.getElementById("file_upload_faktur").value = "";
@@ -2097,6 +2105,9 @@
                     reader.readAsBinaryString(f);
                 }
             }
+        }
+        function downloadLogUploadFaktur(txt){
+        
         }
     </script>
     <script>
