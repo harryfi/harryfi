@@ -544,6 +544,23 @@ namespace MasterOnline.Controllers
 
             if (dataBuyer.Pembeli.RecNum == null)
             {
+                var listPembeli = ErasoftDbContext.ARF01C.ToList();
+                var noPembeli = "";
+
+                if (listPembeli.Count == 0)
+                {
+                    noPembeli = "000001";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ARF01C, RESEED, 0)");
+                }
+                else
+                {
+                    var lastRecNum = listPembeli.Last().RecNum;
+                    lastRecNum++;
+
+                    noPembeli = lastRecNum.ToString().PadLeft(6, '0');
+                }
+
+                dataBuyer.Pembeli.BUYER_CODE = noPembeli;
                 ErasoftDbContext.ARF01C.Add(dataBuyer.Pembeli);
             }
             else

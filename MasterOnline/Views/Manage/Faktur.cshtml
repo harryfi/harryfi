@@ -499,6 +499,27 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Ada perubahan data yang belum Anda simpan. <br />Yakin ingin menutup form ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -728,6 +749,37 @@
             });
         }
 
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            $('.faktur_table_section').show();
+            $('.faktur_editor_section').hide();
+
+            if ($TabAktif == 0) {
+                refreshTableFaktur1();
+            }
+            else if ($TabAktif == 1) {
+                refreshTableFakturLunas();
+            }
+            else if ($TabAktif == 2) {
+                refreshTableFakturTempo();
+            }
+
+            $('input, select, .btn-danger').each(function() {
+                $(this).removeAttr('disabled');
+            });
+
+            refreshForm1();
+
+            $modeEdit = 0;
+
+            $bakalNetto = 0;
+            $totalAwal = 0;
+            $nettoSebelumnya = 0;
+            $('.btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+        }
+
         function Initialize() {
             cekJumlahPesananBulanIni();
 
@@ -749,33 +801,37 @@
             });
 
             $('#close-editor-1').on('click', function () {
-                $('.faktur_table_section').show();
-                $('.faktur_editor_section').hide();
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $('.faktur_table_section').show();
+                    $('.faktur_editor_section').hide();
 
-                if ($TabAktif == 0) {
-                    refreshTableFaktur1();
+                    if ($TabAktif == 0) {
+                        refreshTableFaktur1();
+                    }
+                    else if ($TabAktif == 1) {
+                        refreshTableFakturLunas();
+                    }
+                    else if ($TabAktif == 2) {
+                        refreshTableFakturTempo();
+                    }
+
+                    $('input, select, .btn-danger').each(function() {
+                        $(this).removeAttr('disabled');
+                    });
+
+                    refreshForm1();
+
+                    $modeEdit = 0;
+
+                    $bakalNetto = 0;
+                    $totalAwal = 0;
+                    $nettoSebelumnya = 0;
+                    $('.btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
                 }
-                else if ($TabAktif == 1) {
-                    refreshTableFakturLunas();
-                }
-                else if ($TabAktif == 2) {
-                    refreshTableFakturTempo();
-                }
-
-                $('input, select, .btn-danger').each(function() {
-                    $(this).removeAttr('disabled');
-                });
-
-                refreshForm1();
-
-                $modeEdit = 0;
-
-                $bakalNetto = 0;
-                $totalAwal = 0;
-                $nettoSebelumnya = 0;
-                $('.btn-danger').each(function () {
-                    $(this).removeAttr('disabled');
-                });
             });
 
             if ($('.message-error').text() !== '') {
@@ -1713,7 +1769,7 @@
 
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', ''));
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
             //end change by calvin 26 september 2018
         }
 

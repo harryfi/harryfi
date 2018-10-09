@@ -348,6 +348,26 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Ada perubahan data yang belum Anda simpan. <br />Yakin ingin menutup form ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="closeEditor()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -386,6 +406,23 @@
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
+        function closeEditor() {
+            $('#modalTutupEditor').modal('hide');
+            if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+                alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+                konfirmasiData();
+                return;
+            }
+            $('input, select, .btn-danger').each(function() {
+                $(this).removeAttr('disabled');
+            });
+            $('.jurnal_table_section').show();
+            $('.jurnal_editor_section').hide();
+            refreshForm1();
+            refreshTableJurnal1();
+            $saved = 0;
+        }
+
         function Initialize() {
             var table = $('#datatable').DataTable();
             //var tableNunggu = $('#datatable_nunggu').DataTable();
@@ -393,7 +430,7 @@
             //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             //var tableSelesai = $('#datatable_selesai').DataTable();
-       
+
             $('#search_jurnal').keyup(function () {
                 table.search($(this).val()).draw();
             });
@@ -437,19 +474,23 @@
             });
 
             $('#close-editor-1').on('click', function () {
-                if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
-                    alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
-                    konfirmasiData();
-                    return;
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+                        alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+                        konfirmasiData();
+                        return;
+                    }
+                    $('input, select, .btn-danger').each(function() {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.jurnal_table_section').show();
+                    $('.jurnal_editor_section').hide();
+                    refreshForm1();
+                    refreshTableJurnal1();
+                    $saved = 0;
                 }
-                $('input, select, .btn-danger').each(function() {
-                    $(this).removeAttr('disabled');
-                });
-                $('.jurnal_table_section').show();
-                $('.jurnal_editor_section').hide();
-                refreshForm1();
-                refreshTableJurnal1();
-                $saved = 0;
             });
 
             if ($('.message-error').text() !== '') {
@@ -687,7 +728,7 @@
 
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', ''));
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
             //end change by calvin 26 september 2018
         }
 
