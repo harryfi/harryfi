@@ -112,14 +112,14 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.BUYER_CODE, "Kode Pembeli *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @if (Model?.Pembeli?.RecNum != null)
+                                                    @if (Model.Pembeli != null)
                                                     {
                                                         @Html.HiddenFor(m => m.Pembeli.BUYER_CODE)
                                                         <input type="text" value="@Model.Pembeli.BUYER_CODE" disabled class="form-control" />
                                                     }
                                                     else
                                                     {
-                                                        @Html.TextBoxFor(m => m.Pembeli.BUYER_CODE, new { @class = "form-control", required = "required" })
+                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
                                                     }
                                                 </div>
                                             </div>
