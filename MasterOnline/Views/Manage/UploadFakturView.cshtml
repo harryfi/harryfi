@@ -12,10 +12,13 @@
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_PERSO")
         <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
     </div>
+    <div class="col-md-2">
+        <label class="control-label">Upload Terakhir</label>
+    </div>
     <div class="col-md-4">
         @Html.TextBox("CUSTOMER_UPLOAD_FAKTUR_LAST_UPLOAD", "", new { @class = "form-control", @readonly = "readonly" })
     </div>
-    <div class="col-md-4">
+    <div class="col-md-2">
     </div>
 </div>
 <br />
@@ -34,11 +37,34 @@
     </div>
 </div>
 <br />
-
 <div id="scrollable_div">
     <div class="row">
+        <label class="control-label">History Upload</label>
+    </div>
+    <div class="row">
         <div class="col-md-12">
-            @Html.TextArea("infoUpload", null, new { @class = "form-control", @Rows = 12, @ReadOnly = true })
+            <table id="table_history_upload" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="100">Pengupload</th>
+                        <th width="150">Tanggal Upload</th>
+                        <th width="100">Akun</th>
+                        <th width="100">Faktur Terakhir</th>
+                        <th width="150">Tanggal Faktur</th>
+                        <th width="45">History</th>
+                    </tr>
+                </thead>
+                @*<tbody>
+                    @{
+                        var listBarang = Model.ListBarang.ToList();
+                        var iPd = 0;
+                    }
+                    @foreach (var fakturDetail in Model.ListFakturDetail.Where(pb => pb.NO_BUKTI == Model?.Faktur?.NO_BUKTI).ToList())
+                    {
+
+                    }
+                </tbody>*@
+            </table>
         </div>
     </div>
 </div>

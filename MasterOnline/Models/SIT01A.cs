@@ -217,7 +217,7 @@ namespace MasterOnline
         [StringLength(10)]
         public string PEMESAN { get; set; }
 
-        [StringLength(20)]
+        [StringLength(30)]
         public string NAMAPEMESAN { get; set; }
 
         public double? KOMISI { get; set; }

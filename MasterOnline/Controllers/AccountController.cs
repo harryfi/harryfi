@@ -136,6 +136,14 @@ namespace MasterOnline.Controllers
         {
             //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+
+            //add by calvin 9 oktober 2018
+            //delete log API older than 7 days
+            var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME.Day.CompareTo(DateTime.Now.Day) > 7 select p).ToList();
+            LocalErasoftDbContext.API_LOG_MARKETPLACE.RemoveRange(deleteOldLogs);
+            LocalErasoftDbContext.SaveChanges();
+            //end add by calvin 9 oktober 2018
+
             //if (sessionData?.Account != null)
             //{
             //    if (sessionData.Account.UserId == "admin_manage")

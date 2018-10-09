@@ -10,6 +10,10 @@ namespace MasterOnline.Models
     [Table("ATTRIBUTE_OPT_LAZADA")]
     public class ATTRIBUTE_OPT_LAZADA
     {
+
+        [StringLength(50)]
+        public string CATEGORY_CODE{ get; set; }
+
         [StringLength(50)]
         public string A_NAME { get; set; }
 
