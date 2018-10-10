@@ -168,6 +168,11 @@ namespace MasterOnline.Controllers
                         //{
                         arf01inDB.TOKEN = ret.access_token;
                         arf01inDB.REFRESH_TOKEN = ret.refresh_token;
+
+                        //ADD BY TRI, SET STATUS_API
+                        arf01inDB.STATUS_API = "1";
+                        //END ADD BY TRI, SET STATUS_API
+
                         ErasoftDbContext.SaveChanges();
                         if (syncData)
                         {
@@ -178,6 +183,14 @@ namespace MasterOnline.Controllers
                             GetCategoryPerUser(data); // untuk category code yg muncul saat insert barang
                         }
                         //}
+                    }
+                    else
+                    {
+                        //ADD BY TRI, SET STATUS_API
+                        arf01inDB.STATUS_API = "0";
+                        //END ADD BY TRI, SET STATUS_API
+
+                        ErasoftDbContext.SaveChanges();
                     }
                 }
             }

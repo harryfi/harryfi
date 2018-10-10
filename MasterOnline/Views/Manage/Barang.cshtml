@@ -1766,19 +1766,22 @@
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
             }
-            //add by Tri 10-08-2018
-            for (i = 0; i < 999 ; i++) {
+            //add by Tri 08-10-2018, validasi category per marketplace blm dipilih                
+            var jmlMarket = @Model.ListMarket.ToList().Count;
+            for (i = 0; i < jmlMarket; i++) {
                 if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').length == 0) {
-                    i = 999;
+                    //i = 999;
                 } else {
                     if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').val() == "") {
-                        i = 999;
+                        //i = 999;
+                        i = jmlMarket;
                         ret = false;
                         alert('Anda belum memilih Kategori barang di tab per marketplace.');
                     }
                 }
 
             }
+            //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih
             return ret;
         }
         function addError(obj, msg) {

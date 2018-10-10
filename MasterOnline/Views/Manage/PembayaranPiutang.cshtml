@@ -486,6 +486,12 @@
 
             $('#TOTALBAYAR').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
+            //ADD BY NURUL 10/10/2018
+            $('#TOTALBYR').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#TOTALPOT').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            //END ADD 
 
             // ==== Update Data ====
             $('#Piutang_TGL').change(function () {
@@ -516,31 +522,38 @@
                     }
                 });
             });
-
+            var $totalPot = 0;
+            var $totalBayar = 0;
             var $totalSemua = 0;
 
             $('tr[data-piutang-id="0"] #PiutangDetail_POT').change(function () {
-                $totalSemua = parseInt($('#PiutangDetail_POT').val()) + parseInt($('#PiutangDetail_BAYAR').val());
+                //$totalSemua = parseInt($('#PiutangDetail_POT').val()) + parseInt($('#PiutangDetail_BAYAR').val());
+                $totalPot = convertToAngka($('#TOTALPOT').val()) + parseInt($('#HutangDetail_POT').val());
                 $('tr[data-piutang-id="0"] .span-potongan-piutang').text(convertToRupiah($(this).val()));
+                $('#TOTALPOT').val(convertToRupiah($totalPot));
+                $totalSemua = $totalPot + convertToAngka($('#TOTALBYR').val());
                 $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
-                $('#Piutang_TPOT').val(parseInt($('#Piutang_TPOT').val()) + parseInt($(this).val()));
-            }).focus(function () {
-                $(this).val('');
-            }).blur(function() {
-                if ($(this).val() == '')
-                    $(this).val(0);
+                //$('#Piutang_TPOT').val(parseInt($('#Piutang_TPOT').val()) + parseInt($(this).val()));
+            //}).focus(function () {
+            //    $(this).val('');
+            //}).blur(function() {
+            //    if ($(this).val() == '')
+            //        $(this).val(0);
             });
 
             $('tr[data-piutang-id="0"] #PiutangDetail_BAYAR').change(function () {
-                $totalSemua = parseInt($('#PiutangDetail_POT').val()) + parseInt($('#PiutangDetail_BAYAR').val());
+                //$totalSemua = parseInt($('#PiutangDetail_POT').val()) + parseInt($('#PiutangDetail_BAYAR').val());
+                $totalBayar = convertToAngka($('#TOTALBYR').val()) + parseInt($('#HutangDetail_BAYAR').val());
                 $('tr[data-piutang-id="0"] .span-bayar-piutang').text(convertToRupiah($(this).val()));
+                $('#TOTALBYR').val(convertToRupiah($totalBayar));
+                $totalSemua = $totalBayar + convertToAngka($('#TOTALBYR').val());
                 $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
                 $('#Piutang_TBAYAR').val(parseInt($('#Piutang_TBAYAR').val()) + parseInt($(this).val()));
-            }).focus(function () {
-                $(this).val('');
-            }).blur(function () {
-                if ($(this).val() == '')
-                    $(this).val(0);
+            //}).focus(function () {
+            //    $(this).val('');
+            //}).blur(function () {
+            //    if ($(this).val() == '')
+            //        $(this).val(0);
             });
         }
 
@@ -854,6 +867,7 @@
                         return;
                     }
 
+                    $('#Piutang_TPOT').val(parseInt($('#Piutang_TPOT').val()) + parseInt($('#PiutangDetail_POT').val()));
                     $('#Piutang_TBAYAR').val(convertToAngka($('#TOTALBAYAR').val()));
 
                     $.ajax({

@@ -31,19 +31,19 @@
             JENIS LANGGANAN:
             <span style="color: #2ac52a;">
                 @*@{
-            switch (kodeSubs)
-            {
-                case "01":
-                    @("BASIC")
-                    break;
-                case "02":
-                    @("PREMIUM")
-                    break;
-                case "03":
-                    @("ENTERPRISE")
-                    break;
-            }
-        }*@
+                        switch (kodeSubs)
+                        {
+                            case "01":
+                                @("BASIC")
+                                break;
+                            case "02":
+                                @("PREMIUM")
+                                break;
+                            case "03":
+                                @("ENTERPRISE")
+                                break;
+                        }
+                    }*@
                 @context.Subscription.Where(m => m.KODE == kodeSubs).SingleOrDefault().KETERANGAN
             </span>
         </p>
@@ -106,28 +106,28 @@
                 else
                 {
                     <img src="~/Content/Images/gratis_new.png" />
-                    <br/>
+                    <br />
                     <br />
                 }
             </div>
             <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@ style="font-size: 12px;">
                 @if (subs.KODE != "01")
-    {
-            <p class="plan-month-total" id="selected-package-@subs.KODE">Paket 3 Bulan</p>
-            <span class="plan-price-total">
-                Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
-            </span>
-            <br />
-            <a class="btn-pindah-paket" style="margin-top: 10px;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
-}
-else
-{
-            <p class="plan-month-total" style="visibility:hidden" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
-            <span class="plan-price-total" style="visibility:hidden">
-                Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE" style="visibility:hidden">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
-            </span>
-            <a class="btn-pindah-paket" style="margin-top: 10px;visibility:hidden;margin-bottom:20px" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
-}
+                {
+                    <p class="plan-month-total" id="selected-package-@subs.KODE">Paket 3 Bulan</p>
+                    <span class="plan-price-total">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <br />
+                    <a class="btn-pindah-paket" style="margin-top: 10px;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
+                else
+                {
+                    <p class="plan-month-total" style="visibility:hidden" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
+                    <span class="plan-price-total" style="visibility:hidden">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE" style="visibility:hidden">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <a class="btn-pindah-paket" style="margin-top: 10px;visibility:hidden;margin-bottom:20px" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
             </div>
         </div>
     }

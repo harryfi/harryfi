@@ -113,21 +113,19 @@
             }
     </style>
     <style>
-        #modal-pricing,
-        #modal-pricing-expired {
+        #modal-pricing {
             margin: auto;
             width: 60em;
         }
 
-            #modal-pricing .modal-content,
-            #modal-pricing-expired .modal-content {
+            #modal-pricing .modal-content {
                 -webkit-box-shadow: none;
                 box-shadow: none;
                 border: none;
                 background-color: transparent;
             }
 
-        .snip1404 {
+        /*.snip1404 {
             font-family: 'Source Sans Pro', Arial, sans-serif;
             color: #ffffff;
             text-align: left;
@@ -300,6 +298,228 @@
 
         body {
             background-color: #212121;
+        }*/
+        .snip1404 {
+            font-family: 'Source Sans Pro', Arial, sans-serif;
+            text-align: left;
+            font-size: 16px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            display: table;
+        }
+
+            .snip1404 img {
+                /*position: absolute;
+                left: 0;
+                top: 0;
+                height: 100%;
+                z-index: -1;*/
+                width: 60%;
+                margin-bottom: 20px;
+                margin-top: 15px;
+                z-index: 0;
+            }
+
+            .snip1404 .plan {
+                margin: 0;
+                width: 33.333333%;
+                position: relative;
+                float: left;
+                overflow: hidden;
+                border: 3px solid #442232;
+                box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+                background-color: #c13232;
+            }
+
+                .snip1404 .plan:hover i,
+                .snip1404 .plan.hover i {
+                    -webkit-transform: scale(1.2);
+                    transform: scale(1.2);
+                }
+
+                .snip1404 .plan:first-of-type {
+                    border-radius: 8px 0 0 8px;
+                }
+
+                .snip1404 .plan:last-of-type {
+                    border-radius: 0 8px 8px 0;
+                }
+
+            .snip1404 * {
+                -webkit-box-sizing: border-box;
+                box-sizing: border-box;
+                -webkit-transition: all 0.25s ease-out;
+                transition: all 0.25s ease-out;
+            }
+
+            .snip1404 header {
+                background-color: #c13232;
+                color: #ffffff;
+            }
+
+            .snip1404 .plan-title {
+                background-color: rgba(0, 0, 0, 0.5);
+                position: relative;
+                margin: 0;
+                padding: 20px 20px 0;
+                text-transform: uppercase;
+                letter-spacing: 4px;
+            }
+
+                .snip1404 .plan-title:after {
+                    position: absolute;
+                    content: '';
+                    top: 100%;
+                    left: 0;
+                    width: 0;
+                    height: 0;
+                    border-style: solid;
+                    border-width: 30px 250px 0 0;
+                    border-color: rgba(0, 0, 0, 0.5) transparent transparent;
+                }
+
+            .snip1404 .plan-cost {
+                padding: 20px 20px 10px;
+                text-align: right;
+            }
+
+            .snip1404 .plan-price {
+                font-weight: 600;
+                font-size: 1.5em;
+            }
+
+            .snip1404 .plan-type {
+                opacity: 0.8;
+                font-size: 0.7em;
+                text-transform: uppercase;
+            }
+
+            .snip1404 .plan-price-total {
+                font-weight: 600;
+                font-size: 1.1em;
+                color: #fff;
+            }
+
+            .snip1404 .plan-month-total {
+                font-weight: 600;
+                font-size: 0.9em;
+                color: #fff;
+            }
+
+            .snip1404 .plan-features {
+                color: #fff;
+                padding: 0 0 10px;
+                margin: 0;
+                list-style: outside none none;
+            }
+
+                .snip1404 .plan-features li {
+                    padding: 0;
+                }
+
+                .snip1404 .plan-features i {
+                    margin-right: 8px;
+                    color: rgba(0, 0, 0, 0.5);
+                }
+
+            .snip1404 .plan-select {
+                border-top: 1px solid rgba(0, 0, 0, 0.2);
+                padding: 5px;
+                text-align: center;
+            }
+
+                .snip1404 .plan-select a {
+                    background-color: #442232;
+                    color: #ffffff;
+                    text-decoration: none;
+                    padding: 12px 20px;
+                    font-size: 0.75em;
+                    font-weight: 600;
+                    border-radius: 20px;
+                    text-transform: uppercase;
+                    letter-spacing: 4px;
+                    display: inline-block;
+                }
+
+                    .snip1404 .plan-select a:hover {
+                        background-color: #552a3f;
+                    }
+
+            .snip1404 .featured {
+                margin-top: -10px;
+                border-color: #331926;
+                box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+                z-index: 1;
+                border-radius: 8px;
+            }
+
+                .snip1404 .featured .plan-select {
+                    padding: 15px 10px;
+                }
+
+        @@media only screen and (max-width: 767px) {
+            .snip1404 .plan {
+                width: 50%;
+            }
+
+            .snip1404 .plan-title,
+            .snip1404 .plan-select a {
+                -webkit-transform: translateY(0);
+                transform: translateY(0);
+            }
+
+            .snip1404 .plan-select,
+            .snip1404 .featured .plan-select {
+                padding: 20px;
+            }
+
+            .snip1404 .featured {
+                margin-top: 0;
+            }
+        }
+
+        @@media only screen and (max-width: 440px) {
+            .snip1404 .plan {
+                width: 100%;
+            }
+        }
+
+        body {
+            background-color: #212121;
+        }
+
+        .btn-section > .row > button {
+            padding: 5px;
+            margin-bottom: 5px;
+            background: #fb9595;
+            border: 1px solid #9a2828;
+            color: #000;
+            width: 65%;
+        }
+
+            .btn-section > .row > button[disabled] {
+                padding: 10px;
+                margin-bottom: 15px;
+                background: #9c9c9c;
+                border: 1px solid #9a2828;
+                color: #000;
+            }
+
+            .btn-section > .row > button:hover {
+                padding: 5px;
+                margin-bottom: 5px;
+                background: #fd4646;
+                border: 1px solid #9a2828;
+                color: #000;
+            }
+
+        .subs_active {
+            background: #fd4646 !important;
+        }
+
+        .btn-pindah-paket:hover {
+            cursor: pointer;
         }
     </style>
 }
@@ -1234,22 +1454,97 @@
         });
 
         //add by Tri, call midtrans api get token
-        function clickSub(sendKode) {
-            var link = '@Url.Action("PaymentMidtrans", "Midtrans", new {code = "replaceCode"})';
-            link = link.replace("replaceCode", "0" + sendKode);
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function(response) {
-                    if (response != null) {
-                        snap.pay(response, { skipOrderSummary: true });
-                    }
+        function setBln(kode, bln) {
+            switch (kode){
+                case "01":
+                    break;
+                case "02":
+                    txtBln_02.value = bln;
+                    break;
+                case "03":
+                    txtBln_03.value = bln;
+                    break;
+            }
+        }
 
-                },
-                error: function(xhr, status, error) {
-                    console.log(error);
+        function clickSub(kode) {
+            var bln = 0;
+            switch (kode) {
+                case "01":
+                    break;
+                case "02":
+                    bln = txtBln_02.value;
+                    break;
+                case "03":
+                    bln = txtBln_03.value;
+                    break;
+            }
+            @{
+                var accountId = dataSession.Account.AccountId;
+                var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
+            }
+            moment.locale('id');
+            var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
+                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
+            var tglSub2 = moment(tglSub);
+
+            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+
+                //tglSub.setMonth(tglSub.getMonth() + bln);
+                var msg = "Masa berlangganan anda s/d " + tglSub2.calendar() + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub2.add(2, 'months').calendar() + "?";
+                if (confirm(msg))
+                {
+                     //alert('kode:' + kode + '\nbln:' + bln);
+                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                link = link.replace("replaceCode", kode);
+                link = link.replace("replaceBulan", String(bln));*@
+                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                link += '?code=' + kode + '&bulan=' + bln;
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        if (response != null) {
+                            //window.location = response.urlView;
+                            snap.pay(response, { skipOrderSummary: true });
+                            //alert(response);
+                        }
+                        //window.open(response, "_self");
+                        //window.location.href(response);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
                 }
-            });
+            }
+            else
+            {
+                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                link += '?code=' + kode + '&bulan=' + bln;
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    success: function (response) {
+                        if (response != null) {
+                            //window.location = response.urlView;
+                            snap.pay(response, { skipOrderSummary: true });
+                            //alert(response);
+                        }
+                        //window.open(response, "_self");
+                        //window.location.href(response);
+
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }
         }
         //end add by Tri, call midtrans api get token
 

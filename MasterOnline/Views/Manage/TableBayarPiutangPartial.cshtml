@@ -7,7 +7,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tanggal Piutang</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Potongan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Bayar</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Pelunasan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>
@@ -16,53 +16,54 @@
     <tbody>
         @foreach (var piutang in Model.ListPiutang)
         {
-            <tr>
-                <td>@piutang.BUKTI</td>
-                <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>
+        <tr>
+            <td>@piutang.BUKTI</td>
+            <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
+            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
+            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
+            @*change by nurul 10/10/2018   <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>*@
+            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR + piutang.TPOT)</td>
+            @if (Convert.ToString(piutang.POSTING) == "Y")
+    {
+        <td>
+            Sudah
+        </td>
+}
+else
+{
+        <td>
+            Belum
+        </td>
+}
+            <td class="edit-hapus-col">
                 @if (Convert.ToString(piutang.POSTING) == "Y")
-                {
-                    <td>
-                        Sudah
-                    </td>
-                }
-                else
-                {
-                    <td>
-                        Belum
-                    </td>
-                }
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(piutang.POSTING) == "Y")
-                    {
-                        <button class="btn btn-primary" onclick="lihatPiutang(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" onclick="editPiutang1(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(piutang.POSTING) == "Y")
-                    {
-                        <button class="btn btn-danger" onclick="undeleteable()">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPiutang" onclick="pass(@piutang.RecNum)">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
-            </tr>
+        {
+            <button class="btn btn-primary" onclick="lihatPiutang(@piutang.RecNum)">
+                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+            </button>
+}
+else
+{
+        <button class="btn btn-primary" onclick="editPiutang1(@piutang.RecNum)">
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+        </button>
+}
+            </td>
+            <td class="edit-hapus-col">
+                @if (Convert.ToString(piutang.POSTING) == "Y")
+        {
+            <button class="btn btn-danger" onclick="undeleteable()">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+}
+else
+{
+        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPiutang" onclick="pass(@piutang.RecNum)">
+            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+        </button>
+}
+            </td>
+        </tr>
         }
     </tbody>
 </table>
