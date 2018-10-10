@@ -2,7 +2,8 @@
 @using MasterOnline.ViewModels
 @model FakturViewModel
 @{
-    var listBarang = Model.ListBarang.ToList();
+    var listImportLog = Model.ListImportFaktur.ToList();
+    var listPelanggan = Model.ListPelanggan.ToList();
 }
 
 <div class="row">
@@ -10,34 +11,85 @@
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_CUST")
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_NAMA")
         @Html.Hidden("CUSTOMER_UPLOAD_FAKTUR_PERSO")
+        <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
+    </div>
+    <div class="col-md-2">
+        <label class="control-label">Upload Terakhir</label>
     </div>
     <div class="col-md-4">
-        <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
+        @Html.TextBox("CUSTOMER_UPLOAD_FAKTUR_LAST_UPLOAD", "", new { @class = "form-control", @readonly = "readonly" })
+    </div>
+    <div class="col-md-2">
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-4 file_upload_section">
+        <input type='file' id='file_upload_faktur' name="file_upload_faktur" onchange="checkfile(this);"
+               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+    </div>
+    <div class="col-md-4">
+        <button type="button" class="btn btn-primary" onclick="uploadfilefaktur();" data-style="expand-right">
+            <span>Upload</span>
+        </button>
     </div>
     <div class="col-md-4">
     </div>
 </div>
 <br />
-
-<div class="row">
-    <div class="col-md-4">
-    </div>
-    <div class="col-md-4 file_upload_section">
-        <input type='file' id='file_upload_faktur' name="file_upload_faktur" onchange="checkfile(this);"
-               accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-        @*<div class="box_upload" id="box_upload_1">
-            <span class="box_upload_placeholder">Upload Excel</span>
-        </div>*@
-    </div>
-    <div class="col-md-4">
-    </div>
-</div>
-<br/>
-
 <div id="scrollable_div">
     <div class="row">
+        <label class="control-label">History Upload</label>
+    </div>
+    <div class="row">
         <div class="col-md-12">
-            @Html.TextArea("infoUpload", null, new { @class = "form-control", @Rows = 12, @ReadOnly = true })
+            <table id="table_history_upload" class="table table-bordered" role="grid">
+                <thead>
+                    <tr>
+                        <th width="100">Pengupload</th>
+                        <th width="150">Tanggal Upload</th>
+                        <th width="100">Akun</th>
+                        <th width="100">Faktur Terakhir</th>
+                        <th width="150">Tanggal Faktur</th>
+                        <th width="45">History</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var importLog in listImportLog)
+                    {
+                        <tr data-log-recnum="log-@importLog.RECNUM">
+                            @{
+                                var namaCust = "";
+                                if (listPelanggan.FirstOrDefault(b => b.CUST == importLog.CUST) != null)
+                                {
+                                    namaCust = listPelanggan.FirstOrDefault(b => b.CUST == importLog.CUST).PERSO;
+                                }
+
+                            }
+                            <td class="log-pengupload">
+                                @importLog.UPLOADER
+                            </td>
+                            <td class="log-tanggal">
+                                @importLog.UPLOAD_DATETIME
+                            </td>
+                            <td class="log-akun">
+                                @namaCust
+                            </td>
+                            <td class="log-faktur">
+                                @importLog.LAST_FAKTUR_UPLOADED
+                            </td>
+                            <td class="log-faktur-tanggal">
+                                @importLog.LAST_FAKTUR_UPLOADED_DATETIME
+                            </td>
+                            <td class="log-history">
+                                <button type="button" class="btn btn-primary" onclick="downloadLogUploadFaktur('@importLog.LOG_FILE')">
+                                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

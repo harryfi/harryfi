@@ -332,6 +332,7 @@ namespace MasterOnline.Controllers
                 ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                 ListNFaktur = ErasoftDbContext.ART03B.ToList(),
                 ListSubs = MoDbContext.Subscription.ToList(),
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.ToList()
             };
 
             return View(vm);
@@ -544,6 +545,23 @@ namespace MasterOnline.Controllers
 
             if (dataBuyer.Pembeli.RecNum == null)
             {
+                var listPembeli = ErasoftDbContext.ARF01C.ToList();
+                var noPembeli = "";
+
+                if (listPembeli.Count == 0)
+                {
+                    noPembeli = "000001";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ARF01C, RESEED, 0)");
+                }
+                else
+                {
+                    var lastRecNum = listPembeli.Last().RecNum;
+                    lastRecNum++;
+
+                    noPembeli = lastRecNum.ToString().PadLeft(6, '0');
+                }
+
+                dataBuyer.Pembeli.BUYER_CODE = noPembeli;
                 ErasoftDbContext.ARF01C.Add(dataBuyer.Pembeli);
             }
             else
@@ -3433,7 +3451,8 @@ namespace MasterOnline.Controllers
 
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
-                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                //change by nurul 8/10/2018  fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN;
+                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
@@ -3471,9 +3490,9 @@ namespace MasterOnline.Controllers
 
                 var vm = new FakturViewModel()
                 {
-                    Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == fakturInDb.NO_BUKTI && p.JENIS_FORM == "3"),
-                    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
-                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
+                    Faktur = ErasoftDbContext.SIT01A.AsNoTracking().Single(p => p.NO_BUKTI == fakturInDb.NO_BUKTI && p.JENIS_FORM == "3"),
+                    ListFaktur = ErasoftDbContext.SIT01A.AsNoTracking().Where(f => f.JENIS_FORM == "2").ToList(),
+                    ListFakturDetail = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == fakturInDb.NO_BUKTI && pd.JENIS_FORM == "3").ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList()
                 };
 
@@ -4115,9 +4134,9 @@ namespace MasterOnline.Controllers
 
                 var vm = new InvoiceViewModel()
                 {
-                    Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == invoiceInDb.INV && p.JENISFORM == "2"),
-                    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
-                    ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => pd.INV == invoiceInDb.INV && pd.JENISFORM == "2").ToList(),
+                    Invoice = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == invoiceInDb.INV && p.JENISFORM == "2"),
+                    ListInvoice = ErasoftDbContext.PBT01A.AsNoTracking().Where(f => f.JENISFORM == "2").ToList(),
+                    ListInvoiceDetail = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == invoiceInDb.INV && pd.JENISFORM == "2").ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -4397,7 +4416,12 @@ namespace MasterOnline.Controllers
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
             if (tipeStatus == "04") // validasi di tab Siap dikirim
             {
-                if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                var dataVm = new PesananViewModel()
+                {
+                    Pesanan = pesananInDb
+                };
+                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
                 {
 
                     var vmError = new StokViewModel();
@@ -5539,7 +5563,7 @@ namespace MasterOnline.Controllers
                 vmError.Errors.Add("Customer is null !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
-                        
+
             //end add 
 
             dataVm.Piutang.KET = "-";
@@ -6826,9 +6850,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    
+
                     //end change 
                 }
             }
@@ -6850,9 +6874,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    
+
                     //end change
                 }
             }
@@ -7265,7 +7289,7 @@ namespace MasterOnline.Controllers
                     //ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
                     var vmError = new StokViewModel() { };
 
-                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Qty == 0 )
+                    if (dataVm.BarangStok.Dr_Gd == null || dataVm.BarangStok.Qty == 0)
                     {
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -7660,9 +7684,9 @@ namespace MasterOnline.Controllers
                         vmError.Errors.Add("Silahkan isi semua field terlebih dahulu !");
                         return Json(vmError, JsonRequestBehavior.AllowGet);
                     }
-                    
+
                     ErasoftDbContext.STT01B.Add(dataVm.BarangStok);
-                    
+
                     //end change 
                 }
             }
@@ -8205,202 +8229,670 @@ namespace MasterOnline.Controllers
 
         // =============================================== END ADD BY NURUL -- Bagian Data API BCA (END)
         // =============================================== ADD BY CALVIN -- Bagian Import Data Faktur
-        //
-        [HttpPost]
-        public ActionResult UploadFakturTokped(object data)
+        public class UploadFakturResult
         {
-            return new EmptyResult();
+            public string success { get; set; }
+            public string resultMessage { get; set; }
+
         }
-        public ActionResult UploadFakturShopee(UploadFakturShopeeData data)
+        [HttpPost]
+        public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
-            var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
-            var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
-            var digitAkhir = "";
-            var noOrder = "";
-            var lastRecNum = 0;
-            if (listFakturInDb.Count == 0)
+
+            #region Logging
+            string message = "";
+            string filename = "Log_Upload_Inv_Tokopedia_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), filename);
+            if (!System.IO.File.Exists(path))
             {
-                digitAkhir = "000001";
-                noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                var asd = System.IO.File.Create(path);
+                asd.Close();
+            }
+            StreamWriter tw = new StreamWriter(path);
+
+
+            LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
+            {
+                CUST = cust,
+                UPLOADER = uname,
+                UPLOAD_DATETIME = DateTime.Now,
+                LOG_FILE = filename,
+            };
+            string lastFakturInUpload = "";
+            DateTime lastFakturDateInUpload = DateTime.Now;
+            #endregion
+
+            if (data == null)
+            {
+                return new EmptyResult();
             }
             else
             {
-                lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
-                if (lastRecNum == 0)
-                {
-                    lastRecNum = 1;
-                }
-            }
-            string buyercode = "";
-            string al2 = "";
-            string al3 = "";
+                #region Proses Upload
+                var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
+                var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var listItem = ErasoftDbContext.STF02.ToList();
 
-            foreach (var faktur in data.data)
-            {
-                buyercode = "";
-                if (faktur.NoPesanan != "")
+                var digitAkhir = "";
+                var noOrder = "";
+                var lastRecNum = 0;
+                if (listFakturInDb.Count == 0)
                 {
-                    lastRecNum++;
-                    digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                    digitAkhir = "000001";
                     noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
-                }
-
-                #region insert pembeli
-                var cekPembeli = (from p in ErasoftDbContext.ARF01C
-                                  where p.EMAIL == (faktur.UsernamePembeli.Length > 39 ? faktur.UsernamePembeli.Substring(0, 39) + "@shopee.com" : faktur.UsernamePembeli + "@shopee.com")
-                                  select new { p.BUYER_CODE, p.AL2, p.AL3 }).SingleOrDefault();
-                if (cekPembeli == null)
-                {
-                    lastRecnumARF01C++;
-
-                    ARF01C newPembeli = new ARF01C
-                    {
-                        BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
-                        NAMA = faktur.NamaPenerima.Length > 30 ? faktur.NamaPenerima.Substring(0, 27) + "..." : faktur.NamaPenerima,
-                        AL = faktur.AlamatPengiriman,
-                        TLP = faktur.NoTelepon,
-                        PERSO = data.perso,
-                        TERM = 0,
-                        LIMIT = 0,
-                        PKP = "0",
-                        KLINK = "01",
-                        KODE_CABANG = 1,
-                        VLT = "IDR",
-                        KDHARGA = "01",
-                        AL_KIRIM1 = faktur.AlamatPengiriman.Length > 30 ? faktur.AlamatPengiriman.Substring(0, 30) : faktur.AlamatPengiriman,
-                        AL_KIRIM2 = faktur.AlamatPengiriman.Length > 60 ? faktur.AlamatPengiriman.Substring(30, 30) : faktur.AlamatPengiriman.Substring(30, faktur.AlamatPengiriman.Length - 30),
-                        AL_KIRIM3 = faktur.AlamatPengiriman.Length > 90 ? faktur.AlamatPengiriman.Substring(60, 27) + "..." : faktur.AlamatPengiriman.Substring(60, faktur.AlamatPengiriman.Length - 60),
-                        DISC_NOTA = 0,
-                        NDISC_NOTA = 0,
-                        DISC_ITEM = 0,
-                        NDISC_ITEM = 0,
-                        STATUS = "1",
-                        LABA = 0,
-                        TIDAK_HIT_UANG_R = false,
-                        No_Seri_Pajak = "FP",
-                        TGL_INPUT = DateTime.Now,
-                        USERNAME = faktur.UsernamePembeli.Length > 30 ? faktur.UsernamePembeli.Substring(0, 27) + "..." : faktur.UsernamePembeli,
-                        KODEPOS = faktur.AlamatPengiriman.Substring(faktur.AlamatPengiriman.Length - 4, 5),
-                        EMAIL = faktur.UsernamePembeli.Length > 39 ? faktur.UsernamePembeli.Substring(0, 39) + "@shopee.com" : faktur.UsernamePembeli + "@shopee.com",
-                        KODEKABKOT = "3174",
-                        KODEPROV = "31",
-                        NAMA_KABKOT = faktur.KotaKabupaten.Length > 50 ? faktur.KotaKabupaten.Substring(0, 47) + "..." : faktur.KotaKabupaten,
-                        NAMA_PROV = faktur.Provinsi.Length > 50 ? faktur.Provinsi.Substring(0, 47) + "..." : faktur.Provinsi,
-                    };
-
-                    ErasoftDbContext.ARF01C.Add(newPembeli);
-                    ErasoftDbContext.SaveChanges();
-
-                    buyercode = newPembeli.BUYER_CODE;
-                    al2 = newPembeli.AL2;
-                    al3 = newPembeli.AL3;
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
                 }
                 else
                 {
-                    buyercode = cekPembeli.BUYER_CODE;
-                    al2 = cekPembeli.AL2;
-                    al3 = cekPembeli.AL3;
+                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                    if (lastRecNum == 0)
+                    {
+                        lastRecNum = 1;
+                    }
+                }
+                string buyercode = "";
+                string al2 = "";
+                string al3 = "";
+
+                bool adaWarning = false;
+                bool masihFakturYangSama = true;
+                bool fakturLolosValidasi = true;
+                string messageWarning = "";
+                string faktur_invoice = "";
+                for (int i = 0; i < data.Count(); i++)
+                {
+                    UploadFakturTokpedDataDetail faktur = data[i];
+                    #region  validasi
+                    //cek faktur sudah pernah di upload
+                    if (!string.IsNullOrWhiteSpace(faktur.Invoice))
+                    {
+                        if (i > 0)
+                        {
+                            masihFakturYangSama = false;
+                        }
+                        faktur_invoice = faktur.Invoice;
+                        message = "";
+                        messageWarning = "";
+                        adaWarning = false;
+                        fakturLolosValidasi = true;
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
+                        if (cekFakturExists != null)
+                        {
+                            fakturLolosValidasi = false;
+                            //log faktur sudah pernah di upload
+                            message += "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
+                        }
+                    }
+                    else
+                    {
+                        masihFakturYangSama = true;
+                    }
+                    if (fakturLolosValidasi)
+                    {
+                        //cek barang sudah ada di master
+                        var cekItem = listItem.Where(p => p.BRG == (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU)).FirstOrDefault();
+                        if (cekItem == null)
+                        {
+                            //log item belum ada di master
+                            adaWarning = true;
+                            messageWarning += "- Item [" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                        }
+                    }
+                    #endregion
+
+                    if (fakturLolosValidasi)
+                    {
+
+                        buyercode = "";
+                        if (!string.IsNullOrWhiteSpace(faktur.Invoice))
+                        {
+                            lastRecNum++;
+                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        }
+
+                        #region insert pembeli
+                        if (!string.IsNullOrWhiteSpace(faktur.Invoice))
+                        {
+                            string kabupaten = (faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 3]);
+                            string provinsi = ((faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 1]).Substring(6, (faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 1]).Length - 6));
+                            var cekPembeli = (from p in ErasoftDbContext.ARF01C
+                                              where p.EMAIL == (faktur.CustomerName.Replace(" ", "").Length > 36 ? faktur.CustomerName.Replace(" ", "").Substring(0, 36) + "@tokopedia.com" : faktur.CustomerName.Replace(" ", "") + "@tokopedia.com")
+                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).SingleOrDefault();
+                            if (cekPembeli == null)
+                            {
+                                lastRecnumARF01C++;
+
+                                ARF01C newPembeli = new ARF01C
+                                {
+                                    BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
+                                    NAMA = faktur.CustomerName.Length > 30 ? faktur.CustomerName.Substring(0, 27) + "..." : faktur.CustomerName,
+                                    AL = faktur.RecipientAddress,
+                                    TLP = faktur.CustomerPhone,
+                                    PERSO = perso,
+                                    TERM = 0,
+                                    LIMIT = 0,
+                                    PKP = "0",
+                                    KLINK = "01",
+                                    KODE_CABANG = 1,
+                                    VLT = "IDR",
+                                    KDHARGA = "01",
+                                    AL_KIRIM1 = faktur.RecipientAddress.Length > 30 ? faktur.RecipientAddress.Substring(0, 30) : faktur.RecipientAddress,
+                                    AL_KIRIM2 = faktur.RecipientAddress.Length > 60 ? faktur.RecipientAddress.Substring(30, 30) : faktur.RecipientAddress.Substring(30, faktur.RecipientAddress.Length - 30),
+                                    AL_KIRIM3 = faktur.RecipientAddress.Length > 90 ? faktur.RecipientAddress.Substring(60, 27) + "..." : faktur.RecipientAddress.Substring(60, faktur.RecipientAddress.Length - 60),
+                                    DISC_NOTA = 0,
+                                    NDISC_NOTA = 0,
+                                    DISC_ITEM = 0,
+                                    NDISC_ITEM = 0,
+                                    STATUS = "1",
+                                    LABA = 0,
+                                    TIDAK_HIT_UANG_R = false,
+                                    No_Seri_Pajak = "FP",
+                                    TGL_INPUT = DateTime.Now,
+                                    USERNAME = faktur.CustomerName.Replace(" ", "").Length > 30 ? faktur.CustomerName.Replace(" ", "").Substring(0, 27) + "..." : faktur.CustomerName.Replace(" ", ""),
+                                    KODEPOS = faktur.RecipientAddress.Split(',')[faktur.RecipientAddress.Split(',').Length - 1].Substring(1, 5),
+                                    EMAIL = faktur.CustomerName.Replace(" ", "").Length > 36 ? faktur.CustomerName.Replace(" ", "").Substring(0, 36) + "@tokopedia.com" : faktur.CustomerName.Replace(" ", "") + "@tokopedia.com",
+                                    KODEKABKOT = "3174",
+                                    KODEPROV = "31",
+                                    NAMA_KABKOT = kabupaten.Length > 50 ? kabupaten.Substring(0, 47) + "..." : kabupaten,
+                                    NAMA_PROV = provinsi.Length > 50 ? provinsi.Substring(0, 47) + "..." : provinsi,
+                                };
+
+                                ErasoftDbContext.ARF01C.Add(newPembeli);
+
+                                buyercode = newPembeli.BUYER_CODE;
+                                al2 = newPembeli.AL2;
+                                al3 = newPembeli.AL3;
+                            }
+                            else
+                            {
+                                buyercode = cekPembeli.BUYER_CODE;
+                                al2 = cekPembeli.AL2;
+                                al3 = cekPembeli.AL3;
+                            }
+                        }
+                        #endregion
+                        #region insert sit01a
+                        if (!string.IsNullOrWhiteSpace(faktur.Invoice))
+                        {
+                            //jika blank berarti masih faktur yang sama, item ke dua
+                            SIT01A newfaktur = new SIT01A
+                            {
+                                JENIS_FORM = "2",
+                                NO_BUKTI = noOrder,
+                                NO_F_PAJAK = "-",
+                                NO_SO = "-",
+                                CUST = cust,
+                                NAMAPEMESAN = faktur.Recipient.Length > 30 ? faktur.Recipient.Substring(0, 27) + "..." : faktur.Recipient,
+                                PEMESAN = buyercode,
+                                NAMA_CUST = nama_cust,
+                                AL = faktur.RecipientAddress,
+                                TGL = Convert.ToDateTime(faktur.PaymentDate),
+                                PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.PaymentDate).ToString("MM")),
+                                PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.PaymentDate).ToString("yyyy").Substring(2, 2)),
+                                USERNAME = uname,
+                                JENIS_RETUR = "-",
+                                STATUS = "1",
+                                ST_POSTING = "T",
+                                VLT = "IDR",
+                                NO_FA_OUTLET = "-",
+                                NO_LPB = "-",
+                                GROUP_LIMIT = "-",
+                                KODE_ANGKUTAN = "-",
+                                JENIS_MOBIL = "-",
+                                JTRAN = "SI",
+                                JENIS = "1",
+                                TUKAR = 1,
+                                TUKAR_PPN = 1,
+                                SOPIR = "-",
+                                KET = "Catatan Dari Pembeli : " + faktur.Notes,
+                                PPNBM = 0,
+                                NILAI_PPNBM = 0,
+                                KODE_SALES = "-",
+                                KODE_WIL = "-",
+                                U_MUKA = 0,
+                                U_MUKA_FA = 0,
+                                TERM = 0,
+                                TGL_JT_TEMPO = Convert.ToDateTime(faktur.PaymentDate),
+                                BRUTO = Convert.ToDouble(faktur.TotalAmountRp.Replace("Rp ", "").Replace(".", "")) - Convert.ToDouble(faktur.TotalShippingFeeRp.Replace("Rp ", "").Replace(".", "")),
+                                PPN = 0,
+                                NILAI_PPN = 0,
+                                DISCOUNT = 0,
+                                NILAI_DISC = 0,
+                                MATERAI = Convert.ToDouble(faktur.TotalShippingFeeRp.Replace("Rp ", "").Replace(".", "")),
+                                NETTO = Convert.ToDouble(faktur.TotalAmountRp.Replace("Rp ", "").Replace(".", "")),
+                                TGLINPUT = DateTime.Now,
+                                NO_REF = faktur_invoice,
+                                NAMA_CUST_QQ = "-",
+                                STATUS_LOADING = "-",
+                                NO_PO_CUST = "-",
+                                PENGIRIM = "-",
+                                NAMAPENGIRIM = "-",
+                                ZONA = "-",
+                                UCAPAN = "-",
+                                N_UCAPAN = "-",
+                                SUPP = "-",
+                                KOMISI = 0,
+                                N_KOMISI = 0
+                            };
+                            ErasoftDbContext.SIT01A.Add(newfaktur);
+                        }
+                        #endregion
+                        #region insert sit01b
+                        SIT01B newfakturdetail = new SIT01B
+                        {
+                            JENIS_FORM = "2",
+                            NO_BUKTI = noOrder,
+                            USERNAME = uname,
+                            CATATAN = "-",
+                            TGLINPUT = DateTime.Now,
+                            //NILAI_DISC = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            NILAI_DISC = 0,
+                            DISCOUNT = 0,
+                            //NILAI_DISC_1 = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            NILAI_DISC_1 = 0,
+                            DISCOUNT_2 = 0,
+                            NILAI_DISC_2 = 0,
+                            DISCOUNT_3 = 0,
+                            NILAI_DISC_3 = 0,
+                            DISCOUNT_4 = 0,
+                            NILAI_DISC_4 = 0,
+                            DISCOUNT_5 = 0,
+                            NILAI_DISC_5 = 0,
+                            DISC_TITIPAN = 0,
+                            BRG = string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU,
+                            SATUAN = "2",
+                            H_SATUAN = Convert.ToDouble(faktur.PriceRp.Replace("Rp ", "").Replace(".", "")),
+                            QTY = Convert.ToDouble(faktur.Quantity),
+                            HARGA = Convert.ToDouble(faktur.PriceRp.Replace("Rp ", "").Replace(".", "")),
+                            QTY_KIRIM = 0,
+                            QTY_RETUR = 0,
+                            GUDANG = "001" //buat default gudang 001, untuk semua akun baru
+                        };
+                        ErasoftDbContext.SIT01B.Add(newfakturdetail);
+                        #endregion
+
+                        #region commit insert
+                        if (i + 1 == data.Count())
+                        {
+                            //record terakhir
+                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                            {
+                                try
+                                {
+                                    ErasoftDbContext.SaveChanges();
+                                    transaction.Commit();
+                                    message += "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan nomor faktur : [" + noOrder + "]." + System.Environment.NewLine;
+                                    if (adaWarning)
+                                    {
+                                        message += "Warning pada nomor faktur [" + noOrder + "] :" + System.Environment.NewLine;
+                                        message += messageWarning;
+                                    }
+                                    tw.WriteLine(message);
+                                    lastFakturInUpload = faktur_invoice;
+                                    lastFakturDateInUpload = Convert.ToDateTime(faktur.PaymentDate);
+                                }
+                                catch (Exception ex)
+                                {
+                                    transaction.Rollback();
+                                    message += "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload, terjadi error." + System.Environment.NewLine;
+                                    message += "Error pada nomor faktur [" + faktur_invoice + "] : " + (ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message);
+                                    tw.WriteLine(message);
+                                }
+                            }
+                        }
+                        else if (string.IsNullOrWhiteSpace(data[i + 1].Invoice))
+                        {
+                            //record selanjutnya masih faktur yang sama
+                        }
+                        else
+                        {
+                            //record selanjutnya beda faktur
+                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                            {
+                                try
+                                {
+                                    ErasoftDbContext.SaveChanges();
+                                    transaction.Commit();
+                                    message += "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan nomor faktur : [" + noOrder + "]." + System.Environment.NewLine;
+                                    if (adaWarning)
+                                    {
+                                        message += "Warning pada nomor faktur [" + noOrder + "] :" + System.Environment.NewLine;
+                                        message += messageWarning;
+                                    }
+                                    tw.WriteLine(message);
+                                    lastFakturInUpload = faktur_invoice;
+                                    lastFakturDateInUpload = Convert.ToDateTime(faktur.PaymentDate);
+                                }
+                                catch (Exception ex)
+                                {
+                                    transaction.Rollback();
+                                    message += "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload, terjadi error." + System.Environment.NewLine;
+                                    message += "Error pada nomor faktur [" + faktur_invoice + "] : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message);
+                                    tw.WriteLine(message);
+                                }
+                            }
+                        }
+                        #endregion
+                    }
+                    else
+                    {
+                        tw.WriteLine(message);
+                    }
                 }
                 #endregion
-
-                if (faktur.NoPesanan != "")
-                {
-                    SIT01A newfaktur = new SIT01A
-                    {
-                        JENIS_FORM = "2",
-                        NO_BUKTI = noOrder,
-                        NO_F_PAJAK = "-",
-                        NO_SO = "-",
-                        CUST = data.cust,
-                        NAMAPEMESAN = faktur.NamaPenerima.Length > 30 ? faktur.NamaPenerima.Substring(0, 27) + "..." : faktur.NamaPenerima,
-                        PEMESAN = buyercode,
-                        NAMA_CUST = data.perso,
-                        AL = faktur.AlamatPengiriman,
-                        TGL = Convert.ToDateTime(faktur.WaktuPembayaranDilakukan),
-                        PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.WaktuPembayaranDilakukan).ToString("MM")),
-                        PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.WaktuPembayaranDilakukan).ToString("yyyy").Substring(2, 2)),
-                        USERNAME = uname,
-                        JENIS_RETUR = "-",
-                        STATUS = "1",
-                        ST_POSTING = "T",
-                        VLT = "IDR",
-                        NO_FA_OUTLET = "-",
-                        NO_LPB = "-",
-                        GROUP_LIMIT = "-",
-                        KODE_ANGKUTAN = "-",
-                        JENIS_MOBIL = "-",
-                        JTRAN = "SI",
-                        JENIS = "1",
-                        TUKAR = 1,
-                        TUKAR_PPN = 1,
-                        SOPIR = "-",
-                        KET = "Catatan Dari Pembeli : " + faktur.CatatandariPembeli + ". Catatan : " + faktur.Catatan,
-                        PPNBM = 0,
-                        NILAI_PPNBM = 0,
-                        KODE_SALES = "-",
-                        KODE_WIL = "-",
-                        U_MUKA = 0,
-                        U_MUKA_FA = 0,
-                        TERM = 0,
-                        TGL_JT_TEMPO = Convert.ToDateTime(faktur.PesananHarusDikirimkanSebelumMenghindariketerlambatan),
-                        BRUTO = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")),
-                        PPN = 0,
-                        NILAI_PPN = 0,
-                        DISCOUNT = 0,
-                        NILAI_DISC = 0,
-                        MATERAI = Convert.ToDouble(faktur.PerkiraanOngkosKirim.Replace("Rp ", "").Replace(".", "")),
-                        NETTO = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")) + Convert.ToDouble(faktur.PerkiraanOngkosKirim.Replace("Rp ", "").Replace(".", "")),
-                        TGLINPUT = DateTime.Now,
-                        NO_REF = faktur.NoPesanan,
-                        NAMA_CUST_QQ = "-",
-                        STATUS_LOADING = "-",
-                        NO_PO_CUST = "-",
-                        PENGIRIM = "-",
-                        NAMAPENGIRIM = "-",
-                        ZONA = "-",
-                        UCAPAN = "-",
-                        N_UCAPAN = "-",
-                        SUPP = "-",
-                        KOMISI = 0,
-                        N_KOMISI = 0
-                    };
-                    ErasoftDbContext.SIT01A.Add(newfaktur);
-                    ErasoftDbContext.SaveChanges();
-                }
-                SIT01B newfakturdetail = new SIT01B
-                {
-                    JENIS_FORM = "2",
-                    NO_BUKTI = noOrder,
-                    USERNAME = uname,
-                    CATATAN = "-",
-                    TGLINPUT = DateTime.Now,
-                    NILAI_DISC = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
-                    DISCOUNT = 0,
-                    NILAI_DISC_1 = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
-                    DISCOUNT_2 = 0,
-                    NILAI_DISC_2 = 0,
-                    DISCOUNT_3 = 0,
-                    NILAI_DISC_3 = 0,
-                    DISCOUNT_4 = 0,
-                    NILAI_DISC_4 = 0,
-                    DISCOUNT_5 = 0,
-                    NILAI_DISC_5 = 0,
-                    DISC_TITIPAN = 0,
-                    BRG = faktur.NomorReferensiSKU.Trim() == "" ? faktur.SKUInduk : faktur.NomorReferensiSKU,
-                    SATUAN = "2",
-                    H_SATUAN = Convert.ToDouble(faktur.HargaSebelumDiskon.Replace("Rp ", "").Replace(".", "")),
-                    QTY = faktur.Jumlah,
-                    HARGA = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")),
-                    QTY_KIRIM = 0,
-                    QTY_RETUR = 0,
-                    GUDANG = "001" //buat default gudang 001, untuk semua akun baru
-                };
-                ErasoftDbContext.SIT01B.Add(newfakturdetail);
-                ErasoftDbContext.SaveChanges();
             }
+
+            tw.Close();
+            newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
+            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
+            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+            ErasoftDbContext.SaveChanges();
+
+            var partialVm = new FakturViewModel()
+            {
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").OrderByDescending(f => f.TGL).ToList(),
+                //ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                //ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+                //ListSubs = MoDbContext.Subscription.ToList(),
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.ToList()
+            };
+
+            return PartialView("UploadFakturView", partialVm);
+            //return new EmptyResult();
+            //return File(path, System.Net.Mime.MediaTypeNames.Application.Octet, Path.GetFileName(path));
+        }
+        [HttpPost]
+        public ActionResult UploadFakturShopee(UploadFakturShopeeDataDetail[] data, string cust, string nama_cust, string perso)
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string uname = sessionData.Account.Username;
+
+            if (data == null)
+            {
+                return new EmptyResult();
+            }
+            else
+            {
+                #region Proses Upload
+                var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
+                var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
+                var listItem = ErasoftDbContext.STF02.ToList();
+
+                var digitAkhir = "";
+                var noOrder = "";
+                var lastRecNum = 0;
+                if (listFakturInDb.Count == 0)
+                {
+                    digitAkhir = "000001";
+                    noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (SIT01A, RESEED, 0)");
+                }
+                else
+                {
+                    lastRecNum = listFakturInDb.Last().RecNum.HasValue ? Convert.ToInt32(listFakturInDb.Last().RecNum) : 0;
+                    if (lastRecNum == 0)
+                    {
+                        lastRecNum = 1;
+                    }
+                }
+                string buyercode = "";
+                string al2 = "";
+                string al3 = "";
+                bool masihFakturYangSama = true;
+                bool fakturLolosValidasi = true;
+                for (int i = 0; i < data.Count(); i++)
+                {
+                    UploadFakturShopeeDataDetail faktur = data[i];
+                    #region  validasi
+                    //cek faktur sudah pernah di upload
+                    if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
+                    {
+                        if (i > 0)
+                        {
+                            masihFakturYangSama = false;
+                        }
+
+                        fakturLolosValidasi = true;
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur.NoPesanan).FirstOrDefault();
+                        if (cekFakturExists != null)
+                        {
+                            fakturLolosValidasi = false;
+                            //log faktur sudah pernah di upload
+                        }
+                    }
+                    else
+                    {
+                        masihFakturYangSama = true;
+                    }
+                    if (fakturLolosValidasi)
+                    {
+                        //cek barang sudah ada di master
+                        var cekItem = listItem.Where(p => p.BRG == (string.IsNullOrWhiteSpace(faktur.NomorReferensiSKU) ? faktur.SKUInduk : faktur.NomorReferensiSKU)).FirstOrDefault();
+                        if (cekItem == null)
+                        {
+                            //log item belum ada di master
+
+                        }
+                    }
+                    #endregion
+                    if (fakturLolosValidasi)
+                    {
+                        buyercode = "";
+                        if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
+                        {
+                            lastRecNum++;
+                            digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
+                            noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
+                        }
+
+                        #region insert pembeli
+                        if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
+                        {
+                            var cekPembeli = (from p in ErasoftDbContext.ARF01C
+                                              where p.EMAIL == (faktur.UsernamePembeli.Length > 39 ? faktur.UsernamePembeli.Substring(0, 39) + "@shopee.com" : faktur.UsernamePembeli + "@shopee.com")
+                                              select new { p.BUYER_CODE, p.AL2, p.AL3 }).SingleOrDefault();
+                            if (cekPembeli == null)
+                            {
+                                lastRecnumARF01C++;
+
+                                ARF01C newPembeli = new ARF01C
+                                {
+                                    BUYER_CODE = lastRecnumARF01C.ToString().PadLeft(10, '0'),
+                                    NAMA = faktur.NamaPenerima.Length > 30 ? faktur.NamaPenerima.Substring(0, 27) + "..." : faktur.NamaPenerima,
+                                    AL = faktur.AlamatPengiriman,
+                                    TLP = faktur.NoTelepon,
+                                    PERSO = perso,
+                                    TERM = 0,
+                                    LIMIT = 0,
+                                    PKP = "0",
+                                    KLINK = "01",
+                                    KODE_CABANG = 1,
+                                    VLT = "IDR",
+                                    KDHARGA = "01",
+                                    AL_KIRIM1 = faktur.AlamatPengiriman.Length > 30 ? faktur.AlamatPengiriman.Substring(0, 30) : faktur.AlamatPengiriman,
+                                    AL_KIRIM2 = faktur.AlamatPengiriman.Length > 60 ? faktur.AlamatPengiriman.Substring(30, 30) : faktur.AlamatPengiriman.Substring(30, faktur.AlamatPengiriman.Length - 30),
+                                    AL_KIRIM3 = faktur.AlamatPengiriman.Length > 90 ? faktur.AlamatPengiriman.Substring(60, 27) + "..." : faktur.AlamatPengiriman.Substring(60, faktur.AlamatPengiriman.Length - 60),
+                                    DISC_NOTA = 0,
+                                    NDISC_NOTA = 0,
+                                    DISC_ITEM = 0,
+                                    NDISC_ITEM = 0,
+                                    STATUS = "1",
+                                    LABA = 0,
+                                    TIDAK_HIT_UANG_R = false,
+                                    No_Seri_Pajak = "FP",
+                                    TGL_INPUT = DateTime.Now,
+                                    USERNAME = faktur.UsernamePembeli.Length > 30 ? faktur.UsernamePembeli.Substring(0, 27) + "..." : faktur.UsernamePembeli,
+                                    KODEPOS = faktur.AlamatPengiriman.Substring(faktur.AlamatPengiriman.Length - 5, 5),
+                                    EMAIL = faktur.UsernamePembeli.Length > 39 ? faktur.UsernamePembeli.Substring(0, 39) + "@shopee.com" : faktur.UsernamePembeli + "@shopee.com",
+                                    KODEKABKOT = "3174",
+                                    KODEPROV = "31",
+                                    NAMA_KABKOT = faktur.KotaKabupaten.Length > 50 ? faktur.KotaKabupaten.Substring(0, 47) + "..." : faktur.KotaKabupaten,
+                                    NAMA_PROV = faktur.Provinsi.Length > 50 ? faktur.Provinsi.Substring(0, 47) + "..." : faktur.Provinsi,
+                                };
+
+                                ErasoftDbContext.ARF01C.Add(newPembeli);
+
+                                buyercode = newPembeli.BUYER_CODE;
+                                al2 = newPembeli.AL2;
+                                al3 = newPembeli.AL3;
+                            }
+                            else
+                            {
+                                buyercode = cekPembeli.BUYER_CODE;
+                                al2 = cekPembeli.AL2;
+                                al3 = cekPembeli.AL3;
+                            }
+                        }
+                        #endregion
+                        #region insert sit01a
+                        if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
+                        {
+                            SIT01A newfaktur = new SIT01A
+                            {
+                                JENIS_FORM = "2",
+                                NO_BUKTI = noOrder,
+                                NO_F_PAJAK = "-",
+                                NO_SO = "-",
+                                CUST = cust,
+                                NAMAPEMESAN = faktur.NamaPenerima.Length > 30 ? faktur.NamaPenerima.Substring(0, 27) + "..." : faktur.NamaPenerima,
+                                PEMESAN = buyercode,
+                                NAMA_CUST = nama_cust,
+                                AL = faktur.AlamatPengiriman,
+                                TGL = Convert.ToDateTime(faktur.WaktuPembayaranDilakukan),
+                                PPN_Bln_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.WaktuPembayaranDilakukan).ToString("MM")),
+                                PPN_Thn_Lapor = Convert.ToByte(Convert.ToDateTime(faktur.WaktuPembayaranDilakukan).ToString("yyyy").Substring(2, 2)),
+                                USERNAME = uname,
+                                JENIS_RETUR = "-",
+                                STATUS = "1",
+                                ST_POSTING = "T",
+                                VLT = "IDR",
+                                NO_FA_OUTLET = "-",
+                                NO_LPB = "-",
+                                GROUP_LIMIT = "-",
+                                KODE_ANGKUTAN = "-",
+                                JENIS_MOBIL = "-",
+                                JTRAN = "SI",
+                                JENIS = "1",
+                                TUKAR = 1,
+                                TUKAR_PPN = 1,
+                                SOPIR = "-",
+                                KET = "Catatan Dari Pembeli : " + faktur.CatatandariPembeli + ". Catatan : " + faktur.Catatan,
+                                PPNBM = 0,
+                                NILAI_PPNBM = 0,
+                                KODE_SALES = "-",
+                                KODE_WIL = "-",
+                                U_MUKA = 0,
+                                U_MUKA_FA = 0,
+                                TERM = 0,
+                                TGL_JT_TEMPO = Convert.ToDateTime(faktur.PesananHarusDikirimkanSebelumMenghindariketerlambatan),
+                                BRUTO = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")),
+                                PPN = 0,
+                                NILAI_PPN = 0,
+                                DISCOUNT = 0,
+                                NILAI_DISC = 0,
+                                MATERAI = Convert.ToDouble(faktur.PerkiraanOngkosKirim.Replace("Rp ", "").Replace(".", "")),
+                                NETTO = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")) + Convert.ToDouble(faktur.PerkiraanOngkosKirim.Replace("Rp ", "").Replace(".", "")),
+                                TGLINPUT = DateTime.Now,
+                                NO_REF = faktur.NoPesanan,
+                                NAMA_CUST_QQ = "-",
+                                STATUS_LOADING = "-",
+                                NO_PO_CUST = "-",
+                                PENGIRIM = "-",
+                                NAMAPENGIRIM = "-",
+                                ZONA = "-",
+                                UCAPAN = "-",
+                                N_UCAPAN = "-",
+                                SUPP = "-",
+                                KOMISI = 0,
+                                N_KOMISI = 0
+                            };
+                            ErasoftDbContext.SIT01A.Add(newfaktur);
+                        }
+                        #endregion
+                        #region insert sit01b
+                        SIT01B newfakturdetail = new SIT01B
+                        {
+                            JENIS_FORM = "2",
+                            NO_BUKTI = noOrder,
+                            USERNAME = uname,
+                            CATATAN = "-",
+                            TGLINPUT = DateTime.Now,
+                            NILAI_DISC = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            DISCOUNT = 0,
+                            NILAI_DISC_1 = Convert.ToDouble(faktur.DiskonDariPenjual.Replace("Rp ", "").Replace(".", "")),
+                            DISCOUNT_2 = 0,
+                            NILAI_DISC_2 = 0,
+                            DISCOUNT_3 = 0,
+                            NILAI_DISC_3 = 0,
+                            DISCOUNT_4 = 0,
+                            NILAI_DISC_4 = 0,
+                            DISCOUNT_5 = 0,
+                            NILAI_DISC_5 = 0,
+                            DISC_TITIPAN = 0,
+                            BRG = string.IsNullOrWhiteSpace(faktur.NomorReferensiSKU) ? faktur.SKUInduk : faktur.NomorReferensiSKU,
+                            SATUAN = "2",
+                            H_SATUAN = Convert.ToDouble(faktur.HargaSebelumDiskon.Replace("Rp ", "").Replace(".", "")),
+                            QTY = faktur.Jumlah,
+                            HARGA = Convert.ToDouble(faktur.TotalHargaProduk.Replace("Rp ", "").Replace(".", "")),
+                            QTY_KIRIM = 0,
+                            QTY_RETUR = 0,
+                            GUDANG = "001" //buat default gudang 001, untuk semua akun baru
+                        };
+                        ErasoftDbContext.SIT01B.Add(newfakturdetail);
+                        #endregion
+
+                        #region commit insert
+                        if (i + 1 == data.Count())
+                        {
+                            //record terakhir
+                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                            {
+                                try
+                                {
+                                    ErasoftDbContext.SaveChanges();
+                                    transaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    transaction.Rollback();
+                                    Console.WriteLine("Error occurred.");
+                                }
+                            }
+                        }
+                        else if (string.IsNullOrWhiteSpace(data[i + 1].NoPesanan))
+                        {
+                            //record selanjutnya masih faktur yang sama
+                        }
+                        else
+                        {
+                            //record selanjutnya beda faktur
+                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                            {
+                                try
+                                {
+                                    ErasoftDbContext.SaveChanges();
+                                    transaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    transaction.Rollback();
+                                    Console.WriteLine("Error occurred.");
+                                }
+                            }
+                        }
+                        #endregion
+                    }
+                }
+                #endregion
+            }
+
             return new EmptyResult();
         }
 

@@ -8,12 +8,10 @@ namespace MasterOnline.Models
 
     public class UploadFakturShopeeData
     {
-        public UploadFakturShopeeDatas[] data { get; set; }
-        public string cust { get; set; }
-        public string perso { get; set; }
+        public UploadFakturShopeeDataDetail[] data { get; set; }
     }
 
-    public class UploadFakturShopeeDatas
+    public class UploadFakturShopeeDataDetail
     {
         public string NoPesanan { get; set; }
         public string StatusPesanan { get; set; }
