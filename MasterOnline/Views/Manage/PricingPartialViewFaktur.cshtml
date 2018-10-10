@@ -21,25 +21,26 @@
 
 <div class="snip1404" style="margin-top: 10px;">
     <div class="text-center">
-        <label style="margin-bottom: 20px; color: #fff;">
-            Selamat bisnis Anda telah berkembang! Untuk tetap dapat menggunakan Master Online, silakan Anda meng-<i>update</i> status keanggotaan Anda sesuai dengan kebutuhan Anda!
+        <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
+            Selamat bisnis Anda telah berkembang! Untuk tetap dapat menggunakan Master Online, silakan Anda meng-<i>update</i>
+            status keanggotaan Anda sesuai dengan kebutuhan Anda!
         </label>
     </div>
     @foreach (var subs in Model?.ListSubs)
     {
         <div id="plan-@subs.KODE" class="plan @(subs.KODE == "02" ? "featured" : null)">
-            <header>
-                <h4 class="plan-title">
+            <header style="font-size: 12px;">
+                <h5 class="plan-title">
                     @subs.KETERANGAN
-                </h4>
-                <div class="plan-cost">
+                </h5>
+                <div class="plan-cost" style="font-size:10px">
                     <span class="plan-price" id="subs-price-@subs.KODE" data-harga="@subs.HARGA">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</span>
                     <span class="plan-type">/bulan</span>
                 </div>
             </header>
-            <ul class="plan-features">
-                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_MP == 99 ? "UNLIMITED" : subs.JUMLAH_MP.ToString()) marketplace</li>
-                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN == 999999999 ? "UNLIMITED" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
+            <ul class="plan-features" style="font-size: 12px;">
+                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_MP >= 99 ? "UNLIMITED" : subs.JUMLAH_MP.ToString()) marketplace</li>
+                <li><i class="ion-checkmark"> </i>@(subs.JUMLAH_PESANAN >= 999 ? "UNLIMITED" : subs.JUMLAH_PESANAN.ToString()) pesanan / bulan</li>
                 @*<li><i class="ion-checkmark"> </i>Unlimited Email</li>
                     <li><i class="ion-checkmark"> </i>250Gb mo Transfer</li>
                     <li><i class="ion-checkmark"> </i>24/7 Tech Support</li>
@@ -52,45 +53,60 @@
                     <p>---- Pilih Paket Langganan ----</p>
                 </div>
             }
-                <div class="text-center btn-section">
-                    @if (subs.KODE != "01")
-                    {
-                        <div class="row">
-                            <button id="btn_times_" type="button" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
-                                3 bulan<br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
-                            </button>
-                        </div>
-                        <div class="row">
-                            <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="5">
-                                6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
-                            </button>
-                        </div>
-                        <div class="row">
-                            <button type="button" class="btn btn-subs" data-plan-btn="@subs.KODE" data-kali="10">
-                                12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
-                                <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
-                            </button>
-                        </div>
-                        <input id="txtBln_@subs.KODE" value="3" style="visibility:hidden" />
-                    }
-                    else
-                    {
-                        <img src="~/Content/Images/gratis_new.png" />
-                    }
-                </div>
-            <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@>
-                <p class="plan-month-total" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
-                <span class="plan-price-total">
-                    Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
-                </span>
-                <a class="btn-pindah-paket" onclick="clickSub('@subs.KODE')" style="margin-top: 10px;">Pilih Paket Ini</a>
+            <div class="text-center btn-section" style="margin-bottom:-30px">
+                @if (subs.KODE != "01")
+                {
+                    <div class="row">
+                        <button id="btn_times_" style="font-size: 12px;" type="button" onclick="setBln('@subs.KODE', 3)" class="btn btn-subs subs_active" data-plan-btn="@subs.KODE" data-kali="3">
+                            3 bulan<br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" style="font-size: 12px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 6)" data-plan-btn="@subs.KODE" data-kali="5">
+                            6 bulan ~ <span style="font-style: italic">Harga 5 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 5)</span>
+                        </button>
+                    </div>
+                    <div class="row">
+                        <button type="button" style="font-size: 12px;" class="btn btn-subs" onclick="setBln('@subs.KODE', 12)" data-plan-btn="@subs.KODE" data-kali="10">
+                            12 bulan ~ <span style="font-style: italic">Harga 10 bulan</span><br />
+                            <span style="font-weight: bold;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)</span>
+                        </button>
+                    </div>
+                    <input id="txtBln_@subs.KODE" value="3" style="visibility:hidden" />
+                }
+                else
+                {
+                    <img src="~/Content/Images/gratis_new.png" />
+                    <br />
+                    <br />
+                }
+            </div>
+            <div class="plan-select" @*onclick="clickSub(String(@subs.KODE))"*@ style="font-size: 12px;">
+                @if (subs.KODE != "01")
+                {
+                    <p class="plan-month-total" id="selected-package-@subs.KODE">Paket 3 Bulan</p>
+                    <span class="plan-price-total">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <br />
+                    <a class="btn-pindah-paket" style="margin-top: 10px;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
+                else
+                {
+                    <p class="plan-month-total" style="visibility:hidden" id="selected-package-@subs.KODE">Paket @(subs.KODE == "01" ? "GRATIS" : "3 Bulan")</p>
+                    <span class="plan-price-total" style="visibility:hidden">
+                        Total: <span style="color: #78f345;">Rp <span id="price-total-@subs.KODE" style="visibility:hidden">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)</span></span>
+                    </span>
+                    <br />
+                    <a class="btn-pindah-paket" style="margin-top: 10px;visibility:hidden;" onclick="clickSub('@subs.KODE')">Pilih Paket Ini</a>
+                }
             </div>
         </div>
     }
 </div>
-<div class="text-center" style="margin-top: -30px; margin-bottom: 10px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: #ffffff6b;">
+<div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background:transparent;">
     <img src="~/Content/Images/payment_logo.png" width="50%" />
 </div>
 

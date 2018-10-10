@@ -83,14 +83,14 @@ namespace MasterOnline.Controllers
                     if (retObj.status.Equals("OK"))
                     {
                         //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                        ret.status = 1;
                         //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "' WHERE CUST ='" + cust + "'");
+                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET API_KEY='" + retObj.user_id + "', TOKEN='" + retObj.token + "', STATUS_API = '1' WHERE CUST ='" + cust + "'");
                         //var a = EDB.GetDataSet("ARConnectionString", "ARF01", "SELECT * FROM ARF01");
                         if (a == 1)
                         {
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                            ret.status = 1;
                         }
                         else
                         {
@@ -100,6 +100,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        var a = EDB.ExecuteSQL("ARConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST ='" + cust + "'");
+
                         ret.message = retObj.message;
                         currentLog.REQUEST_EXCEPTION = ret.message;
                         manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
@@ -553,7 +555,7 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
                         qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
                     }
-                    updateProduk(brg,id, "", qtyOnHand > 0 ? qtyOnHand.ToString() : "1", userId, token);
+                    updateProduk(brg, id, "", qtyOnHand > 0 ? qtyOnHand.ToString() : "1", userId, token);
                 }
                 else
                 {

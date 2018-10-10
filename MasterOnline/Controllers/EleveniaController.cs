@@ -701,6 +701,9 @@ namespace MasterOnline.Controllers
                     //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
                     if (res.DeliveryTemplates != null)
                     {
+                        //ADD BY TRI, SET STATUS_API
+                        EDB.ExecuteSQL("ConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE RECNUM = " + Convert.ToString(recNum));
+                        //END ADD BY TRI, SET STATUS_API
 
                         EDB.ExecuteSQL("ConnectionString", CommandType.Text, "DELETE FROM DeliveryTemplateElevenia WHERE RECNUM_ARF01 = " + Convert.ToString(recNum));
                         string sSQL = "INSERT INTO DeliveryTemplateElevenia (KODE,KETERANGAN,RECNUM_ARF01) VALUES (";
@@ -727,9 +730,18 @@ namespace MasterOnline.Controllers
                             ret = recNum;
                         }
                     }
+                    else
+                    {
+                        //ADD BY TRI, SET STATUS_API
+                        EDB.ExecuteSQL("ConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE RECNUM = " + Convert.ToString(recNum));
+                        //END ADD BY TRI, SET STATUS_API
+                    }
                 }
                 catch (Exception ex)
                 {
+                    //ADD BY TRI, SET STATUS_API
+                    EDB.ExecuteSQL("ConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1' WHERE RECNUM = " + Convert.ToString(recNum));
+                    //END ADD BY TRI, SET STATUS_API
                     var res = new System.Web.Script.Serialization.JavaScriptSerializer().Deserialize<DeliveryTemplatesRootS>(json);
                     //var res = JsonConvert.DeserializeObject<DeliveryTemplatesRoot>(json);
                     if (res.DeliveryTemplates != null)
@@ -754,11 +766,20 @@ namespace MasterOnline.Controllers
                             ret = recNum;
                         }
                     }
+                    else
+                    {
+                        //ADD BY TRI, SET STATUS_API
+                        EDB.ExecuteSQL("ConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE RECNUM = " + Convert.ToString(recNum));
+                        //END ADD BY TRI, SET STATUS_API
+                    }
                 }
 
             }
             else
             {
+                //ADD BY TRI, SET STATUS_API
+                EDB.ExecuteSQL("ConnectionString", CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE RECNUM = " + Convert.ToString(recNum));
+                //END ADD BY TRI, SET STATUS_API
                 currentLog.REQUEST_RESULT = "Not Found";
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
             }
