@@ -110,21 +110,57 @@
             </div>
         </div>
     </div>
+    @*add by nurul 10/10/2018*@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
                 @Html.Label("Total Pembayaran", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-6">
                     @{
-                        var totalSemua = 0d;
-                        //foreach (var detailHutang in listHutangDetail)
-                        //{
-                        //    totalSemua += (detailHutang.BAYAR + detailHutang.POT);
-                        //}
+                        var totalBayar = 0d;
                         if (Model.Hutang != null)
                         {
-                            totalSemua = Model.Hutang.TBAYAR;
+                            totalBayar = Model.Hutang.TBAYAR;
                         }
+                    }
+                    @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Total Potongan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-6">
+                    @{
+                        var totalPot = 0d;
+                        if (Model.Hutang != null)
+                        {
+                            totalPot = Model.Hutang.TPOT;
+                        }
+                    }
+                    @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+    @*end add by nurul 10/10/2018*@
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                @Html.Label("Total Pelunasan", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-6">
+                    @{
+                        var totalSemua = 0d;
+                        foreach (var detailHutang in listHutangDetail)
+                        {
+                            totalSemua += (detailHutang.BAYAR + detailHutang.POT);
+                        }
+                        //if (Model.Hutang != null)
+                        //{
+                        //    totalSemua = Model.Hutang.TBAYAR;
+                        //}
                     }
                     @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control" })
 

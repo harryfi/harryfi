@@ -6348,6 +6348,12 @@ namespace MasterOnline.Controllers
                 {
                     ErasoftDbContext.ART03B.Add(dataVm.PiutangDetail);
                 }
+                //add by nurul 10/10/2018
+                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
+
+                piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
+                piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR;
+                //end add
             }
 
             ErasoftDbContext.SaveChanges();
