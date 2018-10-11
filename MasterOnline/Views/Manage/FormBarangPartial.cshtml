@@ -227,13 +227,19 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
                         </div>
-                        @Html.Label("Update ke Marketplace", new { @class = "control-label col-md-5 col-sm-5 col-xs-12", @style = "text-align:right" })
                     </div>
                     @{
                         var listMarket = Model.ListMarket;
                     }
                     @if (listMarket != null)
                     {
+                        <hr />
+                        <div class="form-group">
+                            @Html.Label("Akun Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            @Html.Label("Harga Per Marketplace", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align:left" })
+                            @Html.Label("Tampilkan", new { @class = "control-label col-md-1 col-sm-1 col-xs-12",@style = "text-align:left" })
+                            @Html.Label("Status Update ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @style = "text-align:left" })
+                        </div>
                         <hr />
                         <div id="hjualmarket-section">
                             @for (var i = 0; i < listMarket.ToList().Count; i++)
@@ -266,21 +272,19 @@
                                             @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
                                         }
                                     </div>
-                                    <div class="col-md-2 col-sm-2 col-xs-12">
+                                    <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
                                         @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
                                         {
                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY })
-                                            <label class="checkbox-container">
-                                                Tampilkan
+                                            <div class="checkbox-container">
                                                 <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
                                                 <span class="checkmark"></span>
-                                            </label>
+                                            </div>
                                         }
                                         else
                                         {
                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
                                             <label class="checkbox-container">
-                                                Tampilkan
                                                 <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
                                                 <span class="checkmark"></span>
                                             </label>
@@ -466,24 +470,50 @@
                                             </div>
                                             <div class="form-group">
                                                 <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    @Html.LabelFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, "Template Delivery *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-3 col-sm-3 col-xs-12">
-                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.DeliveryTempElevenia })
-                                                        <div class="input-group text">
-                                                            <table>
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("DeliveryTempElevenia" + i + "Box", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DeliveryTempElevenia })
-                                                                    </td>
-                                                                    <td>
-                                                                        <span class="input-group-btn">
-                                                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({recnumArf01})"))">
-                                                                                <span class="glyphicon glyphicon-option-horizontal"></span>
-                                                                            </button>
-                                                                        </span>
-                                                                    </td>
-                                                                </tr>
-                                                            </table>
+                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                    <div class="row">
+                                                        <div class="col-md-1 col-sm-1 col-xs-12">
+                                                            <label>Category</label>
+                                                        </div>
+                                                        <div id="category_elevenia_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                        </div>
+                                                        <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                        </div>
+                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                            @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.CATEGORY_CODE != null)
+                                                            {
+                                                                <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, true);">Undo</button>
+                                                            }
+                                                            <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, false);">Clear</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                        </div>
+                                                    </div>
+                                                    <div class="row" style="padding-top:10px">
+                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                            @Html.Label("Template Delivery *", new { @class = "control-label" })
+                                                        </div>
+                                                        <div class="col-md-4 col-sm-4 col-xs-12">
+                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.DeliveryTempElevenia })
+                                                            <div class="input-group text">
+                                                                <table>
+                                                                    <tr>
+                                                                        <td>
+                                                                            @Html.TextBox("DeliveryTempElevenia" + i + "Box", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DeliveryTempElevenia })
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="input-group-btn">
+                                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({recnumArf01})"))">
+                                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                </button>
+                                                                            </span>
+                                                                        </td>
+                                                                    </tr>
+                                                                </table>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -532,7 +562,7 @@
                                                         <div class="row">
                                                             <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                             </div>
-                                                        </div>                                                        
+                                                        </div>
                                                     }
                                                 </div>
                                             </div>

@@ -412,7 +412,7 @@ namespace MasterOnline.Controllers
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
-                ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
+                //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
 
@@ -428,7 +428,7 @@ namespace MasterOnline.Controllers
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
-                ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
+                //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
@@ -764,7 +764,7 @@ namespace MasterOnline.Controllers
             return "";
         }
         [HttpGet]
-        public async System.Threading.Tasks.Task<string> GetCategoryElevenia()
+        public async System.Threading.Tasks.Task<string> GetMasterCategoryElevenia()
         {
             var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == idmarket).ToList();
@@ -783,7 +783,7 @@ namespace MasterOnline.Controllers
             return "";
         }
         [HttpGet]
-        public async System.Threading.Tasks.Task<string> GetAttributeElevenia()
+        public async System.Threading.Tasks.Task<string> GetMasterAttributeElevenia()
         {
             var idmarket = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == idmarket).ToList();
@@ -1139,6 +1139,57 @@ namespace MasterOnline.Controllers
 
             return Json(listKategori, JsonRequestBehavior.AllowGet);
         }
+        #region Kategori Elevenia
+
+        [HttpGet]
+        public ActionResult GetKategoriEleveniaByCode(string code)
+        {
+            //string[] codelist = code.Split(';');
+            var listKategoriEle = MoDbContext.CategoryElevenia.Where(k => k.PARENT_CODE == "").OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriEleveniaByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriEle = MoDbContext.CategoryElevenia.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriEle, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriEleveniaByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_ELEVENIA> listKategoriEle = new List<CATEGORY_ELEVENIA>();
+            var category = MoDbContext.CategoryElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            listKategoriEle.Add(category);
+
+            if (category.PARENT_CODE != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CategoryElevenia.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    listKategoriEle.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeElevenia(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeEle = MoDbContext.AttributeElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeEle, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        #region Kategori Blibli
         [HttpGet]
         public ActionResult GetKategoriBlibliByCode(string code)
         {
@@ -1193,6 +1244,7 @@ namespace MasterOnline.Controllers
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
             return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
         }
+        #endregion
         #region lzd
         [HttpGet]
         public ActionResult GetKategoriLazadaByCode(/*string code*/)
@@ -2254,7 +2306,7 @@ namespace MasterOnline.Controllers
                 {
                     Stf02 = ErasoftDbContext.STF02.Single(b => b.BRG == barangId),
                     ListStf02S = ErasoftDbContext.STF02.ToList(),
-                    ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
+                    //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                     ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).OrderBy(p => p.IDMARKET).ToList(),
                     StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "'").ToList()
@@ -2275,7 +2327,7 @@ namespace MasterOnline.Controllers
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
-                ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
+                //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
             };
@@ -8941,7 +8993,7 @@ namespace MasterOnline.Controllers
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
                         newFaktursDetails.Add(newfakturdetail);
-                        
+
                         #endregion
                     }
                     else
