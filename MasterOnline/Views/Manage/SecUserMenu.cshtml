@@ -102,9 +102,9 @@
                                 if (form.HaveChild)
                                 {
                                     <tr>
-                                        <td><span style="font-weight: bold;">@form.NamaForm</span></td>
-                                        <td class="text-center">
-                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId">
+                                        <td  style="padding-top: 4px; padding-bottom: 4px;"><span style="font-weight: bold; ">@form.NamaForm</span></td>
+                                        <td class="text-center"  style="padding-top: 4px; padding-bottom: 4px;">
+                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId" >
                                                 @{
                                                     var checkInSec = Model.ListSec.FirstOrDefault(s => s.FormId == form.ScrId);
 
@@ -132,9 +132,9 @@
                                         if (formChild.ParentId == form.ScrId)
                                         {
                                             <tr>
-                                                <td><span style="margin-left: 30px;">@formChild.NamaForm</span></td>
-                                                <td class="text-center">
-                                                    <div class="btn-group has-parent" data-toggle="buttons" data-form-id="@formChild.ScrId" data-form-parent-id="@formChild.ParentId">
+                                                <td  style="padding-top: 4px; padding-bottom: 4px;"><span style="margin-left: 30px; ">@formChild.NamaForm</span></td>
+                                                <td class="text-center"  style="padding-top: 4px; padding-bottom: 4px;">
+                                                    <div class="btn-group has-parent" data-toggle="buttons" data-form-id="@formChild.ScrId" data-form-parent-id="@formChild.ParentId" >
                                                         @{
                                                             var childCheckInSec = Model.ListSec.FirstOrDefault(s => s.FormId == formChild.ScrId);
 
