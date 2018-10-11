@@ -923,8 +923,8 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.Customers.EMAIL,
                         mta_password_password_merchant = customer.Customers.PASSWORD,
                     };
-                    BliApi.GetPickupPoint(data);
                     BliApi.GetToken(data, true);
+                    //BliApi.GetPickupPoint(data);
                 }
             }
             #endregion
@@ -934,7 +934,7 @@ namespace MasterOnline.Controllers
 
             var partialVm = new CustomerViewModel()
             {
-                ListCustomer = ErasoftDbContext.ARF01.ToList(),
+                ListCustomer = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
                 kodeCust = kdCustomer,
             };
             if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))

@@ -20,8 +20,8 @@ namespace MasterOnline.Controllers
         string urlLazada = "https://api.lazada.co.id/rest";
         string eraAppKey = "101775";
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
-        //string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=&lzdID=";
-        string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
+        string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
+        //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
         //string eraAppKey = "";101775;106147
         // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu;So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU
         DatabaseSQL EDB;
@@ -795,11 +795,11 @@ namespace MasterOnline.Controllers
                                         statusEra = "01";
                                         break;
                                     case "ready_to_ship":
-                                        statusEra = "02";
-                                        break;
-                                    case "delivered":
                                         statusEra = "03";
                                         break;
+                                    case "delivered":
+                                        //statusEra = "03";
+                                        //break;
                                     case "shipped":
                                         statusEra = "04";
                                         break;
@@ -1103,11 +1103,11 @@ namespace MasterOnline.Controllers
                                                 statusEra = "01";
                                                 break;
                                             case "ready_to_ship":
-                                                statusEra = "02";
-                                                break;
-                                            case "delivered":
                                                 statusEra = "03";
                                                 break;
+                                            case "delivered":
+                                                //statusEra = "03";
+                                                //break;
                                             case "shipped":
                                                 statusEra = "04";
                                                 break;
