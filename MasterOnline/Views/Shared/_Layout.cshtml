@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - Situs Jualan Online Terpusat</title>
+    <title>@ViewBag.Title</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
@@ -19,6 +19,10 @@
         body {
             font-family: 'RoundedElegance' !important;
             padding-top: 0;
+        }
+
+        nav {
+            background-color: #fff;
         }
 
         nav .container {
@@ -135,7 +139,7 @@
     @RenderSection("styles", required: false)
 </head>
 <body>
-    <nav class="navbar" id="top">
+    <nav class="navbar navbar-fixed-top" id="top">
         <div class="container">
             <div class="navbar-header">
                 @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
