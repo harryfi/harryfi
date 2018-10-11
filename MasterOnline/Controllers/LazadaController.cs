@@ -18,11 +18,19 @@ namespace MasterOnline.Controllers
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         string urlLazada = "https://api.lazada.co.id/rest";
+        //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
+        //string eraAppKey = "";101775;106147
+#if AWS
+                        
         string eraAppKey = "101775";
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
-        //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
-        //string eraAppKey = "";101775;106147
+#else
+
+        string eraAppKey = "101775";
+        string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+        string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
+#endif
         // GET: Lazada; QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu;So2KEplWTt4XFO9OGmXjuFFVIT1Wc6FU
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
