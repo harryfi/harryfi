@@ -332,7 +332,7 @@ namespace MasterOnline.Controllers
                 ListPesanan = ErasoftDbContext.SOT01A.ToList(),
                 ListNFaktur = ErasoftDbContext.ART03B.ToList(),
                 ListSubs = MoDbContext.Subscription.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.ToList()
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => 0 == 1).ToList()
             };
 
             return View(vm);
@@ -3088,7 +3088,7 @@ namespace MasterOnline.Controllers
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList()
+                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
             };
 
             return PartialView("BarangFakturPartial", vm);
@@ -3217,7 +3217,9 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+
+
             };
 
             return PartialView("BarangReturPartial", vm);
@@ -3233,7 +3235,9 @@ namespace MasterOnline.Controllers
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 ListNFaktur = ErasoftDbContext.ART03B.ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList()
+                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
+
             };
 
             return PartialView("TableFakturPartial", vm);
@@ -3252,6 +3256,7 @@ namespace MasterOnline.Controllers
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 ListNFaktur = ErasoftDbContext.ART03B.ToList(),
                 ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
             };
 
             return PartialView("TableFakturLunasPartial", vm);
@@ -3268,6 +3273,7 @@ namespace MasterOnline.Controllers
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 ListNFaktur = ErasoftDbContext.ART03B.ToList(),
                 ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
             };
 
             return PartialView("TableFakturLunasPartial", vm);
@@ -3413,7 +3419,8 @@ namespace MasterOnline.Controllers
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
                 ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList()
+                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+
             };
 
             return PartialView("TableFakturPartial", vm);
@@ -6348,6 +6355,12 @@ namespace MasterOnline.Controllers
                 {
                     ErasoftDbContext.ART03B.Add(dataVm.PiutangDetail);
                 }
+                //add by nurul 10/10/2018
+                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
+
+                piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
+                piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR;
+                //end add
             }
 
             ErasoftDbContext.SaveChanges();
@@ -8235,23 +8248,50 @@ namespace MasterOnline.Controllers
             public string resultMessage { get; set; }
 
         }
+        [HttpGet]
+        public FileResult DownloadLogUploadFaktur(string filename)
+        {
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+
+            byte[] data = System.IO.File.ReadAllBytes(path);
+            string contentType = MimeMapping.GetMimeMapping(path);
+            var cd = new System.Net.Mime.ContentDisposition
+            {
+                FileName = filename,
+                Inline = true,
+            };
+            //Response.AppendHeader("Content-Disposition", cd.ToString());
+
+            return File(data, contentType, filename);
+        }
+
+        [HttpGet]
+        public ActionResult ListImportFaktur(string cust)
+        {
+            var partialVm = new FakturViewModel()
+            {
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            };
+
+            return PartialView("UploadFakturView", partialVm);
+        }
         [HttpPost]
         public ActionResult UploadFakturTokped(UploadFakturTokpedDataDetail[] data, string cust, string nama_cust, string perso)
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            UploadFakturResult result = new UploadFakturResult
+            {
+                success = "0",
+                resultMessage = ""
+            };
 
             #region Logging
             string message = "";
             string filename = "Log_Upload_Inv_Tokopedia_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
-            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), filename);
-            if (!System.IO.File.Exists(path))
-            {
-                var asd = System.IO.File.Create(path);
-                asd.Close();
-            }
-            StreamWriter tw = new StreamWriter(path);
-
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
 
             LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
             {
@@ -8266,10 +8306,18 @@ namespace MasterOnline.Controllers
 
             if (data == null)
             {
-                return new EmptyResult();
+                return JsonErrorMessage("Format data tidak sesuai");
             }
             else
             {
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+
                 #region Proses Upload
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
@@ -8299,11 +8347,17 @@ namespace MasterOnline.Controllers
                 bool adaWarning = false;
                 bool masihFakturYangSama = true;
                 bool fakturLolosValidasi = true;
+                bool barangFakturLolosValidasi = true;
                 string messageWarning = "";
                 string faktur_invoice = "";
+
+                List<ARF01C> newARF01Cs = new List<ARF01C>();
+                List<SIT01A> newFakturs = new List<SIT01A>();
+                List<SIT01B> newFaktursDetails = new List<SIT01B>();
                 for (int i = 0; i < data.Count(); i++)
                 {
                     UploadFakturTokpedDataDetail faktur = data[i];
+
                     #region  validasi
                     //cek faktur sudah pernah di upload
                     if (!string.IsNullOrWhiteSpace(faktur.Invoice))
@@ -8322,29 +8376,39 @@ namespace MasterOnline.Controllers
                         {
                             fakturLolosValidasi = false;
                             //log faktur sudah pernah di upload
-                            message += "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
+                            message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
+                            tw.WriteLine(message);
                         }
                     }
                     else
                     {
                         masihFakturYangSama = true;
+                        messageWarning = "";
                     }
                     if (fakturLolosValidasi)
                     {
+                        barangFakturLolosValidasi = true;
                         //cek barang sudah ada di master
                         var cekItem = listItem.Where(p => p.BRG == (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU)).FirstOrDefault();
                         if (cekItem == null)
                         {
                             //log item belum ada di master
+                            barangFakturLolosValidasi = false;
                             adaWarning = true;
-                            messageWarning += "- Item [" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                            if (message == "")
+                            {
+                                message = "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload." + System.Environment.NewLine;
+                                message += "Masalah pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
+                                tw.WriteLine(message);
+                            }
+                            messageWarning = "- Item [" + (string.IsNullOrWhiteSpace(faktur.StockKeepingUnitSKU) ? faktur.ProductID : faktur.StockKeepingUnitSKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                            tw.WriteLine(messageWarning);
                         }
                     }
                     #endregion
 
-                    if (fakturLolosValidasi)
+                    if (fakturLolosValidasi && barangFakturLolosValidasi)
                     {
-
                         buyercode = "";
                         if (!string.IsNullOrWhiteSpace(faktur.Invoice))
                         {
@@ -8399,8 +8463,8 @@ namespace MasterOnline.Controllers
                                     NAMA_KABKOT = kabupaten.Length > 50 ? kabupaten.Substring(0, 47) + "..." : kabupaten,
                                     NAMA_PROV = provinsi.Length > 50 ? provinsi.Substring(0, 47) + "..." : provinsi,
                                 };
-
-                                ErasoftDbContext.ARF01C.Add(newPembeli);
+                                newARF01Cs.Add(newPembeli);
+                                //ErasoftDbContext.ARF01C.Add(newPembeli);
 
                                 buyercode = newPembeli.BUYER_CODE;
                                 al2 = newPembeli.AL2;
@@ -8477,7 +8541,10 @@ namespace MasterOnline.Controllers
                                 KOMISI = 0,
                                 N_KOMISI = 0
                             };
-                            ErasoftDbContext.SIT01A.Add(newfaktur);
+                            newFakturs.Add(newfaktur);
+                            //ErasoftDbContext.SIT01A.Add(newfaktur);
+                            lastFakturInUpload = faktur_invoice;
+                            lastFakturDateInUpload = Convert.ToDateTime(faktur.PaymentDate);
                         }
                         #endregion
                         #region insert sit01b
@@ -8511,81 +8578,60 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
-                        ErasoftDbContext.SIT01B.Add(newfakturdetail);
-                        #endregion
-
-                        #region commit insert
-                        if (i + 1 == data.Count())
-                        {
-                            //record terakhir
-                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                            {
-                                try
-                                {
-                                    ErasoftDbContext.SaveChanges();
-                                    transaction.Commit();
-                                    message += "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan nomor faktur : [" + noOrder + "]." + System.Environment.NewLine;
-                                    if (adaWarning)
-                                    {
-                                        message += "Warning pada nomor faktur [" + noOrder + "] :" + System.Environment.NewLine;
-                                        message += messageWarning;
-                                    }
-                                    tw.WriteLine(message);
-                                    lastFakturInUpload = faktur_invoice;
-                                    lastFakturDateInUpload = Convert.ToDateTime(faktur.PaymentDate);
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    message += "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload, terjadi error." + System.Environment.NewLine;
-                                    message += "Error pada nomor faktur [" + faktur_invoice + "] : " + (ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message);
-                                    tw.WriteLine(message);
-                                }
-                            }
-                        }
-                        else if (string.IsNullOrWhiteSpace(data[i + 1].Invoice))
-                        {
-                            //record selanjutnya masih faktur yang sama
-                        }
-                        else
-                        {
-                            //record selanjutnya beda faktur
-                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                            {
-                                try
-                                {
-                                    ErasoftDbContext.SaveChanges();
-                                    transaction.Commit();
-                                    message += "Faktur Tokopedia [" + faktur_invoice + "] berhasil diupload dengan nomor faktur : [" + noOrder + "]." + System.Environment.NewLine;
-                                    if (adaWarning)
-                                    {
-                                        message += "Warning pada nomor faktur [" + noOrder + "] :" + System.Environment.NewLine;
-                                        message += messageWarning;
-                                    }
-                                    tw.WriteLine(message);
-                                    lastFakturInUpload = faktur_invoice;
-                                    lastFakturDateInUpload = Convert.ToDateTime(faktur.PaymentDate);
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    message += "Faktur Tokopedia [" + faktur_invoice + "] gagal diupload, terjadi error." + System.Environment.NewLine;
-                                    message += "Error pada nomor faktur [" + faktur_invoice + "] : " + (ex.InnerException == null ? ex.Message : ex.InnerException.Message);
-                                    tw.WriteLine(message);
-                                }
-                            }
-                        }
+                        //ErasoftDbContext.SIT01B.Add(newfakturdetail);
+                        newFaktursDetails.Add(newfakturdetail);
                         #endregion
                     }
                     else
                     {
+                        var fakturPerluDiRemove = (from p in newFakturs where p.NO_REF == faktur_invoice select p).FirstOrDefault();
+                        if (fakturPerluDiRemove != null)
+                        {
+                            newFakturs.RemoveAll(a => a.NO_REF == faktur_invoice);
+                            var detailFakturPerluDiRemove = (from p in newFaktursDetails where p.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI select p).FirstOrDefault();
+                            if (detailFakturPerluDiRemove != null)
+                            {
+                                newFaktursDetails.RemoveAll(a => a.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI);
+                            }
+                        }
+                    }
+                }
+                #endregion
+
+                #region commit insert
+
+                //record terakhir
+                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
+                        ErasoftDbContext.SaveChanges();
+                        if (newFakturs.Count == 0)
+                        {
+                            lastFakturInUpload = "";
+                            lastFakturDateInUpload = DateTime.Now;
+                        }
+                        ErasoftDbContext.SIT01A.AddRange(newFakturs);
+                        ErasoftDbContext.SaveChanges();
+                        ErasoftDbContext.SIT01B.AddRange(newFaktursDetails);
+                        ErasoftDbContext.SaveChanges();
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        message = "Faktur Tokopedia gagal diupload, terjadi error." + System.Environment.NewLine;
+                        message += "Error : " + (ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message);
                         tw.WriteLine(message);
                     }
                 }
                 #endregion
+
+                tw.Close();
             }
 
-            tw.Close();
             newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
             newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
             ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
@@ -8593,15 +8639,8 @@ namespace MasterOnline.Controllers
 
             var partialVm = new FakturViewModel()
             {
-                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").OrderByDescending(f => f.TGL).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(),
-                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                //ListNFaktur = ErasoftDbContext.ART03B.ToList(),
-                //ListSubs = MoDbContext.Subscription.ToList(),
-                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.ToList()
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
             };
 
             return PartialView("UploadFakturView", partialVm);
@@ -8613,13 +8652,42 @@ namespace MasterOnline.Controllers
         {
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string uname = sessionData.Account.Username;
+            UploadFakturResult result = new UploadFakturResult
+            {
+                success = "0",
+                resultMessage = ""
+            };
+
+            #region Logging
+            string message = "";
+            string filename = "Log_Upload_Inv_Shopee_" + DateTime.Now.ToString("yyyyMMddhhmmss") + ".txt";
+            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), filename);
+
+            LOG_IMPORT_FAKTUR newLogImportFaktur = new LOG_IMPORT_FAKTUR
+            {
+                CUST = cust,
+                UPLOADER = uname,
+                UPLOAD_DATETIME = DateTime.Now,
+                LOG_FILE = filename,
+            };
+            string lastFakturInUpload = "";
+            DateTime lastFakturDateInUpload = DateTime.Now;
+            #endregion
 
             if (data == null)
             {
-                return new EmptyResult();
+                return JsonErrorMessage("Format data tidak sesuai");
             }
             else
             {
+                if (!System.IO.File.Exists(path))
+                {
+                    System.IO.Directory.CreateDirectory(Path.Combine(Server.MapPath("~/Content/Uploaded/" + sessionData.Account.DatabasePathErasoft + "/"), ""));
+                    var asd = System.IO.File.Create(path);
+                    asd.Close();
+                }
+                StreamWriter tw = new StreamWriter(path);
+
                 #region Proses Upload
                 var lastRecnumARF01C = ErasoftDbContext.ARF01C.Max(p => p.RecNum);
                 var listFakturInDb = ErasoftDbContext.SIT01A.OrderBy(p => p.RecNum).ToList();
@@ -8645,11 +8713,21 @@ namespace MasterOnline.Controllers
                 string buyercode = "";
                 string al2 = "";
                 string al3 = "";
+
+                bool adaWarning = false;
                 bool masihFakturYangSama = true;
                 bool fakturLolosValidasi = true;
+                bool barangFakturLolosValidasi = true;
+                string messageWarning = "";
+                string faktur_invoice = "";
+
+                List<ARF01C> newARF01Cs = new List<ARF01C>();
+                List<SIT01A> newFakturs = new List<SIT01A>();
+                List<SIT01B> newFaktursDetails = new List<SIT01B>();
                 for (int i = 0; i < data.Count(); i++)
                 {
                     UploadFakturShopeeDataDetail faktur = data[i];
+
                     #region  validasi
                     //cek faktur sudah pernah di upload
                     if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
@@ -8658,31 +8736,48 @@ namespace MasterOnline.Controllers
                         {
                             masihFakturYangSama = false;
                         }
-
+                        faktur_invoice = faktur.NoPesanan;
+                        message = "";
+                        messageWarning = "";
+                        adaWarning = false;
                         fakturLolosValidasi = true;
-                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur.NoPesanan).FirstOrDefault();
+                        var cekFakturExists = listFakturInDb.Where(p => p.JENIS_FORM == "2" && p.NO_REF == faktur_invoice).FirstOrDefault();
                         if (cekFakturExists != null)
                         {
                             fakturLolosValidasi = false;
                             //log faktur sudah pernah di upload
+                            message = "Faktur [" + faktur_invoice + "] sudah pernah diupload, dengan nomor faktur : [" + cekFakturExists.NO_BUKTI + "]." + System.Environment.NewLine;
+                            tw.WriteLine(message);
                         }
                     }
                     else
                     {
                         masihFakturYangSama = true;
+                        messageWarning = "";
                     }
                     if (fakturLolosValidasi)
                     {
+                        barangFakturLolosValidasi = true;
                         //cek barang sudah ada di master
                         var cekItem = listItem.Where(p => p.BRG == (string.IsNullOrWhiteSpace(faktur.NomorReferensiSKU) ? faktur.SKUInduk : faktur.NomorReferensiSKU)).FirstOrDefault();
                         if (cekItem == null)
                         {
                             //log item belum ada di master
-
+                            barangFakturLolosValidasi = false;
+                            adaWarning = true;
+                            if (message == "")
+                            {
+                                message = "Faktur Shopee [" + faktur_invoice + "] gagal diupload." + System.Environment.NewLine;
+                                message += "Masalah pada nomor faktur [" + faktur_invoice + "] :" + System.Environment.NewLine;
+                                tw.WriteLine(message);
+                            }
+                            messageWarning = "- Item [" + (string.IsNullOrWhiteSpace(faktur.NomorReferensiSKU) ? faktur.SKUInduk : faktur.NomorReferensiSKU) + "] belum ada di Master Barang MasterOnline." + System.Environment.NewLine;
+                            tw.WriteLine(messageWarning);
                         }
                     }
                     #endregion
-                    if (fakturLolosValidasi)
+
+                    if (fakturLolosValidasi && barangFakturLolosValidasi)
                     {
                         buyercode = "";
                         if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
@@ -8691,6 +8786,7 @@ namespace MasterOnline.Controllers
                             digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
                             noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                         }
+
 
                         #region insert pembeli
                         if (!string.IsNullOrWhiteSpace(faktur.NoPesanan))
@@ -8736,8 +8832,7 @@ namespace MasterOnline.Controllers
                                     NAMA_KABKOT = faktur.KotaKabupaten.Length > 50 ? faktur.KotaKabupaten.Substring(0, 47) + "..." : faktur.KotaKabupaten,
                                     NAMA_PROV = faktur.Provinsi.Length > 50 ? faktur.Provinsi.Substring(0, 47) + "..." : faktur.Provinsi,
                                 };
-
-                                ErasoftDbContext.ARF01C.Add(newPembeli);
+                                newARF01Cs.Add(newPembeli);
 
                                 buyercode = newPembeli.BUYER_CODE;
                                 al2 = newPembeli.AL2;
@@ -8813,7 +8908,7 @@ namespace MasterOnline.Controllers
                                 KOMISI = 0,
                                 N_KOMISI = 0
                             };
-                            ErasoftDbContext.SIT01A.Add(newfaktur);
+                            newFakturs.Add(newfaktur);
                         }
                         #endregion
                         #region insert sit01b
@@ -8845,55 +8940,72 @@ namespace MasterOnline.Controllers
                             QTY_RETUR = 0,
                             GUDANG = "001" //buat default gudang 001, untuk semua akun baru
                         };
-                        ErasoftDbContext.SIT01B.Add(newfakturdetail);
+                        newFaktursDetails.Add(newfakturdetail);
+                        
                         #endregion
-
-                        #region commit insert
-                        if (i + 1 == data.Count())
+                    }
+                    else
+                    {
+                        var fakturPerluDiRemove = (from p in newFakturs where p.NO_REF == faktur_invoice select p).FirstOrDefault();
+                        if (fakturPerluDiRemove != null)
                         {
-                            //record terakhir
-                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                            newFakturs.RemoveAll(a => a.NO_REF == faktur_invoice);
+                            var detailFakturPerluDiRemove = (from p in newFaktursDetails where p.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI select p).FirstOrDefault();
+                            if (detailFakturPerluDiRemove != null)
                             {
-                                try
-                                {
-                                    ErasoftDbContext.SaveChanges();
-                                    transaction.Commit();
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    Console.WriteLine("Error occurred.");
-                                }
+                                newFaktursDetails.RemoveAll(a => a.NO_BUKTI == fakturPerluDiRemove.NO_BUKTI);
                             }
                         }
-                        else if (string.IsNullOrWhiteSpace(data[i + 1].NoPesanan))
-                        {
-                            //record selanjutnya masih faktur yang sama
-                        }
-                        else
-                        {
-                            //record selanjutnya beda faktur
-                            using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
-                            {
-                                try
-                                {
-                                    ErasoftDbContext.SaveChanges();
-                                    transaction.Commit();
-                                }
-                                catch (Exception ex)
-                                {
-                                    transaction.Rollback();
-                                    Console.WriteLine("Error occurred.");
-                                }
-                            }
-                        }
-                        #endregion
                     }
                 }
                 #endregion
+
+                #region commit insert
+
+                //record terakhir
+                using (System.Data.Entity.DbContextTransaction transaction = ErasoftDbContext.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        ErasoftDbContext.ARF01C.AddRange(newARF01Cs);
+                        ErasoftDbContext.SaveChanges();
+                        if (newFakturs.Count == 0)
+                        {
+                            lastFakturInUpload = "";
+                            lastFakturDateInUpload = DateTime.Now;
+                        }
+                        ErasoftDbContext.SIT01A.AddRange(newFakturs);
+                        ErasoftDbContext.SaveChanges();
+                        ErasoftDbContext.SIT01B.AddRange(newFaktursDetails);
+                        ErasoftDbContext.SaveChanges();
+
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        message = "Faktur Shopee gagal diupload, terjadi error." + System.Environment.NewLine;
+                        message += "Error : " + (ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message);
+                        tw.WriteLine(message);
+                    }
+                }
+                #endregion
+
+                tw.Close();
             }
 
-            return new EmptyResult();
+            newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
+            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
+            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+            ErasoftDbContext.SaveChanges();
+
+            var partialVm = new FakturViewModel()
+            {
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListImportFaktur = ErasoftDbContext.LOG_IMPORT_FAKTUR.Where(a => a.CUST == cust).OrderByDescending(a => a.UPLOAD_DATETIME).ToList()
+            };
+
+            return PartialView("UploadFakturView", partialVm);
         }
 
         // =============================================== END ADD BY CALVIN -- Bagian Import Data Faktur

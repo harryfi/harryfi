@@ -525,6 +525,12 @@
 
             $('#TOTALBAYAR').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
+            //ADD BY NURUL 10/10/2018
+            $('#TOTALBYR').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            $('#TOTALPOT').attr('readonly', 'readonly').css('background-color', '#eee')
+                .css('cursor', 'not-allowed');
+            //END ADD 
 
             // ==== Update Data ====
             $('#Hutang_TGL').change(function () {
@@ -561,30 +567,37 @@
                 });
             });
 
+            var $totalPot = 0;
+            var $totalBayar = 0;
             var $totalSemua = 0;
 
             $('tr[data-hutang-id="0"] #HutangDetail_POT').change(function () {
                 //$totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
+                $totalPot = convertToAngka($('#TOTALPOT').val()) + parseInt($('#HutangDetail_POT').val());
                 $('tr[data-hutang-id="0"] .span-potongan-hutang').text(convertToRupiah($(this).val()));
-                //$('#TOTALBAYAR').val(convertToRupiah($totalSemua));
+                $('#TOTALPOT').val(convertToRupiah($totalPot));
+                $totalSemua = $totalPot + convertToAngka($('#TOTALBYR').val());
+                $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
                 //$('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($(this).val()));
-            }).focus(function () {
-                $(this).val('');
-            }).blur(function() {
-                if ($(this).val() == '')
-                    $(this).val(0);
+            //}).focus(function () {
+            //    $(this).val('');
+            //}).blur(function() {
+            //    if ($(this).val() == '')
+            //        $(this).val(0);
             });
 
             $('tr[data-hutang-id="0"] #HutangDetail_BAYAR').change(function () {
-                $totalSemua = parseInt($('#HutangDetail_BAYAR').val());
+                $totalBayar = convertToAngka($('#TOTALBYR').val()) + parseInt($('#HutangDetail_BAYAR').val());
                 $('tr[data-hutang-id="0"] .span-bayar-hutang').text(convertToRupiah($(this).val()));
+                $('#TOTALBYR').val(convertToRupiah($totalBayar));
+                $totalSemua = $totalBayar + convertToAngka($('#TOTALBYR').val());
                 $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
                 $('#Hutang_TBAYAR').val(parseInt($('#Hutang_TBAYAR').val()) + parseInt($(this).val()));
-            }).focus(function () {
-                $(this).val('');
-            }).blur(function () {
-                if ($(this).val() == '')
-                    $(this).val(0);
+            //}).focus(function () {
+            //    $(this).val('');
+            //}).blur(function () {
+            //    if ($(this).val() == '')
+            //        $(this).val(0);
             });
         }
 
