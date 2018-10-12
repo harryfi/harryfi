@@ -2202,22 +2202,27 @@
                                     this.value = $angka;
                                 }
                             },
-                            keypress: function(e) {
+                            keydown: function (e) {
                                 var keyCode = e.keyCode || e.which;
                                 if (keyCode != 8 && keyCode != 0 && keyCode < 48 || keyCode > 57) e.preventDefault();
 
                                 if ($(this).attr('class') == 'qty-input') {
-                                    if (keyCode === 13) {
+                                    if (keyCode === 13 || keyCode === 9) {
                                         $('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
                                         e.preventDefault();
                                     }
                                 } else if ($(this).attr('class') == 'disc-input' && $(this).parent().hasClass('disc1-barang')) {
-                                    if (keyCode === 13) {
-                                        $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                    if (keyCode === 13 || keyCode === 9) {
+                                        if ($(this).val() == 0) {
+                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click();
+                                        } else {
+                                            $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                        }
+                                        
                                         e.preventDefault();
                                     }
                                 } else {
-                                    if (keyCode === 13) {
+                                    if (keyCode === 13 || keyCode === 9) {
                                         $(this).blur();
                                     }
                                 }
