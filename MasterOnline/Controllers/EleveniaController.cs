@@ -171,21 +171,29 @@ namespace MasterOnline.Controllers
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
-            xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            //var attr = await GetAttribute("");
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 30; i++)
+            {
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+                if (i < 30)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
 
-            //foreach (productCtgrAttributesProductCtgrAttribute prodAttr in attr.productCtgrAttribute)
-            //{
-            //    xmlString += "<ProductCtgrAttribute><prdAttrCd>" + prodAttr.prdAttrCd + "</prdAttrCd>";//category attribute code
-            //    xmlString += "<prdAttrNm>" + prodAttr.prdAttrNm + "</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            //    xmlString += "<prdAttrNo>" + prodAttr.prdAttrNo + "</prdAttrNo>";//category attribute id
-            //    xmlString += "<prdAttrVal>(Check Product Details)</prdAttrVal></ProductCtgrAttribute>";//category attribute value
-            //}
-            xmlString += "<ProductCtgrAttribute><prdAttrCd>2000005</prdAttrCd>";//category attribute code
-            xmlString += "<prdAttrNm>Brand</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
-            xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
+
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
+
+            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
@@ -298,21 +306,29 @@ namespace MasterOnline.Controllers
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
-            xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            //var attr = await GetAttribute("");
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 30; i++)
+            {
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+                if (i < 30)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
 
-            //foreach (productCtgrAttributesProductCtgrAttribute prodAttr in attr.productCtgrAttribute)
-            //{
-            //    xmlString += "<ProductCtgrAttribute><prdAttrCd>" + prodAttr.prdAttrCd + "</prdAttrCd>";//category attribute code
-            //    xmlString += "<prdAttrNm>" + prodAttr.prdAttrNm + "</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            //    xmlString += "<prdAttrNo>" + prodAttr.prdAttrNo + "</prdAttrNo>";//category attribute id
-            //    xmlString += "<prdAttrVal>(Check Product Details)</prdAttrVal></ProductCtgrAttribute>";//category attribute value
-            //}
-            xmlString += "<ProductCtgrAttribute><prdAttrCd>2000005</prdAttrCd>";//category attribute code
-            xmlString += "<prdAttrNm>Brand</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
-            xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
+
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";
+
+            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used
@@ -468,21 +484,29 @@ namespace MasterOnline.Controllers
             string xmlString = "<Product>";
             xmlString += "<selMnbdNckNm><![CDATA[" + data.nama + "]]></selMnbdNckNm>";//nickname
             xmlString += "<selMthdCd>01</selMthdCd>";//sales type : 01 = ready stok ; 04 = preorder ; 05 = used item
-            xmlString += "<dispCtgrNo>5475</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
-            //var attr = await GetAttribute("");
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 30; i++)
+            {
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS ATTRIBUTE_CODE,A.ANAME_" + i.ToString() + " AS ATTRIBUTE_NAME,B.ATYPE_" + i.ToString() + " AS ATTRIBUTE_ID,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_ELEVENIA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+                if (i < 30)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
 
-            //foreach (productCtgrAttributesProductCtgrAttribute prodAttr in attr.productCtgrAttribute)
-            //{
-            //    xmlString += "<ProductCtgrAttribute><prdAttrCd>" + prodAttr.prdAttrCd + "</prdAttrCd>";//category attribute code
-            //    xmlString += "<prdAttrNm>" + prodAttr.prdAttrNm + "</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            //    xmlString += "<prdAttrNo>" + prodAttr.prdAttrNo + "</prdAttrNo>";//category attribute id
-            //    xmlString += "<prdAttrVal>(Check Product Details)</prdAttrVal></ProductCtgrAttribute>";//category attribute value
-            //}
-            xmlString += "<ProductCtgrAttribute><prdAttrCd>2000005</prdAttrCd>";//category attribute code
-            xmlString += "<prdAttrNm>Brand</prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
-            xmlString += "<prdAttrNo>178026</prdAttrNo>";//category attribute id
-            xmlString += "<prdAttrVal>" + data.Brand + "</prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
+
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
+
+            for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<ProductCtgrAttribute><prdAttrCd><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_CODE"]) + "]]></prdAttrCd>";//category attribute code
+                xmlString += "<prdAttrNm><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_NAME"]) + "]]></prdAttrNm>";//category attribute name i.e: brand, model, type, ISBN
+                xmlString += "<prdAttrNo><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["ATTRIBUTE_ID"]) + "]]></prdAttrNo>";//category attribute id
+                xmlString += "<prdAttrVal><![CDATA[" + Convert.ToString(dsAttribute.Tables[0].Rows[i]["VALUE"]) + "]]></prdAttrVal></ProductCtgrAttribute>";//category attribute value
+            }
 
             xmlString += "<prdNm><![CDATA[" + data.nama + "]]></prdNm>";//product name
             xmlString += "<prdStatCd>01</prdStatCd>";//item condition : 01 = new ; 02 = used

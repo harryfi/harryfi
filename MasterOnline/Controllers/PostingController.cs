@@ -53,6 +53,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public string doPosting(PostingViewModel.DataPosting data)
         {
+#if AWS
             //return string.Format("http://localhost/masteronline/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
             //return string.Format("http://202.67.14.92:3535/MOReport/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
             return string.Format("https://report.masteronline.co.id/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
@@ -61,6 +62,17 @@ namespace MasterOnline.Controllers
 				Uri.EscapeDataString(data.Year),
 				Uri.EscapeDataString(data.From),
 				Uri.EscapeDataString(data.To));
-		}
+#else
+            //return string.Format("http://localhost/masteronline/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
+            //return string.Format("http://202.67.14.92:3535/MOReport/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
+            return string.Format("https://devreport.masteronline.co.id/Proses/FormProsesPembelian.aspx?UserID={0}&Month={1}&Year={2}&From={3}&To={4}",
+                Uri.EscapeDataString(data.UserID),
+                Uri.EscapeDataString(data.Month),
+                Uri.EscapeDataString(data.Year),
+                Uri.EscapeDataString(data.From),
+                Uri.EscapeDataString(data.To));
+#endif
+
+        }
 	}
 }
