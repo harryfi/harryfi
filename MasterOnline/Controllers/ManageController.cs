@@ -1348,6 +1348,13 @@ namespace MasterOnline.Controllers
             bool updateHarga = false;//add by Tri
             bool updateDisplay = false;//add by Tri
             bool updateGambar = false;//add by Tri
+
+            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var validPrice = true;
+
             string[] imgPath = new string[Request.Files.Count];
             if (dataBarang.Stf02.ID == null)
             {
@@ -1356,11 +1363,64 @@ namespace MasterOnline.Controllers
 
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
+                    List<string> listError = new List<string>();
+                    int i = 0;
                     foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                     {
-                        hargaPerMarket.BRG = dataBarang.Stf02.BRG;
-                        ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                        var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
+                        if(kdMarket == kdLazada.IdMarket.ToString())
+                        {
+                            if(hargaPerMarket.HJUAL < 3000)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                            }
+                            else if (hargaPerMarket.HJUAL%100 != 0)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                            }
+                        }
+                        else if (kdMarket == kdBlibli.IdMarket.ToString())
+                        {
+                            if (hargaPerMarket.HJUAL < 1000)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 1000.");
+                            }
+                        }
+                        else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                        {
+                            if (hargaPerMarket.HJUAL < 100)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                            }
+                            else if (hargaPerMarket.HJUAL % 100 != 0)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                            }
+                        }
+                        i++;
                     }
+                    if (validPrice)
+                    {
+                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
+                        {
+                            hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                            ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                        }
+                    }
+                    else
+                    {
+                        dataBarang.errorHargaPerMP = "1";
+                        dataBarang.Errors = listError;
+                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                    }
+                    
                 }
 
                 var listMarket = dataBarang.ListMarket.ToList();
@@ -1641,9 +1701,9 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
 
             #region Sync ke Marketplace
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");//moved to top
             var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");//moved to top
             var listLazadaShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
             string[] imageUrl = new string[Request.Files.Count];//variabel penampung url image hasil upload ke markeplace
             var lzdApi = new LazadaController();
