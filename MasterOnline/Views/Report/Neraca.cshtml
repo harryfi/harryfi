@@ -63,12 +63,11 @@
     <div class="col-md-10">
     </div>
 </div>
-<div class="row">
+@*<div class="row">
     <div class="col-md-2">
         @Html.Label("", "Cetak Kosong")
         <div class="input-group text">
             <select class="form-control" id="Print" name="Print" required="required">
-                @*<option></option>*@
                 <option value="Yes">Yes</option>
                 <option value="No">No</option>
             </select>
@@ -76,7 +75,7 @@
     </div>
     <div class="col-md-10">
     </div>
-</div>
+</div>*@
 <br />
 <div class="row">
     <div class="col-md-12">
@@ -132,8 +131,8 @@
                         UserId: '@(userId)',
                         KdLap: $('#KdLap').val(),
                         Tahun: $('#Tahun').val(),
-                        Bulan: FormatMonth(),
-                        Print: $('#Print').val()
+                        Bulan: FormatMonth()
+                        //Print: $('#Print').val()
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
