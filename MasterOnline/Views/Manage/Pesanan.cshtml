@@ -1634,7 +1634,7 @@
                 $('#tambah_pesanan').click();
             }
 
-            $('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
+            //$('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getTanggal();
             getMarketplace();
@@ -1991,7 +1991,7 @@
             $('.ndisc1-barang').addClass('editable');
             $('.disc2-barang').addClass('editable');
             $('.ndisc2-barang').addClass('editable');
-            $('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', true);
+            //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', true);
             $('#table_tambah_pesanan > tbody > tr > td.editable').on('click',
                 function() {
                     var $this = $(this);
@@ -2030,7 +2030,7 @@
                                         $($trElement + ' .ndisc1-barang')
                                             .text(convertToRupiah(0))
                                             .addClass('editable')
-                                            .prop('contentEditable', true)
+                                            //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto');
 
                                         hitungUlangdisc2();
@@ -2042,7 +2042,7 @@
                                         $($trElement + ' .ndisc2-barang')
                                             .text(convertToRupiah(0))
                                             .addClass('editable')
-                                            .prop('contentEditable', true)
+                                            //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto');
                                     } else if ($class === 'ndisc1-barang editable') {
                                         $this.html("0,00" +
@@ -2050,7 +2050,7 @@
 
                                         $($trElement + ' .disc1-barang')
                                             .addClass('editable')
-                                            .prop('contentEditable', true)
+                                            //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto')
                                             .html("0" +
                                                 '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="">');
@@ -2063,7 +2063,7 @@
 
                                         $($trElement + ' .disc2-barang')
                                             .addClass('editable')
-                                            .prop('contentEditable', true)
+                                            //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto')
                                             .html("0" +
                                                 '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="PesananDetail_DISCOUNT_2" name="PesananDetail.DISCOUNT_2" type="hidden" value="">');
@@ -2091,7 +2091,7 @@
                                         if (this.value == 0) {
                                             $($trElement + ' .ndisc1-barang')
                                                 .addClass('editable')
-                                                .prop('contentEditable', true)
+                                                //.prop('contentEditable', true)
                                                 .css('pointer-events', 'auto')
                                                 .html("0,00" +
                                                     '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="0">');
@@ -2103,7 +2103,7 @@
 
                                             $($trElement + ' .ndisc1-barang')
                                                 .removeClass('editable')
-                                                .prop('contentEditable', false)
+                                                //.prop('contentEditable', false)
                                                 .css('pointer-events', 'none')
                                                 .html($ndisc1 +
                                                     '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="' +
@@ -2122,7 +2122,7 @@
                                         if (this.value == 0) {
                                             $($trElement + ' .ndisc2-barang')
                                                 .addClass('editable')
-                                                .prop('contentEditable', true)
+                                                //.prop('contentEditable', true)
                                                 .css('pointer-events', 'auto')
                                                 .html("0,00" +
                                                     '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="0">');
@@ -2138,7 +2138,7 @@
 
                                             $($trElement + ' .ndisc2-barang')
                                                 .removeClass('editable')
-                                                .prop('contentEditable', false)
+                                                //.prop('contentEditable', false)
                                                 .css('pointer-events', 'none')
                                                 .html($ndisc2 +
                                                     '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="' +
@@ -2154,14 +2154,14 @@
                                         if (this.value != 0) {
                                             $($trElement + ' .disc1-barang')
                                                 .removeClass('editable')
-                                                .prop('contentEditable', false)
+                                                //.prop('contentEditable', false)
                                                 .css('pointer-events', 'none')
                                                 .html("0" +
                                                     '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="0">');
                                         } else {
                                             $($trElement + ' .disc1-barang')
                                                 .addClass('editable')
-                                                .prop('contentEditable', true)
+                                                //.prop('contentEditable', true)
                                                 .css('pointer-events', 'auto')
                                                 .html("0" +
                                                     '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="PesananDetail_DISCOUNT" name="PesananDetail.DISCOUNT" type="hidden" value="0">');
@@ -2178,14 +2178,14 @@
                                         if (this.value != 0) {
                                             $($trElement + ' .disc2-barang')
                                                 .removeClass('editable')
-                                                .prop('contentEditable', false)
+                                                //.prop('contentEditable', false)
                                                 .css('pointer-events', 'none')
                                                 .html("0" +
                                                     '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="PesananDetail_DISCOUNT_2" name="PesananDetail.DISCOUNT_2" type="hidden" value="0">');
                                         } else {
                                             $($trElement + ' .disc2-barang')
                                                 .addClass('editable')
-                                                .prop('contentEditable', true)
+                                                //.prop('contentEditable', true)
                                                 .css('pointer-events', 'auto')
                                                 .html("0" +
                                                     '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="PesananDetail_DISCOUNT_2" name="PesananDetail.DISCOUNT_2" type="hidden" value="0">');
@@ -2214,11 +2214,31 @@
                                 } else if ($(this).attr('class') == 'disc-input' && $(this).parent().hasClass('disc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
-                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click();
+                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
                                         } else {
                                             $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
                                         }
                                         
+                                        e.preventDefault();
+                                    }
+                                } else if ($(this).attr('class') == 'disc-input' && $(this).parent().hasClass('disc2-barang')) {
+                                    if (keyCode === 13 || keyCode === 9) {
+                                        if ($(this).val() == 0) {
+                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
+                                        } else {
+                                            $(this).blur();
+                                        }
+
+                                        e.preventDefault();
+                                    }
+                                } else if ($(this).attr('class') == 'ndisc-input' && $(this).parent().hasClass('ndisc1-barang')) {
+                                    if (keyCode === 13 || keyCode === 9) {
+                                        if ($(this).val() == 0) {
+                                            $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                        } else {
+                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click();
+                                        }
+
                                         e.preventDefault();
                                     }
                                 } else {
@@ -2572,7 +2592,7 @@
         }
 
         function modeEditOff() {
-            $('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', false);
+            //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', false);
             $('#table_tambah_pesanan > tbody > tr > td.editable').prop('onclick', null).off('click');
             $('.qty-barang').removeClass('editable');
             $('.disc1-barang').removeClass('editable');
