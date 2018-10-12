@@ -1769,8 +1769,9 @@
             }
             //add by Tri 08-10-2018, validasi category per marketplace blm dipilih
             var jmlMarket = @Model.ListMarket.ToList().Count;
+            var jmlPricePerMarket = @Model.ListHargaJualPermarketView.ToList().Count;
+
             @{
-                int i = 0;
                 var bklapak = context_.Marketplaces?.SingleOrDefault(m => m.NamaMarket.ToUpper().Equals("BUKALAPAK"))?.IdMarket.ToString();
                 var blibli = context_.Marketplaces?.SingleOrDefault(m => m.NamaMarket.ToUpper().Equals("BLIBLI"))?.IdMarket.ToString();
                 var elev = context_.Marketplaces?.SingleOrDefault(m => m.NamaMarket.ToUpper().Equals("ELEVENIA"))?.IdMarket.ToString();
@@ -1787,47 +1788,8 @@
                         validCategory = false;
                     }
                 }
-                //validasi harga per marketplace
-                @*if ($('#ListHargaJualPermarket_' + i + '__HJUAL').length != 0) {
-                    var hargaJual = convertToAngka($('#ListHargaJualPermarket_' + i + '__HJUAL').val());
-                    if (hargaJual <= 0) {
-                        addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus lebih dari 0.");
-                        ret = false;
-                    }
-                    else
-                    {
-                        if ( @Model.ListMarket[i].NAMA == @lzd) {
-                            if (hargaJual < 3000) {
-                                addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus lebih dari 3000.");
-                                ret = false;
-                            } else if (hargaJual%100 != 0)
-                            {
-                                addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus kelipatan 100.");
-                                ret = false;
-                            }
-                        }
-                        else if ( @Model.ListMarket[i].NAMA == @blibli) {
-                            if (hargaJual < 1000) {
-                                addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus lebih dari 1000.");
-                                ret = false;
-                            }
-                        }
-                        else if ( @Model.ListMarket[i].NAMA == @bklapak || @Model.ListMarket[i].NAMA == @elev) {
-                            if (hargaJual < 100) {
-                                addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus lebih dari 100.");
-                                ret = false;
-                            } else if (hargaJual % 100 != 0) {
-                                addError($("#ListHargaJualPermarket_" + i + "__HJUAL"), "Harga Jual harus kelipatan 100.");
-                                ret = false;
-                            }
-                        }
-                    }
-                }
-                @{
-                    i = i + 1;
-                }*@
-            }
-           
+
+            }            
             if (!validCategory)
                 alert('Anda belum memilih Kategori barang di tab per marketplace.');
             //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih
@@ -1903,7 +1865,12 @@
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
                     } else {
-                        console.log(response.Errors);
+                        if (response.errorHargaPerMP == null) {
+                            console.log(response.Errors);
+                        } else {
+                            response.Errors.forEach(setErrorfield);
+                        }
+
                         alert('Ada data yang tidak valid!');
                         $('#loading_spinner').hide();
                     }
@@ -1915,6 +1882,10 @@
             });
 
             return false;
+        }
+        function setErrorfield(item, index) {
+            var error = item.split("_errortext_");
+            addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);
         }
 
         function convertToRupiah(angka) {
