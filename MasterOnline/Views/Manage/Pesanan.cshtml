@@ -75,12 +75,15 @@
         #konfUbahStatusDibayar .modal-body {
             padding: 0 50px 20px 50px;
         }
+
         #konfUbahStatusSiapkirim .modal-body {
             padding: 0 50px 20px 50px;
         }
+
         #konfUbahStatusSudahkirim .modal-body {
             padding: 0 50px 20px 50px;
         }
+
         #konfUndoStatusSiapkirim .modal-body {
             padding: 0 50px 20px 50px;
         }
@@ -88,6 +91,7 @@
         #konfUndoStatusSudahkirim .modal-body {
             padding: 0 50px 20px 50px;
         }
+
         #konfUndoStatusSelesai .modal-body {
             padding: 0 50px 20px 50px;
         }
@@ -95,7 +99,7 @@
         #konfUndoStatusBatal .modal-body {
             padding: 0 50px 20px 50px;
         }
-        /*end add*/ 
+        /*end add*/
 
         .info_pesanan {
             padding: 20px;
@@ -2009,12 +2013,10 @@
                         $inputClass = 'ndisc-input';
                     }
 
-                    var $input = $('<input>',
-                        {
-                            'class': $inputClass,
+                    var $input = $('<input>', {
+                            'class': $inputClass + ' num-only',
                             //value: $this.val(),
                             value: $angka,
-                            type: 'number',
                             blur: function() {
                                 if (this.value === '') {
                                     if ($class === 'qty-barang editable') {
@@ -2204,24 +2206,25 @@
                             },
                             keydown: function (e) {
                                 var keyCode = e.keyCode || e.which;
-                                if (keyCode != 8 && keyCode != 0 && keyCode < 48 || keyCode > 57) e.preventDefault();
 
-                                if ($(this).attr('class') == 'qty-input') {
+                                if ($(this).hasClass('qty-input')) {
+                                    if (keyCode === 190) e.preventDefault();
+
                                     if (keyCode === 13 || keyCode === 9) {
                                         $('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
                                         e.preventDefault();
                                     }
-                                } else if ($(this).attr('class') == 'disc-input' && $(this).parent().hasClass('disc1-barang')) {
+                                } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
                                             $('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
                                         } else {
                                             $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
                                         }
-                                        
+
                                         e.preventDefault();
                                     }
-                                } else if ($(this).attr('class') == 'disc-input' && $(this).parent().hasClass('disc2-barang')) {
+                                } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
                                             $('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
@@ -2231,7 +2234,7 @@
 
                                         e.preventDefault();
                                     }
-                                } else if ($(this).attr('class') == 'ndisc-input' && $(this).parent().hasClass('ndisc1-barang')) {
+                                } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
                                             $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
@@ -2248,13 +2251,13 @@
                                 }
                             },
                             change: function() {
-                                if ($(this).attr('class') == 'qty-input') {
+                                if ($(this).hasClass('qty-input')) {
                                     if ($(this).val() > 999) {
                                         $(this).val(999);
                                     }
                                 }
 
-                                if ($(this).attr('class') == 'disc-input') {
+                                if ($(this).hasClass('disc-input')) {
                                     if ($(this).val() > 99) {
                                         $(this).val(99);
                                     }
@@ -3238,7 +3241,7 @@
                         alert(response.Errors[0]);
                     }
                     $('#konfUbahStatus').modal('hide');
-                    //add by nurul 
+                    //add by nurul
                     $('#konfUbahStatusDibayar').modal('hide');
                     $('#konfUbahStatusSiapkirim').modal('hide');
                     $('#konfUbahStatusSudahkirim').modal('hide');
@@ -3246,7 +3249,7 @@
                     $('#konfUndoStatusSudahkirim').modal('hide');
                     $('#konfUndoStatusSelesai').modal('hide');
                     $('#konfUndoStatusBatal').modal('hide');
-                    //end add 
+                    //end add
 
                 },
                 error: function(xhr) {
@@ -3470,4 +3473,4 @@
 
         document.onkeypress = stopRKey;
     </script>
-    }
+}
