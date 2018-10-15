@@ -113,6 +113,17 @@
                 background-color: transparent;
             }
 
+        #modal-pricing-expired {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing-expired .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
         /*.snip1404 {
             font-family: 'Source Sans Pro', Arial, sans-serif;
             color: #ffffff;
@@ -888,13 +899,13 @@
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
                 var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
                 var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
-            var tglSub2 = moment(tglSub);
+            var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
+            //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
-            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                 //tglSub.setMonth(tglSub.getMonth() + bln);
-                var msg = "Masa berlangganan anda s/d " + tglSub2.calendar() + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub2.add(2, 'months').calendar() + "?";
+                var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
                      //alert('kode:' + kode + '\nbln:' + bln);
@@ -910,8 +921,11 @@
                     success: function (response) {
                         if (response != null) {
                             //window.location = response.urlView;
-                            snap.pay(response, { skipOrderSummary: true });
-                            //alert(response);
+                            if (response.error == null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            } else {
+                            alert(response);
+                            }
                         }
                         //window.open(response, "_self");
                         //window.location.href(response);
@@ -1126,8 +1140,6 @@
             if ($('.message-error').text() !== '') {
                 $('#tambah_faktur').click();
             }
-
-            $('#table_tambah_faktur > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getTanggal();
             getMarketplace();
@@ -1452,7 +1464,6 @@
             $('.ndisc1-barang').addClass('editable');
             $('.disc2-barang').addClass('editable');
             $('.ndisc2-barang').addClass('editable');
-            $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', true);
             $('#table_tambah_faktur > tbody > tr > td.editable').on('click', function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
@@ -1470,10 +1481,8 @@
                 }
 
                 var $input = $('<input>', {
-                    'class': $inputClass,
-                    //change by nurul 2/10/2018  value: $this.val(),
+                    'class': $inputClass + ' num-only',
                     value: $angka,
-                    type: 'number',
                     blur: function () {
                         if (this.value === '') {
                             if ($class === 'qty-barang editable') {
@@ -1489,7 +1498,6 @@
                                 $($trElement + ' .ndisc1-barang')
                                     .text(convertToRupiah(0))
                                     .addClass('editable')
-                                    .prop('contentEditable', true)
                                     .css('pointer-events', 'auto');
 
                                 //add by nurul 2/10/2018
@@ -1501,14 +1509,12 @@
                                 $($trElement + ' .ndisc2-barang')
                                     .text(convertToRupiah(0))
                                     .addClass('editable')
-                                    .prop('contentEditable', true)
                                     .css('pointer-events', 'auto');
                             } else if ($class === 'ndisc1-barang editable') {
                                 $this.html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
 
                                 $($trElement + ' .disc1-barang')
                                     .addClass('editable')
-                                    .prop('contentEditable', true)
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
@@ -1520,7 +1526,6 @@
 
                                 $($trElement + ' .disc2-barang')
                                     .addClass('editable')
-                                    .prop('contentEditable', true)
                                     .css('pointer-events', 'auto')
                                     .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
                             }
@@ -1543,7 +1548,6 @@
                                     $($trElement + ' .ndisc1-barang')
                                         // remark by nurul 1/10/2018  .text(convertToRupiah(0))
                                         .addClass('editable')
-                                        .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
                                         .html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
                                 } else {
@@ -1551,7 +1555,6 @@
 
                                     $($trElement + ' .ndisc1-barang')
                                         .removeClass('editable')
-                                        .prop('contentEditable', false)
                                         .css('pointer-events', 'none')
                                         .html($ndisc1 + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
                                 }
@@ -1566,7 +1569,6 @@
                                     $($trElement + ' .ndisc2-barang')
                                         // remark by nurul 1/10/2018   .text(convertToRupiah(0))
                                         .addClass('editable')
-                                        .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
                                         .html("0,00" + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
                                 } else {
@@ -1578,7 +1580,6 @@
 
                                     $($trElement + ' .ndisc2-barang')
                                         .removeClass('editable')
-                                        .prop('contentEditable', false)
                                         .css('pointer-events', 'none')
                                         .html($ndisc2 + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
                                 }
@@ -1588,13 +1589,11 @@
                                 if (this.value != 0) {
                                     $($trElement + ' .disc1-barang')
                                         .removeClass('editable')
-                                        .prop('contentEditable', false)
                                         .css('pointer-events', 'none')
                                         .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
                                 } else {
                                     $($trElement + ' .disc1-barang')
                                         .addClass('editable')
-                                        .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
                                         .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
                                 }
@@ -1608,13 +1607,11 @@
                                 if (this.value != 0) {
                                     $($trElement + ' .disc2-barang')
                                         .removeClass('editable')
-                                        .prop('contentEditable', false)
                                         .css('pointer-events', 'none')
                                         .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
                                 } else {
                                     $($trElement + ' .disc2-barang')
                                         .addClass('editable')
-                                        .prop('contentEditable', true)
                                         .css('pointer-events', 'auto')
                                         .html("0" + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
                                 }
@@ -1630,20 +1627,60 @@
                             this.value = $angka;
                         }
                     },
-                    keyup: function (e) {
-                        if (e.which === 13) $input.blur();
-                    },
-                    keypress: function (e) {
-                        if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                    keydown: function (e) {
+                        var keyCode = e.keyCode || e.which;
+
+                        if ($(this).hasClass('qty-input')) {
+                            if (keyCode === 190) e.preventDefault();
+
+                            if (keyCode === 13 || keyCode === 9) {
+                                $('#table_tambah_faktur > tbody > tr > td.disc1-barang').click();
+                                e.preventDefault();
+                            }
+                        } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
+                            if (keyCode === 13 || keyCode === 9) {
+                                if ($(this).val() == 0) {
+                                    $('#table_tambah_faktur > tbody > tr > td.ndisc1-barang').click().click();
+                                } else {
+                                    $('#table_tambah_faktur > tbody > tr > td.disc2-barang').click();
+                                }
+
+                                e.preventDefault();
+                            }
+                        } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
+                            if (keyCode === 13 || keyCode === 9) {
+                                if ($(this).val() == 0) {
+                                    $('#table_tambah_faktur > tbody > tr > td.ndisc2-barang').click().click();
+                                } else {
+                                    $(this).blur();
+                                }
+
+                                e.preventDefault();
+                            }
+                        } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
+                            if (keyCode === 13 || keyCode === 9) {
+                                if ($(this).val() == 0) {
+                                    $('#table_tambah_faktur > tbody > tr > td.disc2-barang').click();
+                                } else {
+                                    $('#table_tambah_faktur > tbody > tr > td.ndisc2-barang').click();
+                                }
+
+                                e.preventDefault();
+                            }
+                        } else {
+                            if (keyCode === 13 || keyCode === 9) {
+                                $(this).blur();
+                            }
+                        }
                     },
                     change: function () {
-                        if ($(this).attr('class') == 'qty-input') {
+                        if ($(this).hasClass('qty-input')) {
                             if ($(this).val() > 999) {
                                 $(this).val(999);
                             }
                         }
 
-                        if ($(this).attr('class') == 'disc-input') {
+                        if ($(this).hasClass('disc-input')) {
                             if ($(this).val() > 99) {
                                 $(this).val(99);
                             }
@@ -1771,7 +1808,7 @@
                                     $("#CUSTOMER_UPLOAD_FAKTUR_PERSO").val($objSup[0].akun);
                                 }
                             }
-                            
+
                             var link = '@Url.Action("ListImportFaktur", "Manage")';
                             link += '?cust=' + $("#CUSTOMER_UPLOAD_FAKTUR_CUST").val();
 
@@ -1864,6 +1901,9 @@
 
                             if (value != null) {
                                 $('#gudang-kode').text(value);
+
+                                // Otomatis masuk ke field Qty setelah pilih gudang
+                                $('#table_tambah_faktur > tbody > tr > td.qty-barang').click();
                             } else {
                                 $('#gudang-kode').text('-');
                             }
@@ -2049,7 +2089,6 @@
         }
 
         function modeEditOff() {
-            $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', false);
             $('#table_tambah_faktur > tbody > tr > td.editable').prop('onclick', null).off('click');
             $('.qty-barang').removeClass('editable');
             $('.disc1-barang').removeClass('editable');
@@ -2409,7 +2448,7 @@
         }
         function downloadLogUploadFaktur(txt){
             window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
-                    
+
             //var link = '@Url.Action("DownloadLogUploadFaktur", "Manage")';
             //link += '?filename=' + txt;
 

@@ -17,8 +17,11 @@
     }
     else
     {
-        kodeSubs = dataSession?.Account?.KODE_SUBSCRIPTION;
-        tglBerakhir = dataSession?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
+        var account = context.Account.SingleOrDefault(a => a.AccountId == dataSession.Account.AccountId);
+        //kodeSubs = dataSession?.Account?.KODE_SUBSCRIPTION;
+        //tglBerakhir = dataSession?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
+        kodeSubs = account.KODE_SUBSCRIPTION;
+        tglBerakhir = account.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
     }
 }
 

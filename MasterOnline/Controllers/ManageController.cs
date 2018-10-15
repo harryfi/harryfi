@@ -1396,10 +1396,10 @@ namespace MasterOnline.Controllers
                         }
                         else if (kdMarket == kdBlibli.IdMarket.ToString())
                         {
-                            if (hargaPerMarket.HJUAL < 1000)
+                            if (hargaPerMarket.HJUAL < 1100)
                             {
                                 validPrice = false;
-                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 1000.");
+                                listError.Add(i + "_errortext_" + "Harga Jual harus minimal 1100.");
                             }
                         }
                         else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
