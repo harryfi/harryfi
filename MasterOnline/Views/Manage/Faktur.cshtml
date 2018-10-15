@@ -2236,10 +2236,50 @@
             });
         }
 
+        //add by nurul 15/10/2018
+        function validasiTambahan() {
+            var $isValid = true;
+            var $Gd = $('tr[data-faktur-id="0"] .gd-barang');
+            if ($Gd.text().trim() == "-" || $Gd.text().trim() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $Gd.parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    } else {
+                        $Gd.closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else {
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                }
+            }
+            var $this = $('tr[data-faktur-id="0"] .qty-barang');
+            if ($this.text().trim() == "0") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else {
+                if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            }
+            
+            return $isValid;
 
+        }
+        //end add 
 
         function simpanbrg($id) {
             if (!validateForm()) return false;
+            //add by nurul 15/10/2018
+            if (!validasiTambahan()) return false;
+            //end add 
             refreshNetto();
             if ($id == 'brg-0') {
                 if ($('#Faktur_TGL').val() != '' &&
@@ -2285,8 +2325,16 @@
                                 getMarketplace();
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
-                                console.log(response.Errors);
-                                alert(response.Errors[0]);
+                                //change by nurul 15/10/2018
+                                //console.log(response.Errors);
+                                //alert(response.Errors[0]);
+                                if (response.Errors[0] != null) {
+                                    alert(response.Errors[0]);
+                                } else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                }
+                                //end add
                             }
                             $('#loading_spinner').hide();
                         },
