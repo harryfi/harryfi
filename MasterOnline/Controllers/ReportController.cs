@@ -281,19 +281,19 @@ namespace MasterOnline.Controllers
         public string Preview9(ReportViewModel.Report9 data)
         {
 #if AWS
-            return string.Format("https://report.masteronline.co.id/Report/Form/frmCetakLaporanNeraca.aspx?UserID={0}&KdLap={1}&Tahun={2}&Bulan={3}&Print={4}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frmCetakLaporanNeraca.aspx?UserID={0}&KdLap={1}&Tahun={2}&Bulan={3}&Print=Yes",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.KdLap),
                 Uri.EscapeDataString(data.Tahun),
-                Uri.EscapeDataString(data.Bulan),
-                Uri.EscapeDataString(data.Print));
+                Uri.EscapeDataString(data.Bulan));
 #else
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLaporanNeraca.aspx?UserID={0}&KdLap={1}&Tahun={2}&Bulan={3}&Print={4}",
+            // change by nurul 12/10/2018   return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLaporanNeraca.aspx?UserID={0}&KdLap={1}&Tahun={2}&Bulan={3}&Print={4}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLaporanNeraca.aspx?UserID={0}&KdLap={1}&Tahun={2}&Bulan={3}&Print=Yes",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.KdLap),
                 Uri.EscapeDataString(data.Tahun),
-                Uri.EscapeDataString(data.Bulan),
-                Uri.EscapeDataString(data.Print));
+                Uri.EscapeDataString(data.Bulan));
+                //Uri.EscapeDataString(data.Print));
 #endif
 
         }
@@ -308,17 +308,17 @@ namespace MasterOnline.Controllers
         public string Preview10(ReportViewModel.Report10 data)
         {
 #if AWS
-            return string.Format("https://report.masteronline.co.id/Report/Form/frmCetakLapRugiLaba.aspx?UserID={0}&KdLap={1}&Bulan={2}&Print={3}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frmCetakLapRugiLaba.aspx?UserID={0}&KdLap={1}&Bulan={2}&Print=Yes",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.KdLap),
-                Uri.EscapeDataString(data.Bulan),
-                Uri.EscapeDataString(data.Print));
+                Uri.EscapeDataString(data.Bulan));
 #else
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLapRugiLaba.aspx?UserID={0}&KdLap={1}&Bulan={2}&Print={3}",
+            // change by nurul 12/10/2018   return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLapRugiLaba.aspx?UserID={0}&KdLap={1}&Bulan={2}&Print={3}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frmCetakLapRugiLaba.aspx?UserID={0}&KdLap={1}&Bulan={2}&Print=Yes",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.KdLap),
-                Uri.EscapeDataString(data.Bulan),
-                Uri.EscapeDataString(data.Print));
+                Uri.EscapeDataString(data.Bulan));
+                //Uri.EscapeDataString(data.Print));
 #endif
 
         }
