@@ -181,10 +181,9 @@ namespace MasterOnline.Controllers
                     sSQL += "UNION ALL " + System.Environment.NewLine;
                 }
             }
-
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
-
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            int data_idmarket = Convert.ToInt32(data.IDMarket);
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
             xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
             for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
@@ -316,10 +315,9 @@ namespace MasterOnline.Controllers
                     sSQL += "UNION ALL " + System.Environment.NewLine;
                 }
             }
-
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
-
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            int data_idmarket = Convert.ToInt32(data.IDMarket);
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
             xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";
 
             for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
@@ -494,10 +492,9 @@ namespace MasterOnline.Controllers
                     sSQL += "UNION ALL " + System.Environment.NewLine;
                 }
             }
-
-            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> ''");
-
-            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && Convert.ToString(p.IDMARKET) == data.IDMarket select p).FirstOrDefault();
+            DataSet dsAttribute = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(ATTRIBUTE_CODE,'') <> ''");
+            int data_idmarket = Convert.ToInt32(data.IDMarket);
+            var nilaiStf02h = (from p in ErasoftDbContext.STF02H where p.BRG == data.kode && p.IDMARKET == data_idmarket select p).FirstOrDefault();
             xmlString += "<dispCtgrNo>" + nilaiStf02h.CATEGORY_CODE + "</dispCtgrNo>";//category id //5475 = Hobi lain lain
 
             for (int i = 0; i < dsAttribute.Tables[0].Rows.Count; i++)
