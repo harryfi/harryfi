@@ -7,22 +7,27 @@
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
     var kodeSubs = "";
+    var tglBerakhir = "";
     if (dataSession?.User != null)
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         kodeSubs = context.Account.Single(a => a.AccountId == accId).KODE_SUBSCRIPTION;
+        tglBerakhir = context.Account.Single(a => a.AccountId == accId).TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
         context.Dispose();
     }
     else
     {
-        kodeSubs = dataSession?.Account?.KODE_SUBSCRIPTION;
+        //kodeSubs = dataSession?.Account?.KODE_SUBSCRIPTION;
+        var account = context.Account.SingleOrDefault(a => a.AccountId == dataSession.Account.AccountId);
+        kodeSubs = account.KODE_SUBSCRIPTION;
+        tglBerakhir = account.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
     }
 }
 
 <div class="snip1404">
     <div class="text-center">
         <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
-            Paket langganan Anda sudah <i>expired</i> pada tanggal @(dataSession?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy")),<br />
+            Paket langganan Anda sudah <i>expired</i> pada tanggal @tglBerakhir,<br />
             silakan perpanjang paket Anda!
         </label>
     </div>

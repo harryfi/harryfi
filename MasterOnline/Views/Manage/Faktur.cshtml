@@ -113,6 +113,17 @@
                 background-color: transparent;
             }
 
+        #modal-pricing-expired {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing-expired .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
         /*.snip1404 {
             font-family: 'Source Sans Pro', Arial, sans-serif;
             color: #ffffff;
@@ -888,13 +899,13 @@
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
                 var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
                 var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
-            var tglSub2 = moment(tglSub);
+            var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
+            //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
-            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                 //tglSub.setMonth(tglSub.getMonth() + bln);
-                var msg = "Masa berlangganan anda s/d " + tglSub2.calendar() + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub2.add(2, 'months').calendar() + "?";
+                var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
                      //alert('kode:' + kode + '\nbln:' + bln);
@@ -910,8 +921,11 @@
                     success: function (response) {
                         if (response != null) {
                             //window.location = response.urlView;
-                            snap.pay(response, { skipOrderSummary: true });
-                            //alert(response);
+                            if (response.error == null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            } else {
+                            alert(response);
+                            }
                         }
                         //window.open(response, "_self");
                         //window.location.href(response);
@@ -1771,7 +1785,7 @@
                                     $("#CUSTOMER_UPLOAD_FAKTUR_PERSO").val($objSup[0].akun);
                                 }
                             }
-                            
+
                             var link = '@Url.Action("ListImportFaktur", "Manage")';
                             link += '?cust=' + $("#CUSTOMER_UPLOAD_FAKTUR_CUST").val();
 
@@ -2409,7 +2423,7 @@
         }
         function downloadLogUploadFaktur(txt){
             window.open('/Manage/DownloadLogUploadFaktur?filename=' + txt,'_blank');
-                    
+
             //var link = '@Url.Action("DownloadLogUploadFaktur", "Manage")';
             //link += '?filename=' + txt;
 

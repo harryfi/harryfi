@@ -125,6 +125,17 @@
                 background-color: transparent;
             }
 
+        #modal-pricing-expired {
+            margin: auto;
+            width: 60em;
+        }
+
+            #modal-pricing-expired .modal-content {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: transparent;
+            }
         /*.snip1404 {
             font-family: 'Source Sans Pro', Arial, sans-serif;
             color: #ffffff;
@@ -1534,8 +1545,11 @@
                     success: function (response) {
                         if (response != null) {
                             //window.location = response.urlView;
-                            snap.pay(response, { skipOrderSummary: true });
-                            //alert(response);
+                            if (response.error == null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            } else {
+                                alert(response);
+                            }
                         }
                         //window.open(response, "_self");
                         //window.location.href(response);

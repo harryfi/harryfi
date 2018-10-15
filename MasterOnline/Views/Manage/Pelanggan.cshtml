@@ -678,10 +678,9 @@
             </div>
             <div class="modal-body">
                 <div class="row text-left">
-                    <h4>1. Isi data Marketplace Lazada anda(API key bisa dikosongkan terlebih dahulu) dan Simpan.</h4>
-                    <h4>2. Edit kembali data marketplace anda tadi, kemudian Klik button Generate.</h4>
-                    <h4>3. Pilih negara, dan Isi data email dan password akun Lazada anda.</h4>
-                    <h4>4. Jika Sukses API key akan tersimpan secara otomatis.</h4>
+                    <h4>1. Kolom API Key dikosongkan saja, silahkan anda save & lengkapi langkah selanjutnya.</h4>
+                    <h4>2. Pilih negara, dan Isi data email dan password akun Lazada anda.</h4>
+                    <h4>3. Jika Sukses API key akan tersimpan secara otomatis.</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -746,7 +745,9 @@
                     <h4>3. Klik API Client Manager pada menu di sebelah kiri.</h4>
                     <h4>4. Isi API client username dan password, kemudian klik Generate.</h4>
                     <h4>5. Isi API secret key, kemudian klik Register API secret key.</h4>
-                    <h4>6. Setelah sukses, copy data-data tadi ke Master Online.</h4>
+                    <h4>6. Setelah sukses, copy data-data tadi ke Master Online(API secret key, API client username, API client password).</h4>
+                    <h4>7. Untuk mendapatkan Merchant ID, buka halaman Info Toko anda (pojok kanan atas halaman MTA Blibli).</h4>
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -942,12 +943,17 @@
                                 $('#txtAPI_Key').remove();
                                 //$('#emptyDiv').remove();
                                 //$('#txtDescAPIKey').remove();
-                                if ('@Model.Customers' != null) {
+                                @*if ('@Model.Customers' != null) {
 
-                                }
+                                }*@
                                 if (@bklapak != value && @tokped != value) {
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
-                                    var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    var txtAPI_Key = '';
+                                    if (@lzd == value) {
+                                        txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" disabled data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    } else {
+                                        txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    }
                                     $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
 
                                     //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
@@ -1349,13 +1355,13 @@
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
                 var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
                 var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
-            var tglSub2 = moment(tglSub);
+            var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
+            //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
-            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                 //tglSub.setMonth(tglSub.getMonth() + bln);
-                var msg = "Masa berlangganan anda s/d " + tglSub2.calendar() + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub2.add(2, 'months').calendar() + "?";
+                var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
                      //alert('kode:' + kode + '\nbln:' + bln);
@@ -1371,8 +1377,11 @@
                     success: function (response) {
                         if (response != null) {
                             //window.location = response.urlView;
-                            snap.pay(response, { skipOrderSummary: true });
-                            //alert(response);
+                            if (response.error == null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            } else {
+                            alert(response);
+                            }
                         }
                         //window.open(response, "_self");
                         //window.location.href(response);
@@ -1451,7 +1460,7 @@
                         if (lzdAuthPopUp.closed) {
                             clearInterval(timer);
                             $('#loading_spinner').hide();
-                            window.location.href = '@Url.Action("Pelanggan", "Manage")';                            
+                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
                         }
                     }, 1000);
                 },
