@@ -129,7 +129,7 @@ namespace MasterOnline.Controllers
                 if (!response.IsError())
                 {
                     var bindAuth = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaAuth)) as LazadaAuth;
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token + "', REFRESH_TOKEN = '" + bindAuth.refresh_token + "', STATUS API = '1' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + bindAuth.access_token + "', REFRESH_TOKEN = '" + bindAuth.refresh_token + "', STATUS_API = '1' WHERE CUST = '" + cust + "'");
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
@@ -142,7 +142,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '0' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
                     currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }
@@ -150,7 +150,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '0' WHERE CUST = '" + cust + "'");
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
                 return ex.ToString();
@@ -195,7 +195,7 @@ namespace MasterOnline.Controllers
                 if (!response.IsError())
                 {
                     //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET TOKEN = '" + ret.access_token + "', REFRESH_TOKEN = '" + ret.refresh_token + "', STATUS_API = '1'  WHERE CUST = '" + cust + "'");
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
@@ -208,7 +208,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '2' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
                     currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }

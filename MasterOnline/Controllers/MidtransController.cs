@@ -21,6 +21,7 @@ namespace MasterOnline.Controllers
         {
             MoDbContext = new MoDbContext();
             var dtNow = DateTime.Now;
+            var retError = new bindMidtrans();
             //PaymentMidtransViewModel dataClass = new PaymentMidtransViewModel();
             if (!string.IsNullOrEmpty(code))
             {
@@ -150,21 +151,25 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            return Json(bindTransferCharge.error_messages, JsonRequestBehavior.AllowGet);
+                            retError.error = bindTransferCharge.error_messages;
+                            return Json(retError, JsonRequestBehavior.AllowGet);
 
                         }
                     }
                     //return View(data);
-                    return Json(data, JsonRequestBehavior.AllowGet);
+                    retError.error = "failed to connect to midtrans";
+                    return Json(retError, JsonRequestBehavior.AllowGet);
                 }
                 else
                 {
-                    return Json("free account", JsonRequestBehavior.AllowGet);
+                    retError.error = "free account";
+                    return Json(retError, JsonRequestBehavior.AllowGet);
                 }
             }
             else
             {
-                return Json("code is empty", JsonRequestBehavior.AllowGet);
+                retError.error = "code is empty";
+                return Json(retError, JsonRequestBehavior.AllowGet);
             }
         }
 
@@ -243,45 +248,45 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public void AutoChargeCC()
-        {
-            string url = "https://api.sandbox.midtrans.com/v2/charge";
-            string serverKey = "";
-            System.Net.WebRequest myReq = System.Net.WebRequest.Create(url);
-            myReq.ContentType = "application/json";
-            myReq.Headers.Add("Accept", "application/json");
-            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(serverKey + ":"))));
+        //public void AutoChargeCC()
+        //{
+        //    string url = "https://api.sandbox.midtrans.com/v2/charge";
+        //    string serverKey = "";
+        //    System.Net.WebRequest myReq = System.Net.WebRequest.Create(url);
+        //    myReq.ContentType = "application/json";
+        //    myReq.Headers.Add("Accept", "application/json");
+        //    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(serverKey + ":"))));
 
-            var bindData = new AutoDebetCC();
-            bindData.payment_type = "credit_card";
-            bindData.credit_card = new AutoCC
-            {
-                token_id = ""
-            };
-            bindData.transaction_details = new TransactionDetail
-            {
-                gross_amount = 20000,
-                order_id = "test-auto-1"
-            };
-            string myData = Newtonsoft.Json.JsonConvert.SerializeObject(bindData);
+        //    var bindData = new AutoDebetCC();
+        //    bindData.payment_type = "credit_card";
+        //    bindData.credit_card = new AutoCC
+        //    {
+        //        token_id = ""
+        //    };
+        //    bindData.transaction_details = new TransactionDetail
+        //    {
+        //        gross_amount = 20000,
+        //        order_id = "test-auto-1"
+        //    };
+        //    string myData = Newtonsoft.Json.JsonConvert.SerializeObject(bindData);
 
-            Stream dataStream;
-            dataStream = myReq.GetRequestStream();
-            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
-            dataStream.Close();
+        //    Stream dataStream;
+        //    dataStream = myReq.GetRequestStream();
+        //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, System.Text.Encoding.UTF8.GetBytes(myData).Length);
+        //    dataStream.Close();
 
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+        //    ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 
-            System.Net.WebResponse response = myReq.GetResponse();
-            dataStream = response.GetResponseStream();
+        //    System.Net.WebResponse response = myReq.GetResponse();
+        //    dataStream = response.GetResponseStream();
 
-            StreamReader reader = new StreamReader(dataStream);
-            string responseFromServer = reader.ReadToEnd();
+        //    StreamReader reader = new StreamReader(dataStream);
+        //    string responseFromServer = reader.ReadToEnd();
 
-            reader.Close();
-            dataStream.Close();
-            response.Close();
-        }
+        //    reader.Close();
+        //    dataStream.Close();
+        //    response.Close();
+        //}
 
         public static string Base64Encode()
         {
@@ -291,5 +296,10 @@ namespace MasterOnline.Controllers
             return Convert.ToBase64String(plainTextBytes);
         }
 
+    }
+
+    public class bindMidtrans
+    {
+        public string error { get; set; }
     }
 }
