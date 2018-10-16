@@ -122,9 +122,11 @@
             color: #fff;
         }
 
-        .disabled-tab:hover {
-            color: #fff;
-        }
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
     <style>
         #modal-pricing {
@@ -1639,7 +1641,7 @@
                         $('.pesanan_table_section').show();
                         $('.pesanan_editor_section').hide();
 
-                        $('#myTab li:not(:first) a').each(function (index) {
+                        $('#myTab li a').each(function (index) {
                             $(this).attr('data-toggle', 'tab');
                             $(this).removeClass('disabled-tab');
                         });
@@ -1766,6 +1768,8 @@
                     $jumlahPesananMax = res.JumlahPesananMax;
                     $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
+                    if ($('#tambah_baru_tombol_section #tambah_pesanan').length) return;
+
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
@@ -1783,8 +1787,11 @@
                                 $('.pesanan_table_section').hide();
                                 $('.pesanan_editor_section').show();
 
-                                $('#myTab li:not(:first) a').each(function () {
+                                $('#myTab li a').each(function () {
                                     $(this).removeAttr('data-toggle');
+
+                                    if ($(this).attr('id') === 'pesanan-tab') return;
+
                                     $(this).addClass('disabled-tab');
                                 });
                             });
