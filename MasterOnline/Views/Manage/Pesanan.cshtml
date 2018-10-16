@@ -2032,20 +2032,34 @@
         }
 
         function modeEditTd() {
-            $('.qty-barang').addClass('editable');
-            $('.disc1-barang').addClass('editable');
-            $('.ndisc1-barang').addClass('editable');
-            $('.disc2-barang').addClass('editable');
-            $('.ndisc2-barang').addClass('editable');
+            //change by calvin 16 okt 2018
+            //$('#table_tambah_pesanan > tbody > tr > .qty-barang').addClass('editable');
+            //$('#table_tambah_pesanan > tbody > tr > .disc1-barang').addClass('editable');
+            //$('#table_tambah_pesanan > tbody > tr > .ndisc1-barang').addClass('editable');
+            //$('#table_tambah_pesanan > tbody > tr > .disc2-barang').addClass('editable');
+            //$('#table_tambah_pesanan > tbody > tr > .ndisc2-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .disc1-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .ndisc1-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .disc2-barang').addClass('editable');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > .ndisc2-barang').addClass('editable');
+            //end change by calvin 16 okt 2018
             //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', true);
-            $('#table_tambah_pesanan > tbody > tr > td.editable').on('click',
+
+            //$('#table_tambah_pesanan > tbody > tr > td.editable').on('click',
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.editable').off('click').on('click',
                 function() {
                     var $this = $(this);
                     var $class = $this.attr('class');
                     var $inputClass = '';
                     var $trId = $this.parent().attr('data-pesanan-id');
                     var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
-                    var $angka = convertToAngka($this.text());
+                    
+                    var valueHiddenInput = 0;
+                    if ($($this.children()[0]).val() != undefined) {
+                        valueHiddenInput = $($this.children()[0]).val();
+                    }
+                    var $angka = valueHiddenInput;
 
                     if ($class == 'qty-barang editable') {
                         $inputClass = 'qty-input';
@@ -2253,15 +2267,18 @@
                                     if (keyCode === 190) e.preventDefault();
 
                                     if (keyCode === 13 || keyCode === 9) {
-                                        $('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
+                                        //$('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
+                                        $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc1-barang').click();
                                         e.preventDefault();
                                     }
                                 } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
-                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
+                                            //$('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
+                                            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc1-barang').click().click();
                                         } else {
-                                            $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                            //$('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc2-barang').click();
                                         }
 
                                         e.preventDefault();
@@ -2269,7 +2286,8 @@
                                 } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
-                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
+                                            //$('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
+                                            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc2-barang').click().click();
                                         } else {
                                             $(this).blur();
                                         }
@@ -2279,9 +2297,11 @@
                                 } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
                                         if ($(this).val() == 0) {
-                                            $('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                            //$('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
+                                            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc2-barang').click();
                                         } else {
-                                            $('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click();
+                                            //$('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click();
+                                            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.ndisc2-barang').click();
                                         }
 
                                         e.preventDefault();
@@ -2574,7 +2594,8 @@
                                 modeEditTd();
 
                                 // Otomatis masuk ke field Qty setelah pilih barang
-                                $('#table_tambah_pesanan > tbody > tr > td.qty-barang').click();
+                                //$('#table_tambah_pesanan > tbody > tr > td.qty-barang').click();
+                                $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.qty-barang').click();
 
                                 hitungUlangdisc1();
                                 hitungUlangdisc2();
@@ -2638,7 +2659,8 @@
 
         function modeEditOff() {
             //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('contentEditable', false);
-            $('#table_tambah_pesanan > tbody > tr > td.editable').prop('onclick', null).off('click');
+            //$('#table_tambah_pesanan > tbody > tr > td.editable').prop('onclick', null).off('click');
+            $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.editable').prop('onclick', null).off('click');
             $('.qty-barang').removeClass('editable');
             $('.disc1-barang').removeClass('editable');
             $('.disc2-barang').removeClass('editable');
@@ -2657,7 +2679,9 @@
         }
 
         function convertToAngka(rupiah) {
-
+            if (rupiah == '') {
+                rupiah = '0';
+            }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
             return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
