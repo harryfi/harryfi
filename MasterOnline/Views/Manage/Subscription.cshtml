@@ -414,8 +414,11 @@
                     success: function (response) {
                         if (response != null) {
                             //window.location = response.urlView;
-                            snap.pay(response, { skipOrderSummary: true });
-                            //alert(response);
+                            if (response.error == null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            } else {
+                                alert(response);
+                            }
                         }
                         //window.open(response, "_self");
                         //window.location.href(response);
