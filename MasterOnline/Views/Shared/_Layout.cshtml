@@ -134,6 +134,12 @@
             border-width: 30px;
             border-radius: 50%;
         }
+
+        #soc-med-btn-nav {
+            float: right;
+            margin-right: 80px;
+            margin-bottom: 15px;
+        }
     </style>
 
     @RenderSection("styles", required: false)
@@ -143,16 +149,27 @@
         <div class="container">
             <div class="navbar-header">
                 @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>*@
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>*@
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">
                     <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" class="col-md-10 col-xs-12 col-sm-12">
                 </a>
             </div>
-            <div class="col-md-6 col-sm-6 col-xs-6 hidden-xs hidden-sm" style="margin-top: 56px; float: right;">
+            <div class="col-md-6 col-sm-6 col-xs-6 hidden-xs hidden-sm" style="margin-top: 33px; float: right;">
+                <div id="soc-med-btn-nav">
+                    <a href="https://www.facebook.com/csmasteronline">
+                        <img src="~/Content/Images/facebook-white.jpg" alt="Facebook" width="24" height="24" />
+                    </a>
+                    <a href="https://www.instagram.com/csmasteronline" style="margin: 0 10px;">
+                        <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
+                    </a>
+                    <a href="http://13.250.30.255/blog">
+                        <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
+                    </a>
+                </div>
                 <div class="row header-menu-new" style="float: right;">
                     <div class="col-md-2"></div>
                     <div class="col-md-2">
