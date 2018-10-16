@@ -328,52 +328,52 @@
                 {
                     <table class="table table-striped table-bordered">
                         <thead>
-                            <tr>
-                                <th class="text-center">Kode Barang</th>
-                                <th class="text-center">Nama Barang</th>
-                                <th class="text-center">Qty</th>
-                            </tr>
+                        <tr>
+                            <th class="text-center">Kode Barang</th>
+                            <th class="text-center">Nama Barang</th>
+                            <th class="text-center">Qty</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            @{
-                                foreach (var barang in Model.ListBarang)
+                        @{
+                            foreach (var barang in Model.ListBarang)
+                            {
+                                var barangUtkCek = Model.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
+
+                                var qtyOnHand = 0d;
+
+                                if (barangUtkCek != null)
                                 {
-                                    var barangUtkCek = Model.ListBarangUntukCekQty.FirstOrDefault(b => b.BRG == barang.BRG);
+                                    qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                                                + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                                                + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                                                - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                                                - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
 
-                                    var qtyOnHand = 0d;
-
-                                    if (barangUtkCek != null)
+                                    if (qtyOnHand < barang.MINI)
                                     {
-                                        qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
-                                                    + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
-                                                    + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
-                                                    - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
-                                                    - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
-
-                                        if (qtyOnHand < barang.MINI)
+                                        listBarangMiniStok.Add(new PenjualanBarang
                                         {
-                                            listBarangMiniStok.Add(new PenjualanBarang
-                                            {
-                                                KodeBrg = barang.BRG,
-                                                NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                                                Qty = qtyOnHand
-                                            });
-                                        }
+                                            KodeBrg = barang.BRG,
+                                            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                                            Qty = qtyOnHand
+                                        });
                                     }
                                 }
                             }
+                        }
 
-                            @if (listBarangMiniStok.Count > 0)
+                        @if (listBarangMiniStok.Count > 0)
+                        {
+                            foreach (var barangMinimStok in listBarangMiniStok.OrderBy(b => b.Qty).Take(10))
                             {
-                                foreach (var barangMinimStok in listBarangMiniStok.OrderBy(b => b.Qty).Take(10))
-                                {
-                                    <tr>
-                                        <td>@barangMinimStok.KodeBrg</td>
-                                        <td>@barangMinimStok.NamaBrg</td>
-                                        <td>@barangMinimStok.Qty</td>
-                                    </tr>
-                                }
+                                <tr>
+                                    <td>@barangMinimStok.KodeBrg</td>
+                                    <td>@barangMinimStok.NamaBrg</td>
+                                    <td>@barangMinimStok.Qty</td>
+                                </tr>
                             }
+                        }
                         </tbody>
                     </table>
                 }
