@@ -10,7 +10,7 @@
             @* add by nurul 10/10/2018 *@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total Pelunasan</th>
             @* add by Tri status transfer bca *@
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Status BCA</th>
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Status BCA</th>*@
             @* end add by Tri status transfer bca *@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Posting</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>
@@ -28,7 +28,7 @@
             @* add by nurul 10/10/2018 *@
             <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TBAYAR + hutang.TPOT)</td>
             @* add by Tri status transfer bca *@
-            @if (Convert.ToString(hutang.TGIRO) == "1")
+            @*@if (Convert.ToString(hutang.TGIRO) == "1")
     {
         <td>
             Ya
@@ -39,7 +39,7 @@ else
         <td>
             Tidak
         </td>
-}
+}*@
             @* end add by Tri status transfer bca *@
             @if (Convert.ToString(hutang.POSTING) == "Y")
     {
