@@ -142,7 +142,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '0' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
                     currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }
@@ -150,7 +150,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '0' WHERE CUST = '" + cust + "'");
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '0' WHERE CUST = '" + cust + "'");
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, "", currentLog);
                 return ex.ToString();
@@ -208,7 +208,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS API = '2' WHERE CUST = '" + cust + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '2' WHERE CUST = '" + cust + "'");
                     currentLog.REQUEST_EXCEPTION = response.Body;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, "", currentLog);
                 }

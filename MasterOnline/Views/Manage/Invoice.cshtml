@@ -2303,8 +2303,50 @@
             });
         }
 
+        //add by nurul 15/10/2018
+        function validasiTambahan() {
+            var $isValid = true;
+            var $Gd = $('tr[data-invoice-id="0"] .gd-barang');
+            if ($Gd.text().trim() == "-" || $Gd.text().trim() == "Gudang UtamaGudang Tambun" || $Gd.text().trim() == "") {
+                if (!$Gd.closest('div').find('.text-danger').length) {
+                    if ($Gd.closest('div').hasClass('input-group')) {
+                        $Gd.parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    } else {
+                        $Gd.closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else {
+                if ($Gd.closest('div').find('.text-danger').length) {
+                    $Gd.closest('div').find('.text-danger').remove();
+                }
+            }
+            var $this = $('tr[data-invoice-id="0"] .qty-barang');
+            if ($this.text().trim() == "0" || $this.text().trim() == "") {
+                if (!$this.closest('div').find('.text-danger').length) {
+                    if ($this.closest('div').hasClass('input-group')) {
+                        $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    } else {
+                        $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+                    }
+                    $isValid = false;
+                }
+            } else {
+                if ($this.closest('div').find('.text-danger').length) {
+                    $this.closest('div').find('.text-danger').remove();
+                }
+            }
+
+            return $isValid;
+
+        }
+        //end add 
+
         function simpanbrg($id) {
             if (!validateForm()) return false;
+            //add by nurul 15/10/2018
+            if (!validasiTambahan()) return false;
+            //end add 
 
             if ($id == 'brg-0') {
                 if ($('#Invoice_TGL').val() != '' &&
@@ -2351,9 +2393,19 @@
                                 getGudang();
                                 $('#loading_spinner').hide();
                             } else {
-                                console.log(response.Errors);
-                                alert('Ada data yang tidak valid!');
-                                $('#loading_spinner').hide();
+                                //change by nurul 15/10/2018
+                                //console.log(response.Errors);
+                                //alert('Ada data yang tidak valid!');
+                                //$('#loading_spinner').hide();
+                                if (response.Errors[0] != null) {
+                                    alert(response.Errors[0]);
+                                    $('#loading_spinner').hide();
+                                } else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                    $('#loading_spinner').hide();
+                                }
+                                //end add
                             }
                         },
                         error: function (xhr) {
