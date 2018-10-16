@@ -1437,23 +1437,6 @@ namespace MasterOnline.Controllers
 
                 var listMarket = dataBarang.ListMarket.ToList();
 
-                if (listMarket.Count > 0)
-                {
-                    foreach (var market in listMarket)
-                    {
-                        var dataHarga = new STF02H()
-                        {
-                            BRG = dataBarang.Stf02.BRG,
-                            IDMARKET = Convert.ToInt32(market.RecNum),
-                            AKUNMARKET = market.PERSO,
-                            HJUAL = 0,
-                            DISPLAY = false,
-                            USERNAME = dataBarang.Username
-                        };
-
-                        ErasoftDbContext.STF02H.Add(dataHarga);
-                    }
-                }
                 //remark by Tri, moved to top
                 //add by tri
                 //string[] imgPath = new string[Request.Files.Count];
@@ -1515,177 +1498,185 @@ namespace MasterOnline.Controllers
                         foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
                         {
                             var dataHarga = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == dataBaru.RecNum);
-                            //add by Tri update harga di marketplace
-                            if (dataHarga.HJUAL != dataBaru.HJUAL)
+                            if (dataHarga == null)
                             {
-                                updateHarga = true;
+                                dataBaru.BRG = barangInDb.BRG;
+                                ErasoftDbContext.STF02H.Add(dataBaru);
                             }
-                            //end add by Tri update harga di marketplace
-                            dataHarga.HJUAL = dataBaru.HJUAL;
-
-                            if (dataHarga.DISPLAY != dataBaru.DISPLAY)
+                            else
                             {
-                                updateDisplay = true;
+                                //add by Tri update harga di marketplace
+                                if (dataHarga.HJUAL != dataBaru.HJUAL)
+                                {
+                                    updateHarga = true;
+                                }
+                                //end add by Tri update harga di marketplace
+                                dataHarga.HJUAL = dataBaru.HJUAL;
+
+                                if (dataHarga.DISPLAY != dataBaru.DISPLAY)
+                                {
+                                    updateDisplay = true;
+                                }
+                                dataHarga.DISPLAY = dataBaru.DISPLAY;
+                                #region Category && Attribute
+                                dataHarga.CATEGORY_CODE = dataBaru.CATEGORY_CODE;
+                                dataHarga.CATEGORY_NAME = dataBaru.CATEGORY_NAME;
+                                dataHarga.DeliveryTempElevenia = dataBaru.DeliveryTempElevenia;
+                                dataHarga.PICKUP_POINT = dataBaru.PICKUP_POINT;
+                                dataHarga.ACODE_1 = dataBaru.ACODE_1;
+                                dataHarga.ACODE_2 = dataBaru.ACODE_2;
+                                dataHarga.ACODE_3 = dataBaru.ACODE_3;
+                                dataHarga.ACODE_4 = dataBaru.ACODE_4;
+                                dataHarga.ACODE_5 = dataBaru.ACODE_5;
+                                dataHarga.ACODE_6 = dataBaru.ACODE_6;
+                                dataHarga.ACODE_7 = dataBaru.ACODE_7;
+                                dataHarga.ACODE_8 = dataBaru.ACODE_8;
+                                dataHarga.ACODE_9 = dataBaru.ACODE_9;
+                                dataHarga.ACODE_10 = dataBaru.ACODE_10;
+                                dataHarga.ACODE_11 = dataBaru.ACODE_11;
+                                dataHarga.ACODE_12 = dataBaru.ACODE_12;
+                                dataHarga.ACODE_13 = dataBaru.ACODE_13;
+                                dataHarga.ACODE_14 = dataBaru.ACODE_14;
+                                dataHarga.ACODE_15 = dataBaru.ACODE_15;
+                                dataHarga.ACODE_16 = dataBaru.ACODE_16;
+                                dataHarga.ACODE_17 = dataBaru.ACODE_17;
+                                dataHarga.ACODE_18 = dataBaru.ACODE_18;
+                                dataHarga.ACODE_19 = dataBaru.ACODE_19;
+                                dataHarga.ACODE_20 = dataBaru.ACODE_20;
+                                dataHarga.ACODE_21 = dataBaru.ACODE_21;
+                                dataHarga.ACODE_22 = dataBaru.ACODE_22;
+                                dataHarga.ACODE_23 = dataBaru.ACODE_23;
+                                dataHarga.ACODE_24 = dataBaru.ACODE_24;
+                                dataHarga.ACODE_25 = dataBaru.ACODE_25;
+                                dataHarga.ACODE_26 = dataBaru.ACODE_26;
+                                dataHarga.ACODE_27 = dataBaru.ACODE_27;
+                                dataHarga.ACODE_28 = dataBaru.ACODE_28;
+                                dataHarga.ACODE_29 = dataBaru.ACODE_29;
+                                dataHarga.ACODE_30 = dataBaru.ACODE_30;
+                                dataHarga.ACODE_31 = dataBaru.ACODE_31;
+                                dataHarga.ACODE_32 = dataBaru.ACODE_32;
+                                dataHarga.ACODE_33 = dataBaru.ACODE_33;
+                                dataHarga.ACODE_34 = dataBaru.ACODE_34;
+                                dataHarga.ACODE_35 = dataBaru.ACODE_35;
+                                dataHarga.ACODE_36 = dataBaru.ACODE_36;
+                                dataHarga.ACODE_37 = dataBaru.ACODE_37;
+                                dataHarga.ACODE_38 = dataBaru.ACODE_38;
+                                dataHarga.ACODE_39 = dataBaru.ACODE_39;
+                                dataHarga.ACODE_30 = dataBaru.ACODE_40;
+                                dataHarga.ACODE_41 = dataBaru.ACODE_41;
+                                dataHarga.ACODE_42 = dataBaru.ACODE_42;
+                                dataHarga.ACODE_43 = dataBaru.ACODE_43;
+                                dataHarga.ACODE_44 = dataBaru.ACODE_44;
+                                dataHarga.ACODE_45 = dataBaru.ACODE_45;
+                                dataHarga.ACODE_46 = dataBaru.ACODE_46;
+                                dataHarga.ACODE_47 = dataBaru.ACODE_47;
+                                dataHarga.ACODE_48 = dataBaru.ACODE_48;
+                                dataHarga.ACODE_49 = dataBaru.ACODE_49;
+                                dataHarga.ACODE_50 = dataBaru.ACODE_50;
+
+                                dataHarga.ANAME_1 = dataBaru.ANAME_1;
+                                dataHarga.ANAME_2 = dataBaru.ANAME_2;
+                                dataHarga.ANAME_3 = dataBaru.ANAME_3;
+                                dataHarga.ANAME_4 = dataBaru.ANAME_4;
+                                dataHarga.ANAME_5 = dataBaru.ANAME_5;
+                                dataHarga.ANAME_6 = dataBaru.ANAME_6;
+                                dataHarga.ANAME_7 = dataBaru.ANAME_7;
+                                dataHarga.ANAME_8 = dataBaru.ANAME_8;
+                                dataHarga.ANAME_9 = dataBaru.ANAME_9;
+                                dataHarga.ANAME_10 = dataBaru.ANAME_10;
+                                dataHarga.ANAME_11 = dataBaru.ANAME_11;
+                                dataHarga.ANAME_12 = dataBaru.ANAME_12;
+                                dataHarga.ANAME_13 = dataBaru.ANAME_13;
+                                dataHarga.ANAME_14 = dataBaru.ANAME_14;
+                                dataHarga.ANAME_15 = dataBaru.ANAME_15;
+                                dataHarga.ANAME_16 = dataBaru.ANAME_16;
+                                dataHarga.ANAME_17 = dataBaru.ANAME_17;
+                                dataHarga.ANAME_18 = dataBaru.ANAME_18;
+                                dataHarga.ANAME_19 = dataBaru.ANAME_19;
+                                dataHarga.ANAME_20 = dataBaru.ANAME_20;
+                                dataHarga.ANAME_21 = dataBaru.ANAME_21;
+                                dataHarga.ANAME_22 = dataBaru.ANAME_22;
+                                dataHarga.ANAME_23 = dataBaru.ANAME_23;
+                                dataHarga.ANAME_24 = dataBaru.ANAME_24;
+                                dataHarga.ANAME_25 = dataBaru.ANAME_25;
+                                dataHarga.ANAME_26 = dataBaru.ANAME_26;
+                                dataHarga.ANAME_27 = dataBaru.ANAME_27;
+                                dataHarga.ANAME_28 = dataBaru.ANAME_28;
+                                dataHarga.ANAME_29 = dataBaru.ANAME_29;
+                                dataHarga.ANAME_30 = dataBaru.ANAME_30;
+                                dataHarga.ANAME_31 = dataBaru.ANAME_31;
+                                dataHarga.ANAME_32 = dataBaru.ANAME_32;
+                                dataHarga.ANAME_33 = dataBaru.ANAME_33;
+                                dataHarga.ANAME_34 = dataBaru.ANAME_34;
+                                dataHarga.ANAME_35 = dataBaru.ANAME_35;
+                                dataHarga.ANAME_36 = dataBaru.ANAME_36;
+                                dataHarga.ANAME_37 = dataBaru.ANAME_37;
+                                dataHarga.ANAME_38 = dataBaru.ANAME_38;
+                                dataHarga.ANAME_39 = dataBaru.ANAME_39;
+                                dataHarga.ANAME_40 = dataBaru.ANAME_40;
+                                dataHarga.ANAME_41 = dataBaru.ANAME_41;
+                                dataHarga.ANAME_42 = dataBaru.ANAME_42;
+                                dataHarga.ANAME_43 = dataBaru.ANAME_43;
+                                dataHarga.ANAME_44 = dataBaru.ANAME_44;
+                                dataHarga.ANAME_45 = dataBaru.ANAME_45;
+                                dataHarga.ANAME_46 = dataBaru.ANAME_46;
+                                dataHarga.ANAME_47 = dataBaru.ANAME_47;
+                                dataHarga.ANAME_48 = dataBaru.ANAME_48;
+                                dataHarga.ANAME_49 = dataBaru.ANAME_49;
+                                dataHarga.ANAME_50 = dataBaru.ANAME_50;
+
+                                dataHarga.AVALUE_1 = dataBaru.AVALUE_1;
+                                dataHarga.AVALUE_2 = dataBaru.AVALUE_2;
+                                dataHarga.AVALUE_3 = dataBaru.AVALUE_3;
+                                dataHarga.AVALUE_4 = dataBaru.AVALUE_4;
+                                dataHarga.AVALUE_5 = dataBaru.AVALUE_5;
+                                dataHarga.AVALUE_6 = dataBaru.AVALUE_6;
+                                dataHarga.AVALUE_7 = dataBaru.AVALUE_7;
+                                dataHarga.AVALUE_8 = dataBaru.AVALUE_8;
+                                dataHarga.AVALUE_9 = dataBaru.AVALUE_9;
+                                dataHarga.AVALUE_10 = dataBaru.AVALUE_10;
+                                dataHarga.AVALUE_11 = dataBaru.AVALUE_11;
+                                dataHarga.AVALUE_12 = dataBaru.AVALUE_12;
+                                dataHarga.AVALUE_13 = dataBaru.AVALUE_13;
+                                dataHarga.AVALUE_14 = dataBaru.AVALUE_14;
+                                dataHarga.AVALUE_15 = dataBaru.AVALUE_15;
+                                dataHarga.AVALUE_16 = dataBaru.AVALUE_16;
+                                dataHarga.AVALUE_17 = dataBaru.AVALUE_17;
+                                dataHarga.AVALUE_18 = dataBaru.AVALUE_18;
+                                dataHarga.AVALUE_19 = dataBaru.AVALUE_19;
+                                dataHarga.AVALUE_20 = dataBaru.AVALUE_20;
+                                dataHarga.AVALUE_21 = dataBaru.AVALUE_21;
+                                dataHarga.AVALUE_22 = dataBaru.AVALUE_22;
+                                dataHarga.AVALUE_23 = dataBaru.AVALUE_23;
+                                dataHarga.AVALUE_24 = dataBaru.AVALUE_24;
+                                dataHarga.AVALUE_25 = dataBaru.AVALUE_25;
+                                dataHarga.AVALUE_26 = dataBaru.AVALUE_26;
+                                dataHarga.AVALUE_27 = dataBaru.AVALUE_27;
+                                dataHarga.AVALUE_28 = dataBaru.AVALUE_28;
+                                dataHarga.AVALUE_29 = dataBaru.AVALUE_29;
+                                dataHarga.AVALUE_30 = dataBaru.AVALUE_30;
+                                dataHarga.AVALUE_31 = dataBaru.AVALUE_31;
+                                dataHarga.AVALUE_32 = dataBaru.AVALUE_32;
+                                dataHarga.AVALUE_33 = dataBaru.AVALUE_33;
+                                dataHarga.AVALUE_34 = dataBaru.AVALUE_34;
+                                dataHarga.AVALUE_35 = dataBaru.AVALUE_35;
+                                dataHarga.AVALUE_36 = dataBaru.AVALUE_36;
+                                dataHarga.AVALUE_37 = dataBaru.AVALUE_37;
+                                dataHarga.AVALUE_38 = dataBaru.AVALUE_38;
+                                dataHarga.AVALUE_39 = dataBaru.AVALUE_39;
+                                dataHarga.AVALUE_40 = dataBaru.AVALUE_40;
+                                dataHarga.AVALUE_41 = dataBaru.AVALUE_41;
+                                dataHarga.AVALUE_42 = dataBaru.AVALUE_42;
+                                dataHarga.AVALUE_43 = dataBaru.AVALUE_43;
+                                dataHarga.AVALUE_44 = dataBaru.AVALUE_44;
+                                dataHarga.AVALUE_45 = dataBaru.AVALUE_45;
+                                dataHarga.AVALUE_46 = dataBaru.AVALUE_46;
+                                dataHarga.AVALUE_47 = dataBaru.AVALUE_47;
+                                dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
+                                dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
+                                dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
+                                #endregion
                             }
-                            dataHarga.DISPLAY = dataBaru.DISPLAY;
-                            #region Category && Attribute
-                            dataHarga.CATEGORY_CODE = dataBaru.CATEGORY_CODE;
-                            dataHarga.CATEGORY_NAME = dataBaru.CATEGORY_NAME;
-                            dataHarga.DeliveryTempElevenia = dataBaru.DeliveryTempElevenia;
-                            dataHarga.PICKUP_POINT = dataBaru.PICKUP_POINT;
-                            dataHarga.ACODE_1 = dataBaru.ACODE_1;
-                            dataHarga.ACODE_2 = dataBaru.ACODE_2;
-                            dataHarga.ACODE_3 = dataBaru.ACODE_3;
-                            dataHarga.ACODE_4 = dataBaru.ACODE_4;
-                            dataHarga.ACODE_5 = dataBaru.ACODE_5;
-                            dataHarga.ACODE_6 = dataBaru.ACODE_6;
-                            dataHarga.ACODE_7 = dataBaru.ACODE_7;
-                            dataHarga.ACODE_8 = dataBaru.ACODE_8;
-                            dataHarga.ACODE_9 = dataBaru.ACODE_9;
-                            dataHarga.ACODE_10 = dataBaru.ACODE_10;
-                            dataHarga.ACODE_11 = dataBaru.ACODE_11;
-                            dataHarga.ACODE_12 = dataBaru.ACODE_12;
-                            dataHarga.ACODE_13 = dataBaru.ACODE_13;
-                            dataHarga.ACODE_14 = dataBaru.ACODE_14;
-                            dataHarga.ACODE_15 = dataBaru.ACODE_15;
-                            dataHarga.ACODE_16 = dataBaru.ACODE_16;
-                            dataHarga.ACODE_17 = dataBaru.ACODE_17;
-                            dataHarga.ACODE_18 = dataBaru.ACODE_18;
-                            dataHarga.ACODE_19 = dataBaru.ACODE_19;
-                            dataHarga.ACODE_20 = dataBaru.ACODE_20;
-                            dataHarga.ACODE_21 = dataBaru.ACODE_21;
-                            dataHarga.ACODE_22 = dataBaru.ACODE_22;
-                            dataHarga.ACODE_23 = dataBaru.ACODE_23;
-                            dataHarga.ACODE_24 = dataBaru.ACODE_24;
-                            dataHarga.ACODE_25 = dataBaru.ACODE_25;
-                            dataHarga.ACODE_26 = dataBaru.ACODE_26;
-                            dataHarga.ACODE_27 = dataBaru.ACODE_27;
-                            dataHarga.ACODE_28 = dataBaru.ACODE_28;
-                            dataHarga.ACODE_29 = dataBaru.ACODE_29;
-                            dataHarga.ACODE_30 = dataBaru.ACODE_30;
-                            dataHarga.ACODE_31 = dataBaru.ACODE_31;
-                            dataHarga.ACODE_32 = dataBaru.ACODE_32;
-                            dataHarga.ACODE_33 = dataBaru.ACODE_33;
-                            dataHarga.ACODE_34 = dataBaru.ACODE_34;
-                            dataHarga.ACODE_35 = dataBaru.ACODE_35;
-                            dataHarga.ACODE_36 = dataBaru.ACODE_36;
-                            dataHarga.ACODE_37 = dataBaru.ACODE_37;
-                            dataHarga.ACODE_38 = dataBaru.ACODE_38;
-                            dataHarga.ACODE_39 = dataBaru.ACODE_39;
-                            dataHarga.ACODE_30 = dataBaru.ACODE_40;
-                            dataHarga.ACODE_41 = dataBaru.ACODE_41;
-                            dataHarga.ACODE_42 = dataBaru.ACODE_42;
-                            dataHarga.ACODE_43 = dataBaru.ACODE_43;
-                            dataHarga.ACODE_44 = dataBaru.ACODE_44;
-                            dataHarga.ACODE_45 = dataBaru.ACODE_45;
-                            dataHarga.ACODE_46 = dataBaru.ACODE_46;
-                            dataHarga.ACODE_47 = dataBaru.ACODE_47;
-                            dataHarga.ACODE_48 = dataBaru.ACODE_48;
-                            dataHarga.ACODE_49 = dataBaru.ACODE_49;
-                            dataHarga.ACODE_50 = dataBaru.ACODE_50;
-
-                            dataHarga.ANAME_1 = dataBaru.ANAME_1;
-                            dataHarga.ANAME_2 = dataBaru.ANAME_2;
-                            dataHarga.ANAME_3 = dataBaru.ANAME_3;
-                            dataHarga.ANAME_4 = dataBaru.ANAME_4;
-                            dataHarga.ANAME_5 = dataBaru.ANAME_5;
-                            dataHarga.ANAME_6 = dataBaru.ANAME_6;
-                            dataHarga.ANAME_7 = dataBaru.ANAME_7;
-                            dataHarga.ANAME_8 = dataBaru.ANAME_8;
-                            dataHarga.ANAME_9 = dataBaru.ANAME_9;
-                            dataHarga.ANAME_10 = dataBaru.ANAME_10;
-                            dataHarga.ANAME_11 = dataBaru.ANAME_11;
-                            dataHarga.ANAME_12 = dataBaru.ANAME_12;
-                            dataHarga.ANAME_13 = dataBaru.ANAME_13;
-                            dataHarga.ANAME_14 = dataBaru.ANAME_14;
-                            dataHarga.ANAME_15 = dataBaru.ANAME_15;
-                            dataHarga.ANAME_16 = dataBaru.ANAME_16;
-                            dataHarga.ANAME_17 = dataBaru.ANAME_17;
-                            dataHarga.ANAME_18 = dataBaru.ANAME_18;
-                            dataHarga.ANAME_19 = dataBaru.ANAME_19;
-                            dataHarga.ANAME_20 = dataBaru.ANAME_20;
-                            dataHarga.ANAME_21 = dataBaru.ANAME_21;
-                            dataHarga.ANAME_22 = dataBaru.ANAME_22;
-                            dataHarga.ANAME_23 = dataBaru.ANAME_23;
-                            dataHarga.ANAME_24 = dataBaru.ANAME_24;
-                            dataHarga.ANAME_25 = dataBaru.ANAME_25;
-                            dataHarga.ANAME_26 = dataBaru.ANAME_26;
-                            dataHarga.ANAME_27 = dataBaru.ANAME_27;
-                            dataHarga.ANAME_28 = dataBaru.ANAME_28;
-                            dataHarga.ANAME_29 = dataBaru.ANAME_29;
-                            dataHarga.ANAME_30 = dataBaru.ANAME_30;
-                            dataHarga.ANAME_31 = dataBaru.ANAME_31;
-                            dataHarga.ANAME_32 = dataBaru.ANAME_32;
-                            dataHarga.ANAME_33 = dataBaru.ANAME_33;
-                            dataHarga.ANAME_34 = dataBaru.ANAME_34;
-                            dataHarga.ANAME_35 = dataBaru.ANAME_35;
-                            dataHarga.ANAME_36 = dataBaru.ANAME_36;
-                            dataHarga.ANAME_37 = dataBaru.ANAME_37;
-                            dataHarga.ANAME_38 = dataBaru.ANAME_38;
-                            dataHarga.ANAME_39 = dataBaru.ANAME_39;
-                            dataHarga.ANAME_40 = dataBaru.ANAME_40;
-                            dataHarga.ANAME_41 = dataBaru.ANAME_41;
-                            dataHarga.ANAME_42 = dataBaru.ANAME_42;
-                            dataHarga.ANAME_43 = dataBaru.ANAME_43;
-                            dataHarga.ANAME_44 = dataBaru.ANAME_44;
-                            dataHarga.ANAME_45 = dataBaru.ANAME_45;
-                            dataHarga.ANAME_46 = dataBaru.ANAME_46;
-                            dataHarga.ANAME_47 = dataBaru.ANAME_47;
-                            dataHarga.ANAME_48 = dataBaru.ANAME_48;
-                            dataHarga.ANAME_49 = dataBaru.ANAME_49;
-                            dataHarga.ANAME_50 = dataBaru.ANAME_50;
-
-                            dataHarga.AVALUE_1 = dataBaru.AVALUE_1;
-                            dataHarga.AVALUE_2 = dataBaru.AVALUE_2;
-                            dataHarga.AVALUE_3 = dataBaru.AVALUE_3;
-                            dataHarga.AVALUE_4 = dataBaru.AVALUE_4;
-                            dataHarga.AVALUE_5 = dataBaru.AVALUE_5;
-                            dataHarga.AVALUE_6 = dataBaru.AVALUE_6;
-                            dataHarga.AVALUE_7 = dataBaru.AVALUE_7;
-                            dataHarga.AVALUE_8 = dataBaru.AVALUE_8;
-                            dataHarga.AVALUE_9 = dataBaru.AVALUE_9;
-                            dataHarga.AVALUE_10 = dataBaru.AVALUE_10;
-                            dataHarga.AVALUE_11 = dataBaru.AVALUE_11;
-                            dataHarga.AVALUE_12 = dataBaru.AVALUE_12;
-                            dataHarga.AVALUE_13 = dataBaru.AVALUE_13;
-                            dataHarga.AVALUE_14 = dataBaru.AVALUE_14;
-                            dataHarga.AVALUE_15 = dataBaru.AVALUE_15;
-                            dataHarga.AVALUE_16 = dataBaru.AVALUE_16;
-                            dataHarga.AVALUE_17 = dataBaru.AVALUE_17;
-                            dataHarga.AVALUE_18 = dataBaru.AVALUE_18;
-                            dataHarga.AVALUE_19 = dataBaru.AVALUE_19;
-                            dataHarga.AVALUE_20 = dataBaru.AVALUE_20;
-                            dataHarga.AVALUE_21 = dataBaru.AVALUE_21;
-                            dataHarga.AVALUE_22 = dataBaru.AVALUE_22;
-                            dataHarga.AVALUE_23 = dataBaru.AVALUE_23;
-                            dataHarga.AVALUE_24 = dataBaru.AVALUE_24;
-                            dataHarga.AVALUE_25 = dataBaru.AVALUE_25;
-                            dataHarga.AVALUE_26 = dataBaru.AVALUE_26;
-                            dataHarga.AVALUE_27 = dataBaru.AVALUE_27;
-                            dataHarga.AVALUE_28 = dataBaru.AVALUE_28;
-                            dataHarga.AVALUE_29 = dataBaru.AVALUE_29;
-                            dataHarga.AVALUE_30 = dataBaru.AVALUE_30;
-                            dataHarga.AVALUE_31 = dataBaru.AVALUE_31;
-                            dataHarga.AVALUE_32 = dataBaru.AVALUE_32;
-                            dataHarga.AVALUE_33 = dataBaru.AVALUE_33;
-                            dataHarga.AVALUE_34 = dataBaru.AVALUE_34;
-                            dataHarga.AVALUE_35 = dataBaru.AVALUE_35;
-                            dataHarga.AVALUE_36 = dataBaru.AVALUE_36;
-                            dataHarga.AVALUE_37 = dataBaru.AVALUE_37;
-                            dataHarga.AVALUE_38 = dataBaru.AVALUE_38;
-                            dataHarga.AVALUE_39 = dataBaru.AVALUE_39;
-                            dataHarga.AVALUE_40 = dataBaru.AVALUE_40;
-                            dataHarga.AVALUE_41 = dataBaru.AVALUE_41;
-                            dataHarga.AVALUE_42 = dataBaru.AVALUE_42;
-                            dataHarga.AVALUE_43 = dataBaru.AVALUE_43;
-                            dataHarga.AVALUE_44 = dataBaru.AVALUE_44;
-                            dataHarga.AVALUE_45 = dataBaru.AVALUE_45;
-                            dataHarga.AVALUE_46 = dataBaru.AVALUE_46;
-                            dataHarga.AVALUE_47 = dataBaru.AVALUE_47;
-                            dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
-                            dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
-                            dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
-                            #endregion
                         }
                     }
 
@@ -2310,103 +2301,6 @@ namespace MasterOnline.Controllers
                                 }
                             }
                             break;
-                        //#region Update Product
-                        //case 2:
-                        //    {
-                        //        #region getUrlImage
-                        //        //string[] imgID = new string[Request.Files.Count];
-                        //        string[] imgID = new string[3];
-                        //        //if (Request.Files.Count > 0)
-                        //        //{
-                        //        for (int i = 0; i < 3; i++)
-                        //        {
-                        //            //var file = Request.Files[i];
-
-                        //            //if (file != null && file.ContentLength > 0)
-                        //            //{
-                        //            //    var fileExtension = Path.GetExtension(file.FileName);
-                        //            imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-                        //            imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
-                        //            //}
-                        //        }
-                        //        //}
-                        //        #endregion
-                        //        foreach (ARF01 tblCustomer in listElShop)
-                        //        {
-                        //            var qtyOnHand = 0d;
-                        //            {
-                        //                object[] spParams = {
-                        //                    new SqlParameter("@BRG",string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG),
-                        //                    new SqlParameter("@GD","ALL"),
-                        //                    new SqlParameter("@Satuan", "2"),
-                        //                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                        //                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                        //                };
-
-                        //                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                        //                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                        //            }
-                        //            EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
-                        //            {
-                        //                api_key = tblCustomer.API_KEY,
-                        //                kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                        //                nama = dataBarang.Stf02.NAMA,
-                        //                berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                        //                imgUrl = imgID,
-                        //                Keterangan = dataBarang.Stf02.Deskripsi,
-                        //                Qty = Convert.ToString(qtyOnHand),
-                        //                DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
-                        //                IDMarket = tblCustomer.RecNum.ToString(),
-                        //            };
-                        //            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                        //            data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                        //            data.kode_mp = Convert.ToString(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).BRG_MP);
-
-                        //            if (string.IsNullOrEmpty(data.kode_mp))
-                        //            {
-                        //                var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
-                        //                var result = new EleveniaController().CreateProduct(data, display);
-                        //            }
-                        //            else
-                        //            if (!string.IsNullOrEmpty(data.kode_mp))
-                        //            {
-                        //                var result = new EleveniaController().UpdateProduct(data);
-                        //            }
-                        //            //if (result.resultCode.Equals("200"))
-                        //            //{
-                        //            //    #region Hide Item
-                        //            //    EleveniaController.EleveniaProductData data2 = new EleveniaController.EleveniaProductData
-                        //            //    {
-                        //            //        api_key = tblCustomer.TOKEN,
-                        //            //        kode = Convert.ToString(result.productNo)
-                        //            //    };
-                        //            //    var resultHide = new EleveniaController().HideItem(data2);
-                        //            //    #endregion
-                        //            //}
-                        //        }
-                        //    }
-                        //    break;
-                        //#endregion
-                        //#region Display/Hide Item
-                        //case 3:
-                        //    foreach (ARF01 tblCustomer in listElShop)
-                        //    {
-                        //        EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
-                        //        {
-                        //            api_key = tblCustomer.API_KEY,
-                        //            kode = Convert.ToString(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).BRG_MP)
-                        //        };
-                        //        if (Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY))
-                        //        {
-                        //            var result = new EleveniaController().DisplayItem(data);
-                        //        }
-                        //        else
-                        //        {
-                        //            var result = new EleveniaController().HideItem(data);
-                        //        }
-                        //    }
-                        //    break;
-                        //#endregion
                         default:
                             break;
                     }

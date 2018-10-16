@@ -115,6 +115,18 @@
                 width: 120px;
                 font-weight: bold;
             }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
     <style>
         #modal-pricing {
@@ -1631,6 +1643,12 @@
                     } else {
                         $('.pesanan_table_section').show();
                         $('.pesanan_editor_section').hide();
+
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+
                         refreshForm1();
                         refreshTablePesanan();
                         $bakalNetto = 0;
@@ -1753,6 +1771,8 @@
                     $jumlahPesananMax = res.JumlahPesananMax;
                     $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
+                    if ($('#tambah_baru_tombol_section #tambah_pesanan').length) return;
+
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
@@ -1769,6 +1789,14 @@
                             function() {
                                 $('.pesanan_table_section').hide();
                                 $('.pesanan_editor_section').show();
+
+                                $('#myTab li a').each(function () {
+                                    $(this).removeAttr('data-toggle');
+
+                                    if ($(this).attr('id') === 'pesanan-tab') return;
+
+                                    $(this).addClass('disabled-tab');
+                                });
                             });
                     }
                 },
