@@ -115,6 +115,16 @@
                 width: 120px;
                 font-weight: bold;
             }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+        .disabled-tab:hover {
+            color: #fff;
+        }
     </style>
     <style>
         #modal-pricing {
@@ -1628,6 +1638,12 @@
                     } else {
                         $('.pesanan_table_section').show();
                         $('.pesanan_editor_section').hide();
+
+                        $('#myTab li:not(:first) a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+
                         refreshForm1();
                         refreshTablePesanan();
                         $bakalNetto = 0;
@@ -1766,6 +1782,11 @@
                             function() {
                                 $('.pesanan_table_section').hide();
                                 $('.pesanan_editor_section').show();
+
+                                $('#myTab li:not(:first) a').each(function () {
+                                    $(this).removeAttr('data-toggle');
+                                    $(this).addClass('disabled-tab');
+                                });
                             });
                     }
                 },
