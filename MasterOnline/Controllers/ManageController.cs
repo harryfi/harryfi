@@ -2068,7 +2068,8 @@ namespace MasterOnline.Controllers
 
             var partialVm = new BarangViewModel()
             {
-                ListStf02S = ErasoftDbContext.STF02.ToList()
+                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
             };
 
             return PartialView("TableBarang1Partial", partialVm);

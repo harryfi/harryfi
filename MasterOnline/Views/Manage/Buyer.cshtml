@@ -164,13 +164,15 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })
+                                                    @*@Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })*@
+                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 5 })
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 15 })
+                                                    @*@Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 15 })*@
+                                                    @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 15 })
                                                 </div>
                                             </div>
                                             <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)"/>

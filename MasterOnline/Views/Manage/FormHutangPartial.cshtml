@@ -118,7 +118,8 @@
         <div class="form-group">
             @Html.LabelFor(m => m.Hutang.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
             <div class="col-md-6 col-sm-6 col-xs-6">
-                @Html.TextBoxFor(m => m.Hutang.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, max = 999, min=0 })
+                @*@Html.TextBoxFor(m => m.Hutang.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, max = 999, min=0 })*@
+                @Html.TextBoxFor(m => m.Hutang.TERM, new { @class = "form-control limited_number_textbox num-only", maxlength = 3, max = 999, min = 0 })
             </div>
             <div class="col-md-2 col-sm-2 col-xs-6">
                 <h5>Hari</h5>
@@ -141,7 +142,8 @@
         <div class="form-group">
             @Html.LabelFor(m => m.Hutang.TOTAL, "Nilai", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
             <div class="col-md-6 col-sm-6 col-xs-12">
-                @Html.TextBoxFor(m => m.Hutang.TOTAL, new { @class = "form-control", type = "number", required = "required", min = 0 })
+                @*@Html.TextBoxFor(m => m.Hutang.TOTAL, new { @class = "form-control", type = "number", required = "required", min = 0 })*@
+                @Html.TextBoxFor(m => m.Hutang.TOTAL, new { @class = "form-control num-only", required = "required", min = 0 })
             </div>
         </div>
     </div>
