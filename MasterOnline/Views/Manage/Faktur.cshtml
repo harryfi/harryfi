@@ -1462,12 +1462,12 @@
         }
 
         function modeEditTd() {
-            $('.qty-barang').addClass('editable');
-            $('.disc1-barang').addClass('editable');
-            $('.ndisc1-barang').addClass('editable');
-            $('.disc2-barang').addClass('editable');
-            $('.ndisc2-barang').addClass('editable');
-            $('#table_tambah_faktur > tbody > tr > td.editable').on('click', function () {
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .disc1-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .ndisc1-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .disc2-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .ndisc2-barang').addClass('editable');
+            $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.editable').off('click').on('click', function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
                 var $inputClass = '';
@@ -1637,15 +1637,15 @@
                             if (keyCode === 190) e.preventDefault();
 
                             if (keyCode === 13 || keyCode === 9) {
-                                $('#table_tambah_faktur > tbody > tr > td.disc1-barang').click();
+                                $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc1-barang').click();
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
-                                    $('#table_tambah_faktur > tbody > tr > td.ndisc1-barang').click().click();
+                                    $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc1-barang').click().click();
                                 } else {
-                                    $('#table_tambah_faktur > tbody > tr > td.disc2-barang').click();
+                                    $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc2-barang').click();
                                 }
 
                                 e.preventDefault();
@@ -1653,7 +1653,7 @@
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
-                                    $('#table_tambah_faktur > tbody > tr > td.ndisc2-barang').click().click();
+                                    $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc2-barang').click().click();
                                 } else {
                                     $(this).blur();
                                 }
@@ -1663,9 +1663,9 @@
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
-                                    $('#table_tambah_faktur > tbody > tr > td.disc2-barang').click();
+                                    $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc2-barang').click();
                                 } else {
-                                    $('#table_tambah_faktur > tbody > tr > td.ndisc2-barang').click();
+                                    $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc2-barang').click();
                                 }
 
                                 e.preventDefault();
@@ -1906,7 +1906,7 @@
                                 $('#gudang-kode').text(value);
 
                                 // Otomatis masuk ke field Qty setelah pilih gudang
-                                $('#table_tambah_faktur > tbody > tr > td.qty-barang').click();
+                                $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.qty-barang').click();
                             } else {
                                 $('#gudang-kode').text('-');
                             }
