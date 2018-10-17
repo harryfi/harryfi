@@ -9435,7 +9435,9 @@ namespace MasterOnline.Controllers
             {
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
-                ListHargaTerakhir = ErasoftDbContext.STF10.ToList()
+                ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+
             };
 
             return View("HargaJualMenu", vm);
@@ -9455,7 +9457,8 @@ namespace MasterOnline.Controllers
             {
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
-                ListHargaTerakhir = ErasoftDbContext.STF10.ToList()
+                ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
             };
 
             return PartialView("TableHargaJualPartial", vm);
