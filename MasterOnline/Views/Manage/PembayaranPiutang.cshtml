@@ -548,7 +548,7 @@
                 $('#TOTALBYR').val(convertToRupiah($totalBayar));
                 $totalSemua = $totalBayar + convertToAngka($('#TOTALBYR').val());
                 $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
-                $('#Piutang_TBAYAR').val(parseInt($('#Piutang_TBAYAR').val()) + parseInt($(this).val()));
+                //$('#Piutang_TBAYAR').val(parseInt($('#Piutang_TBAYAR').val()) + parseInt($(this).val()));
             //}).focus(function () {
             //    $(this).val('');
             //}).blur(function () {
@@ -868,7 +868,10 @@
                     }
 
                     $('#Piutang_TPOT').val(parseInt($('#Piutang_TPOT').val()) + parseInt($('#PiutangDetail_POT').val()));
-                    $('#Piutang_TBAYAR').val(convertToAngka($('#TOTALBAYAR').val()));
+                    //$('#Piutang_TBAYAR').val(convertToAngka($('#TOTALBAYAR').val()));
+                    $('#Piutang_TBAYAR').val(parseInt($('#Piutang_TBAYAR').val()) + parseInt($('#PiutangDetail_BAYAR').val()));
+                    $('#TotalBAYAR').val(parseInt($('#Piutang_TPOT').val()) + parseInt($('#Piutang_TBAYAR').val()));
+
 
                     $.ajax({
                         type: "POST",
