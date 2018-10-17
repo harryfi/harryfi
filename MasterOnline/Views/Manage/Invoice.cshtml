@@ -124,6 +124,19 @@
             -ms-transform: rotate(45deg);
             transform: rotate(45deg);
         }
+
+        /*add by nurul 17/10/2018*/
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
 
     <style>
@@ -1099,15 +1112,16 @@
 
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
-            if ($TabAktif == 0) {
-                refreshTableInvoice1();
-            }
-            else if ($TabAktif == 1) {
-                refreshTableInvoiceLunas();
-            }
-            else if ($TabAktif == 2) {
-                refreshTableInvoiceTempo();
-            }
+            //if ($TabAktif == 0) {
+            //    refreshTableInvoice1();
+            //}
+            //else if ($TabAktif == 1) {
+            //    refreshTableInvoiceLunas();
+            //}
+            //else if ($TabAktif == 2) {
+            //    refreshTableInvoiceTempo();
+            //}
+            $('#invoice-tab').click();
 
             $('input, select, .btn-danger').each(function () {
                 $(this).removeAttr('disabled');
@@ -1189,15 +1203,16 @@
                 if ($('#btn-simpan-perubahan-row').is(':visible')) {
                     $('#modalTutupEditor').modal('show');
                 } else {
-                    if ($TabAktif == 0) {
-                        refreshTableInvoice1();
-                    }
-                    else if ($TabAktif == 1) {
-                        refreshTableInvoiceLunas();
-                    }
-                    else if ($TabAktif == 2) {
-                        refreshTableInvoiceTempo();
-                    }
+                    //if ($TabAktif == 0) {
+                    //    refreshTableInvoice1();
+                    //}
+                    //else if ($TabAktif == 1) {
+                    //    refreshTableInvoiceLunas();
+                    //}
+                    //else if ($TabAktif == 2) {
+                    //    refreshTableInvoiceTempo();
+                    //}
+                    $('#invoice-tab').click();
 
                     $('input, select, .btn-danger').each(function () {
                         $(this).removeAttr('disabled');
@@ -1205,6 +1220,14 @@
 
                     $('.invoice_table_section').show();
                     $('.invoice_editor_section').hide();
+
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    //end add
+
                     refreshForm1();
 
                     $bakalNetto = 0;
@@ -1883,6 +1906,16 @@
                         $('#tambah_invoice').on('click', function () {
                             $('.invoice_table_section').hide();
                             $('.invoice_editor_section').show();
+
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'invoice-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
                         });
                     }
                 },
