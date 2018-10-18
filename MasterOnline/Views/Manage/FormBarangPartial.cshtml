@@ -44,6 +44,13 @@
 @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.Hidden("UrlUpload")
+
+<script type="text/javascript">
+    @{
+        var model_listhargajualpermarketview = Model.ListHargaJualPermarketView;
+    }
+    var model_listhargajualpermarketview = @Html.Raw(Json.Encode(model_listhargajualpermarketview));
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
@@ -249,13 +256,13 @@
                                 @Html.HiddenFor(m => m.ListHargaJualPermarket[i].USERNAME, new { Value = username })
                                 <div class="form-group">
                                     @if (Model.ListHargaJualPermarketView.Count > 0)
-                                {
-                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.RecNum })
-                                }
-                                else
-                                {
-                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
-                                }
+                                    {
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.RecNum })
+                                    }
+                                    else
+                                    {
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
+                                    }
                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].BRG, new { Value = "xxx" })
                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].IDMARKET, new { Value = listMarket[i].RecNum })
                                     @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
@@ -264,51 +271,51 @@
                                     </label>
                                     <div class="col-md-4 col-sm-4 col-xs-12">
                                         @if (Model.ListHargaJualPermarketView.Count > 0)
-                                    {
-                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0) })
-                                    }
-                                    else
-                                    {
-                                    @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
-                                    }
-                                    </div>
-                                    <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
-                                    @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
-                                    {
-                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY })
-                                    <label class="checkbox-container">
-                                        <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    }
-                                    else
-                                    {
-                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
-                                    <label class="checkbox-container">
-                                        <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
-                                        <span class="checkmark"></span>
-                                    </label>
-                                    }
-                                    </div>
-                                    <div class="col-md-3 col-sm-3 col-xs-12">
-                                        @if (Model?.StatusLog?.Count > 0 && Model?.Stf02?.ID != null)
-                                    {
-                                        var getLatestLog = Model.StatusLog.Where(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : "")).OrderByDescending(p => p.REQUEST_DATETIME).FirstOrDefault();
-                                        if (getLatestLog == null)
                                         {
-                                    @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0) })
                                         }
                                         else
                                         {
-                                    <div data-tip="@getLatestLog.REQUEST_RESULT">
-                                        @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
-                                    </div>
+                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
                                         }
-                                    }
-                                    else
-                                    {
-                                    @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
-                                    }
+                                    </div>
+                                    <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
+                                        @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY })
+                                            <label class="checkbox-container">
+                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        }
+                                        else
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
+                                            <label class="checkbox-container">
+                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
+                                                <span class="checkmark"></span>
+                                            </label>
+                                        }
+                                    </div>
+                                    <div class="col-md-3 col-sm-3 col-xs-12">
+                                        @if (Model?.StatusLog?.Count > 0 && Model?.Stf02?.ID != null)
+                                        {
+                                            var getLatestLog = Model.StatusLog.Where(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : "")).OrderByDescending(p => p.REQUEST_DATETIME).FirstOrDefault();
+                                            if (getLatestLog == null)
+                                            {
+                                                @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                            }
+                                            else
+                                            {
+                                                <div data-tip="@getLatestLog.REQUEST_RESULT">
+                                                    @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
+                                                </div>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                        }
                                     </div>
                                 </div>
                             }

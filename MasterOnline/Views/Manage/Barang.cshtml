@@ -934,7 +934,7 @@
 
                         if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
                             //edit
-                            var ListHargaJualPermarketView = @Html.Raw(Json.Encode(Model.ListHargaJualPermarketView));
+                            var ListHargaJualPermarketView = model_listhargajualpermarketview;
                             ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
                                 return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
                             });
@@ -1280,7 +1280,7 @@
 
                         if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
                             //edit
-                            var ListHargaJualPermarketView = @Html.Raw(Json.Encode(Model.ListHargaJualPermarketView));
+                            var ListHargaJualPermarketView = model_listhargajualpermarketview;
                             ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
                                 return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
                             });
@@ -1618,7 +1618,7 @@
 
                         if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
                             //edit
-                            var ListHargaJualPermarketView = @Html.Raw(Json.Encode(Model.ListHargaJualPermarketView));
+                            var ListHargaJualPermarketView = model_listhargajualpermarketview;
                             ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
                                 return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
                             });
@@ -2070,7 +2070,7 @@
                     }
                 }
 
-            }            
+            }
             if (!validCategory)
                 alert('Anda belum memilih Kategori barang di tab per marketplace.');
             //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih
@@ -2205,7 +2205,7 @@
                 }
             });
         }
-
+        var model_listhargajualpermarketview = "";
         function editBarang(idBarang) {
             var link = '@Url.Action("EditBarang", "Manage", new { barangId = "replaceId" })';
             link = link.replace("replaceId", idBarang);
@@ -2218,6 +2218,7 @@
                 },
                 success: function (response) {
                     $('#form-partial').html(response);
+
                     $('#Stf02_BRG').attr('disabled', 'disabled');
                     Initialize();
                     initRequired();
