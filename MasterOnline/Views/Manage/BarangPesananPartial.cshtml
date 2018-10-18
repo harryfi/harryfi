@@ -142,7 +142,8 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
                 <div class="col-md-6 col-sm-6 col-xs-6">
-                    @Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, min = 0, max = 999 })
+                    @*@Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3, min = 0, max = 999 })*@
+                    @Html.TextBoxFor(m => m.Pesanan.TERM, new { @class = "form-control limited_number_textbox num-only", maxlength = 3, min = 0, max = 999 })
                 </div>
                 <div class="col-md-2 col-sm-2 col-xs-6">
                     <h5>Hari</h5>
@@ -200,7 +201,8 @@
                 @Html.LabelFor(m => m.Pesanan.PPN, "PPN", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-8">
                     <div class="input-group">
-                        @Html.TextBoxFor(m => m.Pesanan.PPN, new { @class = "form-control", Value = (Model?.Pesanan?.PPN >= 0 ? Model.Pesanan.PPN : 0), type = "number", min = 0, max = 100 })
+                        @*@Html.TextBoxFor(m => m.Pesanan.PPN, new { @class = "form-control", Value = (Model?.Pesanan?.PPN >= 0 ? Model.Pesanan.PPN : 0), type = "number", min = 0, max = 100 })*@
+                        @Html.TextBoxFor(m => m.Pesanan.PPN, new { @class = "form-control num-only", Value = (Model?.Pesanan?.PPN >= 0 ? Model.Pesanan.PPN : 0), min = 0, max = 100 })
                         <span class="input-group-addon">%</span>
                     </div>
                 </div>

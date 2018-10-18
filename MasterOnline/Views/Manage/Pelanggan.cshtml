@@ -573,7 +573,8 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-6">
-                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox", required = "required", type = "number", maxlength = 3, min = 0, max = 999 })
+                                                    @*@Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox", required = "required", type = "number", maxlength = 3, min = 0, max = 999 })*@
+                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
                                                 </div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6">
                                                     <h5>Hari</h5>
@@ -1035,7 +1036,7 @@
                             if (confirm("Generate New API Key?")) {
                                 GenerateLazadaCode(custCode);
                             } else {
-
+                                window.location.href = '@Url.Action("Pelanggan", "Manage")';
                             }
                                //window.open( , '_self');
                             //window.location.href = '@Url.Action("Pelanggan", "Manage")';
@@ -1259,7 +1260,13 @@
                                 $('#txtAPI_Key').remove();
                                 //$('#emptyDiv').remove();
                                 //$('#txtDescAPIKey').remove();
-
+                    if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
+                                    $('#password-akun').show();
+                                    $('#Customers_PASSWORD').attr('required', 'checked');
+                                } else {
+                                    $('#password-akun').hide();
+                                    $('#Customers_PASSWORD').removeAttr('required');
+                                }
                     if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
                         var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
@@ -1269,7 +1276,7 @@
                         if (@lzd != response.Customers.NAMA) {
                             var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" required="required" type="text"></div>';
                         } else {
-                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
+                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" disabled value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
                         }
 
                         $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);

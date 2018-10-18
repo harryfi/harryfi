@@ -63,6 +63,19 @@
             overflow-y: scroll;
             height: 400px;
         }*/
+
+        /*add by nurul 17/10/2018*/
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
     </style>
     <style>
         #modal-upload-faktur {
@@ -528,10 +541,10 @@
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="faktur-tab" role="tab" data-toggle="tab" aria-expanded="true">Faktur</a>
                 </li>
-                <li role="presentation">
+                <li role="presentation" class="">
                     <a href="#tab_content2" id="faktur-lunas-tab" role="tab" data-toggle="tab" aria-expanded="false">Faktur Belum Lunas</a>
                 </li>
-                <li role="presentation">
+                <li role="presentation" class="">
                     <a href="#tab_content3" id="faktur-tempo-tab" role="tab" data-toggle="tab" aria-expanded="false">Faktur Jatuh Tempo</a>
                 </li>
                 @*<li role="presentation" class="">
@@ -609,6 +622,50 @@
                         </div>
                     </div>
                 </div>
+                @*<div role="tabpanel" class="tab-pane fade active in" id="tab_content2" aria-labelledby="faktur-lunas-tab">
+                    <div class="row faktur_lunas_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_faktur_lunas" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row faktur_lunas_table_section" style="margin-top: 5px;">
+                        <div id="loading_lunas_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-faktur-lunas-partial">
+                            @Html.Partial("TableFakturLunasPartial")
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content3" aria-labelledby="faktur-tempo-tab">
+                    <div class="row faktur_tempo_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_faktur_tempo" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row faktur_tempo_table_section" style="margin-top: 5px;">
+                        <div id="loading_tempo_tab" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-faktur-tempo-partial">
+                            @Html.Partial("TableFakturLunasPartial")
+                        </div>
+                    </div>
+                </div>*@
             </div>
         </div>
     </div>
@@ -817,6 +874,7 @@
                 refreshTableFaktur1();
                 $('#tambah_faktur').show();
                 $('#refresh_faktur').show();
+                $('#btn-upload-faktur').show();
             });
 
             $('#faktur-lunas-tab').click(function () {
@@ -824,6 +882,7 @@
                 refreshTableFakturLunas();
                 $('#tambah_faktur').hide();
                 $('#refresh_faktur').hide();
+                $('#btn-upload-faktur').hide();
             });
 
             $('#faktur-tempo-tab').click(function () {
@@ -831,6 +890,7 @@
                 refreshTableFakturTempo();
                 $('#tambah_faktur').hide();
                 $('#refresh_faktur').hide();
+                $('#btn-upload-faktur').hide();
             });
 
             $('#box_upload_1').off('click').on('click', function () {
@@ -971,9 +1031,9 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
+                //beforeSend: function () {
+                //    $('#loading_spinner').show();
+                //},
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
@@ -997,9 +1057,9 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
+                //beforeSend: function () {
+                //    $('#loading_spinner').show();
+                //},
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
@@ -1045,6 +1105,16 @@
 
                             $('.faktur_table_section').hide();
                             $('.faktur_editor_section').show();
+
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'faktur-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+                            //end add
                         });
                     }
                 },
@@ -1059,21 +1129,24 @@
             $('.faktur_table_section').show();
             $('.faktur_editor_section').hide();
 
-            if ($TabAktif == 0) {
-                refreshTableFaktur1();
-            }
-            else if ($TabAktif == 1) {
-                refreshTableFakturLunas();
-            }
-            else if ($TabAktif == 2) {
-                refreshTableFakturTempo();
-            }
+            //if ($TabAktif == 0) {
+            //    refreshTableFaktur1();
+            //}
+            //else if ($TabAktif == 1) {
+            //    refreshTableFakturLunas();
+            //}
+            //else if ($TabAktif == 2) {
+            //    refreshTableFakturTempo();
+            //}
+            $('#faktur-tab').click();
 
             $('input, select, .btn-danger').each(function() {
                 $(this).removeAttr('disabled');
             });
 
             refreshForm1();
+
+
 
             $modeEdit = 0;
 
@@ -1112,16 +1185,24 @@
                     $('.faktur_table_section').show();
                     $('.faktur_editor_section').hide();
 
-                    if ($TabAktif == 0) {
-                        refreshTableFaktur1();
-                    }
-                    else if ($TabAktif == 1) {
-                        refreshTableFakturLunas();
-                    }
-                    else if ($TabAktif == 2) {
-                        refreshTableFakturTempo();
-                    }
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    //end add
 
+                    //if ($TabAktif == 0) {
+                    //    refreshTableFaktur1();
+                    //}
+                    //else if ($TabAktif == 1) {
+                    //    refreshTableFakturLunas();
+                    //}
+                    //else if ($TabAktif == 2) {
+                    //    refreshTableFakturTempo();
+                    //}
+                    $('#faktur-tab').click();
+                    
                     $('input, select, .btn-danger').each(function() {
                         $(this).removeAttr('disabled');
                     });
@@ -2307,17 +2388,17 @@
                     $this.closest('div').find('.text-danger').remove();
                 }
             }
-            
+
             return $isValid;
 
         }
-        //end add 
+        //end add
 
         function simpanbrg($id) {
             if (!validateForm()) return false;
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;
-            //end add 
+            //end add
             refreshNetto();
             if ($id == 'brg-0') {
                 if ($('#Faktur_TGL').val() != '' &&

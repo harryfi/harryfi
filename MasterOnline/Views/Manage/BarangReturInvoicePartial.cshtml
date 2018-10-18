@@ -154,7 +154,8 @@
                 @Html.LabelFor(m => m.Invoice.PPN, "PPN", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-8">
                     <div class="input-group">
-                        @Html.TextBoxFor(m => m.Invoice.PPN, new { @class = "form-control", Value = (Model?.Invoice?.PPN >= 0 ? Model.Invoice.PPN : 0), type = "number", min = 0, max = 100 })
+                        @*@Html.TextBoxFor(m => m.Invoice.PPN, new { @class = "form-control", Value = (Model?.Invoice?.PPN >= 0 ? Model.Invoice.PPN : 0), type = "number", min = 0, max = 100 })*@
+                        @Html.TextBoxFor(m => m.Invoice.PPN, new { @class = "form-control num-only", Value = (Model?.Invoice?.PPN >= 0 ? Model.Invoice.PPN : 0), min = 0, max = 100 })
                         <span class="input-group-addon">%</span>
                     </div>
                 </div>
