@@ -219,6 +219,13 @@
                 function () {
                     validateInput($(this),'HURUFANGKA');
                 });
+
+            //add by nruul 18/10/2018
+            $("#Gudang_Nama_Gudang").keydown(
+                function () {
+                    validateInput($(this), 'HURUFANGKA');
+                });
+            //end add 
         }
 
         function simpanGudang(btnClicked) {
@@ -293,6 +300,7 @@
                     //Initialize();
                     //$('#hapusGudang').modal('hide');
                     if (response.Errors != undefined) {
+                        $('#table-gudang-partial').html(response);
                         $('#hapusGudang').modal('hide');
                         alert(response.Errors[0]);
                     } else {
