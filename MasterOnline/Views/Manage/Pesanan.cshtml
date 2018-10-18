@@ -1661,12 +1661,24 @@
                 function() {
                     $('.pesanan_selesai_section').show();
                     $('.pesanan_editor_selesai_section').hide();
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    //end add 
                 });
 
             $('#close-editor-3').on('click',
                 function() {
                     $('.pesanan_sudah_dibayar_section').show();
                     $('.pesanan_editor_sudah_dibayar_section').hide();
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    //end add 
                 });
 
             if ($('.message-error').text() !== '') {
@@ -3384,6 +3396,15 @@
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
                     $('.pesanan_editor_selesai_section').show();
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'selesai-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+                    //end add 
                     $('#loading_spinner').hide();
                 },
                 error: function(xhr, status, error) {
@@ -3421,6 +3442,15 @@
                     $('#TGL').parent().hide();
                     $('.pesanan_sudah_dibayar_section').hide();
                     $('.pesanan_editor_sudah_dibayar_section').show();
+                    //add by nurul 17/10/2018
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'nunggu-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+                    //end add 
                     $('#loading_spinner').hide();
                 },
                 error: function(xhr, status, error) {
