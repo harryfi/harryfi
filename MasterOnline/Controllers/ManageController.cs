@@ -2976,6 +2976,7 @@ namespace MasterOnline.Controllers
                 var dataSession = Session["SessionInfo"] as AccountUserViewModel;
                 var parentsId = Session["parentsId"] as string[];
                 var counter = 0;
+                //List<SecUser> _testList = new List<SecUser>();
 
                 foreach (var form in formsId)
                 {
@@ -2987,7 +2988,8 @@ namespace MasterOnline.Controllers
                         ParentId = Convert.ToInt32(parentsId?[counter]),
                         Permission = true
                     };
-
+                    counter++;
+                    //_testList.Add(secUser);
                     MoDbContext.SecUser.Add(secUser);
                 }
 

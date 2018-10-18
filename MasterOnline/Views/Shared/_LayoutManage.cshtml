@@ -291,81 +291,84 @@
                                         else
                                         {
                                             var secMenu = listSec.SingleOrDefault(s => s.FormId == parent.ScrId);
-
                                             if (secMenu != null)
                                             {
-                                            <li id="@parent.ScrId">
-                                                <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
-                                                    <i class="fa @parent.Icon"></i> @parent.NamaForm
-                                                    @if (parent.HaveChild)
-                                                    {
-                                                        <span class="fa fa-chevron-down"></span>
-                                                    }
-                                                </a>
-                                                <ul class="nav child_menu">
-                                                    @foreach (var child in listChild)
-                                                    {
-                                                        if (child.ParentId == parent.ScrId)
-                                                        {
-                                                            if (child.Show && !child.HaveChild)
-                                                            {
-                                                                <li>
-                                                                    <a @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        @if (child.Icon != null)
-                                                                        {
-                                                                            <i class="fa @child.Icon"></i>
-                                                                        }
-                                                                        @child.NamaForm
-                                                                        @if (child.HaveChild)
-                                                                        {
-                                                                            <span class="fa fa-chevron-down"></span>
-                                                                        }
-                                                                    </a>
-                                                                </li>
-                                                            }
-                                                            else
-                                                            {
-                                                                <li id="@child.ScrId">
-                                                                    <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
-                                                                        <i class="fa @child.Icon"></i> @child.NamaForm
-                                                                        @if (child.HaveChild)
-                                                                        {
-                                                                            <span class="fa fa-chevron-down"></span>
-                                                                        }
-                                                                    </a>
-                                                                    <ul class="nav child_menu">
-                                                                        @foreach (var childFromChild in listChildFromChild)
-                                                                        {
-                                                                            if (listSec.Count > 0)
-                                                                            {
-                                                                                var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
 
-                                                                                if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
-                                                                                {
-                                                                                    if (childFromChild.Show)
-                                                                                    {
-                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                            else
+                                                <li id="@parent.ScrId">
+                                                    <a id="a_@parent.ScrId" @(!parent.HaveChild ? "href=" + parent.Url : "")>
+                                                        <i class="fa @parent.Icon"></i> @parent.NamaForm
+                                                        @if (parent.HaveChild)
+                                                        {
+                                                            <span class="fa fa-chevron-down"></span>
+                                                        }
+                                                    </a>
+                                                    <ul class="nav child_menu">
+                                                        @foreach (var child in listChild)
+                                                        {
+                                                            var childOfSecMenu = listChildOfSecMenu?.SingleOrDefault(c => c.FormId == child.ScrId);
+
+                                                            if (childOfSecMenu != null)
+                                                            {
+                                                                if (child.Show && !child.HaveChild)
+                                                                {
+                                                                    <li>
+                                                                        <a @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            @if (child.Icon != null)
                                                                             {
-                                                                                if (childFromChild.ParentId == child.ScrId)
+                                                                                <i class="fa @child.Icon"></i>
+                                                                            }
+                                                                            @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                    </li>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <li id="@child.ScrId">
+                                                                        <a id="a_@child.ScrId" @(!child.HaveChild ? "href=" + child.Url : "")>
+                                                                            <i class="fa @child.Icon"></i> @child.NamaForm
+                                                                            @if (child.HaveChild)
+                                                                            {
+                                                                                <span class="fa fa-chevron-down"></span>
+                                                                            }
+                                                                        </a>
+                                                                        <ul class="nav child_menu">
+                                                                            @foreach (var childFromChild in listChildFromChild)
+                                                                            {
+                                                                                if (listSec.Count > 0)
                                                                                 {
-                                                                                    if (childFromChild.Show)
+                                                                                    var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
+
+                                                                                    if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
                                                                                     {
-                                                                                        <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    if (childFromChild.ParentId == child.ScrId)
+                                                                                    {
+                                                                                        if (childFromChild.Show)
+                                                                                        {
+                                                                                            <li><a href="@childFromChild.Url">@childFromChild.NamaForm</a></li>
+                                                                                        }
                                                                                     }
                                                                                 }
                                                                             }
-                                                                        }
-                                                                    </ul>
-                                                                </li>
+                                                                        </ul>
+                                                                    </li>
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                </ul>
-                                            </li>
+                                                    </ul>
+                                                </li>
                                             }
                                         }
                                     }
