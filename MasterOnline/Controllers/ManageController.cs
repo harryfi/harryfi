@@ -2708,6 +2708,16 @@ namespace MasterOnline.Controllers
 
             var checkData = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataMerk.Merk.KODE);
 
+            ////add by nurul 3/10/2018
+            //var vmError = new StokViewModel() { };
+            //var check = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KET == dataMerk.Merk.KET && m.USERNAME == dataMerk.Merk.USERNAME);
+            //if (check != null)
+            //{
+            //    vmError.Errors.Add("Nama Merk ini sudah digunakan !");
+            //    return Json(vmError, JsonRequestBehavior.AllowGet);
+            //}
+            ////end add
+
             if (dataMerk.Merk.RecNum == null)
             {
                 if (checkData == null)
@@ -6079,6 +6089,7 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.NO_PL = "";
                 dataVm.Stok.NO_FAKTUR = "";
                 #endregion
+                
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -6227,7 +6238,9 @@ namespace MasterOnline.Controllers
                 }
             }
             //end add by calvin, validasi QOH
-
+            //add by nurul 18/10/2018
+            ErasoftDbContext.STT01B.RemoveRange(stokDetailInDb);
+            //end add 
             ErasoftDbContext.STT01A.Remove(stokInDb);
             ErasoftDbContext.SaveChanges();
 

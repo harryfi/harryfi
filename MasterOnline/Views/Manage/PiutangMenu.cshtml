@@ -324,6 +324,10 @@
                     addError($("#Piutang_TERM").parent(), "Maximum Term is 999 !");
                     return false;
                 }
+                if ($("#Piutang_JTGL").val() < $("#Piutang_TGL").val()) {
+                    addError($("#Piutang_TERM").parent(), "Term can't minus !");
+                    return false;
+                }
                 //end add
 
                 var $form = $(btnClicked).parents('form');
