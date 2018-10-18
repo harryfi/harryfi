@@ -1756,7 +1756,7 @@ namespace MasterOnline.Controllers
             }
 
             ErasoftDbContext.SaveChanges();
-            bool doSync = false;
+            bool doSync = true;
             if (doSync)
             {
                 #region Sync ke Marketplace
