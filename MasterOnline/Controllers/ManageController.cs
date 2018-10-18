@@ -6107,6 +6107,7 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.NO_PL = "";
                 dataVm.Stok.NO_FAKTUR = "";
                 #endregion
+                
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -6255,7 +6256,9 @@ namespace MasterOnline.Controllers
                 }
             }
             //end add by calvin, validasi QOH
-
+            //add by nurul 18/10/2018
+            ErasoftDbContext.STT01B.RemoveRange(stokDetailInDb);
+            //end add 
             ErasoftDbContext.STT01A.Remove(stokInDb);
             ErasoftDbContext.SaveChanges();
 
