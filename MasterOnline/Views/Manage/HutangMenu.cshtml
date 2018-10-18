@@ -283,8 +283,34 @@
             });
         }
 
+        function convertToAngka(rupiah) {
+
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            //end change by calvin 26 september 2018
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
+
         function simpanHutang(btnClicked) {
             if (!validateForm()) return false;
+
+            //add by nurul 5/10/2018
+            if (convertToAngka($("#Hutang_TERM").val()) > 999) {
+                addError($("#Hutang_TERM").parent(), "Maximum Term is 999 !");
+                return false;
+            }
+            if ($("#Hutang_JTGL").val() < $("#Hutang_TGL").val()) {
+                addError($("#Hutang_TERM").parent(), "Term can't minus !");
+                return false;
+            }
+            //end add
 
             var $form = $(btnClicked).parents('form');
 
