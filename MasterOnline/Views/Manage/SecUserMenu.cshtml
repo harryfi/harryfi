@@ -52,7 +52,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account.AccountId).ToList())
+                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account?.AccountId).ToList())
                 {
                     <tr>
                         <td>@user.Username</td>
