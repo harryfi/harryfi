@@ -52,7 +52,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account.AccountId).ToList())
+                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account?.AccountId).ToList())
                 {
                     <tr>
                         <td>@user.Username</td>
@@ -213,6 +213,9 @@
                     parentSecArray[counter] = $(this).find("input").attr("data-parent-id");
                     counter++;
                 });
+
+                console.log(formSecArray);
+                console.log(parentSecArray);
 
                 $.ajax({
                     type: "POST",

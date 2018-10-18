@@ -377,8 +377,9 @@ namespace MasterOnline.Controllers
             }
             else
             {
+                ret = new CreateProductBukaLapak();
                 ret.message = "Failed to call Buka Lapak API";
-                currentLog.REQUEST_EXCEPTION = ret.message;
+                currentLog.REQUEST_EXCEPTION = "Failed to call Buka Lapak API";
                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
             return ret;

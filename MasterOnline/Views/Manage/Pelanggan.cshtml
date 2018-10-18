@@ -931,6 +931,7 @@
                                     var blibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                                     var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();
                                     var lzd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Lazada"))?.IdMarket.ToString();
+                                    var shopee = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Shopee"))?.IdMarket.ToString();
                                 }
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
@@ -947,7 +948,7 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
-                                if (@bklapak != value && @tokped != value) {
+                                if (@bklapak != value && @tokped != value && @shopee != value) {
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
                                     var txtAPI_Key = '';
                                     if (@lzd == value) {
@@ -995,7 +996,7 @@
         }
         //add by Tri, function to open modal on how to get api key each marketplace
         function openModalDesc(codeMarketplace) {
-                @{
+            @{
                     var kdLzd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("LAZADA"))?.IdMarket.ToString();
                     var kdBlibli = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Blibli"))?.IdMarket.ToString();
                     var kdElevenia = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
@@ -1005,12 +1006,12 @@
             }
             else*@
 
-                if (codeMarketplace == @kdBlibli) {
-                $('#modalBlibliAPIKey').modal('show');
-            }
-            else if (codeMarketplace == @kdElevenia){
-                $('#modalEleveniaAPIKey').modal('show');
-            }
+            if (codeMarketplace == @kdBlibli) {
+            $('#modalBlibliAPIKey').modal('show');
+        }
+        else if (codeMarketplace == @kdElevenia){
+            $('#modalEleveniaAPIKey').modal('show');
+        }
         }
         //end add by Tri, function to open modal on how to get api key each marketplace
         var custCode = ""
@@ -1036,9 +1037,9 @@
                             if (confirm("Generate New API Key?")) {
                                 GenerateLazadaCode(custCode);
                             } else {
-
+                                window.location.href = '@Url.Action("Pelanggan", "Manage")';
                             }
-                               //window.open( , '_self');
+                            //window.open( , '_self');
                             //window.location.href = '@Url.Action("Pelanggan", "Manage")';
                             //$('#close-editor').click();
                             //return true;
@@ -1063,10 +1064,10 @@
                         //    $('#loading_spinner').hide();
                         //    $("html, body").animate({ scrollTop: 0 }, "slow");
                         //} else {
-                            console.log(response.Errors);
-                            alert('Ada data yang tidak valid!');
-                            Initialize();
-                            $('#loading_spinner').hide();
+                        console.log(response.Errors);
+                        alert('Ada data yang tidak valid!');
+                        Initialize();
+                        $('#loading_spinner').hide();
                         //}
                     }
                 },
@@ -1260,7 +1261,13 @@
                                 $('#txtAPI_Key').remove();
                                 //$('#emptyDiv').remove();
                                 //$('#txtDescAPIKey').remove();
-
+                    if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
+                                    $('#password-akun').show();
+                                    $('#Customers_PASSWORD').attr('required', 'checked');
+                                } else {
+                                    $('#password-akun').hide();
+                                    $('#Customers_PASSWORD').removeAttr('required');
+                                }
                     if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
                         var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
@@ -1270,15 +1277,15 @@
                         if (@lzd != response.Customers.NAMA) {
                             var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" required="required" type="text"></div>';
                         } else {
-                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
+                            var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" disabled value="' + valuetxtAPI_Key + '" id="Customers_API_KEY" name="Customers.API_KEY" type="text"></div>';
                         }
 
                         $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
 
-                                    //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
-                                    //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
-                                    //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
-                                    //$('descAPIKey').append(lblDescAPIKey);
+                        //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
+                        //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
+                        //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
+                        //$('descAPIKey').append(lblDescAPIKey);
                         lblDesc.style.visibility = 'visible';
                         lblDesc2.style.visibility = 'visible';
                         if (@lzd == response.Customers.NAMA) {
@@ -1292,7 +1299,7 @@
                         lblDesc2.style.visibility = 'hidden';
                         lblPopUp.style.visibility = 'hidden';
                     }
-                                //end add by Tri, remove/append api_key
+                    //end add by Tri, remove/append api_key
                     @*//add by Tri, API key bukalapak auto generate
                     $('#lbl_Customers_API_KEY').remove();
                     $('#txtAPI_Key').remove();
@@ -1400,8 +1407,8 @@
             }
             moment.locale('id');
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
-                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+            var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+            var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
             var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
             //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
@@ -1411,33 +1418,33 @@
                 var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
-                     //alert('kode:' + kode + '\nbln:' + bln);
-                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //alert('kode:' + kode + '\nbln:' + bln);
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                link += '?code=' + kode + '&bulan=' + bln;
+                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    link += '?code=' + kode + '&bulan=' + bln;
 
-                $.ajax({
-                    type: "GET",
-                    url: link,
-                    success: function (response) {
-                        if (response != null) {
-                            //window.location = response.urlView;
-                            if (response.error == null) {
-                                snap.pay(response, { skipOrderSummary: true });
-                            } else {
-                            alert(response);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                //window.location = response.urlView;
+                                if (response.error == null) {
+                                    snap.pay(response, { skipOrderSummary: true });
+                                } else {
+                                    alert(response);
+                                }
                             }
-                        }
-                        //window.open(response, "_self");
-                        //window.location.href(response);
+                            //window.open(response, "_self");
+                            //window.location.href(response);
 
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                    }
-                });
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
                 }
             }
             else

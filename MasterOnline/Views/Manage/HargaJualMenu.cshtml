@@ -175,10 +175,15 @@
                 success: function (res) {
                     $('#btnUbahHJual').show();
                     $('#loading_spinner_btn').hide();
-                    alert("Harga jual berhasil diubah");
-                    $('#table-hargaJual-partial').html(res);
-                    Initialize();
-                    $('#modalEditHargaJual').modal('hide');
+                    if (res.message == null) {
+                        alert("Harga jual berhasil diubah");
+                        $('#table-hargaJual-partial').html(res);
+                        Initialize();
+                        $('#modalEditHargaJual').modal('hide');
+                    } else {
+                        alert(res.message);
+                    }
+                    
                 },
                 error: function (xhr) {
                     $('#btnUbahHJual').show();

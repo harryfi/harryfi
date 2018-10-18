@@ -14,7 +14,6 @@
     {
         accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
-        context.Dispose();
     }
     else
     {
@@ -952,7 +951,7 @@
                     break;
             }
             @{
-                var accountId = dataSession.Account.AccountId;
+                var accountId = accId;
                 var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
             }
             moment.locale('id');
