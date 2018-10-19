@@ -1490,6 +1490,8 @@
             $('#Invoice_NETTO').val(convertToRupiah($bakalNetto));
         }
 
+        var $angka;
+
         function modeEditTd() {
             $('.qty-barang').addClass('editable');
             $('.disc1-barang').addClass('editable');
@@ -1503,7 +1505,10 @@
                 var $inputClass = '';
                 var $trId = $this.parent().attr('data-invoice-id');
                 var $trElement = 'tr[data-invoice-id="' + $trId + '"]';
-                var $angka = convertToAngka($this.text());
+
+                if ($this.text() !== '') {
+                    $angka = $this.text();
+                }
 
                 if ($class == 'qty-barang editable') {
                     $inputClass = 'qty-input';

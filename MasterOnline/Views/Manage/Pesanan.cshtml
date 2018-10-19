@@ -1969,9 +1969,9 @@
                         $('#loading_spinner').show();
                     },
                     success: function() {
-                        alert('Data pesanan berhasil di-update');
-                        $('#close-editor-1').click();
+                        alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
+                        $('#btn-simpan-perubahan-row').hide();
                     },
                     error: function(xhr) {
                         console.log(xhr);
@@ -2046,6 +2046,8 @@
             });
         }
 
+        var $angka;
+
         function modeEditTd() {
             //change by calvin 16 okt 2018
             //$('#table_tambah_pesanan > tbody > tr > .qty-barang').addClass('editable');
@@ -2069,12 +2071,16 @@
                     var $inputClass = '';
                     var $trId = $this.parent().attr('data-pesanan-id');
                     var $trElement = 'tr[data-pesanan-id="' + $trId + '"]';
-                    
-                    var valueHiddenInput = 0;
-                    if ($($this.children()[0]).val() != undefined) {
-                        valueHiddenInput = $($this.children()[0]).val();
+
+                    if ($this.text() !== '') {
+                        $angka = $this.text();
                     }
-                    var $angka = valueHiddenInput;
+
+                    //var valueHiddenInput = 0;
+                    //if ($($this.children()[0]).val() != undefined) {
+                    //    valueHiddenInput = $($this.children()[0]).val();
+                    //}
+                    //var $angka = valueHiddenInput;
 
                     if ($class == 'qty-barang editable') {
                         $inputClass = 'qty-input';
