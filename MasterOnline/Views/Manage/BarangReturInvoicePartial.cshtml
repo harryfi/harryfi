@@ -145,7 +145,7 @@
                             totalHargaBarang += (double)barang.THARGA;
                         }
                     }
-                    @Html.TextBoxFor(m => m.Invoice.BRUTO, new { @class = "form-control", Value = (totalHargaBarang >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalHargaBarang) : "0,00") })
+                    @Html.TextBoxFor(m => m.Invoice.BRUTO, new { @class = "form-control", Value = (Model?.Invoice?.BRUTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Invoice?.BRUTO) : "0,00") })
                 </div>
             </div>
         </div>

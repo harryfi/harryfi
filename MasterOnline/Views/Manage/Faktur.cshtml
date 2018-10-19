@@ -1490,14 +1490,19 @@
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
                     success: function () {
                         alert('Data faktur berhasil di-update');
+                        $('#loading_spinner').hide();
                         //change by calvin 7 juni 2018
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
                         //end change by calvin 7 juni 2018
                     },
                     error: function (xhr) {
+                        $('#loading_spinner').hide();
                         console.log(xhr);
                     }
                 });
@@ -1541,6 +1546,8 @@
             $('#Faktur_NETTO').val(convertToRupiah($bakalNetto));
         }
 
+        var $angka;
+
         function modeEditTd() {
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .qty-barang').addClass('editable');
             $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > .disc1-barang').addClass('editable');
@@ -1553,7 +1560,10 @@
                 var $inputClass = '';
                 var $trId = $this.parent().attr('data-faktur-id');
                 var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
-                var $angka = convertToAngka($this.text());
+
+                if ($this.text() !== '') {
+                    $angka = $this.text();
+                }
 
                 if ($class == 'qty-barang editable') {
                     $inputClass = 'qty-input';
