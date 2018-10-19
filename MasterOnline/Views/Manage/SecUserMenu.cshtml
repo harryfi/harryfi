@@ -102,9 +102,9 @@
                                 if (form.HaveChild)
                                 {
                                     <tr>
-                                        <td  style="padding-top: 4px; padding-bottom: 4px;"><span style="font-weight: bold; ">@form.NamaForm</span></td>
-                                        <td class="text-center"  style="padding-top: 4px; padding-bottom: 4px;">
-                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId" >
+                                        <td style="padding-top: 4px; padding-bottom: 4px;"><span style="font-weight: bold; ">@form.NamaForm</span></td>
+                                        <td class="text-center" style="padding-top: 4px; padding-bottom: 4px;">
+                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId">
                                                 @{
                                                     var checkInSec = Model.ListSec.FirstOrDefault(s => s.FormId == form.ScrId);
 
@@ -132,9 +132,9 @@
                                         if (formChild.ParentId == form.ScrId)
                                         {
                                             <tr>
-                                                <td  style="padding-top: 4px; padding-bottom: 4px;"><span style="margin-left: 30px; ">@formChild.NamaForm</span></td>
-                                                <td class="text-center"  style="padding-top: 4px; padding-bottom: 4px;">
-                                                    <div class="btn-group has-parent" data-toggle="buttons" data-form-id="@formChild.ScrId" data-form-parent-id="@formChild.ParentId" >
+                                                <td style="padding-top: 4px; padding-bottom: 4px;"><span style="margin-left: 30px; ">@formChild.NamaForm</span></td>
+                                                <td class="text-center" style="padding-top: 4px; padding-bottom: 4px;">
+                                                    <div class="btn-group has-parent" data-toggle="buttons" data-form-id="@formChild.ScrId" data-form-parent-id="@formChild.ParentId">
                                                         @{
                                                             var childCheckInSec = Model.ListSec.FirstOrDefault(s => s.FormId == formChild.ScrId);
 
@@ -159,6 +159,34 @@
                                         }
                                     }
                                 }
+                                else if (!form.HaveChild && form.ParentId == 0)
+                                {
+                                    <tr>
+                                        <td style="padding-top: 4px; padding-bottom: 4px;"><span style="font-weight: bold; ">@form.NamaForm</span></td>
+                                        <td class="text-center" style="padding-top: 4px; padding-bottom: 4px;">
+                                            <div class="btn-group has-child" data-toggle="buttons" data-form-id="@form.ScrId">
+                                                @{
+                                                    var checkInSec = Model.ListSec.FirstOrDefault(s => s.FormId == form.ScrId);
+
+                                                    if (checkInSec == null)
+                                                    {
+                                                        <label class="btn btn-success">
+                                                            <input id="@form.ScrId" data-parent-id="@form.ParentId" type="checkbox" autocomplete="off">
+                                                            <span class="glyphicon glyphicon-ok"></span>
+                                                        </label>
+                                                    }
+                                                    else
+                                                    {
+                                                        <label class="btn btn-success active">
+                                                            <input id="@form.ScrId" data-parent-id="@form.ParentId" type="checkbox" autocomplete="off" checked>
+                                                            <span class="glyphicon glyphicon-ok"></span>
+                                                        </label>
+                                                    }
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                             }
                         </tbody>
                     </table>
@@ -172,6 +200,9 @@
 {
     <script>
         $(document).ready(function () {
+            var stateObj = { foo: "bar" };
+            history.pushState(stateObj, "user", "/manage/security/user");
+
             $('.has-child').click(function() {
                 var formIdAsParent = $(this).attr('data-form-id');
                 var activated = $(this).find('label').hasClass('active');

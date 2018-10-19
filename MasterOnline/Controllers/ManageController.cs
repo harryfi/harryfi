@@ -246,7 +246,16 @@ namespace MasterOnline.Controllers
             //add by Tri call market place api getorder
             var connectionID = Guid.NewGuid().ToString();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            string username = sessionData.Account.Username;
+            string username = "";
+            if (sessionData?.User != null)
+            {
+                var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId;
+                username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
+            }
+            else
+            {
+                username = sessionData?.Account?.Username;
+            }
             //GetPesanan(connectionID, username);
             int bliAcc = 0;
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
