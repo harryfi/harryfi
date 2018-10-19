@@ -295,6 +295,15 @@
                         cekField($(this), 'CekNmSupplier', 'Nama Supplier ini sudah digunakan!');
                     }
                 });
+            //add by nurul 5/10/2018
+            $('#Supplier_AL4').on('change blur',
+                function () {
+                    if (convertToAngka($("#Supplier_AL4").val()) > 99999) {
+                        addError($("#Supplier_AL4").parent(), "Maxlength is 5 digits !");
+                        return false;
+                    }
+                });
+            //end add
         }
 
         function getProvinsi() {
@@ -343,10 +352,28 @@
                 }
             });
         }
+        function convertToAngka(rupiah) {
 
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            //end change by calvin 26 september 2018
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
         function simpanSupplier(btnClicked) {
             if (!validateForm()) return false;
-
+            //add by nurul 5/10/2018
+            if (convertToAngka($("#Supplier_AL4").val()) > 99999) {
+                addError($("#Supplier_AL4").parent(), "Maxlength is 5 digits !");
+                return false;
+            }
+            //end add
             var $form = $(btnClicked).parents('form');
 
             $.ajax({

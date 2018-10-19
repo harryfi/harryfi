@@ -151,21 +151,22 @@
                                                 @Html.LabelFor(m => m.Pembeli.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Pembeli.KODEPROV)
-                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0" required = "required"></div>
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Pembeli.KODEKABKOT)
-                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required = "required"></div>
+                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*@Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 5 })
+                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control num-only", required = "required", maxlength = 5, max = 99999 })
+
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -175,7 +176,7 @@
                                                     @Html.TextBoxFor(m => m.Pembeli.TLP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 15 })
                                                 </div>
                                             </div>
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)"/>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanPembeli(this)" />
                                         }
                                     </div>
                                 </div>
@@ -263,16 +264,43 @@
             $('#Pembeli_TLP').keydown(
                 function () {
                     InitPaste($(this));
-                }); 
+                });
             $('#Pembeli_KODEPOS').keydown(
                 function () {
                     InitPaste($(this));
                 });
+            //add by nurul 5/10/2018
+            $('#Pembeli_KODEPOS').on('change blur',
+                function () {
+                if (convertToAngka($("#Pembeli_KODEPOS").val()) > 99999) {
+                    addError($("#Pembeli_KODEPOS").parent(), "Maxlength is 5 digits !");
+                    return false;
+                }
+                });
+            //end add
         }
+        function convertToAngka(rupiah) {
 
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            //end change by calvin 26 september 2018
+        }
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
         function simpanPembeli(btnClicked) {
             if (!validateForm()) return false;
-
+            //add by nurul 5/10/2018
+            if (convertToAngka($("#Pembeli_KODEPOS").val()) > 99999) {
+                addError($("#Pembeli_KODEPOS").parent(), "Maxlength is 5 digits !");
+                return false;
+            }
+            //end add
             var $form = $(btnClicked).parents('form');
 
             $.ajax({
