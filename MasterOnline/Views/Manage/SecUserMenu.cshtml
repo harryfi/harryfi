@@ -200,9 +200,6 @@
 {
     <script>
         $(document).ready(function () {
-            var stateObj = { foo: "bar" };
-            history.pushState(stateObj, "user", "/manage/security/user");
-
             $('.has-child').click(function() {
                 var formIdAsParent = $(this).attr('data-form-id');
                 var activated = $(this).find('label').hasClass('active');
