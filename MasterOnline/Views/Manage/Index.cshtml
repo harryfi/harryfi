@@ -91,7 +91,7 @@
     </div>
 </div>
 <br/>
-<div class="row chart-mode">
+<div class="row chart-mode" style="margin-bottom: 20px;">
     <div class="col-md-6" id="chart-jumlah-per-market-section">
         <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
         <canvas id="chart-jumlah-per-market" height="200"></canvas>
@@ -112,7 +112,6 @@
         $(document).ready(function () {
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
-            $('#dashboard_partial').hide();
             getDashboard();
         });
 
@@ -428,6 +427,8 @@
                     if ($selectedMonth !== '' && $selectedMonth !== monthVal) {
                         $('.month_label').text('Bulan ' + monthName);
                     }
+
+                    $('.angka-mode').hide();
 
                     $('#loading_spinner').hide();
                 },
