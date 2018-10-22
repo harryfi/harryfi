@@ -892,6 +892,33 @@
             if ($('#Stf02_ID').off('click').val() != '') {
                 getFotoProduk();
             }
+
+            //add by nruul 18/10/2018
+            $("#Stf02_MINI").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Stf02_MAXI").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Stf02_BERAT").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Stf02_PANJANG").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Stf02_LEBAR").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Stf02_TINGGI").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            //end add 
         }
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
@@ -2305,5 +2332,37 @@
             source.value = (convertToAngka(source.value));
             source.value = (convertToRupiah(source.value));
         }
+        //add by nurul 22/10/2018
+        function validateInput(obj, option) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste2(x, option);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste2(obj, option) {
+            var x = obj;
+            var strValidChars = "";
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+
+            if (option == 'HURUF')
+                strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'HURUFANGKA')
+                strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+        //end add by nurul 
     </script>
 }

@@ -333,8 +333,8 @@
                 strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
             if (option == 'HURUFANGKA')
                 strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
-            else
-                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/><,\"[]\\=";
 
             var strChar;
             var FilteredChars = "";

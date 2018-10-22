@@ -109,13 +109,15 @@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.MINI, "Stok Minimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
-                            @Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })
+                            @*@Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
+                            @Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
                         </div>
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
-                            @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })
+                            @*@Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
+                            @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
                         </div>
                     </div>
                     <div class="form-group">
@@ -186,28 +188,33 @@
                         <div class="form-group">
                             @Html.LabelFor(m => m.Stf02.BERAT, "Berat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-6">
-                                @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                @*@Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
                             </div>
                             <label class="control-label satuan col-md-5 col-sm-6">GR</label>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Stf02.PANJANG, "Panjang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-6">
-                                @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                @*@Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+
                             </div>
                             <label class="control-label satuan col-md-5 col-sm-6">CM</label>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Stf02.LEBAR, "Lebar *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-6">
-                                @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                @*@Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
                             </div>
                             <label class="control-label satuan col-md-5 col-sm-6">CM</label>
                         </div>
                         <div class="form-group">
                             @Html.LabelFor(m => m.Stf02.TINGGI, "Tinggi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                             <div class="col-md-4 col-sm-4 col-xs-6">
-                                @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                @*@Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
                             </div>
                             <label class="control-label satuan col-md-5 col-sm-6">CM</label>
                         </div>

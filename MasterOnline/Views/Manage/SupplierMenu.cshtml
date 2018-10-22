@@ -304,6 +304,29 @@
                     }
                 });
             //end add
+
+            //add by nruul 18/10/2018
+            $("#Supplier_AL4").keydown(
+                function () {
+                    validateInput($(this), 'TOP');
+                });
+            $("#Supplier_TERM").keydown(
+                function () {
+                    validateInput($(this), 'TOP');
+                });
+            $("#Supplier_RekBca").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Supplier_NPWP").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            $("#Supplier_TLP").keydown(
+                function () {
+                    validateInput($(this), 'ANGKA');
+                });
+            //END ADD
         }
 
         function getProvinsi() {
@@ -470,5 +493,39 @@
                 }
             });
         }
+        //add by nurul 22/10/2018
+        function validateInput(obj, option) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste2(x, option);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste2(obj, option) {
+            var x = obj;
+            var strValidChars = "";
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+
+            if (option == 'HURUF')
+                strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'HURUFANGKA')
+                strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/><,\"[]\\=";
+            if (option == 'TOP')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,-\"[]\\=";
+
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+        //end add by nurul
     </script>
 }
