@@ -17,5 +17,7 @@ namespace MasterOnline.Models.Api
         public string SearchParam { get; set; }
         public int SortBy { get; set; }
         public string DbPath { get; set; }
+        public long AccId { get; set; }
+        public string Username { get; set; }
     }
 }
