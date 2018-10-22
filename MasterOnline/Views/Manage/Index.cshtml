@@ -65,13 +65,24 @@
     </div>
 </div>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-6" id="chart-jumlah-section">
         <h4>Grafik Berdasarkan Jumlah</h4>
         <canvas id="chart-jumlah" height="200"></canvas>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6" id="chart-nilai-section">
         <h4>Grafik Berdasarkan Nilai</h4>
         <canvas id="chart-nilai" height="200"></canvas>
+    </div>
+</div>
+<br/>
+<div class="row">
+    <div class="col-md-6" id="chart-jumlah-per-market-section">
+        <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
+        <canvas id="chart-jumlah-per-market" height="200"></canvas>
+    </div>
+    <div class="col-md-6" id="chart-nilai-per-market-section">
+        <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
+        <canvas id="chart-nilai-per-market" height="200"></canvas>
     </div>
 </div>
 <div id="dashboard_partial"></div>
@@ -86,10 +97,18 @@
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
             getDashboard();
-            getChart();
         });
 
         function getChart() {
+            $('#chart-jumlah').remove();
+            $('#chart-nilai').remove();
+            $('#chart-jumlah-per-market').remove();
+            $('#chart-nilai-per-market').remove();
+            $('#chart-jumlah-section').append('<canvas id="chart-jumlah" height="200"></canvas>');
+            $('#chart-nilai-section').append('<canvas id="chart-nilai" height="200"></canvas>');
+            $('#chart-jumlah-per-market-section').append('<canvas id="chart-jumlah-per-market" height="200"></canvas>');
+            $('#chart-nilai-per-market-section').append('</canvas><canvas id="chart-nilai-per-market" height="200"></canvas>');
+
             $.ajax({
                 type: "POST",
                 url: '/api/chart',
@@ -152,8 +171,6 @@
                         }
                     });
 
-                    console.log(response.data.NilaiPesananHariIni);
-
                     var ctxNilai = document.getElementById("chart-nilai").getContext('2d');
                     var chartNilai = new Chart(ctxNilai, {
                         type: 'bar',
@@ -162,7 +179,7 @@
                             labels: ["Pesanan", "Faktur", "Retur"],
                             datasets: [{
                                 label: 'Hari Ini',
-                                data: [response.data.NilaiPesananHariIni, response.data.NilaiFakturHariIni, response.data.NilaiReturHariIni],
+                                data: [1201202, response.data.NilaiFakturHariIni, response.data.NilaiReturHariIni],
                                 backgroundColor: [
                                     'rgba(255, 99, 132, 0.2)',
                                     'rgba(54, 162, 235, 0.2)',
@@ -195,9 +212,148 @@
                             scales: {
                                 yAxes: [{
                                     ticks: {
-                                        beginAtZero: true
+                                        beginAtZero: true,
+                                        userCallback: function(value, index, values) {
+                                            value = value.toString();
+                                            value = value.split(/(?=(?:...)*$)/);
+                                            value = value.join('.');
+                                            return 'Rp ' + value;
+                                        }
                                     }
                                 }]
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: (tooltipItem, data) => {
+                                        return data.datasets[tooltipItem.datasetIndex].label + ": Rp " + convertToRupiah(tooltipItem.yLabel);
+                                    },
+                                },
+                            }
+                        }
+                    });
+
+                    var akunMarketPlace = [];
+                    var jumlahPesananHariIniPerMarket = [];
+                    var jumlahPesananBulanIniPerMarket = [];
+                    var nilaiPesananHariIniPerMarket = [];
+                    var nilaiPesananBulanIniPerMarket = [];
+
+                    for (var i = 0; i < response.data.ListPesananPerMarketplace.length; i++) {
+                        akunMarketPlace.push(response.data.ListPesananPerMarketplace[i].NamaMarket);
+                        jumlahPesananHariIniPerMarket.push(response.data.ListPesananPerMarketplace[i].JumlahPesananHariIni);
+                        jumlahPesananBulanIniPerMarket.push(response.data.ListPesananPerMarketplace[i].JumlahPesananBulanIni);
+                        nilaiPesananHariIniPerMarket.push(convertToAngka(response.data.ListPesananPerMarketplace[i].NilaiPesananHariIni));
+                        nilaiPesananBulanIniPerMarket.push(convertToAngka(response.data.ListPesananPerMarketplace[i].NilaiPesananBulanIni));
+                    }
+
+                    console.log(nilaiPesananHariIniPerMarket);
+                    console.log(nilaiPesananBulanIniPerMarket);
+
+                    var ctxJumlahPerMarket = document.getElementById("chart-jumlah-per-market").getContext('2d');
+                    var chartJumlahPerMarket = new Chart(ctxJumlahPerMarket, {
+                        type: 'bar',
+                        data: {
+                            labels: akunMarketPlace,
+                            datasets: [{
+                                label: 'Hari Ini',
+                                data: jumlahPesananHariIniPerMarket,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                ],
+                                borderColor: [
+                                    'rgba(255,99,132,1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Bulan Ini',
+                                data: jumlahPesananBulanIniPerMarket,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                ],
+                                borderColor: [
+                                    'rgba(255,99,132,1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }],
+
+                            }
+                        }
+                    });
+
+                    var ctxNilaiPerMarket = document.getElementById("chart-nilai-per-market").getContext('2d');
+                    var chartNilaiPerMarket = new Chart(ctxNilaiPerMarket, {
+                        type: 'bar',
+                        showTooltips: false,
+                        data: {
+                            labels: akunMarketPlace,
+                            datasets: [{
+                                label: 'Hari Ini',
+                                data: nilaiPesananHariIniPerMarket,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                ],
+                                borderColor: [
+                                    'rgba(255,99,132,1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Bulan Ini',
+                                data: nilaiPesananBulanIniPerMarket,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                ],
+                                borderColor: [
+                                    'rgba(255,99,132,1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        userCallback: function (value, index, values) {
+                                            value = value.toString();
+                                            value = value.split(/(?=(?:...)*$)/);
+                                            value = value.join('.');
+                                            return 'Rp ' + value;
+                                        }
+                                    }
+                                }]
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: (tooltipItem, data) => {
+                                        return data.datasets[tooltipItem.datasetIndex].label + ": Rp " + convertToRupiah(tooltipItem.yLabel);
+                                    },
+                                },
                             }
                         }
                     });
@@ -206,6 +362,17 @@
                     console.log(errMsg);
                 },
             });
+        }
+
+        function convertToRupiah(angka) {
+            return $.number(angka, 2, ',', '.');
+        }
+
+        function convertToAngka(rupiah) {
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
         }
 
         function getDashboard($selectedDate = '') {
@@ -247,6 +414,7 @@
                 language: 'id'
             }).change(function () {
                 getDashboard($(this).val());
+                getChart();
                 $(this).datepicker('hide');
             });
         }
