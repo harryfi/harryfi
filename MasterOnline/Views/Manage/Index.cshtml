@@ -47,6 +47,10 @@
             position: absolute;
             top: 7px;
         }
+
+        .dropdown-menu > li > a {
+            font-size: 14px !important;
+        }
     </style>
 }
 
@@ -63,8 +67,20 @@
             </span>
         </div>
     </div>
+    <div class="col-md-2 col-sm-12">
+        <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <span id="mode">Grafik</span>
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                <li><a onclick="changeMode(0)">Grafik</a></li>
+                <li><a onclick="changeMode(1)">Angka</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
-<div class="row">
+<div class="row chart-mode">
     <div class="col-md-6" id="chart-jumlah-section">
         <h4>Grafik Berdasarkan Jumlah</h4>
         <canvas id="chart-jumlah" height="200"></canvas>
@@ -75,7 +91,7 @@
     </div>
 </div>
 <br/>
-<div class="row">
+<div class="row chart-mode">
     <div class="col-md-6" id="chart-jumlah-per-market-section">
         <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
         <canvas id="chart-jumlah-per-market" height="200"></canvas>
@@ -96,8 +112,21 @@
         $(document).ready(function () {
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
+            $('#dashboard_partial').hide();
             getDashboard();
         });
+
+        function changeMode(tipe) {
+            if (tipe === 0) {
+                $('#mode').text('Grafik');
+                $('.chart-mode').show();
+                $('.angka-mode').hide();
+            } else {
+                $('#mode').text('Angka');
+                $('.chart-mode').hide();
+                $('.angka-mode').show();
+            }
+        }
 
         function getChart() {
             $('#chart-jumlah').remove();

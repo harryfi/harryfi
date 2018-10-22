@@ -2682,12 +2682,12 @@ namespace MasterOnline.Controllers.Api
 
                         var jumlahPesananToday = vm.ListPesanan?
                             .Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Count();
-                        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                        var nilaiPesananToday = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL == selectedDate).Sum(p => p.NETTO))}";
 
                         var jumlahPesananMonth = vm.ListPesanan?
 
                             .Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Count();
-                        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.BRUTO - p.NILAI_DISC))}";
+                        var nilaiPesananMonth = $"Rp {String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", vm.ListPesanan?.Where(p => p.CUST == marketplace.CUST && p.TGL?.Month == selectedMonth).Sum(p => p.NETTO))}";
 
                         vm.ListPesananPerMarketplace.Add(new PesananPerMarketplaceModel()
                         {
