@@ -512,6 +512,14 @@
     <Compile Include="Migrations\201810090934185_MO_add_col_cate_code_di_attribute_opt_lazada.Designer.cs">
       <DependentUpon>201810090934185_MO_add_col_cate_code_di_attribute_opt_lazada.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810221517293_AddTablePartner.cs" />
+    <Compile Include="Migrations\201810221517293_AddTablePartner.Designer.cs">
+      <DependentUpon>201810221517293_AddTablePartner.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810221536086_AddTipePartner.cs" />
+    <Compile Include="Migrations\201810221536086_AddTipePartner.Designer.cs">
+      <DependentUpon>201810221536086_AddTipePartner.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -608,6 +616,7 @@
     <Compile Include="Models\CATEGORY_BLIBLI.cs" />
     <Compile Include="Models\CekKetersediaanData.cs" />
     <Compile Include="Models\CekKode.cs" />
+    <Compile Include="Models\Partner.cs" />
     <Compile Include="Models\PICKUP_POINT_BLIBLI.cs" />
     <Compile Include="Models\DeliveryTemplateElevenia.cs" />
     <Compile Include="Models\DetailPromosi.cs" />
@@ -5580,6 +5589,7 @@
     <Content Include="Views\Manage\SupportOffline.cshtml" />
     <Content Include="Views\Lazada\LazadaAuth.cshtml" />
     <Content Include="Views\Manage\UploadFakturView.cshtml" />
+    <Content Include="Views\Account\Partner.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5904,6 +5914,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810090934185_MO_add_col_cate_code_di_attribute_opt_lazada.resx">
       <DependentUpon>201810090934185_MO_add_col_cate_code_di_attribute_opt_lazada.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810221517293_AddTablePartner.resx">
+      <DependentUpon>201810221517293_AddTablePartner.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810221536086_AddTipePartner.resx">
+      <DependentUpon>201810221536086_AddTipePartner.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

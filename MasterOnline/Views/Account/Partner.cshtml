@@ -1,6 +1,6 @@
-﻿@model MasterOnline.Models.Account
+﻿@model MasterOnline.Models.Partner
 @{
-    ViewBag.Title = "Register";
+    ViewBag.Title = "Partner";
 }
 
 @section styles
@@ -12,6 +12,75 @@
             -webkit-font-smoothing: antialiased !important;
             -moz-osx-font-smoothing: grayscale !important;
         }
+
+        body {
+            background-color: #f3f3f4;
+            padding-top: 0;
+        }
+
+        hr {
+            margin-top: 10px;
+        }
+
+        .font-bold {
+            font-weight: 600;
+        }
+
+        h2 {
+            font-size: 24px;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        .loginColumns, .passwordBox {
+            margin: 0 auto;
+            padding: 25px 20px 20px;
+        }
+
+        .loginColumns {
+            max-width: 800px;
+            margin-top: 50px;
+        }
+
+        img[alt="logo"] {
+            margin-bottom: 30px;
+        }
+
+        .ibox-content {
+            clear: both;
+            padding: 15px 20px 20px;
+            border-color: #e7eaec;
+            border-image: none;
+            border-style: solid solid none;
+            border-width: 1px 0;
+        }
+
+        .ibox-content, .ibox-title {
+            background-color: #fff;
+            color: inherit;
+        }
+
+        .space-15 {
+            margin: 15px 0;
+        }
+
+        .block {
+            display: block !important;
+        }
+
+        .m-b {
+            margin-bottom: 15px;
+        }
+
+        .full-width {
+            width: 100% !important;
+        }
+
+        .navbar {
+            display: none;
+        }
     </style>
 }
 
@@ -21,9 +90,9 @@
             <a href="/">
                 <img alt="logo" style="margin: 0 auto; display: block;" src="~/Content/Images/MO_new_logo.png" width="300">
             </a>
-            <br/>
+            <br />
             <h2 class="font-bold">
-                Pendaftaran Akun Baru
+                Pendaftaran Partner Baru
             </h2>
             <p>Cukup masukkan beberapa data dan Anda siap untuk memulai!</p><br>
             <p>Pengaturan lebih detail bisa di lakukan setelah pendaftaran Anda selesai.</p><br>
@@ -34,7 +103,7 @@
                     <a href="~/Content/Static/termsandconditions.html#security">Keamanan</a><br>
                 </small>
             </p>
-            <br/>
+            <br />
             <div class="row">
                 <div class="col-md-8">
                     <small>PT. Erasoft Teknologi Indonesia</small>
@@ -76,14 +145,13 @@
                         </button>
                     </div>
 
-                    @using (Html.BeginForm("SaveAccount", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    @using (Html.BeginForm("SavePartner", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
                         <div class="form-group">
                             @Html.LabelFor(m => m.Username, "Nama Lengkap *", new { @class = "control-label control-label-bold" })
                             @Html.TextBoxFor(m => m.Username, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
-                        @Html.HiddenFor(m => m.UserId, new { Value = "xxx" })
                         <div class="form-group">
                             @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
                             @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
@@ -93,22 +161,18 @@
                             @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            <div class="col-lg-6" style="padding-left: 0;">
-                                @Html.LabelFor(m => m.Password, "Password *", new { @class = "control-label control-label-bold" })
-                                @Html.TextBoxFor(m => m.Password, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
-                            </div>
-                            <div class="col-lg-6" style="padding-right: 0; padding-left: 0">
-                                @Html.LabelFor(m => m.ConfirmPassword, "Konfirmasi Password *", new { @class = "control-label control-label-bold" })
-                                @Html.TextBoxFor(m => m.ConfirmPassword, new { @class = "form-control", maxlength = 50, type = "password", required = "required" })
-                            </div>
+                            @Html.LabelFor(m => m.TipePartner, "Tipe Partner *", new { @class = "control-label control-label-bold" })
+                            @Html.HiddenFor(m => m.TipePartner, new { Value = -1 })
+                            @Html.HiddenFor(m => m.NamaTipe, new { Value = "xxx" })
+                            <select class="form-control" id="Tipe" required="required" style="max-width: 100% !important;">
+                                <option value="default" selected>Harap pilih</option>
+                                <option value="0">Sales Partner (SP)</option>
+                                <option value="1">Certified Support Partner (CSP)</option>
+                            </select>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" id="ktp-section">
                             @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
                             <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
-                            @Html.TextBoxFor(m => m.NamaTokoOnline, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -116,83 +180,13 @@
                         <button id="btn-submit-daftar" type="button" class="btn btn-primary block full-width m-b" data-style="expand-right">
                             <span>Daftar</span>
                             <i class='fa fa-spinner fa-spin pull-right hide'></i>
-                        </button><span>Sudah punya akun?</span><a href="@Url.Action("Login", "Account")"> Login di sini</a>
+                        </button>
                     }
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    body {
-        background-color: #f3f3f4;
-        padding-top: 0;
-    }
-
-    hr {
-        margin-top: 10px;
-    }
-
-    .font-bold {
-        font-weight: 600;
-    }
-
-    h2 {
-        font-size: 24px;
-    }
-
-    p {
-        margin: 0;
-    }
-
-    .loginColumns, .passwordBox {
-        margin: 0 auto;
-        padding: 25px 20px 20px;
-    }
-
-    .loginColumns {
-        max-width: 800px;
-    }
-
-    img[alt="logo"] {
-        margin-bottom: 30px;
-    }
-
-    .ibox-content {
-        clear: both;
-        padding: 15px 20px 20px;
-        border-color: #e7eaec;
-        border-image: none;
-        border-style: solid solid none;
-        border-width: 1px 0;
-    }
-
-    .ibox-content, .ibox-title {
-        background-color: #fff;
-        color: inherit;
-    }
-
-    .space-15 {
-        margin: 15px 0;
-    }
-
-    .block {
-        display: block !important;
-    }
-
-    .m-b {
-        margin-bottom: 15px;
-    }
-
-    .full-width {
-        width: 100% !important;
-    }
-
-    .navbar {
-        display: none;
-    }
-</style>
 
 @section scripts
 {
@@ -201,6 +195,24 @@
             $("#alert-error-section").hide();
 
             initRequired();
+
+            $('#Tipe').on('change',
+                function() {
+                    $('#TipePartner').val($('#Tipe option:selected').val());
+                    $('#NamaTipe').val($('#Tipe option:selected').text());
+
+                    if ($('#Tipe option:selected').val() == 0) {
+                        $('#ImageFile').removeAttr('required');
+                        $('#ktp-section').slideUp(500);
+                    } else {
+                        $('#ImageFile').attr('required', 'required');
+                        $('#ktp-section').slideDown(500);
+                    }
+
+                    if ($('#Tipe option:selected').val() != 'default') {
+                        $(this).css('border', '1px solid #e5e6e7');
+                    }
+                });
 
             $('#btn-submit-daftar').click(function() {
                 if ($('#Password').val() !== $('#ConfirmPassword').val()) {

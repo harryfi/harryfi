@@ -504,5 +504,18 @@ namespace MasterOnline.Controllers
         {
             return View();
         }
+
+        [System.Web.Mvc.Route("partner")]
+        public ActionResult Partner()
+        {
+            return View();
+        }
+
+        [System.Web.Mvc.HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SavePartner()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
