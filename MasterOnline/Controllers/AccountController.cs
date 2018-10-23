@@ -513,9 +513,60 @@ namespace MasterOnline.Controllers
 
         [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult SavePartner()
+        public ActionResult SavePartner(Partner partner)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+            {
+                return View("Partner", partner);
+            }
+
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.Email == partner.Email);
+
+            if (partnerInDb != null)
+            {
+                ModelState.AddModelError("", @"Email sudah terdaftar!");
+                return View("Partner", partner);
+            }
+
+            if (Request.Files.Count > 0)
+            {
+                var file = Request.Files[0];
+
+                if (file != null && file.ContentLength > 0)
+                {
+                    var fileName = Path.GetFileName(file.FileName);
+                    var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
+                    partner.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
+                    file.SaveAs(path);
+                }
+            }
+
+            if (partner.TipePartner == 1 && String.IsNullOrWhiteSpace(partner.PhotoKtpUrl))
+            {
+                ModelState.AddModelError("", @"Harap sertakan foto / scan KTP Anda!");
+                return View("Partner", partner);
+            }
+
+            partner.Status = false; //Partner tidak aktif untuk pertama kali
+            partner.StatusSetuju = false; //Partner tidak setuju untuk pertama kali
+            MoDbContext.Partner.Add(partner);
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda sebagai Partner. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
+
+            return View("Partner");
+        }
+
+        [System.Web.Mvc.Route("partner/approval")]
+        public ActionResult PartnerApproval(long partnerId)
+        {
+            //var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            //partnerInDb.StatusSetuju = true;
+
+            //MoDbContext.SaveChanges();
+
+            return View();
         }
     }
 }

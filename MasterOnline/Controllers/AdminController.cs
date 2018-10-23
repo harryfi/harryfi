@@ -2,6 +2,9 @@
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 using MasterOnline.Models;
 using MasterOnline.Services;
@@ -523,6 +526,89 @@ namespace MasterOnline.Controllers
             return View(forms);
         }
 
+        [Route("admin/manage/partner")]
+        [SessionAdminCheck]
+        public ActionResult PartnerMenu()
+        {
+            var vm = new PartnerViewModel()
+            {
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+
+            return View(vm);
+        }
+
         // =============================================== Menu-menu pada halaman admin (END)
+
+        public async Task<ActionResult> ChangeStatusPartner(string partnerid)
+        {
+            var partnerId = Convert.ToInt64(partnerid);
+            var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            partnerInDb.Status = !partnerInDb.Status;
+
+            MoDbContext.SaveChanges();
+
+            if (partnerInDb.Status)
+            {
+                var email = new MailAddress(partnerInDb.Email);
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Pendaftaran MasterOnline berhasil!";
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html")).Replace("LINKPERSETUJUAN", Url.Action("PartnerApproval", "Account", new { partnerId }));
+                message.IsBodyHtml = true;
+
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+                using (var smtp = new SmtpClient())
+                {
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "erasoft123"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+#endif
+            }
+
+            ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
+            var vm = new PartnerViewModel()
+            {
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+
+            return View("PartnerMenu", vm);
+        }
     }
 }

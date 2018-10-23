@@ -39,6 +39,8 @@ namespace MasterOnline.Models
 
         public Boolean Status { get; set; }
 
+        public Boolean StatusSetuju { get; set; }
+
         public string PhotoKtpBase64 { get; set; }
 
         [Required]

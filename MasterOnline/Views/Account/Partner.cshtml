@@ -194,6 +194,10 @@
         $(document).on('ready', function (event) {
             $("#alert-error-section").hide();
 
+            if ($('.alert-success').length) {
+                $('.alert-success').slideUp(500);
+            }
+
             initRequired();
 
             $('#Tipe').on('change',
@@ -437,29 +441,6 @@
             $('form input.limited_number_textbox[type="number"]').each(function () {
                 var $this = $(this);
                 $this.attr('oninput', 'maxLengthCheck(this)');
-            });
-        }
-
-        function cekEmail($this) {
-            var link = '@Url.Action("CekEmailPengguna", "Account", new { emailPengguna = "replaceEmail" })';
-            link = link.replace("replaceEmail", $this.val());
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    console.log(response);
-                    if (!response.Available && response.CekNull != null) {
-                        $this.closest('.form-group').addClass('has-error');
-
-                        if (!$this.closest('div').find('.text-danger').length) {
-                            $this.closest('div').append('<span class="text-danger">Email ini sudah digunakan!</span>');
-                        }
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
             });
         }
 

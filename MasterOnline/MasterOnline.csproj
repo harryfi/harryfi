@@ -520,6 +520,10 @@
     <Compile Include="Migrations\201810221536086_AddTipePartner.Designer.cs">
       <DependentUpon>201810221536086_AddTipePartner.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810230103069_AddReferralCodeFieldToAccountTable.cs" />
+    <Compile Include="Migrations\201810230103069_AddReferralCodeFieldToAccountTable.Designer.cs">
+      <DependentUpon>201810230103069_AddReferralCodeFieldToAccountTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -1108,6 +1112,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
+    <Compile Include="ViewModels\PartnerViewModel.cs" />
     <Compile Include="ViewModels\PaymentMidtransViewModel.cs" />
     <Compile Include="ViewModels\PesananViewModel.cs" />
     <Compile Include="ViewModels\PostingViewModel.cs" />
@@ -1125,6 +1130,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\404Style.css" />
+    <Content Include="Content\admin\AffiliateTerms.html" />
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\icon-font.min.css" />
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\WebFont\Linearicons-Free.svg" />
     <Content Include="Content\admin\main.css" />
@@ -5590,6 +5596,8 @@
     <Content Include="Views\Lazada\LazadaAuth.cshtml" />
     <Content Include="Views\Manage\UploadFakturView.cshtml" />
     <Content Include="Views\Account\Partner.cshtml" />
+    <Content Include="Views\Admin\PartnerMenu.cshtml" />
+    <Content Include="Views\Account\PartnerApproval.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5920,6 +5928,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810221536086_AddTipePartner.resx">
       <DependentUpon>201810221536086_AddTipePartner.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810230103069_AddReferralCodeFieldToAccountTable.resx">
+      <DependentUpon>201810230103069_AddReferralCodeFieldToAccountTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
