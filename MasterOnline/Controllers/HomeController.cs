@@ -39,7 +39,7 @@ namespace MasterOnline.Controllers
             ErasoftDbContext?.Dispose();
         }
 
-        public ActionResult Index()
+        public ActionResult Index(long? referral)
         {
             return View();
         }

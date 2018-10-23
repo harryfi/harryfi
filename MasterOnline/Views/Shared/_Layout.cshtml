@@ -187,7 +187,11 @@
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="@Url.Action("Register", "Account")">
+                        @{
+                            var referral = Request.Params["referral"];
+                        }
+
+                        <a href="@Url.Action("Register", "Account", new { referral })">
                             <span>DAFTAR</span>
                         </a>
                     </div>

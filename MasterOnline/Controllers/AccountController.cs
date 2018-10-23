@@ -336,7 +336,7 @@ namespace MasterOnline.Controllers
 
         // Route ke halaman register
         [System.Web.Mvc.Route("register")]
-        public ActionResult Register()
+        public ActionResult Register(long? referral)
         {
             return View();
         }
@@ -559,14 +559,17 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("partner/approval")]
-        public ActionResult PartnerApproval(long partnerId)
+        public ActionResult PartnerApproval(long? partnerId)
         {
+            if (partnerId == null) return HttpNotFound();
+
+            ViewData["PartnerId"] = partnerId;
             //var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
             //partnerInDb.StatusSetuju = true;
 
             //MoDbContext.SaveChanges();
 
-            return View();
+            return View(partnerId);
         }
     }
 }

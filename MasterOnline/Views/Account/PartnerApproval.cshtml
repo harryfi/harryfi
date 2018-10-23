@@ -1,8 +1,6 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Approval";
 }
-
 
 <style>
     html {
@@ -56,7 +54,7 @@
         <div class="wrapper jumbotron text-center">
             <h1 class="display-3">Terima kasih!</h1>
             <p class="lead">Anda sudah berhasil menjadi <strong>Partner</strong> dari Master Online</p>
-            <p>Link referral Anda adalah </p>
+            <p>Link referral Anda adalah <a href="@Url.Action("Index", "Home", new { referral = ViewData["PartnerId"]} )">@Request.Url.GetLeftPart(UriPartial.Authority)@Url.Action("Index", "Home", new { referral = ViewData["PartnerId"] })</a></p>
             <hr>
             <p>
                 Punya pertanyaan? <a href="mailto:csmasteronline@gmail.com?Subject=Pertanyaan%20Tentang%20Partner">Contact us</a>
