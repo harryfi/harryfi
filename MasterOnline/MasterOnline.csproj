@@ -524,6 +524,10 @@
     <Compile Include="Migrations\201810230103069_AddReferralCodeFieldToAccountTable.Designer.cs">
       <DependentUpon>201810230103069_AddReferralCodeFieldToAccountTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810230350035_AddStatusSetuju.cs" />
+    <Compile Include="Migrations\201810230350035_AddStatusSetuju.Designer.cs">
+      <DependentUpon>201810230350035_AddStatusSetuju.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -5931,6 +5935,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810230103069_AddReferralCodeFieldToAccountTable.resx">
       <DependentUpon>201810230103069_AddReferralCodeFieldToAccountTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810230350035_AddStatusSetuju.resx">
+      <DependentUpon>201810230350035_AddStatusSetuju.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
