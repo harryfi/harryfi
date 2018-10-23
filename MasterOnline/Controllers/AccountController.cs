@@ -561,13 +561,13 @@ namespace MasterOnline.Controllers
         [System.Web.Mvc.Route("partner/approval")]
         public ActionResult PartnerApproval(long? partnerId)
         {
-            if (partnerId == null) return HttpNotFound();
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(u => u.PartnerId == partnerId);
+            if (partnerInDb == null) return HttpNotFound();
 
             ViewData["PartnerId"] = partnerId;
-            //var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
-            //partnerInDb.StatusSetuju = true;
+            partnerInDb.StatusSetuju = true;
 
-            //MoDbContext.SaveChanges();
+            MoDbContext.SaveChanges();
 
             return View(partnerId);
         }

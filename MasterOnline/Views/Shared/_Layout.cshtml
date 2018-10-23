@@ -140,6 +140,24 @@
             margin-right: 80px;
             margin-bottom: 15px;
         }
+
+        @@media (min-width: 320px) and (max-width: 480px) {
+            #navbar-brand {
+                padding: 0px;
+            }
+
+            #cover {
+                margin-top: 130px !important;
+            }
+
+            #logo_mo {
+                width: 55%;
+            }
+
+            .navbar-brand {
+                text-align: center;
+            }
+        }
     </style>
 
     @RenderSection("styles", required: false)
@@ -155,7 +173,7 @@
                 <span class="icon-bar"></span>
             </button>*@
                 <a class="navbar-brand" href="@Url.Action("Index", "Home")">
-                    <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" class="col-md-10 col-xs-12 col-sm-12">
+                    <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" id="logo_mo" class="col-md-10 col-xs-12 col-sm-12">
                 </a>
             </div>
             <div class="col-md-6 col-sm-6 col-xs-6 hidden-xs hidden-sm" style="margin-top: 33px; float: right;">
@@ -204,20 +222,20 @@
             </div>
 
             <div class="col-sm-12 col-xs-12 hidden-md hidden-lg" style="margin: 10px 0;">
-                <div class="row text-center" style="padding-left: 10px;">
-                    <a href="@Url.Action("Index", "Home")" style="margin-right: 10px;">
+                <div class="row text-center">
+                    <a href="@Url.Action("Index", "Home")" style="margin-right: 5px;">
                         <span>HOME</span>
                     </a>
-                    <a href="@Url.Action("About", "Home")" style="margin-right: 10px;">
+                    <a href="@Url.Action("About", "Home")" style="margin-right: 5px;">
                         <span>ABOUT</span>
                     </a>
-                    <a href="@Url.Action("Login", "Account")" style="margin-right: 10px;">
+                    <a href="@Url.Action("Login", "Account")" style="margin-right: 5px;">
                         <span>LOGIN</span>
                     </a>
-                    <a class="daftarBtn" style="padding: 7px;" href="@Url.Action("Register", "Account")">
+                    <a class="daftarBtn" style="padding: 3px; padding-left: 7px; margin-right: 5px;" href="@Url.Action("Register", "Account")">
                         <span>DAFTAR</span>
                     </a>
-                    <a href="@Url.Action("Partner", "Account")" style="margin-right: 10px;">
+                    <a href="@Url.Action("Partner", "Account")" style="margin-right: 5px;">
                         <span>PARTNER</span>
                     </a>
                 </div>
