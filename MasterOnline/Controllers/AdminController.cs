@@ -555,7 +555,7 @@ namespace MasterOnline.Controllers
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "Pendaftaran MasterOnline berhasil!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html")).Replace("LINKPERSETUJUAN", Url.Action("PartnerApproval", "Account", new { partnerId }));
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html")).Replace("LINKPERSETUJUAN", "https://masteronline.co.id" + Url.Action("PartnerApproval", "Account", new { partnerId }));
                 message.IsBodyHtml = true;
 
 #if AWS

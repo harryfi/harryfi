@@ -564,10 +564,10 @@ namespace MasterOnline.Controllers
             if (partnerId == null) return HttpNotFound();
 
             ViewData["PartnerId"] = partnerId;
-            //var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
-            //partnerInDb.StatusSetuju = true;
+            var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            partnerInDb.StatusSetuju = true;
 
-            //MoDbContext.SaveChanges();
+            MoDbContext.SaveChanges();
 
             return View(partnerId);
         }
