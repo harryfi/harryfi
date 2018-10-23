@@ -157,6 +157,16 @@
             $('#tambah_piutang').on('click', function () {
                 $('.piutang_table_section').hide();
                 $('.piutang_editor_section').show();
+                //add by nruul 18/10/2018
+                $("#Piutang_TERM").keydown(
+                    function () {
+                        validateInput($(this), 'TOP');
+                    });
+                $("#Piutang_TOTAL").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+            //END ADD
             });
 
             $('#close-editor').on('click', function () {
@@ -451,6 +461,16 @@
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();
                         $('.piutang_editor_section').show();
+                        //add by nruul 18/10/2018
+                        $("#Piutang_TERM").keydown(
+                            function () {
+                                validateInput($(this), 'TOP');
+                            });
+                        $("#Piutang_TOTAL").keydown(
+                            function () {
+                                validateInput($(this), 'ANGKA');
+                            });
+                        //END ADD
 
                         $('input, .btn-danger').each(function () {
                             $(this).attr('disabled', 'disabled');
@@ -489,6 +509,16 @@
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();
                         $('.piutang_editor_section').show();
+                        //add by nruul 18/10/2018
+                        $("#Piutang_TERM").keydown(
+                            function () {
+                                validateInput($(this), 'TOP');
+                            });
+                        $("#Piutang_TOTAL").keydown(
+                            function () {
+                                validateInput($(this), 'ANGKA');
+                            });
+            //END ADD
 
                         $('#loading_spinner').hide();
                     },

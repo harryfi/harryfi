@@ -654,6 +654,33 @@
                         $(this).val(convertToRupiah(0));
                     });
                 }
+
+                //add by nruul 18/10/2018
+                $("#Stf02_MINI").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+                $("#Stf02_MAXI").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+                $("#Stf02_BERAT").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+                $("#Stf02_PANJANG").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+                $("#Stf02_LEBAR").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+                $("#Stf02_TINGGI").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+            //end add 
             });
 
             //$('#close-editor-1').on('click', function () {
