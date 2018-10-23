@@ -74,6 +74,6 @@ namespace MasterOnline.Models
         public string TOKEN_CC { get; set; }
 
         [StringLength(100)]
-        public string ReferralCode { get; set; }
+        public string KODE_REFERRAL { get; set; }
     }
 }

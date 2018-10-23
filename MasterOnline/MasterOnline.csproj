@@ -528,6 +528,10 @@
     <Compile Include="Migrations\201810230350035_AddStatusSetuju.Designer.cs">
       <DependentUpon>201810230350035_AddStatusSetuju.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810230628132_ChangeColumnNameReferral.cs" />
+    <Compile Include="Migrations\201810230628132_ChangeColumnNameReferral.Designer.cs">
+      <DependentUpon>201810230628132_ChangeColumnNameReferral.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -5938,6 +5942,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810230350035_AddStatusSetuju.resx">
       <DependentUpon>201810230350035_AddStatusSetuju.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810230628132_ChangeColumnNameReferral.resx">
+      <DependentUpon>201810230628132_ChangeColumnNameReferral.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
