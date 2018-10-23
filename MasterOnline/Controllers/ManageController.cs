@@ -566,7 +566,7 @@ namespace MasterOnline.Controllers
 
             if (dataBuyer.Pembeli.RecNum == null)
             {
-                var listPembeli = ErasoftDbContext.ARF01C.ToList();
+                var listPembeli = ErasoftDbContext.ARF01C.OrderBy(m => m.RecNum).ToList();
                 var noPembeli = "";
 
                 if (listPembeli.Count == 0)
