@@ -9,6 +9,7 @@ namespace MasterOnline.Models
     {
         public bool Available { get; set; }
         public string Email { get; set; }
+        public string MobileNo { get; set; }
         public string CekNull { get; set; }
     }
 }
