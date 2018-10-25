@@ -1017,7 +1017,7 @@ namespace MasterOnline.Controllers
             string sSQL = "SELECT * FROM (";
             for (int i = 1; i <= 30; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '"+ data.IDMarket +"' " + System.Environment.NewLine;
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
                 if (i < 30)
                 {
                     sSQL += "UNION ALL " + System.Environment.NewLine;
@@ -1479,6 +1479,12 @@ namespace MasterOnline.Controllers
             if (brg_mp.Length == 2)
             {
                 string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+                urll_1 += "&size=100";
+                if(!string.IsNullOrEmpty(data.nama))
+                {
+                    var search = data.nama.Split(' ');
+                    urll_1 += "&productName=" + search[1];
+                }
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
                 myReq_1.Method = "GET";
@@ -1521,7 +1527,8 @@ namespace MasterOnline.Controllers
                                     availableGdnSkus.Add(new ProductSummaryResult
                                     {
                                         gdnSku = (item.gdnSku.Value),
-                                        stockAvailableLv2 = item.stockAvailableLv2.Value
+                                        stockAvailableLv2 = item.stockAvailableLv2.Value,
+                                        sellingPrice = item.sellingPrice.Value,
                                     });
                                 }
                             }
@@ -1547,14 +1554,15 @@ namespace MasterOnline.Controllers
                                     {
                                         QOHBlibli = 0;
                                     }
-                                    if (QOHBlibli != 0)
+                                    //if (QOHBlibli != 0)
                                     {
                                         myData += "{";
                                         myData += "\"gdnSku\": \"" + item.gdnSku + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
                                         myData += "\"price\": " + data.Price + ", ";
-                                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                                        //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                                        myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
                                         myData += "\"display\": " + data.display + " "; // true=tampil    
                                         myData += "},";
@@ -1640,6 +1648,7 @@ namespace MasterOnline.Controllers
         {
             public string gdnSku { get; set; }
             public double stockAvailableLv2 { get; set; }
+            public double sellingPrice { get; set; }
         }
         //public string SetCategoryCode(BlibliAPIData data)
         //{
