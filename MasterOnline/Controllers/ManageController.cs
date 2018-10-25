@@ -656,7 +656,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -709,7 +709,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -983,7 +983,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -1353,7 +1353,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -2522,7 +2522,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -2833,7 +2833,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -2924,7 +2924,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -3597,7 +3597,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -3618,7 +3618,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -3640,7 +3640,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -3746,7 +3746,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -3777,7 +3777,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4200,7 +4200,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4221,7 +4221,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4243,7 +4243,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4265,7 +4265,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4390,7 +4390,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4425,7 +4425,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4846,7 +4846,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -4868,7 +4868,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5018,7 +5018,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5080,7 +5080,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5584,7 +5584,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5723,7 +5723,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5740,7 +5740,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5870,7 +5870,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5887,7 +5887,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -5984,7 +5984,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6187,7 +6187,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6210,7 +6210,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6311,7 +6311,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6459,7 +6459,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6511,7 +6511,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6541,7 +6541,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6679,7 +6679,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6724,7 +6724,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6748,7 +6748,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6886,7 +6886,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6932,7 +6932,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -6956,7 +6956,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7031,7 +7031,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7230,7 +7230,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7253,7 +7253,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7366,7 +7366,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7717,7 +7717,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7740,7 +7740,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -7809,7 +7809,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -8029,7 +8029,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -8052,7 +8052,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -8151,7 +8151,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -8410,7 +8410,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -9314,7 +9314,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 
@@ -9393,7 +9393,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception)
             {
-                return HttpNotFound();
+                return View("Error");
             }
         }
 

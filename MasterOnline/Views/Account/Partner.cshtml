@@ -1,6 +1,7 @@
 ﻿@model MasterOnline.Models.Partner
 @{
     ViewBag.Title = "Partner";
+    var referral = Request.Params["ref"];
 }
 
 @section styles
@@ -54,7 +55,6 @@
             border-image: none;
             border-style: solid solid none;
             border-width: 1px 0;
-            margin-top: 20px;
         }
 
         .ibox-content, .ibox-title {
@@ -81,13 +81,11 @@
 }
 
 <div class="loginColumns">
-    <div class="row" style="margin-bottom: 10px;">
-        <a href="/">
-            <img alt="logo" style="margin: 0 auto; display: block;" src="~/Content/Images/MO_new_logo.png" width="250">
-        </a>
-    </div>
     <div class="row m-t">
         <div class="col-md-6">
+            <a href="@Url.Action("Index", "Home", new {@ref = referral})">
+                <img alt="logo" style="margin: 0 auto; display: block;" src="~/Content/Images/MO_new_logo.png" width="250">
+            </a>
             <h2 class="font-bold">
                 Pendaftaran Partner Baru
             </h2>
@@ -100,7 +98,7 @@
             <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>b.</b>&nbsp;Mendapatkan Training khusus dan SERTIFIKASI dari MO.</p>
             <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>c.</b>&nbsp;Anda akan melakukan SERVICE KUNJUNGAN kepada Customer MO dalam hal, Training, customer Support, dsb.</p>
             <p style="padding-left: 60px; text-align: left;"><b>d.</b>&nbsp;Mendapatkan PENGHASILAN dari service yang Anda lakukan.</p>
-            <br/>
+            <br />
             <div class="row">
                 <div class="col-md-8">
                     <small>PT. Erasoft Teknologi Indonesia</small>
@@ -122,7 +120,7 @@
                             </button>
                         </div>
                     }
-                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    @if (referral == null && ViewData.ModelState.Any(x => x.Value.Errors.Any()))
                     {
                         foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                         {
@@ -135,41 +133,49 @@
                         }
                     }
 
-                    <div class="alert alert-danger" id="alert-error-section">
-                        <span id="message"></span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-
-                    @using (Html.BeginForm("SavePartner", "Account", FormMethod.Post, new {enctype = "multipart/form-data"}))
+                    @using (Html.BeginForm("SavePartner", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
                         <div class="form-group">
-                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new {@class = "control-label control-label-bold"})
-                            @Html.TextBoxFor(m => m.Username, new {@class = "form-control", maxlength = 50, required = "required"})
+                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.Email, "Email *", new {@class = "control-label control-label-bold"})
-                            @Html.TextBoxFor(m => m.Email, new {@class = "form-control", maxlength = 50, required = "required" })
+                            @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.NoHp, "No. HP *", new {@class = "control-label control-label-bold"})
-                            @Html.TextBoxFor(m => m.NoHp, new {@class = "form-control", maxlength = 50, required = "required"})
+                            @Html.LabelFor(m => m.NoHp, "No. HP *", new { @class = "control-label control-label-bold" })
+                            @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.TipePartner, "Tipe Partner *", new {@class = "control-label control-label-bold"})
-                            @Html.HiddenFor(m => m.TipePartner, new {Value = -1})
-                            @Html.HiddenFor(m => m.NamaTipe, new {Value = "xxx"})
+                            @Html.LabelFor(m => m.TipePartner, "Tipe Partner *", new { @class = "control-label control-label-bold" })
+                            @Html.HiddenFor(m => m.TipePartner, new { Value = -1 })
+                            @Html.HiddenFor(m => m.NamaTipe, new { Value = "xxx" })
                             <select class="form-control" id="Tipe" required="required" style="max-width: 100% !important;">
                                 <option value="default" selected>Harap pilih</option>
                                 <option value="0">Sales Partner (SP)</option>
                                 <option value="1">Certified Support Partner (CSP)</option>
                             </select>
                         </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    @Html.LabelFor(m => m.KodeRefPilihan, "Kode Referal Pilihan *", new { @class = "control-label control-label-bold" })
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <span style="font-size: 16px; position: absolute; top: 7px; letter-spacing: 1px;">masteronline.co.id/?ref=</span>
+                                </div>
+                                <div class="col-md-4" style="padding-left: 0;">
+                                    @Html.TextBoxFor(m => m.KodeRefPilihan, new { @class = "form-control", maxlength = 50, required = "required", data_koderefpilihan = "true" })
+                                </div>
+                            </div>
+                        </div>
                         <div class="form-group" id="ktp-section">
-                            @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new {@class = "control-label control-label-bold", style = "margin-top: 10px;"})
-                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg"/>
+                            @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
+                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -268,6 +274,11 @@
                     cekNoHp($(this));
                 });
 
+            $('#KodeRefPilihan').on('change',
+                function () {
+                    cekKodeRefPilihan($(this));
+                });
+
             $('form input[required="required"], form textarea[required="required"]').keydown(function (e) {
                 var code = e.keyCode || e.which;
                 if (code == '9') {
@@ -298,12 +309,25 @@
                 if ($value == '' || isEmptyOrSpaces($value)) {
                     $this.closest('.form-group').addClass('has-error');
 
-                    if (!$this.closest('div').find('.text-danger').length) {
-                        $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                    if ($this.attr('data-koderefpilihan') === 'true') {
+                        if (!$this.closest('.form-group').find('.text-danger').length) {
+                            $this.closest('.form-group')
+                                .append('<span class="text-danger">Bagian ini tidak boleh kosong!</span>');
+                        }
+                        return;
+                    } else {
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
+                        }
                     }
                 } else {
                     $this.closest('.form-group').removeClass('has-error');
-                    $this.closest('div').find('.text-danger').remove();
+
+                    if ($this.attr('data-koderefpilihan') === 'true') {
+                        $this.closest('.form-group').find('.text-danger').remove();
+                    } else {
+                        $this.closest('div').find('.text-danger').remove();
+                    }
                 }
             });
 
@@ -489,6 +513,30 @@
 
                         if (!$this.closest('div').find('.text-danger').length) {
                             $this.closest('div').append('<span class="text-danger">No. HP ini sudah digunakan!</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function cekKodeRefPilihan($this) {
+            var link = '@Url.Action("CekKodeRefPartner", "Account", new { kodeRef = "replaceKodeRef" })';
+            link = link.replace("replaceKodeRef", $this.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    console.log(response);
+
+                    if (!response.Available && response.CekNull != null) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('.form-group').find('.text-danger').length) {
+                            $this.closest('.form-group').append('<span class="text-danger">Kode referal ini sudah digunakan!</span>');
                         }
                     }
                 },

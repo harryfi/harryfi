@@ -48,5 +48,8 @@ namespace MasterOnline.Models
 
         [Required]
         public string NamaTipe { get; set; }
+
+        [StringLength(50)]
+        public string KodeRefPilihan { get; set; }
     }
 }
