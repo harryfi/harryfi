@@ -204,6 +204,12 @@
             $('#tambah_merk').on('click', function () {
                 $('.merk_table_section').hide();
                 $('.merk_editor_section').show();
+                $('#Merk_KET').on('change blur',
+                    function () {
+                        if (!$(this).is(':disabled')) {
+                            cekField($(this), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
+                        }
+                    });
             });
 
             $('#close-editor').on('click', function () {

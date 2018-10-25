@@ -502,137 +502,148 @@
                                     </div>
                                     <div class="x_content">
                                         @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                        {
-                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                            {
-                                                <div class="alert alert-danger">
-                                                    <span class="message-error">@modelError.ErrorMessage</span>
-                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                        <span aria-hidden="true">&times;</span>
-                                                    </button>
-                                                </div>
-                                            }
-                                        }
+    {
+        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+        {
+                                    <div class="alert alert-danger">
+                                        <span class="message-error">@modelError.ErrorMessage</span>
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+}
+}
                                         <br>
                                         @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                                        {
-                                            @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
-                                            @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
-                                            @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                                            @Html.HiddenFor(m => m.Customers.RecNum)
-                                            @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
-                                            @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
-                                            @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.CUST)
-                                                    @if (Model.Customers != null)
-                                                    {
-                                                        <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
-                                                    }
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Customers.NAMA)
-                                                    <select id="MARKET" placeholder="Harap pilih" required="required"></select>
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", type = "email", required = "required" })
-                                                </div>
-                                            </div>
-                                            <div class="form-group" id="password-akun">
-                                                @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
-                                                </div>
-                                            </div>
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                    </div>
-                                                </div>*@
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-6">
-                                                    @*@Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox", required = "required", type = "number", maxlength = 3, min = 0, max = 999 })*@
-                                                    @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
-                                                </div>
-                                                <div class="col-md-2 col-sm-2 col-xs-6">
-                                                    <h5>Hari</h5>
-                                                </div>
-                                            </div>
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>*@
-                                            @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                                </div>*@
-                                            <div class="form-group">
-                                                <div id="divAPIKey"></div>
-                                                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                            </div>
-                                            <div id="descAPIKey" class="form-group">
-                                                <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                                <label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>
-                                                <br />
-                                                <label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>
-                                                <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
-                                                <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                            </div>
-                                            <div id="BlibliMerchantID" class="form-group">
-                                            </div>
-                                            <div id="BlibliClient" class="form-group">
-                                            </div>
-                                            <div id="BlibliClientPass" class="form-group">
-                                            </div>
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
-                                        }
+    {
+                                    @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
+                                    @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
+                                    @Html.HiddenFor(m => m.Customers.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                                    @Html.HiddenFor(m => m.Customers.RecNum)
+                                    @Html.HiddenFor(m => m.Customers.AL, new { Value = "." })
+                                    @Html.HiddenFor(m => m.Customers.TLP, new { Value = "." })
+                                    @Html.HiddenFor(m => m.Customers.KODEKABKOT, new { Value = "3174" })
+                                    @Html.HiddenFor(m => m.Customers.KODEPOS, new { Value = "." })
+                                    @Html.HiddenFor(m => m.Customers.KODEPROV, new { Value = "31" })
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.Customers.CUST, "Kode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            @Html.HiddenFor(m => m.Customers.CUST)
+                                            @if (Model.Customers != null)
+        {
+                                    <input type="text" value="@Model.Customers.CUST" disabled class="form-control" />
+}
+else
+{
+                                    <input id="CUSTNUMBER" type="text" value="[AUTO]" disabled class="form-control" />
+}
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.Customers.NAMA, "Nama Marketplace *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            @Html.HiddenFor(m => m.Customers.NAMA)
+                                            <select id="MARKET" placeholder="Harap pilih" required="required"></select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.Customers.PERSO, "Nama Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Customers.PERSO, new { @class = "form-control", required = "required" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", type = "email", required = "required" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group" id="password-akun">
+                                        @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                            @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
+                                        </div>
+                                    </div>
+                                    @*<div class="form-group">
+        @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+        </div>
+    </div>*@
+                                    <div class="form-group">
+                                        @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                        <div class="col-md-6 col-sm-6 col-xs-6">
+                                            @*@Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox", required = "required", type = "number", maxlength = 3, min = 0, max = 999 })*@
+                                            @Html.TextBoxFor(m => m.Customers.TOP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 3, min = 0, max = 999 })
+                                        </div>
+                                        <div class="col-md-2 col-sm-2 col-xs-6">
+                                            <h5>Hari</h5>
+                                        </div>
+                                    </div>
+                                    @*<div class="form-group">
+        @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.HiddenFor(m => m.Customers.KODEPROV)
+            <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+            <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+        </div>
+    </div>*@
+                                    @*<div class="form-group">
+        @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+        </div>
+        <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+    </div>*@
+                                    <div class="form-group">
+                                        <div id="divAPIKey"></div>
+                                        <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+                                    </div>
+                                    <div id="descAPIKey" class="form-group">
+                                        <div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                        @*<label id="lblDesc" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
+                                        <label id="lblDesc" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                        <br />
+                                        @*<label id="lblDesc2" style="visibility:hidden">API key harus terisi untuk dapat terintegrasi dengan marketplace.</label>*@
+                                        <label id="lblDesc2" style="visibility:hidden">API key adalah kode yang harus diisi untuk dapat terkoneksi dengan marketplace.</label>
+                                        <label id="lblPopUp" style="visibility:hidden;color:blue" onclick="openModalDesc(MARKET.value)"><u>Di Sini</u></label>
+                                        <div id="emptyDiv2" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                    </div>
+                                    @*add by nurul 24/10/2018*@
+                                    <div id="descAPIKey2" class="form-group">
+                                        <div id="emptyDiv3" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                        <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.</label>
+                                        <br />
+                                        <label id="lblDesc4" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Shopee, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Shopee, silahkan hubungi customer servise kami.</label>
+                                        <div id="emptyDiv4" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                    </div>
+                                    @*end add by nurul 24/10/2018*@
+                                    <div id="BlibliMerchantID" class="form-group">
+                                    </div>
+                                    <div id="BlibliClient" class="form-group">
+                                    </div>
+                                    <div id="BlibliClientPass" class="form-group">
+                                    </div>
+                                    <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
+}
                                     </div>
                                 </div>
                             </div>
@@ -932,6 +943,7 @@
                                     var tokped = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Tokopedia"))?.IdMarket.ToString();
                                     var lzd = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Lazada"))?.IdMarket.ToString();
                                     var shopee = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Shopee"))?.IdMarket.ToString();
+                                    var elev = context.Marketplaces?.SingleOrDefault(m => m.NamaMarket.Equals("Elevenia"))?.IdMarket.ToString();
                                 }
                                 if (@bklapak == value ||  @blibli == value ) {
                                     $('#password-akun').show();
@@ -948,6 +960,7 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
+                                
                                 if (@bklapak != value && @tokped != value && @shopee != value) {
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
                                     var txtAPI_Key = '';
@@ -970,10 +983,27 @@
                                         lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
                                         lblPopUp.style.visibility = 'visible';
                                     }
+                                    lblDesc3.style.visibility = 'hidden';
+                                    lblDesc4.style.visibility = 'hidden';
+                                } else if (@bklapak != value && @lzd != value && @elev != value) {
+                                    lblDesc3.style.visibility = 'visible';
+                                    lblDesc4.style.visibility = 'visible';
+                                    if (@tokped == value) {
+                                        lblDesc4.innerText ='2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+
+                                    } else {
+                                        lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Shopee, silahkan hubungi customer servise kami.';
+                                        lblDesc4.innerText = '2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+                                    }
+                                    lblDesc.style.visibility = 'hidden';
+                                    lblDesc2.style.visibility = 'hidden';
+                                    lblPopUp.style.visibility = 'hidden';
                                 } else {
                                     lblDesc.style.visibility = 'hidden';
                                     lblDesc2.style.visibility = 'hidden';
                                     lblPopUp.style.visibility = 'hidden';
+                                    lblDesc3.style.visibility = 'hidden';
+                                    lblDesc4.style.visibility = 'hidden';
                                 }
 
                                 if (@blibli == value) {
@@ -1137,6 +1167,12 @@
             $('#tambah_market').on('click', function () {
                 $('.customer_table_section').hide();
                 $('.customer_editor_section').show();
+                //add by nruul 18/10/2018
+                $("#Customers_TOP").keydown(
+                    function () {
+                        validateInput($(this), 'TOP');
+                    });
+            //END ADD
             });
 
             $('#close-editor').on('click', function () {
@@ -1160,6 +1196,13 @@
             getPelanggan();
             getKabKot();
             resetKabKot();
+
+            //add by nruul 18/10/2018
+            $("#Customers_TOP").keydown(
+                function () {
+                    validateInput($(this), 'TOP');
+                });
+            //END ADD
 
         }
 
@@ -1267,8 +1310,9 @@
                                 } else {
                                     $('#password-akun').hide();
                                     $('#Customers_PASSWORD').removeAttr('required');
-                                }
-                    if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
+                    }
+                    //change by nurul 24/10/2018
+                    @*if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
                         var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
                             valuetxtAPI_Key = response.Customers.API_KEY;
@@ -1298,7 +1342,52 @@
                         lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';
                         lblPopUp.style.visibility = 'hidden';
+                    }*@
+                    if (@bklapak != value && @tokped != value && @shopee != value) {
+                                    var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                                    var txtAPI_Key = '';
+                                    if (@lzd == value) {
+                                        txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" disabled data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    } else {
+                                        txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    }
+                                    $('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
+
+                                    //var lblDescAPIKey = '<div id="emptyDiv" class=" col-md-3 col-sm-3 col-xs-12"></div>';
+                                    //lblDescAPIKey += '<div id="txtDescAPIKey" class="col-md-6 col-sm-6 col-xs-6" onclick=(openModalDesc(' + value;
+                                    //lblDescAPIKey += ');)>Klik di sini untuk melihat cara mendapatkan API key</div>';
+                                    //$('descAPIKey').append(lblDescAPIKey);
+                                    lblDesc.style.visibility = 'visible';
+                                    lblDesc2.style.visibility = 'visible';
+                                    if (@lzd == value) {
+                                        lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya'
+                                    } else {
+                                        lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
+                                        lblPopUp.style.visibility = 'visible';
+                                    }
+                                    lblDesc3.style.visibility = 'hidden';
+                                    lblDesc4.style.visibility = 'hidden';
+                                } else if (@bklapak != value && @lzd != value && @elev != value) {
+                                    lblDesc3.style.visibility = 'visible';
+                                    lblDesc4.style.visibility = 'visible';
+                                    if (@tokped == value) {
+                                        lblDesc4.innerText ='2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+
+                                    } else {
+                                        lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Shopee, silahkan hubungi customer servise kami.';
+                                        lblDesc4.innerText = '2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+                                    }
+                                    lblDesc.style.visibility = 'hidden';
+                                    lblDesc2.style.visibility = 'hidden';
+                                    lblPopUp.style.visibility = 'hidden';
+                                } else {
+                                    lblDesc.style.visibility = 'hidden';
+                                    lblDesc2.style.visibility = 'hidden';
+                                    lblPopUp.style.visibility = 'hidden';
+                                    lblDesc3.style.visibility = 'hidden';
+                                    lblDesc4.style.visibility = 'hidden';
                     }
+                    //end change by nurul 
                     //end add by Tri, remove/append api_key
                     @*//add by Tri, API key bukalapak auto generate
                     $('#lbl_Customers_API_KEY').remove();
@@ -1368,6 +1457,12 @@
 
                     $('.customer_table_section').hide();
                     $('.customer_editor_section').show();
+                    //add by nruul 18/10/2018
+                    $("#Customers_TOP").keydown(
+                        function () {
+                            validateInput($(this), 'TOP');
+                        });
+                    //END ADD
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1579,5 +1674,40 @@
                 }
             });
         }
+
+        //add by nurul 22/10/2018
+        function validateInput(obj, option) {
+            var x = obj;
+            setTimeout(function () {
+                ValidateFullNamePaste2(x, option);
+            }, 2);
+        }
+
+        function ValidateFullNamePaste2(obj, option) {
+            var x = obj;
+            var strValidChars = "";
+            var totalCharacterCount = x.val();  //window.clipboardData.getData('Text');
+
+            if (option == 'HURUF')
+                strValidChars = "1234567890~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'HURUFANGKA')
+                strValidChars = "~!#$%^&*()_+|}{':;?/>.<,\"[]\\=";
+            if (option == 'ANGKA')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/><,\"[]\\=";
+            if (option == 'TOP')
+                strValidChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz~!#$%^&*()_+|}{':;?/>.<,-\"[]\\=";
+
+            var strChar;
+            var FilteredChars = "";
+            for (i = 0; i < totalCharacterCount.length; i++) {
+                strChar = totalCharacterCount.charAt(i);
+                if (strValidChars.indexOf(strChar) == -1) {
+                    FilteredChars = FilteredChars + strChar;
+                }
+            }
+            obj.val(FilteredChars);
+            return false;
+        }
+        //end add by nurul
     </script>
 }
