@@ -2021,10 +2021,11 @@
         function refreshNetto() {
             $bakalNetto = convertToAngka($('#Pesanan_BRUTO').val());
 
-            var $nPpn = Math.ceil($bakalNetto * $('#Pesanan_PPN').val() / 100);
+            //change by nurul 25/10/2018   var $nPpn = Math.ceil($bakalNetto * $('#Pesanan_PPN').val() / 100);
+            var $nPpn = Math.ceil(($bakalNetto - $('#Pesanan_NILAI_DISC').val()) * $('#Pesanan_PPN').val() / 100);
             $('#Pesanan_NILAI_PPN').val(convertToRupiah($nPpn));
 
-            $bakalNetto -= convertToAngka($('#Pesanan_NILAI_DISC').val());
+            // remark by nurul 25/10/2018   $bakalNetto -= convertToAngka($('#Pesanan_NILAI_DISC').val());
             $bakalNetto += $nPpn;
             $bakalNetto += convertToAngka($('#Pesanan_ONGKOS_KIRIM').val());
 
@@ -2399,7 +2400,7 @@
                                 if ($objSup[0] != null) {
                                     //change by nurul 3/10/2018
                                     //$("#Pesanan_TERM").val($objSup[0].term).change();
-                                    if ($("#Pesanan_TERM").val == "0") {
+                                    if ($("#Pesanan_TERM").val == "") {
                                         $("#Pesanan_TERM").val($objSup[0].term).change();
                                     }
                                     //end change
