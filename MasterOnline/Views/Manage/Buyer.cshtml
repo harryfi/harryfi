@@ -233,6 +233,16 @@
             $('#tambah_pembeli').on('click', function () {
                 $('.pembeli_table_section').hide();
                 $('.pembeli_editor_section').show();
+                //add by nruul 18/10/2018
+                $("#Pembeli_KODEPOS").keydown(
+                    function () {
+                        validateInput($(this), 'TOP');
+                    });
+                $("#Pembeli_TLP").keydown(
+                    function () {
+                        validateInput($(this), 'ANGKA');
+                    });
+            //END ADD
             });
 
             $('#close-editor').on('click', function () {

@@ -188,6 +188,17 @@
             $('#tambah_gudang').on('click', function () {
                 $('.gudang_table_section').hide();
                 $('.gudang_editor_section').show();
+                $("#Gudang_Kode_Gudang").keydown(
+                    function () {
+                        validateInput($(this), 'HURUFANGKA');
+                    });
+
+                //add by nruul 18/10/2018
+                $("#Gudang_Nama_Gudang").keydown(
+                    function () {
+                        validateInput($(this), 'HURUFANGKA');
+                    });
+            //end add 
             });
 
             $('#close-editor').on('click', function () {

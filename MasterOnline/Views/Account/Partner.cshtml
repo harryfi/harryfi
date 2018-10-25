@@ -41,7 +41,6 @@
 
         .loginColumns {
             max-width: 800px;
-            margin-top: 50px;
         }
 
         img[alt="logo"] {
@@ -55,6 +54,7 @@
             border-image: none;
             border-style: solid solid none;
             border-width: 1px 0;
+            margin-top: 20px;
         }
 
         .ibox-content, .ibox-title {
@@ -70,10 +70,6 @@
             display: block !important;
         }
 
-        .m-b {
-            margin-bottom: 15px;
-        }
-
         .full-width {
             width: 100% !important;
         }
@@ -85,25 +81,26 @@
 }
 
 <div class="loginColumns">
+    <div class="row" style="margin-bottom: 10px;">
+        <a href="/">
+            <img alt="logo" style="margin: 0 auto; display: block;" src="~/Content/Images/MO_new_logo.png" width="250">
+        </a>
+    </div>
     <div class="row m-t">
         <div class="col-md-6">
-            <a href="/">
-                <img alt="logo" style="margin: 0 auto; display: block;" src="~/Content/Images/MO_new_logo.png" width="300">
-            </a>
-            <br />
             <h2 class="font-bold">
                 Pendaftaran Partner Baru
             </h2>
-            <p>Cukup masukkan beberapa data dan Anda siap untuk memulai!</p><br>
-            <p>Pengaturan lebih detail bisa di lakukan setelah pendaftaran Anda selesai.</p><br>
-            <p>
-                <small>
-                    <a href="~/Content/Static/termsandconditions.html#privacy">Kebijakan Privasi</a><!-- react-text: 153 -->&nbsp;&nbsp;&nbsp;<!-- /react-text -->
-                    <a href="~/Content/Static/termsandconditions.html#terms">Syarat dan Ketentuan</a><!-- react-text: 155 -->&nbsp;&nbsp;&nbsp;<!-- /react-text -->
-                    <a href="~/Content/Static/termsandconditions.html#security">Keamanan</a><br>
-                </small>
-            </p>
-            <br />
+            <p>MasterOnline memberikan kesempatan kepada Anda untuk menjadi <strong>BISNIS PARTNER</strong>, ada 2 jenis Bisnis Partner yg dapat Anda pilih,</p>
+            <p style="padding-left: 30px; margin-bottom: 5px;">1. <em style="font-weight: bold;">Sales Partner (SP)</em></p>
+            <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>a.</b>&nbsp;Anda akan mendapatkan website replica MasterOnline dgn ID Anda sendiri, yg dapat Anda promosikan lewat sosmed dan setiap Customer yg mendaftar akan otomatis menjadi Customer Anda juga.</p>
+            <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>b.</b>&nbsp;Mendapatkan Komisi Penjualan dari MO.</p>
+            <p style="padding-left: 30px; margin-bottom: 5px; text-align: left;">2.&nbsp;<em style="font-weight: bold;">Certified Support Partner (CSP)</em></p>
+            <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>a.</b>&nbsp;Anda otomatis mendapatkan semua fasilitas sebagai Sales Partner.</p>
+            <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>b.</b>&nbsp;Mendapatkan Training khusus dan SERTIFIKASI dari MO.</p>
+            <p style="padding-left: 60px; margin-bottom: 5px; text-align: left;"><b>c.</b>&nbsp;Anda akan melakukan SERVICE KUNJUNGAN kepada Customer MO dalam hal, Training, customer Support, dsb.</p>
+            <p style="padding-left: 60px; text-align: left;"><b>d.</b>&nbsp;Mendapatkan PENGHASILAN dari service yang Anda lakukan.</p>
+            <br/>
             <div class="row">
                 <div class="col-md-8">
                     <small>PT. Erasoft Teknologi Indonesia</small>
@@ -145,25 +142,25 @@
                         </button>
                     </div>
 
-                    @using (Html.BeginForm("SavePartner", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    @using (Html.BeginForm("SavePartner", "Account", FormMethod.Post, new {enctype = "multipart/form-data"}))
                     {
                         @Html.AntiForgeryToken()
                         <div class="form-group">
-                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new { @class = "control-label control-label-bold" })
-                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", maxlength = 50, required = "required" })
+                            @Html.LabelFor(m => m.Username, "Nama Lengkap *", new {@class = "control-label control-label-bold"})
+                            @Html.TextBoxFor(m => m.Username, new {@class = "form-control", maxlength = 50, required = "required"})
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.Email, "Email *", new { @class = "control-label control-label-bold" })
-                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control", maxlength = 50, required = "required" })
+                            @Html.LabelFor(m => m.Email, "Email *", new {@class = "control-label control-label-bold"})
+                            @Html.TextBoxFor(m => m.Email, new {@class = "form-control", maxlength = 50, required = "required" })
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.NoHp, "No. HP *", new { @class = "control-label control-label-bold" })
-                            @Html.TextBoxFor(m => m.NoHp, new { @class = "form-control", maxlength = 50, required = "required" })
+                            @Html.LabelFor(m => m.NoHp, "No. HP *", new {@class = "control-label control-label-bold"})
+                            @Html.TextBoxFor(m => m.NoHp, new {@class = "form-control", maxlength = 50, required = "required"})
                         </div>
                         <div class="form-group">
-                            @Html.LabelFor(m => m.TipePartner, "Tipe Partner *", new { @class = "control-label control-label-bold" })
-                            @Html.HiddenFor(m => m.TipePartner, new { Value = -1 })
-                            @Html.HiddenFor(m => m.NamaTipe, new { Value = "xxx" })
+                            @Html.LabelFor(m => m.TipePartner, "Tipe Partner *", new {@class = "control-label control-label-bold"})
+                            @Html.HiddenFor(m => m.TipePartner, new {Value = -1})
+                            @Html.HiddenFor(m => m.NamaTipe, new {Value = "xxx"})
                             <select class="form-control" id="Tipe" required="required" style="max-width: 100% !important;">
                                 <option value="default" selected>Harap pilih</option>
                                 <option value="0">Sales Partner (SP)</option>
@@ -171,8 +168,8 @@
                             </select>
                         </div>
                         <div class="form-group" id="ktp-section">
-                            @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new { @class = "control-label control-label-bold", style = "margin-top: 10px;" })
-                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg" />
+                            @Html.LabelFor(m => m.PhotoKtpUrl, "Foto KTP *", new {@class = "control-label control-label-bold", style = "margin-top: 10px;"})
+                            <input type="file" class="form-control" id="ImageFile" name="ImageFile" required="required" accept=".jpg"/>
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -266,6 +263,11 @@
                     cekEmail($(this));
                 });
 
+            $('#NoHp').on('change',
+                function () {
+                    cekNoHp($(this));
+                });
+
             $('form input[required="required"], form textarea[required="required"]').keydown(function (e) {
                 var code = e.keyCode || e.which;
                 if (code == '9') {
@@ -286,6 +288,12 @@
             }).on('blur change', function () {
                 var $this = $(this);
                 var $value = $this.val();
+
+                if ($this.attr('name') === 'Email') {
+                    cekEmail($this);
+                } else if ($this.attr('name') === 'NoHp') {
+                    cekNoHp($this);
+                }
 
                 if ($value == '' || isEmptyOrSpaces($value)) {
                     $this.closest('.form-group').addClass('has-error');
@@ -441,6 +449,52 @@
             $('form input.limited_number_textbox[type="number"]').each(function () {
                 var $this = $(this);
                 $this.attr('oninput', 'maxLengthCheck(this)');
+            });
+        }
+
+        function cekEmail($this) {
+            var link = '@Url.Action("CekEmailPartner", "Account", new { emailPengguna = "replaceEmail" })';
+            link = link.replace("replaceEmail", $this.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    console.log(response);
+                    if (!response.Available && response.CekNull != null) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">Email ini sudah digunakan!</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function cekNoHp($this) {
+            var link = '@Url.Action("CekHpPartner", "Account", new { noHp = "replaceNoHp" })';
+            link = link.replace("replaceNoHp", $this.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    console.log(response);
+                    if (!response.Available && response.CekNull != null) {
+                        $this.closest('.form-group').addClass('has-error');
+
+                        if (!$this.closest('div').find('.text-danger').length) {
+                            $this.closest('div').append('<span class="text-danger">No. HP ini sudah digunakan!</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
             });
         }
 
