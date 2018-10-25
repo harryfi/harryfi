@@ -9498,7 +9498,7 @@ namespace MasterOnline.Controllers
         {
             var ret = new ReturnJson();
             var hJualInDb = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == recNum);
-
+            var brg = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == hJualInDb.BRG);
             if (hJualInDb == null)
             {
                 ret.message = "No Data Found!";
@@ -9509,7 +9509,7 @@ namespace MasterOnline.Controllers
             var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString();
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
             var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
-            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
+            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString();
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.RecNum == hJualInDb.IDMARKET);
             if (customer.NAMA.Equals(kdLazada))
             {
@@ -9551,6 +9551,20 @@ namespace MasterOnline.Controllers
             hJualInDb.HJUAL = hargaJualBaru;
             ErasoftDbContext.SaveChanges();
 
+            var qtyOnHand = 0d;
+            {
+                object[] spParams = {
+                                            new SqlParameter("@BRG", hJualInDb.BRG),
+                                            new SqlParameter("@GD","ALL"),
+                                            new SqlParameter("@Satuan", "2"),
+                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                                        };
+
+                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+            }
+
             //add by Tri, update harga ke marketplace
             if (customer.NAMA.Equals(kdLazada))
             {
@@ -9561,6 +9575,70 @@ namespace MasterOnline.Controllers
             {
                 var blApi = new BukaLapakController();
                 blApi.updateProduk(hJualInDb.BRG, hJualInDb.BRG_MP, hargaJualBaru.ToString(), "", customer.API_KEY, customer.TOKEN);
+            }
+            else if (customer.NAMA.Equals(kdBlibli))
+            {
+                BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                {
+                    merchant_code = customer.Sort1_Cust,
+                    API_client_password = customer.API_CLIENT_P,
+                    API_client_username = customer.API_CLIENT_U,
+                    API_secret_key = customer.API_KEY,
+                    token = customer.TOKEN,
+                    mta_username_email_merchant = customer.EMAIL,
+                    mta_password_password_merchant = customer.PASSWORD
+                };
+                BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                {
+                    kode = brg.BRG,
+                    kode_mp = hJualInDb.BRG_MP,
+                    Qty = Convert.ToString(qtyOnHand),
+                    MinQty = "0",
+                    nama = brg.NAMA
+                };
+                data.Price = hargaJualBaru.ToString();
+                data.MarketPrice = hJualInDb.HJUAL.ToString();
+                var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                data.display = display ? "true" : "false";
+                new BlibliController().UpdateProdukQOH_Display(iden, data);
+            }
+            else if (customer.NAMA.Equals(kdElevenia))
+            {
+                string[] imgID = new string[3];
+                //if (Request.Files.Count > 0)
+                //{
+                for (int i = 0; i < 3; i++)
+                {
+                    //var file = Request.Files[i];
+
+                    //if (file != null && file.ContentLength > 0)
+                    //{
+                    //    var fileExtension = Path.GetExtension(file.FileName);
+                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
+                    imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                    //}
+                }
+                EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                {
+                    api_key = customer.API_KEY,
+                    kode = hJualInDb.BRG,
+                    nama = brg.NAMA + ' ' + brg.NAMA2 + ' ' + brg.NAMA3,
+                    berat = (brg.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                    imgUrl = imgID,
+                    Keterangan = brg.Deskripsi,
+                    Qty = Convert.ToString(qtyOnHand),
+                    DeliveryTempNo = hJualInDb.DeliveryTempElevenia.ToString(),
+                    IDMarket = customer.RecNum.ToString(),
+                };
+                data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == brg.Sort2 && m.LEVEL == "2").KET;
+                data.Price = hargaJualBaru.ToString();
+                data.kode_mp = hJualInDb.BRG_MP;
+
+                var display = Convert.ToBoolean(hJualInDb.DISPLAY);
+                if (!string.IsNullOrEmpty(data.kode_mp))
+                {
+                    var result = new EleveniaController().UpdateProduct(data);
+                }
             }
             //end add by Tri, update harga ke marketplace
 

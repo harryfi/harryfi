@@ -217,7 +217,7 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported)
+            xmlString += "<htmlDetail><![CDATA[" + data.Keterangan + "]]></htmlDetail>";//item detail(html supported).Replace(System.Environment.NewLine, "<br>")
             xmlString += "<sellerPrdCd><![CDATA[" + data.kode + "]]></sellerPrdCd>";//seller sku(optional)
             xmlString += "<selTermUseYn>N</selTermUseYn>";//whether to use sales period Y/N value
             //xmlString += "<wrhsPlnDy></wrhsPlnDy>";//due date of stock(optional)
