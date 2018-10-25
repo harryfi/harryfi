@@ -989,6 +989,7 @@ else
                                     lblDesc3.style.visibility = 'visible';
                                     lblDesc4.style.visibility = 'visible';
                                     if (@tokped == value) {
+                                        lblDesc3.innerText ='1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.';
                                         lblDesc4.innerText ='2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
 
                                     } else {
@@ -1312,7 +1313,7 @@ else
                                     $('#Customers_PASSWORD').removeAttr('required');
                     }
                     //change by nurul 24/10/2018
-                    @*if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
+                    if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
                         var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
                             valuetxtAPI_Key = response.Customers.API_KEY;
@@ -1332,18 +1333,39 @@ else
                         //$('descAPIKey').append(lblDescAPIKey);
                         lblDesc.style.visibility = 'visible';
                         lblDesc2.style.visibility = 'visible';
+                        lblDesc3.style.visibility = 'visible';
+                        lblDesc4.style.visibility = 'visible';
                         if (@lzd == response.Customers.NAMA) {
                             lblDesc2.innerText = ' Silahkan anda save & lengkapi langkah selanjutnya'
-                        } else {
+                            lblDesc3.style.visibility = 'hidden';
+                            lblDesc4.style.visibility = 'hidden';
+                        } else if (@shopee == response.Customers.NAMA) {
+                            lblDesc.style.visibility = 'hidden';
+                            lblDesc2.style.visibility = 'hidden';
+                            lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Shopee, silahkan hubungi customer servise kami.';
+                            lblDesc4.innerText = '2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".';
+                            lblPopUp.style.visibility = 'hidden';
+                        }else {
                             lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
                             lblPopUp.style.visibility = 'visible';
+                            lblDesc3.style.visibility = 'hidden';
+                            lblDesc4.style.visibility = 'hidden';
                         }
-                    } else {
+                    } else if (@bklapak != response.Customers.NAMA) {
+                        lblDesc.style.visibility = 'hidden';
+                        lblDesc2.style.visibility = 'hidden';
+                        lblDesc3.style.visibility = 'visible';
+                        lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.';
+                        lblDesc4.style.visibility = 'visible';
+                        lblPopUp.style.visibility = 'hidden';
+                    }else {
                         lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';
                         lblPopUp.style.visibility = 'hidden';
-                    }*@
-                    if (@bklapak != value && @tokped != value && @shopee != value) {
+                        lblDesc3.style.visibility = 'hidden';
+                        lblDesc4.style.visibility = 'hidden';
+                    }
+                    @*if (@bklapak != value && @tokped != value && @shopee != value) {
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
                                     var txtAPI_Key = '';
                                     if (@lzd == value) {
@@ -1386,7 +1408,7 @@ else
                                     lblPopUp.style.visibility = 'hidden';
                                     lblDesc3.style.visibility = 'hidden';
                                     lblDesc4.style.visibility = 'hidden';
-                    }
+                    }*@
                     //end change by nurul 
                     //end add by Tri, remove/append api_key
                     @*//add by Tri, API key bukalapak auto generate
