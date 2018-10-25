@@ -349,7 +349,7 @@ namespace MasterOnline.Controllers
                 Email = emailPengguna
             };
 
-            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email.Contains(emailPengguna));
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == emailPengguna);
             if (accInDb != null)
             {
                 res.Available = false;
@@ -570,6 +570,42 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
 
             return View(partnerId);
+        }
+
+        [System.Web.Mvc.HttpGet]
+        public ActionResult CekEmailPartner(string emailPengguna)
+        {
+            var res = new CekKetersediaanData()
+            {
+                Email = emailPengguna
+            };
+
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.Email == emailPengguna);
+            if (partnerInDb != null)
+            {
+                res.Available = false;
+                res.CekNull = partnerInDb.Username;
+            }
+
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        [System.Web.Mvc.HttpGet]
+        public ActionResult CekHpPartner(string noHp)
+        {
+            var res = new CekKetersediaanData()
+            {
+                MobileNo = noHp
+            };
+
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.NoHp == noHp);
+            if (partnerInDb != null)
+            {
+                res.Available = false;
+                res.CekNull = partnerInDb.Username;
+            }
+
+            return Json(res, JsonRequestBehavior.AllowGet);
         }
     }
 }
