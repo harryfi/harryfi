@@ -257,7 +257,7 @@ namespace MasterOnline.Controllers
             xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
             xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
             //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
-            xmlString += "<description><![CDATA[" + data.deskripsi + "]]></description>";
+            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
             xmlString += "<brand>No Brand</brand>";
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
