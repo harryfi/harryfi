@@ -34,8 +34,23 @@ namespace MasterOnline.Controllers
 
         // Route ke halaman login
         [System.Web.Mvc.Route("login")]
-        public ActionResult Login()
+        public ActionResult Login(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 
@@ -336,8 +351,23 @@ namespace MasterOnline.Controllers
 
         // Route ke halaman register
         [System.Web.Mvc.Route("register")]
-        public ActionResult Register(long? referral)
+        public ActionResult Register(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 
@@ -506,8 +536,23 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("partner")]
-        public ActionResult Partner()
+        public ActionResult Partner(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 
@@ -559,17 +604,82 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("partner/approval")]
-        public ActionResult PartnerApproval(long? partnerId)
+        public async Task<ActionResult> PartnerApproval(long? partnerId)
         {
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(u => u.PartnerId == partnerId);
-            if (partnerInDb == null) return HttpNotFound();
+            if (partnerInDb == null) return View("Error");
 
-            ViewData["PartnerId"] = partnerId;
+            var approvalData = new PartnerApprovalViewModel();
+            approvalData.KodeReferalPilihan = partnerInDb.KodeRefPilihan;
+            approvalData.NamaTipe = partnerInDb.NamaTipe;
+
+            if (partnerInDb.StatusSetuju)
+            {
+                approvalData.SudahDaftar = true;
+                return View(approvalData);
+            }
+
             partnerInDb.StatusSetuju = true;
 
             MoDbContext.SaveChanges();
 
-            return View(partnerId);
+            if (partnerInDb.Status)
+            {
+                var email = new MailAddress(partnerInDb.Email);
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "SELAMAT! Anda telah menjadi partner dari MasterOnline!";
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PartnerApproval.html"))
+                    .Replace("LINKREF", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("Index", "Home", new { @ref = partnerInDb.KodeRefPilihan }))
+                    .Replace("TIPEPARTNER", partnerInDb.NamaTipe);
+                message.IsBodyHtml = true;
+
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+                using (var smtp = new SmtpClient())
+                {
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "erasoft123"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+#endif
+            }
+
+            return View(approvalData);
         }
 
         [System.Web.Mvc.HttpGet]
@@ -599,6 +709,24 @@ namespace MasterOnline.Controllers
             };
 
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.NoHp == noHp);
+            if (partnerInDb != null)
+            {
+                res.Available = false;
+                res.CekNull = partnerInDb.Username;
+            }
+
+            return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        [System.Web.Mvc.HttpGet]
+        public ActionResult CekKodeRefPartner(string kodeRef)
+        {
+            var res = new CekKetersediaanData()
+            {
+                KodeRef = kodeRef
+            };
+
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.KodeRefPilihan == kodeRef);
             if (partnerInDb != null)
             {
                 res.Available = false;

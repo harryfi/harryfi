@@ -532,6 +532,10 @@
     <Compile Include="Migrations\201810230628132_ChangeColumnNameReferral.Designer.cs">
       <DependentUpon>201810230628132_ChangeColumnNameReferral.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201810250441406_AddCustomReferalCode.cs" />
+    <Compile Include="Migrations\201810250441406_AddCustomReferalCode.Designer.cs">
+      <DependentUpon>201810250441406_AddCustomReferalCode.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -1120,6 +1124,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
+    <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
     <Compile Include="ViewModels\PaymentMidtransViewModel.cs" />
     <Compile Include="ViewModels\PesananViewModel.cs" />
@@ -1146,6 +1151,7 @@
     <Content Include="Content\admin\fonts\montserrat\OFL.txt" />
     <Content Include="Content\admin\fonts\raleway\OFL.txt" />
     <Content Include="Content\admin\fonts\ubuntu\UFL.txt" />
+    <Content Include="Content\admin\PartnerApproval.html" />
     <Content Include="Content\admin\util.css" />
     <Content Include="Content\build\css\bootstrap-datepicker.min.css" />
     <Content Include="Content\build\css\selectivity-jquery.min.css" />
@@ -1173,6 +1179,7 @@
     <Content Include="Content\Images\bank.png" />
     <Content Include="Content\Images\barang_terpusat_icon.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
+    <Content Include="Content\Images\bg_404.jpg" />
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\chart_mo.png" />
@@ -5946,6 +5953,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810230628132_ChangeColumnNameReferral.resx">
       <DependentUpon>201810230628132_ChangeColumnNameReferral.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810250441406_AddCustomReferalCode.resx">
+      <DependentUpon>201810250441406_AddCustomReferalCode.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

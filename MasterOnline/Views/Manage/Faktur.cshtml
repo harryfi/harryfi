@@ -1702,7 +1702,7 @@
                             } else if ($class === 'ndisc1-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
 
-                                if (this.value != 0) {
+                                if (this.value != 0,00) {
                                     $($trElement + ' .disc1-barang')
                                         .removeClass('editable')
                                         .css('pointer-events', 'none')
@@ -1720,7 +1720,7 @@
                             } else if ($class === 'ndisc2-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
 
-                                if (this.value != 0) {
+                                if (this.value != 0,00) {
                                     $($trElement + ' .disc2-barang')
                                         .removeClass('editable')
                                         .css('pointer-events', 'none')
@@ -1775,7 +1775,7 @@
                             }
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                             if (keyCode === 13 || keyCode === 9) {
-                                if ($(this).val() == 0) {
+                                if ($(this).val() == '0,00') {
                                     $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.disc2-barang').click();
                                 } else {
                                     $('#table_tambah_faktur > tbody > tr[data-faktur-id="0"] > td.ndisc2-barang').click();

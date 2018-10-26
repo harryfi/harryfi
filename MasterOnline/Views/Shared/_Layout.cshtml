@@ -25,21 +25,21 @@
             background-color: #fff;
         }
 
-        nav .container {
-            color: #5a5a5a;
-        }
-
-        nav .container-fluid a {
-            color: #fff;
-        }
-
-            nav .container-fluid a span {
-                font-size: 18px;
+            nav .container {
+                color: #5a5a5a;
             }
 
-        nav .container-fluid .col-md-2 {
-            padding: 7px 0;
-        }
+            nav .container-fluid a {
+                color: #fff;
+            }
+
+                nav .container-fluid a span {
+                    font-size: 18px;
+                }
+
+            nav .container-fluid .col-md-2 {
+                padding: 7px 0;
+            }
 
         .navbar-default {
             background-color: #fff !important;
@@ -163,16 +163,19 @@
     @RenderSection("styles", required: false)
 </head>
 <body>
+    @{
+        var referral = Request.Params["ref"];
+    }
     <nav class="navbar navbar-fixed-top" id="top">
         <div class="container">
             <div class="navbar-header">
                 @*<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>*@
-                <a class="navbar-brand" href="@Url.Action("Index", "Home")">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>*@
+                <a class="navbar-brand" href="@Url.Action("Index", "Home", new {@ref = referral})">
                     <img src="~/Content/Images/MO_new_logo_v2.png" alt="MasterOnline" id="logo_mo" class="col-md-10 col-xs-12 col-sm-12">
                 </a>
             </div>
@@ -190,31 +193,27 @@
                 </div>
                 <div class="row header-menu-new" style="float: right;">
                     <div class="col-md-2">
-                        <a href="@Url.Action("Index", "Home")">
+                        <a href="@Url.Action("Index", "Home", new {@ref = referral})">
                             <span>HOME</span>
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="@Url.Action("About", "Home")">
+                        <a href="@Url.Action("About", "Home", new {@ref = referral})">
                             <span>ABOUT</span>
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="@Url.Action("Login", "Account")">
+                        <a href="@Url.Action("Login", "Account", new {@ref = referral})">
                             <span>LOGIN</span>
                         </a>
                     </div>
                     <div class="col-md-2">
-                        @{
-                            var referral = Request.Params["referral"];
-                        }
-
-                        <a href="@Url.Action("Register", "Account", new { referral })">
+                        <a href="@Url.Action("Register", "Account", new {@ref = referral})">
                             <span>DAFTAR</span>
                         </a>
                     </div>
                     <div class="col-md-2">
-                        <a href="@Url.Action("Partner", "Account")">
+                        <a href="@Url.Action("Partner", "Account", new {@ref = referral})">
                             <span>PARTNER</span>
                         </a>
                     </div>
@@ -223,19 +222,19 @@
 
             <div class="col-sm-12 col-xs-12 hidden-md hidden-lg" style="margin: 10px 0;">
                 <div class="row text-center">
-                    <a href="@Url.Action("Index", "Home")" style="margin-right: 5px;">
+                    <a href="@Url.Action("Index", "Home", new {@ref = referral})" style="margin-right: 5px;">
                         <span>HOME</span>
                     </a>
-                    <a href="@Url.Action("About", "Home")" style="margin-right: 5px;">
+                    <a href="@Url.Action("About", "Home", new {@ref = referral})" style="margin-right: 5px;">
                         <span>ABOUT</span>
                     </a>
-                    <a href="@Url.Action("Login", "Account")" style="margin-right: 5px;">
+                    <a href="@Url.Action("Login", "Account", new {@ref = referral})" style="margin-right: 5px;">
                         <span>LOGIN</span>
                     </a>
-                    <a class="daftarBtn" style="padding: 3px; padding-left: 7px; margin-right: 5px;" href="@Url.Action("Register", "Account")">
+                    <a class="daftarBtn" style="padding: 3px; padding-left: 7px; margin-right: 5px;" href="@Url.Action("Register", "Account", new {@ref = referral})">
                         <span>DAFTAR</span>
                     </a>
-                    <a href="@Url.Action("Partner", "Account")" style="margin-right: 5px;">
+                    <a href="@Url.Action("Partner", "Account", new {@ref = referral})" style="margin-right: 5px;">
                         <span>PARTNER</span>
                     </a>
                 </div>
@@ -255,18 +254,22 @@
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
     <script type="text/javascript">
-        $(document).on('click', 'a[href^="#"]', function (event) {
-            event.preventDefault();
+        $(document).on('click',
+            'a[href^="#"]',
+            function (event) {
+                event.preventDefault();
 
-            $('html, body').animate({
-                scrollTop: $($.attr(this, 'href')).offset().top - 170
-            }, 500);
+                $('html, body').animate({
+                    scrollTop: $($.attr(this, 'href')).offset().top - 170
+                },
+                    500);
 
-            $('.btn-account').on('click', function () {
-                var $this = $(this);
-                $this.button('loading');
+                $('.btn-account').on('click',
+                    function () {
+                        var $this = $(this);
+                        $this.button('loading');
+                    });
             });
-        });
 
         function validateForm() {
             var $isValid = true;

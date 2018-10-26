@@ -83,7 +83,7 @@ namespace MasterOnline.Controllers
             var accInDb = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId);
 
             if (accInDb == null)
-                return HttpNotFound();
+                return View("Error");
 
             return View(accInDb);
         }
@@ -544,6 +544,11 @@ namespace MasterOnline.Controllers
         {
             var partnerId = Convert.ToInt64(partnerid);
             var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            if (partnerInDb.Status && !partnerInDb.StatusSetuju)
+                partnerInDb.StatusSetuju = true;
+            else
+                partnerInDb.StatusSetuju = false;
+
             partnerInDb.Status = !partnerInDb.Status;
 
             MoDbContext.SaveChanges();
@@ -554,8 +559,9 @@ namespace MasterOnline.Controllers
                 var message = new MailMessage();
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
-                message.Subject = "Pendaftaran MasterOnline berhasil!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html")).Replace("LINKPERSETUJUAN", "https://masteronline.co.id" + Url.Action("PartnerApproval", "Account", new { partnerId }));
+                message.Subject = "Pendaftaran Partner MasterOnline berhasil!";
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+                    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new {partnerId}));
                 message.IsBodyHtml = true;
 
 #if AWS

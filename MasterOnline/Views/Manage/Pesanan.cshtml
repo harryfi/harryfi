@@ -2231,7 +2231,7 @@
                                             convertToAngka(this.value) +
                                             '">');
 
-                                        if (this.value != 0) {
+                                        if (this.value != 0,00) {
                                             $($trElement + ' .disc1-barang')
                                                 .removeClass('editable')
                                                 //.prop('contentEditable', false)
@@ -2255,7 +2255,7 @@
                                             this.value +
                                             '">');
 
-                                        if (this.value != 0) {
+                                        if (this.value != 0,00) {
                                             $($trElement + ' .disc2-barang')
                                                 .removeClass('editable')
                                                 //.prop('contentEditable', false)
@@ -2318,7 +2318,7 @@
                                     }
                                 } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
                                     if (keyCode === 13 || keyCode === 9) {
-                                        if ($(this).val() == 0) {
+                                        if ($(this).val() == '0,00') {
                                             //$('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
                                             $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc2-barang').click();
                                         } else {

@@ -39,13 +39,43 @@ namespace MasterOnline.Controllers
             ErasoftDbContext?.Dispose();
         }
 
-        public ActionResult Index(long? referral)
+        public ActionResult Index(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult About(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 

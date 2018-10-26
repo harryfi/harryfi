@@ -1,6 +1,7 @@
 ﻿@model MasterOnline.Models.Account
 @{
     ViewBag.Title = "Login";
+    var referral = Request.Params["ref"];
 }
 
 @section styles
@@ -17,7 +18,7 @@
 
 <div class="loginColumns">
     <div class="row">
-        <a href="/">
+        <a href="@Url.Action("Index", "Home", new {@ref = referral})">
             <div class="col-md-12 text-center">
                 <img alt="logo" src="~/Content/Images/MO_new_logo.png" width="300">
             </div>
@@ -59,7 +60,7 @@
                         Session["NotAuthorized"] = null;
                     }
 
-                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    @if (referral == null && ViewData.ModelState.Any(x => x.Value.Errors.Any()))
                     {
                         foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                         {
@@ -71,13 +72,6 @@
                             </div>
                         }
                     }
-                    
-                    <div class="alert alert-danger" id="alert-error-section">
-                        <span id="message"></span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
 
                     @using (Html.BeginForm("LoggingIn", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
