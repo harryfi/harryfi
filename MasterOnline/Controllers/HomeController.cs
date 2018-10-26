@@ -39,9 +39,9 @@ namespace MasterOnline.Controllers
             ErasoftDbContext?.Dispose();
         }
 
-        public ActionResult Index(long? Ref)
+        public ActionResult Index(string Ref)
         {
-            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.PartnerId == Ref);
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
 
             if (Ref != null && partnerInDb == null)
             {
@@ -59,9 +59,9 @@ namespace MasterOnline.Controllers
             return View();
         }
 
-        public ActionResult About(long? Ref)
+        public ActionResult About(string Ref)
         {
-            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.PartnerId == Ref);
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
 
             if (Ref != null && partnerInDb == null)
             {

@@ -1124,6 +1124,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
+    <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
     <Compile Include="ViewModels\PaymentMidtransViewModel.cs" />
     <Compile Include="ViewModels\PesananViewModel.cs" />

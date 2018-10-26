@@ -34,9 +34,9 @@ namespace MasterOnline.Controllers
 
         // Route ke halaman login
         [System.Web.Mvc.Route("login")]
-        public ActionResult Login(long? Ref)
+        public ActionResult Login(string Ref)
         {
-            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.PartnerId == Ref);
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
 
             if (Ref != null && partnerInDb == null)
             {
@@ -351,8 +351,23 @@ namespace MasterOnline.Controllers
 
         // Route ke halaman register
         [System.Web.Mvc.Route("register")]
-        public ActionResult Register(long? Ref)
+        public ActionResult Register(string Ref)
         {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
             return View();
         }
 
@@ -521,9 +536,9 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("partner")]
-        public ActionResult Partner(long? Ref)
+        public ActionResult Partner(string Ref)
         {
-            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.PartnerId == Ref);
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
 
             if (Ref != null && partnerInDb == null)
             {
@@ -594,14 +609,16 @@ namespace MasterOnline.Controllers
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(u => u.PartnerId == partnerId);
             if (partnerInDb == null) return View("Error");
 
+            var approvalData = new PartnerApprovalViewModel();
+            approvalData.KodeReferalPilihan = partnerInDb.KodeRefPilihan;
+            approvalData.NamaTipe = partnerInDb.NamaTipe;
+
             if (partnerInDb.StatusSetuju)
             {
-                ViewData["SudahDaftar"] = true;
-                ViewData["TipePartner"] = partnerInDb.NamaTipe;
-                return View();
+                approvalData.SudahDaftar = true;
+                return View(approvalData);
             }
 
-            ViewData["KodeReferalPilihan"] = partnerInDb.KodeRefPilihan;
             partnerInDb.StatusSetuju = true;
 
             MoDbContext.SaveChanges();
@@ -612,9 +629,9 @@ namespace MasterOnline.Controllers
                 var message = new MailMessage();
                 message.To.Add(email);
                 message.From = new MailAddress("csmasteronline@gmail.com");
-                message.Subject = "Pendaftaran MasterOnline berhasil!";
-                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
-                    .Replace("LINKPERSETUJUAN", "https://masteronline.co.id" + Url.Action("PartnerApproval", "Account", new { partnerId }))
+                message.Subject = "SELAMAT! Anda telah menjadi partner dari MasterOnline!";
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/PartnerApproval.html"))
+                    .Replace("LINKREF", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("Index", "Home", new { @ref = partnerInDb.KodeRefPilihan }))
                     .Replace("TIPEPARTNER", partnerInDb.NamaTipe);
                 message.IsBodyHtml = true;
 
@@ -662,7 +679,7 @@ namespace MasterOnline.Controllers
 #endif
             }
 
-            return View();
+            return View(approvalData);
         }
 
         [System.Web.Mvc.HttpGet]
