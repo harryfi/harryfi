@@ -2022,10 +2022,10 @@
             $bakalNetto = convertToAngka($('#Pesanan_BRUTO').val());
 
             //change by nurul 25/10/2018   var $nPpn = Math.ceil($bakalNetto * $('#Pesanan_PPN').val() / 100);
-            var $nPpn = Math.ceil(($bakalNetto - $('#Pesanan_NILAI_DISC').val()) * $('#Pesanan_PPN').val() / 100);
+            var $nPpn = Math.ceil(($bakalNetto - convertToAngka($('#Pesanan_NILAI_DISC').val())) * $('#Pesanan_PPN').val() / 100);
             $('#Pesanan_NILAI_PPN').val(convertToRupiah($nPpn));
 
-            // remark by nurul 25/10/2018   $bakalNetto -= convertToAngka($('#Pesanan_NILAI_DISC').val());
+            $bakalNetto -= convertToAngka($('#Pesanan_NILAI_DISC').val());
             $bakalNetto += $nPpn;
             $bakalNetto += convertToAngka($('#Pesanan_ONGKOS_KIRIM').val());
 
@@ -2398,12 +2398,7 @@
                                 $("#Pesanan_CUST").val(value).trigger('change');
                                 $("#Pesanan_NAMA_CUST").val($objSup[0].akun);
                                 if ($objSup[0] != null) {
-                                    //change by nurul 3/10/2018
-                                    //$("#Pesanan_TERM").val($objSup[0].term).change();
-                                    if ($("#Pesanan_TERM").val == "") {
-                                        $("#Pesanan_TERM").val($objSup[0].term).change();
-                                    }
-                                    //end change
+                                    $("#Pesanan_TERM").val($objSup[0].term).change();
                                 }
 
                                 getTanggal();
@@ -2727,7 +2722,7 @@
                     getTanggal();
                     getBuyer();
                     getDataBarang();
-                    getMarketplace();
+                    getMarketplaceSOT01A();
                     getExpedisi();
                     $('#tambah_pesanan').click();
                     $nettoSebelumnya += $bakalNetto;
@@ -3504,6 +3499,66 @@
 
         }
 
+        //ADD BY NURUL 26/10/2018
+        function getMarketplaceSOT01A() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPelangganAkun", "Manage")',
+                contentType: 'application/json',
+                cache: false,
+                success: function(data) {
+                    var customerList = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            var $namaMarket = $marketCollection[item.NAMA];
+
+                            customerList[i] = {
+                                id: item.CUST,
+                                text: $namaMarket + " (" + item.PERSO + ")",
+                                term: item.TOP,
+                                akun: item.PERSO
+                            };
+                        });
+
+                    var custSelect = $('#CUSTOMER').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: customerList,
+                        onChange: function(value) {
+                            var $objSup = $.grep(customerList, function(data) { return data.id == value });
+
+                            if (value == null) {
+                                $("#Pesanan_CUST").val(null);
+                                $("#Pesanan_NAMA_CUST").val(null);
+                                $("#Pesanan_TERM").val(null).change();
+                            } else {
+                                $("#Pesanan_CUST").val(value).trigger('change');
+                                $("#Pesanan_NAMA_CUST").val($objSup[0].akun);
+                                //if ($objSup[0] != null) {
+                                //    $("#Pesanan_TERM").val($objSup[0].term).change();
+                                //}
+
+                                getTanggal();
+                                getDataBarang();
+                            }
+                            $('#btn-simpan-perubahan-row').show();
+                        }
+                    });
+
+                    custSelect[0].selectize.setValue($('#Pesanan_CUST').val());
+                    if ($('#Pesanan_CUST').val() != "") {
+                        $('#CUSTOMER')[0].selectize.disable();
+                    }
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //END ADD
+
         function simpanbrg($id) {
             if (!validateForm()) return false;
             if (!validasiTambahan()) return false;
@@ -3550,7 +3605,7 @@
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
                             refreshInputan();
                             getTanggal();
-                            getMarketplace();
+                            getMarketplaceSOT01A();
                             getExpedisi();
                             getBuyer();
                             getDataBarang();
