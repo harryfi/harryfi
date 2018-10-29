@@ -567,38 +567,36 @@
                 });
             });
             
-            var $totalPot = 0;
-            var $totalBayar = 0;
-            var $totalSemua = 0;
+            //var $totalPot = 0;
+            //var $totalBayar = 0;
+            //var $totalSemua = 0;
 
-            $('tr[data-hutang-id="0"] #HutangDetail_POT').change(function () {
-                //$totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
-                $totalPot = convertToAngka($('#TOTALPOT').val()) + parseInt($('#HutangDetail_POT').val());
-                $('tr[data-hutang-id="0"] .span-potongan-hutang').text(convertToRupiah($(this).val()));
-                $('#TOTALPOT').val(convertToRupiah($totalPot));
-                $totalSemua = $totalPot + convertToAngka($('#TOTALBYR').val());
-                $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
-                //$('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($(this).val()));
-            //}).focus(function () {
-            //    $(this).val('');
+            //$('tr[data-hutang-id="0"] #HutangDetail_POT').change(function () {
+            //    //$totalSemua = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
+            //    $totalPot = convertToAngka($('#TOTALPOT').val()) + parseInt($('#HutangDetail_POT').val());
+            //    $('tr[data-hutang-id="0"] .span-potongan-hutang').text(convertToRupiah($(this).val()));
+            //    $('#TOTALPOT').val(convertToRupiah($totalPot));
+            //    $totalSemua = $totalPot + convertToAngka($('#TOTALBYR').val());
+            //    $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
+            ////}).focus(function () {
+            ////    $(this).val('');
             //}).blur(function() {
             //    if ($(this).val() == '')
             //        $(this).val(0);
-            });
+            //});
 
-            $('tr[data-hutang-id="0"] #HutangDetail_BAYAR').change(function () {
-                $totalBayar = convertToAngka($('#TOTALBYR').val()) + parseInt($('#HutangDetail_BAYAR').val());
-                $('tr[data-hutang-id="0"] .span-bayar-hutang').text(convertToRupiah($(this).val()));
-                $('#TOTALBYR').val(convertToRupiah($totalBayar));
-                $totalSemua = $totalBayar + convertToAngka($('#TOTALBYR').val());
-                $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
-                //$('#Hutang_TBAYAR').val(parseInt($('#Hutang_TBAYAR').val()) + parseInt($(this).val()));
-            //}).focus(function () {
-            //    $(this).val('');
+            //$('tr[data-hutang-id="0"] #HutangDetail_BAYAR').change(function () {
+            //    $totalBayar = convertToAngka($('#TOTALBYR').val()) + parseInt($('#HutangDetail_BAYAR').val());
+            //    $('tr[data-hutang-id="0"] .span-bayar-hutang').text(convertToRupiah($(this).val()));
+            //    $('#TOTALBYR').val(convertToRupiah($totalBayar));
+            //    $totalSemua = $totalBayar + convertToAngka($('#TOTALPOT').val());
+            //    $('#TOTALBAYAR').val(convertToRupiah($totalSemua));
+            ////}).focus(function () {
+            ////    $(this).val('');
             //}).blur(function () {
             //    if ($(this).val() == '')
             //        $(this).val(0);
-            });
+            //});
         }
 
         function getSupplier() {
@@ -903,8 +901,20 @@
                     $('#Hutang_TGLINPUT').val(moment(new Date()).format("DD/MM/YYYY"));
                     $('#HutangDetail_NFAKTUR').val($('#INVOICE').selectivity('val'));
                     $('#HutangDetail_SISA').val(convertToAngka($('tr[data-hutang-id="0"] .span-sisa-hutang').text()));
-                    $('#HutangDetail_POT').val(convertToAngka($('tr[data-hutang-id="0"] .span-potongan-hutang').text()));
-                    $('#HutangDetail_BAYAR').val(convertToAngka($('tr[data-hutang-id="0"] .span-bayar-hutang').text()));
+                    //$('#HutangDetail_POT').val(convertToAngka($('tr[data-hutang-id="0"] .span-potongan-hutang').text()));
+                    //$('#HutangDetail_BAYAR').val(convertToAngka($('tr[data-hutang-id="0"] .span-bayar-hutang').text()));
+                    if ($('#HutangDetail_POT').val() == "") {
+                        $('#HutangDetail_POT').val("0") ;
+                        $('#HutangDetail_POT').val(convertToAngka($('#HutangDetail_POT').val()));
+                    } else {
+                        $('#HutangDetail_POT').val(convertToAngka($('#HutangDetail_POT').val()));
+                    }
+                    if ($('#HutangDetail_BAYAR').val() == "") {
+                        $('#HutangDetail_BAYAR').val("0") ;
+                        $('#HutangDetail_BAYAR').val(convertToAngka($('#HutangDetail_BAYAR').val()));
+                    } else {
+                        $('#HutangDetail_BAYAR').val(convertToAngka($('#HutangDetail_BAYAR').val()));
+                    }
 
                     var sum = parseInt($('#HutangDetail_POT').val()) + parseInt($('#HutangDetail_BAYAR').val());
 
@@ -914,8 +924,6 @@
                     }
 
                     $('#Hutang_TPOT').val(parseInt($('#Hutang_TPOT').val()) + parseInt($('#HutangDetail_POT').val()));
-                    //$('#Hutang_TBAYAR').val(convertToAngka($('#TOTALBAYAR').val()));
-                    //$('#Hutang_TBAYAR').val(convertToAngka($('#TOTALBYR').val()));
                     $('#Hutang_TBAYAR').val(parseInt($('#Hutang_TBAYAR').val()) + parseInt($('#HutangDetail_BAYAR').val()));
                     $('#TotalBAYAR').val(parseInt($('#Hutang_TPOT').val()) + parseInt($('#Hutang_TBAYAR').val()));
 
