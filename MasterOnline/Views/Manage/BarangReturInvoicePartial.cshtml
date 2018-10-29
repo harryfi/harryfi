@@ -258,21 +258,21 @@
                 {
                 <tr data-barang-id="brg-@invoice.NO">
                     @{
-                            //change by nurul 25/7/2018
-                            //var stnBarang = listBarang.Single(b => b.BRG == invoice.BRG).STN2;
-                            //var hjualBarang = listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
+                        //change by nurul 25/7/2018
+                        //var stnBarang = listBarang.Single(b => b.BRG == invoice.BRG).STN2;
+                        //var hjualBarang = listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
 
-                            var stnBarang = "";
-                            if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
-                            {
-                                stnBarang= listBarang.Single(b => b.BRG == invoice.BRG).STN2;
-                            }
-                            double hjualBarang = 0;
-                            if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
-                            {
-                                hjualBarang= listBarang.Single(b => b.BRG == invoice.BRG).HJUAL;
-                            }
-                            //End change
+                        var stnBarang = "";
+                        if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
+                        {
+                            stnBarang= listBarang.Single(b => b.BRG == invoice.BRG).STN2;
+                        }
+                        double hjualBarang = 0;
+                        if (listBarang.Single(b => b.BRG == invoice.BRG) != null)
+                        {
+                            hjualBarang = invoice.HBELI;
+                        }
+                        //End change
                     }
                     <td>
                         <span class="kode-barang">@invoice.BRG</span>

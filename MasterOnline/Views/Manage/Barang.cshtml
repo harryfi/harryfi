@@ -690,9 +690,9 @@
                 $('.barang_editor_section').hide();
                 refreshFormBarang();
             });
-            getKategoriPertamaLazada();//add by Tri
-            getKategoriPertamaBlibli();
-            getKategoriPertamaElevenia();
+            getKategoriPertamaLazada(-1);//add by Tri
+            getKategoriPertamaBlibli(-1);
+            getKategoriPertamaElevenia(-1);
             getKategori();
             getMerk();
 
@@ -965,18 +965,18 @@
                 else {
                     $(fieldCategoryCode).val('undo');
                 }
-                getKategoriPertamaLazada();
+                getKategoriPertamaLazada(i);
             }
         }
 
-        function getKategoriPertamaLazada() {
+        function getKategoriPertamaLazada(spec) {
             @*@{
                 var context_ = new MoDbContext();
             }*@
             var idMarketLazada = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("LAZADA")).IdMarket));
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketLazada.toString()) {
+                if (listMarket[i].NAMA == idMarketLazada.toString() && (spec < 0 || spec == i)) {
                     if (listMarket[i].TOKEN != null) {
 
                         var selectCategoryLazadaID = 'Category_Lazada_' + listMarket[i].RecNum;
@@ -998,84 +998,89 @@
                                 $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
                                 var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                                var link = '@Url.Action("GetKategoriLazadaByChildCode", "Manage", new { code = "replaceCode" })';
-                                link = link.replace("replaceCode", fieldCategoryCodeValue);
-
-                                $.ajax({
-                                    type: "GET",
-                                    url: link,
-                                    contentType: 'application/json',
-                                    cache: false,
-                                    success: function (data) {
-                                        var listKategori = [];
-
-                                        //generate category
-                                        $.each(data,
-                                            function (i, item) {
-                                                if (i == 0) {
-                                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'">';
-                                                    $('#category_lazada_pertama_' + listMarketRecNum).append(textbox);
-                                                }
-                                                else {
-                                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'"></div>';
-                                                    $('#category_lazada_selanjutnya_' + listMarketRecNum).append(textbox);
-                                                }
-                                            });
-
-                                        //generate attribute
-                                        getAttributeLazada(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
-
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr);
-                                    }
-                                });
+                                FuncGetKategoriLazadaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
                             }
-
                         }
                         else {
                             //new
-                            var link = '@Url.Action("GetKategoriLazadaByCode", "Manage")';
-                            //link = link.replace("replaceCode", listMarket[i].Kode);
-
-                            //buat select pertama
-                            var nextselect = '<select id="' + selectCategoryLazadaID +'" placeholder="Harap pilih" required="required"></select>';
-                            $('#category_lazada_pertama_' + listMarket[i].RecNum).append(nextselect);
-                            //end buat select pertama
-
-                            $.ajax({
-                                type: "GET",
-                                url: link,
-                                contentType: 'application/json',
-                                cache: false,
-                                success: function (data) {
-                                    var listKategori = [];
-
-                                    $.each(data,
-                                        function (i, item) {
-                                            listKategori[i] = {
-                                                id: item.CATEGORY_ID + '|;|' + item.LEAF,
-                                                text: item.NAME
-                                            };
-                                        });
-
-                                    var kategoriSelect = $('#' + selectCategoryLazadaID).selectize({
-                                        valueField: 'id',
-                                        searchField: 'text',
-                                        options: listKategori,
-                                        onChange: function (value) {
-                                            KategoriLazadaOnChange(value, nextselectID, selectCategoryLazadaID, categoryLazadaSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
-                                        }
-                                    });
-                                },
-                                error: function (xhr) {
-                                    console.log(xhr);
-                                }
-                            });
+                            FuncGetKategoriLazadaByCode(selectCategoryLazadaID,listMarket[i].RecNum,nextselectID,categoryLazadaSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum);
                         }
                     }
                 }
             }
+        }
+        function FuncGetKategoriLazadaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+            var link = '@Url.Action("GetKategoriLazadaByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", fieldCategoryCodeValue);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    //generate category
+                    $.each(data,
+                        function (i, item) {
+                            if (i == 0) {
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'">';
+                                $('#category_lazada_pertama_' + listMarketRecNum).append(textbox);
+                            }
+                            else {
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.NAME +'"></div>';
+                                $('#category_lazada_selanjutnya_' + listMarketRecNum).append(textbox);
+                            }
+                        });
+
+                    //generate attribute
+                    getAttributeLazada(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function FuncGetKategoriLazadaByCode(selectCategoryLazadaID,listMarket_i_RecNum,nextselectID,categoryLazadaSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+            var link = '@Url.Action("GetKategoriLazadaByCode", "Manage")';
+            //link = link.replace("replaceCode", listMarket[i].Kode);
+
+            //buat select pertama
+            var nextselect = '<select id="' + selectCategoryLazadaID +'" placeholder="Harap pilih" required="required"></select>';
+            $('#category_lazada_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_ID + '|;|' + item.LEAF,
+                                text: item.NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryLazadaID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriLazadaOnChange(value, nextselectID, selectCategoryLazadaID, categoryLazadaSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
         function KategoriLazadaOnChange(value, nextselectID, selectCategoryLazadaID, categoryLazadaSelanjutnya, next, fieldCategoryCode, fieldCategoryName, listMarketRecNum, s) {
             s.disable();
@@ -1312,17 +1317,17 @@
                 else {
                     $(fieldCategoryCode).val('undo');
                 }
-                getKategoriPertamaBlibli();
+                getKategoriPertamaBlibli(i);
             }
         }
-        function getKategoriPertamaBlibli() {
+        function getKategoriPertamaBlibli(spec) {
             @*@{
                 var context_ = new MoDbContext();
             }*@
             var idMarketBlibli = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("BLIBLI")).IdMarket));
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketBlibli.toString()) {
+                if (listMarket[i].NAMA == idMarketBlibli.toString() && (spec < 0 || spec == i)) {
                     if (listMarket[i].Kode != null) {
 
                         var selectCategoryBlibliID = 'Category_Blibli_' + listMarket[i].RecNum;
@@ -1344,84 +1349,90 @@
                                 $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
                                 var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                                var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
-                                link = link.replace("replaceCode", fieldCategoryCodeValue);
-
-                                $.ajax({
-                                    type: "GET",
-                                    url: link,
-                                    contentType: 'application/json',
-                                    cache: false,
-                                    success: function (data) {
-                                        var listKategori = [];
-
-                                        //generate category
-                                        $.each(data,
-                                            function (i, item) {
-                                                if (i == 0) {
-                                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
-                                                    $('#category_blibli_pertama_' + listMarketRecNum).append(textbox);
-                                                }
-                                                else {
-                                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
-                                                    $('#category_blibli_selanjutnya_' + listMarketRecNum).append(textbox);
-                                                }
-                                            });
-
-                                        //generate attribute
-                                        getAttributeBlibli(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
-
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr);
-                                    }
-                                });
+                                FuncGetKategoriBlibliByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
                             }
 
                         }
                         else {
                             //new
-                            var link = '@Url.Action("GetKategoriBlibliByCode", "Manage", new { code = "replaceCode" })';
-                            link = link.replace("replaceCode", listMarket[i].Kode);
-
-                            //buat select pertama
-                            var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" required="required"></select>';
-                            $('#category_blibli_pertama_' + listMarket[i].RecNum).append(nextselect);
-                            //end buat select pertama
-
-                            $.ajax({
-                                type: "GET",
-                                url: link,
-                                contentType: 'application/json',
-                                cache: false,
-                                success: function (data) {
-                                    var listKategori = [];
-
-                                    $.each(data,
-                                        function (i, item) {
-                                            listKategori[i] = {
-                                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
-                                                text: item.CATEGORY_NAME
-                                            };
-                                        });
-
-                                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
-                                        valueField: 'id',
-                                        searchField: 'text',
-                                        options: listKategori,
-                                        onChange: function (value) {
-                                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
-                                        }
-                                    });
-                                },
-                                error: function (xhr) {
-                                    console.log(xhr);
-                                }
-                            });
+                            FuncGetKategoriBlibliByCode(selectCategoryBlibliID,listMarket[i].Kode,listMarket[i].RecNum,nextselectID,categoryBlibliSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum)
                         }
                     }
                 }
             }
+        }
+        function FuncGetKategoriBlibliByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+            var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", fieldCategoryCodeValue);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    //generate category
+                    $.each(data,
+                        function (i, item) {
+                            if (i == 0) {
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
+                                $('#category_blibli_pertama_' + listMarketRecNum).append(textbox);
+                            }
+                            else {
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
+                                $('#category_blibli_selanjutnya_' + listMarketRecNum).append(textbox);
+                            }
+                        });
+
+                    //generate attribute
+                    getAttributeBlibli(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function FuncGetKategoriBlibliByCode(selectCategoryBlibliID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryBlibliSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+            var link = '@Url.Action("GetKategoriBlibliByCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", listMarket_i_Kode);
+
+            //buat select pertama
+            var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" required="required"></select>';
+            $('#category_blibli_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
         function KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,s){
             s.disable();
@@ -1650,17 +1661,17 @@
                 else {
                     $(fieldCategoryCode).val('undo');
                 }
-                getKategoriPertamaElevenia();
+                getKategoriPertamaElevenia(i);
             }
         }
-        function getKategoriPertamaElevenia() {
+        function getKategoriPertamaElevenia(spec) {
             @*@{
                 var context_ = new MoDbContext();
         }*@
             var idMarketElevenia = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("ELEVENIA")).IdMarket));
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketElevenia.toString()) {
+                if (listMarket[i].NAMA == idMarketElevenia.toString() && (spec < 0 || spec == i)) {
                     //if (listMarket[i].Kode != null) {
 
                         var selectCategoryEleveniaID = 'Category_Elevenia_' + listMarket[i].RecNum;
@@ -1682,84 +1693,90 @@
                                 $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
 
                                 var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                                var link = '@Url.Action("GetKategoriEleveniaByChildCode", "Manage", new { code = "replaceCode" })';
-                                link = link.replace("replaceCode", fieldCategoryCodeValue);
-
-                                $.ajax({
-                                    type: "GET",
-                                    url: link,
-                                    contentType: 'application/json',
-                                    cache: false,
-                                    success: function (data) {
-                                        var listKategori = [];
-
-                                        //generate category
-                                        $.each(data,
-                                            function (i, item) {
-                                                if (i == 0) {
-                                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
-                                                    $('#category_elevenia_pertama_' + listMarketRecNum).append(textbox);
-                                                }
-                                                else {
-                                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
-                                                    $('#category_elevenia_selanjutnya_' + listMarketRecNum).append(textbox);
-                                                }
-                                            });
-
-                                        //generate attribute
-                                        getAttributeElevenia(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
-
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr);
-                                    }
-                                });
+                                FuncGetKategoriEleveniaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
                             }
 
                         }
                         else {
                             //new
-                            var link = '@Url.Action("GetKategoriEleveniaByCode", "Manage", new { code = "replaceCode" })';
-                            link = link.replace("replaceCode", listMarket[i].Kode);
-
-                            //buat select pertama
-                            var nextselect = '<select id="'+ selectCategoryEleveniaID +'" placeholder="Harap pilih" required="required"></select>';
-                            $('#category_elevenia_pertama_' + listMarket[i].RecNum).append(nextselect);
-                            //end buat select pertama
-
-                            $.ajax({
-                                type: "GET",
-                                url: link,
-                                contentType: 'application/json',
-                                cache: false,
-                                success: function (data) {
-                                    var listKategori = [];
-
-                                    $.each(data,
-                                        function (i, item) {
-                                            listKategori[i] = {
-                                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
-                                                text: item.CATEGORY_NAME
-                                            };
-                                        });
-
-                                    var kategoriSelect = $('#' + selectCategoryEleveniaID).selectize({
-                                        valueField: 'id',
-                                        searchField: 'text',
-                                        options: listKategori,
-                                        onChange: function (value) {
-                                            KategoriEleveniaOnChange(value,nextselectID,selectCategoryEleveniaID,categoryEleveniaSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
-                                        }
-                                    });
-                                },
-                                error: function (xhr) {
-                                    console.log(xhr);
-                                }
-                            });
+                            FuncGetKategoriEleveniaByCode(selectCategoryEleveniaID,listMarket[i].Kode,listMarket[i].RecNum,nextselectID,categoryEleveniaSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum);
                         }
                     //}
                 }
             }
+        }
+        function FuncGetKategoriEleveniaByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+            var link = '@Url.Action("GetKategoriEleveniaByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", fieldCategoryCodeValue);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    //generate category
+                    $.each(data,
+                        function (i, item) {
+                            if (i == 0) {
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
+                                $('#category_elevenia_pertama_' + listMarketRecNum).append(textbox);
+                            }
+                            else {
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
+                                $('#category_elevenia_selanjutnya_' + listMarketRecNum).append(textbox);
+                            }
+                        });
+
+                    //generate attribute
+                    getAttributeElevenia(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function FuncGetKategoriEleveniaByCode(selectCategoryEleveniaID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryEleveniaSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+            var link = '@Url.Action("GetKategoriEleveniaByCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", listMarket_i_Kode);
+
+            //buat select pertama
+            var nextselect = '<select id="'+ selectCategoryEleveniaID +'" placeholder="Harap pilih" required="required"></select>';
+            $('#category_elevenia_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryEleveniaID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriEleveniaOnChange(value,nextselectID,selectCategoryEleveniaID,categoryEleveniaSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
         function KategoriEleveniaOnChange(value,nextselectID,selectCategoryEleveniaID,categoryEleveniaSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,s){
             s.disable();
