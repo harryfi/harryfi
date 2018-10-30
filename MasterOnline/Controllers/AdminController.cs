@@ -122,6 +122,19 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya.";
+            MoDbContext.SaveChanges();
+
+            var listAcc = MoDbContext.Account.ToList();
+
+            return View("AccountMenu", listAcc);
+        }
+
+        public ActionResult TambahHapusDatabaseAcc(int? accId)
+        {
+            var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+            accInDb.Status = !accInDb.Status;
+
             try
             {
                 //change by calvin 3 oktober 2018
@@ -183,12 +196,9 @@ namespace MasterOnline.Controllers
                 return Content(e.Message);
             }
 
-            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya.";
-            MoDbContext.SaveChanges();
-
             var listAcc = MoDbContext.Account.ToList();
 
-            return View("AccountMenu", listAcc);
+            return View("DatabaseMenu", listAcc);
         }
 
         // =============================================== Bagian User & Account (END)
