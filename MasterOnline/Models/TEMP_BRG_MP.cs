@@ -504,5 +504,8 @@ namespace MasterOnline.Models
 
         [StringLength(30)]
         public string PICKUP_POINT { get; set; }
+
+        [StringLength(50)]
+        public string MEREK { get; set; }
     }
 }
