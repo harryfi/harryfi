@@ -929,7 +929,8 @@ else
                         searchField: 'text',
                         options: customerList,
                         onChange: function (value) {
-                            var isExist = isInArray(parseInt(value), $listNamaMarketTerpakai);
+                            cekJumlahMarketplace().promise().done(function() {
+                                var isExist = isInArray(parseInt(value), $listNamaMarketTerpakai);
 
                             if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
                                 $("#Customers_NAMA").val(null);
@@ -1015,6 +1016,7 @@ else
                                 }
                                 //end add by Tri, remove/append api_key
                             }
+                            });
                         }
                     });
 
