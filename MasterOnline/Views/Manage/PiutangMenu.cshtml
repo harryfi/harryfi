@@ -278,43 +278,73 @@
                                     term: item.TOP
                                 };
                             });
+                        //change by nurul 31/10/2018
+                        //var custSelect = $('#CUSTOMER').selectize({
+                        //    valueField: 'id',
+                        //    searchField: 'text',
+                        //    options: customerList,
+                        //    onChange: function(value) {
+                        //        var $objSup = $.grep(customerList, function (data) { return data.id == value });
 
-                        var custSelect = $('#CUSTOMER').selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: customerList,
-                            onChange: function(value) {
-                                var $objSup = $.grep(customerList, function (data) { return data.id == value });
+                        //        if (value === null) {
+                        //            $("#Piutang_CUST").val(null);
+                        //            $("#Piutang_NSUPP").val(null);
+                        //            $("#Piutang_TERM").val(null).change();
+                        //        } else {
+                        //            $("#Piutang_CUST").val(value);
+                        //            if ($objSup[0] != null) {
+                        //                //$("#Piutang_NCUST").val($objSup[0].text);
+                        //                //change by nurul 3/10/2018
+                        //                $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                        //                $("#Piutang_TERM").val($objSup[0].term).change();
+                                    
+                        //                //if ($("#Piutang_TERM").val() == "") {
+                        //                //    $("#Piutang_TERM").val($objSup[0].term).change();
+                        //                //} else {
+                        //                //    //$('#Piutang_JTGL').val(), "DD/MM/YYYY";
+                        //                //    var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+                        //                //    var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+                        //                //    $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                        //                //}
+                        //                //end change
+                        //            }
+                        //        }
+                        //    }
+                        //});
 
-                                if (value === null) {
-                                    $("#Piutang_CUST").val(null);
-                                    $("#Piutang_NSUPP").val(null);
-                                    $("#Piutang_TERM").val(null).change();
-                                } else {
-                                    $("#Piutang_CUST").val(value);
-                                    if ($objSup[0] != null) {
-                                        $("#Piutang_NCUST").val($objSup[0].text);
-                                        //change by nurul 3/10/2018
-                                        //$("#Piutang_TERM").val($objSup[0].term).change();
-                                        if ($("#Piutang_TERM").val == "0") {
-                                            $("#Piutang_TERM").val($objSup[0].term).change();
-                                        } else {
-                                            //$('#Piutang_JTGL').val(), "DD/MM/YYYY";
-                                            var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
-                                            var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
-                                            $('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
-                                        }
-                                        //end change
-                                    }
+                        //custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
                                 }
                             }
                         });
-
-                        custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+                        //end change by nurul 31/10/2018
 
 
                         if (value != '')
-                            $('#Piutang_TERM').val(value)
+                            $('#Piutang_TERM').val(value).change();
 
                     },
                     error: function (xhr) {
@@ -391,6 +421,101 @@
                 return false;
             }
 
+            function getCustomerART01A(value='') {
+                $.ajax({
+                    type: "GET",
+                    /**/
+                    url: '@Url.Action("GetCustomer", "Manage")',
+                    /**/
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var customerList = [];
+
+                        $.each(data,
+                            function (i, item) {
+                                var $namaMarket = $marketCollection[item.NAMA];
+
+                                customerList[i] = {
+                                    id: item.CUST,
+                                    text: $namaMarket + " (" + item.PERSO + ")",
+                                    term: item.TOP
+                                };
+                            });
+                        //change by nurul 31/10/2018
+                        //var custSelect = $('#CUSTOMER').selectize({
+                        //    valueField: 'id',
+                        //    searchField: 'text',
+                        //    options: customerList,
+                        //    onChange: function(value) {
+                        //        var $objSup = $.grep(customerList, function (data) { return data.id == value });
+
+                        //        if (value === null) {
+                        //            $("#Piutang_CUST").val(null);
+                        //            $("#Piutang_NSUPP").val(null);
+                        //            $("#Piutang_TERM").val(null).change();
+                        //        } else {
+                        //            $("#Piutang_CUST").val(value);
+                        //            if ($objSup[0] != null) {
+                        //                //$("#Piutang_NCUST").val($objSup[0].text);
+                        //                $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+
+                        //                //add by nurul
+                        //                //var $tgl = moment($('#Piutang_TGL').val(), "DD/MM/YYYY");
+                        //                //var $tglTop = $tgl.add($('#Piutang_TERM').val(), 'days');
+                        //                //$('#Piutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                        //                $('#Piutang_TERM').val(value).change();
+
+
+                        //                //end add
+                                        
+                        //            }
+                        //        }
+                        //    }
+                        //});
+
+                        //custSelect[0].selectize.setValue($('#Piutang_CUST').val());
+                        $('#CUSTOMER').selectivity({
+                            allowClear: true,
+                            items: customerList,
+                            placeholder: 'Harap pilih'
+                        });
+
+                        var $cust = $('#Piutang_CUST').val();
+
+                        $('#CUSTOMER').change(function () {
+                            var $val = $(this).selectivity('value');
+                            var $objSup = $.grep(customerList, function (data) { return data.id == $val });
+
+                            if ($val === null) {
+                                $("#Piutang_CUST").val(null);
+                                $("#Piutang_NSUPP").val(null);
+                                $("#Piutang_TERM").val(null).change();
+                            } else {
+                                $("#Piutang_CUST").val($val);
+                                if ($objSup[0] != null) {
+                                    $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
+                                    $("#Piutang_TERM").val($objSup[0].term).change();
+                                }
+                            }
+                        });
+                        if ($cust !== null) {
+                            $('#CUSTOMER').selectivity('value', $cust);
+                        }
+                        //end change by nurul 31/10/2018                    
+
+                        if (value != '')
+                            //$('#Piutang_TERM').val(value)
+                            $('#Piutang_TERM').val(value).change();
+
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+
             function refreshTablePiutang() {
                 var link = '@Url.Action("RefreshTablePiutang", "Manage")';
 
@@ -456,7 +581,8 @@
                         $('#CUSTNAME').show();
                         $('#CUSTOMER').hide();
 
-                        getCustomer(term);
+                        //change by nurul 31/10/2018   getCustomer(term);
+                        getCustomerART01A(term);
 
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();
@@ -504,12 +630,17 @@
                         var term = $("#Piutang_TERM").val();
 
                         refreshInputan(tgl.substring(0, 10));
-                        getCustomer(term);
+                        
+                        //change by nurul 31/10/2018   getCustomer(term);
+                        getCustomerART01A(term);
+
+                        
 
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();
                         $('.piutang_editor_section').show();
                         //add by nruul 18/10/2018
+                        
                         $("#Piutang_TERM").keydown(
                             function () {
                                 validateInput($(this), 'TOP');
