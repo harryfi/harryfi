@@ -425,7 +425,7 @@
                                                             <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
                                                             </div>
                                                             <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.CATEGORY_CODE != null)
+                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                                 {
                                                                     <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, true);">Undo</button>
                                                                 }
@@ -495,7 +495,7 @@
                                                         <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
                                                         </div>
                                                         <div class="col-md-2 col-sm-2 col-xs-12">
-                                                            @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.CATEGORY_CODE != null)
+                                                            @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                             {
                                                                 <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, true);">Undo</button>
                                                             }
@@ -566,7 +566,7 @@
                                                             <div id="category_lazada_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
                                                             </div>
                                                             <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.CATEGORY_CODE != null)
+                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                                 {
                                                                     <button type="button" onclick="ClearCategoryLazada('category_lazada_pertama_' + @recnumArf01, 'category_lazada_selanjutnya_' + @recnumArf01, 'attribute_lazada_' + @recnumArf01, @i, true);">Undo</button>
                                                                 }

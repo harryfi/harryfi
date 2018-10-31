@@ -198,7 +198,13 @@
             $("#alert-error-section").hide();
 
             if ($('.alert-success').length) {
-                $('.alert-success').slideUp(2000);
+                $('.alert-success')
+                    .delay(2000)
+                    .slideUp(700)
+                    .promise()
+                    .done(function() {
+                        window.location.href = '@Url.Action("Index", "Home")';
+                    });
             }
 
             initRequired();

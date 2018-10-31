@@ -598,7 +598,7 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda sebagai Partner. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
+            ViewData["SuccessMessage"] = $"Terima kasih, pengajuan Partner Anda akan segera kami proses. Silakan tunggu email konfirmasi.";
 
             return View("Partner");
         }

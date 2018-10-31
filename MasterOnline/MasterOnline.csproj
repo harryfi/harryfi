@@ -435,10 +435,6 @@
     <Compile Include="ErasoftContextMigrations\201810090949458_namapemesan_sit01a_20_to_30.Designer.cs">
       <DependentUpon>201810090949458_namapemesan_sit01a_20_to_30.cs</DependentUpon>
     </Compile>
-    <Compile Include="ErasoftContextMigrations\201810260929373_add_table_TEMP_BRG_MP.cs" />
-    <Compile Include="ErasoftContextMigrations\201810260929373_add_table_TEMP_BRG_MP.Designer.cs">
-      <DependentUpon>201810260929373_add_table_TEMP_BRG_MP.cs</DependentUpon>
-    </Compile>
     <Compile Include="ErasoftContextMigrations\201810260953584_add_table_TEMP_BRG_MP_2nd.cs" />
     <Compile Include="ErasoftContextMigrations\201810260953584_add_table_TEMP_BRG_MP_2nd.Designer.cs">
       <DependentUpon>201810260953584_add_table_TEMP_BRG_MP_2nd.cs</DependentUpon>
@@ -5632,6 +5628,7 @@
     <Content Include="Views\Manage\UploadBarang.cshtml" />
     <Content Include="Views\Manage\TableUploadBarangPartial.cshtml" />
     <Content Include="Views\Manage\PromptCustomer.cshtml" />
+    <Content Include="Views\Admin\DatabaseMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5818,9 +5815,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201810090949458_namapemesan_sit01a_20_to_30.resx">
       <DependentUpon>201810090949458_namapemesan_sit01a_20_to_30.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ErasoftContextMigrations\201810260929373_add_table_TEMP_BRG_MP.resx">
-      <DependentUpon>201810260929373_add_table_TEMP_BRG_MP.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201810260953584_add_table_TEMP_BRG_MP_2nd.resx">
       <DependentUpon>201810260953584_add_table_TEMP_BRG_MP_2nd.cs</DependentUpon>

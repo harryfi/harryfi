@@ -279,7 +279,7 @@
                             double hjualBarang = 0;
                             if (listBarang.SingleOrDefault(b => b.BRG == fakturDetail.BRG) != null)
                             {
-                                hjualBarang = listBarang.SingleOrDefault(b => b.BRG == fakturDetail.BRG).HJUAL;
+                                hjualBarang = (fakturDetail.H_SATUAN.HasValue ? fakturDetail.H_SATUAN.Value : 0);
                             }
                         }
 

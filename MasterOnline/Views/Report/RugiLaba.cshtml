@@ -42,6 +42,16 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-md-1">
+        @Html.Label("", "Tahun")
+        <div class="input-group number">
+            @Html.TextBox("Tahun", null, new { @class = "form-control", @MaxLength = "4" })
+        </div>
+    </div>
+    <div class="col-md-11">
+    </div>
+</div>
+<div class="row">
     <div class="col-md-2">
         @Html.Label("", "Untuk Bulan")
         <div class="input-group number">
@@ -86,6 +96,8 @@
         $(document).ready(function () {
             var d = new Date();
 
+            $('#Tahun').val(d.getFullYear());
+
             $('#Bulan').datepicker({
                 format: 'MM',
                 language: 'id',
@@ -120,6 +132,7 @@
                     data: JSON.stringify({
                         UserId: '@(userId)',
                         KdLap: $('#KdLap').val(),
+                        Tahun: $('#Tahun').val(),
                         Bulan: FormatMonth()
                         //Print: $('#Print').val()
                     }),
