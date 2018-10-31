@@ -115,7 +115,8 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
                 @Html.HiddenFor(m => m.Piutang.CUST)
                 @Html.TextBox("CUSTNAME", "", new { @class = "form-control" })
-                <select id="CUSTOMER" placeholder="Harap pilih" required="required"></select>
+                @*change by nurul 31/10/2018   <select id="CUSTOMER" placeholder="Harap pilih" required="required"></select>*@
+                <div id="CUSTOMER" class="selectivity-input" tabindex="0"></div>
             </div>
         </div>
     </div>
