@@ -58,13 +58,16 @@ namespace MasterOnline.Controllers
             {
                 path = Path.Combine(dirNotFound, "photo_not_available.jpg");
             }
-            FilePathResult res = base.File(path, "image/jpg");
+            Byte[] b = System.IO.File.ReadAllBytes(path);
+            FileContentResult res = base.File(b, "image/jpg");
+            res.ExecuteResult(this.ControllerContext);
+            
+            //FilePathResult res = base.File(path, "image/jpg");
             Response.Buffer = true;
             Response.Cache.SetCacheability(HttpCacheability.NoCache);
             Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
             Response.Expires = -1500;
             Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
-
             return res;
         }
 
