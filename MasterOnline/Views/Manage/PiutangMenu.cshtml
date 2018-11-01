@@ -293,7 +293,7 @@
                                 } else {
                                     $("#Piutang_CUST").val(value);
                                     if ($objSup[0] != null) {
-                                        $("#Piutang_NCUST").val($objSup[0].text);
+                                        $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
                                         //change by nurul 3/10/2018
                                         //$("#Piutang_TERM").val($objSup[0].term).change();
                                         if ($("#Piutang_TERM").val == "0") {
@@ -311,7 +311,6 @@
                         });
 
                         custSelect[0].selectize.setValue($('#Piutang_CUST').val());
-
 
                         if (value != '')
                             $('#Piutang_TERM').val(value)
@@ -453,10 +452,10 @@
 
                         refreshInputan(tgl.substring(0, 10));
 
+                        getCustomer(term);
                         $('#CUSTNAME').show();
                         $('#CUSTOMER').hide();
 
-                        getCustomer(term);
 
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();

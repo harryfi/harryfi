@@ -47,17 +47,25 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        [Route("ele/image")]
+        [Route("ele/image/{id?}")]
         public ActionResult Image(string id)
         {
             var dir = Server.MapPath("~/Content/Uploaded");
             var dirNotFound = Server.MapPath("~/Content/Images");
             var path = Path.Combine(dir, id); //validate the path for security or use other means to generate the path.
+            path = path + ".jpg";
             if (!System.IO.File.Exists(path))
             {
                 path = Path.Combine(dirNotFound, "photo_not_available.jpg");
             }
-            return base.File(path, "image/jpeg");
+            FilePathResult res = base.File(path, "image/jpg");
+            Response.Buffer = true;
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
+            Response.Expires = -1500;
+            Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
+
+            return res;
         }
 
         public enum StatusOrder
@@ -212,7 +220,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -346,7 +355,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -523,7 +533,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
