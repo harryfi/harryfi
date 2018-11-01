@@ -1830,6 +1830,9 @@
 
                 var $tgl = moment($(this).val(), "DD/MM/YYYY");
                 $('#Pesanan_TGL').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
 
                 if ($('#Pesanan_TERM').val() == '') {
                     $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');

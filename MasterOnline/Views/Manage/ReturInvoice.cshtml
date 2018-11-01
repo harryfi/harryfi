@@ -553,6 +553,9 @@
 
                 var $tgl = moment($(this).val(), "DD/MM/YYYY");
                 $('#Invoice_TGL').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
 
                 if ($('#Invoice_TERM').val() == '') {
                     $('#Invoice_TGJT').val('Masukkan TOP dahulu');

@@ -214,6 +214,9 @@
                 }
 
                 var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
 
                 if ($('#Piutang_TERM').val() === '') {
                     $('#Piutang_JTGL').val('Masukkan TOP dahulu');

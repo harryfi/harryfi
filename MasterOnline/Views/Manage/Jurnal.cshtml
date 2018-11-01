@@ -380,6 +380,10 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            //add by nurul 31/10/2018
+            //getTanggal();
+            //$('#TGL').datepicker('setDate', '0');
+            //end add 
             var tableSiapProses = $('#datatable_siapproses').DataTable({
                 columnDefs: [{
                     orderable: false,
@@ -408,6 +412,9 @@
 
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
+            //add by nurul 31/10/2018
+            $saved = 1;
+            //end add
             if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
                 alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
                 konfirmasiData();
@@ -473,10 +480,13 @@
                 $('.jurnal_editor_section').show();
             });
 
-            $('#close-editor-1').on('click', function () {
+            $('#close-editor-1').off('click').on('click', function () {
                 if ($('#btn-simpan-perubahan-row').is(':visible')) {
                     $('#modalTutupEditor').modal('show');
                 } else {
+                    //add by nurul 31/10/2018
+                    $saved = 1;
+                    //end add
                     if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
                         alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
                         konfirmasiData();
@@ -510,24 +520,31 @@
 
             refreshInputan();
 
-            $('a').click(function () {
-                if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
-                    alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
-                    konfirmasiData();
-                    return false;
-                }
+            //$('a').click(function () {
+            //    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+            //        alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+            //        konfirmasiData();
+            //        return false;
+            //    }
 
-                return true;
-            });
+            //    return true;
+            //});
         }
 
         function getTanggal() {
+            //$('#TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    $('#Jurnal_tgl').val($(this).val());
+            //    });
             $('#TGL').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
             }).datepicker('setDate', '0').change(function () {
                 $('#Jurnal_tgl').val($(this).val());
-                });
+                $(this).datepicker('hide');
+            });
 
             //add by nurul 31/8/2018
             if ($('#Jurnal_tgl').val() != '') {
@@ -617,27 +634,29 @@
                 }
             });
 
-            $('tr[data-jurnal-id="0"] #JurnalDetail_nilai').change(function () {
-                $('tr[data-jurnal-id="0"] .span-nilai-rekening').text(convertToRupiah($(this).val()));
+            //remark by nurul 1/11/2018
+            //$('tr[data-jurnal-id="0"] #JurnalDetail_nilai').change(function () {
+            //    $('tr[data-jurnal-id="0"] .span-nilai-rekening').text(convertToRupiah($(this).val()));
 
-                if ($('#JurnalDetail_dk').val() == 'D') {
-                    $tdebet += parseInt($(this).val());
-                    $('#DEBET').val(convertToRupiah($tdebet));
-                    $('#Jurnal_tdebet').val($tdebet);
-                } else if ($('#JurnalDetail_dk').val() == 'K') {
-                    $tkredit += parseInt($(this).val());
-                    $('#KREDIT').val(convertToRupiah($tkredit));
-                    $('#Jurnal_tkredit').val($tkredit);
-                } else {
-                    alert('Pilih tipe Debet atau Kredit dahulu!');
-                    return;
-                }
-            }).focus(function () {
-                $(this).val('');
-            }).blur(function () {
-                if ($(this).val() == '')
-                    $(this).val(0);
-            });
+            //    if ($('#JurnalDetail_dk').val() == 'D') {
+            //        $tdebet += parseInt($(this).val());
+            //        $('#DEBET').val(convertToRupiah($tdebet));
+            //        $('#Jurnal_tdebet').val($tdebet);
+            //    } else if ($('#JurnalDetail_dk').val() == 'K') {
+            //        $tkredit += parseInt($(this).val());
+            //        $('#KREDIT').val(convertToRupiah($tkredit));
+            //        $('#Jurnal_tkredit').val($tkredit);
+            //    } else {
+            //        alert('Pilih tipe Debet atau Kredit dahulu!');
+            //        return;
+            //    }
+            //}).focus(function () {
+            //    $(this).val('');
+            //}).blur(function () {
+            //    if ($(this).val() == '')
+            //        $(this).val(0);
+            //});
+            //end remark 
         }
 
         function getRekening() {
@@ -869,15 +888,25 @@
                     url: link,
                     success: function (response) {
                         $('#table-jurnal-partial').html(response);
-                        Initialize();
+                        //remark by nurul 31/10/2018 --  Initialize();
                         $saved = 0;
-                        $('#close-editor-1').click();
+                        //remark by nurul 31/10/2018 -- $('#close-editor-1').click();
+                        //add by nurul 31/10/2018
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('.jurnal_table_section').show();
+                        $('.jurnal_editor_section').hide();
+                        refreshForm1();
+                        refreshTableJurnal1();
+                        //end add by nurul 
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
                     }
                 });
             }
+            
 
             return;
         }
@@ -906,7 +935,36 @@
             if ($id == 'rek-0') {
                 if ($('#Jurnal_tgl').val() != '') {
                     $('#JurnalDetail_rek').val($('#REK').selectivity('val'));
-                    $('#JurnalDetail_nilai').val(convertToAngka($('tr[data-jurnal-id="0"] .nilai-rekening').text()));
+                    //change by nurul 1/11/2018
+                    //$('#JurnalDetail_nilai').val(convertToAngka($('tr[data-jurnal-id="0"] .nilai-rekening').text()));
+                                            
+                    if ($('#JurnalDetail_dk').val() == 'D') {
+                        if ($('#JurnalDetail_nilai').val() == "") {
+                            $('#JurnalDetail_nilai').val("0");
+                            $('#JurnalDetail_nilai').val(convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#Jurnal_tdebet').val(convertToAngka($('#Jurnal_tdebet').val()) + convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#DEBET').val(convertToRupiah($('#Jurnal_tdebet').val()));
+                        } else {
+                            $('#JurnalDetail_nilai').val(convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#Jurnal_tdebet').val(convertToAngka($('#Jurnal_tdebet').val()) + convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#DEBET').val(convertToRupiah($('#Jurnal_tdebet').val()));
+                        }
+                    } else if ($('#JurnalDetail_dk').val() == 'K') {
+                        if ($('#JurnalDetail_nilai').val() == "") {
+                            $('#JurnalDetail_nilai').val("0");
+                            $('#JurnalDetail_nilai').val(convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#Jurnal_tkredit').val(convertToAngka($('#Jurnal_tkredit').val()) + convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#KREDIT').val(convertToRupiah($('#Jurnal_tkredit').val()));
+                        } else {
+                            $('#JurnalDetail_nilai').val(convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#Jurnal_tkredit').val(convertToAngka($('#Jurnal_tkredit').val()) + convertToAngka($('#JurnalDetail_nilai').val()));
+                            $('#KREDIT').val(convertToRupiah($('#Jurnal_tkredit').val()));
+                        }
+                    } else {
+                        alert('Pilih tipe Debet atau Kredit dahulu!');
+                        return;
+                    };
+                    //end change by nurul 
 
                     $.ajax({
                         type: "POST",
