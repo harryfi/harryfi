@@ -146,51 +146,46 @@ namespace MasterOnline.Controllers
 
                     string sql = "";
 
-                    if (accInDb.Status)
-                    {
-                        var path = Server.MapPath("~/Content/admin/");
-                        sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
-                                     $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
-                                     $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
-#if AWS
-                    SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
-                                                          "user id=masteronline;password=M@ster123;");
-#else
-                        SqlConnection con = new SqlConnection("Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
-                                                              "user id=masteronline;password=M@ster123;");
-#endif
-                        SqlCommand command = new SqlCommand(sql, con);
 
-                        con.Open();
-                        command.ExecuteNonQuery();
-                        con.Close();
-                        con.Dispose();
-
-
-                        //add by Tri 20-09-2018, save nama toko ke SIFSYS
-                        //change by calvin 3 oktober 2018
-                        //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
-                        ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
-                        //end change by calvin 3 oktober 2018
-                        var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
-                        if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
-                        {
-                            dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
-                            ErasoftDbContext.SaveChanges();
-                        }
-                        //end add by Tri 20-09-2018, save nama toko ke SIFSYS
-
-                    }
-                    else
-                    {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                        System.Data.Entity.Database.Delete($"Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
-                                                           "user id=masteronline;password=M@ster123;");
+                    System.Data.Entity.Database.Delete($"Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                       "user id=masteronline;password=M@ster123;");
 #endif
+
+                    var path = Server.MapPath("~/Content/admin/");
+                    sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                                 $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                                 $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+#if AWS
+                    SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
+#else
+                    SqlConnection con = new SqlConnection("Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                          "user id=masteronline;password=M@ster123;");
+#endif
+                    SqlCommand command = new SqlCommand(sql, con);
+
+                    con.Open();
+                    command.ExecuteNonQuery();
+                    con.Close();
+                    con.Dispose();
+
+
+                    //add by Tri 20-09-2018, save nama toko ke SIFSYS
+                    //change by calvin 3 oktober 2018
+                    //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
+                    ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                    //end change by calvin 3 oktober 2018
+                    var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                    if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
+                    {
+                        dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                        ErasoftDbContext.SaveChanges();
                     }
+                    //end add by Tri 20-09-2018, save nama toko ke SIFSYS
                 }
                 catch (Exception e)
                 {
