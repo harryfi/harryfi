@@ -9805,5 +9805,92 @@ namespace MasterOnline.Controllers
             return View();
         }
         // =============================================== Bagian Support (END)
+
+        // =============================================== Bagian Upload Barang (START)
+
+        [Route("manage/master/uploadbarang")]
+        public ActionResult UploadBarang()
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+
+            };
+
+            return View(barangVm);
+        }
+
+        public ActionResult RefreshTableUploadBarang()
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+            };
+
+            return PartialView("TableUploadBarangPartial", barangVm);
+        }
+
+        [Route("manage/PromptCustomer")]
+        public ActionResult PromptCustomer()
+        {
+            try
+            {
+                var PromptModel = new List<PromptCustomerViewModel>();
+                var listCust = ErasoftDbContext.ARF01.ToList();
+                foreach (var customer in listCust)
+                {
+                    PromptModel.Add(
+                        new PromptCustomerViewModel
+                        {
+                            KODE = customer.CUST,
+                            NAMA = customer.PERSO,
+                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket
+                        }
+                        );
+                }
+                return View("PromptCustomer", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
+        [Route("manage/ImportDataMP")]
+        public ActionResult ImportDataMP(string cust)
+        {
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var arf01 = ErasoftDbContext.ARF01.Where(t => t.CUST.Equals(cust)).FirstOrDefault();
+                if(arf01 != null)
+                {
+                    var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
+                    switch (marketplace.NamaMarket.ToUpper())
+                    {
+                        case "LAZADA":
+
+                            break;
+                    }
+
+                    var barangVm = new UploadBarangViewModel()
+                    {
+                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                    };
+
+                    return PartialView("TableUploadBarangPartial", barangVm);
+                }
+                else
+                {
+                    return JsonErrorMessage("Toko tidak dapat ditemukan.");
+                }
+            }
+            else
+            {
+                return JsonErrorMessage("Anda belum memilih Toko");
+            }
+        }
+        // =============================================== Bagian Upload Barang (END)
+
     }
 }

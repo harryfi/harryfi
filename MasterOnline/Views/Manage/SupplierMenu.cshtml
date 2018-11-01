@@ -130,17 +130,20 @@
                                                     @Html.TextBoxFor(m => m.Supplier.AL, new { @class = "form-control", required = "required", maxlength = 100 })
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.Supplier.AL2, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Supplier.AL2, new { @class = "form-control", required = "required" })
-                                                </div>
-                                            </div>
+                                            
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Supplier.AL3, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.HiddenFor(m => m.Supplier.AL3)
-                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                                                    <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Supplier.AL2, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @*@Html.TextBoxFor(m => m.Supplier.AL2, new { @class = "form-control", required = "required" })*@
+                                                    @Html.HiddenFor(m => m.Supplier.AL2)
+                                                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -160,10 +163,9 @@
                                                     <h5>Hari</h5>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
+                                            @*<div class="form-group">
                                                 @Html.LabelFor(m => m.Supplier.RekBca, "No. Rekening BCA", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @*@Html.TextBoxFor(m => m.Supplier.RekBca, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 12 })*@
+                                                <div class="col-md-6 col-sm-6 col-xs-12">                                                    
                                                     @Html.TextBoxFor(m => m.Supplier.RekBca, new { @class = "form-control limited_number_textbox num-only", maxlength = 12 })
                                                 </div>
                                             </div>
@@ -172,7 +174,7 @@
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Supplier.NamaRekBca, new { @class = "form-control", maxlength = 12 })
                                                 </div>
-                                            </div>
+                                            </div>*@
                                             <br />
                                             <h4>Kontak Person</h4>
                                             <hr />
@@ -183,10 +185,11 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.Supplier.NPWP, "NPWP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.Supplier.NPWP, "NPWP", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*@Html.TextBoxFor(m => m.Supplier.NPWP, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 20 })*@
-                                                    @Html.TextBoxFor(m => m.Supplier.NPWP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 20 })
+                                                    @*@Html.TextBoxFor(m => m.Supplier.NPWP, new { @class = "form-control limited_number_textbox num-only", required = "required", maxlength = 20 })*@
+                                                    @Html.TextBoxFor(m => m.Supplier.NPWP, new { @class = "form-control limited_number_textbox num-only", maxlength = 20 })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -261,10 +264,10 @@
                     function () {
                         validateInput($(this), 'TOP');
                     });
-                $("#Supplier_RekBca").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
+                //$("#Supplier_RekBca").keydown(
+                //    function () {
+                //        validateInput($(this), 'ANGKA');
+                //    });
                 $("#Supplier_NPWP").keydown(
                     function () {
                         validateInput($(this), 'ANGKA');
@@ -289,20 +292,27 @@
                 $('#Supplier_AL4').val('');
                 $('#Supplier_TERM').val('');
                 //add by nurul 21/9/2018
-                $('#Supplier_RekBca').val('');
-                $('#Supplier_NamaRekBca').val('');
+                //$('#Supplier_RekBca').val('');
+                //$('#Supplier_NamaRekBca').val('');
                 //end add
                 $('#Supplier_PERSO').val('');
                 $('#Supplier_NPWP').val('');
                 $('#Supplier_TLP').val('');
                 $('#KODEPROV').selectivity('value', null);
+                //add by nurul 31/10/2018
+                $('#KODEKABKOT').selectivity('value', null);
+
             });
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_supplier').click();
             }
 
-            getProvinsi();
+            //change by nurul 31/10/2018
+            //getProvinsi();
+            getKabKot();
+            resetKabKot();
+            //end change 
 
             $('#Supplier_SUPP').on('change blur',
                 function () {
@@ -336,10 +346,10 @@
                 function () {
                     validateInput($(this), 'TOP');
                 });
-            $("#Supplier_RekBca").keydown(
-                function () {
-                    validateInput($(this), 'ANGKA');
-                });
+            //$("#Supplier_RekBca").keydown(
+            //    function () {
+            //        validateInput($(this), 'ANGKA');
+            //    });
             $("#Supplier_NPWP").keydown(
                 function () {
                     validateInput($(this), 'ANGKA');
@@ -351,7 +361,8 @@
             //END ADD
         }
 
-        function getProvinsi() {
+        //remark by nurul 31/10/2018
+        @*function getProvinsi() {
             $.ajax({
                 type: "GET",
                 /**/
@@ -396,7 +407,117 @@
                     console.log(xhr);
                 }
             });
+        }*@
+
+        //add by nurul 31/10/2018
+        function getKabKot() {
+            $.ajax({
+                type: "GET",
+                /**/
+                url: '@Url.Action("GetProvinsi", "Manage")',
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var provList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            provList[i] = {
+                                id: item.KodeProv,
+                                text: item.NamaProv
+                            };
+                        });
+
+                    $('#KODEPROV').selectivity({
+                        allowClear: true,
+                        items: provList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    var $kdProv = $('#Supplier_AL3').val();
+
+                    $('#KODEPROV').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Supplier_AL3").val(null);
+                            resetKabKot();
+                        } else {
+                            $("#Supplier_AL3").val($val);
+                            loadDataKabupatenKota($val);
+                        }
+                    });
+
+                    if ($kdProv !== null) {
+                        $('#KODEPROV').selectivity('value', $kdProv);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
         }
+
+        function resetKabKot() {
+            $('#KODEKABKOT').selectivity({
+                allowClear: true,
+                items: [],
+                placeholder: 'Harap pilih'
+            });
+            $('#KODEKABKOT').selectivity('value', 'Harap pilih');
+        }
+
+        function loadDataKabupatenKota(kdProv) {
+            var link = '@Url.Action("GetKabKot", "Manage", new { kodeProv = "replaceId" })';
+            link = link.replace("replaceId", kdProv);
+
+            $.ajax({
+                type: "GET",
+                /**/
+                url: link,
+                /**/
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var kabkotList = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            kabkotList[i] = {
+                                id: item.KodeKabKot,
+                                text: item.NamaKabKot
+                            };
+                        });
+
+                    $('#KODEKABKOT').selectivity({
+                        allowClear: true,
+                        items: kabkotList,
+                        placeholder: 'Harap pilih'
+                    });
+
+                    $('#KODEKABKOT').change(function () {
+                        var $val = $(this).selectivity('value');
+
+                        if ($val === null) {
+                            $("#Supplier_AL2").val(null);
+                        } else {
+                            $("#Supplier_AL2").val($val);
+                        }
+                    });
+
+                    var $kdKabKot = $('#Supplier_AL2').val();
+
+                    if ($kdKabKot !== null) {
+                        $('#KODEKABKOT').selectivity('value', $kdKabKot);
+                    }
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //end add by nurul 31/10/2018
         function convertToAngka(rupiah) {
 
             //change by calvin 26 september 2018
@@ -416,6 +537,16 @@
             //add by nurul 5/10/2018
             if (convertToAngka($("#Supplier_AL4").val()) > 99999) {
                 addError($("#Supplier_AL4").parent(), "Maxlength is 5 digits !");
+                return false;
+            }
+            if ($("#Supplier_AL3").val() == "") {
+                alert('Silakan isi semua field terlebih dahulu!');
+                addError($("#Supplier_AL3").parent(), "Kolom ini tidak boleh kosong!");
+                return false;
+            }
+            if ($("#Supplier_AL2").val() == "") {
+                alert('Silakan isi semua field terlebih dahulu!');
+                addError($("#Supplier_AL2").parent(), "Kolom ini tidak boleh kosong!");
                 return false;
             }
             //end add
@@ -452,6 +583,10 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    //add by nurul 31/10/2018
+                    getKabKot();
+                    resetKabKot();
+                    //end add 
                     $('#Supplier_USERNAME').val(response.Supplier.USERNAME);
                     $('#Supplier_KLINK').val(response.Supplier.KLINK);
                     $('#Supplier_KODE_CABANG').val(response.Supplier.KODE_CABANG);
@@ -468,13 +603,13 @@
                     $('#Supplier_AL4').val(response.Supplier.AL4);
                     $('#Supplier_TERM').val(response.Supplier.TERM);
                     //add by nurul 21/9/2018
-                    $('#Supplier_RekBca').val(response.Supplier.RekBca);
-                    $('#Supplier_NamaRekBca').val(response.Supplier.NamaRekBca);
+                    //$('#Supplier_RekBca').val(response.Supplier.RekBca);
+                    //$('#Supplier_NamaRekBca').val(response.Supplier.NamaRekBca);
                     //end add
                     $('#Supplier_PERSO').val(response.Supplier.PERSO);
                     $('#Supplier_NPWP').val(response.Supplier.NPWP);
                     $('#Supplier_TLP').val(response.Supplier.TLP);
-                    getProvinsi();
+                    //getProvinsi();
                     $('#tambah_supplier').click();
                 },
                 error: function (xhr, status, error) {

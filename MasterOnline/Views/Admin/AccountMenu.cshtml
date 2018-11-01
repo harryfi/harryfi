@@ -157,7 +157,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin <span id="will-change-to"></span> dan <span id="action-to"></span> database dari user ini?</h4>
+                    <h4>Apakah Anda yakin ingin <span id="will-change-to"></span> user ini?</h4>
                 </div>
             </div>
             <div class="modal-footer">
@@ -189,10 +189,8 @@
 
             if (this.$status === 1) {
                 $('#will-change-to').text("menonaktifkan");
-                $('#action-to').text("menghapus");
             } else {
                 $('#will-change-to').text("mengaktifkan");
-                $('#action-to').text("membuat");
             }
         }
 
