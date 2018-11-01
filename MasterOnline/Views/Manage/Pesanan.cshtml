@@ -1908,6 +1908,7 @@
 
             $("input.num-only").on('keydown',
                 function(e) {
+
                     // Allow: backspace, delete, tab, escape, enter and .
                     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
@@ -2338,12 +2339,6 @@
                                 }
                             },
                             change: function() {
-                                if ($(this).hasClass('qty-input')) {
-                                    if ($(this).val() > 999) {
-                                        $(this).val(999);
-                                    }
-                                }
-
                                 if ($(this).hasClass('disc-input')) {
                                     if ($(this).val() > 99) {
                                         $(this).val(99);
@@ -3030,7 +3025,7 @@
 
                         $('#modal-gudang-qty-body #Qty-' + $recNum).change(function() {
                             var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();
-                            if ($(this).val() > $valMax) {
+                            if (Number($(this).val()) > Number($valMax)) {
                                 $(this).val($valMax);
                                 alert('Qty kirim tidak boleh melebihi qty pesanan!');
                             }

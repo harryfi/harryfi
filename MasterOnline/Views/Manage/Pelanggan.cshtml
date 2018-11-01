@@ -345,6 +345,7 @@
 
                 .snip1404 .plan-features li {
                     padding: 0;
+                    padding-left: 15px;
                 }
 
                 .snip1404 .plan-features i {
@@ -820,8 +821,8 @@ else
                 type: "GET",
                 url: link,
                 success: function (res) {
-                    $jumlahMarketplaceMax = res.JumlahMarketplaceMax;
-                    $jumlahMarketplace = res.JumlahMarketplace;
+                    $jumlahMarketplaceMax = parseInt(res.JumlahMarketplaceMax);
+                    $jumlahMarketplace = parseInt(res.JumlahMarketplace);
                     $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
 
                     //if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
@@ -929,12 +930,14 @@ else
                         searchField: 'text',
                         options: customerList,
                         onChange: function (value) {
+                            cekJumlahMarketplace();
+
                             var isExist = isInArray(parseInt(value), $listNamaMarketTerpakai);
 
                             if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
                                 $("#Customers_NAMA").val(null);
                                 $('#tambah_market_pricing').click();
-                            } else {
+                            } else {    
                                 $("#Customers_NAMA").val(value);
 
                                 @{

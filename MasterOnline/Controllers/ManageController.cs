@@ -2370,8 +2370,11 @@ namespace MasterOnline.Controllers
                                     //if (file != null && file.ContentLength > 0)
                                     //{
                                     //    var fileExtension = Path.GetExtension(file.FileName);
-                                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-                                    imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
+                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
                                     //}
                                 }
                                 //}
@@ -2416,8 +2419,11 @@ namespace MasterOnline.Controllers
                                     //if (file != null && file.ContentLength > 0)
                                     //{
                                     //    var fileExtension = Path.GetExtension(file.FileName);
-                                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-                                    imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
+                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
                                     //}
                                 }
                                 //}
@@ -3103,7 +3109,13 @@ namespace MasterOnline.Controllers
                     new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
 
                     ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                    STF11 getQtySO = ErasoftDbContext.Database.SqlQuery<STF11>("SELECT * FROM STF11 WHERE BRG='" + dataVm.FakturDetail.BRG + "'").FirstOrDefault();
                     qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+
+                    if (getQtySO != null)
+                    {
+                        qtyOnHand = qtyOnHand + Convert.ToDouble(getQtySO.QSO_MSK);
+                    }
                 }
 
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
@@ -5182,6 +5194,43 @@ namespace MasterOnline.Controllers
                     digitAkhir = lastRecNum.ToString().PadLeft(6, '0');
                     noOrder = $"SI{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                 }
+                #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
+                var pesanan_bruto = 0d;
+                var pesanan_netto = 0d;
+                var pesanan_nilai_ppn = 0d;
+                foreach (var item in listBarangPesananInDb)
+                {
+                    double nilai_disc_1 = 0d;
+                    double nilai_disc_2 = 0d;
+                    double harga = 0d;
+                    if (Math.Abs(item.DISCOUNT) > 0)
+                    {
+                        nilai_disc_1 = (item.DISCOUNT * item.H_SATUAN * (item.QTY_N.HasValue ? item.QTY_N.Value : 0)) / 100;
+                    }
+                    else
+                    {
+                        //req by pak dani, dibuat proporsional jika discount bukan persen, tapi nilai discount, karena bisa lebih besar daripada harga * qty_n
+                        nilai_disc_1 = (item.NILAI_DISC_1 / item.QTY) * (item.QTY_N.HasValue ? item.QTY_N.Value : 0);
+                    }
+
+                    if (Math.Abs(item.DISCOUNT_2) > 0)
+                    {
+                        nilai_disc_2 = (item.DISCOUNT * (item.H_SATUAN - nilai_disc_1) * (item.QTY_N.HasValue ? item.QTY_N.Value : 0)) / 100;
+                    }
+                    else
+                    {
+                        nilai_disc_2 = (item.NILAI_DISC_2 / item.QTY) * (item.QTY_N.HasValue ? item.QTY_N.Value : 0);
+                    }
+
+                    harga = item.H_SATUAN * (item.QTY_N.HasValue ? item.QTY_N.Value : 0) - nilai_disc_1 -
+                                              nilai_disc_2;
+                    pesanan_bruto += harga;
+                }
+
+                pesanan_nilai_ppn = (pesananInDb.PPN * pesanan_bruto) / 100;
+
+                pesanan_netto = pesanan_bruto - pesananInDb.NILAI_DISC + pesanan_nilai_ppn + pesananInDb.ONGKOS_KIRIM;
+                #endregion
 
                 dataVm.Faktur.NO_BUKTI = noOrder;
                 dataVm.Faktur.NO_F_PAJAK = "-";
@@ -5223,13 +5272,28 @@ namespace MasterOnline.Controllers
                 dataVm.Faktur.U_MUKA_FA = 0;
                 dataVm.Faktur.TERM = pesananInDb.TERM;
                 dataVm.Faktur.TGL_JT_TEMPO = pesananInDb.TGL_JTH_TEMPO;
-                dataVm.Faktur.BRUTO = pesananInDb.BRUTO;
+
+                //change by calvin 31 okt 2018
+                //dataVm.Faktur.BRUTO = pesananInDb.BRUTO;
+                dataVm.Faktur.BRUTO = pesanan_bruto;
+                //end change by calvin 31 okt 2018
+
                 dataVm.Faktur.PPN = pesananInDb.PPN;
-                dataVm.Faktur.NILAI_PPN = pesananInDb.NILAI_PPN;
+
+                //change by calvin 31 okt 2018
+                //dataVm.Faktur.NILAI_PPN = pesananInDb.NILAI_PPN;
+                dataVm.Faktur.NILAI_PPN = pesanan_nilai_ppn;
+                //end change by calvin 31 okt 2018
+
                 dataVm.Faktur.DISCOUNT = pesananInDb.DISCOUNT;
                 dataVm.Faktur.NILAI_DISC = pesananInDb.NILAI_DISC;
                 dataVm.Faktur.MATERAI = pesananInDb.ONGKOS_KIRIM;
-                dataVm.Faktur.NETTO = pesananInDb.NETTO;
+
+                //change by calvin 31 okt 2018
+                //dataVm.Faktur.NETTO = pesananInDb.NETTO;
+                dataVm.Faktur.NETTO = pesanan_netto;
+                //end change by calvin 31 okt 2018
+
                 dataVm.Faktur.TGLINPUT = DateTime.Now;
 
                 #region add by calvin 6 juni 2018, agar sit01a field yang penting tidak null
@@ -5314,17 +5378,59 @@ namespace MasterOnline.Controllers
 
                 foreach (var pesananDetail in listBarangPesananInDb)
                 {
-                    dataVm.FakturDetail.NILAI_DISC = pesananDetail.NILAI_DISC_1 + pesananDetail.NILAI_DISC_2;
+                    #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
+                    double nilai_disc_1 = 0d;
+                    double nilai_disc_2 = 0d;
+                    double harga = 0d;
+                    if (Math.Abs(pesananDetail.DISCOUNT) > 0)
+                    {
+                        nilai_disc_1 = (pesananDetail.DISCOUNT * pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
+                    }
+                    else
+                    {
+                        //req by pak dani, dibuat proporsional jika discount bukan persen, tapi nilai discount, karena bisa lebih besar daripada harga * qty_n
+                        nilai_disc_1 = (pesananDetail.NILAI_DISC_1 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
+                    }
+
+                    if (Math.Abs(pesananDetail.DISCOUNT_2) > 0)
+                    {
+                        nilai_disc_2 = (pesananDetail.DISCOUNT * (pesananDetail.H_SATUAN - nilai_disc_1) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0)) / 100;
+                    }
+                    else
+                    {
+                        nilai_disc_2 = (pesananDetail.NILAI_DISC_2 / pesananDetail.QTY) * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0);
+                    }
+
+                    harga = pesananDetail.H_SATUAN * (pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0) - nilai_disc_1 -
+                                              nilai_disc_2;
+                    #endregion
+
+                    //change by calvin 31 okt 2018
+                    //dataVm.FakturDetail.NILAI_DISC = pesananDetail.NILAI_DISC_1 + pesananDetail.NILAI_DISC_2;
+                    dataVm.FakturDetail.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
+                    //end change by calvin 31 okt 2018
+
                     dataVm.FakturDetail.BRG = pesananDetail.BRG;
                     dataVm.FakturDetail.SATUAN = pesananDetail.SATUAN;
                     dataVm.FakturDetail.H_SATUAN = pesananDetail.H_SATUAN;
                     dataVm.FakturDetail.GUDANG = pesananDetail.LOKASI;
-                    dataVm.FakturDetail.QTY = pesananDetail.QTY;
+
+                    //change by calvin 31 okt 2018
+                    //dataVm.FakturDetail.QTY = pesananDetail.QTY;
+                    dataVm.FakturDetail.QTY = pesananDetail.QTY_N.HasValue ? pesananDetail.QTY_N.Value : 0;
+                    //end change by calvin 31 okt 2018
+
                     dataVm.FakturDetail.DISCOUNT = pesananDetail.DISCOUNT;
-                    dataVm.FakturDetail.NILAI_DISC_1 = pesananDetail.NILAI_DISC_1;
                     dataVm.FakturDetail.DISCOUNT_2 = pesananDetail.DISCOUNT_2;
-                    dataVm.FakturDetail.NILAI_DISC_2 = pesananDetail.NILAI_DISC_2;
-                    dataVm.FakturDetail.HARGA = pesananDetail.HARGA;
+
+                    //change by calvin 31 okt 2018
+                    //dataVm.FakturDetail.NILAI_DISC_1 = pesananDetail.NILAI_DISC_1;
+                    //dataVm.FakturDetail.NILAI_DISC_2 = pesananDetail.NILAI_DISC_2;
+                    //dataVm.FakturDetail.HARGA = pesananDetail.HARGA;
+                    dataVm.FakturDetail.NILAI_DISC_1 = nilai_disc_1;
+                    dataVm.FakturDetail.NILAI_DISC_2 = nilai_disc_2;
+                    dataVm.FakturDetail.HARGA = harga;
+                    //end change by calvin 31 okt 2018
 
                     if (string.IsNullOrEmpty(Convert.ToString(dataVm.FakturDetail.QTY_KIRIM)))
                     {
@@ -5389,7 +5495,10 @@ namespace MasterOnline.Controllers
         {
             var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
             barangPesananInDb.LOKASI = gd;
-            barangPesananInDb.QTY = qty;
+
+            //change by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
+            //barangPesananInDb.QTY = qty;
+            barangPesananInDb.QTY_N = qty;
 
             //add by calvin, 22 juni 2018 validasi QOH
             //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
@@ -5419,37 +5528,38 @@ namespace MasterOnline.Controllers
             //}
             //end add by calvin, validasi QOH
 
-            if (Math.Abs(barangPesananInDb.DISCOUNT) > 0)
-            {
-                barangPesananInDb.NILAI_DISC_1 = (barangPesananInDb.DISCOUNT * barangPesananInDb.H_SATUAN * qty) / 100;
-            }
+            #region remark by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
+            //if (Math.Abs(barangPesananInDb.DISCOUNT) > 0)
+            //{
+            //    barangPesananInDb.NILAI_DISC_1 = (barangPesananInDb.DISCOUNT * barangPesananInDb.H_SATUAN * qty) / 100;
+            //}
 
-            if (Math.Abs(barangPesananInDb.DISCOUNT_2) > 0)
-            {
-                barangPesananInDb.NILAI_DISC_2 = (barangPesananInDb.DISCOUNT * (barangPesananInDb.H_SATUAN - barangPesananInDb.NILAI_DISC_1) * qty) / 100;
-            }
+            //if (Math.Abs(barangPesananInDb.DISCOUNT_2) > 0)
+            //{
+            //    barangPesananInDb.NILAI_DISC_2 = (barangPesananInDb.DISCOUNT * (barangPesananInDb.H_SATUAN - barangPesananInDb.NILAI_DISC_1) * qty) / 100;
+            //}
 
-            barangPesananInDb.HARGA = barangPesananInDb.H_SATUAN * qty - barangPesananInDb.NILAI_DISC_1 -
-                                      barangPesananInDb.NILAI_DISC_2;
+            //barangPesananInDb.HARGA = barangPesananInDb.H_SATUAN * qty - barangPesananInDb.NILAI_DISC_1 -
+            //                          barangPesananInDb.NILAI_DISC_2;
 
-            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
-            var listBarangPesanan = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
-            var brutoPesanan = 0d;
+            //var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == barangPesananInDb.NO_BUKTI);
+            //var listBarangPesanan = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+            //var brutoPesanan = 0d;
 
-            foreach (var barang in listBarangPesanan)
-            {
-                brutoPesanan += barang.HARGA;
-            }
+            //foreach (var barang in listBarangPesanan)
+            //{
+            //    brutoPesanan += barang.HARGA;
+            //}
 
-            pesananInDb.BRUTO = brutoPesanan;
+            //pesananInDb.BRUTO = brutoPesanan;
 
-            //add by nurul 6/8/2018
-            //var ppnBaru = 0d;
-            pesananInDb.NILAI_PPN = (pesananInDb.PPN * pesananInDb.BRUTO) / 100;
-            //end add
+            ////add by nurul 6/8/2018
+            ////var ppnBaru = 0d;
+            //pesananInDb.NILAI_PPN = (pesananInDb.PPN * pesananInDb.BRUTO) / 100;
+            ////end add
 
-            pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN + pesananInDb.ONGKOS_KIRIM;
-
+            //pesananInDb.NETTO = pesananInDb.BRUTO - pesananInDb.NILAI_DISC + pesananInDb.NILAI_PPN + pesananInDb.ONGKOS_KIRIM;
+            #endregion
             ErasoftDbContext.SaveChanges();
 
             return new EmptyResult();
@@ -6098,7 +6208,7 @@ namespace MasterOnline.Controllers
                 dataVm.Stok.NO_PL = "";
                 dataVm.Stok.NO_FAKTUR = "";
                 #endregion
-                
+
                 ErasoftDbContext.STT01A.Add(dataVm.Stok);
 
                 if (dataVm.BarangStok.No == null)
@@ -7427,8 +7537,9 @@ namespace MasterOnline.Controllers
                         string[] imgID = new string[3];
                         for (int i = 0; i < 3; i++)
                         {
-                            imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-                            imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                            //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                            imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                            //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
                         }
 
                         EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
@@ -9614,8 +9725,11 @@ namespace MasterOnline.Controllers
                     //if (file != null && file.ContentLength > 0)
                     //{
                     //    var fileExtension = Path.GetExtension(file.FileName);
-                    imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
-                    imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
+                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
+                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+
                     //}
                 }
                 EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
@@ -9691,5 +9805,92 @@ namespace MasterOnline.Controllers
             return View();
         }
         // =============================================== Bagian Support (END)
+
+        // =============================================== Bagian Upload Barang (START)
+
+        [Route("manage/master/uploadbarang")]
+        public ActionResult UploadBarang()
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+
+            };
+
+            return View(barangVm);
+        }
+
+        public ActionResult RefreshTableUploadBarang()
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+            };
+
+            return PartialView("TableUploadBarangPartial", barangVm);
+        }
+
+        [Route("manage/PromptCustomer")]
+        public ActionResult PromptCustomer()
+        {
+            try
+            {
+                var PromptModel = new List<PromptCustomerViewModel>();
+                var listCust = ErasoftDbContext.ARF01.ToList();
+                foreach (var customer in listCust)
+                {
+                    PromptModel.Add(
+                        new PromptCustomerViewModel
+                        {
+                            KODE = customer.CUST,
+                            NAMA = customer.PERSO,
+                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket
+                        }
+                        );
+                }
+                return View("PromptCustomer", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+
+        [Route("manage/ImportDataMP")]
+        public ActionResult ImportDataMP(string cust)
+        {
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var arf01 = ErasoftDbContext.ARF01.Where(t => t.CUST.Equals(cust)).FirstOrDefault();
+                if(arf01 != null)
+                {
+                    var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
+                    switch (marketplace.NamaMarket.ToUpper())
+                    {
+                        case "LAZADA":
+
+                            break;
+                    }
+
+                    var barangVm = new UploadBarangViewModel()
+                    {
+                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                    };
+
+                    return PartialView("TableUploadBarangPartial", barangVm);
+                }
+                else
+                {
+                    return JsonErrorMessage("Toko tidak dapat ditemukan.");
+                }
+            }
+            else
+            {
+                return JsonErrorMessage("Anda belum memilih Toko");
+            }
+        }
+        // =============================================== Bagian Upload Barang (END)
+
     }
 }
