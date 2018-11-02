@@ -279,7 +279,7 @@
             });
 
             $('#close-editor').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').length) {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
                     $('#modalTutupEditor').modal('show');
                 } else {
                     $modeEdit = 0;
@@ -409,7 +409,7 @@
                 }
 
                 var $input = $('<input>', {
-                    'class': $inputClass,
+                    'class': $inputClass + ' num-only',
                     value: $this.val(),
                     type: 'number',
                     blur: function () {
