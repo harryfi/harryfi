@@ -551,6 +551,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\DataSecUser.cs" />
     <Compile Include="Models\LOG_IMPORT_FAKTUR.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -1238,6 +1239,7 @@
     <Content Include="Content\Images\MO_new_logo_v2.png" />
     <Content Include="Content\Images\MO_new_logo_v2_bordered.png" />
     <Content Include="Content\Images\MO_new_logo_v2_white_text.png" />
+    <Content Include="Content\Images\MO_simple_logo.png" />
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />

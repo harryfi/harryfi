@@ -71,11 +71,10 @@
 {
     <br /><br />
     <div style="background-color: #fff; padding: 20px;">
-        <button class="btn btn-primary btn-lg pull-right" id="submit-sec">Simpan</button>
+        <button class="btn btn-primary btn-lg pull-right" type="button" id="submit-sec">Simpan</button>
 
         @using (Html.BeginForm("SaveSecUser", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-security-user" }))
         {
-            @Html.AntiForgeryToken()
             <div class="row">
                 <div class="col-lg-3">
                     <label class="control-label">Username</label>
@@ -244,19 +243,20 @@
 
                 $.ajax({
                     type: "POST",
-                    url: '@Url.Action("PassSecurityArray", "Manage")',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ secArray: formSecArray })
+                    url: '@Url.Action("SaveSecUser", "Manage")',
+                    data: JSON.stringify({
+                        FormArray: formSecArray,
+                        ParentArray: parentSecArray
+                    }),
+                    contentType: 'application/json; charset=UTF-8',
+                    cache: false,
+                    success: function () {
+                        alert('Data security user berhasil disimpan!');
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
                 });
-
-                $.ajax({
-                    type: "POST",
-                    url: '@Url.Action("PassParentSecurityArray", "Manage")',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ secArray: parentSecArray})
-                });
-
-                $("#form-security-user").submit();
             });
         });
     </script>
