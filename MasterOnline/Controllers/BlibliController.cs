@@ -2204,7 +2204,7 @@ namespace MasterOnline.Controllers
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                        string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
 
                         using (SqlConnection oConnection = new SqlConnection(con))
@@ -2355,7 +2355,7 @@ namespace MasterOnline.Controllers
 #if AWS
                             string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                             using (SqlConnection oConnection = new SqlConnection(con))
                             {

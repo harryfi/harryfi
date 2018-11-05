@@ -125,7 +125,7 @@ namespace MasterOnline.Controllers
             SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
 #else
-            SqlConnection con = new SqlConnection("Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                   "user id=masteronline;password=M@ster123;");
 #endif
             SqlCommand command = new SqlCommand(sql, con);
@@ -178,7 +178,7 @@ namespace MasterOnline.Controllers
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
-                    System.Data.Entity.Database.Delete($"Server=202.67.14.92\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                    System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #endif
 
