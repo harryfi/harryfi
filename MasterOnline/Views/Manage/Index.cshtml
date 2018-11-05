@@ -151,6 +151,39 @@
                 contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (response) {
+                    var steppingBasic = 1;
+                    var maxTicksBasic = 10;
+
+                    if (response.data.JumlahPesananHariIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahPesananHariIni / 10) * 10;
+                    } else if (response.data.JumlahFakturHariIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahFakturHariIni / 10) * 10;
+                    } else if (response.data.JumlahReturHariIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahReturHariIni / 10) * 10;
+                    } else if (response.data.JumlahPesananBulanIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahPesananBulanIni / 10) * 10;
+                    } else if (response.data.JumlahFakturBulanIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahFakturBulanIni / 10) * 10;
+                    } else if (response.data.JumlahReturBulanIni > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(response.data.JumlahReturBulanIni / 10) * 10;
+                    }
+
+                    if (response.data.JumlahPesananHariIni > 50 && response.data.JumlahPesananHariIni <= 100 ||
+                        response.data.JumlahFakturHariIni > 50 && response.data.JumlahFakturHariIni <= 100 ||
+                        response.data.JumlahReturHariIni > 50 && response.data.JumlahReturHariIni <= 100 ||
+                        response.data.JumlahPesananBulanIni > 50 && response.data.JumlahPesananBulanIni <= 100 ||
+                        response.data.JumlahFakturBulanIni > 50 && response.data.JumlahFakturBulanIni <= 100 ||
+                        response.data.JumlahReturBulanIni > 50 && response.data.JumlahReturBulanIni <= 100) {
+                        steppingBasic = 10;
+                    } else if (response.data.JumlahPesananHariIni > 100 ||
+                        response.data.JumlahFakturHariIni > 100 ||
+                        response.data.JumlahReturHariIni > 100 ||
+                        response.data.JumlahPesananBulanIni > 100 ||
+                        response.data.JumlahFakturBulanIni > 100 ||
+                        response.data.JumlahReturBulanIni > 100) {
+                        steppingBasic = 100;
+                    }
+
                     var ctx = document.getElementById("chart-jumlah").getContext('2d');
                     var chartJumlah = new Chart(ctx, {
                         type: 'bar',
@@ -192,13 +225,47 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10
+                                        stepSize: steppingBasic,
+                                        max: maxTicksBasic
                                     }
                                 }],
 
                             }
                         }
                     });
+
+                    var steppingValueBasic = 10000;
+                    var maxTicksValueBasic = 100000;
+
+                    if (response.data.NilaiPesananHariIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiPesananHariIni / 100000) * 100000;
+                    } else if (response.data.NilaiFakturHariIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiFakturHariIni / 100000) * 100000;
+                    } else if (response.data.NilaiReturHariIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiReturHariIni / 100000) * 100000;
+                    } else if (response.data.NilaiPesananBulanIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiPesananBulanIni / 100000) * 100000;
+                    } else if (response.data.NilaiFakturBulanIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiFakturBulanIni / 100000) * 100000;
+                    } else if (response.data.NilaiReturBulanIni > maxTicksValueBasic) {
+                        maxTicksValueBasic = Math.ceil(response.data.NilaiReturBulanIni / 100000) * 100000;
+                    }
+
+                    if (response.data.NilaiPesananHariIni > 50000 && response.data.NilaiPesananHariIni <= 100000 ||
+                        response.data.NilaiFakturHariIni > 50000 && response.data.NilaiFakturHariIni <= 100000 ||
+                        response.data.NilaiReturHariIni > 50000 && response.data.NilaiReturHariIni <= 100000 ||
+                        response.data.NilaiPesananBulanIni > 50000 && response.data.NilaiPesananBulanIni <= 100000 ||
+                        response.data.NilaiFakturBulanIni > 50000 && response.data.NilaiFakturBulanIni <= 100000 ||
+                        response.data.NilaiReturBulanIni > 50000 && response.data.NilaiReturBulanIni <= 100000) {
+                        steppingValueBasic = 100000;
+                    } else if (response.data.NilaiPesananHariIni > 100000 ||
+                        response.data.NilaiFakturHariIni > 100000 ||
+                        response.data.NilaiReturHariIni > 100000 ||
+                        response.data.NilaiPesananBulanIni > 100000 ||
+                        response.data.NilaiFakturBulanIni > 100000 ||
+                        response.data.NilaiReturBulanIni > 100000) {
+                        steppingValueBasic = 1000000;
+                    }
 
                     var ctxNilai = document.getElementById("chart-nilai").getContext('2d');
                     var chartNilai = new Chart(ctxNilai, {
@@ -242,7 +309,8 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10000000,
+                                        stepSize: steppingValueBasic,
+                                        max: maxTicksValueBasic,
                                         userCallback: function(value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);
@@ -276,8 +344,32 @@
                         nilaiPesananBulanIniPerMarket.push(convertToAngka(response.data.ListPesananPerMarketplace[i].NilaiPesananBulanIni));
                     }
 
-                    console.log(nilaiPesananHariIniPerMarket);
-                    console.log(nilaiPesananBulanIniPerMarket);
+                    var steppingByMarket = 1;
+                    var maxTicksByMarket = 10;
+                    var maxJumlahPesananHariIni = Math.max.apply(Math, jumlahPesananHariIniPerMarket);
+                    var maxJumlahPesananBulanIni = Math.max.apply(Math, jumlahPesananBulanIniPerMarket);
+
+                    if (maxJumlahPesananHariIni > maxTicksByMarket) {
+                        maxTicksByMarket = Math.ceil(maxJumlahPesananHariIni / 10) * 10;
+                    } else if (maxJumlahPesananBulanIni > maxTicksByMarket) {
+                        maxTicksByMarket = Math.ceil(maxJumlahPesananBulanIni / 10) * 10;
+                    }
+
+                    if (response.data.JumlahPesananHariIni > 50 && response.data.JumlahPesananHariIni <= 100 ||
+                        response.data.JumlahFakturHariIni > 50 && response.data.JumlahFakturHariIni <= 100 ||
+                        response.data.JumlahReturHariIni > 50 && response.data.JumlahReturHariIni <= 100 ||
+                        response.data.JumlahPesananBulanIni > 50 && response.data.JumlahPesananBulanIni <= 100 ||
+                        response.data.JumlahFakturBulanIni > 50 && response.data.JumlahFakturBulanIni <= 100 ||
+                        response.data.JumlahReturBulanIni > 50 && response.data.JumlahReturBulanIni <= 100) {
+                        steppingByMarket = 10;
+                    } else if (response.data.JumlahPesananHariIni > 100 ||
+                        response.data.JumlahFakturHariIni > 100 ||
+                        response.data.JumlahReturHariIni > 100 ||
+                        response.data.JumlahPesananBulanIni > 100 ||
+                        response.data.JumlahFakturBulanIni > 100 ||
+                        response.data.JumlahReturBulanIni > 100) {
+                        steppingByMarket = 100;
+                    }
 
                     var ctxJumlahPerMarket = document.getElementById("chart-jumlah-per-market").getContext('2d');
                     var chartJumlahPerMarket = new Chart(ctxJumlahPerMarket, {
@@ -320,13 +412,41 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10
+                                        stepSize: steppingByMarket,
+                                        max: maxTicksByMarket
                                     }
                                 }],
 
                             }
                         }
                     });
+
+                    var steppingValueByMarket = 10000;
+                    var maxTicksValueByMarket = 100000;
+                    var maxNilaiPesananHariIni = Math.max.apply(Math, nilaiPesananHariIniPerMarket);
+                    var maxNilaiPesananBulanIni = Math.max.apply(Math, nilaiPesananBulanIniPerMarket);
+
+                    if (maxNilaiPesananHariIni > maxTicksValueByMarket) {
+                        maxTicksValueByMarket = Math.ceil(maxNilaiPesananHariIni / 100000) * 100000;
+                    } else if (maxNilaiPesananBulanIni > maxTicksValueByMarket) {
+                        maxTicksValueByMarket = Math.ceil(maxNilaiPesananBulanIni / 100000) * 100000;
+                    }
+
+                    if (response.data.NilaiPesananHariIni > 50000 && response.data.NilaiPesananHariIni <= 100000 ||
+                        response.data.NilaiFakturHariIni > 50000 && response.data.NilaiFakturHariIni <= 100000 ||
+                        response.data.NilaiReturHariIni > 50000 && response.data.NilaiReturHariIni <= 100000 ||
+                        response.data.NilaiPesananBulanIni > 50000 && response.data.NilaiPesananBulanIni <= 100000 ||
+                        response.data.NilaiFakturBulanIni > 50000 && response.data.NilaiFakturBulanIni <= 100000 ||
+                        response.data.NilaiReturBulanIni > 50000 && response.data.NilaiReturBulanIni <= 100000) {
+                        steppingValueByMarket = 100000;
+                    } else if (response.data.NilaiPesananHariIni > 100000 ||
+                        response.data.NilaiFakturHariIni > 100000 ||
+                        response.data.NilaiReturHariIni > 100000 ||
+                        response.data.NilaiPesananBulanIni > 100000 ||
+                        response.data.NilaiFakturBulanIni > 100000 ||
+                        response.data.NilaiReturBulanIni > 100000) {
+                        steppingValueByMarket = 1000000;
+                    }
 
                     var ctxNilaiPerMarket = document.getElementById("chart-nilai-per-market").getContext('2d');
                     var chartNilaiPerMarket = new Chart(ctxNilaiPerMarket, {
@@ -370,7 +490,8 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10000000,
+                                        stepSize: steppingValueByMarket,
+                                        max: maxTicksValueByMarket,
                                         userCallback: function (value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);
