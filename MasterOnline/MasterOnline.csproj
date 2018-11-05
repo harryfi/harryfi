@@ -1239,6 +1239,7 @@
     <Content Include="Content\Images\MO_new_logo_v2.png" />
     <Content Include="Content\Images\MO_new_logo_v2_bordered.png" />
     <Content Include="Content\Images\MO_new_logo_v2_white_text.png" />
+    <Content Include="Content\Images\MO_simple_logo.png" />
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />
