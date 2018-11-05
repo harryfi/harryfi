@@ -162,6 +162,9 @@
                         <a href="@Url.Action("Index", "Manage")" class="site_title">
                             <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px; margin-top: 25px;" src="~/Content/Images/MO_new_logo_v2_white_text.png">
                         </a>
+                        <a href="@Url.Action("Index", "Manage")" class="site_title" id="logo-simple" style="display: none;">
+                            <img alt="logo" style="width: 85%; height: 85%;" src="~/Content/Images/MO_simple_logo.png">
+                        </a>
                     </div>
                     <div class="clearfix"></div>
                     <!-- menu profile quick info -->
@@ -491,6 +494,16 @@
                     </text>
                 }
             }
+
+            $('#menu_toggle').click(function () {
+                if ($('#logo-full').is(':visible')) {
+                    $('#logo-full').hide();
+                    $('#logo-simple').show();
+                } else {
+                    $('#logo-full').show();
+                    $('#logo-simple').hide();
+                }
+            });
 
             initRequired();
         });

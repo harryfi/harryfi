@@ -23,7 +23,7 @@ namespace MasterOnline
         }
 #else
         public ErasoftContext(string dbName)
-            : base($"Server=202.67.14.92\\SQLEXPRESS, 1433;initial catalog={dbName};" +
+            : base($"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog={dbName};" +
                    $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
                    $"application name=EntityFramework")
         {

@@ -2960,69 +2960,44 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Security (START)
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult SaveSecUser(SecurityUserViewModel dataSecurity)
+        public ActionResult SaveSecUser(DataSecUser dataSec)
         {
-            if (Session["formsId"] is string[] formsId)
+            var userId = Session["UserId"] as long?;
+
+            foreach (var entity in MoDbContext.SecUser.Where(s => s.UserId == userId).ToList())
+                MoDbContext.SecUser.Remove(entity);
+
+            var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+            var counter = 0;
+            //List<SecUser> _testList = new List<SecUser>();
+
+            foreach (var form in dataSec.FormArray)
             {
-                var userId = Session["UserId"] as long?;
-
-                foreach (var entity in MoDbContext.SecUser.Where(s => s.UserId == userId).ToList())
-                    MoDbContext.SecUser.Remove(entity);
-
-                var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-                var parentsId = Session["parentsId"] as string[];
-                var counter = 0;
-                //List<SecUser> _testList = new List<SecUser>();
-
-                foreach (var form in formsId)
+                var secUser = new SecUser
                 {
-                    var secUser = new SecUser
-                    {
-                        AccountId = dataSession?.Account.AccountId,
-                        UserId = userId,
-                        FormId = Convert.ToInt32(form),
-                        ParentId = Convert.ToInt32(parentsId?[counter]),
-                        Permission = true
-                    };
-                    counter++;
-                    //_testList.Add(secUser);
-                    MoDbContext.SecUser.Add(secUser);
-                }
-
-                MoDbContext.SaveChanges();
-                ModelState.Clear();
-
-                var secuserVm = new SecurityUserViewModel()
-                {
-                    User = MoDbContext.User.SingleOrDefault(u => u.UserId == userId),
-                    ListForms = MoDbContext.FormMoses.Where(f => f.Show).ToList(),
-                    ListSec = MoDbContext.SecUser.Where(s => s.UserId == userId).ToList(),
-                    ListUser = MoDbContext.User.ToList(),
+                    AccountId = dataSession?.Account.AccountId,
+                    UserId = userId,
+                    FormId = Convert.ToInt32(form),
+                    ParentId = Convert.ToInt32(dataSec.ParentArray[counter]),
+                    Permission = true
                 };
-
-                ViewData["SuccessMessage"] = $"Settingan security untuk user {secuserVm.User.Username} berhasil disimpan.";
-
-                return View("SecUserMenu", secuserVm);
+                counter++;
+                //_testList.Add(secUser);
+                MoDbContext.SecUser.Add(secUser);
             }
 
-            return RedirectToAction("SecUserMenu");
-        }
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
 
-        [HttpPost]
-        public EmptyResult PassSecurityArray(string[] secArray)
-        {
-            Session["formsId"] = secArray;
+            var secuserVm = new SecurityUserViewModel()
+            {
+                User = MoDbContext.User.SingleOrDefault(u => u.UserId == userId),
+                ListForms = MoDbContext.FormMoses.Where(f => f.Show).ToList(),
+                ListSec = MoDbContext.SecUser.Where(s => s.UserId == userId).ToList(),
+                ListUser = MoDbContext.User.ToList(),
+            };
 
-            return new EmptyResult();
-        }
-
-        [HttpPost]
-        public EmptyResult PassParentSecurityArray(string[] secArray)
-        {
-            Session["parentsId"] = secArray;
-
-            return new EmptyResult();
+            return Json($"Settingan security untuk user {secuserVm.User.Username} berhasil disimpan.", JsonRequestBehavior.AllowGet);
         }
 
         // =============================================== Bagian Security (END)
@@ -3916,7 +3891,7 @@ namespace MasterOnline.Controllers
                     noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                     ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
                 }
-                else
+                else 
                 {
                     var lastRecNum = listInvoiceInDb.Last().RecNum;
                     lastRecNum++;

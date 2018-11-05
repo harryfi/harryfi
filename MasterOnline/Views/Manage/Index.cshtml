@@ -191,7 +191,8 @@
                             scales: {
                                 yAxes: [{
                                     ticks: {
-                                        beginAtZero:true
+                                        beginAtZero: true,
+                                        stepSize: 10
                                     }
                                 }],
 
@@ -241,6 +242,7 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
+                                        stepSize: 1000000,
                                         userCallback: function(value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);
@@ -317,7 +319,8 @@
                             scales: {
                                 yAxes: [{
                                     ticks: {
-                                        beginAtZero: true
+                                        beginAtZero: true,
+                                        stepSize: 10
                                     }
                                 }],
 
@@ -367,6 +370,7 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
+                                        stepSize: 1000000,
                                         userCallback: function (value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);

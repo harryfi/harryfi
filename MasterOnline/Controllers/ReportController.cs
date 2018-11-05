@@ -55,9 +55,9 @@ namespace MasterOnline.Controllers
         {
             //13.250.232.74
             //https://masteronline.co.id
-            //202.67.14.92
+            //13.251.222.53
             //https://devreport.masteronline.co.id
-            //return string.Format("http://202.67.14.92:3535/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
+            //return string.Format("http://13.251.222.53:3535/MOReport/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
 #if AWS
             return string.Format("https://report.masteronline.co.id/Report/Form/frmLaporanMutasiPiutangTanpaPosting.aspx?UserID={0}&From={1}&To={2}&CutOff={3}",
             Uri.EscapeDataString(data.UserId),
