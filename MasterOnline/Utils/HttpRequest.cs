@@ -637,8 +637,8 @@ namespace MasterOnline.Utils
             catch (Exception ex)
             {
                 return new Controllers.EleveniaController.ClientMessage() {
-                    resultCode = "Ex;" + ex.InnerException.HResult,
-                    Message = ex.InnerException.Message
+                    resultCode = "Ex;" + (ex.InnerException == null ? ex.Message : ex.InnerException.HResult.ToString()),
+                    Message = ex.InnerException == null ? ex.Message : ex.InnerException.Message
                 };
             }
         }

@@ -9,7 +9,8 @@ namespace MasterOnline.ViewModels
     public class UploadBarangViewModel
     {
         public List<STF02E> ListKategoriMerk { get; set; } = new List<STF02E>();
-        public IList<ARF01> ListMarket { get; set; } = new List<ARF01>();
+        public List<STF02E> ListKategoriBrg { get; set; } = new List<STF02E>();
+        public List<ARF01> ListMarket { get; set; } = new List<ARF01>();
         public String Username { get; set; }
         public STF02 Stf02 { get; set; }
         public List<TEMP_BRG_MP> ListTempBrg { get; set; } = new List<TEMP_BRG_MP>();

@@ -219,6 +219,7 @@
                         <span>Refresh</span>
                     </button>
                     <button class="btn btn-primary" id="get_data" onclick="GetDataBrg();">Tarik Data</button>
+                    <button class="btn btn-primary" id="upload_brg" onclick="UploadAllBrg();">Upload Semua Barang</button>
                 </div>
             </div>
         </div>
@@ -228,6 +229,35 @@
             </div>
             <div class="col-sm-12 barang_table_section" id="table-upload-barang-partial">
                 @Html.Partial("TableUploadBarangPartial")
+            </div>
+        </div>
+        <div class="row barang_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Barang</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor-1" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                    {
+                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                        {
+                            <div class="alert alert-danger">
+                                <span class="message-error">@modelError.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    @using (Html.BeginForm("SaveBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
+                    {
+                        <div id="form-partial">
+                            @Html.Partial("FormBarangUploadsPartial")
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
@@ -244,11 +274,20 @@
         $(document).ready(function () {
             $('#promptHiddenField').val('');
             $('#txtCustomer').val('');
-            refreshTableBarang();
+
+            $('#close-editor-1').off('click').on('click', function () {
+                $('#close-editor-1')[0].disabled = true;
+                $('.barang_table_section').show();
+                $('.barang_editor_section').hide();
+                refreshTableBarang();
+            });
+
+            //refreshTableBarang();
         });
 
         function refreshTableBarang() {
-            var link = '@Url.Action("RefreshTableUploadBarang", "Manage")';
+            var link = '@Url.Action("RefreshTableUploadBarang", "Manage", new { cust = "replaceCust" })';
+            link = link.replace("replaceCust", $('#promptHiddenField').val());
 
             $.ajax({
                 type: "GET",
@@ -273,16 +312,17 @@
         }
 
         function PromptCustomer() {
-            showPromptDeliveryTempEleveniaTextBoxWindow();
+            showPromptCustomerTextBoxWindow();
         }
 
-        function showPromptDeliveryTempEleveniaTextBoxWindow() {
+        function showPromptCustomerTextBoxWindow() {
             var $link = '@Url.Action("PromptCustomer", "Manage")';
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
         function afterPromptDelTempCust(val, val2) {
             $('#promptHiddenField').val(val);
             $('#txtCustomer').val(val2);
+            refreshTableBarang();
         }
 
         function GetDataBrg() {
@@ -313,6 +353,54 @@
                     }
                 });
             }
+        }
+
+        function editBarang(idBarang) {
+            var link = '@Url.Action("EditBarangUpload", "Manage", new { barangId = "replaceId" })';
+            link = link.replace("replaceId", idBarang);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#datatable').hide();
+                    $('.barang_editor_section').show();
+                    $('#form-partial').html(response);
+
+                    //$('#Stf02_BRG').attr('disabled', 'disabled');
+                    //Initialize();
+                    //initRequired();
+                    //$('#tambah_barang').click();
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function uploadBarang(btnClicked) {
+
+        }
+
+        function PromptBarang() {
+            showPromptBarangTextBoxWindow();
+        }
+
+        function showPromptBarangTextBoxWindow() {
+            var $link = '@Url.Action("PromptBarang", "Manage")';
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptDelTempBrg(val) {
+            $('#txtBrg').val(val);
+            //$('#txtCustomer').val(val2);
+        }
+
+        function AutoCompleteBrg() {
+
         }
     </script>
 }

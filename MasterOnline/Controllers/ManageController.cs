@@ -3831,9 +3831,24 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetInvoiceBySupp(string kodeSupplier)
         {
-            var listInvoice = ErasoftDbContext.PBT01A
-                                .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
-                                .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+            //change by nurul 5/11/2018
+            //var listInvoice = ErasoftDbContext.PBT01A
+            //                    //change by nurul 5/11/2018  --  .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+            //                    .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+            string sSQL = "";
+            sSQL += "SELECT A.RecNum, A.INV ";
+            sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+            sSQL += "A.JENISFORM = '1' ";
+            sSQL += "AND B.JENISFORM = '2' ";
+            sSQL += "AND A.INV = B.REF ";
+            sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+            sSQL += "AND A.JENISFORM = '1' ";
+            sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+            sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+            var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+            //end change 
             var listKodeInvoice = new List<InvoiceJson>();
 
             foreach (var invoice in listInvoice)
@@ -9790,20 +9805,38 @@ namespace MasterOnline.Controllers
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
-
+                Stf02 = new STF02(),
             };
 
             return View(barangVm);
         }
 
-        public ActionResult RefreshTableUploadBarang()
+        public ActionResult RefreshTableUploadBarang(string cust)
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02()
+            };
+
+            return PartialView("TableUploadBarangPartial", barangVm);
+        }
+
+        public ActionResult EditBarangUpload(string brg_mp)
         {
             var barangVm = new UploadBarangViewModel()
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02(),
+                TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).FirstOrDefault(),
+                ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
+                ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
+
             };
 
-            return PartialView("TableUploadBarangPartial", barangVm);
+            return PartialView("FormBarangUploadsPartial", barangVm);
         }
 
         [Route("manage/PromptCustomer")]
@@ -9841,12 +9874,16 @@ namespace MasterOnline.Controllers
                 if(arf01 != null)
                 {
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
-                    switch (marketplace.NamaMarket.ToUpper())
+                    if(marketplace != null)
                     {
-                        case "LAZADA":
-
-                            break;
+                        switch (marketplace.NamaMarket.ToUpper())
+                        {
+                            case "LAZADA":
+                                new LazadaController().GetBrgLazada(cust, arf01.TOKEN);
+                                break;
+                        }
                     }
+                    
 
                     var barangVm = new UploadBarangViewModel()
                     {
