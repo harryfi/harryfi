@@ -142,12 +142,13 @@ namespace MasterOnline.Controllers
                     //var userId = Convert.ToString(accInDb.UserId);
                     var userId = Convert.ToString(accInDb.AccountId);
                     //add by calvin 3 oktober 2018
-                    accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
 
                     string sql = "";
 
                     if (string.IsNullOrEmpty(accInDb.DatabasePathErasoft))
                     {
+                        accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+
                         var path = Server.MapPath("~/Content/admin/");
                         sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
                               $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +

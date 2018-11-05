@@ -551,6 +551,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\DataSecUser.cs" />
     <Compile Include="Models\LOG_IMPORT_FAKTUR.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
