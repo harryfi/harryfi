@@ -3856,9 +3856,24 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetInvoiceBySupp(string kodeSupplier)
         {
-            var listInvoice = ErasoftDbContext.PBT01A
-                                .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
-                                .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+            //change by nurul 5/11/2018
+            //var listInvoice = ErasoftDbContext.PBT01A
+            //                    //change by nurul 5/11/2018  --  .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+            //                    .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+            string sSQL = "";
+            sSQL += "SELECT A.RecNum, A.INV ";
+            sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+            sSQL += "A.JENISFORM = '1' ";
+            sSQL += "AND B.JENISFORM = '2' ";
+            sSQL += "AND A.INV = B.REF ";
+            sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+            sSQL += "AND A.JENISFORM = '1' ";
+            sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+            sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+            var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+            //end change 
             var listKodeInvoice = new List<InvoiceJson>();
 
             foreach (var invoice in listInvoice)
