@@ -506,6 +506,9 @@
                 language: 'id'
             }).datepicker('setDate', '0').change(function () {
                 $('#Hutang_TGL').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
                 });
 
 

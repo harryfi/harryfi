@@ -553,6 +553,9 @@
 
                 var $tgl = moment($(this).val(), "DD/MM/YYYY");
                 $('#Invoice_TGL').val($(this).val());
+                //add by nurul 31/10/2018
+                $(this).datepicker('hide');
+                //end add
 
                 if ($('#Invoice_TERM').val() == '') {
                     $('#Invoice_TGJT').val('Masukkan TOP dahulu');
@@ -647,11 +650,15 @@
             $('#Invoice_NDISC1, #Invoice_PPN, #Invoice_TGL, #Invoice_SUPP, ' +
                 //'#Invoice_TERM, #MARKETPEMESAN, #Invoice_TGJT').change(function () {
                 '#MARKETPEMESAN, #Invoice_TGJT').change(function () {
-                if ($flagPerubahan == 3) {
-                    $('#btn-simpan-perubahan-row').show();
-                }
+                //change by nurul 2/11/2018
+                //if ($flagPerubahan == 3) {
+                //    $('#btn-simpan-perubahan-row').show();
+                //}
 
-                $flagPerubahan++;
+                //$flagPerubahan++;
+                    $('#btn-simpan-perubahan-row').show();
+                //end change 
+                
             });
 
             $('#btn-simpan-perubahan').click(function () {
@@ -682,6 +689,8 @@
                         alert('Data invoice berhasil di-update');
                         //$this.hide();
                         $('#loading_spinner').hide();
+                        //add by nurul 2/11/2018
+                        $('#btn-simpan-perubahan-row').hide();
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -743,7 +752,8 @@
                                 getTanggal();
                                 getSupplier();
                                 getInvoice();
-                                $('#btn-simpan-perubahan-row').show();
+                                //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                                $('#btn-simpan-perubahan-row').hide();
                                 $('#btn-autoload-row').hide();
                                 $("#TGL").attr('disabled', 'disabled');
                                 $("#TGL_BTN").attr('disabled', 'disabled');
@@ -1247,7 +1257,8 @@
                     $nettoSebelumnya += $bakalNetto;
                     $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
                     $('tr[data-invoice-id="0"]').hide();
-                    $('#btn-simpan-perubahan-row').show();
+                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    $('#btn-simpan-perubahan-row').hide();
                     $("#btn-autoload-row").hide();
                     $('#loading_spinner').hide();
                 },
@@ -1317,7 +1328,8 @@
                     $nettoSebelumnya += $bakalNetto;
                     $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
                     $('tr[data-invoice-id="0"]').hide();
-                    $('#btn-simpan-perubahan-row').show();
+                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    $('#btn-simpan-perubahan-row').hide();
                     $("#btn-autoload-row").hide();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
@@ -1451,7 +1463,8 @@
                             getTanggal();
                             getSupplier();
                             getInvoice();
-                            $('#btn-simpan-perubahan-row').show();
+                            //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                            $('#btn-simpan-perubahan-row').hide();
                             $('#btn-autoload-row').hide();
                             $('tr[data-invoice-id="0"]').hide();
                             $('#loading_spinner').hide();

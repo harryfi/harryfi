@@ -1349,6 +1349,9 @@
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-kNpQZUsTHkQzk9BZ"></script>
     <script type="text/javascript">
+        //add by nurul 1/11/2018
+        var $modeEdit = 0; // 0 new, 1 edit
+        //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
         var $jumlahPesananBulanIni = 0;
@@ -1612,6 +1615,9 @@
             $('.pesanan_editor_section').hide();
             refreshForm1();
             refreshTablePesanan();
+            //add by nurul 1/11/2018
+            $modeEdit = 0;
+            //end add
             $bakalNetto = 0;
             $totalAwal = 0;
             $nettoSebelumnya = 0;
@@ -1651,6 +1657,9 @@
 
                         refreshForm1();
                         refreshTablePesanan();
+                        //add by nurul 1/11/2018
+                        $modeEdit = 0;
+                        //end add
                         $bakalNetto = 0;
                         $totalAwal = 0;
                         $nettoSebelumnya = 0;
@@ -1666,7 +1675,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    //end add 
+                    //end add
                 });
 
             $('#close-editor-3').on('click',
@@ -1678,7 +1687,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    //end add 
+                    //end add
                 });
 
             if ($('.message-error').text() !== '') {
@@ -1819,25 +1828,80 @@
         }
 
         function getTanggal() {
-            $('#TGL').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function() {
-                if ($(this).val() == '') {
+            //change by nurul 1/11/2018
+            //$('#TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function() {
+            //    if ($(this).val() == '') {
+            //        $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //    $('#Pesanan_TGL').val($(this).val());
+            //    //add by nurul 31/10/2018
+            //    $(this).datepicker('hide');
+            //    //end add
+
+            //    if ($('#Pesanan_TERM').val() == '') {
+            //        $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
+            //        $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //});
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
                     $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
                     return;
-                }
+                    }
 
-                var $tgl = moment($(this).val(), "DD/MM/YYYY");
-                $('#Pesanan_TGL').val($(this).val());
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Pesanan_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
 
-                if ($('#Pesanan_TERM').val() == '') {
-                    $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
-                } else {
-                    var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
-                    $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
-                }
-            });
+                    if ($('#Pesanan_TERM').val() == '') {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
+                        $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                    $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Pesanan_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    if ($('#Pesanan_TERM').val() == '') {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
+                        $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+            //end change
         }
 
         var $flagPerubahan = 0;
@@ -1905,6 +1969,7 @@
 
             $("input.num-only").on('keydown',
                 function(e) {
+
                     // Allow: backspace, delete, tab, escape, enter and .
                     if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
                         // Allow: Ctrl+A, Command+A
@@ -2335,12 +2400,6 @@
                                 }
                             },
                             change: function() {
-                                if ($(this).hasClass('qty-input')) {
-                                    if ($(this).val() > 999) {
-                                        $(this).val(999);
-                                    }
-                                }
-
                                 if ($(this).hasClass('disc-input')) {
                                     if ($(this).val() > 99) {
                                         $(this).val(99);
@@ -2715,7 +2774,10 @@
                 beforeSend: function() {
                     $('#loading_spinner').show();
                 },
-                success: function(response) {
+                success: function (response) {
+                    //add by nurul 1/11/2018
+                    $modeEdit = 1;
+                    //end add
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
@@ -3027,7 +3089,7 @@
 
                         $('#modal-gudang-qty-body #Qty-' + $recNum).change(function() {
                             var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();
-                            if ($(this).val() > $valMax) {
+                            if (Number($(this).val()) > Number($valMax)) {
                                 $(this).val($valMax);
                                 alert('Qty kirim tidak boleh melebihi qty pesanan!');
                             }
@@ -3389,7 +3451,10 @@
                 beforeSend: function() {
                     $('#loading_spinner').show();
                 },
-                success: function(response) {
+                success: function (response) {
+                    //add by nurul 1/11/2018
+                    $modeEdit = 1;
+                    //end add
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
@@ -3406,7 +3471,7 @@
 
                         $(this).addClass('disabled-tab');
                     });
-                    //end add 
+                    //end add
                     $('#loading_spinner').hide();
                 },
                 error: function(xhr, status, error) {
@@ -3435,7 +3500,10 @@
                 beforeSend: function() {
                     $('#loading_spinner').show();
                 },
-                success: function(response) {
+                success: function (response) {
+                    //add by nurul 1/11/2018
+                    $modeEdit = 1;
+                    //end add
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
@@ -3452,7 +3520,7 @@
 
                         $(this).addClass('disabled-tab');
                     });
-                    //end add 
+                    //end add
                     $('#loading_spinner').hide();
                 },
                 error: function(xhr, status, error) {

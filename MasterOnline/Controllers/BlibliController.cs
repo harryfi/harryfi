@@ -1712,7 +1712,7 @@ namespace MasterOnline.Controllers
         //        {
         //            if (result.content.Count > 0)
         //            {
-        //                //Data Source = 202.67.14.92; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
+        //                //Data Source = 13.251.222.53; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
         //                //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
 
 
@@ -2090,9 +2090,9 @@ namespace MasterOnline.Controllers
                 {
                     if (result.content.Count > 0)
                     {
-                        //Data Source = 202.67.14.92; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
+                        //Data Source = 13.251.222.53; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
                         using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                        //using (SqlConnection oConnection = new SqlConnection("Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
+                        //using (SqlConnection oConnection = new SqlConnection("Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^"))
                         {
                             oConnection.Open();
                             //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
@@ -2199,12 +2199,12 @@ namespace MasterOnline.Controllers
                 {
                     if (result.content.Count > 0)
                     {
-                        //Data Source = 202.67.14.92; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
+                        //Data Source = 13.251.222.53; Initial Catalog = ERASOFT_rahmamk; Persist Security Info = True; User ID = sa; Password = admin123 ^
                         //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                        string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
 
                         using (SqlConnection oConnection = new SqlConnection(con))
@@ -2355,7 +2355,7 @@ namespace MasterOnline.Controllers
 #if AWS
                             string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                             using (SqlConnection oConnection = new SqlConnection(con))
                             {

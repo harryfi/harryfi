@@ -555,6 +555,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\DataSecUser.cs" />
     <Compile Include="Models\LOG_IMPORT_FAKTUR.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -1242,6 +1243,7 @@
     <Content Include="Content\Images\MO_new_logo_v2.png" />
     <Content Include="Content\Images\MO_new_logo_v2_bordered.png" />
     <Content Include="Content\Images\MO_new_logo_v2_white_text.png" />
+    <Content Include="Content\Images\MO_simple_logo.png" />
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />
@@ -5302,7 +5304,6 @@
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\WebFont\Linearicons-Free.woff" />
     <Content Include="Content\admin\fonts\Linearicons-Free-v1.0.0\WebFont\Linearicons-Free.woff2" />
     <Content Include="fonts\rounded_elegance.ttf" />
-    <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
     <Content Include="Content\vendors\chartjs-color-string\.travis.yml" />
     <Content Include="Content\vendors\chartjs-color-string\CHANGELOG.md" />
     <Content Include="Content\vendors\chartjs-color-string\LICENSE" />
@@ -5434,6 +5435,7 @@
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-line-dataset.json" />
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-radar-boundary-origin-spline.json" />
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-radar-boundary-origin.json" />
+    <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
     <None Include="Properties\PublishProfiles\AWS.pubxml" />
     <None Include="Properties\PublishProfiles\DEV.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />

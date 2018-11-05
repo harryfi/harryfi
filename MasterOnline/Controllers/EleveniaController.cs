@@ -47,17 +47,28 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        [Route("ele/image")]
+        [Route("ele/image/{id?}")]
         public ActionResult Image(string id)
         {
             var dir = Server.MapPath("~/Content/Uploaded");
             var dirNotFound = Server.MapPath("~/Content/Images");
             var path = Path.Combine(dir, id); //validate the path for security or use other means to generate the path.
+            path = path + ".jpg";
             if (!System.IO.File.Exists(path))
             {
                 path = Path.Combine(dirNotFound, "photo_not_available.jpg");
             }
-            return base.File(path, "image/jpeg");
+            Byte[] b = System.IO.File.ReadAllBytes(path);
+            FileContentResult res = base.File(b, "image/jpg");
+            res.ExecuteResult(this.ControllerContext);
+            
+            //FilePathResult res = base.File(path, "image/jpg");
+            Response.Buffer = true;
+            Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
+            Response.Expires = -1500;
+            Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
+            return res;
         }
 
         public enum StatusOrder
@@ -212,7 +223,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -346,7 +358,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -523,7 +536,8 @@ namespace MasterOnline.Controllers
                 }
                 else if (i == 0)
                 {
-                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    //xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image?id=]]></prdImage01>";//image url (can use up to 5 image)
+                    xmlString += "<prdImage01><![CDATA[https://masteronline.co.id/ele/image/photo_not_available]]></prdImage01>";//image url (can use up to 5 image)
                     prodImageCount++;
                 }
             }
@@ -885,7 +899,7 @@ namespace MasterOnline.Controllers
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                             using (SqlConnection oConnection = new SqlConnection(con))
                             {
@@ -959,7 +973,7 @@ namespace MasterOnline.Controllers
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                            string con = "Data Source=202.67.14.92;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                             using (SqlConnection oConnection = new SqlConnection(con))
                             {

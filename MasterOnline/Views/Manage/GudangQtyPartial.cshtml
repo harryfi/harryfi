@@ -30,7 +30,7 @@
                 </div>
                 <div class="col-md-2 col-sm-2 col-xs-4">
                     @Html.Hidden($"Max-Qty-{barang.NO_URUT}", barang.QTY)
-                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY, new {@class = "form-control", type = "number", min = "0", oninput = "maxLengthCheck(this)", maxlength = 3})
+                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY_N, new {@class = "form-control", type = "number", min = "0", oninput = "maxLengthCheck(this)", maxlength = 3})
                 </div>
             </div>
         </div>

@@ -113,23 +113,49 @@
 
             $('#Tahun').val(d.getFullYear());
 
+            //$('#Bulan').datepicker({
+            //    format: 'MM',
+            //    language: 'id',
+            //    minViewMode: 1
+            //}).datepicker('setDate', d);
+
+            //$('#DrTgl').datepicker({
+            //    format: 'dd',
+            //    language: 'id',
+            //    minViewMode: 0
+            //}).datepicker('setDate', d);
+
+            //$('#SdTgl').datepicker({
+            //    format: 'dd',
+            //    language: 'id',
+            //    minViewMode: 0
+            //}).datepicker('setDate', d);
             $('#Bulan').datepicker({
                 format: 'MM',
                 language: 'id',
                 minViewMode: 1
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#Bulan').val($(this).val());
+                $(this).datepicker('hide');
+            });
 
             $('#DrTgl').datepicker({
                 format: 'dd',
                 language: 'id',
                 minViewMode: 0
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#DrTgl').val($(this).val());
+                $(this).datepicker('hide');
+            });
 
             $('#SdTgl').datepicker({
                 format: 'dd',
                 language: 'id',
                 minViewMode: 0
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#SdTgl').val($(this).val());
+                $(this).datepicker('hide');
+            });
 
             $('#process-posting').click(function () {
                 $('.labelPosting').html('Status : Proses sedang dimulai..');
@@ -204,7 +230,7 @@
 
         window.addEventListener('message', function (event) {
 
-            //if (~event.origin.indexOf('http://202.67.14.92')) {
+            //if (~event.origin.indexOf('http://13.251.222.53')) {
             if (~event.origin.indexOf('https://report.masteronline.co.id') || ~event.origin.indexOf('https://devreport.masteronline.co.id')) {
                 if (event.data.event_id == 'progressbar') {
 
