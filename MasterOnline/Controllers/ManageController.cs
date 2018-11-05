@@ -3876,7 +3876,7 @@ namespace MasterOnline.Controllers
                     noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                     ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
                 }
-                else
+                else 
                 {
                     var lastRecNum = listInvoiceInDb.Last().RecNum;
                     lastRecNum++;
