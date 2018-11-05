@@ -392,16 +392,22 @@
         }
 
         function modeEditTd() {
-            $('.qty-barang').addClass('editable');
-            $('.harga-barang').addClass('editable');
-            $('#table_tambah_stok > tbody > tr > td.editable').prop('contentEditable', true);
-            $('#table_tambah_stok > tbody > tr > td.editable').on('click', function () {
+            //$('.qty-barang').addClass('editable');
+            //$('.harga-barang').addClass('editable');
+            $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > .harga-barang').addClass('editable');
+            //$('#table_tambah_stok > tbody > tr > td.editable').prop('contentEditable', true);
+            //$('#table_tambah_stok > tbody > tr > td.editable').on('click', function () {
+            $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > td.editable').off('click').on('click',
+                function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
                 var $inputClass = '';
                 var $trId = $this.parent().attr('data-stok-id');
-                var $harga = convertToAngka($this.text());
-
+                //var $harga = convertToAngka($this.text());
+                if ($this.text() !== '') {
+                    $harga = convertToAngka($this.text());
+                }
                 if ($class == 'qty-barang editable') {
                     $inputClass = 'qty-input';
                 } else if ($class == 'harga-barang editable') {
@@ -409,9 +415,10 @@
                 }
 
                 var $input = $('<input>', {
-                    'class': $inputClass + ' num-only',
-                    value: $this.val(),
-                    type: 'number',
+                    'class': $inputClass + 'num-only',
+                    //value: $this.val(),
+                    //type: 'number',
+                    value: $harga,
                     blur: function () {
                         if (this.value == '') {
                             if ($class === 'qty-barang editable') {
@@ -423,15 +430,22 @@
                         } else {
                             if ($class === 'qty-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
-                            } else if ($class == 'harga-barang editable') {
+                            } else if ($class === 'harga-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
                                 $('#BarangStok_Harsat').val(this.value);
                             }
                             refreshNettoBarang($trId);
                         }
                     },
+                    //focus: function () {
+                    //    this.value = $harga;
+                    //},
                     focus: function () {
-                        this.value = $harga;
+                        if ($harga == 0) {
+                            this.value = '';
+                        } else {
+                            this.value = $harga;
+                        }
                     },
                     keyup: function (e) {
                         if (e.which === 13) $input.blur();
@@ -825,9 +839,11 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                $modeEdit == 0
                                 $('#form-partial').html(response);
                                 getDataBarang();
                                 getGudang();
+                                getTanggal();
                                 $('#loading_spinner').hide();
                             } else {
                                 alert('Ada data yang tidak valid!');
@@ -842,6 +858,56 @@
                 } else {
                     alert('Silakan isi semua field terlebih dahulu!');
                 }
+            }
+        }
+
+        function getTanggal() {
+            //$('#Stok_Tgl').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    //if ($flagPerubahan == 1) {
+            //    if ($flagPerubahan == 0) {
+            //        $('#btn-simpan-perubahan-row').show();
+            //    }
+
+            //    $flagPerubahan++;
+            //    });
+            var $flagPerubahan = 0;
+
+            
+            if ($modeEdit == 1) { // mode edit
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                        
+                    }
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                        //end add
+
+                    $flagPerubahan++;
+                });
+            }
+            else {
+                $('#Stok_Tgl').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    //if ($flagPerubahan == 1) {
+                    if ($flagPerubahan == 0) {
+                        $('#btn-simpan-perubahan-row').show();
+                    }
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                        //end add
+
+                    $flagPerubahan++;
+                });
             }
         }
     </script>
