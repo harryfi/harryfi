@@ -1,0 +1,263 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.UploadBarangViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+        //context.Dispose();
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.TempBrg.BERAT)
+@Html.HiddenFor(m => m.TempBrg.PANJANG)
+@Html.HiddenFor(m => m.TempBrg.LEBAR)
+@Html.HiddenFor(m => m.TempBrg.TINGGI)
+@Html.HiddenFor(m => m.TempBrg.BERAT)
+@Html.HiddenFor(m => m.TempBrg.Deskripsi)
+@Html.HiddenFor(m => m.TempBrg.IDMARKET)
+@Html.HiddenFor(m => m.TempBrg.CATEGORY_CODE)
+@Html.HiddenFor(m => m.TempBrg.CATEGORY_NAME)
+@Html.HiddenFor(m => m.TempBrg.DISPLAY)
+
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Detail Barang di Marketplace</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <br>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Kode Barang di Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.TempBrg.BRG_MP, new { @class = "form-control", maxlength = 20, disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Nama Barang", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.TempBrg.NAMA, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.TempBrg.NAMA2, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Merek", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.TempBrg.MEREK, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TempBrg.HJUAL, "Harga Jual", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            @(Model?.TempBrg != null ? Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL), disabled = "disabled", maxlength = "12" }) : Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="xpanel">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Upload Barang ke Master Online</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 col-xs-12">
+                            <label>Kode Barang Master Online *</label>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input maxlength="20" value="" class="form-control" id="txtBrg" name="txtBrg" type="text" onchange="AutoCompleteBrg();">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    @*<div class="form-group">
+                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                <label>Nama Barang *</label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input data-val="true" class="form-control" data-val-length-max="30" id="txtNama" name="txtNama" maxlength="30" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input data-val="true" class="form-control" data-val-length-max="30" id="txtNama2" name="txtNama2" maxlength="30" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                <label>Satuan *</label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input data-val="true" class="form-control" data-val-length-max="5" id="txtStn" name="txtStn" maxlength="5" required="required" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                <label>Kategori Barang *</label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="KATEGORI" placeholder="Harap pilih" tabindex="-1" class="selectized" style="display: none;">
+                                    <option value="" selected="selected"></option>
+                                </select>
+                                <div class="selectize-control single">
+                                    <div class="selectize-input items required invalid not-full has-options">
+                                        <input type="text" autocomplete="off" tabindex="" id="KATEGORI-selectized" placeholder="Harap pilih" required="" style="width: 66px;">
+                                    </div>
+                                    <div class="selectize-dropdown single" style="display: none; width: 457px; top: 36px; left: 0px;">
+                                        <div class="selectize-dropdown-content"></div>
+                                    </div>
+                                    <input name="txtSort1" id="txtSort1" style="visibility:hidden" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-3 col-sm-3 col-xs-12">
+                                <label>Merek Barang *</label>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select id="MEREK" placeholder="Harap pilih" tabindex="-1" class="selectized" style="display: none;">
+                                    <option value="" selected="selected"></option>
+                                </select>
+                                <div class="selectize-control single">
+                                    <div class="selectize-input items required invalid not-full has-options">
+                                        <input type="text" autocomplete="off" tabindex="" id="MEREK-selectized" placeholder="Harap pilih" required="" style="width: 66px;">
+                                    </div>
+                                    <div class="selectize-dropdown single" style="display: none; width: 457px; top: 36px; left: 0px;">
+                                        <div class="selectize-dropdown-content"></div>
+                                    </div>
+                                    <input name="txtSort2" id="txtSort2" style="visibility:hidden" />
+                                </div>
+                            </div>
+                        </div>*@
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.NAMA, new { @class = "form-control", maxlength = 30, required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", maxlength = 30 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Sort1, "Kategori Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select id="KATEGORI" placeholder="Harap pilih" required="required"></select>
+                            @Html.HiddenFor(m => m.Stf02.Sort1)
+                            @Html.HiddenFor(m => m.Stf02.KET_SORT1)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Sort2, "Merk Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select id="MERK" placeholder="Harap pilih" required="required"></select>
+                            @Html.HiddenFor(m => m.Stf02.Sort2)
+                            @Html.HiddenFor(m => m.Stf02.KET_SORT2)
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.STN2, "Satuan Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Stf02.STN2, new { @class = "form-control", maxlength = 5, required = "required" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.MINI, "Stok Minimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            @*@Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
+                            @Html.TextBoxFor(m => m.Stf02.MINI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.MAXI, "Stok Maksimum *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-2 col-sm-2 col-xs-12">
+                            @*@Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 999, maxlength = 3 })*@
+                            @Html.TextBoxFor(m => m.Stf02.MAXI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 999, maxlength = 3 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control", required = "required", minlength = 30 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.BERAT, "Berat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-6">
+                            @*@Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                            @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                        </div>
+                        <label class="control-label satuan col-md-5 col-sm-6">GR</label>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.PANJANG, "Panjang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-6">
+                            @*@Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                            @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+
+                        </div>
+                        <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.LEBAR, "Lebar *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-6">
+                            @*@Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                            @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                        </div>
+                        <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.TINGGI, "Tinggi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-6">
+                            @*@Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                            @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                        </div>
+                        <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Upload" onclick="uploadBarang(this)" />
+</div>
+

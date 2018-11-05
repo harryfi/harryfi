@@ -507,5 +507,8 @@ namespace MasterOnline.Models
 
         [StringLength(50)]
         public string MEREK { get; set; }
+
+        [StringLength(10)]
+        public string CUST { get; set; }
     }
 }

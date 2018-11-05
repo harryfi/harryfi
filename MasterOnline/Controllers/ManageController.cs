@@ -9701,20 +9701,38 @@ namespace MasterOnline.Controllers
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
-
+                Stf02 = new STF02(),
             };
 
             return View(barangVm);
         }
 
-        public ActionResult RefreshTableUploadBarang()
+        public ActionResult RefreshTableUploadBarang(string cust)
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02()
+            };
+
+            return PartialView("TableUploadBarangPartial", barangVm);
+        }
+
+        public ActionResult EditBarangUpload(string brg_mp)
         {
             var barangVm = new UploadBarangViewModel()
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02(),
+                TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).FirstOrDefault(),
+                ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
+                ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
+
             };
 
-            return PartialView("TableUploadBarangPartial", barangVm);
+            return PartialView("FormBarangUploadsPartial", barangVm);
         }
 
         [Route("manage/PromptCustomer")]
@@ -9752,12 +9770,16 @@ namespace MasterOnline.Controllers
                 if(arf01 != null)
                 {
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
-                    switch (marketplace.NamaMarket.ToUpper())
+                    if(marketplace != null)
                     {
-                        case "LAZADA":
-
-                            break;
+                        switch (marketplace.NamaMarket.ToUpper())
+                        {
+                            case "LAZADA":
+                                new LazadaController().GetBrgLazada(cust, arf01.TOKEN);
+                                break;
+                        }
                     }
+                    
 
                     var barangVm = new UploadBarangViewModel()
                     {
