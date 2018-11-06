@@ -115,17 +115,36 @@
         $(document).ready(function () {
             var d = new Date();
 
+            //change by nurul 6/11/2018
+            //$('#DrBulan').datepicker({
+            //    format: 'MM',
+            //    language: 'id',
+            //    minViewMode: 1
+            //}).datepicker('setDate', d);
+
+            //$('#SdBulan').datepicker({
+            //    format: 'MM',
+            //    language: 'id',
+            //    minViewMode: 1
+            //}).datepicker('setDate', d);
             $('#DrBulan').datepicker({
                 format: 'MM',
                 language: 'id',
                 minViewMode: 1
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#DrBulan').val($(this).val());
+                $(this).datepicker('hide');
+            });
 
             $('#SdBulan').datepicker({
                 format: 'MM',
                 language: 'id',
                 minViewMode: 1
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#SdBulan').val($(this).val());
+                $(this).datepicker('hide');
+            });
+            //end change 
 
             $('#Tahun').val(d.getFullYear());
 
