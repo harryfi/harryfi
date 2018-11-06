@@ -3828,17 +3828,93 @@ namespace MasterOnline.Controllers
             return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpGet]
+        //public ActionResult GetInvoiceBySupp(string kodeSupplier)
+        //{
+        //    //change by nurul 5 / 11 / 2018
+        //    var listInvoice = ErasoftDbContext.PBT01A
+        //                        //change by nurul 5/11/2018  --  
+        //                        .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+        //                        //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+        //                        .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+        //    //string sSQL = "";
+        //    //sSQL += "SELECT * ";
+        //    //sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+        //    //sSQL += "A.JENISFORM = '1' ";
+        //    //sSQL += "AND B.JENISFORM = '2' ";
+        //    //sSQL += "AND A.INV = B.REF ";
+        //    //sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+        //    //sSQL += "AND A.JENISFORM = '1' ";
+        //    //sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+        //    //sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+        //    //var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+        //    //end change 
+        //    var listKodeInvoice = new List<InvoiceJson>();
+
+        //    foreach (var invoice in listInvoice)
+        //    {
+        //        listKodeInvoice.Add(new InvoiceJson()
+        //        {
+        //            RecNum = invoice.RecNum,
+        //            INV = invoice.INV
+        //        });
+        //    }
+
+        //    return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
+        //}
+
         [HttpGet]
         public ActionResult GetInvoiceBySupp(string kodeSupplier)
         {
             //change by nurul 5/11/2018
+            var listInvoice = ErasoftDbContext.PBT01A
+                                //change by nurul 5 / 11 / 2018--
+                                .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+                                //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+                                .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+            //string sSQL = "";
+            ////sSQL += "SELECT A.RecNum, A.INV ";
+            //sSQL += "SELECT * ";
+            //sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+            //sSQL += "A.JENISFORM = '1' ";
+            //sSQL += "AND B.JENISFORM = '2' ";
+            //sSQL += "AND A.INV = B.REF ";
+            //sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+            //sSQL += "AND A.JENISFORM = '1' ";
+            //sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+            //sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+            //var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+            ////end change 
+            var listKodeInvoice = new List<InvoiceJson>();
+
+            foreach (var invoice in listInvoice)
+            {
+                listKodeInvoice.Add(new InvoiceJson()
+                {
+                    RecNum = invoice.RecNum,
+                    INV = invoice.INV
+                });
+            }
+
+            return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
+        }
+
+        //add by nurul 5/11/2018
+        [HttpGet]
+        public ActionResult GetInvoiceBySuppNew(string kodeSupplier)
+        {
+            //change by nurul 5/11/2018
             //var listInvoice = ErasoftDbContext.PBT01A
-            //                    //change by nurul 5/11/2018  --  .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
-            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+            //                    //change by nurul 5 / 11 / 2018--
+            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+            //                    //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
             //                    .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
 
             string sSQL = "";
-            sSQL += "SELECT A.RecNum, A.INV ";
+            //sSQL += "SELECT A.RecNum, A.INV ";
+            sSQL += "SELECT * ";
             sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
             sSQL += "A.JENISFORM = '1' ";
             sSQL += "AND B.JENISFORM = '2' ";
@@ -3862,6 +3938,7 @@ namespace MasterOnline.Controllers
 
             return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
         }
+        //end add
 
         [HttpGet]
         public ActionResult GetListPesanan()
