@@ -861,7 +861,8 @@
         function refreshNetto() {
             $bakalNetto = convertToAngka($('#Invoice_BRUTO').val());
 
-            var $nPpn = Math.ceil($bakalNetto * $('#Invoice_PPN').val() / 100);
+            //change by nurul 6/11/2018 -- var $nPpn = Math.ceil($bakalNetto * $('#Invoice_PPN').val() / 100);
+            var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
             $('#Invoice_NPPN').val(convertToRupiah($nPpn));
 
             $bakalNetto -= convertToAngka($('#Invoice_NDISC1').val());
