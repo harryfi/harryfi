@@ -2372,7 +2372,11 @@ namespace MasterOnline.Controllers
                                     //    var fileExtension = Path.GetExtension(file.FileName);
 
                                     //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+#if AWS
                                     imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#else
+                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#endif
                                     //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
                                     //}
@@ -2421,7 +2425,11 @@ namespace MasterOnline.Controllers
                                     //    var fileExtension = Path.GetExtension(file.FileName);
 
                                     //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+#if AWS
                                     imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#else
+                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#endif
                                     //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
                                     //}
@@ -3876,7 +3884,7 @@ namespace MasterOnline.Controllers
                     noOrder = $"PB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                     ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (PBT01A, RESEED, 0)");
                 }
-                else 
+                else
                 {
                     var lastRecNum = listInvoiceInDb.Last().RecNum;
                     lastRecNum++;
@@ -7513,7 +7521,11 @@ namespace MasterOnline.Controllers
                         for (int i = 0; i < 3; i++)
                         {
                             //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+#if AWS
                             imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#else
+                            imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#endif
                             //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
                         }
 
@@ -9702,7 +9714,11 @@ namespace MasterOnline.Controllers
                     //    var fileExtension = Path.GetExtension(file.FileName);
 
                     //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
-                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+#if AWS
+                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+#else
+                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+#endif
                     //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
                     //}
@@ -9838,7 +9854,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(cust))
             {
                 var arf01 = ErasoftDbContext.ARF01.Where(t => t.CUST.Equals(cust)).FirstOrDefault();
-                if(arf01 != null)
+                if (arf01 != null)
                 {
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
                     switch (marketplace.NamaMarket.ToUpper())

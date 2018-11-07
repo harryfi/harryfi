@@ -15,6 +15,7 @@ using System.IO;
 using Erasoft.Function;
 using System.Xml;
 using System.Web.Script.Serialization;
+using Lib.Web.Mvc;
 
 namespace MasterOnline.Controllers
 {
@@ -59,15 +60,18 @@ namespace MasterOnline.Controllers
                 path = Path.Combine(dirNotFound, "photo_not_available.jpg");
             }
             Byte[] b = System.IO.File.ReadAllBytes(path);
-            FileContentResult res = base.File(b, "image/jpg");
-            res.ExecuteResult(this.ControllerContext);
-            
             //FilePathResult res = base.File(path, "image/jpg");
+            //FilePathResult res = base.File(path, "image/jpg");
+            //FileContentResult res = base.File(b, "image/jpg");
+            //res.ExecuteResult(this.ControllerContext);
+            DateTime modifiedDate = System.IO.File.GetLastWriteTime(path);
+            RangeFileContentResult res = new RangeFileContentResult(b, "image/jpg", "MasterOnlineImage", modifiedDate);
+
             Response.Buffer = true;
-            Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
-            Response.Expires = -1500;
-            Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
+            //Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            //Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
+            //Response.Expires = -1500;
+            //Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
             return res;
         }
 

@@ -90,6 +90,10 @@
     <Reference Include="LazopSdk">
       <HintPath>..\..\..\..\Desktop\lazop-sdk-net-20180422-1524824623939DUoW\net\LazopSdk.dll</HintPath>
     </Reference>
+    <Reference Include="Lib.Web.Mvc, Version=6.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Web.Mvc.6.9.0\lib\net46\Lib.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MailBee.NET, Version=7.2.2.366, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\MailBee.NET.dll</HintPath>
