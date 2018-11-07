@@ -5636,6 +5636,7 @@
     <Content Include="Views\Manage\PromptCustomer.cshtml" />
     <Content Include="Views\Admin\DatabaseMenu.cshtml" />
     <Content Include="Views\Manage\FormBarangUploadsPartial.cshtml" />
+    <Content Include="Views\Admin\GeneratorSqlMenu.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
