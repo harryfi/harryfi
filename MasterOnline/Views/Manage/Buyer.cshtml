@@ -136,9 +136,10 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
-                                                @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun  ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })
+                                                    @*change by nurul 7/11/2018 -- @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })*@
+                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -318,6 +319,18 @@
             //add by nurul 5/10/2018
             if (convertToAngka($("#Pembeli_KODEPOS").val()) > 99999) {
                 addError($("#Pembeli_KODEPOS").parent(), "Maxlength is 5 digits !");
+                return false;
+            }
+            //end add
+            //add by nurul 7/11/2018
+            if ($("#Pembeli_KODEPROV").val() == "") {
+                alert('Silakan isi semua field terlebih dahulu!');
+                addError($("#Pembeli_KODEPROV").parent(), "Kolom ini tidak boleh kosong!");
+                return false;
+            }
+            if ($("#Pembeli_KODEKABKOT").val() == "") {
+                alert('Silakan isi semua field terlebih dahulu!');
+                addError($("#Pembeli_KODEKABKOT").parent(), "Kolom ini tidak boleh kosong!");
                 return false;
             }
             //end add

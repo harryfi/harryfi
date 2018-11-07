@@ -9,18 +9,153 @@
         .row {
             margin-bottom: 16px;
         }
+
+        .right_col {
+            height: 100%;
+        }
+
+        .field {
+            margin-bottom: 10px;
+        }
     </style>
 }
 
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-6">
         @Html.Label("Migration History Query", new { @class = "control-label" })
-        @Html.TextArea("migration_history_query", new {@class = "form-control"})
+        @Html.TextArea("migration_history_query", new { @class = "form-control", rows = "15", style = "resize: vertical;" })
+    </div>
+    <div class="col-md-6">
+        @Html.Label("Column Added", new { @class = "control-label" })
+        <input type="hidden" name="count" value="1" />
+        <div class="control-group" id="fields">
+            <div class="controls" id="profs">
+                <form class="input-append">
+                    <small><span style="font-weight: bold">*NB:</span> Tekan + untuk tambah kolom</small>
+                    <div class="row" id="row1" style="margin-top: 20px;">
+                        <div class="col-md-5">
+                            <input autocomplete="off" class="input form-control" id="field1" name="field1" type="text" placeholder="Nama Field"/>
+                        </div>
+                        <div class="col-md-3">
+                            <select id="type_select_1" class="form-control">
+                                <option>char</option>
+                                <option>varchar</option>
+                                <option>text</option>
+                                <option>nchar</option>
+                                <option>nvarchar</option>
+                                <option>ntext</option>
+                                <option>binary</option>
+                                <option>varbinary</option>
+                                <option>image</option>
+                                <option>bit</option>
+                                <option>tinyint</option>
+                                <option>smallint</option>
+                                <option>int</option>
+                                <option>bigint</option>
+                                <option>decimal</option>
+                                <option>numeric</option>
+                                <option>smallmoney</option>
+                                <option>money</option>
+                                <option>float</option>
+                                <option>real</option>
+                                <option>datetime</option>
+                                <option>datetime2</option>
+                                <option>smalldatetime</option>
+                                <option>date</option>
+                                <option>time</option>
+                                <option>datetimeoffset</option>
+                                <option>timestamp</option>
+                            </select>
+                            <input type="hidden" id="field_type_1" name="field_type_1"/>
+                        </div>
+                        <div class="col-md-3">
+                            <input autocomplete="off" class="input form-control" id="field_length_1" name="field_length_1" type="text" placeholder="Panjang"/>
+                        </div>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button id="b1" class="btn btn-success add-more btn-block" type="button">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="row">
     <div class="col-md-12">
-        @Html.Label("Hasil", new { @class = "control-label" })
-        @Html.TextArea("result_query", new { @class = "form-control" })
+        @Html.Label("Hasil", new { @class = "control-label" }) <br/>
+        <button type="button" class="btn btn-primary" style="margin: 10px 0;">GENERATE QUERY</button>
+        @Html.TextArea("result_query", new { @class = "form-control", rows = "25" })
     </div>
 </div>
+
+@section scripts
+{
+    <script>
+        $(document).ready(function () {
+            var next = 1;
+            $(".add-more").click(function (e) {
+                e.preventDefault();
+                var addto = ".input-append";
+                next = next + 1;
+                var newIn =
+                    '<div class="row" id="row'+ next +'">' +
+                        '<div class="col-md-5">' +
+                            '<input autocomplete="off" class="input form-control" id="field' + next + '" name="field' + next + '" type="text" placeholder="Nama Field">' +
+                        '</div>' +
+                        '<div class="col-md-3">' +
+                            '<select id="type_select_'+ next +'" class="form-control" >' +
+                                '<option>char</option>' +
+                                '<option>varchar</option>' +
+                                '<option>text</option>' +
+                                '<option>nchar</option>' +
+                                '<option>nvarchar</option>' +
+                                '<option>ntext</option>' +
+                                '<option>binary</option>' +
+                                '<option>varbinary</option>' +
+                                '<option>image</option>' +
+                                '<option>bit</option>' +
+                                '<option>tinyint</option>' +
+                                '<option>smallint</option>' +
+                                '<option>int</option>' +
+                                '<option>bigint</option>' +
+                                '<option>decimal</option>' +
+                                '<option>numeric</option>' +
+                                '<option>smallmoney</option>' +
+                                '<option>money</option>' +
+                                '<option>float</option>' +
+                                '<option>real</option>' +
+                                '<option>datetime</option>' +
+                                '<option>datetime2</option>' +
+                                '<option>smalldatetime</option>' +
+                                '<option>date</option>' +
+                                '<option>time</option>' +
+                                '<option>datetimeoffset</option>' +
+                                '<option>timestamp</option>' +
+                            '</select >' +
+                            '<input type="hidden" id="field_type_'+ next +'" name="field_type_'+ next +'" />' +
+                        '</div >' +
+                        '<div class="col-md-3">' +
+                            '<input autocomplete="off" class="input form-control" id="field_length_'+ next +'" name="field_length_'+ next+'" type="text" placeholder="Panjang" />' +
+                        '</div>' +
+                        '<div class="col-md-1">' +
+                            '<button id="remove' + next + '" class="btn btn-danger remove-me btn-square">-</button>' +
+                        '</div>' +
+                    '</div>';
+                var newInput = $(newIn);
+                $(addto).append(newInput);
+                $("#field" + next).attr('data-source', $(addto).attr('data-source'));
+                $("#count").val(next);
+
+                $('.remove-me').click(function (e) {
+                    e.preventDefault();
+                    var fieldNum = this.id.charAt(this.id.length - 1);
+                    var fieldID = "#row" + parseInt(fieldNum);
+                    $(this).remove();
+                    $(fieldID).remove();
+                });
+            });
+        });
+    </script>
+}
