@@ -2244,19 +2244,7 @@ namespace MasterOnline.Controllers
                         #endregion
                         case 2:
                             {
-                                var qtyOnHand = 0d;
-                                {
-                                    object[] spParams = {
-                                            new SqlParameter("@BRG",string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG),
-                                            new SqlParameter("@GD","ALL"),
-                                            new SqlParameter("@Satuan", "2"),
-                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                                        };
-
-                                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                                }
+                                var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
                                 foreach (ARF01 tblCustomer in listBlibli)
                                 {
                                     if (!string.IsNullOrEmpty(tblCustomer.Kode))
@@ -2438,19 +2426,8 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
-                                    var qtyOnHand = 0d;
-                                    {
-                                        object[] spParams = {
-                                            new SqlParameter("@BRG",string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG),
-                                            new SqlParameter("@GD","ALL"),
-                                            new SqlParameter("@Satuan", "2"),
-                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                                        };
-
-                                        ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                                        qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                                    }
+                                    var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
+                                    
                                     EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                                     {
                                         api_key = tblCustomer.API_KEY,
@@ -3082,60 +3059,20 @@ namespace MasterOnline.Controllers
                 }
 
                 //add by calvin, validasi QOH
-                var qtyOnHand = 0d;
+                var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
+                
+                STF11 getQtySO = ErasoftDbContext.Database.SqlQuery<STF11>("SELECT * FROM STF11 WHERE BRG='" + dataVm.FakturDetail.BRG + "'").FirstOrDefault();
+                if (getQtySO != null)
                 {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.FakturDetail.BRG),
-                    new SqlParameter("@GD",dataVm.FakturDetail.GUDANG),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    STF11 getQtySO = ErasoftDbContext.Database.SqlQuery<STF11>("SELECT * FROM STF11 WHERE BRG='" + dataVm.FakturDetail.BRG + "'").FirstOrDefault();
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-
-                    if (getQtySO != null)
-                    {
-                        qtyOnHand = qtyOnHand + Convert.ToDouble(getQtySO.QSO_MSK);
-                    }
+                    qtyOnHand = qtyOnHand + Convert.ToDouble(getQtySO.QSO_MSK);
                 }
 
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
                 {
-                    //var vmError = new FakturViewModel()
-                    //{
-                    //    Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "2"),
-                    //    ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
-                    //    ListBarang = ErasoftDbContext.STF02.ToList(),
-                    //    ListPembeli = ErasoftDbContext.ARF01C.ToList(),
-                    //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    //    ListMarketplace = MoDbContext.Marketplaces.ToList()
-                    //};
                     dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(dataVm, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
-
-                //var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
-                //var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
-                //    b.BRG == dataVm.FakturDetail.BRG && b.GD == dataVm.FakturDetail.GUDANG && b.Tahun == year);
-                //var qtyOnHand = 0d;
-
-                //if (barangForCheck != null)
-                //{
-                //    qtyOnHand = barangForCheck.QAwal + barangForCheck.QM1 + barangForCheck.QM2 + barangForCheck.QM3 + barangForCheck.QM4
-                //                + barangForCheck.QM5 + barangForCheck.QM6 + barangForCheck.QM7 + barangForCheck.QM8 + barangForCheck.QM9
-                //                + barangForCheck.QM10 + barangForCheck.QM11 + barangForCheck.QM12 - barangForCheck.QK1 - barangForCheck.QK2
-                //                - barangForCheck.QK3 - barangForCheck.QK4 - barangForCheck.QK5 - barangForCheck.QK6 - barangForCheck.QK7
-                //                - barangForCheck.QK8 - barangForCheck.QK9 - barangForCheck.QK10 - barangForCheck.QK11 - barangForCheck.QK12;
-                //}
-
-                //if (qtyOnHand < dataVm.FakturDetail.QTY)
-                //{
-                //    dataVm.Errors.Add("Qty penjualan tidak boleh melebihi qty yang ada di gudang!");
-                //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                //}
 
                 dataVm.Faktur.NO_BUKTI = noOrder;
                 dataVm.Faktur.NO_F_PAJAK = "";
@@ -3296,33 +3233,11 @@ namespace MasterOnline.Controllers
                 //}
 
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.FakturDetail.BRG),
-                    new SqlParameter("@GD",dataVm.FakturDetail.GUDANG),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
-
+                var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
+                
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
                 {
-                    //var vmError = new FakturViewModel()
-                    //{
-                    //    Faktur = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "2"),
-                    //    ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "2").ToList(),
-                    //    ListBarang = ErasoftDbContext.STF02.ToList(),
-                    //    ListPembeli = ErasoftDbContext.ARF01C.ToList(),
-                    //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                    //    ListMarketplace = MoDbContext.Marketplaces.ToList()
-                    //};
-
                     dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
-                    //return PartialView("BarangFakturPartial", vmError);
                     return Json(dataVm, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
@@ -4364,18 +4279,7 @@ namespace MasterOnline.Controllers
             var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == invoiceInDb.INV && b.JENISFORM == "1").ToList();
             foreach (var item in invoiceDetailInDb)
             {
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",item.BRG),
-                    new SqlParameter("@GD",item.GD),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
+                var qtyOnHand = GetQOHSTF08A(item.BRG, item.GD);
 
                 if (qtyOnHand - item.QTY < 0)
                 {
@@ -4434,18 +4338,7 @@ namespace MasterOnline.Controllers
                 var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == barangInvoiceInDb.INV && p.JENISFORM == "1");
 
                 //add by calvin, validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",barangInvoiceInDb.BRG),
-                    new SqlParameter("@GD",barangInvoiceInDb.GD),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
+                var qtyOnHand = GetQOHSTF08A(barangInvoiceInDb.BRG, barangInvoiceInDb.GD);
 
                 if (qtyOnHand - barangInvoiceInDb.QTY < 0)
                 {
@@ -5577,21 +5470,8 @@ namespace MasterOnline.Controllers
             barangPesananInDb.QTY_N = qty;
 
             //add by calvin, 22 juni 2018 validasi QOH
-            //var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
-            //foreach (var item in stokDetailInDb)
-            //{
-            var qtyOnHand = 0d;
-            {
-                object[] spParams = {
-                    new SqlParameter("@BRG",barangPesananInDb.BRG),
-                    new SqlParameter("@GD",gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-            }
+            var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
+            
             if (qtyOnHand - qty < 0)
             {
                 var vmError = new StokViewModel()
@@ -6408,18 +6288,7 @@ namespace MasterOnline.Controllers
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Jenis_Form == stokInDb.Jenis_Form && b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
             {
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",item.Kobar),
-                    new SqlParameter("@GD",item.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
+                var qtyOnHand = GetQOHSTF08A(item.Kobar, item.Ke_Gd);
                 if (qtyOnHand - item.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -6456,18 +6325,8 @@ namespace MasterOnline.Controllers
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",barangStokInDb.Kobar),
-                    new SqlParameter("@GD",barangStokInDb.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand - barangStokInDb.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -7451,18 +7310,8 @@ namespace MasterOnline.Controllers
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
             {
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",item.Kobar),
-                    new SqlParameter("@GD",item.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(item.Kobar, item.Ke_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand - item.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -7504,18 +7353,8 @@ namespace MasterOnline.Controllers
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",barangStokInDb.Kobar),
-                    new SqlParameter("@GD",barangStokInDb.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand - barangStokInDb.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -7581,19 +7420,7 @@ namespace MasterOnline.Controllers
             var eleApi = new EleveniaController();
             foreach (string kdBrg in listBrg)
             {
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                                            new SqlParameter("@BRG", kdBrg),
-                                            new SqlParameter("@GD","ALL"),
-                                            new SqlParameter("@Satuan", "2"),
-                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                                        };
-
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
+                var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
 
                 var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrg && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
                 foreach (var stf02h in brgMarketplace)
@@ -7731,18 +7558,8 @@ namespace MasterOnline.Controllers
                     b.BRG == dataVm.BarangStok.Kobar && b.GD == dataVm.BarangStok.Dr_Gd && b.Tahun == year);
 
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.BarangStok.Kobar),
-                    new SqlParameter("@GD",dataVm.BarangStok.Dr_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(dataVm.BarangStok.Kobar, dataVm.BarangStok.Dr_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand < dataVm.BarangStok.Qty)
                 {
                     var vmError = new StokViewModel()
@@ -7801,18 +7618,8 @@ namespace MasterOnline.Controllers
                 //    return Json(dataVm, JsonRequestBehavior.AllowGet);
                 //}
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.BarangStok.Kobar),
-                    new SqlParameter("@GD",dataVm.BarangStok.Dr_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(dataVm.BarangStok.Kobar, dataVm.BarangStok.Dr_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand < dataVm.BarangStok.Qty)
                 {
                     var vmError = new StokViewModel()
@@ -8044,18 +7851,8 @@ namespace MasterOnline.Controllers
             if (dataVm.Stok.ID == null)
             {
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.BarangStok.Kobar),
-                    new SqlParameter("@GD",dataVm.BarangStok.Dr_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(dataVm.BarangStok.Kobar, dataVm.BarangStok.Dr_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand < dataVm.BarangStok.Qty)
                 {
                     var vmError = new StokViewModel()
@@ -8122,18 +7919,8 @@ namespace MasterOnline.Controllers
             else
             {
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",dataVm.BarangStok.Kobar),
-                    new SqlParameter("@GD",dataVm.BarangStok.Dr_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(dataVm.BarangStok.Kobar, dataVm.BarangStok.Dr_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand < dataVm.BarangStok.Qty)
                 {
                     var vmError = new StokViewModel()
@@ -8255,18 +8042,8 @@ namespace MasterOnline.Controllers
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
             {
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",item.Kobar),
-                    new SqlParameter("@GD",item.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(item.Kobar, item.Ke_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand - item.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -8303,18 +8080,8 @@ namespace MasterOnline.Controllers
                 var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
                 //add by calvin, 22 juni 2018 validasi QOH
-                var qtyOnHand = 0d;
-                {
-                    object[] spParams = {
-                    new SqlParameter("@BRG",barangStokInDb.Kobar),
-                    new SqlParameter("@GD",barangStokInDb.Ke_Gd),
-                    new SqlParameter("@Satuan", "2"),
-                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}};
+                var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
 
-                    ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                }
                 if (qtyOnHand - barangStokInDb.Qty < 0)
                 {
                     var vmError = new StokViewModel()
@@ -9742,19 +9509,7 @@ namespace MasterOnline.Controllers
             hJualInDb.HJUAL = hargaJualBaru;
             ErasoftDbContext.SaveChanges();
 
-            var qtyOnHand = 0d;
-            {
-                object[] spParams = {
-                                            new SqlParameter("@BRG", hJualInDb.BRG),
-                                            new SqlParameter("@GD","ALL"),
-                                            new SqlParameter("@Satuan", "2"),
-                                            new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                                            new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                                        };
-
-                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-            }
+            var qtyOnHand = GetQOHSTF08A(hJualInDb.BRG, "ALL");
 
             //add by Tri, update harga ke marketplace
             if (customer.NAMA.Equals(kdLazada))
@@ -9968,7 +9723,7 @@ namespace MasterOnline.Controllers
                 if (arf01 != null)
                 {
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
-                    if(marketplace != null)
+                    if (marketplace != null)
                     {
                         switch (marketplace.NamaMarket.ToUpper())
                         {
@@ -9977,7 +9732,7 @@ namespace MasterOnline.Controllers
                                 break;
                         }
                     }
-                    
+
 
                     var barangVm = new UploadBarangViewModel()
                     {
@@ -9997,6 +9752,22 @@ namespace MasterOnline.Controllers
             }
         }
         // =============================================== Bagian Upload Barang (END)
+        protected double GetQOHSTF08A(string Barang, string Gudang)
+        {
+            double qtyOnHand = 0d;
+            {
+                object[] spParams = {
+                    new SqlParameter("@BRG", Barang),
+                    new SqlParameter("@GD", Gudang),
+                    new SqlParameter("@Satuan", "2"),
+                    new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
+                    new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
+                };
 
+                ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
+            }
+            return qtyOnHand;
+        }
     }
 }
