@@ -257,21 +257,21 @@
                         response.data.NilaiPesananBulanIni > 50000 && response.data.NilaiPesananBulanIni <= 100000 ||
                         response.data.NilaiFakturBulanIni > 50000 && response.data.NilaiFakturBulanIni <= 100000 ||
                         response.data.NilaiReturBulanIni > 50000 && response.data.NilaiReturBulanIni <= 100000) {
-                        steppingValueBasic = 100000;
+                        steppingValueBasic = 50000;
                     } else if (response.data.NilaiPesananHariIni > 100000 && response.data.NilaiPesananHariIni <= 10000000 ||
                         response.data.NilaiFakturHariIni > 100000 && response.data.NilaiFakturHariIni <= 10000000 ||
                         response.data.NilaiReturHariIni > 100000 && response.data.NilaiReturHariIni <= 10000000 ||
                         response.data.NilaiPesananBulanIni > 100000 && response.data.NilaiPesananBulanIni <= 10000000 ||
                         response.data.NilaiFakturBulanIni > 100000 && response.data.NilaiFakturBulanIni <= 10000000 ||
                         response.data.NilaiReturBulanIni > 100000 && response.data.NilaiReturBulanIni <= 10000000) {
-                        steppingValueBasic = 1000000;
+                        steppingValueBasic = 100000;
                     } else if (response.data.NilaiPesananHariIni > 10000000 ||
                         response.data.NilaiFakturHariIni > 10000000 ||
                         response.data.NilaiReturHariIni > 10000000 ||
                         response.data.NilaiPesananBulanIni > 10000000 ||
                         response.data.NilaiFakturBulanIni > 10000000 ||
                         response.data.NilaiReturBulanIni > 10000000) {
-                        steppingValueBasic = 20000000;
+                        steppingValueBasic = 10000000;
                     }
 
                     var ctxNilai = document.getElementById("chart-nilai").getContext('2d');
@@ -445,21 +445,21 @@
                         response.data.NilaiPesananBulanIni > 50000 && response.data.NilaiPesananBulanIni <= 100000 ||
                         response.data.NilaiFakturBulanIni > 50000 && response.data.NilaiFakturBulanIni <= 100000 ||
                         response.data.NilaiReturBulanIni > 50000 && response.data.NilaiReturBulanIni <= 100000) {
-                        steppingValueByMarket = 100000;
+                        steppingValueByMarket = 50000;
                     } else if (response.data.NilaiPesananHariIni > 100000 && response.data.NilaiPesananHariIni <= 10000000 ||
                         response.data.NilaiFakturHariIni > 100000 && response.data.NilaiFakturHariIni <= 10000000 ||
                         response.data.NilaiReturHariIni > 100000 && response.data.NilaiReturHariIni <= 10000000 ||
                         response.data.NilaiPesananBulanIni > 100000 && response.data.NilaiPesananBulanIni <= 10000000 ||
                         response.data.NilaiFakturBulanIni > 100000 && response.data.NilaiFakturBulanIni <= 10000000 ||
                         response.data.NilaiReturBulanIni > 100000 && response.data.NilaiReturBulanIni <= 10000000) {
-                        steppingValueByMarket = 1000000;
+                        steppingValueByMarket = 100000;
                     } else if (response.data.NilaiPesananHariIni > 10000000 ||
                         response.data.NilaiFakturHariIni > 10000000 ||
                         response.data.NilaiReturHariIni > 10000000 ||
                         response.data.NilaiPesananBulanIni > 10000000 ||
                         response.data.NilaiFakturBulanIni > 10000000 ||
                         response.data.NilaiReturBulanIni > 10000000) {
-                        steppingValueByMarket = 20000000;
+                        steppingValueByMarket = 10000000;
                     }
 
                     var ctxNilaiPerMarket = document.getElementById("chart-nilai-per-market").getContext('2d');
