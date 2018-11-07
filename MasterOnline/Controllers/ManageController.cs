@@ -2427,7 +2427,7 @@ namespace MasterOnline.Controllers
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
                                     var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
-                                    
+
                                     EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                                     {
                                         api_key = tblCustomer.API_KEY,
@@ -3060,7 +3060,7 @@ namespace MasterOnline.Controllers
 
                 //add by calvin, validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
-                
+
                 STF11 getQtySO = ErasoftDbContext.Database.SqlQuery<STF11>("SELECT * FROM STF11 WHERE BRG='" + dataVm.FakturDetail.BRG + "'").FirstOrDefault();
                 if (getQtySO != null)
                 {
@@ -3234,7 +3234,7 @@ namespace MasterOnline.Controllers
 
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
-                
+
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
                 {
                     dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
@@ -3612,6 +3612,24 @@ namespace MasterOnline.Controllers
             var fakturInDbWithRef = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == returFakturInDb.NO_REF && p.JENIS_FORM == "2");
             fakturInDbWithRef.NO_REF = "";
 
+            //add by calvin, validasi QOH
+            var returFakturDetailInDb = ErasoftDbContext.SIT01B.Where(b => b.NO_BUKTI == returFakturInDb.NO_BUKTI && b.JENIS_FORM == "3").ToList();
+            foreach (var item in returFakturDetailInDb)
+            {
+                var qtyOnHand = GetQOHSTF08A(item.BRG, item.GUDANG);
+
+                if (qtyOnHand - item.QTY < 0)
+                {
+                    var vmError = new InvoiceViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            }
+            //end add by calvin, validasi QOH
+
             ErasoftDbContext.SIT01A.Remove(returFakturInDb);
             ErasoftDbContext.SaveChanges();
 
@@ -3667,6 +3685,20 @@ namespace MasterOnline.Controllers
             {
                 var barangFakturInDb = ErasoftDbContext.SIT01B.Single(b => b.NO_URUT == noUrut && b.JENIS_FORM == "3");
                 var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == barangFakturInDb.NO_BUKTI && p.JENIS_FORM == "3");
+
+                //add by calvin, validasi QOH
+                var qtyOnHand = GetQOHSTF08A(barangFakturInDb.BRG, barangFakturInDb.GUDANG);
+
+                if (qtyOnHand - barangFakturInDb.QTY < 0)
+                {
+                    var vmError = new InvoiceViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //end add by calvin, validasi QOH
 
                 fakturInDb.BRUTO -= barangFakturInDb.HARGA;
                 fakturInDb.NILAI_PPN = Math.Ceiling((double)fakturInDb.PPN * (double)fakturInDb.BRUTO / 100);
@@ -3988,23 +4020,23 @@ namespace MasterOnline.Controllers
                         noOrder = $"RB{DateTime.Now.Year.ToString().Substring(2, 2)}{digitAkhir}";
                     }
 
-                    //var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
-                    //var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
-                    //    b.BRG == dataVm.InvoiceDetail.BRG && b.GD == dataVm.InvoiceDetail.GD && b.Tahun == year);
-                    //var qtyOnHand = 0d;
-                    //if (barangForCheck != null)
-                    //{
-                    //    qtyOnHand = barangForCheck.QAwal + barangForCheck.QM1 + barangForCheck.QM2 + barangForCheck.QM3 + barangForCheck.QM4
-                    //                + barangForCheck.QM5 + barangForCheck.QM6 + barangForCheck.QM7 + barangForCheck.QM8 + barangForCheck.QM9
-                    //                + barangForCheck.QM10 + barangForCheck.QM11 + barangForCheck.QM12 - barangForCheck.QK1 - barangForCheck.QK2
-                    //                - barangForCheck.QK3 - barangForCheck.QK4 - barangForCheck.QK5 - barangForCheck.QK6 - barangForCheck.QK7
-                    //                - barangForCheck.QK8 - barangForCheck.QK9 - barangForCheck.QK10 - barangForCheck.QK11 - barangForCheck.QK12;
-                    //}
-                    //if (qtyOnHand < dataVm.InvoiceDetail.QTY)
-                    //{
-                    //    dataVm.Errors.Add("Qty retur pembelian tidak boleh melebihi qty yang ada di gudang!");
-                    //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                    //}
+                    //add by calvin, validasi QOH
+                    var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == dataVm.Invoice.REF).ToList();
+                    foreach (var item in invoiceDetailInDb)
+                    {
+                        var qtyOnHand = GetQOHSTF08A(item.BRG, item.GD);
+
+                        if (qtyOnHand - item.QTY < 0)
+                        {
+                            var vmError = new InvoiceViewModel()
+                            {
+
+                            };
+                            vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + item.BRG + " ) di gudang " + item.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                            return Json(vmError, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                    //end add by calvin, validasi QOH
 
                     var returInDb = ErasoftDbContext.PBT01A.SingleOrDefault(f => f.INV == dataVm.Invoice.REF);
                     if (returInDb != null)
@@ -4037,29 +4069,23 @@ namespace MasterOnline.Controllers
             {
                 var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
 
-                //var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
-                //var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
-                //    b.BRG == dataVm.InvoiceDetail.BRG && b.GD == dataVm.InvoiceDetail.GD && b.Tahun == year);
-                //var qtyOnHand = 0d;
-
-                //if (barangForCheck != null)
-                //{
-                //    qtyOnHand = barangForCheck.QAwal + barangForCheck.QM1 + barangForCheck.QM2 + barangForCheck.QM3 + barangForCheck.QM4
-                //                + barangForCheck.QM5 + barangForCheck.QM6 + barangForCheck.QM7 + barangForCheck.QM8 + barangForCheck.QM9
-                //                + barangForCheck.QM10 + barangForCheck.QM11 + barangForCheck.QM12 - barangForCheck.QK1 - barangForCheck.QK2
-                //                - barangForCheck.QK3 - barangForCheck.QK4 - barangForCheck.QK5 - barangForCheck.QK6 - barangForCheck.QK7
-                //                - barangForCheck.QK8 - barangForCheck.QK9 - barangForCheck.QK10 - barangForCheck.QK11 - barangForCheck.QK12;
-                //}
-
-                //if (qtyOnHand < dataVm.InvoiceDetail.QTY)
-                //{
-                //    dataVm.Errors.Add("Qty retur pembelian tidak boleh melebihi qty yang ada di gudang!");
-                //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                //}
-
-
                 //UPDATE ANAK
                 var invDetailDb = ErasoftDbContext.PBT01B.Single(p => p.INV == dataVm.Invoice.INV && p.BRG == dataVm.InvoiceDetail.BRG);
+
+                //add by calvin, validasi QOH
+                var qtyOnHand = GetQOHSTF08A(invDetailDb.BRG, invDetailDb.GD);
+
+                if (qtyOnHand + invDetailDb.QTY - dataVm.InvoiceDetail.QTY < 0)
+                {
+                    var vmError = new InvoiceViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //end add by calvin, validasi QOH
+
                 invDetailDb.QTY = dataVm.InvoiceDetail.QTY;
                 invDetailDb.NILAI_DISC_1 = dataVm.InvoiceDetail.NILAI_DISC_1;
                 invDetailDb.NILAI_DISC_2 = dataVm.InvoiceDetail.NILAI_DISC_2;
@@ -5471,7 +5497,7 @@ namespace MasterOnline.Controllers
 
             //add by calvin, 22 juni 2018 validasi QOH
             var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
-            
+
             if (qtyOnHand - qty < 0)
             {
                 var vmError = new StokViewModel()
@@ -7318,7 +7344,7 @@ namespace MasterOnline.Controllers
                     {
 
                     };
-                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    vmError.Errors.Add("Tidak bisa delete, Qty barang ( " + item.Kobar + " ) di gudang " + item.Ke_Gd + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 brg.Add(item.Kobar);//add by Tri, 21 agustus 2018
@@ -7601,22 +7627,7 @@ namespace MasterOnline.Controllers
                 var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
                 var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
                     b.BRG == dataVm.BarangStok.Kobar && b.GD == dataVm.BarangStok.Dr_Gd && b.Tahun == year);
-                //var qtyOnHand = 0d;
 
-                //if (barangForCheck != null)
-                //{
-                //    qtyOnHand = barangForCheck.QAwal + barangForCheck.QM1 + barangForCheck.QM2 + barangForCheck.QM3 + barangForCheck.QM4
-                //                + barangForCheck.QM5 + barangForCheck.QM6 + barangForCheck.QM7 + barangForCheck.QM8 + barangForCheck.QM9
-                //                + barangForCheck.QM10 + barangForCheck.QM11 + barangForCheck.QM12 - barangForCheck.QK1 - barangForCheck.QK2
-                //                - barangForCheck.QK3 - barangForCheck.QK4 - barangForCheck.QK5 - barangForCheck.QK6 - barangForCheck.QK7
-                //                - barangForCheck.QK8 - barangForCheck.QK9 - barangForCheck.QK10 - barangForCheck.QK11 - barangForCheck.QK12;
-                //}
-
-                //if (qtyOnHand < dataVm.BarangStok.Qty)
-                //{
-                //    dataVm.Errors.Add("Qty transaksi keluar tidak boleh melebihi qty yang ada di gudang!");
-                //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                //}
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.BarangStok.Kobar, dataVm.BarangStok.Dr_Gd);
 
@@ -8050,7 +8061,7 @@ namespace MasterOnline.Controllers
                     {
 
                     };
-                    vmError.Errors.Add("Tidak bisa dihapus, Qty di gudang " + Convert.ToString(item.Ke_Gd) + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                    vmError.Errors.Add("Tidak bisa dihapus, Qty Barang ( " + item.Kobar + " ) di gudang " + Convert.ToString(item.Ke_Gd) + " sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //add by nurul 13/9/2018

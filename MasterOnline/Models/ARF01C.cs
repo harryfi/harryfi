@@ -169,7 +169,8 @@ namespace MasterOnline
         [StringLength(7)]
         public string KODEPOS { get; set; }
 
-        [Required]
+        //remark by calvin 7 nov 2018, mba rahma minta email bisa kosong
+        //[Required]
         [StringLength(50)]
         public string EMAIL { get; set; }
 
