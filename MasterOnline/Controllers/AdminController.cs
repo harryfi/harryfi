@@ -623,5 +623,10 @@ namespace MasterOnline.Controllers
 
             return View("PartnerMenu", vm);
         }
+
+        public ActionResult GeneratorSqlMenu()
+        {
+            return View();
+        }
     }
 }

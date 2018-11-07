@@ -1,0 +1,26 @@
+﻿
+@{
+    ViewBag.Title = "Generator SQL";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+@section styles {
+    <style>
+        .row {
+            margin-bottom: 16px;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        @Html.Label("Migration History Query", new { @class = "control-label" })
+        @Html.TextArea("migration_history_query", new {@class = "form-control"})
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        @Html.Label("Hasil", new { @class = "control-label" })
+        @Html.TextArea("result_query", new { @class = "form-control" })
+    </div>
+</div>
