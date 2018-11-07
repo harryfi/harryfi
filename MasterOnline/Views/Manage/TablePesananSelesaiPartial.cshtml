@@ -37,7 +37,7 @@
                 <td>@NamaMarket</td>
                 <td>
                     @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                    @(buyer.NAMA + " (" + pelanggan.PERSO + ")")
+                    @(buyer.NAMA + " (" + pelanggan?.PERSO + ")")
                 </td>
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
                 <td class="edit-hapus-col">

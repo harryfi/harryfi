@@ -451,6 +451,10 @@
     <Compile Include="ErasoftContextMigrations\201811020846209_add_cust_tempBrgMp.Designer.cs">
       <DependentUpon>201811020846209_add_cust_tempBrgMp.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.cs" />
+    <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.Designer.cs">
+      <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5836,6 +5840,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201811020846209_add_cust_tempBrgMp.resx">
       <DependentUpon>201811020846209_add_cust_tempBrgMp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.resx">
+      <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
