@@ -676,6 +676,9 @@
                         alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
                         //$this.hide();
+                        //add by nurul 2/11/2018
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end add 
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -708,7 +711,8 @@
         function refreshNetto() {
             $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
 
-            var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
+            //change by nurul 6/11/2018 -- var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
+            var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Faktur_NILAI_DISC').val()))) * parseInt($('#Faktur_PPN').val()) / 100);
             $('#Faktur_NILAI_PPN').val(convertToRupiah($nPpn));
 
             $bakalNetto -= convertToAngka($('#Faktur_NILAI_DISC').val());
@@ -991,16 +995,24 @@
                         }
                     });
 
-                    //$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
-                    //if (!baru) {
-                    //setTimeout(function () {
-                    //$('#CUSTOMER')[0].selectize.disable();
-                    //$('#FAKTUR')[0].selectize.disable();
-                    $("#TGL").attr("disabled", true);
-                    $("#TGL_BTN").attr('disabled', 'disabled');
-                    //}, 1000);
-                    faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
-                    //}
+                    //change by nurul 7/11/2018
+                    ////$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
+                    ////if (!baru) {
+                    ////setTimeout(function () {
+                    ////$('#CUSTOMER')[0].selectize.disable();
+                    ////$('#FAKTUR')[0].selectize.disable();
+                    //$("#TGL").attr("disabled", true);
+                    //$("#TGL_BTN").attr('disabled', 'disabled');
+                    ////}, 1000);
+                    //faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    ////}
+
+                    if ($("#NOBUK_FAKTUR").val() != null && $("#NOBUK_FAKTUR").val() != "") {
+                        $("#TGL").attr("disabled", true);
+                        $("#TGL_BTN").attr('disabled', 'disabled');
+                        faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    }
+                    //end change 
 
                 },
                 error: function (xhr) {
@@ -1068,7 +1080,8 @@
                                 });
 
                                 $('tr[data-faktur-id="0"]').hide();
-                                $('#btn-simpan-perubahan-row').show();
+                                //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                                $('#btn-simpan-perubahan-row').hide();
                                 $("#btn-autoload-row").hide();
                                 $('#loading_spinner').hide();
 
@@ -1172,7 +1185,8 @@
                     });
                     $('tr[data-faktur-id="0"]').remove();
 
-                    $('#btn-simpan-perubahan-row').show();
+                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    $('#btn-simpan-perubahan-row').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1205,7 +1219,8 @@
                     });
 
                     $('tr[data-faktur-id="0"]').hide();
-                    $('#btn-simpan-perubahan-row').show();
+                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    $('#btn-simpan-perubahan-row').hide();
                     $("#btn-autoload-row").hide();
                     $('#loading_spinner').hide();
                 },
@@ -1383,7 +1398,8 @@
                                 $(this).attr('disabled', 'disabled');
                             });
 
-                            $('#btn-simpan-perubahan-row').show();
+                            //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                            $('#btn-simpan-perubahan-row').hide();
                             $('#btn-autoload-row').hide();
                             $('tr[data-faktur-id="0"]').hide();
                             $('#loading_spinner').hide();
@@ -1431,7 +1447,8 @@
                     $nettoSebelumnya += $bakalNetto;
                     $('tr[data-faktur-id="0"]').hide();
                     $("#btn-autoload-row").hide();
-                    $('#btn-simpan-perubahan-row').show();
+                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    $('#btn-simpan-perubahan-row').hide();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },

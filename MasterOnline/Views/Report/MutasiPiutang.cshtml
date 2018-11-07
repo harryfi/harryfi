@@ -84,11 +84,20 @@
 
     <script>
         var promptCust = "";
-        $(document).ready(function() {
+        $(document).ready(function () {
+            //change by nurul 6/11/2018
+            //$('#CutOffDate').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0');
             $('#CutOffDate').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', '0');
+            }).datepicker('setDate', '0').change(function () {
+                $('#CutOffDate').val($(this).val());
+                $(this).datepicker('hide');
+            });
+            //end change 
 
             $('#preview-report').click(function() {
                 previewing();

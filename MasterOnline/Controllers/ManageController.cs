@@ -3836,12 +3836,65 @@ namespace MasterOnline.Controllers
             return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
         }
 
+        //[HttpGet]
+        //public ActionResult GetInvoiceBySupp(string kodeSupplier)
+        //{
+        //    //change by nurul 5 / 11 / 2018
+        //    var listInvoice = ErasoftDbContext.PBT01A
+        //                        //change by nurul 5/11/2018  --  
+        //                        .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+        //                        //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+        //                        .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+        //    //string sSQL = "";
+        //    //sSQL += "SELECT * ";
+        //    //sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+        //    //sSQL += "A.JENISFORM = '1' ";
+        //    //sSQL += "AND B.JENISFORM = '2' ";
+        //    //sSQL += "AND A.INV = B.REF ";
+        //    //sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+        //    //sSQL += "AND A.JENISFORM = '1' ";
+        //    //sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+        //    //sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+        //    //var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+        //    //end change 
+        //    var listKodeInvoice = new List<InvoiceJson>();
+
+        //    foreach (var invoice in listInvoice)
+        //    {
+        //        listKodeInvoice.Add(new InvoiceJson()
+        //        {
+        //            RecNum = invoice.RecNum,
+        //            INV = invoice.INV
+        //        });
+        //    }
+
+        //    return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
+        //}
+
         [HttpGet]
         public ActionResult GetInvoiceBySupp(string kodeSupplier)
         {
+            //change by nurul 5/11/2018
             var listInvoice = ErasoftDbContext.PBT01A
+                                //change by nurul 5 / 11 / 2018--
                                 .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+                                //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
                                 .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+            //string sSQL = "";
+            ////sSQL += "SELECT A.RecNum, A.INV ";
+            //sSQL += "SELECT * ";
+            //sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+            //sSQL += "A.JENISFORM = '1' ";
+            //sSQL += "AND B.JENISFORM = '2' ";
+            //sSQL += "AND A.INV = B.REF ";
+            //sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+            //sSQL += "AND A.JENISFORM = '1' ";
+            //sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+            //sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+            //var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+            ////end change 
             var listKodeInvoice = new List<InvoiceJson>();
 
             foreach (var invoice in listInvoice)
@@ -3855,6 +3908,45 @@ namespace MasterOnline.Controllers
 
             return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 5/11/2018
+        [HttpGet]
+        public ActionResult GetInvoiceBySuppNew(string kodeSupplier)
+        {
+            //change by nurul 5/11/2018
+            //var listInvoice = ErasoftDbContext.PBT01A
+            //                    //change by nurul 5 / 11 / 2018--
+            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
+            //                    //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
+            //                    .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
+
+            string sSQL = "";
+            //sSQL += "SELECT A.RecNum, A.INV ";
+            sSQL += "SELECT * ";
+            sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
+            sSQL += "A.JENISFORM = '1' ";
+            sSQL += "AND B.JENISFORM = '2' ";
+            sSQL += "AND A.INV = B.REF ";
+            sSQL += "WHERE ISNULL(B.INV, '') = '' ";
+            sSQL += "AND A.JENISFORM = '1' ";
+            sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
+            sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
+            var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
+            //end change 
+            var listKodeInvoice = new List<InvoiceJson>();
+
+            foreach (var invoice in listInvoice)
+            {
+                listKodeInvoice.Add(new InvoiceJson()
+                {
+                    RecNum = invoice.RecNum,
+                    INV = invoice.INV
+                });
+            }
+
+            return Json(listKodeInvoice, JsonRequestBehavior.AllowGet);
+        }
+        //end add
 
         [HttpGet]
         public ActionResult GetListPesanan()
@@ -4452,7 +4544,8 @@ namespace MasterOnline.Controllers
             invoiceInDb.BRUTO = dataUpdate.Bruto;
             invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
             invoiceInDb.PPN = dataUpdate.Ppn;
-            invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            //change by nurul 6/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            invoiceInDb.NPPN = ((dataUpdate.Bruto - invoiceInDb.NDISC1) * invoiceInDb.PPN / 100);
             //invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
             invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
 
@@ -9806,20 +9899,38 @@ namespace MasterOnline.Controllers
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
-
+                Stf02 = new STF02(),
             };
 
             return View(barangVm);
         }
 
-        public ActionResult RefreshTableUploadBarang()
+        public ActionResult RefreshTableUploadBarang(string cust)
+        {
+            var barangVm = new UploadBarangViewModel()
+            {
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02()
+            };
+
+            return PartialView("TableUploadBarangPartial", barangVm);
+        }
+
+        public ActionResult EditBarangUpload(string brg_mp)
         {
             var barangVm = new UploadBarangViewModel()
             {
                 ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                Stf02 = new STF02(),
+                TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).FirstOrDefault(),
+                ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
+                ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
+
             };
 
-            return PartialView("TableUploadBarangPartial", barangVm);
+            return PartialView("FormBarangUploadsPartial", barangVm);
         }
 
         [Route("manage/PromptCustomer")]
@@ -9857,12 +9968,16 @@ namespace MasterOnline.Controllers
                 if (arf01 != null)
                 {
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
-                    switch (marketplace.NamaMarket.ToUpper())
+                    if(marketplace != null)
                     {
-                        case "LAZADA":
-
-                            break;
+                        switch (marketplace.NamaMarket.ToUpper())
+                        {
+                            case "LAZADA":
+                                new LazadaController().GetBrgLazada(cust, arf01.TOKEN);
+                                break;
+                        }
                     }
+                    
 
                     var barangVm = new UploadBarangViewModel()
                     {

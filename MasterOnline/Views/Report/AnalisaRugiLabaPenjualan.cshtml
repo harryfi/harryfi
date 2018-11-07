@@ -124,15 +124,32 @@
         $(document).ready(function () {
             var d = new Date();
 
+            //change by nurul 6/11/2018
+            //$('#DrTanggal').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id',
+            //}).datepicker('setDate', d);
+
+            //$('#SdTanggal').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0');
+
             $('#DrTanggal').datepicker({
                 format: 'dd/mm/yyyy',
-                language: 'id',
-            }).datepicker('setDate', d);
-
+                language: 'id'
+            }).datepicker('setDate', d).change(function () {
+                $('#DrTanggal').val($(this).val());
+                $(this).datepicker('hide');
+            });
             $('#SdTanggal').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', '0');
+            }).datepicker('setDate', '0').change(function () {
+                $('#SdTanggal').val($(this).val());
+                $(this).datepicker('hide');
+            });
+            //end change
 
             $('#prompt-daricustomer').click(function () {
                 promptCust = "1";

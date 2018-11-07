@@ -1615,6 +1615,12 @@
             $('.pesanan_editor_section').hide();
             refreshForm1();
             refreshTablePesanan();
+            //add by nurul 6/11/2018
+            $('#myTab li a').each(function (index) {
+                $(this).attr('data-toggle', 'tab');
+                $(this).removeClass('disabled-tab');
+            });
+            //end add by nurul 6/11/2018
             //add by nurul 1/11/2018
             $modeEdit = 0;
             //end add
@@ -1723,6 +1729,23 @@
                     $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
                 }
             });
+
+            //add by nurul 6/11/2018
+            $('#Pesanan_TERM').blur(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Pesanan_TGL_JTH_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+                }
+            });
+            //end add
 
             refreshInputan();
             refreshNetto();
@@ -2037,6 +2060,12 @@
                         alert('Data faktur berhasil di-update');
                         $('#loading_spinner').hide();
                         $('#btn-simpan-perubahan-row').hide();
+                        //add by nurul 6/11/2018
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 6/11/2018
                     },
                     error: function(xhr) {
                         console.log(xhr);
@@ -2460,7 +2489,7 @@
                                     $("#Pesanan_TERM").val($objSup[0].term).change();
                                 }
 
-                                getTanggal();
+                                //getTanggal();
                                 getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
@@ -3607,7 +3636,7 @@
                                 //    $("#Pesanan_TERM").val($objSup[0].term).change();
                                 //}
 
-                                getTanggal();
+                                //getTanggal();
                                 getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();

@@ -19,14 +19,51 @@
     <thead>
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 60px;">Seller Sku</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 60px;">Toko</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 120px;">Nama</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 65px;">Merk</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Harga Jual</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Kode Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px;">Satuan</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Upload</th>
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px;">Satuan</th>*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Lihat</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 45px;">Hapus</th>*@
         </tr>
     </thead>
-    <tbody></tbody>
+    <tbody>
+        @foreach (var barang in Model.ListTempBrg)
+        {
+            var pelanggan = Model.ListMarket.FirstOrDefault(m => m.CUST == barang.CUST);
+            var namaToko = "";
+            if (pelanggan != null)
+            {
+                namaToko = pelanggan.PERSO;
+            }
+            var market = context.Marketplaces.FirstOrDefault(m => m.IdMarket == barang.IDMARKET);
+            var NamaMarket = "";
+            if (market != null)
+            {
+                NamaMarket = market.NamaMarket;
+            }
+        <tr>
+            <td>@barang.BRG_MP</td>
+            <td>
+                @(NamaMarket + " (" + namaToko + ")")
+            </td>
+            <td>@barang.NAMA @barang.NAMA2</td>
+            <td>@barang.MEREK</td>
+            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>
+            <td>@barang.BRG_MP</td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-primary" onclick="editBarang('@barang.BRG_MP')">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </button>
+            </td>
+            @*<td class="edit-hapus-col">
+                <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusBarang" onclick="pass('@barang.BRG', '@barang.NAMA @barang.NAMA2')">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+            </td>*@
+        </tr>
+}
+    </tbody>
 </table>
