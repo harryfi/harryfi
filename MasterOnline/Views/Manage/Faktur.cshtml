@@ -1169,7 +1169,12 @@
 
             refreshForm1();
 
-
+            //add by nurul 6/11/2018
+            $('#myTab li a').each(function (index) {
+                $(this).attr('data-toggle', 'tab');
+                $(this).removeClass('disabled-tab');
+            });
+            //end add by nurul 6/11/2018
 
             $modeEdit = 0;
 
@@ -1469,6 +1474,22 @@
                     $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
                 }
             });
+            //add by nurul 6/11/2018
+            $('#Faktur_TERM').blur(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Faktur_TGL_JT_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                }
+            });
+            //end add 
 
             // ==== Update Data ====
             $('#Faktur_NILAI_DISC').change(function () {
@@ -1530,6 +1551,12 @@
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
                         //end change by calvin 7 juni 2018
+                        //add by nurul 6/11/2018
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 6/11/2018
                     },
                     error: function (xhr) {
                         $('#loading_spinner').hide();

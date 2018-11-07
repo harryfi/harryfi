@@ -995,16 +995,24 @@
                         }
                     });
 
-                    //$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
-                    //if (!baru) {
-                    //setTimeout(function () {
-                    //$('#CUSTOMER')[0].selectize.disable();
-                    //$('#FAKTUR')[0].selectize.disable();
-                    $("#TGL").attr("disabled", true);
-                    $("#TGL_BTN").attr('disabled', 'disabled');
-                    //}, 1000);
-                    faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
-                    //}
+                    //change by nurul 7/11/2018
+                    ////$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
+                    ////if (!baru) {
+                    ////setTimeout(function () {
+                    ////$('#CUSTOMER')[0].selectize.disable();
+                    ////$('#FAKTUR')[0].selectize.disable();
+                    //$("#TGL").attr("disabled", true);
+                    //$("#TGL_BTN").attr('disabled', 'disabled');
+                    ////}, 1000);
+                    //faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    ////}
+
+                    if ($("#NOBUK_FAKTUR").val() != null && $("#NOBUK_FAKTUR").val() != "") {
+                        $("#TGL").attr("disabled", true);
+                        $("#TGL_BTN").attr('disabled', 'disabled');
+                        faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    }
+                    //end change 
 
                 },
                 error: function (xhr) {
