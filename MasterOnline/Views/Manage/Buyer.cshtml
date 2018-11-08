@@ -21,7 +21,11 @@
 @section styles
 {
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
-
+    <style>
+        .dont_validate_empty {
+            height: 100px;
+        }
+    </style>
     <style>
         #pembeli-section > div {
             background-color: #fff;
@@ -139,7 +143,7 @@
                                                 @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun  ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*change by nurul 7/11/2018 -- @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email" })
+                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type="email"})
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -151,14 +155,14 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Pembeli.KODEPROV)
+                                                    @Html.HiddenFor(m => m.Pembeli.KODEPROV, new { @class = "form-control", required = "required" })
                                                     <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Pembeli.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Pembeli.KODEKABKOT)
+                                                    @Html.HiddenFor(m => m.Pembeli.KODEKABKOT, new { @class = "form-control", required = "required" })
                                                     <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
@@ -261,6 +265,7 @@
             if ($('.message-error').text() !== '') {
                 $('#tambah_pembeli').click();
             }
+            
 
             getKabKot();
             resetKabKot();
@@ -289,6 +294,20 @@
                 }
                 });
             //end add
+            //add by nurul 7/11/2018
+            $('#Pembeli_KODEPROV, #KODEPROV').keydown(
+                function () {
+                    if ($('#Pembeli_KODEPROV').val() == "") {
+                        addError($('#Pembeli_KODEPROV').parent(), "Kolom ini tidak boleh kosong!");
+                    }
+                });
+            $('#Pembeli_KODEKABKOT, #KODEKABKOT').keydown(
+                function () {
+                    if ($('#Pembeli_KODEKABKOT').val() == "") {
+                        addError($('#Pembeli_KODEKABKOT').parent(), "Kolom ini tidak boleh kosong!");
+                    }
+                });
+            //end add
             //add by nruul 18/10/2018
             $("#Pembeli_KODEPOS").keydown(
                 function () {
@@ -299,6 +318,15 @@
                     validateInput($(this), 'ANGKA');
                 });
             //END ADD
+            //$('#Pembeli_EMAIL').keyup(
+            //    function () {
+            //        var keyCode = e.keyCode || e.which;
+            //        if ($('#Pembeli_EMAIL').val() == "") {
+            //            if (keyCode == 13 || keyCode == 9) {
+            //                resetError();
+            //            }
+            //        }
+            //    });
         }
         function convertToAngka(rupiah) {
 
