@@ -3640,7 +3640,7 @@ namespace MasterOnline.Controllers
             var returFakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "3");
             var fakturInDbWithRef = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == returFakturInDb.NO_REF && p.JENIS_FORM == "2");
             fakturInDbWithRef.NO_REF = "";
-            
+
             //add by calvin 8 nov 2018, update stok marketplace
             List<string> listBrg = new List<string>();
             //end add by calvin 8 nov 2018
@@ -4176,7 +4176,7 @@ namespace MasterOnline.Controllers
                 };
 
                 ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PEMBELIAN] @NOBUK, @NO_REF", spParams);
-                
+
                 //add by calvin 8 nov 2018, update stok marketplace
                 List<string> listBrg = new List<string>();
                 var detailReturInvoiceInDb = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
@@ -9036,14 +9036,51 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SIT01B.AddRange(newFaktursDetails);
                         ErasoftDbContext.SaveChanges();
 
+                        newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
+                        newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
+                        ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                        ErasoftDbContext.SaveChanges();
+
                         transaction.Commit();
                     }
                     catch (Exception ex)
                     {
-                        transaction.Rollback();
-                        message = "Faktur Tokopedia gagal diupload, terjadi error." + System.Environment.NewLine;
-                        message += "Error : " + (ex.InnerException.Message == null ? ex.Message : ex.InnerException.Message);
-                        tw.WriteLine(message);
+                        try
+                        {
+                            ErasoftDbContext.ARF01C.RemoveRange(newARF01Cs);
+                        }
+                        catch (Exception)
+                        { }
+                        try
+                        {
+                            ErasoftDbContext.SIT01A.RemoveRange(newFakturs);
+                        }
+                        catch (Exception)
+                        { }
+                        try
+                        {
+                            ErasoftDbContext.SIT01B.RemoveRange(newFaktursDetails);
+                        }
+                        catch (Exception)
+                        { }
+
+                        try
+                        {
+                            message = "Faktur Tokopedia gagal diupload, terjadi error." + System.Environment.NewLine;
+                            message += "Error : " + (ex.InnerException == null ? ex.Message : (ex.InnerException.InnerException == null ? ex.InnerException.Message : ex.InnerException.InnerException.Message));
+                            tw.WriteLine(message);
+
+                            newLogImportFaktur.LAST_FAKTUR_UPLOADED = "Error. Gagal Upload.";
+                            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = DateTime.Now;
+                            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
+                            ErasoftDbContext.SaveChanges();
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex2)
+                        {
+                            transaction.Rollback();
+                        }
                     }
                 }
                 #endregion
@@ -9051,10 +9088,6 @@ namespace MasterOnline.Controllers
                 tw.Close();
             }
 
-            newLogImportFaktur.LAST_FAKTUR_UPLOADED = lastFakturInUpload;
-            newLogImportFaktur.LAST_FAKTUR_UPLOADED_DATETIME = lastFakturDateInUpload;
-            ErasoftDbContext.LOG_IMPORT_FAKTUR.Add(newLogImportFaktur);
-            ErasoftDbContext.SaveChanges();
 
             var partialVm = new FakturViewModel()
             {
@@ -9957,7 +9990,7 @@ namespace MasterOnline.Controllers
             }
 
             //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-            
+
             double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
             qtyOnHand = qtyOnHand - qtySO;
             return qtyOnHand;

@@ -2203,6 +2203,8 @@ namespace MasterOnline.Controllers
                         //using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                         string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
@@ -2354,6 +2356,8 @@ namespace MasterOnline.Controllers
                             bool insertAttribute = false;
 #if AWS
                             string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                             string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
