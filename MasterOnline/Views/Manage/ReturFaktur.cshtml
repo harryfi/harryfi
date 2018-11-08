@@ -1345,10 +1345,11 @@
                     //remark by calvin 8 nov 2018, pindah ke setelah simpanBrg, karena ada validasi lewat manageController
                     //$btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
                     //$btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
-                    //$qtyInitialSpan.text($qtyInputBox.val()).show();
+                    var qtyInitialBeforeValidation = $qtyInitialSpan.val();
+                    $qtyInitialSpan.text($qtyInputBox.val());//.show();
                     //$qtyInputBox.hide();
                     //end remark by calvin 8 nov 2018
-                    simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan);
+                    simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan,qtyInitialBeforeValidation);
                 } else {
                     alert('Field Qty Harus diisi dan lebih dari 0 !');
                     $qtyInputBox.focus();
@@ -1356,7 +1357,7 @@
             }
         }
 
-        function simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan) {
+        function simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan,qtyInitialBeforeValidation) {
             if (!validateForm()) return false;
 
             var $tr = 'tr[data-barang-id="' + $idBarang + '"]';
@@ -1395,7 +1396,7 @@
                             //add by calvin 8 nov 2018
                             $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
                             $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
-                            $qtyInitialSpan.text($qtyInputBox.val()).show();
+                            $qtyInitialSpan.show();
                             $qtyInputBox.hide();
                             //end add by calvin 8 nov 2018
 
@@ -1416,6 +1417,9 @@
                             $('tr[data-faktur-id="0"]').hide();
                             $('#loading_spinner').hide();
                         } else {
+                            //add by calvin 8 nov 2018, kembalikan value initial ke semula ( karena gagal save )
+                            $qtyInitialSpan.text(qtyInitialBeforeValidation);
+                            //end add by calvin 8 nov 2018
                             console.log(response.Errors);
                             alert(response.Errors);
                             $('#loading_spinner').hide();

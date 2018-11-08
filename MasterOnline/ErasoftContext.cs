@@ -21,6 +21,13 @@ namespace MasterOnline
                    $"application name=EntityFramework")
         {
         }
+#elif Debug_AWS
+        public ErasoftContext(string dbName)
+            : base($"Server=13.250.232.74\\SQLEXPRESS, 1433;initial catalog={dbName};" +
+                   $"user id=masteronline;password=M@ster123;multipleactiveresultsets=True;" +
+                   $"application name=EntityFramework")
+        {
+        }
 #else
         public ErasoftContext(string dbName)
             : base($"Server=13.251.222.53\\SQLEXPRESS, 1433;initial catalog={dbName};" +
