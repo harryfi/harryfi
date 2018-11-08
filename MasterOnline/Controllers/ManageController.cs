@@ -281,6 +281,10 @@ namespace MasterOnline.Controllers
                         };
 
                         await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //end add by calvin 8 nov 2018
                     }
                 }
             }
@@ -297,6 +301,10 @@ namespace MasterOnline.Controllers
                 {
                     var elApi = new EleveniaController();
                     await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                    //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    //end add by calvin 8 nov 2018
                 }
             }
             var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
@@ -322,7 +330,6 @@ namespace MasterOnline.Controllers
                     var lzdApi = new LazadaController();
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
-
             }
 
             var vm = new PesananViewModel()
@@ -3205,26 +3212,6 @@ namespace MasterOnline.Controllers
             {
                 var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "2");
 
-                //var year = Convert.ToInt16(DateTime.Now.ToString("yyyy"));
-                //var barangForCheck = ErasoftDbContext.STF08A.SingleOrDefault(b =>
-                //    b.BRG == dataVm.FakturDetail.BRG && b.GD == dataVm.FakturDetail.GUDANG && b.Tahun == year);
-                //var qtyOnHand = 0d;
-
-                //if (barangForCheck != null)
-                //{
-                //    qtyOnHand = barangForCheck.QAwal + barangForCheck.QM1 + barangForCheck.QM2 + barangForCheck.QM3 + barangForCheck.QM4
-                //                + barangForCheck.QM5 + barangForCheck.QM6 + barangForCheck.QM7 + barangForCheck.QM8 + barangForCheck.QM9
-                //                + barangForCheck.QM10 + barangForCheck.QM11 + barangForCheck.QM12 - barangForCheck.QK1 - barangForCheck.QK2
-                //                - barangForCheck.QK3 - barangForCheck.QK4 - barangForCheck.QK5 - barangForCheck.QK6 - barangForCheck.QK7
-                //                - barangForCheck.QK8 - barangForCheck.QK9 - barangForCheck.QK10 - barangForCheck.QK11 - barangForCheck.QK12;
-                //}
-
-                //if (qtyOnHand < dataVm.FakturDetail.QTY)
-                //{
-                //    dataVm.Errors.Add("Qty penjualan tidak boleh melebihi qty yang ada di gudang!");
-                //    return Json(dataVm, JsonRequestBehavior.AllowGet);
-                //}
-
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
 
@@ -3252,6 +3239,12 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            listBrg.Add(dataVm.FakturDetail.BRG);
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new FakturViewModel()
             {
@@ -3383,17 +3376,33 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 returBaru = false;
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(FakturDetailDB.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
             }
 
             // autoload detail item, jika buat retur baru
             if (returBaru)
             {
                 object[] spParams = {
-                new SqlParameter("@NOBUK",dataVm.Faktur.NO_BUKTI),
-                new SqlParameter("@NO_REF",dataVm.Faktur.NO_REF)
+                    new SqlParameter("@NOBUK",dataVm.Faktur.NO_BUKTI),
+                    new SqlParameter("@NO_REF",dataVm.Faktur.NO_REF)
                 };
 
                 ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PENJUALAN] @NOBUK, @NO_REF", spParams);
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                var detailReturFakturInDb = ErasoftDbContext.SIT01B.AsNoTracking().Where(pd => pd.NO_BUKTI == dataVm.Faktur.NO_BUKTI && pd.JENIS_FORM == "3").ToList();
+                foreach (var item in detailReturFakturInDb)
+                {
+                    listBrg.Add(item.BRG);
+                }
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
             }
             ModelState.Clear();
 
@@ -3406,9 +3415,8 @@ namespace MasterOnline.Controllers
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList(),
-
-
             };
+
 
             return PartialView("BarangReturPartial", vm);
         }
@@ -3596,8 +3604,21 @@ namespace MasterOnline.Controllers
         {
             var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "2");
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            var detailFakturInDb = ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == fakturInDb.NO_BUKTI && p.JENIS_FORM == "2").ToList();
+            foreach (var item in detailFakturInDb)
+            {
+                listBrg.Add(item.BRG);
+            }
+            //end add by calvin 8 nov 2018
+
             ErasoftDbContext.SIT01A.Remove(fakturInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new FakturViewModel()
             {
@@ -3619,6 +3640,10 @@ namespace MasterOnline.Controllers
             var returFakturInDb = ErasoftDbContext.SIT01A.Single(p => p.RecNum == orderId && p.JENIS_FORM == "3");
             var fakturInDbWithRef = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == returFakturInDb.NO_REF && p.JENIS_FORM == "2");
             fakturInDbWithRef.NO_REF = "";
+            
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            //end add by calvin 8 nov 2018
 
             //add by calvin, validasi QOH
             var returFakturDetailInDb = ErasoftDbContext.SIT01B.Where(b => b.NO_BUKTI == returFakturInDb.NO_BUKTI && b.JENIS_FORM == "3").ToList();
@@ -3635,11 +3660,18 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                //add by calvin 8 nov 2018, update stok marketplace
+                listBrg.Add(item.BRG);
+                //end add by calvin 8 nov 2018
             }
             //end add by calvin, validasi QOH
 
             ErasoftDbContext.SIT01A.Remove(returFakturInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new FakturViewModel()
             {
@@ -3669,6 +3701,12 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangFakturInDb.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
 
                 var vm = new FakturViewModel()
                 {
@@ -3714,6 +3752,12 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.SIT01B.Remove(barangFakturInDb);
                 ErasoftDbContext.SaveChanges();
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangFakturInDb.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
 
                 var vm = new FakturViewModel()
                 {
@@ -3980,6 +4024,12 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            listBrg.Add(dataVm.InvoiceDetail.BRG);
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
+
             var vm = new InvoiceViewModel()
             {
                 Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "1"),
@@ -4111,10 +4161,12 @@ namespace MasterOnline.Controllers
                 //{
                 //    ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
                 //}
+
                 returBaru = false;
             }
 
             ErasoftDbContext.SaveChanges();
+
             // autoload detail item, jika buat retur baru
             if (returBaru)
             {
@@ -4124,6 +4176,24 @@ namespace MasterOnline.Controllers
                 };
 
                 ErasoftDbContext.Database.ExecuteSqlCommand("exec [SP_AUTOLOADRETUR_PEMBELIAN] @NOBUK, @NO_REF", spParams);
+                
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                var detailReturInvoiceInDb = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
+                foreach (var item in detailReturInvoiceInDb)
+                {
+                    listBrg.Add(item.BRG);
+                }
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
+            }
+            else
+            {
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(dataVm.InvoiceDetail.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
             }
             ModelState.Clear();
 
@@ -4309,6 +4379,10 @@ namespace MasterOnline.Controllers
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.RecNum == orderId && p.JENISFORM == "1");
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            //end add by calvin 8 nov 2018
+
             //add by calvin, validasi QOH
             var invoiceDetailInDb = ErasoftDbContext.PBT01B.Where(b => b.INV == invoiceInDb.INV && b.JENISFORM == "1").ToList();
             foreach (var item in invoiceDetailInDb)
@@ -4324,11 +4398,18 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                //add by calvin 8 nov 2018, update stok marketplace
+                listBrg.Add(item.BRG);
+                //end add by calvin 8 nov 2018
             }
             //end add by calvin, validasi QOH
 
             ErasoftDbContext.PBT01A.Remove(invoiceInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new InvoiceViewModel()
             {
@@ -4347,8 +4428,21 @@ namespace MasterOnline.Controllers
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.RecNum == orderId && p.JENISFORM == "2");
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            var detailReturInvoiceInDb = ErasoftDbContext.PBT01B.Where(pd => pd.INV == invoiceInDb.INV && pd.JENISFORM == "2").ToList();
+            foreach (var item in detailReturInvoiceInDb)
+            {
+                listBrg.Add(item.BRG);
+            }
+            //end add by calvin 8 nov 2018
+
             ErasoftDbContext.PBT01A.Remove(invoiceInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new InvoiceViewModel()
             {
@@ -4400,6 +4494,12 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.ToList()
                 };
 
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangInvoiceInDb.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
+
                 return PartialView("BarangInvoicePartial", vm);
             }
             catch (Exception)
@@ -4422,6 +4522,12 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.PBT01B.Remove(barangInvoiceInDb);
                 ErasoftDbContext.SaveChanges();
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangInvoiceInDb.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
 
                 var vm = new InvoiceViewModel()
                 {
@@ -4689,6 +4795,12 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            listBrg.Add(dataVm.PesananDetail.BRG);
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new PesananViewModel()
             {
@@ -5052,8 +5164,21 @@ namespace MasterOnline.Controllers
                 }
             }*/
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            var detailPesananInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+            foreach (var item in detailPesananInDb)
+            {
+                listBrg.Add(item.BRG);
+            }
+            //end add by calvin 8 nov 2018
+
             ErasoftDbContext.SOT01A.Remove(pesananInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new PesananViewModel()
             {
@@ -5083,6 +5208,11 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SOT01B.Remove(barangPesananInDb);
                 ErasoftDbContext.SaveChanges();
 
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangPesananInDb.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
                 var vm = new PesananViewModel()
                 {
                     Pesanan = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == pesananInDb.NO_BUKTI),
@@ -5379,6 +5509,10 @@ namespace MasterOnline.Controllers
                 dataVm.FakturDetail.JENIS_FORM = "2";
                 dataVm.FakturDetail.TGLINPUT = DateTime.Now;
 
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                //end add by calvin 8 nov 2018
+
                 foreach (var pesananDetail in listBarangPesananInDb)
                 {
                     #region add by calvin 31 okt 2018, hitung ulang sesuai dengan qty_n, bukan qty
@@ -5412,6 +5546,7 @@ namespace MasterOnline.Controllers
                     //dataVm.FakturDetail.NILAI_DISC = pesananDetail.NILAI_DISC_1 + pesananDetail.NILAI_DISC_2;
                     dataVm.FakturDetail.NILAI_DISC = nilai_disc_1 + nilai_disc_2;
                     //end change by calvin 31 okt 2018
+
 
                     dataVm.FakturDetail.BRG = pesananDetail.BRG;
                     dataVm.FakturDetail.SATUAN = pesananDetail.SATUAN;
@@ -5471,7 +5606,15 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SIT01B.Add(dataVm.FakturDetail);
                     ErasoftDbContext.SIT01A.Where(p => p.NO_BUKTI == noOrder && p.JENIS_FORM == "2").Update(p => new SIT01A() { BRUTO = dataVm.Faktur.BRUTO });
                     ErasoftDbContext.SaveChanges();
+
+                    //add by calvin 8 nov 2018, update stok marketplace
+                    listBrg.Add(pesananDetail.BRG);
+                    //end add by calvin 8 nov 2018
                 }
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
 
                 // End Bagian Save Faktur Generated
 
@@ -6251,6 +6394,13 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            listBrg.Add(dataVm.BarangStok.Kobar);
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
+
             var vm = new StokViewModel()
             {
                 Stok = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataVm.Stok.Nobuk),
@@ -6319,6 +6469,10 @@ namespace MasterOnline.Controllers
         {
             var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
 
+            //add by calvin 8 nov 2018, update stok marketplace
+            List<string> listBrg = new List<string>();
+            //end add by calvin 8 nov 2018
+
             //add by calvin, 22 juni 2018 validasi QOH
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Jenis_Form == stokInDb.Jenis_Form && b.Nobuk == stokInDb.Nobuk).ToList();
             foreach (var item in stokDetailInDb)
@@ -6335,13 +6489,22 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak bisa delete, Qty Barang ( " + item.Kobar + " ) di gudang " + item.Ke_Gd + " sisa ( " + Convert.ToString(qtyOnHand) + " ) untuk item " + namaItem.NAMA + "");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
+                //add by calvin 8 nov 2018, update stok marketplace
+                listBrg.Add(item.Kobar);
+                //end add by calvin 8 nov 2018
             }
             //end add by calvin, validasi QOH
+
             //add by nurul 18/10/2018
             ErasoftDbContext.STT01B.RemoveRange(stokDetailInDb);
             //end add 
+
             ErasoftDbContext.STT01A.Remove(stokInDb);
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 8 nov 2018, update stok marketplace
+            updateStockMarketPlace(listBrg);
+            //end add by calvin 8 nov 2018
 
             var vm = new StokViewModel()
             {
@@ -6377,6 +6540,12 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.STT01B.Remove(barangStokInDb);
                 ErasoftDbContext.SaveChanges();
+
+                //add by calvin 8 nov 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(barangStokInDb.Kobar);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 8 nov 2018
 
                 var vm = new StokViewModel()
                 {
@@ -7463,11 +7632,11 @@ namespace MasterOnline.Controllers
                     var marketPlace = ErasoftDbContext.ARF01.SingleOrDefault(p => p.RecNum == stf02h.IDMARKET);
                     if (marketPlace.NAMA.Equals(kdBL.ToString()))
                     {
-                        blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.API_KEY, marketPlace.TOKEN);
+                        blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.API_KEY, marketPlace.TOKEN);
                     }
                     else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                     {
-                        lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "1", marketPlace.TOKEN);
+                        lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN);
                     }
                     else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
                     {
@@ -7529,7 +7698,6 @@ namespace MasterOnline.Controllers
                             var display = Convert.ToBoolean(stf02h.DISPLAY);
                             data.display = display ? "true" : "false";
                             new BlibliController().UpdateProdukQOH_Display(iden, data);
-
                         }
                     }
                 }
@@ -9790,7 +9958,7 @@ namespace MasterOnline.Controllers
 
             //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
             
-            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY_N,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('01','02','03','04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
             qtyOnHand = qtyOnHand - qtySO;
             return qtyOnHand;
         }

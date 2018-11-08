@@ -1329,21 +1329,26 @@
                 $qtyInputBox.val($qtyAwal)
                     .attr('max', $qtyAwal)
                     .change(function() {
-                        //if ($(this).val() > $qtyAwal) {
-                        //    alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur!');
-                        //    $(this).val($qtyAwal);
-                        //    return false;
-                        //}
+                        //unremark by calvin 8 nov 2018, proteksi qty
+                        if ($(this).val() > $qtyAwal) {
+                            alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur!');
+                            $(this).val($qtyAwal);
+                            refreshNettoBarang($idBarang);
+                            return false;
+                        }
+                        //end unremark by calvin 8 nov 2018, proteksi qty
                         refreshNettoBarang($idBarang);
                     })
                     .show();
             } else {
                 if ($qtyInputBox.val() != '' && parseInt($qtyInputBox.val()) > 0) {
-                    $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
-                    $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
-                    $qtyInitialSpan.text($qtyInputBox.val()).show();
-                    $qtyInputBox.hide();
-                    simpanBrg($idBarang);
+                    //remark by calvin 8 nov 2018, pindah ke setelah simpanBrg, karena ada validasi lewat manageController
+                    //$btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                    //$btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                    //$qtyInitialSpan.text($qtyInputBox.val()).show();
+                    //$qtyInputBox.hide();
+                    //end remark by calvin 8 nov 2018
+                    simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan);
                 } else {
                     alert('Field Qty Harus diisi dan lebih dari 0 !');
                     $qtyInputBox.focus();
@@ -1351,7 +1356,7 @@
             }
         }
 
-        function simpanBrg($idBarang) {
+        function simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan) {
             if (!validateForm()) return false;
 
             var $tr = 'tr[data-barang-id="' + $idBarang + '"]';
@@ -1387,6 +1392,13 @@
                     },
                     success: function (response) {
                         if (response.Errors == null) {
+                            //add by calvin 8 nov 2018
+                            $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                            $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                            $qtyInitialSpan.text($qtyInputBox.val()).show();
+                            $qtyInputBox.hide();
+                            //end add by calvin 8 nov 2018
+
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
                             refreshInputan();
@@ -1405,7 +1417,7 @@
                             $('#loading_spinner').hide();
                         } else {
                             console.log(response.Errors);
-                            alert('Ada data yang tidak valid!');
+                            alert(response.Errors);
                             $('#loading_spinner').hide();
                         }
                     },
