@@ -3060,13 +3060,6 @@ namespace MasterOnline.Controllers
 
                 //add by calvin, validasi QOH
                 var qtyOnHand = GetQOHSTF08A(dataVm.FakturDetail.BRG, dataVm.FakturDetail.GUDANG);
-
-                STF11 getQtySO = ErasoftDbContext.Database.SqlQuery<STF11>("SELECT * FROM STF11 WHERE BRG='" + dataVm.FakturDetail.BRG + "'").FirstOrDefault();
-                if (getQtySO != null)
-                {
-                    qtyOnHand = qtyOnHand + Convert.ToDouble(getQtySO.QSO_MSK);
-                }
-
                 if (qtyOnHand < dataVm.FakturDetail.QTY)
                 {
                     dataVm.Errors.Add("Qty penjualan melebihi qty yang ada di gudang ( " + Convert.ToString(qtyOnHand) + " )");
@@ -3352,6 +3345,21 @@ namespace MasterOnline.Controllers
             {
                 //UPDATE ANAK
                 var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
+
+                //add by calvin, validasi QOH
+                var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
+
+                if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
+                {
+                    var vmError = new InvoiceViewModel()
+                    {
+
+                    };
+                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //end add by calvin, validasi QOH
+
                 FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
                 FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
                 FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
@@ -4081,7 +4089,7 @@ namespace MasterOnline.Controllers
                     {
 
                     };
-                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand + invDetailDb.QTY) + " ).");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
                 //end add by calvin, validasi QOH
@@ -5491,24 +5499,25 @@ namespace MasterOnline.Controllers
             var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
             barangPesananInDb.LOKASI = gd;
 
-            //change by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
-            //barangPesananInDb.QTY = qty;
-            barangPesananInDb.QTY_N = qty;
-
             //add by calvin, 22 juni 2018 validasi QOH
             var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
 
-            if (qtyOnHand - qty < 0)
+            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0) - qty < 0)
             {
                 var vmError = new StokViewModel()
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " )");
+                vmError.Errors.Add("Tidak bisa save, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
             //end add by calvin, validasi QOH
+
+            //change by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
+            //barangPesananInDb.QTY = qty;
+            barangPesananInDb.QTY_N = qty;
+
 
             #region remark by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
             //if (Math.Abs(barangPesananInDb.DISCOUNT) > 0)
@@ -6323,7 +6332,7 @@ namespace MasterOnline.Controllers
                     };
 
                     var namaItem = ErasoftDbContext.STF02.Where(b => b.BRG == item.Kobar).FirstOrDefault();
-                    vmError.Errors.Add("Tidak bisa delete, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand) + " ) untuk item " + namaItem.NAMA + "");
+                    vmError.Errors.Add("Tidak bisa delete, Qty Barang ( " + item.Kobar + " ) di gudang " + item.Ke_Gd + " sisa ( " + Convert.ToString(qtyOnHand) + " ) untuk item " + namaItem.NAMA + "");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
             }
@@ -9778,6 +9787,11 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
                 qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
             }
+
+            //ErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
+            
+            double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY_N,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('01','02','03','04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
+            qtyOnHand = qtyOnHand - qtySO;
             return qtyOnHand;
         }
     }

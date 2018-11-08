@@ -1052,57 +1052,78 @@ else
         function simpanCustomer(btnClicked) {
             if (!validateForm()) return false;
 
-            var $form = $(btnClicked).parents('form');
+            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
+            link = link.replace("replaceUname", '@(username)');
 
             $.ajax({
-                type: "POST",
-                url: $form.attr('action'),
-                data: $form.serialize(),
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
-                success: function (response) {
-                    if (response.Errors == null || response.kodeCust != null) {
-                        //add by Tri 26-9-2018
-                        if (response.kodeCust != undefined) {
-                            custCode = response.kodeCust;
-                            //$('#loading_spinner').hide();
-                            //$('#modalConfirmLazadaAPIKey').modal('show');
-                            if (confirm("Generate New API Key?")) {
-                                GenerateLazadaCode(custCode);
-                            } else {
-                                window.location.href = '@Url.Action("Pelanggan", "Manage")';
-                            }
-                            //window.open( , '_self');
-                            //window.location.href = '@Url.Action("Pelanggan", "Manage")';
-                            //$('#close-editor').click();
-                            //return true;
-                        } else {
-                            $('#table-customer-partial').html(response);
-                            Initialize();
-                            $('#close-editor').click();
-                            $('#loading_spinner').hide();
-                            $("html, body").animate({ scrollTop: 0 }, "slow");
-                        }
-                        //end add by Tri 26-9-2018
+                type: "GET",
+                url: link,
+                success: function (res) {
+                    $jumlahMarketplaceMax = parseInt(res.JumlahMarketplaceMax);
+                    $jumlahMarketplace = parseInt(res.JumlahMarketplace);
+                    $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
 
+                    var isExist = isInArray(parseInt($('#Customers_NAMA').val()), $listNamaMarketTerpakai);
 
+                    if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
+                        $("#Customers_NAMA").val(null);
+                        $('#tambah_market_pricing').click();
                     } else {
-                        //change by nurul 16 / 8 / 2018 req pak dani
-                        //console.log(response.Errors);
-                        //alert('Ada data yang tidak valid!');
-                        //if ($('#MARKET').val() == "Tokopedia" || $('#MARKET').val() == "15" ) {
-                        //    alert('Akun anda harus official store di Tokopedia. Silahkan hubungi kami apabila anda sudah official store!');
-                        //    Initialize();
-                        //    $('#close-editor').click();
-                        //    $('#loading_spinner').hide();
-                        //    $("html, body").animate({ scrollTop: 0 }, "slow");
-                        //} else {
-                        console.log(response.Errors);
-                        alert('Ada data yang tidak valid!');
-                        Initialize();
-                        $('#loading_spinner').hide();
-                        //}
+                        var $form = $(btnClicked).parents('form');
+
+                        $.ajax({
+                            type: "POST",
+                            url: $form.attr('action'),
+                            data: $form.serialize(),
+                            beforeSend: function () {
+                                $('#loading_spinner').show();
+                            },
+                            success: function (response) {
+                                if (response.Errors == null || response.kodeCust != null) {
+                                    //add by Tri 26-9-2018
+                                    if (response.kodeCust != undefined) {
+                                        custCode = response.kodeCust;
+                                        //$('#loading_spinner').hide();
+                                        //$('#modalConfirmLazadaAPIKey').modal('show');
+                                        if (confirm("Generate New API Key?")) {
+                                            GenerateLazadaCode(custCode);
+                                        } else {
+                                            window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                                        }
+                                        //window.open( , '_self');
+                                        //window.location.href = '@Url.Action("Pelanggan", "Manage")';
+                                        //$('#close-editor').click();
+                                        //return true;
+                                    } else {
+                                        $('#table-customer-partial').html(response);
+                                        Initialize();
+                                        $('#close-editor').click();
+                                        $('#loading_spinner').hide();
+                                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                                    }
+                                    //end add by Tri 26-9-2018
+                                } else {
+                                    //change by nurul 16 / 8 / 2018 req pak dani
+                                    //console.log(response.Errors);
+                                    //alert('Ada data yang tidak valid!');
+                                    //if ($('#MARKET').val() == "Tokopedia" || $('#MARKET').val() == "15" ) {
+                                    //    alert('Akun anda harus official store di Tokopedia. Silahkan hubungi kami apabila anda sudah official store!');
+                                    //    Initialize();
+                                    //    $('#close-editor').click();
+                                    //    $('#loading_spinner').hide();
+                                    //    $("html, body").animate({ scrollTop: 0 }, "slow");
+                                    //} else {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                    Initialize();
+                                    $('#loading_spinner').hide();
+                                    //}
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log(error);
+                            }
+                        });
                     }
                 },
                 error: function (xhr, status, error) {
