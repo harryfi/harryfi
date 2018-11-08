@@ -628,5 +628,30 @@ namespace MasterOnline.Controllers
         {
             return View();
         }
+
+        [HttpPost]
+        public ActionResult GetResultQuery(DataForQuery data)
+        {
+            string resultQuery = "";
+            string insertDataQuery = data.MigrationHistoryInsertQuery;
+
+            resultQuery = "DECLARE @db_name NVARCHAR (MAX) \n" +
+                          "DECLARE c_db_names CURSOR FOR \n" +
+                          "SELECT name FROM sys.databases \n" +
+                          "WHERE name NOT IN('master', 'tempdb', 'model', 'msdb', 'activity', 'ReportServer$SQLEXPRESS', 'mo', " +
+                          "'ReportServer$SQLEXPRESSTempDB', 'SCREEN_ACTIVITY', 'REPORTSI', 'REPORTST', 'erasoft', 'AP_NET', 'AR_NET', " +
+                          "'MD_NET', 'SI_NET', 'ST_NET', 'SCREEN-NET2', 'REPORTAP', 'REPORTAR', 'REPORTMD') \n" +
+                          "OPEN c_db_names \n" +
+                          "FETCH c_db_names INTO @db_name \n" +
+                          "WHILE @@Fetch_Status = 0 \n" +
+                          "BEGIN \n" +
+                          $"EXEC('{insertDataQuery}') \n" +
+                          "FETCH c_db_names INTO @db_name \n" +
+                          "END \n" +
+                          "CLOSE c_db_names \n" +
+                          "DEALLOCATE c_db_names";
+
+            return Json(resultQuery, JsonRequestBehavior.AllowGet);
+        }
     }
 }

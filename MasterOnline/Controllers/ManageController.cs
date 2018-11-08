@@ -9751,7 +9751,7 @@ namespace MasterOnline.Controllers
 
                     //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
 #if AWS
-                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
 #else
                     imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
 #endif

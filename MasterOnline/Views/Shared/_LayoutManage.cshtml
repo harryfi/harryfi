@@ -216,7 +216,7 @@
                                                     {
                                                         if (listSec.Count > 0)
                                                         {
-                                                            var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+                                                            var secUserMenu = listSec.FirstOrDefault(s => s.FormId == child.ScrId);
 
                                                             if (child.ParentId == parent.ScrId && secUserMenu != null)
                                                             {
@@ -261,7 +261,7 @@
                                                                             {
                                                                                 if (listSec.Count > 0)
                                                                                 {
-                                                                                    var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                                    var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
 
                                                                                     if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
                                                                                     {
@@ -293,7 +293,7 @@
                                         }
                                         else
                                         {
-                                            var secMenu = listSec.SingleOrDefault(s => s.FormId == parent.ScrId);
+                                            var secMenu = listSec.FirstOrDefault(s => s.FormId == parent.ScrId);
                                             if (secMenu != null)
                                             {
                                                 var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
@@ -309,7 +309,7 @@
                                                     <ul class="nav child_menu">
                                                         @foreach (var child in listChild)
                                                         {
-                                                            var childOfSecMenu = listChildOfSecMenu?.SingleOrDefault(c => c.FormId == child.ScrId);
+                                                            var childOfSecMenu = listChildOfSecMenu?.FirstOrDefault(c => c.FormId == child.ScrId);
 
                                                             if (childOfSecMenu != null)
                                                             {
