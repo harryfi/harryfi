@@ -639,7 +639,13 @@ namespace MasterOnline.Controllers
         public ActionResult GetResultQuery(DataForQuery data)
         {
             string resultQuery = "";
-            string insertDataQuery = data.MigrationHistoryInsertQuery;
+            string insertDataQuery = 
+                    data.MigrationHistoryInsertQuery
+                    .Replace("[dbo]", " ['+ @db_name +'].")
+                    .Replace("(N'", "(N''")
+                    .Replace("',", "'',")
+                    .Replace(", N'", ", N''")
+                    .Replace("')", "'')");
 
             resultQuery = "DECLARE @db_name NVARCHAR (MAX) \n" +
                           "DECLARE c_db_names CURSOR FOR \n" +
