@@ -5728,7 +5728,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new SaHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT01A.ToList()
+                ListHutang = ErasoftDbContext.APT01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return View(vm);
@@ -5794,7 +5794,7 @@ namespace MasterOnline.Controllers
             dataVm.Hutang.SATUAN = "";
             dataVm.Hutang.F_PAJAK = "";
             dataVm.Hutang.INV_2 = "-";
-            dataVm.Hutang.RANGKA = "";
+            dataVm.Hutang.RANGKA = "1";
             dataVm.Hutang.MESIN = "";
             dataVm.Hutang.TAHUN = 0;
 
@@ -5808,7 +5808,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new SaHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT01A.ToList()
+                ListHutang = ErasoftDbContext.APT01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return PartialView("TableHutangPartial", vm);
@@ -5834,7 +5834,7 @@ namespace MasterOnline.Controllers
             {
                 var hutVm = new SaHutangViewModel()
                 {
-                    Hutang = ErasoftDbContext.APT01A.Single(h => h.RECNUM == recNum)
+                    Hutang = ErasoftDbContext.APT01A.Where(b => b.RANGKA == "1").Single(h => h.RECNUM == recNum)
                 };
 
                 return PartialView("FormHutangPartial", hutVm);
@@ -5847,14 +5847,14 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeleteHutang(int? recNum)
         {
-            var hutangInDb = ErasoftDbContext.APT01A.Single(h => h.RECNUM == recNum);
+            var hutangInDb = ErasoftDbContext.APT01A.Where(b => b.RANGKA == "1").Single(h => h.RECNUM == recNum);
 
             ErasoftDbContext.APT01A.Remove(hutangInDb);
             ErasoftDbContext.SaveChanges();
 
             var vm = new SaHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT01A.ToList()
+                ListHutang = ErasoftDbContext.APT01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return PartialView("TableHutangPartial", vm);
@@ -5869,7 +5869,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new SaPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART01A.ToList()
+                ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return View(vm);
@@ -5955,7 +5955,8 @@ namespace MasterOnline.Controllers
         {
             var vm = new SaPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART01A.ToList()
+                //ListPiutang = ErasoftDbContext.ART01A.ToList()
+                ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return PartialView("TablePiutangPartial", vm);
@@ -5981,7 +5982,7 @@ namespace MasterOnline.Controllers
             {
                 var piuVm = new SaPiutangViewModel()
                 {
-                    Piutang = ErasoftDbContext.ART01A.Single(h => h.RecNum == recNum)
+                    Piutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").Single(h => h.RecNum == recNum)
                 };
 
                 return PartialView("FormPiutangPartial", piuVm);
@@ -5994,14 +5995,14 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePiutang(int? recNum)
         {
-            var piutangInDb = ErasoftDbContext.ART01A.Single(h => h.RecNum == recNum);
+            var piutangInDb = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").Single(h => h.RecNum == recNum);
 
             ErasoftDbContext.ART01A.Remove(piutangInDb);
             ErasoftDbContext.SaveChanges();
 
             var vm = new SaPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART01A.ToList()
+                ListPiutang = ErasoftDbContext.ART01A.Where(b => b.RANGKA == "1").ToList()
             };
 
             return PartialView("TablePiutangPartial", vm);
@@ -6120,7 +6121,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList(),
+                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListGudang = ErasoftDbContext.STF18.ToList()
             };
@@ -6254,7 +6255,7 @@ namespace MasterOnline.Controllers
             var vm = new StokViewModel()
             {
                 Stok = ErasoftDbContext.STT01A.Single(p => p.Nobuk == dataVm.Stok.Nobuk),
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList(),
+                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                 ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == dataVm.Stok.Nobuk).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListGudang = ErasoftDbContext.STF18.ToList()
@@ -6267,7 +6268,7 @@ namespace MasterOnline.Controllers
         {
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList()
+                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList()
             };
 
             return PartialView("TableStokPartial", vm);
@@ -6279,7 +6280,7 @@ namespace MasterOnline.Controllers
             {
                 var vm = new StokViewModel()
                 {
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList(),
+                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
                 };
@@ -6296,12 +6297,12 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
+                var stokInDb = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.ID == stokId);
 
                 var vm = new StokViewModel()
                 {
                     Stok = stokInDb,
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList(),
+                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                     ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
@@ -6317,7 +6318,7 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeleteStok(int? stokId)
         {
-            var stokInDb = ErasoftDbContext.STT01A.Single(p => p.ID == stokId);
+            var stokInDb = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.ID == stokId);
 
             //add by calvin, 22 juni 2018 validasi QOH
             var stokDetailInDb = ErasoftDbContext.STT01B.Where(b => b.Jenis_Form == stokInDb.Jenis_Form && b.Nobuk == stokInDb.Nobuk).ToList();
@@ -6345,7 +6346,7 @@ namespace MasterOnline.Controllers
 
             var vm = new StokViewModel()
             {
-                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList()
+                ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList()
             };
 
             return PartialView("TableStokPartial", vm);
@@ -6357,7 +6358,7 @@ namespace MasterOnline.Controllers
             try
             {
                 var barangStokInDb = ErasoftDbContext.STT01B.Single(b => b.No == noUrut);
-                var stokInDb = ErasoftDbContext.STT01A.Single(p => p.Nobuk == barangStokInDb.Nobuk);
+                var stokInDb = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.Nobuk == barangStokInDb.Nobuk);
 
                 //add by calvin, 22 juni 2018 validasi QOH
                 var qtyOnHand = GetQOHSTF08A(barangStokInDb.Kobar, barangStokInDb.Ke_Gd);
@@ -6380,8 +6381,8 @@ namespace MasterOnline.Controllers
 
                 var vm = new StokViewModel()
                 {
-                    Stok = ErasoftDbContext.STT01A.Single(p => p.Nobuk == stokInDb.Nobuk),
-                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST")).ToList(),
+                    Stok = ErasoftDbContext.STT01A.Where(a => a.JAM == 1).Single(p => p.Nobuk == stokInDb.Nobuk),
+                    ListStok = ErasoftDbContext.STT01A.Where(a => a.Nobuk.Substring(0, 2).Equals("ST") && a.JAM == 1).ToList(),
                     ListBarangStok = ErasoftDbContext.STT01B.Where(bs => bs.Nobuk == stokInDb.Nobuk).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
                     ListGudang = ErasoftDbContext.STF18.ToList()
@@ -8240,21 +8241,45 @@ namespace MasterOnline.Controllers
             return Json(res, JsonRequestBehavior.AllowGet);
         }
 
+        //change by nurul 9/11/2018
+        //[HttpGet]
+        //public ActionResult CekKetMerk(string kode)
+        //{
+        //    var res = new CekKode()
+        //    {
+        //        Kode = kode
+        //    };
+
+        //    var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2" && k.KET == kode);
+        //    if (gudangInDb != null) res.Available = false;
+
+        //    return Json(res, JsonRequestBehavior.AllowGet);
+        //}
+
+        //[HttpGet]
         [HttpGet]
-        public ActionResult CekKetMerk(string kode)
+        public ActionResult CekKetMerk(string param)
         {
-            var res = new CekKode()
+            var res = new cekMerk()
             {
-                Kode = kode
+                Kode = kodemerk,
+                Nama = ket
             };
 
-            var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2" && k.KET == kode);
+            //var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2" && k.KET == kode);
+            var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2"  && k.KET == ket && k.KODE != kodemerk);
             if (gudangInDb != null) res.Available = false;
 
             return Json(res, JsonRequestBehavior.AllowGet);
         }
+        public class cekMerk
+        {
+            public bool Available { get; set; } = true;
+            public string Kode { get; set; }
+            public string Nama { get; set; }
+        }
+        //end change by nurul
 
-        [HttpGet]
         public ActionResult CekNmGudang(string kode)
         {
             var res = new CekKode()
