@@ -124,6 +124,9 @@ namespace MasterOnline.Controllers
 #if AWS
             SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
                                 "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                  "user id=masteronline;password=M@ster123;");
 #else
             SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
                                                   "user id=masteronline;password=M@ster123;");
@@ -176,6 +179,9 @@ namespace MasterOnline.Controllers
                 {
 #if AWS
                     System.Data.Entity.Database.Delete($"Server=localhost;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
+                                                       "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+                    System.Data.Entity.Database.Delete($"Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
                                                        "user id=masteronline;password=M@ster123;");
 #else
                     System.Data.Entity.Database.Delete($"Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog={accInDb.DatabasePathErasoft};persist security info=True;" +
@@ -627,6 +633,40 @@ namespace MasterOnline.Controllers
         public ActionResult GeneratorSqlMenu()
         {
             return View();
+        }
+
+        [HttpPost]
+        public ActionResult GetResultQuery(DataForQuery data)
+        {
+            string resultQuery = "";
+            string insertDataQuery = 
+                data.MigrationHistoryInsertQuery
+                    .Replace("[dbo]", "['+ @db_name +'].")
+                    .Replace("(N'", "(N''")
+                    .Replace("',", "'',")
+                    .Replace(", N'", ", N''")
+                    .Replace("')", "'')");
+            string addColumnQuery =
+                data.AddColumnQuery
+                    .Replace("[dbo]", "['+ @db_name +'].");
+
+            resultQuery = "DECLARE @db_name NVARCHAR (MAX) \n" +
+                          "DECLARE c_db_names CURSOR FOR \n" +
+                          "SELECT name FROM sys.databases \n" +
+                          "WHERE name NOT IN('master', 'tempdb', 'model', 'msdb', 'activity', 'ReportServer$SQLEXPRESS', 'mo', " +
+                          "'ReportServer$SQLEXPRESSTempDB', 'SCREEN_ACTIVITY', 'REPORTSI', 'REPORTST', 'erasoft', 'AP_NET', 'AR_NET', " +
+                          "'MD_NET', 'SI_NET', 'ST_NET', 'SCREEN-NET2', 'REPORTAP', 'REPORTAR', 'REPORTMD') \n" +
+                          "OPEN c_db_names \n" +
+                          "FETCH c_db_names INTO @db_name \n" +
+                          "WHILE @@Fetch_Status = 0 \n" +
+                          "BEGIN \n" +
+                          $"EXEC('{insertDataQuery} {addColumnQuery}') \n" +
+                          "FETCH c_db_names INTO @db_name \n" +
+                          "END \n" +
+                          "CLOSE c_db_names \n" +
+                          "DEALLOCATE c_db_names";
+
+            return Json(resultQuery, JsonRequestBehavior.AllowGet);
         }
     }
 }

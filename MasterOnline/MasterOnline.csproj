@@ -563,6 +563,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\DataForQuery.cs" />
     <Compile Include="Models\DataSecUser.cs" />
     <Compile Include="Models\LOG_IMPORT_FAKTUR.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
@@ -1207,6 +1208,8 @@
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\chart_mo.png" />
+    <Content Include="Content\Images\contoh_query_add_column.png" />
+    <Content Include="Content\Images\contoh_query_insert.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
     <Content Include="Content\Images\daily-social-logo.png" />
@@ -6024,6 +6027,15 @@
     <DefineConstants>TRACE;DEV;</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_AWS|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;Debug_AWS;</DefineConstants>
+    <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
