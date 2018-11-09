@@ -173,8 +173,19 @@
 
             $('#generate_btn').click(function () {
                 var $queryInsert = $('#migration_history_query').val();
+                var $queryAddColumn = $('#add_column_query').val();
                 if ($queryInsert === "") {
                     alert('Isi dahulu INSERT QUERY untuk tabel MIGRATION HISTORY');
+                    return;
+                }
+
+                if ($queryAddColumn === "") {
+                    alert('Isi dahulu ADD COLUMN QUERY');
+                    return;
+                }
+
+                if (!$queryAddColumn.includes('ADD') || !$queryAddColumn.includes('ALTER TABLE')) {
+                    alert('Tidak terdeteksi ada sintaks ADD atau ALTER TABLE! Periksa kembali!');
                     return;
                 }
 
@@ -182,7 +193,8 @@
                     type: "POST",
                     url: '@Url.Action("GetResultQuery", "Admin")',
                     data: JSON.stringify({
-                        MigrationHistoryInsertQuery: $queryInsert
+                        MigrationHistoryInsertQuery: $queryInsert,
+                        AddColumnQuery: $queryAddColumn
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,

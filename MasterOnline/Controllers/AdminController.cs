@@ -640,12 +640,15 @@ namespace MasterOnline.Controllers
         {
             string resultQuery = "";
             string insertDataQuery = 
-                    data.MigrationHistoryInsertQuery
-                    .Replace("[dbo]", " ['+ @db_name +'].")
+                data.MigrationHistoryInsertQuery
+                    .Replace("[dbo]", "['+ @db_name +'].")
                     .Replace("(N'", "(N''")
                     .Replace("',", "'',")
                     .Replace(", N'", ", N''")
                     .Replace("')", "'')");
+            string addColumnQuery =
+                data.AddColumnQuery
+                    .Replace("[dbo]", "['+ @db_name +'].");
 
             resultQuery = "DECLARE @db_name NVARCHAR (MAX) \n" +
                           "DECLARE c_db_names CURSOR FOR \n" +
@@ -657,7 +660,7 @@ namespace MasterOnline.Controllers
                           "FETCH c_db_names INTO @db_name \n" +
                           "WHILE @@Fetch_Status = 0 \n" +
                           "BEGIN \n" +
-                          $"EXEC('{insertDataQuery}') \n" +
+                          $"EXEC('{insertDataQuery} {addColumnQuery}') \n" +
                           "FETCH c_db_names INTO @db_name \n" +
                           "END \n" +
                           "CLOSE c_db_names \n" +

@@ -1208,6 +1208,7 @@
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\chart_mo.png" />
+    <Content Include="Content\Images\contoh_query_add_column.png" />
     <Content Include="Content\Images\contoh_query_insert.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
