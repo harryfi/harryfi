@@ -170,7 +170,7 @@
 
 @section scripts
 {
-    <script type="text/javascript">
+<script type="text/javascript">
         $merkId = "";
 
         $(document).on('ready', function () {
@@ -204,12 +204,6 @@
             $('#tambah_merk').on('click', function () {
                 $('.merk_table_section').hide();
                 $('.merk_editor_section').show();
-                $('#Merk_KET').on('change blur',
-                    function () {
-                        if (!$(this).is(':disabled')) {
-                            cekField($(this), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
-                        }
-                    });
             });
 
             $('#close-editor').on('click', function () {
@@ -234,10 +228,36 @@
             $('#Merk_KET').on('change blur',
                 function () {
                     if (!$(this).is(':disabled')) {
-                        cekField($(this), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
+                        //cekField($('#Merk_KET'), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
+                        cekMerk($('#Merk_KET'), $('#Merk_KODE'), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
                     }
                 });
-            
+
+    }
+    function cekMerk($ket, $kodemerk, $urlAction, $msg) {
+            var link = '';
+
+            link = '@Url.Action("replaceUrl", "Manage", new { ket = "replaceKet", kode = "replaceKode" })';
+            link = link.replace("replaceUrl", $urlAction);
+            link = link.replace("replaceKet", $ket.val());
+            link = link.replace("replaceKode", $kodemerk.val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (!response.Available) {
+                        $ket.closest('.form-group').addClass('has-error');
+
+                        if (!$ket.closest('div').find('.text-danger').length) {
+                            $ket.closest('div').append('<span class="text-danger">' + $msg +'</span>');
+                        }
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
 
         function simpanMerk(btnClicked) {
@@ -318,5 +338,5 @@
                 }
             });
         }
-    </script>
+</script>
 }

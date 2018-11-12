@@ -644,7 +644,8 @@
                     var $this = $(this);
                     var $value = $this.val();
 
-                    if ($value == '' || isEmptyOrSpaces($value)) {
+                    //change by nurul 9/11/2018 -- if ($value == '' || isEmptyOrSpaces($value)) {
+                    if (($value == '' || isEmptyOrSpaces($value)) && !$this.hasClass('email_not_required')) {
                         $this.closest('.form-group').addClass('has-error');
 
                         if (!$this.closest('div').find('.text-danger').length) {
@@ -669,7 +670,8 @@
                 var $this = $(this);
                 var $value = $this.val();
 
-                if ($value == '' || isEmptyOrSpaces($value)) {
+                //change by nurul 9/11/2018 -- if ($value == '' || isEmptyOrSpaces($value)) {
+                if (($value == '' || isEmptyOrSpaces($value)) && !$this.hasClass('email_not_required')) {
                     $this.closest('.form-group').addClass('has-error');
 
                     if (!$this.closest('div').find('.text-danger').length) {
