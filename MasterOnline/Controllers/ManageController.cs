@@ -304,6 +304,7 @@ namespace MasterOnline.Controllers
 
                     //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
                     await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                     //end add by calvin 8 nov 2018
                 }
             }
@@ -2532,6 +2533,7 @@ namespace MasterOnline.Controllers
                                 API_secret_key = tblCustomer.API_KEY,
                                 mta_username_email_merchant = tblCustomer.EMAIL,
                                 mta_password_password_merchant = tblCustomer.PASSWORD,
+                                merchant_code = tblCustomer.Sort1_Cust
                             };
                             BliApi.GetQueueFeedDetail(data, null);
                         }
@@ -2564,7 +2566,7 @@ namespace MasterOnline.Controllers
             {
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p=> 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()

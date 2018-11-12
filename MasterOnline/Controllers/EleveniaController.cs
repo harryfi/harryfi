@@ -81,7 +81,8 @@ namespace MasterOnline.Controllers
             Paid = 2,
             PackagingINP = 3,
             ShippingINP = 4,
-            Completed = 5
+            Completed = 5,
+            ConfirmPurchase = 6
         }
         public enum api_status
         {
@@ -1079,6 +1080,10 @@ namespace MasterOnline.Controllers
                 case StatusOrder.Completed:
                     //Completed (Shipping)
                     status = "501";
+                    break;
+                case StatusOrder.ConfirmPurchase:
+                    //Confirm Purchase
+                    status = "901";
                     break;
                 default:
                     break;

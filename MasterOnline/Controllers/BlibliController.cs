@@ -1267,6 +1267,11 @@ namespace MasterOnline.Controllers
                         //}
                     }
                 }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = result.errorCode.Value;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
             }
 
             return ret;
