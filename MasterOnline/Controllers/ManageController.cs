@@ -2261,7 +2261,7 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                #region update
+                                                var BliApi = new BlibliController();
                                                 BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
                                                 {
                                                     merchant_code = tblCustomer.Sort1_Cust,
@@ -2272,19 +2272,27 @@ namespace MasterOnline.Controllers
                                                     mta_username_email_merchant = tblCustomer.EMAIL,
                                                     mta_password_password_merchant = tblCustomer.PASSWORD
                                                 };
-                                                BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                if (stf02h.BRG_MP == "PENDING")
                                                 {
-                                                    kode = barangInDb.BRG,
-                                                    kode_mp = stf02h.BRG_MP,
-                                                    Qty = Convert.ToString(qtyOnHand),
-                                                    MinQty = "0"
-                                                };
-                                                data.Price = stf02h.HJUAL.ToString();
-                                                data.MarketPrice = stf02h.HJUAL.ToString();
-                                                var display = Convert.ToBoolean(stf02h.DISPLAY);
-                                                data.display = display ? "true" : "false";
-                                                new BlibliController().UpdateProdukQOH_Display(iden, data);
-                                                #endregion
+                                                    BliApi.GetQueueFeedDetail(iden, null);
+                                                }
+                                                else
+                                                {
+                                                    #region update
+                                                    BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
+                                                    {
+                                                        kode = barangInDb.BRG,
+                                                        kode_mp = stf02h.BRG_MP,
+                                                        Qty = Convert.ToString(qtyOnHand),
+                                                        MinQty = "0"
+                                                    };
+                                                    data.Price = stf02h.HJUAL.ToString();
+                                                    data.MarketPrice = stf02h.HJUAL.ToString();
+                                                    var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                                    data.display = display ? "true" : "false";
+                                                    BliApi.UpdateProdukQOH_Display(iden, data);
+                                                    #endregion
+                                                }
                                             }
                                             else
                                             {
@@ -2506,6 +2514,32 @@ namespace MasterOnline.Controllers
         {
             try
             {
+                //add by calvin 9 nov 2018
+                #region Blibli, get queue feed
+                var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+                var listBLIShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+                if (listBLIShop.Count > 0)
+                {
+                    var BliApi = new BlibliController();
+                    foreach (ARF01 tblCustomer in listBLIShop)
+                    {
+                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
+                        {
+                            BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                            {
+                                API_client_username = tblCustomer.API_CLIENT_U,
+                                API_client_password = tblCustomer.API_CLIENT_P,
+                                API_secret_key = tblCustomer.API_KEY,
+                                mta_username_email_merchant = tblCustomer.EMAIL,
+                                mta_password_password_merchant = tblCustomer.PASSWORD,
+                            };
+                            BliApi.GetQueueFeedDetail(data, null);
+                        }
+                    }
+                }
+                #endregion
+                //end add by calvin 9 nov 2018
+
                 var vm = new BarangViewModel()
                 {
                     Stf02 = ErasoftDbContext.STF02.Single(b => b.BRG == barangId),

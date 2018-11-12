@@ -1372,6 +1372,10 @@ namespace MasterOnline.Controllers
                 if (Convert.ToString(result.resultCode).Equals("200"))
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                    //add by calvin 9 nov 2018, coba panggil 2x
+                    Utils.HttpRequest req2 = new Utils.HttpRequest();
+                    var result2 = req2.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + Uri.EscapeDataString(awb) + "&dlvNo=" + Uri.EscapeDataString(dlvNo) + "&dlvMthdCd=" + Uri.EscapeDataString(dlvMthdCd) + "&dlvEtprsCd=" + Uri.EscapeDataString(dlvEtprsCd) + "&ordNo=" + Uri.EscapeDataString(ordNo) + "&dlvEtprsNm=" + Uri.EscapeDataString(dlvEtprsNm) + "&ordPrdSeq=" + Uri.EscapeDataString(ordPrdSeq), "", typeof(ClientMessage), auth) as ClientMessage;
+                    //end add by calvin 9 nov 2018, coba panggil 2x
                 }
                 else
                 {

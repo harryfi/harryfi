@@ -1234,6 +1234,22 @@ namespace MasterOnline.Controllers
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
+                                    //ADD BY CALVIN 9 NOV 2018
+                                    try
+                                    {
+                                        //SET BRG_MP JADI PENDING, AGAR TIDAK DOUBLE UPLOAD
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                        oCommand.Parameters[3].Value = Convert.ToString(data.kode);
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    //END ADD BY CALVIN 9 NOV 2018
+
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
                                     {
                                         request_id = result.requestId.Value,
@@ -1480,7 +1496,7 @@ namespace MasterOnline.Controllers
             {
                 string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
                 urll_1 += "&size=100";
-                if(!string.IsNullOrEmpty(data.nama))
+                if (!string.IsNullOrEmpty(data.nama))
                 {
                     var search = data.nama.Split(' ');
                     urll_1 += "&productName=" + search[1];
@@ -1963,7 +1979,7 @@ namespace MasterOnline.Controllers
                                                 using (SqlCommand oCommand = oConnection.CreateCommand())
                                                 {
                                                     oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                                                    oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
                                                     oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
                                                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
                                                     oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
@@ -1973,11 +1989,13 @@ namespace MasterOnline.Controllers
                                                         oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku.Value) + ';' + Convert.ToString(values.productCode.Value);
                                                         oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
                                                         oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
-                                                        if (oCommand.ExecuteNonQuery() == 1)
+                                                        oCommand.ExecuteNonQuery();
+
                                                         {
                                                             oCommand.CommandType = CommandType.Text;
                                                             oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                            if (oCommand.ExecuteNonQuery() == 1)
+                                                            oCommand.ExecuteNonQuery();
+
                                                             {
                                                                 string[] imgPath = new string[3];
                                                                 for (int i = 0; i < 3; i++)
@@ -2012,26 +2030,41 @@ namespace MasterOnline.Controllers
                                         oConnection.Open();
                                         using (SqlCommand oCommand = oConnection.CreateCommand())
                                         {
-                                            oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-
-                                            currentLog.REQUEST_RESULT = item.errorMessage.Value;
-                                            currentLog.REQUEST_EXCEPTION = "";
-                                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
-
                                             try
                                             {
+                                                oCommand.CommandType = CommandType.Text;
+                                                oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '2' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
                                                 oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                                if (oCommand.ExecuteNonQuery() == 1)
-                                                {
+                                                oCommand.ExecuteNonQuery();
 
-                                                }
+                                                currentLog.REQUEST_RESULT = item.errorMessage.Value;
+                                                currentLog.REQUEST_EXCEPTION = "";
+                                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                                             }
                                             catch (Exception ex)
                                             {
 
                                             }
+
+                                            dynamic values = null;
+                                            try
+                                            {
+                                                values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
+                                                if (values != null)
+                                                {
+                                                    if (Convert.ToString(values.type) == "createProduct")
+                                                    {
+                                                        oCommand.CommandType = CommandType.Text;
+                                                        oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                                        oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
+                                                        oCommand.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            { }
                                         }
                                     }
                                 }
