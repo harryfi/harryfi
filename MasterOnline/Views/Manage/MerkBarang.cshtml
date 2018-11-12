@@ -237,7 +237,7 @@
     function cekMerk($ket, $kodemerk, $urlAction, $msg) {
             var link = '';
 
-            link = '@Url.Action("replaceUrl", "Manage", new { param = "replaceKet;replaceKode" })';
+            link = '@Url.Action("replaceUrl", "Manage", new { ket = "replaceKet", kode = "replaceKode" })';
             link = link.replace("replaceUrl", $urlAction);
             link = link.replace("replaceKet", $ket.val());
             link = link.replace("replaceKode", $kodemerk.val());

@@ -8426,25 +8426,19 @@ namespace MasterOnline.Controllers
 
         //[HttpGet]
         [HttpGet]
-        public ActionResult CekKetMerk(string param)
+        public ActionResult CekKetMerk(string ket, string kodemerk)
         {
-            var res = new cekMerk()
+            var res = new CekMerk()
             {
                 Kode = kodemerk,
                 Nama = ket
             };
 
             //var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2" && k.KET == kode);
-            var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2"  && k.KET == ket && k.KODE != kodemerk);
+            var gudangInDb = ErasoftDbContext.STF02E.FirstOrDefault(k => k.LEVEL == "2" && k.KET == ket && k.KODE != kodemerk);
             if (gudangInDb != null) res.Available = false;
 
             return Json(res, JsonRequestBehavior.AllowGet);
-        }
-        public class cekMerk
-        {
-            public bool Available { get; set; } = true;
-            public string Kode { get; set; }
-            public string Nama { get; set; }
         }
         //end change by nurul
 
