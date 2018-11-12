@@ -1373,6 +1373,7 @@ namespace MasterOnline.Controllers
                 dataBarang.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(dataBarang, JsonRequestBehavior.AllowGet);
             }
+
             bool insert = false;//add by Tri
             bool updateHarga = false;//add by Tri
             bool updateDisplay = false;//add by Tri
@@ -1468,19 +1469,22 @@ namespace MasterOnline.Controllers
 
                         if (file != null && file.ContentLength > 0)
                         {
-                            var fileExtension = Path.GetExtension(file.FileName);
-                            var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
-                            var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                            try
-                            {
-                                file.SaveAs(path);
-                            }
-                            catch (Exception ex)
-                            {
+                            var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
 
-                            }
+                            //var fileExtension = Path.GetExtension(file.FileName);
+                            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                            //try
+                            //{
+                            //    file.SaveAs(path);
+                            //}
+                            //catch (Exception ex)
+                            //{
+
+                            //}
                             //add by tri
-                            imgPath[i] = path;
+
+                            imgPath[i] = image.data.link;
                         }
                     }
                 }
@@ -1759,13 +1763,18 @@ namespace MasterOnline.Controllers
 
                             if (file != null && file.ContentLength > 0)
                             {
-                                updateGambar = true;
-                                var fileExtension = Path.GetExtension(file.FileName);
-                                var namaFile = $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}{fileExtension}";
-                                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                                file.SaveAs(path);
-                                //add by tri
-                                imgPath[i] = path;
+                                var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
+                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+
+                                //updateGambar = true;
+                                //var fileExtension = Path.GetExtension(file.FileName);
+                                //var namaFile = $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}{fileExtension}";
+                                //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                                //file.SaveAs(path);
+                                ////add by tri
+                                //imgPath[i] = path;
+
+                                imgPath[i] = image.data.link;
                             }
                         }
                     }

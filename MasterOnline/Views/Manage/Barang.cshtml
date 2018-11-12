@@ -2011,10 +2011,10 @@
             //var $link2 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
             //var $link3 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
             //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
-            var path = "/Content/Uploaded/FotoProduk-";
-            var $link1 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            var $link2 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            var $link3 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
+            var path = "https://s3-ap-southeast-1.amazonaws.com/masteronlinebucket/uploaded-image/FotoProduk-";
+            var $link1 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
+            var $link2 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
+            var $link3 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
 
             $.ajax({
                 url: $link1,
