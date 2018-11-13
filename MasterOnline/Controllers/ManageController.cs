@@ -17,7 +17,7 @@ using System.Web.Services.Protocols;
 using System.Xml.Schema;
 using EntityFramework.Extensions;
 using System.Threading;
-
+using System.Threading.Tasks;
 using Erasoft.Function;
 
 using MasterOnline.Models;
@@ -1350,14 +1350,10 @@ namespace MasterOnline.Controllers
         {
             try
             {
-                var namaFile = $"FotoProduk-{uname}-{kodeBarang}-foto-{urutan}.jpg";
-                var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                if (System.IO.File.Exists(path))
-                {
-                    System.IO.File.Delete(path);
-                }
+                var namaFile = $"FotoProduk-{uname}-BRG{kodeBarang}-foto-{urutan}.jpg";
+                ManageImageService.DeleteObjectNonVersionedBucketAsync(namaFile);
 
-                return new EmptyResult();
+                return Json(namaFile, JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
             {

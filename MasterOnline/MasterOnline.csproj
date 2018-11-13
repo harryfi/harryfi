@@ -893,6 +893,7 @@
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
     <Compile Include="Models\ValidasiSubs.cs" />
+    <Compile Include="Services\ManageImageService.cs" />
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
     <Compile Include="Utils\Helper.cs" />
@@ -5716,6 +5717,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201804090153021_AlterNoUrutFaktur.resx">
       <DependentUpon>201804090153021_AlterNoUrutFaktur.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201804090820511_AlterTanggalPesanan.resx">
       <DependentUpon>201804090820511_AlterTanggalPesanan.cs</DependentUpon>
