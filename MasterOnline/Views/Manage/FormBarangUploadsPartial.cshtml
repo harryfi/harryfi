@@ -16,17 +16,198 @@
         username = dataSession?.Account.Username;
     }
 }
-@Html.AntiForgeryToken()
-@Html.HiddenFor(m => m.TempBrg.BERAT)
-@Html.HiddenFor(m => m.TempBrg.PANJANG)
-@Html.HiddenFor(m => m.TempBrg.LEBAR)
-@Html.HiddenFor(m => m.TempBrg.TINGGI)
-@Html.HiddenFor(m => m.TempBrg.BERAT)
-@Html.HiddenFor(m => m.TempBrg.Deskripsi)
-@Html.HiddenFor(m => m.TempBrg.IDMARKET)
-@Html.HiddenFor(m => m.TempBrg.CATEGORY_CODE)
-@Html.HiddenFor(m => m.TempBrg.CATEGORY_NAME)
-@Html.HiddenFor(m => m.TempBrg.DISPLAY)
+<div class="hiddenField">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.TempBrg.BERAT)
+    @Html.HiddenFor(m => m.TempBrg.PANJANG)
+    @Html.HiddenFor(m => m.TempBrg.LEBAR)
+    @Html.HiddenFor(m => m.TempBrg.TINGGI)
+    @Html.HiddenFor(m => m.TempBrg.DeliveryTempElevenia)
+    @Html.HiddenFor(m => m.TempBrg.Deskripsi)
+    @Html.HiddenFor(m => m.TempBrg.IDMARKET)
+    @Html.HiddenFor(m => m.TempBrg.CATEGORY_CODE)
+    @Html.HiddenFor(m => m.TempBrg.CATEGORY_NAME)
+    @Html.HiddenFor(m => m.TempBrg.PICKUP_POINT)
+    @Html.HiddenFor(m => m.TempBrg.CUST)
+    @Html.HiddenFor(m => m.TempBrg.DISPLAY)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_1)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_1)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_1)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_2)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_2)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_2)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_3)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_3)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_3)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_4)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_4)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_4)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_5)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_5)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_5)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_6)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_6)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_6)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_7)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_7)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_7)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_8)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_8)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_8)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_9)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_9)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_9)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_10)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_10)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_10)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_11)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_11)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_11)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_12)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_12)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_12)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_13)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_13)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_13)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_14)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_14)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_14)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_15)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_15)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_15)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_16)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_16)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_16)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_17)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_17)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_17)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_18)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_18)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_18)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_19)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_19)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_19)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_20)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_20)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_20)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_21)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_21)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_21)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_22)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_22)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_22)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_23)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_23)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_23)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_24)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_24)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_24)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_25)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_25)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_25)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_26)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_26)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_26)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_27)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_27)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_27)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_28)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_28)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_28)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_29)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_29)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_29)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_30)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_30)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_30)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_31)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_31)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_31)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_32)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_32)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_32)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_33)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_33)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_33)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_34)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_34)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_34)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_35)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_35)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_35)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_36)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_36)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_36)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_37)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_37)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_37)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_38)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_38)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_38)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_39)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_39)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_39)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_40)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_40)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_40)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_41)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_41)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_41)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_42)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_42)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_42)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_43)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_43)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_43)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_44)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_44)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_44)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_45)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_45)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_45)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_46)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_46)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_46)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_47)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_47)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_47)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_48)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_48)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_48)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_49)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_49)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_49)
+    @Html.HiddenFor(m => m.TempBrg.ACODE_50)
+    @Html.HiddenFor(m => m.TempBrg.ANAME_50)
+    @Html.HiddenFor(m => m.TempBrg.AVALUE_50)
+
+    @Html.HiddenFor(m => m.Stf02.ID)
+    @Html.HiddenFor(m => m.Stf02.HPP, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HBELI, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HBESAR, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.HKECIL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.TYPE, new { Value = 3 })
+    @Html.HiddenFor(m => m.Stf02.KLINK, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.HP_STD, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.QPROD, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.ISI3, new { Value = 3 })
+    @Html.HiddenFor(m => m.Stf02.ISI4, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.TOLERANSI, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.H_STN_3, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.H_STN_4, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.SS, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.METODA_HPP_PER_SN, new { Value = false })
+    @Html.HiddenFor(m => m.Stf02.HNA_PPN, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.LABA, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_HRG_JUAL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.DEFAULT_STN_JUAL, new { Value = 0 })
+    @Html.HiddenFor(m => m.Stf02.USERNAME, new { Value = username })
+    @Html.HiddenFor(m => m.Stf02.ISI, new { Value = 1 })
+    @Html.HiddenFor(m => m.Stf02.STN)
+    @Html.HiddenFor(m => m.Stf02.Metoda, new { Value = "1" })
+    @Html.HiddenFor(m => m.Stf02.Tgl_Input, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+    @Html.HiddenFor(m => m.Stf02.TGL_KLR, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+</div>
 
 <div class="form-horizontal">
     <div class="row">
@@ -46,36 +227,46 @@
                     <div class="form-group">
                         @Html.LabelFor(m => m.TempBrg.BRG_MP, "Kode Barang di Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.TempBrg.BRG_MP, new { @class = "form-control", maxlength = 20, disabled = "disabled" })
+                            @Html.HiddenFor(m => m.TempBrg.BRG_MP)
+                            @*@Html.TextBoxFor(m => m.TempBrg.BRG_MP, new { @class = "form-control", maxlength = 20 })*@
+                            <input class="form-control" value="@Model.TempBrg.BRG_MP" disabled/>
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Nama Barang", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        @Html.LabelFor(m => m.TempBrg.NAMA, "Nama Barang", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.TempBrg.NAMA, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                            @Html.HiddenFor(m => m.TempBrg.NAMA)
+                            @*@Html.TextBoxFor(m => m.TempBrg.NAMA, new { @class = "form-control", maxlength = 30, disabled = "disabled" })*@
+                            <input class="form-control" value="@Model.TempBrg.NAMA" disabled />
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-md-3 col-sm-3 col-xs-12"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.TempBrg.NAMA2, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                            @Html.HiddenFor(m => m.TempBrg.NAMA2)
+                            @*@Html.TextBoxFor(m => m.TempBrg.NAMA2, new { @class = "form-control", maxlength = 30, disabled = "disabled" })*@
+                            <input class="form-control" value="@Model.TempBrg.NAMA2" disabled />
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Merek", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        @Html.LabelFor(m => m.TempBrg.MEREK, "Merek", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.TempBrg.MEREK, new { @class = "form-control", maxlength = 30, disabled = "disabled" })
+                            @Html.HiddenFor(m => m.TempBrg.MEREK)
+                            @*@Html.TextBoxFor(m => m.TempBrg.MEREK, new { @class = "form-control", maxlength = 30, disabled = "disabled" })*@
+                            <input class="form-control" value="@Model.TempBrg.MEREK" disabled />
                         </div>
                     </div>
                     <div class="form-group">
                         @Html.LabelFor(m => m.TempBrg.HJUAL, "Harga Jual", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-4 col-sm-4 col-xs-12">
-                            @(Model?.TempBrg != null ? Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL), disabled = "disabled", maxlength = "12" }) : Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
+                            @Html.HiddenFor(m => m.TempBrg.HJUAL)
+                            @*@(Model?.TempBrg != null ? Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL), disabled = "disabled", maxlength = "12" }) : Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))*@
+                            <input class="form-control" value="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL)" disabled />
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="xpanel">
+            <div class="x_panel">
                 <div class="x_title">
                     <h2 style="font-size: 16px">Upload Barang ke Master Online</h2>
                     <ul class="nav navbar-right panel_toolbox">
@@ -87,13 +278,15 @@
                 </div>
                 <div class="x_content">
                     <div class="form-group">
-                        <div class="col-md-3 col-sm-3 col-xs-12">
-                            <label>Kode Barang Master Online *</label>
-                        </div>
+                        @*<div class="col-md-3 col-sm-3 col-xs-12">
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
+                            </div>*@
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>
                                 <tr>
                                     <td>
+                                        @Html.HiddenFor(m => m.Stf02.BRG)
                                         <input maxlength="20" value="" class="form-control" id="txtBrg" name="txtBrg" type="text" onchange="AutoCompleteBrg();">
                                     </td>
                                     <td>
@@ -219,6 +412,12 @@
                         @Html.LabelFor(m => m.Stf02.Deskripsi, "Deskripsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextAreaFor(m => m.Stf02.Deskripsi, new { @class = "form-control", required = "required", minlength = 30 })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
                         </div>
                     </div>
                     <div class="form-group">
