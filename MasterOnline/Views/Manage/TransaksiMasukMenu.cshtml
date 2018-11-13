@@ -955,6 +955,9 @@
                 type: "GET",
                 url: link,
                 contentType: 'application/json',
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 cache: false,
                 success: function (response) {
                     if (response.Errors == null) {
@@ -966,8 +969,10 @@
                         alert(response.Errors[0]);
                     }
                     $('#konfHapusBarang').modal('hide');
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
+                    $('#loading_spinner').hide();
                     console.log(xhr);
                 }
             });

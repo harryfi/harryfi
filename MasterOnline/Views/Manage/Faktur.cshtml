@@ -623,49 +623,49 @@
                     </div>
                 </div>
                 @*<div role="tabpanel" class="tab-pane fade active in" id="tab_content2" aria-labelledby="faktur-lunas-tab">
-                    <div class="row faktur_lunas_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_faktur_lunas" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
+                        <div class="row faktur_lunas_table_section">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_faktur_lunas" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row faktur_lunas_table_section" style="margin-top: 5px;">
+                            <div id="loading_lunas_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>
+                            <div class="col-sm-12" id="table-faktur-lunas-partial">
+                                @Html.Partial("TableFakturLunasPartial")
                             </div>
                         </div>
                     </div>
-                    <div class="row faktur_lunas_table_section" style="margin-top: 5px;">
-                        <div id="loading_lunas_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
-                        <div class="col-sm-12" id="table-faktur-lunas-partial">
-                            @Html.Partial("TableFakturLunasPartial")
-                        </div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane fade active in" id="tab_content3" aria-labelledby="faktur-tempo-tab">
-                    <div class="row faktur_tempo_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_faktur_tempo" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
+                    <div role="tabpanel" class="tab-pane fade active in" id="tab_content3" aria-labelledby="faktur-tempo-tab">
+                        <div class="row faktur_tempo_table_section">
+                            <div class="col-lg-4 col-sm-6">
+                                <div class="input-group">
+                                    <input id="search_faktur_tempo" type="text" class="form-control" placeholder="Pencarian">
+                                    <span class="input-group-btn">
+                                        <button type="button" class="btn btn-primary">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                    </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row faktur_tempo_table_section" style="margin-top: 5px;">
-                        <div id="loading_tempo_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        <div class="row faktur_tempo_table_section" style="margin-top: 5px;">
+                            <div id="loading_tempo_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>
+                            <div class="col-sm-12" id="table-faktur-tempo-partial">
+                                @Html.Partial("TableFakturLunasPartial")
+                            </div>
                         </div>
-                        <div class="col-sm-12" id="table-faktur-tempo-partial">
-                            @Html.Partial("TableFakturLunasPartial")
-                        </div>
-                    </div>
-                </div>*@
+                    </div>*@
             </div>
         </div>
     </div>
@@ -740,18 +740,18 @@
                         <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
                     </div>
                     @*<div class="col-md-11">
-                        
-                    </div>
-                    <div class="col-md-11">
-                        
-                    </div>
-                    <div class="col-md-11">
-                        
-                    </div>*@
+
+                        </div>
+                        <div class="col-md-11">
+
+                        </div>
+                        <div class="col-md-11">
+
+                        </div>*@
                     <div class="col-md-11">
                         <h4></h4>
                     </div>
-                </div>                
+                </div>
                 @*end add*@
                 <div class="row">
                     <div class="col-md-4">
@@ -761,10 +761,8 @@
                         <select id="CUSTOMER_UPLOAD_FAKTUR" placeholder="Harap Pilih Akun" required="required"></select>
                     </div>
                     <div class="col-md-2">
-
                     </div>
                     <div class="col-md-4">
-
                     </div>
                     <div class="col-md-2">
                     </div>
@@ -794,7 +792,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -814,7 +811,6 @@
         </div>
     </div>
 </div>
-
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -944,7 +940,7 @@
                 $('#selected-package-' + $kodeSubs).text($pilihan);
                 $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
             });
-                //end add 09-10-2018, function button di subscription
+            //end add 09-10-2018, function button di subscription
         });
 
         //add by Tri, call midtrans api get token
@@ -979,8 +975,8 @@
             }
             moment.locale('id');
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
-                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+            var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+            var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
             var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
             //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
@@ -990,33 +986,33 @@
                 var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
-                     //alert('kode:' + kode + '\nbln:' + bln);
-                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //alert('kode:' + kode + '\nbln:' + bln);
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                link += '?code=' + kode + '&bulan=' + bln;
+                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    link += '?code=' + kode + '&bulan=' + bln;
 
-                $.ajax({
-                    type: "GET",
-                    url: link,
-                    success: function (response) {
-                        if (response != null) {
-                            //window.location = response.urlView;
-                            if (response.error == null) {
-                                snap.pay(response, { skipOrderSummary: true });
-                            } else {
-                            alert(response);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                //window.location = response.urlView;
+                                if (response.error == null) {
+                                    snap.pay(response, { skipOrderSummary: true });
+                                } else {
+                                    alert(response);
+                                }
                             }
-                        }
-                        //window.open(response, "_self");
-                        //window.location.href(response);
+                            //window.open(response, "_self");
+                            //window.location.href(response);
 
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                    }
-                });
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
                 }
             }
             else
@@ -1169,7 +1165,12 @@
 
             refreshForm1();
 
-
+            //add by nurul 6/11/2018
+            $('#myTab li a').each(function (index) {
+                $(this).attr('data-toggle', 'tab');
+                $(this).removeClass('disabled-tab');
+            });
+            //end add by nurul 6/11/2018
 
             $modeEdit = 0;
 
@@ -1225,7 +1226,7 @@
                     //    refreshTableFakturTempo();
                     //}
                     $('#faktur-tab').click();
-                    
+
                     $('input, select, .btn-danger').each(function() {
                         $(this).removeAttr('disabled');
                     });
@@ -1296,7 +1297,7 @@
                     //add by nurul 31/10/2018
                     $('#TGL').datepicker('hide');
                     //end add
-                    
+
 
                     if ($('#Faktur_TERM').val() == '') {
                         $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
@@ -1469,6 +1470,22 @@
                     $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
                 }
             });
+            //add by nurul 6/11/2018
+            $('#Faktur_TERM').blur(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Faktur_TGL_JT_TEMPO').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Faktur_TGL_JT_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Faktur_TGL_JT_TEMPO').val('Masukkan TOP dahulu');
+                }
+            });
+            //end add
 
             // ==== Update Data ====
             $('#Faktur_NILAI_DISC').change(function () {
@@ -1530,6 +1547,12 @@
                         //$this.hide();
                         $('#btn-simpan-perubahan-row').hide();
                         //end change by calvin 7 juni 2018
+                        //add by nurul 6/11/2018
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 6/11/2018
                     },
                     error: function (xhr) {
                         $('#loading_spinner').hide();
@@ -1593,7 +1616,10 @@
                 var $trElement = 'tr[data-faktur-id="' + $trId + '"]';
 
                 if ($this.text() !== '') {
-                    $angka = $this.text();
+                    //change by calvin 12 nov 2018
+                    //$angka = $this.text();
+                    $angka = convertToAngka($this.text());
+                    //end change by calvin 12 nov 2018
                 }
 
                 if ($class == 'qty-barang editable') {
@@ -1668,7 +1694,10 @@
                             } else if ($class === 'disc1-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT must be a number." data-val-required="The DISCOUNT field is required." id="FakturDetail_DISCOUNT" name="FakturDetail.DISCOUNT" type="hidden" value="">');
 
-                                if (this.value == 0) {
+                                //change by calvin 12 nov 2018
+                                //if (this.value == 0) {
+                                if (convertToAngka(this.value) === 0) {
+                                    //end change by calvin 12 nov 2018
                                     $($trElement + ' .ndisc1-barang')
                                         // remark by nurul 1/10/2018  .text(convertToRupiah(0))
                                         .addClass('editable')
@@ -1689,7 +1718,10 @@
                             } else if ($class === 'disc2-barang editable') {
                                 $this.html(this.value + '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="FakturDetail_DISCOUNT_2" name="FakturDetail.DISCOUNT_2" type="hidden" value="">');
 
-                                if (this.value == 0) {
+                                //change by calvin 12 nov 2018
+                                //if (this.value == 0) {
+                                if (convertToAngka(this.value) === 0) {
+                                    //end change by calvin 12 nov 2018
                                     $($trElement + ' .ndisc2-barang')
                                         // remark by nurul 1/10/2018   .text(convertToRupiah(0))
                                         .addClass('editable')
@@ -1710,7 +1742,10 @@
                             } else if ($class === 'ndisc1-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="FakturDetail_NILAI_DISC_1" name="FakturDetail.NILAI_DISC_1" type="hidden" value="">');
 
-                                if (this.value != 0,00) {
+                                //change by calvin 12 nov 2018
+                                //if (this.value != 0,00) {
+                                if (convertToAngka(this.value) !== 0) {
+                                    //end change by calvin 12 nov 2018
                                     $($trElement + ' .disc1-barang')
                                         .removeClass('editable')
                                         .css('pointer-events', 'none')
@@ -1728,7 +1763,10 @@
                             } else if ($class === 'ndisc2-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="FakturDetail_NILAI_DISC_2" name="FakturDetail.NILAI_DISC_2" type="hidden" value="">');
 
-                                if (this.value != 0,00) {
+                                //change by calvin 12 nov 2018
+                                //if (this.value != 0,00) {
+                                if (convertToAngka(this.value) !== 0) {
+                                    //end change by calvin 12 nov 2018
                                     $($trElement + ' .disc2-barang')
                                         .removeClass('editable')
                                         .css('pointer-events', 'none')

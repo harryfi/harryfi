@@ -216,10 +216,19 @@
         $(document).ready(function () {
             var d = new Date();
 
+            //change by nurul 6/11/2018
+            //$('#CutOffDate').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', d);
             $('#CutOffDate').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', d);
+            }).datepicker('setDate', d).change(function () {
+                $('#CutOffDate').val($(this).val());
+                $(this).datepicker('hide');
+            });
+            //end change 
 
             $('#prompt-daribrg').click(function () {
                 promptBrg = "1";

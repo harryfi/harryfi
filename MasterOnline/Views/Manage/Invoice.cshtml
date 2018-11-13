@@ -927,6 +927,9 @@
 
     <script type="text/javascript">
         var $TabAktif = 0;// 0 Faktur, 1 Invoice Sudah Lunas, 2 Invoice Jatuh Tempo
+        //add by nurul 6/11/2018
+        var $modeEdit = 0; // 0 new, 1 edit
+        //end add 
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
         var $jumlahPesananBulanIni = 0;
@@ -1130,7 +1133,13 @@
             $('.invoice_table_section').show();
             $('.invoice_editor_section').hide();
             refreshForm1();
-
+            //add by nurul 6/11/2018
+            $('#myTab li a').each(function (index) {
+                $(this).attr('data-toggle', 'tab');
+                $(this).removeClass('disabled-tab');
+            });
+            $modeEdit = 0;
+            //end add by nurul 6/11/2018
             $bakalNetto = 0;
             $totalAwal = 0;
             $nettoSebelumnya = 0;
@@ -1226,6 +1235,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
+                    $modeEdit = 0;
                     //end add
 
                     refreshForm1();
@@ -1296,30 +1306,57 @@
         }
 
         function getTanggal() {
-            $('#TGL').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
-                if ($(this).val() == '') {
-                    $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
-                    return;
-                }
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
+                        $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+                        return;
+                    }
 
-                var $tgl = moment($(this).val(), "DD/MM/YYYY");
-                $('#Invoice_TGL').val($(this).val());
-                //add by nurul 31/10/2018
-                $(this).datepicker('hide');
-                //end add
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Invoice_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
 
-                if ($('#Invoice_TERM').val() == '') {
-                    $('#Invoice_TGJT').val('Masukkan TOP dahulu');
-                } else {
-                    var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
-                    $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
-                }
+                    if ($('#Invoice_TERM').val() == '') {
+                        $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
+                        $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
+                    }
 
-                $('#btn-simpan-perubahan-row').show();
-            });
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            } else {
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                        $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Invoice_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $(this).datepicker('hide');
+                    //end add
+
+                    if ($('#Invoice_TERM').val() == '') {
+                        $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
+                        $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
+                    }
+
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
         }
 
         var $flagPerubahan = 0;
@@ -1420,9 +1457,27 @@
                 } else {
                     $('#Invoice_TGJT').val('Masukkan TOP dahulu');
                 }
-                getTanggal();
+                //getTanggal();
 
             });
+            //add by nurul 6/11/2018
+            $('#Invoice_TERM').blur(function () {
+                if ($('#TGL').val() == '') {
+                    $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+                    return;
+                }
+
+                if ($(this).val() != '') {
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    var tglTop = $tgl.add($(this).val(), 'days');
+                    $('#Invoice_TGJT').val(tglTop.format('DD/MM/YYYY'));
+                } else {
+                    $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+                }
+                //getTanggal();
+
+            });
+            //end add 
 
             $('#btn-simpan-perubahan').click(function () {
                 var $this = $(this);
@@ -1455,6 +1510,12 @@
                         $('#btn-simpan-perubahan-row').hide();
                         //end change by calvin 21 juni 2018
                         $('#loading_spinner').hide();
+                        //add by nurul 6/11/2018
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 6/11/2018
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -2120,6 +2181,8 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $modeEdit = 1;
+
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();
@@ -2155,6 +2218,8 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $modeEdit = 1;
+
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Invoice_BRUTO').val());
                     refreshInputan();

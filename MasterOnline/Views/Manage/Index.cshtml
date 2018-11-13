@@ -151,6 +151,22 @@
                 contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (response) {
+                    var maxTicksBasic = 10;
+                    var arrayData = [
+                        response.data.JumlahPesananHariIni, response.data.JumlahFakturHariIni,
+                        response.data.JumlahReturHariIni,
+                        response.data.JumlahPesananBulanIni, response.data.JumlahFakturBulanIni,
+                        response.data.JumlahReturBulanIni
+                    ];
+
+                    var max = Math.max.apply(Math, arrayData);
+
+                    if (max > maxTicksBasic) {
+                        maxTicksBasic = Math.ceil(max / 10) * 10;
+                    }
+
+                    var steppingBasic = (Math.ceil(max / 10) * 10) / 5;
+
                     var ctx = document.getElementById("chart-jumlah").getContext('2d');
                     var chartJumlah = new Chart(ctx, {
                         type: 'bar',
@@ -192,13 +208,54 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10
+                                        stepSize: steppingBasic,
+                                        max: maxTicksBasic
                                     }
                                 }],
 
                             }
                         }
                     });
+                    
+                    var maxTicksValueBasic = 10000;
+                    var dividerValueBasic = 10;
+                    var arrayDataValueBasic = [
+                        response.data.NilaiPesananHariIni,
+                        response.data.NilaiFakturHariIni,
+                        response.data.NilaiReturHariIni,
+                        response.data.NilaiPesananBulanIni,
+                        response.data.NilaiFakturBulanIni,
+                        response.data.NilaiReturBulanIni
+                    ];
+
+                    var maxValueBasic = Math.max.apply(Math, arrayDataValueBasic);
+
+                    if (maxValueBasic > 100 && maxValueBasic <= 1000) {
+                        dividerValueBasic = 100;
+                    } else if (maxValueBasic > 1000 && maxValueBasic <= 10000) {
+                        dividerValueBasic = 1000;
+                    } else if (maxValueBasic > 10000 && maxValueBasic <= 100000) {
+                        dividerValueBasic = 10000;
+                    } else if (maxValueBasic > 100000 && maxValueBasic <= 1000000) {
+                        dividerValueBasic = 100000;
+                    } else if (maxValueBasic > 1000000 && maxValueBasic <= 10000000) {
+                        dividerValueBasic = 1000000;
+                    } else if (maxValueBasic > 10000000 && maxValueBasic <= 100000000) {
+                        dividerValueBasic = 10000000;
+                    } else if (maxValueBasic > 100000000 && maxValueBasic <= 1000000000) {
+                        dividerValueBasic = 100000000;
+                    } else if (maxValueBasic > 1000000000 && maxValueBasic <= 10000000000) {
+                        dividerValueBasic = 1000000000;
+                    } else if (maxValueBasic > 10000000000 && maxValueBasic <= 100000000000) {
+                        dividerValueBasic = 10000000000;
+                    }
+
+                    var roundValueBasic = Math.round(maxValueBasic / dividerValueBasic) * dividerValueBasic;
+                    var steppingValueBasic = roundValueBasic / 5;
+
+                    if (maxValueBasic > maxTicksValueBasic) {
+                        maxTicksValueBasic = roundValueBasic + dividerValueBasic;
+                    }
 
                     var ctxNilai = document.getElementById("chart-nilai").getContext('2d');
                     var chartNilai = new Chart(ctxNilai, {
@@ -242,7 +299,8 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 1000000,
+                                        stepSize: steppingValueBasic,
+                                        max: maxTicksValueBasic,
                                         userCallback: function(value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);
@@ -276,8 +334,17 @@
                         nilaiPesananBulanIniPerMarket.push(convertToAngka(response.data.ListPesananPerMarketplace[i].NilaiPesananBulanIni));
                     }
 
-                    console.log(nilaiPesananHariIniPerMarket);
-                    console.log(nilaiPesananBulanIniPerMarket);
+                    var maxTicksByMarket = 10;
+                    var maxJumlahPesananHariIni = Math.max.apply(Math, jumlahPesananHariIniPerMarket);
+                    var maxJumlahPesananBulanIni = Math.max.apply(Math, jumlahPesananBulanIniPerMarket);
+                    var dataMaxJumlah = [maxJumlahPesananHariIni, maxJumlahPesananBulanIni];
+                    var maxJumlahByMarket = Math.max.apply(Math, dataMaxJumlah);
+
+                    if (maxJumlahByMarket > maxTicksByMarket) {
+                        maxTicksByMarket = Math.ceil(maxJumlahByMarket / 10) * 10;
+                    }
+
+                    var steppingByMarket = (Math.ceil(maxJumlahByMarket / 10) * 10) / 5;
 
                     var ctxJumlahPerMarket = document.getElementById("chart-jumlah-per-market").getContext('2d');
                     var chartJumlahPerMarket = new Chart(ctxJumlahPerMarket, {
@@ -320,13 +387,48 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 10
+                                        stepSize: steppingByMarket,
+                                        max: maxTicksByMarket
                                     }
                                 }],
 
                             }
                         }
                     });
+
+                    var maxTicksValueByMarket = 100000;
+                    var dividerValueByMarket = 10;
+                    var maxNilaiPesananHariIni = Math.max.apply(Math, nilaiPesananHariIniPerMarket);
+                    var maxNilaiPesananBulanIni = Math.max.apply(Math, nilaiPesananBulanIniPerMarket);
+                    var dataMaxValueByMarket = [maxNilaiPesananHariIni, maxNilaiPesananBulanIni];
+                    var maxValueByMarket = Math.max.apply(Math, dataMaxValueByMarket);
+
+                    if (maxValueByMarket > 100 && maxValueByMarket <= 1000) {
+                        dividerValueByMarket = 100;
+                    } else if (maxValueByMarket > 1000 && maxValueByMarket <= 10000) {
+                        dividerValueByMarket = 1000;
+                    } else if (maxValueByMarket > 10000 && maxValueByMarket <= 100000) {
+                        dividerValueByMarket = 10000;
+                    } else if (maxValueByMarket > 100000 && maxValueByMarket <= 1000000) {
+                        dividerValueByMarket = 100000;
+                    } else if (maxValueByMarket > 1000000 && maxValueByMarket <= 10000000) {
+                        dividerValueByMarket = 1000000;
+                    } else if (maxValueByMarket > 10000000 && maxValueByMarket <= 100000000) {
+                        dividerValueByMarket = 10000000;
+                    } else if (maxValueByMarket > 100000000 && maxValueByMarket <= 1000000000) {
+                        dividerValueByMarket = 100000000;
+                    } else if (maxValueByMarket > 1000000000 && maxValueByMarket <= 10000000000) {
+                        dividerValueByMarket = 1000000000;
+                    } else if (maxValueByMarket > 10000000000 && maxValueByMarket <= 100000000000) {
+                        dividerValueByMarket = 10000000000;
+                    }
+
+                    var roundValueByMarket = Math.round(maxValueByMarket / dividerValueByMarket) * dividerValueByMarket;
+                    var steppingValueByMarket = roundValueByMarket / 5;
+
+                    if (maxValueByMarket > maxTicksValueByMarket) {
+                        maxTicksValueByMarket = roundValueByMarket + dividerValueByMarket;
+                    }
 
                     var ctxNilaiPerMarket = document.getElementById("chart-nilai-per-market").getContext('2d');
                     var chartNilaiPerMarket = new Chart(ctxNilaiPerMarket, {
@@ -370,7 +472,8 @@
                                 yAxes: [{
                                     ticks: {
                                         beginAtZero: true,
-                                        stepSize: 1000000,
+                                        stepSize: steppingValueByMarket,
+                                        max: maxTicksValueByMarket,
                                         userCallback: function (value, index, values) {
                                             value = value.toString();
                                             value = value.split(/(?=(?:...)*$)/);

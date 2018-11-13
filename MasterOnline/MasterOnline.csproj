@@ -52,6 +52,21 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\AKSHASP.dll</HintPath>
     </Reference>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="AWS.Logger.Core, Version=1.2.0.0, Culture=neutral, PublicKeyToken=71c852f8be1c371d, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWS.Logger.Core.1.2.0\lib\net45\AWS.Logger.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.CloudWatchLogs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.CloudWatchLogs.3.3.6.16\lib\net45\AWSSDK.CloudWatchLogs.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.Core.3.3.29.8\lib\net45\AWSSDK.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
+      <HintPath>..\packages\AWSSDK.S3.3.3.26.10\lib\net45\AWSSDK.S3.dll</HintPath>
+    </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Users\user\Desktop\Era Controls Dev\EAF.dll</HintPath>
@@ -75,8 +90,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\EraControls.dll</HintPath>
     </Reference>
-    <Reference Include="HtmlRenderer, Version=1.5.0.5, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlRenderer.Core.1.5.0.5\lib\net45\HtmlRenderer.dll</HintPath>
+    <Reference Include="HtmlRenderer, Version=1.5.0.6, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlRenderer.Core.1.5.0.6\lib\net45\HtmlRenderer.dll</HintPath>
     </Reference>
     <Reference Include="InteractivePreGeneratedViews, Version=1.0.0.0, Culture=neutral, PublicKeyToken=46c4868af4307d2c, processorArchitecture=MSIL">
       <HintPath>..\packages\EFInteractiveViews.1.0.1\lib\net45\InteractivePreGeneratedViews.dll</HintPath>
@@ -90,14 +105,28 @@
     <Reference Include="LazopSdk">
       <HintPath>..\..\..\..\Desktop\lazop-sdk-net-20180422-1524824623939DUoW\net\LazopSdk.dll</HintPath>
     </Reference>
+    <Reference Include="Lib.Web.Mvc, Version=6.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Lib.Web.Mvc.6.9.0\lib\net46\Lib.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="MailBee.NET, Version=7.2.2.366, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\MailBee.NET.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=1.0.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Extensions.Configuration.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Configuration.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Configuration.Abstractions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Extensions.Primitives, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
+    </Reference>
     <Reference Include="PagedList, Version=1.17.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
       <HintPath>..\packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
     </Reference>
@@ -111,6 +140,7 @@
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -175,13 +205,8 @@
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.WebPages.Razor.dll</HintPath>
     </Reference>
-    <Reference Include="WebGrease">
-      <Private>True</Private>
-      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
-    </Reference>
-    <Reference Include="Antlr3.Runtime">
-      <Private>True</Private>
-      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    <Reference Include="WebGrease, Version=1.6.5135.21930, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\WebGrease.1.6.0\lib\WebGrease.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -447,6 +472,10 @@
     <Compile Include="ErasoftContextMigrations\201811020846209_add_cust_tempBrgMp.Designer.cs">
       <DependentUpon>201811020846209_add_cust_tempBrgMp.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.cs" />
+    <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.Designer.cs">
+      <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
+    </Compile>
     <Compile Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.cs" />
     <Compile Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.Designer.cs">
       <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
@@ -559,7 +588,11 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\CekMerk.cs" />
+    <Compile Include="Models\DataForQuery.cs" />
     <Compile Include="Models\DataSecUser.cs" />
+    <Compile Include="Models\ImgurData.cs" />
+    <Compile Include="Models\ImgurImageResponse.cs" />
     <Compile Include="Models\LOG_IMPORT_FAKTUR.cs" />
     <Compile Include="Models\API_LOG_MARKETPLACE_PER_ITEM.cs" />
     <Compile Include="Models\APF01A.cs" />
@@ -864,6 +897,8 @@
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
     <Compile Include="Models\ValidasiSubs.cs" />
+    <Compile Include="Services\UploadImageService.cs" />
+    <Compile Include="Utils\AwsConfig.cs" />
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
@@ -1203,6 +1238,8 @@
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\chart_mo.png" />
+    <Content Include="Content\Images\contoh_query_add_column.png" />
+    <Content Include="Content\Images\contoh_query_insert.png" />
     <Content Include="Content\Images\cover_top.jpg" />
     <Content Include="Content\Images\cropper.jpg" />
     <Content Include="Content\Images\daily-social-logo.png" />
@@ -5640,6 +5677,7 @@
     <Content Include="Views\Manage\PromptCustomer.cshtml" />
     <Content Include="Views\Admin\DatabaseMenu.cshtml" />
     <Content Include="Views\Manage\FormBarangUploadsPartial.cshtml" />
+    <Content Include="Views\Admin\GeneratorSqlMenu.cshtml" />
     <Content Include="Views\Manage\PromptBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -5837,6 +5875,9 @@
     <EmbeddedResource Include="ErasoftContextMigrations\201811020846209_add_cust_tempBrgMp.resx">
       <DependentUpon>201811020846209_add_cust_tempBrgMp.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.resx">
+      <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.resx">
       <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
     </EmbeddedResource>
@@ -6000,6 +6041,10 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\AWSSDK.CloudWatchLogs.3.3.6.16\analyzers\dotnet\cs\AWSSDK.CloudWatchLogs.CodeAnalysis.dll" />
+    <Analyzer Include="..\packages\AWSSDK.S3.3.3.26.10\analyzers\dotnet\cs\AWSSDK.S3.CodeAnalysis.dll" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -6020,6 +6065,15 @@
     <DefineConstants>TRACE;DEV;</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_AWS|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;Debug_AWS;</DefineConstants>
+    <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>

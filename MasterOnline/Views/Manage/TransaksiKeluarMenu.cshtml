@@ -939,14 +939,19 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     refreshNettoBarang();
                     $('#form-partial').html(response);
                     getDataBarang();
                     getGudang();
                     $('#konfHapusBarang').modal('hide');
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
+                    $('#loading_spinner').hide();
                     console.log(xhr);
                 }
             });

@@ -134,7 +134,7 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Supplier.AL3, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.HiddenFor(m => m.Supplier.AL3)
+                                                    @Html.HiddenFor(m => m.Supplier.AL3, new { @class = "form-control", required = "required" })
                                                     <div id="KODEPROV" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
@@ -142,7 +142,7 @@
                                                 @Html.LabelFor(m => m.Supplier.AL2, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*@Html.TextBoxFor(m => m.Supplier.AL2, new { @class = "form-control", required = "required" })*@
-                                                    @Html.HiddenFor(m => m.Supplier.AL2)
+                                                    @Html.HiddenFor(m => m.Supplier.AL2, new { @class = "form-control", required = "required" })
                                                     <div id="KODEKABKOT" class="selectivity-input" tabindex="0" required="required"></div>
                                                 </div>
                                             </div>
@@ -301,7 +301,7 @@
                 $('#KODEPROV').selectivity('value', null);
                 //add by nurul 31/10/2018
                 $('#KODEKABKOT').selectivity('value', null);
-
+                resetError();
             });
 
             if ($('.message-error').text() !== '') {
@@ -333,6 +333,20 @@
                     if (convertToAngka($("#Supplier_AL4").val()) > 99999) {
                         addError($("#Supplier_AL4").parent(), "Maxlength is 5 digits !");
                         return false;
+                    }
+                });
+            //end add
+            //add by nurul 7/11/2018
+            $('#Supplier_AL2, #KODEKABKOT').keydown(
+                function () {
+                    if ($('#Supplier_AL2').val() == "") {
+                        addError($("#Supplier_AL2").parent(), "Kolom ini tidak boleh kosong!");
+                    }
+                });
+            $('#Supplier_AL3, #KODEPROV').keydown(
+                function () {
+                    if ($('#Supplier_AL3').val() == "") {
+                        addError($('#Supplier_AL3').parent(), "Kolom ini tidak boleh kosong!");
                     }
                 });
             //end add

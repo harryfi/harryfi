@@ -15,6 +15,7 @@ using System.IO;
 using Erasoft.Function;
 using System.Xml;
 using System.Web.Script.Serialization;
+using Lib.Web.Mvc;
 
 namespace MasterOnline.Controllers
 {
@@ -59,15 +60,18 @@ namespace MasterOnline.Controllers
                 path = Path.Combine(dirNotFound, "photo_not_available.jpg");
             }
             Byte[] b = System.IO.File.ReadAllBytes(path);
-            FileContentResult res = base.File(b, "image/jpg");
-            res.ExecuteResult(this.ControllerContext);
-            
             //FilePathResult res = base.File(path, "image/jpg");
+            //FilePathResult res = base.File(path, "image/jpg");
+            //FileContentResult res = base.File(b, "image/jpg");
+            //res.ExecuteResult(this.ControllerContext);
+            DateTime modifiedDate = System.IO.File.GetLastWriteTime(path);
+            RangeFileContentResult res = new RangeFileContentResult(b, "image/jpg", "MasterOnlineImage", modifiedDate);
+
             Response.Buffer = true;
-            Response.Cache.SetCacheability(HttpCacheability.NoCache);
-            Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
-            Response.Expires = -1500;
-            Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
+            //Response.Cache.SetCacheability(HttpCacheability.NoCache);
+            //Response.ExpiresAbsolute = DateTime.Now.AddDays(-1d);
+            //Response.Expires = -1500;
+            //Response.Cache.SetETag(DateTime.Now.Ticks.ToString());
             return res;
         }
 
@@ -77,7 +81,8 @@ namespace MasterOnline.Controllers
             Paid = 2,
             PackagingINP = 3,
             ShippingINP = 4,
-            Completed = 5
+            Completed = 5,
+            ConfirmPurchase = 6
         }
         public enum api_status
         {
@@ -898,6 +903,8 @@ namespace MasterOnline.Controllers
                         {
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                             string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
@@ -972,6 +979,8 @@ namespace MasterOnline.Controllers
                         {
 #if AWS
                         string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                             string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
@@ -1071,6 +1080,10 @@ namespace MasterOnline.Controllers
                 case StatusOrder.Completed:
                     //Completed (Shipping)
                     status = "501";
+                    break;
+                case StatusOrder.ConfirmPurchase:
+                    //Confirm Purchase
+                    status = "901";
                     break;
                 default:
                     break;
@@ -1364,6 +1377,10 @@ namespace MasterOnline.Controllers
                 if (Convert.ToString(result.resultCode).Equals("200"))
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                    //add by calvin 9 nov 2018, coba panggil 2x
+                    Utils.HttpRequest req2 = new Utils.HttpRequest();
+                    var result2 = req2.CallElevAPI(Utils.HttpRequest.PROTOCOL.Http, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.POST, "orderservices/orders/inputAwb?awb=" + Uri.EscapeDataString(awb) + "&dlvNo=" + Uri.EscapeDataString(dlvNo) + "&dlvMthdCd=" + Uri.EscapeDataString(dlvMthdCd) + "&dlvEtprsCd=" + Uri.EscapeDataString(dlvEtprsCd) + "&ordNo=" + Uri.EscapeDataString(ordNo) + "&dlvEtprsNm=" + Uri.EscapeDataString(dlvEtprsNm) + "&ordPrdSeq=" + Uri.EscapeDataString(ordPrdSeq), "", typeof(ClientMessage), auth) as ClientMessage;
+                    //end add by calvin 9 nov 2018, coba panggil 2x
                 }
                 else
                 {

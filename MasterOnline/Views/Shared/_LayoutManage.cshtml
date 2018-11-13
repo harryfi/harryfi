@@ -159,7 +159,7 @@
             <div class="col-md-3 left_col">
                 <div class="left_col scroll-view">
                     <div class="navbar nav_title" style="border: 0;">
-                        <a href="@Url.Action("Index", "Manage")" class="site_title">
+                        <a href="@Url.Action("Index", "Manage")" class="site_title" id="logo-full">
                             <img alt="logo" style="width: 85%; height: 85%; margin-left: 10px; margin-top: 25px;" src="~/Content/Images/MO_new_logo_v2_white_text.png">
                         </a>
                         <a href="@Url.Action("Index", "Manage")" class="site_title" id="logo-simple" style="display: none;">
@@ -216,7 +216,7 @@
                                                     {
                                                         if (listSec.Count > 0)
                                                         {
-                                                            var secUserMenu = listSec.SingleOrDefault(s => s.FormId == child.ScrId);
+                                                            var secUserMenu = listSec.FirstOrDefault(s => s.FormId == child.ScrId);
 
                                                             if (child.ParentId == parent.ScrId && secUserMenu != null)
                                                             {
@@ -261,7 +261,7 @@
                                                                             {
                                                                                 if (listSec.Count > 0)
                                                                                 {
-                                                                                    var secUserMenu = listSec.SingleOrDefault(s => s.FormId == childFromChild.ScrId);
+                                                                                    var secUserMenu = listSec.FirstOrDefault(s => s.FormId == childFromChild.ScrId);
 
                                                                                     if (childFromChild.ParentId == child.ScrId && secUserMenu != null)
                                                                                     {
@@ -293,7 +293,7 @@
                                         }
                                         else
                                         {
-                                            var secMenu = listSec.SingleOrDefault(s => s.FormId == parent.ScrId);
+                                            var secMenu = listSec.FirstOrDefault(s => s.FormId == parent.ScrId);
                                             if (secMenu != null)
                                             {
                                                 var listChildOfSecMenu = listSec.Where(c => c.ParentId == secMenu.FormId);
@@ -309,7 +309,7 @@
                                                     <ul class="nav child_menu">
                                                         @foreach (var child in listChild)
                                                         {
-                                                            var childOfSecMenu = listChildOfSecMenu?.SingleOrDefault(c => c.FormId == child.ScrId);
+                                                            var childOfSecMenu = listChildOfSecMenu?.FirstOrDefault(c => c.FormId == child.ScrId);
 
                                                             if (childOfSecMenu != null)
                                                             {
@@ -644,7 +644,8 @@
                     var $this = $(this);
                     var $value = $this.val();
 
-                    if ($value == '' || isEmptyOrSpaces($value)) {
+                    //change by nurul 9/11/2018 -- if ($value == '' || isEmptyOrSpaces($value)) {
+                    if (($value == '' || isEmptyOrSpaces($value)) && !$this.hasClass('email_not_required')) {
                         $this.closest('.form-group').addClass('has-error');
 
                         if (!$this.closest('div').find('.text-danger').length) {
@@ -669,7 +670,8 @@
                 var $this = $(this);
                 var $value = $this.val();
 
-                if ($value == '' || isEmptyOrSpaces($value)) {
+                //change by nurul 9/11/2018 -- if ($value == '' || isEmptyOrSpaces($value)) {
+                if (($value == '' || isEmptyOrSpaces($value)) && !$this.hasClass('email_not_required')) {
                     $this.closest('.form-group').addClass('has-error');
 
                     if (!$this.closest('div').find('.text-danger').length) {

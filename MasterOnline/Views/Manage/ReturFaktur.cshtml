@@ -711,7 +711,8 @@
         function refreshNetto() {
             $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
 
-            var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
+            //change by nurul 6/11/2018 -- var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
+            var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Faktur_NILAI_DISC').val()))) * parseInt($('#Faktur_PPN').val()) / 100);
             $('#Faktur_NILAI_PPN').val(convertToRupiah($nPpn));
 
             $bakalNetto -= convertToAngka($('#Faktur_NILAI_DISC').val());
@@ -994,16 +995,24 @@
                         }
                     });
 
-                    //$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
-                    //if (!baru) {
-                    //setTimeout(function () {
-                    //$('#CUSTOMER')[0].selectize.disable();
-                    //$('#FAKTUR')[0].selectize.disable();
-                    $("#TGL").attr("disabled", true);
-                    $("#TGL_BTN").attr('disabled', 'disabled');
-                    //}, 1000);
-                    faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
-                    //}
+                    //change by nurul 7/11/2018
+                    ////$('#Faktur_NO_REF').val($("#FAKTUR option:selected").text());
+                    ////if (!baru) {
+                    ////setTimeout(function () {
+                    ////$('#CUSTOMER')[0].selectize.disable();
+                    ////$('#FAKTUR')[0].selectize.disable();
+                    //$("#TGL").attr("disabled", true);
+                    //$("#TGL_BTN").attr('disabled', 'disabled');
+                    ////}, 1000);
+                    //faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    ////}
+
+                    if ($("#NOBUK_FAKTUR").val() != null && $("#NOBUK_FAKTUR").val() != "") {
+                        $("#TGL").attr("disabled", true);
+                        $("#TGL_BTN").attr('disabled', 'disabled');
+                        faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
+                    }
+                    //end change 
 
                 },
                 error: function (xhr) {
@@ -1320,21 +1329,27 @@
                 $qtyInputBox.val($qtyAwal)
                     .attr('max', $qtyAwal)
                     .change(function() {
-                        //if ($(this).val() > $qtyAwal) {
-                        //    alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur!');
-                        //    $(this).val($qtyAwal);
-                        //    return false;
-                        //}
+                        //unremark by calvin 8 nov 2018, proteksi qty
+                        if ($(this).val() > $qtyAwal) {
+                            alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur!');
+                            $(this).val($qtyAwal);
+                            refreshNettoBarang($idBarang);
+                            return false;
+                        }
+                        //end unremark by calvin 8 nov 2018, proteksi qty
                         refreshNettoBarang($idBarang);
                     })
                     .show();
             } else {
                 if ($qtyInputBox.val() != '' && parseInt($qtyInputBox.val()) > 0) {
-                    $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
-                    $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
-                    $qtyInitialSpan.text($qtyInputBox.val()).show();
-                    $qtyInputBox.hide();
-                    simpanBrg($idBarang);
+                    //remark by calvin 8 nov 2018, pindah ke setelah simpanBrg, karena ada validasi lewat manageController
+                    //$btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                    //$btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                    var qtyInitialBeforeValidation = $qtyInitialSpan.val();
+                    $qtyInitialSpan.text($qtyInputBox.val());//.show();
+                    //$qtyInputBox.hide();
+                    //end remark by calvin 8 nov 2018
+                    simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan,qtyInitialBeforeValidation);
                 } else {
                     alert('Field Qty Harus diisi dan lebih dari 0 !');
                     $qtyInputBox.focus();
@@ -1342,7 +1357,7 @@
             }
         }
 
-        function simpanBrg($idBarang) {
+        function simpanBrg($idBarang,$qtyInputBox,$btnEdit,$qtyInitialSpan,qtyInitialBeforeValidation) {
             if (!validateForm()) return false;
 
             var $tr = 'tr[data-barang-id="' + $idBarang + '"]';
@@ -1378,6 +1393,13 @@
                     },
                     success: function (response) {
                         if (response.Errors == null) {
+                            //add by calvin 8 nov 2018
+                            $btnEdit.parent().removeClass('btn-success').addClass('btn-primary');
+                            $btnEdit.removeClass('glyphicon-floppy-disk').addClass('glyphicon-pencil');
+                            $qtyInitialSpan.show();
+                            $qtyInputBox.hide();
+                            //end add by calvin 8 nov 2018
+
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Faktur_NETTO').val()));
                             refreshInputan();
@@ -1395,8 +1417,11 @@
                             $('tr[data-faktur-id="0"]').hide();
                             $('#loading_spinner').hide();
                         } else {
+                            //add by calvin 8 nov 2018, kembalikan value initial ke semula ( karena gagal save )
+                            $qtyInitialSpan.text(qtyInitialBeforeValidation);
+                            //end add by calvin 8 nov 2018
                             console.log(response.Errors);
-                            alert('Ada data yang tidak valid!');
+                            alert(response.Errors);
                             $('#loading_spinner').hide();
                         }
                     },

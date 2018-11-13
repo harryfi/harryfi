@@ -367,6 +367,23 @@ namespace MasterOnline.Controllers
                 if (ret.status.ToString().Equals("OK"))
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+
+                    //add by calvin 8 nov 2018
+                    //jika stok di bukalapak 0, di bukalapak akan menjadi non display, MO disamakan
+                    if (Convert.ToDouble(stock) == 0)
+                    {
+                        var arf01Bukalapak = ErasoftDbContext.ARF01.Where(p => p.NAMA == "8").ToList();
+                        foreach (var akun in arf01Bukalapak)
+                        {
+                            string sSQL = "UPDATE STF02H SET DISPLAY = '0' WHERE IDMARKET = '" + Convert.ToString(akun.RecNum) + "' AND BRG = '"+ brg + "'";
+                            var a = EDB.ExecuteSQL(sSQL, CommandType.Text, sSQL);
+                            if (a <= 0)
+                            {
+
+                            }
+                        }
+                    }
+                    //end add by calvin 8 nov 2018
                 }
                 else
                 {
