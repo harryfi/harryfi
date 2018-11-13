@@ -12,4 +12,12 @@ namespace MasterOnline.ViewModels
         public string MARKETPLACE { get; set; }
 
     }
+
+    public class PromptBarangViewModel
+    {
+        public string KODE { get; set; }
+        public string NAMA { get; set; }
+        public Double HARGA { get; set; }
+
+    }
 }

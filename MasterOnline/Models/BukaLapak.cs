@@ -505,4 +505,104 @@ namespace MasterOnline.Models
         public int view_count { get; set; }
     }
     #endregion
+    #region list prod
+    public class ProdBL : BukaLapakResponse
+    {
+        //public string status { get; set; }
+        public List<ListProduct> products { get; set; }
+        //public bool can_push { get; set; }
+        //public int remaining_push { get; set; }
+        //public object message { get; set; }
+        //public Label1[] labels { get; set; }
+        //public int push_price { get; set; }
+        //public int deposit { get; set; }
+        //public string push_status { get; set; }
+        //public DateTime active_until { get; set; }
+        //public DateTime grace_period_until { get; set; }
+        //public Loan_Info loan_info { get; set; }
+    }
+    public class ListProduct
+    {
+        //public Deal_Info deal_info { get; set; }
+        public string deal_request_state { get; set; }
+        public int price { get; set; }
+        public int category_id { get; set; }
+        public string category { get; set; }
+        public string[] category_structure { get; set; }
+        public string seller_username { get; set; }
+        public string seller_name { get; set; }
+        public int seller_id { get; set; }
+        public string seller_avatar { get; set; }
+        public string seller_level { get; set; }
+        public string seller_level_badge_url { get; set; }
+        public string seller_delivery_time { get; set; }
+        public int seller_positive_feedback { get; set; }
+        public int seller_negative_feedback { get; set; }
+        public string seller_term_condition { get; set; }
+        public object seller_alert { get; set; }
+        public bool for_sale { get; set; }
+        public object[] state_description { get; set; }
+        public bool premium_account { get; set; }
+        public bool brand { get; set; }
+        public bool top_merchant { get; set; }
+        //public Last_Order_Schedule last_order_schedule { get; set; }
+        //public Seller_Voucher seller_voucher { get; set; }
+        public int waiting_payment { get; set; }
+        public int sold_count { get; set; }
+        public Specs_prod specs { get; set; }
+        public bool force_insurance { get; set; }
+        public object[] free_shipping_coverage { get; set; }
+        public string video_url { get; set; }
+        public bool assurance { get; set; }
+        //public Label[] labels { get; set; }
+        //public Tag_Pages[] tag_pages { get; set; }
+        public string id { get; set; }
+        public string url { get; set; }
+        public string name { get; set; }
+        public bool active { get; set; }
+        public string city { get; set; }
+        public string province { get; set; }
+        public int weight { get; set; }
+        public int[] image_ids { get; set; }
+        public long[] new_image_ids { get; set; }
+        public string[] images { get; set; }
+        public string[] small_images { get; set; }
+        public string desc { get; set; }
+        public string condition { get; set; }
+        public int stock { get; set; }
+        public bool favorited { get; set; }
+        public DateTime created_at { get; set; }
+        public DateTime updated_at { get; set; }
+        public object[] product_sin { get; set; }
+        //public Rating rating { get; set; }
+        public string current_variant_name { get; set; }
+        public int current_product_sku_id { get; set; }
+        public object[] product_sku { get; set; }
+        public object[] options { get; set; }
+        public object alternative_image { get; set; }
+        public int min_quantity { get; set; }
+        public int max_quantity { get; set; }
+        public bool has_bundling { get; set; }
+        public bool on_bundling { get; set; }
+        //public Wholesale[] wholesale { get; set; }
+        public string[] courier { get; set; }
+        public bool on_daily_deal { get; set; }
+        //public Daily_Deal daily_deal { get; set; }
+        //public Negotiation negotiation { get; set; }
+        public int sla_display { get; set; }
+        public string sla_type { get; set; }
+        public object sla_display_raw { get; set; }
+        public object sla_type_raw { get; set; }
+        public int interest_count { get; set; }
+        public DateTime last_relist_at { get; set; }
+        public int view_count { get; set; }
+    }
+
+    public class Specs_prod
+    {
+        public string merek { get; set; }
+        public string brand { get; set; }
+        public string tipe { get; set; }
+    }
+    #endregion
 }
