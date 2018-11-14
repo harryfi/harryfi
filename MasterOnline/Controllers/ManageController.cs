@@ -11311,11 +11311,31 @@ namespace MasterOnline.Controllers
                         switch (marketplace.NamaMarket.ToUpper())
                         {
                             case "LAZADA":
-                                new LazadaController().GetBrgLazada(cust, arf01.TOKEN);
+                                var lzdApi = new LazadaController();
+                                var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
+                                var nextPageLzd = true;
+                                while (nextPageLzd)
+                                {
+                                    if (resultLzd.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultLzd.message))
+                                        {
+                                            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                        }
+                                        else
+                                        {
+                                            nextPageLzd = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPageLzd = false;
+                                    }
+                                }
                                 break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();
-                                var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1);
+                                var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, true);
                                 var nextPage = true;
                                 while (nextPage)
                                 {
@@ -11323,7 +11343,28 @@ namespace MasterOnline.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(result.message))
                                         {
-                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message));
+                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
+                                        }
+                                        else
+                                        {
+                                            nextPage = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPage = false;
+                                    }
+                                }
+
+                                result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
+                                nextPage = true;
+                                while (nextPage)
+                                {
+                                    if (result.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(result.message))
+                                        {
+                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
                                         }
                                         else
                                         {
@@ -11342,7 +11383,7 @@ namespace MasterOnline.Controllers
 
                     var barangVm = new UploadBarangViewModel()
                     {
-                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
                         ListMarket = ErasoftDbContext.ARF01.ToList(),
                         Stf02 = new STF02(),
                         TempBrg = new TEMP_BRG_MP(),

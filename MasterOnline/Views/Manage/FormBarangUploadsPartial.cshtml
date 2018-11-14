@@ -19,6 +19,7 @@
 <div class="hiddenField">
     @Html.AntiForgeryToken()
     @Html.HiddenFor(m => m.TempBrg.BERAT)
+    @Html.HiddenFor(m => m.TempBrg.NAMA3)
     @Html.HiddenFor(m => m.TempBrg.PANJANG)
     @Html.HiddenFor(m => m.TempBrg.LEBAR)
     @Html.HiddenFor(m => m.TempBrg.TINGGI)
@@ -182,6 +183,7 @@
     @Html.HiddenFor(m => m.TempBrg.AVALUE_50)
 
     @Html.HiddenFor(m => m.Stf02.ID)
+    @Html.HiddenFor(m => m.Stf02.NAMA3)
     @Html.HiddenFor(m => m.Stf02.HPP, new { Value = 0 })
     @Html.HiddenFor(m => m.Stf02.HBELI, new { Value = 0 })
     @Html.HiddenFor(m => m.Stf02.HBESAR, new { Value = 0 })
@@ -229,7 +231,7 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.HiddenFor(m => m.TempBrg.BRG_MP)
                             @*@Html.TextBoxFor(m => m.TempBrg.BRG_MP, new { @class = "form-control", maxlength = 20 })*@
-                            <input class="form-control" value="@Model.TempBrg.BRG_MP" disabled/>
+                            <input class="form-control" value="@Model.TempBrg.BRG_MP" disabled />
                         </div>
                     </div>
                     <div class="form-group">
@@ -452,6 +454,46 @@
                             @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
                         </div>
                         <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" id="upload-foto-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Foto Produk</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-md-4 foto_produk_section">
+                            @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_1">Hapus</button>*@
+                            <div class="box_upload" id="box_upload_1">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_1' name="foto_produk_1" accept=".jpg" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 foto_produk_section">
+                            @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_2">Hapus</button>*@
+                            <div class="box_upload" id="box_upload_2">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_2' name="foto_produk_2" accept=".jpg" />
+                            </div>
+                        </div>
+                        <div class="col-md-4 foto_produk_section">
+                            @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_3">Hapus</button>*@
+                            <div class="box_upload" id="box_upload_3">
+                                <span class="box_upload_placeholder">Tambah Gambar</span>
+                                <input type='file' id='foto_produk_3' name="foto_produk_3" accept=".jpg" />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
