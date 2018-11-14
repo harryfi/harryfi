@@ -2534,6 +2534,7 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [Route("manage/EditBarang")]
         public ActionResult EditBarang(string barangId)
         {
             try
