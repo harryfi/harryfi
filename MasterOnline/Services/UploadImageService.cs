@@ -66,8 +66,9 @@ namespace MasterOnline.Services
             return imgurImage;
         }
 
-        public static ImgurImageResponse UploadSingleImageToImgur(HttpPostedFileBase file, string fileName, string albumid)
+        public static ImgurImageResponse UploadSingleImageToImgur(HttpPostedFileBase file, string albumid)
         {
+            var fileName = Guid.NewGuid().ToString();
             var path = albumid + "/" + fileName;
             var imgurImage = new ImgurImageResponse();
 

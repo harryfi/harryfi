@@ -1385,7 +1385,6 @@ namespace MasterOnline.Controllers
             if (dataBarang.Stf02.ID == null)
             {
                 insert = true;
-                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
 
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
@@ -1465,8 +1464,8 @@ namespace MasterOnline.Controllers
 
                         if (file != null && file.ContentLength > 0)
                         {
-                            var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
-                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                             //var fileExtension = Path.GetExtension(file.FileName);
                             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
@@ -1481,9 +1480,24 @@ namespace MasterOnline.Controllers
                             //add by tri
 
                             imgPath[i] = image.data.link;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    break;
+                                case 1:
+                                    dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    break;
+                                case 2:
+                                    dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    break;
+                            }
                         }
                     }
                 }
+
+                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
             {
@@ -1759,8 +1773,8 @@ namespace MasterOnline.Controllers
 
                             if (file != null && file.ContentLength > 0)
                             {
-                                var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
-                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                                //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
+                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                                 //updateGambar = true;
                                 //var fileExtension = Path.GetExtension(file.FileName);
@@ -1771,6 +1785,19 @@ namespace MasterOnline.Controllers
                                 //imgPath[i] = path;
 
                                 imgPath[i] = image.data.link;
+
+                                switch (i)
+                                {
+                                    case 0:
+                                        barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        break;
+                                    case 1:
+                                        barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        break;
+                                    case 2:
+                                        barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        break;
+                                }
                             }
                         }
                     }
