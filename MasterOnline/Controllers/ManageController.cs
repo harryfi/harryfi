@@ -333,6 +333,18 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            //add by calvin 14 nov 2018, update qoh setelah get pesanan
+            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
+
+            List<string> listBrg = new List<string>();
+            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            {
+                listBrg.Add(item.BRG);
+            }
+            updateStockMarketPlace(listBrg);
+            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'");
+            //end add by calvin 14 nov 2018, update qoh setelah get pesanan
+
             var vm = new PesananViewModel()
             {
                 ListBarang = ErasoftDbContext.STF02.ToList(),
@@ -1385,7 +1397,6 @@ namespace MasterOnline.Controllers
             if (dataBarang.Stf02.ID == null)
             {
                 insert = true;
-                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
 
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
@@ -1465,8 +1476,8 @@ namespace MasterOnline.Controllers
 
                         if (file != null && file.ContentLength > 0)
                         {
-                            var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
-                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                             //var fileExtension = Path.GetExtension(file.FileName);
                             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
@@ -1481,9 +1492,24 @@ namespace MasterOnline.Controllers
                             //add by tri
 
                             imgPath[i] = image.data.link;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    break;
+                                case 1:
+                                    dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    break;
+                                case 2:
+                                    dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    break;
+                            }
                         }
                     }
                 }
+
+                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
             {
@@ -1759,8 +1785,8 @@ namespace MasterOnline.Controllers
 
                             if (file != null && file.ContentLength > 0)
                             {
-                                var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
-                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                                //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
+                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                                 //updateGambar = true;
                                 //var fileExtension = Path.GetExtension(file.FileName);
@@ -1771,6 +1797,19 @@ namespace MasterOnline.Controllers
                                 //imgPath[i] = path;
 
                                 imgPath[i] = image.data.link;
+
+                                switch (i)
+                                {
+                                    case 0:
+                                        barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        break;
+                                    case 1:
+                                        barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        break;
+                                    case 2:
+                                        barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -2577,7 +2616,7 @@ namespace MasterOnline.Controllers
             {
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p=> 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
@@ -5698,7 +5737,7 @@ namespace MasterOnline.Controllers
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa save, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
+                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
@@ -8473,8 +8512,12 @@ namespace MasterOnline.Controllers
 
         //[HttpGet]
         [HttpGet]
-        public ActionResult CekKetMerk(string ket, string kodemerk)
+        //public ActionResult CekKetMerk(string ket, string kodemerk)
+        public ActionResult CekKetMerk(string param)
         {
+            string kodemerk = (param.Split(';')[param.Split(';').Length - 1]);
+            string ket = (param.Split(';')[param.Split(';').Length - 2]);
+            
             var res = new CekMerk()
             {
                 Kode = kodemerk,

@@ -655,7 +655,8 @@
                         $this.closest('.form-group').removeClass('has-error');
                         $this.closest('div').find('.text-danger').remove();
 
-                        if (!isEmail($value)) {
+                        //if (!isEmail($value)) {
+                        if (!isEmail($value) && ($value != '' || !isEmptyOrSpaces($value))) {
                             $this.closest('.form-group').addClass('has-error');
 
                             if (!$this.closest('div').find('.text-danger').length)
@@ -681,7 +682,8 @@
                     $this.closest('.form-group').removeClass('has-error');
                     $this.closest('div').find('.text-danger').remove();
 
-                    if (!isEmail($value)) {
+                    //if (!isEmail($value)) {
+                    if (!isEmail($value) && ($value != '' || !isEmptyOrSpaces($value))) {
                         $this.closest('.form-group').addClass('has-error');
 
                         if (!$this.closest('div').find('.text-danger').length)

@@ -35,7 +35,7 @@
         @foreach (var barang in Model.ListStf02S)
         {
             <tr>
-                <td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.BRG}-foto-1.jpg")" /></td>
+                <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
                 <td>@barang.BRG</td>
                 <td>@barang.NAMA @barang.NAMA2</td>
                 <td>@barang.KET_SORT1</td>
