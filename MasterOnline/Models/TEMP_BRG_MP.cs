@@ -510,5 +510,8 @@ namespace MasterOnline.Models
 
         [StringLength(10)]
         public string CUST { get; set; }
+
+        [StringLength(30)]
+        public string NAMA3 { get; set; }
     }
 }

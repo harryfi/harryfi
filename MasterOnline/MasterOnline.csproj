@@ -160,6 +160,9 @@
     <Reference Include="System.Web.Http.WebHost, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.6\lib\net45\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Optimization, Version=1.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.0\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Web" />
@@ -185,9 +188,6 @@
     <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
       <HintPath>..\packages\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Web.Optimization">
-      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -475,6 +475,10 @@
     <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.cs" />
     <Compile Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.Designer.cs">
       <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.cs" />
+    <Compile Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.Designer.cs">
+      <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
@@ -893,6 +897,7 @@
     <Compile Include="Models\UploadFakturShopeeData.cs" />
     <Compile Include="Models\UploadFakturTokpedData.cs" />
     <Compile Include="Models\ValidasiSubs.cs" />
+    <Compile Include="Services\ManageImageService.cs" />
     <Compile Include="Services\UploadImageService.cs" />
     <Compile Include="Utils\AwsConfig.cs" />
     <Compile Include="Utils\Helper.cs" />
@@ -5674,6 +5679,7 @@
     <Content Include="Views\Admin\DatabaseMenu.cshtml" />
     <Content Include="Views\Manage\FormBarangUploadsPartial.cshtml" />
     <Content Include="Views\Admin\GeneratorSqlMenu.cshtml" />
+    <Content Include="Views\Manage\PromptBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -5716,6 +5722,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201804090153021_AlterNoUrutFaktur.resx">
       <DependentUpon>201804090153021_AlterNoUrutFaktur.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201804090820511_AlterTanggalPesanan.resx">
       <DependentUpon>201804090820511_AlterTanggalPesanan.cs</DependentUpon>
@@ -5872,6 +5879,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201811070759330_ARF01C_field_EMAIL_Not_Required.resx">
       <DependentUpon>201811070759330_ARF01C_field_EMAIL_Not_Required.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.resx">
+      <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>

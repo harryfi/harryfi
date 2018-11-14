@@ -868,7 +868,85 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        public BindingBase getListProduct(string cust, string userId, string token, int page)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
 
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            ProdBL resListProd = req.CallBukaLapakAPI("", "products/mylapak.json?page=" + page + "&per_page=30", "", userId, token, typeof(ProdBL)) as ProdBL;
+            if (resListProd != null)
+            {
+                if (resListProd.status.Equals("OK") && resListProd.products != null)
+                {
+                    if (resListProd.products.Count == 0)
+                        return ret;
+                    ret.status = 1;
+                    if (resListProd.products.Count == 30)
+                        ret.message = (page + 1).ToString();
+                    string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, NAMA, NAMA2, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK";
+                    //sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
+                    //sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
+                    //sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30, ";
+                    //sSQL += "ACODE_31, ANAME_31, AVALUE_31, ACODE_32, ANAME_32, AVALUE_32, ACODE_33, ANAME_33, AVALUE_33, ACODE_34, ANAME_34, AVALUE_34, ACODE_35, ANAME_35, AVALUE_35, ACODE_36, ANAME_36, AVALUE_36, ACODE_37, ANAME_37, AVALUE_37, ACODE_38, ANAME_38, AVALUE_38, ACODE_39, ANAME_39, AVALUE_39, ACODE_40, ANAME_40, AVALUE_40, ";
+                    //sSQL += "ACODE_41, ANAME_41, AVALUE_41, ACODE_42, ANAME_42, AVALUE_42, ACODE_43, ANAME_43, AVALUE_43, ACODE_44, ANAME_44, AVALUE_44, ACODE_45, ANAME_45, AVALUE_45, ACODE_46, ANAME_46, AVALUE_46, ACODE_47, ANAME_47, AVALUE_47, ACODE_48, ANAME_48, AVALUE_48, ACODE_49, ANAME_49, AVALUE_49, ACODE_50, ANAME_50, AVALUE_50) VALUES ";
+                    sSQL += ") VALUES ";
+                    foreach(var brg in resListProd.products)
+                    {
+                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg)).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brg)).FirstOrDefault();
+                        if (tempbrginDB == null && brgInDB == null)
+                        {
+                            string nama, nama2, nama3;
+                            if(brg.name.Length > 30)
+                            {
+                                nama = brg.name.Substring(0, 30);
+                                if (brg.name.Length > 60)
+                                {
+                                    nama2 = brg.name.Substring(30, 60);
+                                    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 90) : brg.name.Substring(60);
+                                }
+                                else
+                                {
+                                    nama2 = brg.name.Substring(30);
+                                    nama3 = "";
+                                }
+                            }
+                            else
+                            {
+                                nama = brg.name;
+                                nama2 = "";
+                                nama3 = "";
+                            }
+                            sSQL += "('" + brg.id + "' , '";
+                            //if (brg.name.Length > 30)
+                            //{
+                            //    sSQL += brg.name.Substring(0, 30) + "' , '" + brg.name.Substring(30) + "' , ";
+                            //}
+                            //else
+                            //{
+                            //    sSQL += brg.name + "' , '' , ";
+                            //}
+                            sSQL += nama + "' , '" + nama2 + "' , '" + nama3 + "' ,";
+                            sSQL += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n") + "' , " + ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum;
+                            sSQL += " , " + brg.price + " , " + brg.price + " , 1, '" + brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek) + "') ,";
+                        }
+                    }
+                    sSQL = sSQL.Substring(0, sSQL.Length - 1);
+                    EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                }
+                else
+                {
+                    ret.message = resListProd.message;
+                }
+            }
+            else
+            {
+                ret.message = "failed to call Buka Lapak api";
+            }
+
+            return ret;
+        }
         [HttpGet]
         public BindingBase CancelOrder(string noBukti, string transId, string userId, string token)
         {
