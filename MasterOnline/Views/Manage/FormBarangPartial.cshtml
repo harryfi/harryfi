@@ -167,440 +167,472 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <h2>Marketplace</h2>
-            <div class="x_panel" id="info-penjualan-section">
-                <div class="x_title">
-                    <h2 style="font-size: 16px">Info Penjualan</h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li>
-                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                </div>
+                @*add by nurul 13/11/2018*@
                 <div class="x_content">
-                    <div class="row">
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.Stf02.BERAT, "Berat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-6">
-                                @*@Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
-                                @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
-                            </div>
-                            <label class="control-label satuan col-md-5 col-sm-6">GR</label>
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.Stf02.PANJANG, "Panjang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-6">
-                                @*@Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
-                                @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
-
-                            </div>
-                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.Stf02.LEBAR, "Lebar *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-6">
-                                @*@Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
-                                @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
-                            </div>
-                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(m => m.Stf02.TINGGI, "Tinggi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-6">
-                                @*@Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
-                                @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
-                            </div>
-                            <label class="control-label satuan col-md-5 col-sm-6">CM</label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel" id="harga-section">
-                <div class="x_title">
-                    <h2 style="font-size: 16px">Harga</h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li>
-                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
-                </div>
-                <div class="x_content">
-                    <div class="form-group">
-                        @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                        <div class="col-md-4 col-sm-4 col-xs-12">
-                            @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
-                        </div>
-                    </div>
                     @{
-                        var listMarket = Model.ListMarket;
+                        var listMarketKet = Model.ListMarket;
                     }
-                    @if (listMarket != null)
+                    @if (listMarketKet != null)
                     {
-                        <hr />
-                        <div class="form-group">
-                            @Html.Label("Akun Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                            @Html.Label("Harga Per Marketplace", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align:left" })
-                            @Html.Label("Tampilkan", new { @class = "control-label col-md-1 col-sm-1 col-xs-12", @style = "text-align:left" })
-                            @Html.Label("Status Update ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @style = "text-align:left" })
-                        </div>
-                        <hr />
-                        <div id="hjualmarket-section">
-                            @for (var i = 0; i < listMarket.ToList().Count; i++)
+                        var adaBlibliCat = 0;
+                        <div id="lain-section">
+                            @*@for (var i = 0; i < listMarketKet.ToList().Count; i++)
                             {
-                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].USERNAME, new { Value = username })
-                                <div class="form-group">
-                                    @if (Model.ListHargaJualPermarketView.Count > 0)
-                                    {
-                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.RecNum })
-                                    }
-                                    else
-                                    {
-                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
-                                    }
-                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].BRG, new { Value = "xxx" })
-                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].IDMARKET, new { Value = listMarket[i].RecNum })
-                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
-                                    <label class="control-label col-md-3 col-sm-3 col-xs-12" style="font-size: 11px;">
-                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
-                                    </label>
-                                    <div class="col-md-4 col-sm-4 col-xs-12">
-                                        @if (Model.ListHargaJualPermarketView.Count > 0)
-                                        {
-                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0) })
-                                        }
-                                        else
-                                        {
-                                            @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
-                                        }
-                                    </div>
-                                    <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
-                                        @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
-                                        {
-                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY ?? false})
-                                            <label class="checkbox-container">
-                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
-                                                <span class="checkmark"></span>
-                                            </label>
-                                        }
-                                        else
-                                        {
-                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
-                                            <label class="checkbox-container">
-                                                <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
-                                                <span class="checkmark"></span>
-                                            </label>
-                                        }
-                                    </div>
-                                    <div class="col-md-3 col-sm-3 col-xs-12">
-                                        @if (Model?.StatusLog?.Count > 0 && Model?.Stf02?.ID != null)
-                                        {
-                                            var getLatestLog = Model.StatusLog.Where(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : "")).OrderByDescending(p => p.REQUEST_DATETIME).FirstOrDefault();
-                                            if (getLatestLog == null)
-                                            {
-                                                @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
-                                            }
-                                            else
-                                            {
-                                                <div data-tip="@getLatestLog.REQUEST_RESULT">
-                                                    @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
-                                                </div>
-                                            }
-                                        }
-                                        else
-                                        {
-                                            @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
-                                        }
-                                    </div>
-                                </div>
+                                var idMarket = Convert.ToInt32(listMarketKet[i].NAMA);
+                                if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                {
+                                    adaBlibliCat = 1;
+                                }
                             }
-                        </div>
-                    }
-                    @if (listMarket?.Count == 0)
-                    {
-                        <div class="text-center">
-                            <h4>Harga jual per-marketplace belum ada karena</h4>
-                            <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
+                            @if (adaBlibliCat == 1)
+                            {*@
+                            <div class="text-left">
+                                <h5>Ketentuan :</h5>
+                                <h5>- Resolusi minimal berdimensi 1000 x 1000</h5>
+                                <h5>- Resolusi maximal berdimensi 2000 x 2000</h5>
+                                <h5>- Ukuran maximal 4 MB</h5>
+                                <h5>- * Khusus Blibli background harus putih</h5>
+                            </div>
+                            @*}*@
                         </div>
                     }
                 </div>
+                @*end add by nurul 13/11/2018*@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel" id="laintitle-section">
-                <div class="x_title">
-                    <h2 style="font-size: 16px">Setting Detail Per Marketplace</h2>
-                    <ul class="nav navbar-right panel_toolbox">
-                        <li>
-                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                        </li>
-                    </ul>
-                    <div class="clearfix"></div>
+    
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <h2>Marketplace</h2>
+                <div class="x_panel" id="info-penjualan-section">
+                    <div class="x_title">
+                        <h2 style="font-size: 16px">Info Penjualan</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="row">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Stf02.BERAT, "Berat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-4 col-sm-4 col-xs-6">
+                                    @*@Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                    @Html.TextBoxFor(m => m.Stf02.BERAT, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                </div>
+                                <label class="control-label satuan col-md-5 col-sm-6">GR</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Stf02.PANJANG, "Panjang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-4 col-sm-4 col-xs-6">
+                                    @*@Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                    @Html.TextBoxFor(m => m.Stf02.PANJANG, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+
+                                </div>
+                                <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Stf02.LEBAR, "Lebar *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-4 col-sm-4 col-xs-6">
+                                    @*@Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                    @Html.TextBoxFor(m => m.Stf02.LEBAR, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                </div>
+                                <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Stf02.TINGGI, "Tinggi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                <div class="col-md-4 col-sm-4 col-xs-6">
+                                    @*@Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox", type = "number", min = 1, required = "required", max = 99999999, maxlength = 8 })*@
+                                    @Html.TextBoxFor(m => m.Stf02.TINGGI, new { @class = "form-control limited_number_textbox num-only", min = 1, required = "required", max = 99999999, maxlength = 8 })
+                                </div>
+                                <label class="control-label satuan col-md-5 col-sm-6">CM</label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="x_content">
-                    @if (listMarket != null)
-                    {
-                        var adaElevenia = 0;
-                        var adaBlibli = 0;
-                        var adaBukalapak = 0;
-                        var adaLazada = 0;
-                        <div id="lain-section">
-                            <ul class="nav nav-tabs">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel" id="harga-section">
+                    <div class="x_title">
+                        <h2 style="font-size: 16px">Harga</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="form-group">
+                            @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
+                            </div>
+                        </div>
+                        @{
+                            var listMarket = Model.ListMarket;
+                        }
+                        @if (listMarket != null)
+                        {
+                            <hr />
+                            <div class="form-group" style="border-bottom-style:outset ; border-top-style:solid" >
+                                @Html.Label("Akun Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @style= "border-right-style:outset" })
+                                @Html.Label("Harga Per Marketplace", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "text-align:left ; border-right-style:outset" })
+                                @Html.Label("Tampilkan", new { @class = "control-label col-md-1 col-sm-1 col-xs-12", @style = "text-align:left ; border-right-style:outset" })
+                                @Html.Label("Status Update ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @style = "text-align:left" })
+                            </div>
+                            @*<hr />*@
+                            <div id="hjualmarket-section">
                                 @for (var i = 0; i < listMarket.ToList().Count; i++)
                                 {
                                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                    if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
-                                    {
-                                        adaElevenia = 1;
-                                    }
-                                    else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
-                                    {
-                                        adaBlibli = 1;
-                                    }
-                                    else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
-                                    {
-                                        adaBukalapak = 1;
-                                    }
-                                    else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
-                                    {
-                                        adaLazada = 1;
-                                    }
+                                    var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].USERNAME, new { Value = username })
+                                    <div class="form-group">
+                                        @if (Model.ListHargaJualPermarketView.Count > 0)
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum, new { Value = Model.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.RecNum })
+                                        }
+                                        else
+                                        {
+                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].RecNum)
+                                        }
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].BRG, new { Value = "xxx" })
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].IDMARKET, new { Value = listMarket[i].RecNum })
+                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
+                                        <label class="control-label col-md-3 col-sm-3 col-xs-12" style="font-size: 11px;">
+                                            @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                        </label>
+                                        <div class="col-md-4 col-sm-4 col-xs-12">
+                                            @if (Model.ListHargaJualPermarketView.Count > 0)
+                                            {
+                                                @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.HJUAL ?? 0) })
+                                            }
+                                            else
+                                            {
+                                                @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) })
+                                            }
+                                        </div>
+                                        <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
+                                            @if (Model.ListHargaJualPermarketView.Count > 0 && Model?.Stf02?.ID != null)
+                                            {
+                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY ?? false})
+                                                <label class="checkbox-container">
+                                                    <input type="checkbox" class="cbx" name="@($"cbx-{i}")" @(Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DISPLAY == true ? "checked" : null) />
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            }
+                                            else
+                                            {
+                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DISPLAY, new { data_cbx = $"cbx-{i}", @class = "cbxTarget", Value = false })
+                                                <label class="checkbox-container">
+                                                    <input type="checkbox" class="cbx" name="@($"cbx-{i}")" ) />
+                                                    <span class="checkmark"></span>
+                                                </label>
+                                            }
+                                        </div>
+                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                            @if (Model?.StatusLog?.Count > 0 && Model?.Stf02?.ID != null)
+                                            {
+                                                var getLatestLog = Model.StatusLog.Where(p => p.IDMARKET == recnumArf01 && Convert.ToString(p.REQUEST_ATTRIBUTE_1) == (Model.Stf02 != null ? Model.Stf02.BRG : "")).OrderByDescending(p => p.REQUEST_DATETIME).FirstOrDefault();
+                                                if (getLatestLog == null)
+                                                {
+                                                    @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                                }
+                                                else
+                                                {
+                                                    <div data-tip="@getLatestLog.REQUEST_RESULT">
+                                                        @Html.TextBox("statusLog", getLatestLog.REQUEST_ACTION + " : " + getLatestLog.REQUEST_STATUS, new { @class = "form-control", disabled = "disabled" })
+                                                    </div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                @Html.TextBox("statusLog", "", new { @class = "form-control", disabled = "disabled" })
+                                            }
+                                        </div>
+                                    </div>
                                 }
-                                @if (adaElevenia == 1)
-                                {
-                                    <li><a data-toggle="tab" href="#elevenia_detail_tab">Elevenia</a></li>
-                                }
-                                @if (adaBlibli == 1)
-                                {
-                                    <li><a data-toggle="tab" href="#blibli_detail_tab">Blibli</a></li>
-                                }
-                                @if (adaLazada == 1)
-                                {
-                                    <li><a data-toggle="tab" href="#lazada_detail_tab">Lazada</a></li>
-                                }
-                            </ul>
-                            <div class="tab-content">
-                                <div id="blibli_detail_tab" class="tab-pane fade in">
+                            </div>
+                        }
+                        @if (listMarket?.Count == 0)
+                        {
+                            <div class="text-center">
+                                <h4>Harga jual per-marketplace belum ada karena</h4>
+                                <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel" id="laintitle-section">
+                    <div class="x_title">
+                        <h2 style="font-size: 16px">Setting Detail Per Marketplace</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                            <li>
+                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                            </li>
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        @if (listMarket != null)
+                        {
+                            var adaElevenia = 0;
+                            var adaBlibli = 0;
+                            var adaBukalapak = 0;
+                            var adaLazada = 0;
+                            <div id="lain-section">
+                                <ul class="nav nav-tabs">
                                     @for (var i = 0; i < listMarket.ToList().Count; i++)
                                     {
                                         var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                        var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                        if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                        if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
                                         {
-                                            <div>
-                                                <h2 style="font-size: 14px">
-                                                    @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
-                                                </h2>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    @if (string.IsNullOrEmpty(listMarket[i].Kode))
-                                                    {
-                                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                                    }
-                                                    else
-                                                    {
-                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
-                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
-                                                        <div class="row">
-                                                            <div class="col-md-1 col-sm-1 col-xs-12">
-                                                                <label>Category</label>
+                                            adaElevenia = 1;
+                                        }
+                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                        {
+                                            adaBlibli = 1;
+                                        }
+                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
+                                        {
+                                            adaBukalapak = 1;
+                                        }
+                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                        {
+                                            adaLazada = 1;
+                                        }
+                                    }
+                                    @if (adaElevenia == 1)
+                                    {
+                                        <li><a data-toggle="tab" href="#elevenia_detail_tab">Elevenia</a></li>
+                                    }
+                                    @if (adaBlibli == 1)
+                                    {
+                                        <li><a data-toggle="tab" href="#blibli_detail_tab">Blibli</a></li>
+                                    }
+                                    @if (adaLazada == 1)
+                                    {
+                                        <li><a data-toggle="tab" href="#lazada_detail_tab">Lazada</a></li>
+                                    }
+                                </ul>
+                                <div class="tab-content">
+                                    <div id="blibli_detail_tab" class="tab-pane fade in">
+                                        @for (var i = 0; i < listMarket.ToList().Count; i++)
+                                        {
+                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                            {
+                                                <div>
+                                                    <h2 style="font-size: 14px">
+                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                    </h2>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        @if (string.IsNullOrEmpty(listMarket[i].Kode))
+                                                        {
+                                                            <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                            <div class="row">
+                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                    <label>Category</label>
+                                                                </div>
+                                                                <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                </div>
+                                                                <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                </div>
+                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
+                                                                    {
+                                                                        <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, true);">Undo</button>
+                                                                    }
+                                                                    <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, false);">Clear</button>
+                                                                </div>
                                                             </div>
-                                                            <div id="category_blibli_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                            <div class="row">
+                                                                <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                </div>
                                                             </div>
-                                                            <div id="category_blibli_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
-                                                            </div>
-                                                            <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
-                                                                {
-                                                                    <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, true);">Undo</button>
-                                                                }
-                                                                <button type="button" onclick="ClearCategoryBlibli('category_blibli_pertama_' + @recnumArf01, 'category_blibli_selanjutnya_' + @recnumArf01, 'attribute_blibli_' + @recnumArf01, @i, false);">Clear</button>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="row">
-                                                                    <div class="col-md-2 col-sm-2 col-xs-12">
-                                                                        @Html.Label("Pickup Point *", new { @class = "control-label" })
-                                                                    </div>
-                                                                    <div class="col-md-3 col-sm-3 col-xs-12">
-                                                                        @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
-                                                                        <div class="input-group text">
-                                                                            <table>
-                                                                                <tr>
-                                                                                    <td>
-                                                                                        @Html.TextBox("PickupPoint" + i + "Blibli", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <span class="input-group-btn">
-                                                                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptPickupPointBlibli(@i,@($"(\"{listMarket[i].Sort1_Cust}\")"))">
-                                                                                                <span class="glyphicon glyphicon-option-horizontal"></span>
-                                                                                            </button>
-                                                                                        </span>
-                                                                                    </td>
-                                                                                </tr>
-                                                                            </table>
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="row">
+                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                            @Html.Label("Pickup Point *", new { @class = "control-label" })
+                                                                        </div>
+                                                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                            <div class="input-group text">
+                                                                                <table>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            @Html.TextBox("PickupPoint" + i + "Blibli", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <span class="input-group-btn">
+                                                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptPickupPointBlibli(@i,@($"(\"{listMarket[i].Sort1_Cust}\")"))">
+                                                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                </button>
+                                                                                            </span>
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                                <div id="elevenia_detail_tab" class="tab-pane fade in">
-                                    @for (var i = 0; i < listMarket.ToList().Count; i++)
-                                    {
-                                        var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                        var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                        if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
-                                        {
-                                            <div>
-                                                <h2 style="font-size: 14px">
-                                                    @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
-                                                </h2>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
-                                                    @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
-                                                    <div class="row">
-                                                        <div class="col-md-1 col-sm-1 col-xs-12">
-                                                            <label>Category</label>
-                                                        </div>
-                                                        <div id="category_elevenia_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
-                                                        </div>
-                                                        <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
-                                                        </div>
-                                                        <div class="col-md-2 col-sm-2 col-xs-12">
-                                                            @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
-                                                            {
-                                                                <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, true);">Undo</button>
-                                                            }
-                                                            <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, false);">Clear</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
-                                                        </div>
-                                                    </div>
-                                                    <div class="row" style="padding-top:10px">
-                                                        <div class="col-md-2 col-sm-2 col-xs-12">
-                                                            @Html.Label("Template Delivery *", new { @class = "control-label" })
-                                                        </div>
-                                                        <div class="col-md-4 col-sm-4 col-xs-12">
-                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.DeliveryTempElevenia })
-                                                            <div class="input-group text">
-                                                                <table>
-                                                                    <tr>
-                                                                        <td>
-                                                                            @Html.TextBox("DeliveryTempElevenia" + i + "Box", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DeliveryTempElevenia })
-                                                                        </td>
-                                                                        <td>
-                                                                            <span class="input-group-btn">
-                                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({recnumArf01})"))">
-                                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                                                                </button>
-                                                                            </span>
-                                                                        </td>
-                                                                    </tr>
-                                                                </table>
-                                                            </div>
-                                                        </div>
+                                                        }
                                                     </div>
                                                 </div>
-                                            </div>
+                                            }
                                         }
-                                    }
-                                </div>
-                                <div id="lazada_detail_tab" class="tab-pane fade in">
-                                    @for (var i = 0; i < listMarket.ToList().Count; i++)
-                                    {
-                                        var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                        var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                        if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                    </div>
+                                    <div id="elevenia_detail_tab" class="tab-pane fade in">
+                                        @for (var i = 0; i < listMarket.ToList().Count; i++)
                                         {
-                                            <div>
-                                                <h2 style="font-size: 14px">
-                                                    @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
-                                                </h2>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                                    @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
-                                                    {
-                                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
-                                                    }
-                                                    else
-                                                    {
+                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                                            {
+                                                <div>
+                                                    <h2 style="font-size: 14px">
+                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                    </h2>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
                                                         <div class="row">
                                                             <div class="col-md-1 col-sm-1 col-xs-12">
                                                                 <label>Category</label>
                                                             </div>
-                                                            <div id="category_lazada_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                            <div id="category_elevenia_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
                                                             </div>
-                                                            <div id="category_lazada_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                            <div id="category_elevenia_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
                                                             </div>
                                                             <div class="col-md-2 col-sm-2 col-xs-12">
                                                                 @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
                                                                 {
-                                                                    <button type="button" onclick="ClearCategoryLazada('category_lazada_pertama_' + @recnumArf01, 'category_lazada_selanjutnya_' + @recnumArf01, 'attribute_lazada_' + @recnumArf01, @i, true);">Undo</button>
+                                                                    <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, true);">Undo</button>
                                                                 }
-                                                                <button type="button" onclick="ClearCategoryLazada('category_lazada_pertama_' + @recnumArf01, 'category_lazada_selanjutnya_' + @recnumArf01, 'attribute_lazada_' + @recnumArf01, @i, false);">Clear</button>
+                                                                <button type="button" onclick="ClearCategoryElevenia('category_elevenia_pertama_' + @recnumArf01, 'category_elevenia_selanjutnya_' + @recnumArf01, 'attribute_elevenia_' + @recnumArf01, @i, false);">Clear</button>
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                            <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                             </div>
                                                         </div>
-                                                    }
+                                                        <div class="row" style="padding-top:10px">
+                                                            <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                @Html.Label("Template Delivery *", new { @class = "control-label" })
+                                                            </div>
+                                                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                                                @Html.HiddenFor(m => m.ListHargaJualPermarket[i].DeliveryTempElevenia, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01)?.DeliveryTempElevenia })
+                                                                <div class="input-group text">
+                                                                    <table>
+                                                                        <tr>
+                                                                            <td>
+                                                                                @Html.TextBox("DeliveryTempElevenia" + i + "Box", "", new { @class = "form-control", @MaxLength = "10", disabled = "disabled", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.DeliveryTempElevenia })
+                                                                            </td>
+                                                                            <td>
+                                                                                <span class="input-group-btn">
+                                                                                    <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryTempElevenia(@i,@($"({recnumArf01})"))">
+                                                                                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                    </button>
+                                                                                </span>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            }
                                         }
-                                    }
-                                    <div>
-                                        <h6>**Short Description harus diisi dengan minimum 30 karkater</h6>
+                                    </div>
+                                    <div id="lazada_detail_tab" class="tab-pane fade in">
+                                        @for (var i = 0; i < listMarket.ToList().Count; i++)
+                                        {
+                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                            {
+                                                <div>
+                                                    <h2 style="font-size: 14px">
+                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                    </h2>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                        @if (string.IsNullOrEmpty(listMarket[i].TOKEN))
+                                                        {
+                                                            <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                                        }
+                                                        else
+                                                        {
+                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                            <div class="row">
+                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                    <label>Category</label>
+                                                                </div>
+                                                                <div id="category_lazada_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                </div>
+                                                                <div id="category_lazada_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                </div>
+                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
+                                                                    {
+                                                                        <button type="button" onclick="ClearCategoryLazada('category_lazada_pertama_' + @recnumArf01, 'category_lazada_selanjutnya_' + @recnumArf01, 'attribute_lazada_' + @recnumArf01, @i, true);">Undo</button>
+                                                                    }
+                                                                    <button type="button" onclick="ClearCategoryLazada('category_lazada_pertama_' + @recnumArf01, 'category_lazada_selanjutnya_' + @recnumArf01, 'attribute_lazada_' + @recnumArf01, @i, false);">Clear</button>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                        <div>
+                                            <h6>**Short Description harus diisi dengan minimum 30 karkater</h6>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
-                    @if (listMarket?.Count == 0)
-                    {
-                        <div class="text-center">
-                            <h4>Harga jual per-marketplace belum ada karena</h4>
-                            <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
-                        </div>
-                    }
+                        }
+                        @if (listMarket?.Count == 0)
+                        {
+                            <div class="text-center">
+                                <h4>Harga jual per-marketplace belum ada karena</h4>
+                                <h4>Anda belum mengatur marketplace manapun di menu Master > Marketplace</h4>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
+        <hr />
+        @Html.HiddenFor(m => m.Username, new { Value = username })
+        <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanBarang1(this)" />
     </div>
-    <hr />
-    @Html.HiddenFor(m => m.Username, new { Value = username })
-    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanBarang1(this)" />
-</div>
