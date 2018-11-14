@@ -333,6 +333,18 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            //add by calvin 14 nov 2018, update qoh setelah get pesanan
+            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
+
+            List<string> listBrg = new List<string>();
+            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            {
+                listBrg.Add(item.BRG);
+            }
+            updateStockMarketPlace(listBrg);
+            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'");
+            //end add by calvin 14 nov 2018, update qoh setelah get pesanan
+
             var vm = new PesananViewModel()
             {
                 ListBarang = ErasoftDbContext.STF02.ToList(),
@@ -2604,7 +2616,7 @@ namespace MasterOnline.Controllers
             {
                 ListKategoriMerk = ErasoftDbContext.STF02E.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p=> 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
@@ -5725,7 +5737,7 @@ namespace MasterOnline.Controllers
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa save, Qty di gudang sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
+                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
