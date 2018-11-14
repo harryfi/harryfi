@@ -8471,8 +8471,12 @@ namespace MasterOnline.Controllers
 
         //[HttpGet]
         [HttpGet]
-        public ActionResult CekKetMerk(string ket, string kodemerk)
+        //public ActionResult CekKetMerk(string ket, string kodemerk)
+        public ActionResult CekKetMerk(string param)
         {
+            string kodemerk = (param.Split(';')[param.Split(';').Length - 1]);
+            string ket = (param.Split(';')[param.Split(';').Length - 2]);
+            
             var res = new CekMerk()
             {
                 Kode = kodemerk,
