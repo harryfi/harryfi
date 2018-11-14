@@ -790,11 +790,7 @@
                     }
                 });*@
 
-                var $fileName1 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-                var $fileName2 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-                var $fileName3 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-
-                deleteObjectByFileName($fileName1);
+                deleteObjectByFileName($('#hidden_url_gambar_1').val());
 
                 $('#foto_produk_1').val(null);
                 $('#box_upload_1').css('background-image', '');
@@ -823,8 +819,7 @@
                     }
                 });*@
 
-                var $fileName2 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-                deleteObjectByFileName($fileName2);
+                deleteObjectByFileName($('#hidden_url_gambar_2').val());
 
                 $('#foto_produk_2').val(null);
                 $('#box_upload_2').css('background-image', '');
@@ -853,8 +848,7 @@
                     }
                 });*@
 
-                var $fileName3 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-                deleteObjectByFileName($fileName3);
+                deleteObjectByFileName($('#hidden_url_gambar_3').val());
 
                 $('#foto_produk_3').val(null);
                 $('#box_upload_3').css('background-image', '');

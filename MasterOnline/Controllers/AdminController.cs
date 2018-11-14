@@ -654,13 +654,14 @@ namespace MasterOnline.Controllers
                           "DECLARE c_db_names CURSOR FOR \n" +
                           "SELECT name FROM sys.databases \n" +
                           "WHERE name NOT IN('master', 'tempdb', 'model', 'msdb', 'activity', 'ReportServer$SQLEXPRESS', 'mo', " +
-                          "'ReportServer$SQLEXPRESSTempDB', 'SCREEN_ACTIVITY', 'REPORTSI', 'REPORTST', 'erasoft', 'AP_NET', 'AR_NET', " +
+                          "'ReportServer$SQLEXPRESSTempDB', 'ReportServer', 'ReportServerTempDB', 'SCREEN_ACTIVITY', 'REPORTSI', 'REPORTST', 'erasoft', 'AP_NET', 'AR_NET', " +
                           "'MD_NET', 'SI_NET', 'ST_NET', 'SCREEN-NET2', 'REPORTAP', 'REPORTAR', 'REPORTMD') \n" +
                           "OPEN c_db_names \n" +
                           "FETCH c_db_names INTO @db_name \n" +
                           "WHILE @@Fetch_Status = 0 \n" +
                           "BEGIN \n" +
-                          $"EXEC('{insertDataQuery} {addColumnQuery}') \n" +
+                          $"EXEC('{insertDataQuery}') \n" +
+                          $"EXEC('{ addColumnQuery}') \n" +
                           "FETCH c_db_names INTO @db_name \n" +
                           "END \n" +
                           "CLOSE c_db_names \n" +

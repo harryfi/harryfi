@@ -1397,7 +1397,6 @@ namespace MasterOnline.Controllers
             if (dataBarang.Stf02.ID == null)
             {
                 insert = true;
-                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
 
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
@@ -1477,8 +1476,8 @@ namespace MasterOnline.Controllers
 
                         if (file != null && file.ContentLength > 0)
                         {
-                            var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
-                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                             //var fileExtension = Path.GetExtension(file.FileName);
                             //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
@@ -1493,9 +1492,24 @@ namespace MasterOnline.Controllers
                             //add by tri
 
                             imgPath[i] = image.data.link;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    break;
+                                case 1:
+                                    dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    break;
+                                case 2:
+                                    dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    break;
+                            }
                         }
                     }
                 }
+
+                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
             {
@@ -1771,8 +1785,8 @@ namespace MasterOnline.Controllers
 
                             if (file != null && file.ContentLength > 0)
                             {
-                                var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
-                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, namaFile, "uploaded-image");
+                                //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{barangInDb.BRG}-foto-{i + 1}";
+                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                                 //updateGambar = true;
                                 //var fileExtension = Path.GetExtension(file.FileName);
@@ -1783,6 +1797,19 @@ namespace MasterOnline.Controllers
                                 //imgPath[i] = path;
 
                                 imgPath[i] = image.data.link;
+
+                                switch (i)
+                                {
+                                    case 0:
+                                        barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        break;
+                                    case 1:
+                                        barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        break;
+                                    case 2:
+                                        barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        break;
+                                }
                             }
                         }
                     }
@@ -11328,11 +11355,31 @@ namespace MasterOnline.Controllers
                         switch (marketplace.NamaMarket.ToUpper())
                         {
                             case "LAZADA":
-                                new LazadaController().GetBrgLazada(cust, arf01.TOKEN);
+                                var lzdApi = new LazadaController();
+                                var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
+                                var nextPageLzd = true;
+                                while (nextPageLzd)
+                                {
+                                    if (resultLzd.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultLzd.message))
+                                        {
+                                            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                        }
+                                        else
+                                        {
+                                            nextPageLzd = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPageLzd = false;
+                                    }
+                                }
                                 break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();
-                                var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1);
+                                var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, true);
                                 var nextPage = true;
                                 while (nextPage)
                                 {
@@ -11340,7 +11387,28 @@ namespace MasterOnline.Controllers
                                     {
                                         if (!string.IsNullOrEmpty(result.message))
                                         {
-                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message));
+                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
+                                        }
+                                        else
+                                        {
+                                            nextPage = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPage = false;
+                                    }
+                                }
+
+                                result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
+                                nextPage = true;
+                                while (nextPage)
+                                {
+                                    if (result.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(result.message))
+                                        {
+                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
                                         }
                                         else
                                         {
@@ -11359,7 +11427,7 @@ namespace MasterOnline.Controllers
 
                     var barangVm = new UploadBarangViewModel()
                     {
-                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
                         ListMarket = ErasoftDbContext.ARF01.ToList(),
                         Stf02 = new STF02(),
                         TempBrg = new TEMP_BRG_MP(),

@@ -480,6 +480,10 @@
     <Compile Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.Designer.cs">
       <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErasoftContextMigrations\201811140724278_AddLinkGambarFields.cs" />
+    <Compile Include="ErasoftContextMigrations\201811140724278_AddLinkGambarFields.Designer.cs">
+      <DependentUpon>201811140724278_AddLinkGambarFields.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
@@ -5883,6 +5887,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ErasoftContextMigrations\201811130250218_add_nama3_tempBrgMp.resx">
       <DependentUpon>201811130250218_add_nama3_tempBrgMp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErasoftContextMigrations\201811140724278_AddLinkGambarFields.resx">
+      <DependentUpon>201811140724278_AddLinkGambarFields.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801120807344_Initial.resx">
       <DependentUpon>201801120807344_Initial.cs</DependentUpon>
