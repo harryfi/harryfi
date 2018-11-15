@@ -513,5 +513,11 @@ namespace MasterOnline.Models
 
         [StringLength(30)]
         public string NAMA3 { get; set; }
+
+        public string IMAGE { get; set; }
+
+        public string IMAGE2 { get; set; }
+
+        public string IMAGE3 { get; set; }
     }
 }
