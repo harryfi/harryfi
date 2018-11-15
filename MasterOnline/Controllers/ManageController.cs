@@ -1358,14 +1358,31 @@ namespace MasterOnline.Controllers
             return result;
         }
 
-        public ActionResult DeleteFotoProduk(string kodeBarang, int urutan, string uname)
+        public ActionResult DeleteFotoProduk(string kodeBarang, int urutan)
         {
             try
             {
-                var namaFile = $"FotoProduk-{uname}-BRG{kodeBarang}-foto-{urutan}.jpg";
-                ManageImageService.DeleteObjectNonVersionedBucketAsync(namaFile);
+                var barangInDb = ErasoftDbContext.STF02.FirstOrDefault(b => b.BRG == kodeBarang);
 
-                return Json(namaFile, JsonRequestBehavior.AllowGet);
+                if (barangInDb != null)
+                {
+                    switch (urutan)
+                    {
+                        case 1:
+                            barangInDb.LINK_GAMBAR_1 = null;
+                            break;
+                        case 2:
+                            barangInDb.LINK_GAMBAR_2 = null;
+                            break;
+                        case 3:
+                            barangInDb.LINK_GAMBAR_3 = null;
+                            break;
+                    }
+
+                    ErasoftDbContext.SaveChanges();
+                }
+
+                return Json("Sukses hapus url foto produk dari tabel", JsonRequestBehavior.AllowGet);
             }
             catch (Exception)
             {
@@ -2561,6 +2578,7 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [Route("manage/EditBarang")]
         public ActionResult EditBarang(string barangId)
         {
             try
