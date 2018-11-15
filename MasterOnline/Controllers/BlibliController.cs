@@ -1239,7 +1239,7 @@ namespace MasterOnline.Controllers
                                     {
                                         //SET BRG_MP JADI PENDING, AGAR TIDAK DOUBLE UPLOAD
                                         oCommand.CommandType = CommandType.Text;
-                                        oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
+                                        oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
                                         oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
                                         oCommand.Parameters[3].Value = Convert.ToString(data.kode);
                                         oCommand.ExecuteNonQuery();

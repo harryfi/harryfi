@@ -21,6 +21,7 @@ namespace MasterOnline.Services
         private static readonly string _awsSecretKey = AwsConfig._awsSecretKey;
         private static readonly string _bucketName = AwsConfig._bucketName;
         private static readonly string _amazonS3PublicUrl = AwsConfig._amazonS3PublicUrl;
+        private static readonly string _amazonAwsUrl = AwsConfig._amazonAwsUrl;
 
         public static ImgurImageResponse UploadMultipleImagesToImgur(IEnumerable<HttpPostedFileBase> files, string albumid)
         {
@@ -56,18 +57,19 @@ namespace MasterOnline.Services
 
                 imgurImage.data = new ImgurData();
 
-                imgurImage.data.link = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-                imgurImage.data.link_s = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-                imgurImage.data.link_m = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-                imgurImage.data.link_l = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+                imgurImage.data.link = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+                imgurImage.data.link_s = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+                imgurImage.data.link_m = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+                imgurImage.data.link_l = _amazonAwsUrl + "/" + _bucketName + "/" + path;
                 imgurImage.data.copyText = "";
 
             }
             return imgurImage;
         }
 
-        public static ImgurImageResponse UploadSingleImageToImgur(HttpPostedFileBase file, string fileName, string albumid)
+        public static ImgurImageResponse UploadSingleImageToImgur(HttpPostedFileBase file, string albumid)
         {
+            var fileName = Guid.NewGuid().ToString();
             var path = albumid + "/" + fileName;
             var imgurImage = new ImgurImageResponse();
 
@@ -113,10 +115,10 @@ namespace MasterOnline.Services
 
             imgurImage.data = new ImgurData();
 
-            imgurImage.data.link = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-            imgurImage.data.link_s = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-            imgurImage.data.link_m = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
-            imgurImage.data.link_l = _amazonS3PublicUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_s = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_m = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_l = _amazonAwsUrl + "/" + _bucketName + "/" + path;
             imgurImage.data.copyText = "";
 
 

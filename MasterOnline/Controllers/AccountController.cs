@@ -36,7 +36,7 @@ namespace MasterOnline.Controllers
         [System.Web.Mvc.Route("login")]
         public ActionResult Login(string Ref)
         {
-            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+            var partnerInDb = MoDbContext.Partner.FirstOrDefault(p => p.KodeRefPilihan == Ref);
 
             if (Ref != null && partnerInDb == null)
             {

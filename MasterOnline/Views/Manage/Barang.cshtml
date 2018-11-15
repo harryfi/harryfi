@@ -772,15 +772,20 @@
             $('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3').hide();
 
             $('#btn_hapus_1').off('click').on('click', function () {
-                @*var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
                 $link = $link.replace("replaceUrutan", 1);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
 
                 $.ajax({
                     url: $link,
                     type: 'GET',
                     success: function () {
+                        var str = $('#hidden_url_gambar_1').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
                         $('#foto_produk_1').val(null);
                         $('#box_upload_1').css('background-image', '');
                         $('#box_upload_1 span').show();
@@ -788,32 +793,26 @@
                     },
                     error: function () {
                     }
-                });*@
-
-                var $fileName1 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-                var $fileName2 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-                var $fileName3 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-
-                deleteObjectByFileName($fileName1);
-
-                $('#foto_produk_1').val(null);
-                $('#box_upload_1').css('background-image', '');
-                $('#box_upload_1 span').show();
-                $('#btn_hapus_1').hide();
+                });
 
                 return;
             });
 
             $('#btn_hapus_2').off('click').on('click', function () {
-                @*var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 2);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
+                $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({
                     url: $link,
                     type: 'GET',
                     success: function () {
+                        var str = $('#hidden_url_gambar_2').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
                         $('#foto_produk_2').val(null);
                         $('#box_upload_2').css('background-image', '');
                         $('#box_upload_2 span').show();
@@ -821,29 +820,26 @@
                     },
                     error: function () {
                     }
-                });*@
-
-                var $fileName2 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-                deleteObjectByFileName($fileName2);
-
-                $('#foto_produk_2').val(null);
-                $('#box_upload_2').css('background-image', '');
-                $('#box_upload_2 span').show();
-                $('#btn_hapus_2').hide();
+                });
 
                 return;
             });
 
             $('#btn_hapus_3').off('click').on('click', function () {
-                @*var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
                 $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 3);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
+                $link = $link.replace("replaceUrutan", 1);
 
                 $.ajax({
                     url: $link,
                     type: 'GET',
                     success: function () {
+                        var str = $('#hidden_url_gambar_3').val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
                         $('#foto_produk_3').val(null);
                         $('#box_upload_3').css('background-image', '');
                         $('#box_upload_3 span').show();
@@ -851,15 +847,7 @@
                     },
                     error: function () {
                     }
-                });*@
-
-                var $fileName3 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-                deleteObjectByFileName($fileName3);
-
-                $('#foto_produk_3').val(null);
-                $('#box_upload_3').css('background-image', '');
-                $('#box_upload_3 span').show();
-                $('#btn_hapus_3').hide();
+                });
 
                 return;
             });
@@ -2035,45 +2023,32 @@
         }
 
         function getFotoProduk() {
-            //var $link1 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            //var $link2 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            //var $link3 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
-            var path = "https://s3-ap-southeast-1.amazonaws.com/masteronlinebucket/uploaded-image/FotoProduk-";
-            var $link1 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            var $link2 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            var $link3 = path + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-
-            var $fileName1 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            var $fileName2 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            var $fileName3 = 'FotoProduk-' + $('#Stf02_USERNAME').val() + '-BRG' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-
-            getUrlByFileName($fileName1, mimes.jpeg).then(function (data) {
+            if ($('#hidden_url_gambar_1').val() != "") {
                 $('#box_upload_1').css({
-                    'background-image': 'url("' + $link1 + '")',
+                    'background-image': 'url("' + $('#hidden_url_gambar_1').val() + '")',
                     'background-size': 'cover'
                 });
                 $('#box_upload_1 span').hide();
                 $('#btn_hapus_1').show();
-            });
+            }
 
-            getUrlByFileName($fileName2, mimes.jpeg).then(function (data) {
+            if ($('#hidden_url_gambar_2').val() != "") {
                 $('#box_upload_2').css({
-                    'background-image': 'url("' + $link2 + '")',
+                    'background-image': 'url("' + $('#hidden_url_gambar_2').val() + '")',
                     'background-size': 'cover'
                 });
                 $('#box_upload_2 span').hide();
                 $('#btn_hapus_2').show();
-            });
+            }
 
-            getUrlByFileName($fileName3, mimes.jpeg).then(function (data) {
+            if ($('#hidden_url_gambar_3').val() != "") {
                 $('#box_upload_3').css({
-                    'background-image': 'url("' + $link3 + '")',
+                    'background-image': 'url("' + $('#hidden_url_gambar_3').val() + '")',
                     'background-size': 'cover'
                 });
                 $('#box_upload_3 span').hide();
                 $('#btn_hapus_3').show();
-            });
+            }
         }
 
         function getMerk() {
