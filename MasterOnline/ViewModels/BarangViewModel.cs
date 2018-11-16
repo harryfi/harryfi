@@ -19,6 +19,7 @@ namespace MasterOnline.ViewModels
         public List<string> Errors { get; set; } = new List<string>();
         public List<CATEGORY_BLIBLI> ListCategoryBlibli { get; set; }
         public List<API_LOG_MARKETPLACE_PER_ITEM> StatusLog { get; set; }
+        public List<QOH_QOO_ALL_ITEM> Stok { get; set; }
         public string errorHargaPerMP { get; set; }
     }
 }

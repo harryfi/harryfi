@@ -1110,7 +1110,7 @@ namespace MasterOnline.Controllers
                 myData += "\"url\": \"\", ";                   // LINK URL IKLAN KALO ADA
                 myData += "\"merchantSku\": \"" + EscapeForJson(data.kode) + "\", ";                                // SKU
                 myData += "\"tipePenanganan\": 1, ";                                            // 1= reguler produk (dikirim oleh blili)| 2= dikirim oleh kurir | 3 =ambil sendiri di toko
-                myData += "\"price\": " + data.Price + ", ";                                                      //harga reguler (no diskon)
+                myData += "\"price\": " + data.MarketPrice + ", ";                                                      //harga reguler (no diskon)
                 myData += "\"salePrice\": " + data.MarketPrice + ", ";                                                // harga yg tercantum di display blibli
                 myData += "\"stock\": " + data.Qty + ", ";
                 myData += "\"minimumStock\": " + data.MinQty + ", ";
@@ -1581,11 +1581,11 @@ namespace MasterOnline.Controllers
                                         myData += "\"gdnSku\": \"" + item.gdnSku + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
-                                        myData += "\"price\": " + data.Price + ", ";
+                                        myData += "\"price\": " + data.MarketPrice + ", ";
                                         //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
                                         myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
-                                        myData += "\"display\": " + data.display + " "; // true=tampil    
+                                        myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";
                                     }
                                 }
@@ -1594,10 +1594,13 @@ namespace MasterOnline.Controllers
                             myData += "]";
                             myData += "}";
 
-                            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
                             string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateProduct", iden.API_secret_key);
                             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
                             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                            //add by calvin 15 nov 2018
+                            urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct?channelId=MasterOnline";
+                            //end add by calvin 15 nov 2018
 
                             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                             {
@@ -1618,7 +1621,7 @@ namespace MasterOnline.Controllers
                             myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
                             myReq.Accept = "application/json";
                             myReq.ContentType = "application/json";
-                            myReq.Headers.Add("requestId", milis.ToString());
+                            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
                             myReq.Headers.Add("sessionId", milis.ToString());
                             myReq.Headers.Add("username", userMTA);
                             string responseFromServer = "";
@@ -1648,7 +1651,14 @@ namespace MasterOnline.Controllers
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                                 if (string.IsNullOrEmpty(result2.errorCode.Value))
                                 {
-                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                                    BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                                    {
+                                        request_id = result2.requestId.Value,
+                                        log_request_id = currentLog.REQUEST_ID
+                                    };
+                                    GetQueueFeedDetail(iden, queueData);
                                 }
                                 else
                                 {

@@ -596,6 +596,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />
     <Compile Include="Models\DataSecUser.cs" />

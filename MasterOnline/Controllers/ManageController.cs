@@ -471,7 +471,8 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
+                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList(),
+                Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList()
             };
 
             return View(barangVm);

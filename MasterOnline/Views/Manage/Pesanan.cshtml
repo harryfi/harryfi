@@ -2188,7 +2188,38 @@
         }
 
         var $angka;
+        function numOnlyAllowDecimalOnKeyDown(e){
+            if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40))
+            {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        }
+        function numOnlyOnKeyDown(e){
 
+            if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40))
+            {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+            if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
+        }
         function modeEditTd() {
             //change by calvin 16 okt 2018
             //$('#table_tambah_pesanan > tbody > tr > .qty-barang').addClass('editable');
@@ -2441,14 +2472,16 @@
                             var keyCode = e.keyCode || e.which;
 
                             if ($(this).hasClass('qty-input')) {
+                                numOnlyOnKeyDown(e);
                                 if (keyCode === 190) e.preventDefault();
-
                                 if (keyCode === 13 || keyCode === 9) {
                                     //$('#table_tambah_pesanan > tbody > tr > td.disc1-barang').click();
                                     $('#table_tambah_pesanan > tbody > tr[data-pesanan-id="0"] > td.disc1-barang').click();
                                     e.preventDefault();
                                 }
+
                             } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
+                                numOnlyAllowDecimalOnKeyDown(e);
                                 if (keyCode === 13 || keyCode === 9) {
                                     if ($(this).val() == 0) {
                                         //$('#table_tambah_pesanan > tbody > tr > td.ndisc1-barang').click().click();
@@ -2461,6 +2494,7 @@
                                     e.preventDefault();
                                 }
                             } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
+                                numOnlyAllowDecimalOnKeyDown(e);
                                 if (keyCode === 13 || keyCode === 9) {
                                     if ($(this).val() == 0) {
                                         //$('#table_tambah_pesanan > tbody > tr > td.ndisc2-barang').click().click();
@@ -2472,6 +2506,8 @@
                                     e.preventDefault();
                                 }
                             } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
+                                numOnlyOnKeyDown(e);
+                                if (keyCode === 190) e.preventDefault();
                                 if (keyCode === 13 || keyCode === 9) {
                                     if ($(this).val() == '0,00') {
                                         //$('#table_tambah_pesanan > tbody > tr > td.disc2-barang').click();
@@ -2484,6 +2520,8 @@
                                     e.preventDefault();
                                 }
                             } else {
+                                numOnlyOnKeyDown(e);
+                                if (keyCode === 190) e.preventDefault();
                                 if (keyCode === 13 || keyCode === 9) {
                                     $(this).blur();
                                 }
@@ -2850,7 +2888,13 @@
             }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            if (rupiah.includes(",00")) {
+                return parseFloat(rupiah.replaceAll('.','').replaceAll(',', '.'));
+            }
+            else{
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
             //end change by calvin 26 september 2018
         }
 
