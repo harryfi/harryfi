@@ -38,15 +38,17 @@
     <tbody>
         @foreach (var barang in Model.ListStf02S)
         {
-            var QOH = Model?.Stok?.SingleOrDefault(b => b.BRG == barang.BRG && b.JENIS == "QOH").JUMLAH;
-            if (QOH == null)
+            double QOH = 0;
+            var getQOH = Model?.Stok?.SingleOrDefault(b => b.BRG == barang.BRG && b.JENIS == "QOH");
+            if (getQOH != null)
             {
-                QOH = 0;
+                QOH = getQOH.JUMLAH;
             }
-            var QOO = Model?.Stok?.SingleOrDefault(b => b.BRG == barang.BRG && b.JENIS == "QOO").JUMLAH;
-            if (QOO == null)
+            double QOO = 0;
+            var getQOO = Model?.Stok?.SingleOrDefault(b => b.BRG == barang.BRG && b.JENIS == "QOO");
+            if (getQOO != null)
             {
-                QOO = 0;
+                QOO = getQOO.JUMLAH;
             }
         <tr>
             <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
