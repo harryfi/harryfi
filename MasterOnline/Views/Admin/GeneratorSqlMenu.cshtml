@@ -178,13 +178,9 @@
             $('#generate_btn').click(function () {
                 var $queryInsert = $('#migration_history_query').val();
                 var $queryTambahan = $('#query_tambahan').val();
-                if ($queryInsert === "") {
-                    alert('Isi dahulu INSERT QUERY untuk tabel MIGRATION HISTORY');
-                    return;
-                }
 
-                if ($queryTambahan === "") {
-                    alert('Isi dahulu QUERY TAMBAHAN');
+                if ($queryInsert === "" && $queryTambahan === "") {
+                    alert('Isi dahulu salah satu kolom QUERY!');
                     return;
                 }
 
