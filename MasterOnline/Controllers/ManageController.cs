@@ -3474,52 +3474,61 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                //UPDATE ANAK
-                var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
-
-                //add by calvin, validasi QOH
-                var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
-
-                if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
+                //add by calvin 16 nov 2018, cek jika tidak ada detail, autoload
+                var cekdetail = ErasoftDbContext.SIT01B.FirstOrDefault(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI);
+                if (cekdetail != null)
                 {
-                    var vmError = new InvoiceViewModel()
+                    //UPDATE ANAK
+                    var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
+
+                    //add by calvin, validasi QOH
+                    var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
+
+                    if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
                     {
+                        var vmError = new InvoiceViewModel()
+                        {
 
-                    };
-                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                        };
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    //end add by calvin, validasi QOH
+
+                    FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
+                    FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
+                    FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
+                    FakturDetailDB.NILAI_DISC_1 = dataVm.FakturDetail.NILAI_DISC_1;
+                    FakturDetailDB.NILAI_DISC_2 = dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.HARGA = (dataVm.FakturDetail.QTY) * (FakturDetailDB.H_SATUAN) - (FakturDetailDB.NILAI_DISC_1 + FakturDetailDB.NILAI_DISC_2);
+                    ErasoftDbContext.SaveChanges();
+
+                    //UPDATE BAPAK
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3");
+                    double bruto_ = (double)ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Sum(p => p.HARGA);
+                    //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                    fakturInDb.BRUTO = bruto_;
+                    fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                    fakturInDb.PPN = dataVm.Faktur.PPN;
+                    fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
+                    fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                    fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+                    ErasoftDbContext.SaveChanges();
+
+                    returBaru = false;
+
+                    //add by calvin 8 nov 2018, update stok marketplace
+                    List<string> listBrg = new List<string>();
+                    listBrg.Add(FakturDetailDB.BRG);
+                    updateStockMarketPlace(listBrg);
+                    //end add by calvin 8 nov 2018
                 }
-                //end add by calvin, validasi QOH
-
-                FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
-                FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
-                FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
-                FakturDetailDB.NILAI_DISC_1 = dataVm.FakturDetail.NILAI_DISC_1;
-                FakturDetailDB.NILAI_DISC_2 = dataVm.FakturDetail.NILAI_DISC_2;
-                FakturDetailDB.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
-                FakturDetailDB.HARGA = (dataVm.FakturDetail.QTY) * (FakturDetailDB.H_SATUAN) - (FakturDetailDB.NILAI_DISC_1 + FakturDetailDB.NILAI_DISC_2);
-                ErasoftDbContext.SaveChanges();
-
-                //UPDATE BAPAK
-                var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3");
-                double bruto_ = (double)ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Sum(p => p.HARGA);
-                //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
-
-                fakturInDb.BRUTO = bruto_;
-                fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
-                fakturInDb.PPN = dataVm.Faktur.PPN;
-                fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
-                fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
-                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
-                ErasoftDbContext.SaveChanges();
-
-                returBaru = false;
-
-                //add by calvin 8 nov 2018, update stok marketplace
-                List<string> listBrg = new List<string>();
-                listBrg.Add(FakturDetailDB.BRG);
-                updateStockMarketPlace(listBrg);
-                //end add by calvin 8 nov 2018
+                else
+                {
+                    returBaru = true;
+                }
             }
 
             // autoload detail item, jika buat retur baru
@@ -3951,6 +3960,27 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        //add by nurul 16/11/2018
+        //[HttpGet]
+        //public ActionResult GetDetailReturFaktur(string param)
+        //{
+        //    var listRetur = (from a in ErasoftDbContext.SIT01A
+        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
+        //                     where a.NO_BUKTI == code
+        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
+        //}
+        [HttpGet]
+        public ActionResult GetReturFaktur(string orderId)
+        {
+            var listDetail = ErasoftDbContext.SIT01B.Where(b => b.NO_BUKTI == orderId).ToList();
+            var detail = listDetail.Count();
+
+            return Json(detail, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
+
         // =============================================== Bagian Faktur Penjualan (END)
 
         // =============================================== Bagian Pembelian Invoice (START)
@@ -4263,44 +4293,53 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
-
-                //UPDATE ANAK
-                var invDetailDb = ErasoftDbContext.PBT01B.Single(p => p.INV == dataVm.Invoice.INV && p.BRG == dataVm.InvoiceDetail.BRG);
-
-                //add by calvin, validasi QOH
-                var qtyOnHand = GetQOHSTF08A(invDetailDb.BRG, invDetailDb.GD);
-
-                if (qtyOnHand + invDetailDb.QTY - dataVm.InvoiceDetail.QTY < 0)
+                //add by calvin 16 nov 2018, cek jika tidak ada detail, autoload
+                var cekdetail = ErasoftDbContext.PBT01B.FirstOrDefault(p => p.INV == dataVm.Invoice.INV);
+                if (cekdetail != null)
                 {
-                    var vmError = new InvoiceViewModel()
+                    var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
+
+                    //UPDATE ANAK
+                    var invDetailDb = ErasoftDbContext.PBT01B.Single(p => p.INV == dataVm.Invoice.INV && p.BRG == dataVm.InvoiceDetail.BRG);
+
+                    //add by calvin, validasi QOH
+                    var qtyOnHand = GetQOHSTF08A(invDetailDb.BRG, invDetailDb.GD);
+
+                    if (qtyOnHand + invDetailDb.QTY - dataVm.InvoiceDetail.QTY < 0)
                     {
+                        var vmError = new InvoiceViewModel()
+                        {
 
-                    };
-                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand + invDetailDb.QTY) + " ).");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                        };
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand + invDetailDb.QTY) + " ).");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    //end add by calvin, validasi QOH
+
+                    invDetailDb.QTY = dataVm.InvoiceDetail.QTY;
+                    invDetailDb.NILAI_DISC_1 = dataVm.InvoiceDetail.NILAI_DISC_1;
+                    invDetailDb.NILAI_DISC_2 = dataVm.InvoiceDetail.NILAI_DISC_2;
+                    invDetailDb.THARGA = (dataVm.InvoiceDetail.QTY) * (invDetailDb.HBELI) - (invDetailDb.NILAI_DISC_1 + invDetailDb.NILAI_DISC_2);
+
+                    //UPDATE BAPAK
+                    invoiceInDb.NETTO = dataVm.Invoice.NETTO;
+                    invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
+                    invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
+                    invoiceInDb.PPN = dataVm.Invoice.PPN;
+                    invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
+
+                    //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
+                    //if (dataVm.InvoiceDetail.NO == null)
+                    //{
+                    //    ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
+                    //}
+
+                    returBaru = false;
                 }
-                //end add by calvin, validasi QOH
-
-                invDetailDb.QTY = dataVm.InvoiceDetail.QTY;
-                invDetailDb.NILAI_DISC_1 = dataVm.InvoiceDetail.NILAI_DISC_1;
-                invDetailDb.NILAI_DISC_2 = dataVm.InvoiceDetail.NILAI_DISC_2;
-                invDetailDb.THARGA = (dataVm.InvoiceDetail.QTY) * (invDetailDb.HBELI) - (invDetailDb.NILAI_DISC_1 + invDetailDb.NILAI_DISC_2);
-
-                //UPDATE BAPAK
-                invoiceInDb.NETTO = dataVm.Invoice.NETTO;
-                invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
-                invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
-                invoiceInDb.PPN = dataVm.Invoice.PPN;
-                invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
-
-                //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
-                //if (dataVm.InvoiceDetail.NO == null)
-                //{
-                //    ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
-                //}
-
-                returBaru = false;
+                else
+                {
+                    returBaru = true;
+                }
             }
 
             ErasoftDbContext.SaveChanges();
@@ -4694,7 +4733,9 @@ namespace MasterOnline.Controllers
             invoiceInDb.BRUTO = dataUpdate.Bruto;
             invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
             invoiceInDb.PPN = dataUpdate.Ppn;
-            invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            //change by nurul 16/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            invoiceInDb.NPPN = dataUpdate.NilaiPpn;
+            //end change 
             invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
             invoiceInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl.Substring(0, 10), "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             invoiceInDb.SUPP = dataUpdate.Supp;
@@ -4724,6 +4765,28 @@ namespace MasterOnline.Controllers
 
             return new EmptyResult();
         }
+
+        //add by nurul 16/11/2018
+        //[HttpGet]
+        //public ActionResult GetDetailReturFaktur(string param)
+        //{
+        //    var listRetur = (from a in ErasoftDbContext.SIT01A
+        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
+        //                     where a.NO_BUKTI == code
+        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
+        //}
+        [HttpGet]
+        public ActionResult GetReturInvoice(string orderId)
+        {
+            var listDetail = ErasoftDbContext.PBT01B.Where(b => b.INV == orderId).ToList();
+            var detail = listDetail.Count();
+
+            return Json(detail, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
+
         // =============================================== Bagian Pembelian Invoice (END)
 
         // =============================================== Bagian Pesanan (START)
@@ -8569,7 +8632,7 @@ namespace MasterOnline.Controllers
         {
             string kodemerk = (param.Split(';')[param.Split(';').Length - 1]);
             string ket = (param.Split(';')[param.Split(';').Length - 2]);
-            
+
             var res = new CekMerk()
             {
                 Kode = kodemerk,
