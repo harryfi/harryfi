@@ -10,6 +10,6 @@ namespace MasterOnline
     {
         public string JENIS { get; set; }
         public string BRG { get; set; }
-        public int JUMLAH { get; set; }
+        public double JUMLAH { get; set; }
     }
 }
