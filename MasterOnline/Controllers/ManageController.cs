@@ -1527,6 +1527,22 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                for (int i = 0; i < Request.Files.Count; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            imgPath[0] = dataBarang.Stf02.LINK_GAMBAR_1;
+                            break;
+                        case 1:
+                            imgPath[1] = dataBarang.Stf02.LINK_GAMBAR_2;
+                            break;
+                        case 2:
+                            imgPath[2] = dataBarang.Stf02.LINK_GAMBAR_3;
+                            break;
+                    }
+                }
+
                 ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
@@ -1831,6 +1847,23 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    //add by calvin 16 nov 2018, imgpath saat update
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        switch (i)
+                        {
+                            case 0:
+                                imgPath[0] = barangInDb.LINK_GAMBAR_1;
+                                break;
+                            case 1:
+                                imgPath[1] = barangInDb.LINK_GAMBAR_2;
+                                break;
+                            case 2:
+                                imgPath[2] = barangInDb.LINK_GAMBAR_3;
+                                break;
+                        }
+                    }
+                    //end add by calvin
                 }
             }
 
@@ -2069,7 +2102,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (string.IsNullOrEmpty(tokoBl.BRG_MP))
                                     {
-                                        createBarangBukaLapak(dataBarang, picPath, tblCustomer);
+                                        createBarangBukaLapak(dataBarang, imgPath, tblCustomer);
                                     }
                                     else
                                     {

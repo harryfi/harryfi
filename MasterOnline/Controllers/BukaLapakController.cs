@@ -299,8 +299,13 @@ namespace MasterOnline.Controllers
         private static Stream GetPostStream(string filePath, string boundary)
         {
             Stream postDataStream = new System.IO.MemoryStream();
+            System.Uri fileUrl = new Uri(filePath);
 
-            FileInfo fileInfo = new FileInfo(filePath);
+            //change by calvin 16 nov 2018
+            //FileInfo fileInfo = new FileInfo(filePath);
+            String filename = fileUrl.PathAndQuery.Replace('/', Path.DirectorySeparatorChar);
+            FileInfo fileInfo = new FileInfo(filename);
+            //end change by calvin 16 nov 2018
 
             string fileHeaderTemplate = Environment.NewLine + "--" + boundary + Environment.NewLine +
             "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"" +
@@ -311,18 +316,24 @@ namespace MasterOnline.Controllers
 
             postDataStream.Write(fileHeaderBytes, 0, fileHeaderBytes.Length);
 
-            FileStream fileStream = fileInfo.OpenRead();
+            //change by calvin 16 nov 2018
+            //FileStream fileStream = fileInfo.OpenRead();
+            var req = System.Net.WebRequest.Create(filePath);
+            Stream stream = req.GetResponse().GetResponseStream();
+            //end change by calvin 16 nov 2018
 
             byte[] buffer = new byte[1024];
 
             int bytesRead = 0;
 
-            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+            //while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
             {
                 postDataStream.Write(buffer, 0, bytesRead);
             }
 
-            fileStream.Close();
+            //fileStream.Close();
+            stream.Close();
 
             byte[] endBoundaryBytes = System.Text.Encoding.UTF8.GetBytes("--" + boundary + "--");
             postDataStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
