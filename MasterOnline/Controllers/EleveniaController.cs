@@ -355,7 +355,7 @@ namespace MasterOnline.Controllers
             int prodImageCount = 1;
             for (int i = 0; i < data.imgUrl.Length; i++)
             {
-                if (data.imgUrl[i].Length > 0)
+                if (data.imgUrl[i] != null)
                 {
                     xmlString += "<prdImage0" + Convert.ToString(prodImageCount) + "><![CDATA[" + data.imgUrl[i] + "]]></prdImage0" + Convert.ToString(prodImageCount) + ">";//image url (can use up to 5 image)
 

@@ -875,7 +875,11 @@ namespace MasterOnline.Controllers
                     //end start
 
                     //content
-                    FileStream fileStream = fileInfo.OpenRead();
+                    //change by calvin 19 nov 2018
+                    //FileStream fileStream = fileInfo.OpenRead();
+                    var req = System.Net.WebRequest.Create(filePath);
+                    Stream fileStream = req.GetResponse().GetResponseStream();
+                    //end change by calvin 19 nov 2018
                     byte[] buffer = new byte[1024];
                     int bytesRead = 0;
                     while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
@@ -2010,19 +2014,35 @@ namespace MasterOnline.Controllers
                                                             oCommand.CommandType = CommandType.Text;
                                                             oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
                                                             oCommand.ExecuteNonQuery();
-
+                                                            string merchantSku = values.merchantSku.Value;
                                                             {
                                                                 string[] imgPath = new string[3];
+                                                                var dataBarang = ErasoftDbContext.STF02.Where(p => p.BRG.Equals(merchantSku)).FirstOrDefault();
                                                                 for (int i = 0; i < 3; i++)
                                                                 {
-                                                                    var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
-                                                                    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                                                                    var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
-                                                                    if (System.IO.File.Exists(path))
+                                                                    switch (i)
                                                                     {
-                                                                        imgPath[i] = path;
+                                                                        case 0:
+                                                                            imgPath[0] = dataBarang.LINK_GAMBAR_1;
+                                                                            break;
+                                                                        case 1:
+                                                                            imgPath[1] = dataBarang.LINK_GAMBAR_2;
+                                                                            break;
+                                                                        case 2:
+                                                                            imgPath[2] = dataBarang.LINK_GAMBAR_3;
+                                                                            break;
                                                                     }
                                                                 }
+                                                                //for (int i = 0; i < 3; i++)
+                                                                //{
+                                                                //    var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
+                                                                //    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                                                                //    var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
+                                                                //    if (System.IO.File.Exists(path))
+                                                                //    {
+                                                                //        imgPath[i] = path;
+                                                                //    }
+                                                                //}
 
                                                                 UploadImage(data, imgPath, Convert.ToString(values.productCode.Value), Convert.ToString(values.merchantSku.Value));
                                                             }
