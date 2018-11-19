@@ -1342,10 +1342,13 @@
 
                     $nettoSebelumnya += $bakalNetto;
                     $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
+                    //ADD BY NURUL 16/11/2018
+                    getDataReturInvoice();
+                    //END ADD
                     $('tr[data-invoice-id="0"]').hide();
                     //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                     $('#btn-simpan-perubahan-row').hide();
-                    $("#btn-autoload-row").hide();
+                    //$("#btn-autoload-row").hide();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1392,6 +1395,31 @@
             this.$brg = $brg;
         }
 
+        //add by nurul 16/11/2018
+        function getDataReturInvoice() {
+            var link = '@Url.Action("GetReturInvoice", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", $('#NOBUK_INVOICE').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (res) {
+                    var $jumlahDetail = res;
+                    if ($jumlahDetail == 0) {
+                        $("#btn-autoload-row").show();
+                    } else {
+                        $("#btn-autoload-row").hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        } 
+        //end add
+
         function deleteBarang() {
             var link = '@Url.Action("DeleteBarangReturInvoice", "Manage", new { noUrut = "replaceBrgId" })';
             link = link.replace("replaceBrgId", this.$brg);
@@ -1415,10 +1443,16 @@
                     $('#tambah_invoice').click();
                     $nettoSebelumnya += $bakalNetto;
                     $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
+                    //ADD BY NURUL 16/11/2018
+                    $(' select ').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    getDataReturInvoice();
+                    //END ADD
                     $('tr[data-invoice-id="0"]').hide();
                     //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                     $('#btn-simpan-perubahan-row').hide();
-                    $("#btn-autoload-row").hide();
+                    //$("#btn-autoload-row").hide();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },

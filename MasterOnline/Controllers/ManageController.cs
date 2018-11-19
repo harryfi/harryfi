@@ -471,7 +471,8 @@ namespace MasterOnline.Controllers
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
-                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList()
+                StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList(),
+                Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList()
             };
 
             return View(barangVm);
@@ -1526,6 +1527,22 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                for (int i = 0; i < Request.Files.Count; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            imgPath[0] = dataBarang.Stf02.LINK_GAMBAR_1;
+                            break;
+                        case 1:
+                            imgPath[1] = dataBarang.Stf02.LINK_GAMBAR_2;
+                            break;
+                        case 2:
+                            imgPath[2] = dataBarang.Stf02.LINK_GAMBAR_3;
+                            break;
+                    }
+                }
+
                 ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
@@ -1830,6 +1847,23 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
+                    //add by calvin 16 nov 2018, imgpath saat update
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        switch (i)
+                        {
+                            case 0:
+                                imgPath[0] = barangInDb.LINK_GAMBAR_1;
+                                break;
+                            case 1:
+                                imgPath[1] = barangInDb.LINK_GAMBAR_2;
+                                break;
+                            case 2:
+                                imgPath[2] = barangInDb.LINK_GAMBAR_3;
+                                break;
+                        }
+                    }
+                    //end add by calvin
                 }
             }
 
@@ -2005,7 +2039,7 @@ namespace MasterOnline.Controllers
                     }
                     #endregion
                     #region Elevenia
-                    saveBarangElevenia(1, dataBarang);
+                    saveBarangElevenia(1, dataBarang, imgPath);
                     #endregion
                     #region Blibli
                     saveBarangBlibli(1, dataBarang);
@@ -2017,18 +2051,18 @@ namespace MasterOnline.Controllers
                     //saveBarangBlibli(1, dataBarang);
                     //update harga, qty, dll
                     saveBarangBlibli(2, dataBarang);
-                    saveBarangElevenia(2, dataBarang);
+                    saveBarangElevenia(2, dataBarang, imgPath);
                     //get image
                     var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
-                    string[] picPath = new string[3];
-                    for (int i = 0; i < 3; i++)
-                    {
-                        string picName = $"FotoProduk-{barang.USERNAME}-{barang.BRG}-foto-{i + 1}.jpg";
-                        if (System.IO.File.Exists(Server.MapPath("/Content/Uploaded/" + picName)))
-                        {
-                            picPath[i] = Server.MapPath("/Content/Uploaded/" + picName);
-                        }
-                    }
+                    //string[] picPath = new string[3];
+                    //for (int i = 0; i < 3; i++)
+                    //{
+                    //    string picName = $"FotoProduk-{barang.USERNAME}-{barang.BRG}-foto-{i + 1}.jpg";
+                    //    if (System.IO.File.Exists(Server.MapPath("/Content/Uploaded/" + picName)))
+                    //    {
+                    //        picPath[i] = Server.MapPath("/Content/Uploaded/" + picName);
+                    //    }
+                    //}
                     //end get image
                     if (updateDisplay)
                     {
@@ -2042,7 +2076,7 @@ namespace MasterOnline.Controllers
                                     var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
                                     if (tokoLazada.DISPLAY && string.IsNullOrEmpty(tokoLazada.BRG_MP))//display = true and brg_mp = null -> create product
                                     {
-                                        createBarangLazada(dataBarang, picPath, tblCustomer);
+                                        createBarangLazada(dataBarang, imgPath, tblCustomer);
                                     }
                                     else
                                     {
@@ -2056,7 +2090,7 @@ namespace MasterOnline.Controllers
                         }
                         #endregion
                         #region Elevenia
-                        saveBarangElevenia(3, dataBarang);
+                        saveBarangElevenia(3, dataBarang, imgPath);
                         #endregion
                         #region Bukalapak
                         if (listBLShop.Count > 0)
@@ -2068,7 +2102,7 @@ namespace MasterOnline.Controllers
                                 {
                                     if (string.IsNullOrEmpty(tokoBl.BRG_MP))
                                     {
-                                        createBarangBukaLapak(dataBarang, picPath, tblCustomer);
+                                        createBarangBukaLapak(dataBarang, imgPath, tblCustomer);
                                     }
                                     else
                                     {
@@ -2414,7 +2448,7 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        protected void saveBarangElevenia(int mode, BarangViewModel dataBarang)
+        protected void saveBarangElevenia(int mode, BarangViewModel dataBarang, string[] imgPath)
         {
             //mode 1 Create Product - Hide Item, 2 Update, 3 Display / Hide Item
             var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
@@ -2429,30 +2463,30 @@ namespace MasterOnline.Controllers
                         #region Create Product lalu Hide Item
                         case 1:
                             {
-                                #region getUrlImage
-                                //string[] imgID = new string[Request.Files.Count];
-                                string[] imgID = new string[3];
-                                //if (Request.Files.Count > 0)
-                                //{
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    //var file = Request.Files[i];
+                                #region getUrlImage, remark by calvin 19 nov 2018
+                                //                                //string[] imgID = new string[Request.Files.Count];
+                                //                                string[] imgID = new string[3];
+                                //                                //if (Request.Files.Count > 0)
+                                //                                //{
+                                //                                for (int i = 0; i < 3; i++)
+                                //                                {
+                                //                                    //var file = Request.Files[i];
 
-                                    //if (file != null && file.ContentLength > 0)
-                                    //{
-                                    //    var fileExtension = Path.GetExtension(file.FileName);
+                                //                                    //if (file != null && file.ContentLength > 0)
+                                //                                    //{
+                                //                                    //    var fileExtension = Path.GetExtension(file.FileName);
 
-                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                                //                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                //#if AWS
+                                //                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#else
+                                //                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#endif
+                                //                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
-                                    //}
-                                }
-                                //}
+                                //                                    //}
+                                //                                }
+                                //                                //}
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
@@ -2462,7 +2496,7 @@ namespace MasterOnline.Controllers
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                         nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgID,
+                                        imgUrl = imgPath,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
                                         Qty = "1",
                                         DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
@@ -2482,30 +2516,30 @@ namespace MasterOnline.Controllers
                         #region Update Product
                         case 2:
                             {
-                                #region getUrlImage
-                                //string[] imgID = new string[Request.Files.Count];
-                                string[] imgID = new string[3];
-                                //if (Request.Files.Count > 0)
-                                //{
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    //var file = Request.Files[i];
+                                #region getUrlImage, remark by calvin 19 nov 2018
+                                //                                //string[] imgID = new string[Request.Files.Count];
+                                //                                string[] imgID = new string[3];
+                                //                                //if (Request.Files.Count > 0)
+                                //                                //{
+                                //                                for (int i = 0; i < 3; i++)
+                                //                                {
+                                //                                    //var file = Request.Files[i];
 
-                                    //if (file != null && file.ContentLength > 0)
-                                    //{
-                                    //    var fileExtension = Path.GetExtension(file.FileName);
+                                //                                    //if (file != null && file.ContentLength > 0)
+                                //                                    //{
+                                //                                    //    var fileExtension = Path.GetExtension(file.FileName);
 
-                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                                //                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                //#if AWS
+                                //                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#else
+                                //                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#endif
+                                //                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
-                                    //}
-                                }
-                                //}
+                                //                                    //}
+                                //                                }
+                                //                                //}
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
@@ -2517,7 +2551,7 @@ namespace MasterOnline.Controllers
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                         nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgID,
+                                        imgUrl = imgPath,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
                                         Qty = Convert.ToString(qtyOnHand),
                                         DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
@@ -3440,52 +3474,61 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                //UPDATE ANAK
-                var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
-
-                //add by calvin, validasi QOH
-                var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
-
-                if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
+                //add by calvin 16 nov 2018, cek jika tidak ada detail, autoload
+                var cekdetail = ErasoftDbContext.SIT01B.FirstOrDefault(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI);
+                if (cekdetail != null)
                 {
-                    var vmError = new InvoiceViewModel()
+                    //UPDATE ANAK
+                    var FakturDetailDB = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.BRG == dataVm.FakturDetail.BRG);
+
+                    //add by calvin, validasi QOH
+                    var qtyOnHand = GetQOHSTF08A(FakturDetailDB.BRG, FakturDetailDB.GUDANG);
+
+                    if (qtyOnHand - FakturDetailDB.QTY + dataVm.FakturDetail.QTY < 0)
                     {
+                        var vmError = new InvoiceViewModel()
+                        {
 
-                    };
-                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                        };
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + FakturDetailDB.BRG + " ) di gudang " + FakturDetailDB.GUDANG + " sisa ( " + Convert.ToString(qtyOnHand) + " ).");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    //end add by calvin, validasi QOH
+
+                    FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
+                    FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
+                    FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
+                    FakturDetailDB.NILAI_DISC_1 = dataVm.FakturDetail.NILAI_DISC_1;
+                    FakturDetailDB.NILAI_DISC_2 = dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
+                    FakturDetailDB.HARGA = (dataVm.FakturDetail.QTY) * (FakturDetailDB.H_SATUAN) - (FakturDetailDB.NILAI_DISC_1 + FakturDetailDB.NILAI_DISC_2);
+                    ErasoftDbContext.SaveChanges();
+
+                    //UPDATE BAPAK
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3");
+                    double bruto_ = (double)ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Sum(p => p.HARGA);
+                    //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
+
+                    fakturInDb.BRUTO = bruto_;
+                    fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
+                    fakturInDb.PPN = dataVm.Faktur.PPN;
+                    fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
+                    fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
+                    fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
+                    ErasoftDbContext.SaveChanges();
+
+                    returBaru = false;
+
+                    //add by calvin 8 nov 2018, update stok marketplace
+                    List<string> listBrg = new List<string>();
+                    listBrg.Add(FakturDetailDB.BRG);
+                    updateStockMarketPlace(listBrg);
+                    //end add by calvin 8 nov 2018
                 }
-                //end add by calvin, validasi QOH
-
-                FakturDetailDB.QTY = dataVm.FakturDetail.QTY;
-                FakturDetailDB.DISCOUNT = dataVm.FakturDetail.DISCOUNT;
-                FakturDetailDB.DISCOUNT_2 = dataVm.FakturDetail.DISCOUNT_2;
-                FakturDetailDB.NILAI_DISC_1 = dataVm.FakturDetail.NILAI_DISC_1;
-                FakturDetailDB.NILAI_DISC_2 = dataVm.FakturDetail.NILAI_DISC_2;
-                FakturDetailDB.NILAI_DISC = dataVm.FakturDetail.NILAI_DISC_1 + dataVm.FakturDetail.NILAI_DISC_2;
-                FakturDetailDB.HARGA = (dataVm.FakturDetail.QTY) * (FakturDetailDB.H_SATUAN) - (FakturDetailDB.NILAI_DISC_1 + FakturDetailDB.NILAI_DISC_2);
-                ErasoftDbContext.SaveChanges();
-
-                //UPDATE BAPAK
-                var fakturInDb = ErasoftDbContext.SIT01A.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI && p.JENIS_FORM == "3");
-                double bruto_ = (double)ErasoftDbContext.SIT01B.Where(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).Sum(p => p.HARGA);
-                //vm.NilaiPesananHariIni = vm.ListPesanan?.Where(p => p.TGL == selectedDate).Sum(p => p.BRUTO - p.NILAI_DISC);
-
-                fakturInDb.BRUTO = bruto_;
-                fakturInDb.NILAI_DISC = dataVm.Faktur.NILAI_DISC;
-                fakturInDb.PPN = dataVm.Faktur.PPN;
-                fakturInDb.NILAI_PPN = dataVm.Faktur.NILAI_PPN;
-                fakturInDb.MATERAI = dataVm.Faktur.MATERAI;
-                fakturInDb.NETTO = fakturInDb.BRUTO - fakturInDb.NILAI_DISC + fakturInDb.NILAI_PPN + fakturInDb.MATERAI;
-                ErasoftDbContext.SaveChanges();
-
-                returBaru = false;
-
-                //add by calvin 8 nov 2018, update stok marketplace
-                List<string> listBrg = new List<string>();
-                listBrg.Add(FakturDetailDB.BRG);
-                updateStockMarketPlace(listBrg);
-                //end add by calvin 8 nov 2018
+                else
+                {
+                    returBaru = true;
+                }
             }
 
             // autoload detail item, jika buat retur baru
@@ -3917,6 +3960,27 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        //add by nurul 16/11/2018
+        //[HttpGet]
+        //public ActionResult GetDetailReturFaktur(string param)
+        //{
+        //    var listRetur = (from a in ErasoftDbContext.SIT01A
+        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
+        //                     where a.NO_BUKTI == code
+        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
+        //}
+        [HttpGet]
+        public ActionResult GetReturFaktur(string orderId)
+        {
+            var listDetail = ErasoftDbContext.SIT01B.Where(b => b.NO_BUKTI == orderId).ToList();
+            var detail = listDetail.Count();
+
+            return Json(detail, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
+
         // =============================================== Bagian Faktur Penjualan (END)
 
         // =============================================== Bagian Pembelian Invoice (START)
@@ -4229,44 +4293,53 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
-
-                //UPDATE ANAK
-                var invDetailDb = ErasoftDbContext.PBT01B.Single(p => p.INV == dataVm.Invoice.INV && p.BRG == dataVm.InvoiceDetail.BRG);
-
-                //add by calvin, validasi QOH
-                var qtyOnHand = GetQOHSTF08A(invDetailDb.BRG, invDetailDb.GD);
-
-                if (qtyOnHand + invDetailDb.QTY - dataVm.InvoiceDetail.QTY < 0)
+                //add by calvin 16 nov 2018, cek jika tidak ada detail, autoload
+                var cekdetail = ErasoftDbContext.PBT01B.FirstOrDefault(p => p.INV == dataVm.Invoice.INV);
+                if (cekdetail != null)
                 {
-                    var vmError = new InvoiceViewModel()
+                    var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
+
+                    //UPDATE ANAK
+                    var invDetailDb = ErasoftDbContext.PBT01B.Single(p => p.INV == dataVm.Invoice.INV && p.BRG == dataVm.InvoiceDetail.BRG);
+
+                    //add by calvin, validasi QOH
+                    var qtyOnHand = GetQOHSTF08A(invDetailDb.BRG, invDetailDb.GD);
+
+                    if (qtyOnHand + invDetailDb.QTY - dataVm.InvoiceDetail.QTY < 0)
                     {
+                        var vmError = new InvoiceViewModel()
+                        {
 
-                    };
-                    vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand + invDetailDb.QTY) + " ).");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                        };
+                        vmError.Errors.Add("Tidak bisa retur, Qty untuk barang ( " + invDetailDb.BRG + " ) di gudang " + invDetailDb.GD + " sisa ( " + Convert.ToString(qtyOnHand + invDetailDb.QTY) + " ).");
+                        return Json(vmError, JsonRequestBehavior.AllowGet);
+                    }
+                    //end add by calvin, validasi QOH
+
+                    invDetailDb.QTY = dataVm.InvoiceDetail.QTY;
+                    invDetailDb.NILAI_DISC_1 = dataVm.InvoiceDetail.NILAI_DISC_1;
+                    invDetailDb.NILAI_DISC_2 = dataVm.InvoiceDetail.NILAI_DISC_2;
+                    invDetailDb.THARGA = (dataVm.InvoiceDetail.QTY) * (invDetailDb.HBELI) - (invDetailDb.NILAI_DISC_1 + invDetailDb.NILAI_DISC_2);
+
+                    //UPDATE BAPAK
+                    invoiceInDb.NETTO = dataVm.Invoice.NETTO;
+                    invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
+                    invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
+                    invoiceInDb.PPN = dataVm.Invoice.PPN;
+                    invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
+
+                    //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
+                    //if (dataVm.InvoiceDetail.NO == null)
+                    //{
+                    //    ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
+                    //}
+
+                    returBaru = false;
                 }
-                //end add by calvin, validasi QOH
-
-                invDetailDb.QTY = dataVm.InvoiceDetail.QTY;
-                invDetailDb.NILAI_DISC_1 = dataVm.InvoiceDetail.NILAI_DISC_1;
-                invDetailDb.NILAI_DISC_2 = dataVm.InvoiceDetail.NILAI_DISC_2;
-                invDetailDb.THARGA = (dataVm.InvoiceDetail.QTY) * (invDetailDb.HBELI) - (invDetailDb.NILAI_DISC_1 + invDetailDb.NILAI_DISC_2);
-
-                //UPDATE BAPAK
-                invoiceInDb.NETTO = dataVm.Invoice.NETTO;
-                invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
-                invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
-                invoiceInDb.PPN = dataVm.Invoice.PPN;
-                invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
-
-                //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
-                //if (dataVm.InvoiceDetail.NO == null)
-                //{
-                //    ErasoftDbContext.PBT01B.Add(dataVm.InvoiceDetail);
-                //}
-
-                returBaru = false;
+                else
+                {
+                    returBaru = true;
+                }
             }
 
             ErasoftDbContext.SaveChanges();
@@ -4660,7 +4733,9 @@ namespace MasterOnline.Controllers
             invoiceInDb.BRUTO = dataUpdate.Bruto;
             invoiceInDb.NDISC1 = dataUpdate.NilaiDisc;
             invoiceInDb.PPN = dataUpdate.Ppn;
-            invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            //change by nurul 16/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
+            invoiceInDb.NPPN = dataUpdate.NilaiPpn;
+            //end change 
             invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
             invoiceInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl.Substring(0, 10), "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             invoiceInDb.SUPP = dataUpdate.Supp;
@@ -4690,6 +4765,28 @@ namespace MasterOnline.Controllers
 
             return new EmptyResult();
         }
+
+        //add by nurul 16/11/2018
+        //[HttpGet]
+        //public ActionResult GetDetailReturFaktur(string param)
+        //{
+        //    var listRetur = (from a in ErasoftDbContext.SIT01A
+        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
+        //                     where a.NO_BUKTI == code
+        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+
+        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
+        //}
+        [HttpGet]
+        public ActionResult GetReturInvoice(string orderId)
+        {
+            var listDetail = ErasoftDbContext.PBT01B.Where(b => b.INV == orderId).ToList();
+            var detail = listDetail.Count();
+
+            return Json(detail, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
+
         // =============================================== Bagian Pembelian Invoice (END)
 
         // =============================================== Bagian Pesanan (START)
@@ -8535,7 +8632,7 @@ namespace MasterOnline.Controllers
         {
             string kodemerk = (param.Split(';')[param.Split(';').Length - 1]);
             string ket = (param.Split(';')[param.Split(';').Length - 2]);
-            
+
             var res = new CekMerk()
             {
                 Kode = kodemerk,

@@ -1129,6 +1129,7 @@
                 }
             });
         }*@
+         
 
         function modeEditOff() {
             $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', false);
@@ -1217,11 +1218,13 @@
                     $(' select ').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
-
+                    //add by nurul 16/11/2018
+                    getDataReturFaktur();
+                    //end add
                     $('tr[data-faktur-id="0"]').hide();
                     //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                     $('#btn-simpan-perubahan-row').hide();
-                    $("#btn-autoload-row").hide();
+                    //$("#btn-autoload-row").hide();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -1312,8 +1315,33 @@
                 }
             });
         }
+        //add by nurul 16/11/2018
+        function getDataReturFaktur() {
+            //var id = $('#NOBUK_FAKTUR').val();
+            var link = '@Url.Action("GetReturFaktur", "Manage", new { orderId = "replaceId" })';
+            link = link.replace("replaceId", $('#NOBUK_FAKTUR').val());
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (res) {
+                    var $jumlahDetail = res;
+                    if ($jumlahDetail == 0) {
+                        $("#btn-autoload-row").show();
+                    } else {
+                        $("#btn-autoload-row").hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        } 
+        //end add
         function editQty($idBarang) {
+
             var $tr = 'tr[data-barang-id="' + $idBarang + '"]';
             var $qtyInitialSpan = $($tr + ' .qty-initial');
             var $qtyInputBox = $($tr + ' .qty-input-box');
@@ -1461,8 +1489,14 @@
                     getFaktur(false);
                     $('#tambah_faktur').click();
                     $nettoSebelumnya += $bakalNetto;
+                    //add by nurul 16/11/2018
+                    $(' select ').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    getDataReturFaktur();
+                    //end add 
                     $('tr[data-faktur-id="0"]').hide();
-                    $("#btn-autoload-row").hide();
+                    //$("#btn-autoload-row").hide();
                     //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                     $('#btn-simpan-perubahan-row').hide();
                     $('#konfHapusBarang').modal('hide');
