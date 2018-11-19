@@ -1967,8 +1967,9 @@
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
                         }
                     });
-
-                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                    if (kategoriSelect[0] != undefined) {
+                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);

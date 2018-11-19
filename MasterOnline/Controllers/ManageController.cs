@@ -2039,7 +2039,7 @@ namespace MasterOnline.Controllers
                     }
                     #endregion
                     #region Elevenia
-                    saveBarangElevenia(1, dataBarang);
+                    saveBarangElevenia(1, dataBarang, imgPath);
                     #endregion
                     #region Blibli
                     saveBarangBlibli(1, dataBarang);
@@ -2051,18 +2051,18 @@ namespace MasterOnline.Controllers
                     //saveBarangBlibli(1, dataBarang);
                     //update harga, qty, dll
                     saveBarangBlibli(2, dataBarang);
-                    saveBarangElevenia(2, dataBarang);
+                    saveBarangElevenia(2, dataBarang, imgPath);
                     //get image
                     var barang = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
-                    string[] picPath = new string[3];
-                    for (int i = 0; i < 3; i++)
-                    {
-                        string picName = $"FotoProduk-{barang.USERNAME}-{barang.BRG}-foto-{i + 1}.jpg";
-                        if (System.IO.File.Exists(Server.MapPath("/Content/Uploaded/" + picName)))
-                        {
-                            picPath[i] = Server.MapPath("/Content/Uploaded/" + picName);
-                        }
-                    }
+                    //string[] picPath = new string[3];
+                    //for (int i = 0; i < 3; i++)
+                    //{
+                    //    string picName = $"FotoProduk-{barang.USERNAME}-{barang.BRG}-foto-{i + 1}.jpg";
+                    //    if (System.IO.File.Exists(Server.MapPath("/Content/Uploaded/" + picName)))
+                    //    {
+                    //        picPath[i] = Server.MapPath("/Content/Uploaded/" + picName);
+                    //    }
+                    //}
                     //end get image
                     if (updateDisplay)
                     {
@@ -2076,7 +2076,7 @@ namespace MasterOnline.Controllers
                                     var tokoLazada = ErasoftDbContext.STF02H.SingleOrDefault(h => h.IDMARKET == tblCustomer.RecNum && h.BRG == barang.BRG);
                                     if (tokoLazada.DISPLAY && string.IsNullOrEmpty(tokoLazada.BRG_MP))//display = true and brg_mp = null -> create product
                                     {
-                                        createBarangLazada(dataBarang, picPath, tblCustomer);
+                                        createBarangLazada(dataBarang, imgPath, tblCustomer);
                                     }
                                     else
                                     {
@@ -2090,7 +2090,7 @@ namespace MasterOnline.Controllers
                         }
                         #endregion
                         #region Elevenia
-                        saveBarangElevenia(3, dataBarang);
+                        saveBarangElevenia(3, dataBarang, imgPath);
                         #endregion
                         #region Bukalapak
                         if (listBLShop.Count > 0)
@@ -2448,7 +2448,7 @@ namespace MasterOnline.Controllers
                 }
             }
         }
-        protected void saveBarangElevenia(int mode, BarangViewModel dataBarang)
+        protected void saveBarangElevenia(int mode, BarangViewModel dataBarang, string[] imgPath)
         {
             //mode 1 Create Product - Hide Item, 2 Update, 3 Display / Hide Item
             var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
@@ -2463,30 +2463,30 @@ namespace MasterOnline.Controllers
                         #region Create Product lalu Hide Item
                         case 1:
                             {
-                                #region getUrlImage
-                                //string[] imgID = new string[Request.Files.Count];
-                                string[] imgID = new string[3];
-                                //if (Request.Files.Count > 0)
-                                //{
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    //var file = Request.Files[i];
+                                #region getUrlImage, remark by calvin 19 nov 2018
+                                //                                //string[] imgID = new string[Request.Files.Count];
+                                //                                string[] imgID = new string[3];
+                                //                                //if (Request.Files.Count > 0)
+                                //                                //{
+                                //                                for (int i = 0; i < 3; i++)
+                                //                                {
+                                //                                    //var file = Request.Files[i];
 
-                                    //if (file != null && file.ContentLength > 0)
-                                    //{
-                                    //    var fileExtension = Path.GetExtension(file.FileName);
+                                //                                    //if (file != null && file.ContentLength > 0)
+                                //                                    //{
+                                //                                    //    var fileExtension = Path.GetExtension(file.FileName);
 
-                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                                //                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                //#if AWS
+                                //                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#else
+                                //                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#endif
+                                //                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
-                                    //}
-                                }
-                                //}
+                                //                                    //}
+                                //                                }
+                                //                                //}
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
@@ -2496,7 +2496,7 @@ namespace MasterOnline.Controllers
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                         nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgID,
+                                        imgUrl = imgPath,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
                                         Qty = "1",
                                         DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
@@ -2516,30 +2516,30 @@ namespace MasterOnline.Controllers
                         #region Update Product
                         case 2:
                             {
-                                #region getUrlImage
-                                //string[] imgID = new string[Request.Files.Count];
-                                string[] imgID = new string[3];
-                                //if (Request.Files.Count > 0)
-                                //{
-                                for (int i = 0; i < 3; i++)
-                                {
-                                    //var file = Request.Files[i];
+                                #region getUrlImage, remark by calvin 19 nov 2018
+                                //                                //string[] imgID = new string[Request.Files.Count];
+                                //                                string[] imgID = new string[3];
+                                //                                //if (Request.Files.Count > 0)
+                                //                                //{
+                                //                                for (int i = 0; i < 3; i++)
+                                //                                {
+                                //                                    //var file = Request.Files[i];
 
-                                    //if (file != null && file.ContentLength > 0)
-                                    //{
-                                    //    var fileExtension = Path.GetExtension(file.FileName);
+                                //                                    //if (file != null && file.ContentLength > 0)
+                                //                                    //{
+                                //                                    //    var fileExtension = Path.GetExtension(file.FileName);
 
-                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                                //                                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
+                                //#if AWS
+                                //                                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#else
+                                //                                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                                //#endif
+                                //                                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
 
-                                    //}
-                                }
-                                //}
+                                //                                    //}
+                                //                                }
+                                //                                //}
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
@@ -2551,7 +2551,7 @@ namespace MasterOnline.Controllers
                                         kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
                                         nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
                                         berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgID,
+                                        imgUrl = imgPath,
                                         Keterangan = dataBarang.Stf02.Deskripsi,
                                         Qty = Convert.ToString(qtyOnHand),
                                         DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),

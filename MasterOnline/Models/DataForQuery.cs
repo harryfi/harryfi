@@ -8,6 +8,6 @@ namespace MasterOnline.Models
     public class DataForQuery
     {
         public string MigrationHistoryInsertQuery { get; set; }
-        public string AddColumnQuery { get; set; }
+        public string AdditionalQuery { get; set; }
     }
 }
