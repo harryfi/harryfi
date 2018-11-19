@@ -705,7 +705,13 @@ namespace MasterOnline.Controllers
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/image/upload");
-            request.AddFileParameter("image", new FileItem(imagePath));
+
+            //change by calvin 19 nov 2018
+            //request.AddFileParameter("image", new FileItem(imagePath));
+            var req = System.Net.WebRequest.Create(imagePath);
+            System.IO.Stream stream = req.GetResponse().GetResponseStream();
+            request.AddFileParameter("image", new FileItem("image", stream));
+            //end change by calvin 19 nov 2018
             try
             {
                 LazopResponse response = client.Execute(request, accessToken);
@@ -1223,7 +1229,7 @@ namespace MasterOnline.Controllers
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
                 if (response.Code.Equals("0"))
                 {
-                    if(result.data.products != null)
+                    if (result.data.products != null)
                     {
                         if (result.data.products.Count > 0)
                         {
@@ -2071,7 +2077,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                   
+
                 }
             }
             catch (Exception ex)
