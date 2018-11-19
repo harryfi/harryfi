@@ -3960,18 +3960,40 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
-        //add by nurul 16/11/2018
-        //[HttpGet]
-        //public ActionResult GetDetailReturFaktur(string param)
-        //{
-        //    var listRetur = (from a in ErasoftDbContext.SIT01A
-        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
-        //                     where a.NO_BUKTI == code
-        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
-
-        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
-        //}
+        //add by nurul 16/11/2018 FakturViewModel dataVm
         [HttpGet]
+        public ActionResult GetRecnumReturFaktur(string noUrut)
+        {
+            string a = (noUrut.Split('-')[noUrut.Split('-').Length - 1]);
+            int urut = Convert.ToInt32(a);
+            //var Recnum = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == dataVm.Faktur.NO_BUKTI).TRANS_NO_URUT;
+            var Recnum = ErasoftDbContext.SIT01B.Single(b => b.NO_URUT == urut && b.JENIS_FORM == "3").TRANS_NO_URUT;
+
+            return Json(Recnum, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetQtyReturFaktur(string param)
+        {
+            string order = (param.Split(';')[param.Split(';').Length - 3]);
+            string brg = (param.Split(';')[param.Split(';').Length - 2]);
+            Int32 recnumBrg = Convert.ToInt32(param.Split(';')[param.Split(';').Length - 1]);
+
+            var res = new mdlGetQty()
+            {
+                OrderId = order,
+                BrgId = brg,
+                Recnum = recnumBrg
+            };
+
+            var spQTY = ErasoftDbContext.SIT01B.Single(p => p.NO_BUKTI == order && p.BRG == brg && p.NO_URUT == recnumBrg).QTY;
+
+            return Json(spQTY, JsonRequestBehavior.AllowGet);
+        }
+        public class mdlGetQty
+        {
+            public string OrderId { get; set; }
+            public string BrgId { get; set; }
+            public Int32 Recnum { get; set; }
+        }
         public ActionResult GetReturFaktur(string orderId)
         {
             var listDetail = ErasoftDbContext.SIT01B.Where(b => b.NO_BUKTI == orderId).ToList();
@@ -4767,16 +4789,32 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 16/11/2018
-        //[HttpGet]
-        //public ActionResult GetDetailReturFaktur(string param)
-        //{
-        //    var listRetur = (from a in ErasoftDbContext.SIT01A
-        //                     join b in ErasoftDbContext.SIT01B on a.NO_BUKTI equals b.NO_BUKTI
-        //                     where a.NO_BUKTI == code
-        //                     select new { BRG = b., QTY = b., NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+        [HttpGet]
+        public ActionResult GetRecnumReturInvoice(string noUrut)
+        {
+            string a = (noUrut.Split('-')[noUrut.Split('-').Length - 1]);
+            int urut = Convert.ToInt32(a);
+            var Recnum = ErasoftDbContext.PBT01B.Single(p => p.NO == urut && p.JENISFORM == "2").NO_URUT_PO;
 
-        //    return Json(listRetur, JsonRequestBehavior.AllowGet);
-        //}
+            return Json(Recnum, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult GetQtyReturInvoice(string param)
+        {
+            string order = (param.Split(';')[param.Split(';').Length - 3]);
+            string brg = (param.Split(';')[param.Split(';').Length - 2]);
+            Int32 recnumBrg = Convert.ToInt32(param.Split(';')[param.Split(';').Length - 1]);
+
+            var res = new mdlGetQty()
+            {
+                OrderId = order,
+                BrgId = brg,
+                Recnum = recnumBrg
+            };
+
+            var spQTY = ErasoftDbContext.PBT01B.Single(p => p.INV == order && p.BRG == brg && p.NO == recnumBrg).QTY;
+
+            return Json(spQTY, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public ActionResult GetReturInvoice(string orderId)
         {

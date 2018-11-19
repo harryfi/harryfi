@@ -678,7 +678,7 @@
                         //$this.hide();
                         //add by nurul 2/11/2018
                         $('#btn-simpan-perubahan-row').hide();
-                        //end add 
+                        //end add
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -1012,7 +1012,7 @@
                         $("#TGL_BTN").attr('disabled', 'disabled');
                         faktSelect[0].selectize.setValue($('#Faktur_NO_REF').val());
                     }
-                    //end change 
+                    //end change
 
                 },
                 error: function (xhr) {
@@ -1129,7 +1129,7 @@
                 }
             });
         }*@
-         
+
 
         function modeEditOff() {
             $('#table_tambah_faktur > tbody > tr > td.editable').prop('contentEditable', false);
@@ -1338,8 +1338,9 @@
                     console.log(error);
                 }
             });
-        } 
+        }
         //end add
+        
         function editQty($idBarang) {
 
             var $tr = 'tr[data-barang-id="' + $idBarang + '"]';
@@ -1349,17 +1350,43 @@
             var $qtyAwal = $qtyInitialSpan.text();
 
             if ($btnEdit.hasClass('glyphicon-pencil')) {
+                //add by nurul 19/11/2018
+                var link = '@Url.Action("GetRecnumReturFaktur", "Manage", new { noUrut = "replaceBrgId" })';
+                link = link.replace("replaceBrgId", $idBarang);
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function ($noUrut) {
+
+                        
+                var link = '@Url.Action("GetQtyReturFaktur", "Manage", new { param = "replaceId;replaceBrg;replaceBrgId" })';
+                link = link.replace("replaceId", $('#Faktur_NO_REF').val());
+                link = link.replace("replaceBrg", $($tr + ' .kode-barang').text());
+                link = link.replace("replaceBrgId", $noUrut);
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (res) {
+                //end add
                 $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
                 $totalAwalBarang = parseInt(convertToAngka($($tr + ' .netto-barang').text()));
                 $btnEdit.parent().removeClass('btn-primary').addClass('btn-success');
                 $btnEdit.removeClass('glyphicon-pencil').addClass('glyphicon-floppy-disk');
                 $qtyInitialSpan.hide();
                 $qtyInputBox.val($qtyAwal)
-                    .attr('max', $qtyAwal)
+                    //.attr('max', $qtyAwal)
+                    .attr('max', res)
                     .change(function() {
                         //unremark by calvin 8 nov 2018, proteksi qty
-                        if ($(this).val() > $qtyAwal) {
-                            alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur!');
+                        //if ($(this).val() > $qtyAwal) {
+                        if ($(this).val() > res) {
+                            alert('Kuantitas retur tidak boleh melebihi kuantitas awal faktur (' + res + ')!');
                             $(this).val($qtyAwal);
                             refreshNettoBarang($idBarang);
                             return false;
@@ -1367,7 +1394,19 @@
                         //end unremark by calvin 8 nov 2018, proteksi qty
                         refreshNettoBarang($idBarang);
                     })
-                    .show();
+                            .show();
+                //add by nurul 19/11/2018
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                        });
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+                //end add
             } else {
                 if ($qtyInputBox.val() != '' && parseInt($qtyInputBox.val()) > 0) {
                     //remark by calvin 8 nov 2018, pindah ke setelah simpanBrg, karena ada validasi lewat manageController
@@ -1494,7 +1533,7 @@
                         $(this).attr('disabled', 'disabled');
                     });
                     getDataReturFaktur();
-                    //end add 
+                    //end add
                     $('tr[data-faktur-id="0"]').hide();
                     //$("#btn-autoload-row").hide();
                     //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
