@@ -1273,6 +1273,7 @@
     <Content Include="Content\Images\inbox.png" />
     <Content Include="Content\Images\inc-logo.png" />
     <Content Include="Content\Images\Instagram.png" />
+    <Content Include="Content\Images\komprehensif-dashboard.PNG" />
     <Content Include="Content\Images\letsencrypt-logo.png" />
     <Content Include="Content\Images\logo-blibli.png" />
     <Content Include="Content\Images\logo-bukalapak.png" />
@@ -1296,6 +1297,7 @@
     <Content Include="Content\Images\MO_new_logo_v2_bordered.png" />
     <Content Include="Content\Images\MO_new_logo_v2_white_text.png" />
     <Content Include="Content\Images\MO_simple_logo.png" />
+    <Content Include="Content\Images\multi-channel.PNG" />
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />
@@ -1312,10 +1314,13 @@
     <Content Include="Content\Images\prod-4.jpg" />
     <Content Include="Content\Images\prod-5.jpg" />
     <Content Include="Content\Images\PromoPulsa.png" />
+    <Content Include="Content\Images\purchasing.PNG" />
     <Content Include="Content\Images\real_time_stock_icon.png" />
+    <Content Include="Content\Images\sales-analysis.PNG" />
     <Content Include="Content\Images\screenshot01.jpg" />
     <Content Include="Content\Images\screenshot02.jpg" />
     <Content Include="Content\Images\screenshot04.jpg" />
+    <Content Include="Content\Images\security.PNG" />
     <Content Include="Content\Images\shattered.png" />
     <Content Include="Content\Images\spinner.gif" />
     <Content Include="Content\Images\store.png" />
