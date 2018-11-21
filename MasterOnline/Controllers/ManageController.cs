@@ -2145,15 +2145,15 @@ namespace MasterOnline.Controllers
             var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
             if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
             {
-                for (int i = 0; i < imgPath.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(imgPath[i]))
-                    {
-                        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                        if (uploadImg.status == 1)
-                            imageUrl[i] = uploadImg.message;
-                    }
-                }
+                //for (int i = 0; i < imgPath.Length; i++)
+                //{
+                    //if (!string.IsNullOrEmpty(imgPath[i]))
+                    //{
+                    //    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                    //    if (uploadImg.status == 1)
+                    //        imageUrl[i] = uploadImg.message;
+                    //}
+                //}
 
                 BrgViewModel dataLazada = new BrgViewModel
                 {
@@ -2177,17 +2177,29 @@ namespace MasterOnline.Controllers
                 dataLazada.harga = productMarketPlace.HJUAL.ToString();
                 dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                if (!string.IsNullOrEmpty(imageUrl[2]))
+                //if (!string.IsNullOrEmpty(imageUrl[2]))
+                //{
+                //    dataLazada.imageUrl3 = imageUrl[2];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[1]))
+                //{
+                //    dataLazada.imageUrl2 = imageUrl[1];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[0]))
+                //{
+                //    dataLazada.imageUrl = imageUrl[0];
+                //}
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_3))
                 {
-                    dataLazada.imageUrl3 = imageUrl[2];
+                    dataLazada.imageUrl3 = barangInDb.LINK_GAMBAR_3;
                 }
-                if (!string.IsNullOrEmpty(imageUrl[1]))
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_2))
                 {
-                    dataLazada.imageUrl2 = imageUrl[1];
+                    dataLazada.imageUrl2 = barangInDb.LINK_GAMBAR_2;
                 }
-                if (!string.IsNullOrEmpty(imageUrl[0]))
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_1))
                 {
-                    dataLazada.imageUrl = imageUrl[0];
+                    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
                 }
                 var result = lzdApi.CreateProduct(dataLazada);
             }
@@ -11438,6 +11450,40 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 break;
+                            case "BLIBLI":
+                                var BliApi = new BlibliController();
+                                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                                {
+                                    API_client_username = arf01.API_CLIENT_U,
+                                    API_client_password = arf01.API_CLIENT_P,
+                                    API_secret_key = arf01.API_KEY,
+                                    mta_username_email_merchant = arf01.EMAIL,
+                                    mta_password_password_merchant = arf01.PASSWORD,
+                                    merchant_code = arf01.Sort1_Cust,
+                                    token = arf01.TOKEN
+                                };
+                                var resultBli = BliApi.getProduct(data, "", 0, arf01.CUST);
+                                var nextPageBli = true;
+                                while (nextPageBli)
+                                {
+                                    if (resultBli.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultBli.message))
+                                        {
+                                            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
+                                        }
+                                        else
+                                        {
+                                            nextPageBli = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPageBli = false;
+                                    }
+                                }
+                                break;
+
                         }
                     }
 
