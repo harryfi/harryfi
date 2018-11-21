@@ -1081,7 +1081,9 @@ namespace MasterOnline.Controllers
                             Kategori = barang.KET_SORT1,
                             Merk = barang.KET_SORT2,
                             HJual = barang.HJUAL,
-                            Qty = qtyOnHand
+                            Qty = qtyOnHand,
+                            //add by nurul 21/11/2018
+                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                         });
                     }
                 }
@@ -1108,7 +1110,9 @@ namespace MasterOnline.Controllers
                         Kategori = barang.KET_SORT1,
                         Merk = barang.KET_SORT2,
                         HJual = barang.HJUAL,
-                        Laku = false
+                        Laku = false,
+                        //add by nurul 21/11/2018
+                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                     });
                 }
             }
@@ -1141,7 +1145,9 @@ namespace MasterOnline.Controllers
                             NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
                             Kategori = barang.KET_SORT1,
                             Merk = barang.KET_SORT2,
-                            HJual = barang.HJUAL
+                            HJual = barang.HJUAL,
+                            //add by nurul 21/11/2018
+                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                         });
                     }
                 }
@@ -1167,6 +1173,8 @@ namespace MasterOnline.Controllers
                         Kategori = barang.KET_SORT1,
                         Merk = barang.KET_SORT2,
                         HJual = barang.HJUAL,
+                        //add by nurul 21/11/2018
+                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                     });
                 }
             }
