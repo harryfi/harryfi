@@ -14,5 +14,6 @@ namespace MasterOnline.Models
         public double HJual { get; set; }
         public double Qty { get; set; }
         public bool Laku { get; set; }
+        public List<QOH_QOO_ALL_ITEM> Stok { get; set; }
     }
 }

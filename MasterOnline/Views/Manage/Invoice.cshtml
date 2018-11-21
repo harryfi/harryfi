@@ -929,7 +929,7 @@
         var $TabAktif = 0;// 0 Faktur, 1 Invoice Sudah Lunas, 2 Invoice Jatuh Tempo
         //add by nurul 6/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
-        //end add 
+        //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
         var $jumlahPesananBulanIni = 0;
@@ -1008,7 +1008,7 @@
                 $('#selected-package-' + $kodeSubs).text($pilihan);
                 $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
             });
-                //end add 09-10-2018, function button di subscription
+            //end add 09-10-2018, function button di subscription
         });
 
 
@@ -1044,7 +1044,7 @@
             }
             moment.locale('id');
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+            var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
             var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
             var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
             //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
@@ -1055,33 +1055,33 @@
                 var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                 if (confirm(msg))
                 {
-                     //alert('kode:' + kode + '\nbln:' + bln);
-                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //alert('kode:' + kode + '\nbln:' + bln);
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                link += '?code=' + kode + '&bulan=' + bln;
+                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    link += '?code=' + kode + '&bulan=' + bln;
 
-                $.ajax({
-                    type: "GET",
-                    url: link,
-                    success: function (response) {
-                        if (response != null) {
-                            //window.location = response.urlView;
-                            if (response.error == null) {
-                                snap.pay(response, { skipOrderSummary: true });
-                            } else {
-                            alert(response);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                //window.location = response.urlView;
+                                if (response.error == null) {
+                                    snap.pay(response, { skipOrderSummary: true });
+                                } else {
+                                    alert(response);
+                                }
                             }
-                        }
-                        //window.open(response, "_self");
-                        //window.location.href(response);
+                            //window.open(response, "_self");
+                            //window.location.href(response);
 
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                    }
-                });
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
                 }
             }
             else
@@ -1477,7 +1477,7 @@
                 //getTanggal();
 
             });
-            //end add 
+            //end add
 
             $('#btn-simpan-perubahan').click(function () {
                 var $this = $(this);
@@ -1556,7 +1556,37 @@
         }
 
         var $angka;
-
+        function numOnlyAllowDecimalOnKeyDown(e){
+            if ($.inArray(e.keyCode, [46, 8, 27, 190, 110]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40))
+            {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        }
+        function numOnlyOnKeyDown(e){
+            if ($.inArray(e.keyCode, [46, 8, 27]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40))
+            {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+            if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
+        }
         function modeEditTd() {
             $('.qty-barang').addClass('editable');
             $('.disc1-barang').addClass('editable');
@@ -1571,8 +1601,11 @@
                 var $trId = $this.parent().attr('data-invoice-id');
                 var $trElement = 'tr[data-invoice-id="' + $trId + '"]';
 
+                //if ($this.text() !== '') {
+                //    $angka = $this.text();
+                //}
                 if ($this.text() !== '') {
-                    $angka = $this.text();
+                    $angka = convertToAngka($this.text());
                 }
 
                 if ($class == 'qty-barang editable') {
@@ -1741,6 +1774,7 @@
                         var keyCode = e.keyCode || e.which;
 
                         if ($(this).hasClass('qty-input')) {
+                            numOnlyOnKeyDown(e);
                             if (keyCode === 190) e.preventDefault();
 
                             if (keyCode === 13 || keyCode === 9) {
@@ -1748,6 +1782,7 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc1-barang')) {
+                            numOnlyAllowDecimalOnKeyDown(e);
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc1-barang').click().click();
@@ -1758,6 +1793,7 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('disc-input') && $(this).parent().hasClass('disc2-barang')) {
+                            numOnlyAllowDecimalOnKeyDown(e);
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == 0) {
                                     $('#table_tambah_invoice > tbody > tr > td.ndisc2-barang').click().click();
@@ -1768,6 +1804,8 @@
                                 e.preventDefault();
                             }
                         } else if ($(this).hasClass('ndisc-input') && $(this).parent().hasClass('ndisc1-barang')) {
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 if ($(this).val() == '0,00') {
                                     $('#table_tambah_invoice > tbody > tr > td.disc2-barang').click();
@@ -1778,6 +1816,8 @@
                                 e.preventDefault();
                             }
                         } else {
+                            numOnlyOnKeyDown(e);
+                            if (keyCode === 190) e.preventDefault();
                             if (keyCode === 13 || keyCode === 9) {
                                 $(this).blur();
                             }
@@ -2159,10 +2199,18 @@
         }
 
         function convertToAngka(rupiah) {
-
+            if (rupiah == '') {
+                rupiah = '0';
+            }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            if (rupiah.includes(",00")) {
+                return parseFloat(rupiah.replaceAll('.','').replaceAll(',', '.'));
+            }
+            else{
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
             //end change by calvin 26 september 2018
         }
 
@@ -2447,13 +2495,13 @@
             return $isValid;
 
         }
-        //end add 
+        //end add
 
         function simpanbrg($id) {
             if (!validateForm()) return false;
             //add by nurul 15/10/2018
             if (!validasiTambahan()) return false;
-            //end add 
+            //end add
 
             if ($id == 'brg-0') {
                 if ($('#Invoice_TGL').val() != '' &&

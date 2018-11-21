@@ -1553,8 +1553,6 @@
                                             var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                             fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
-
-                                            //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                         }
                                         else
                                         {
@@ -1969,8 +1967,9 @@
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
                         }
                     });
-
-                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                    if (kategoriSelect[0] != undefined) {
+                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);

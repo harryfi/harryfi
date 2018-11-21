@@ -109,6 +109,8 @@
     <script src="~/Content/vendors/moment/min/moment.min.js" type="text/javascript"></script>
     <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
     <script>
+        var $tipeTampilan = 0;
+
         $(document).ready(function () {
             getTanggal();
             $('#TGL').datepicker('setDate', '0');
@@ -120,10 +122,12 @@
                 $('#mode').text('Grafik');
                 $('.chart-mode').show();
                 $('.angka-mode').hide();
+                $tipeTampilan = 0;
             } else {
                 $('#mode').text('Angka');
                 $('.chart-mode').hide();
                 $('.angka-mode').show();
+                $tipeTampilan = 1;
             }
         }
 
@@ -169,35 +173,35 @@
                         data: {
                             labels: ["Pesanan", "Faktur", "Retur"],
                             datasets: [{
-                                label: 'Hari Ini',
-                                data: [response.data.JumlahPesananHariIni, response.data.JumlahFakturHariIni, response.data.JumlahReturHariIni],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Bulan Ini',
-                                data: [response.data.JumlahPesananBulanIni, response.data.JumlahFakturBulanIni, response.data.JumlahReturBulanIni],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            }]
+                                    label: 'Hari Ini',
+                                    data: [response.data.JumlahPesananHariIni, response.data.JumlahFakturHariIni, response.data.JumlahReturHariIni],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Bulan Ini',
+                                    data: [response.data.JumlahPesananBulanIni, response.data.JumlahFakturBulanIni, response.data.JumlahReturBulanIni],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                }]
                         },
                         options: {
                             scales: {
@@ -257,35 +261,35 @@
                         data: {
                             labels: ["Pesanan", "Faktur", "Retur"],
                             datasets: [{
-                                label: 'Hari Ini',
-                                data: [response.data.NilaiPesananHariIni, response.data.NilaiFakturHariIni, response.data.NilaiReturHariIni],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Bulan Ini',
-                                data: [response.data.NilaiPesananBulanIni, response.data.NilaiFakturBulanIni, response.data.NilaiReturBulanIni],
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            }]
+                                    label: 'Hari Ini',
+                                    data: [response.data.NilaiPesananHariIni, response.data.NilaiFakturHariIni, response.data.NilaiReturHariIni],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Bulan Ini',
+                                    data: [response.data.NilaiPesananBulanIni, response.data.NilaiFakturBulanIni, response.data.NilaiReturBulanIni],
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                }]
                         },
                         options: {
                             scales: {
@@ -342,35 +346,35 @@
                         data: {
                             labels: akunMarketPlace,
                             datasets: [{
-                                label: 'Hari Ini',
-                                data: jumlahPesananHariIniPerMarket,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Bulan Ini',
-                                data: jumlahPesananBulanIniPerMarket,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            }]
+                                    label: 'Hari Ini',
+                                    data: jumlahPesananHariIniPerMarket,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Bulan Ini',
+                                    data: jumlahPesananBulanIniPerMarket,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                }]
                         },
                         options: {
                             scales: {
@@ -424,35 +428,35 @@
                         data: {
                             labels: akunMarketPlace,
                             datasets: [{
-                                label: 'Hari Ini',
-                                data: nilaiPesananHariIniPerMarket,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Bulan Ini',
-                                data: nilaiPesananBulanIniPerMarket,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.2)',
-                                    'rgba(54, 162, 235, 0.2)',
-                                    'rgba(255, 206, 86, 0.2)',
-                                ],
-                                borderColor: [
-                                    'rgba(255,99,132,1)',
-                                    'rgba(54, 162, 235, 1)',
-                                    'rgba(255, 206, 86, 1)',
-                                ],
-                                borderWidth: 1
-                            }]
+                                    label: 'Hari Ini',
+                                    data: nilaiPesananHariIniPerMarket,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Bulan Ini',
+                                    data: nilaiPesananBulanIniPerMarket,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                    ],
+                                    borderColor: [
+                                        'rgba(255,99,132,1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                    ],
+                                    borderWidth: 1
+                                }]
                         },
                         options: {
                             scales: {
@@ -522,7 +526,10 @@
                         $('.month_label').text('Bulan ' + monthName);
                     }
 
-                    $('.angka-mode').hide();
+                    if ($tipeTampilan == 0)
+                        $('.angka-mode').hide();
+                    else
+                        $('.angka-mode').show();
 
                     $('#loading_spinner').hide();
                 },

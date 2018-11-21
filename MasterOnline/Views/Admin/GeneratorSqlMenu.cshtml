@@ -36,8 +36,8 @@
         @Html.TextArea("migration_history_query", new { @class = "form-control", rows = "15", style = "resize: vertical;" })
     </div>
     <div class="col-md-6">
-        @Html.Label("ADD COLUMN QUERY", new { @class = "control-label" })
-        @Html.TextArea("add_column_query", new { @class = "form-control", rows = "15", style = "resize: vertical;" })
+        @Html.Label("QUERY TAMBAHAN", new { @class = "control-label" })
+        @Html.TextArea("query_tambahan", new { @class = "form-control", rows = "15", style = "resize: vertical;" })
         @*<input type="hidden" name="count" value="1" />
         <div class="control-group" id="fields">
             <div class="controls" id="profs">
@@ -177,19 +177,10 @@
 
             $('#generate_btn').click(function () {
                 var $queryInsert = $('#migration_history_query').val();
-                var $queryAddColumn = $('#add_column_query').val();
-                if ($queryInsert === "") {
-                    alert('Isi dahulu INSERT QUERY untuk tabel MIGRATION HISTORY');
-                    return;
-                }
+                var $queryTambahan = $('#query_tambahan').val();
 
-                if ($queryAddColumn === "") {
-                    alert('Isi dahulu ADD COLUMN QUERY');
-                    return;
-                }
-
-                if (!$queryAddColumn.includes('ADD') || !$queryAddColumn.includes('ALTER TABLE')) {
-                    alert('Tidak terdeteksi ada sintaks ADD atau ALTER TABLE! Periksa kembali!');
+                if ($queryInsert === "" && $queryTambahan === "") {
+                    alert('Isi dahulu salah satu kolom QUERY!');
                     return;
                 }
 
@@ -198,7 +189,7 @@
                     url: '@Url.Action("GetResultQuery", "Admin")',
                     data: JSON.stringify({
                         MigrationHistoryInsertQuery: $queryInsert,
-                        AddColumnQuery: $queryAddColumn
+                        AdditionalQuery: $queryTambahan
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
