@@ -15,6 +15,34 @@
             .modal-dialog {
                 height: auto !important;
             }
+
+            .title-features-mobile {
+                font-size: 10px !important;
+            }
+
+            .sub-title-features-mobile {
+                font-size: 9px !important;
+            }
+
+            .feature-mobile-row {
+                margin-bottom: 25px !important;
+            }
+
+            #top a span {
+                font-size: 12px !important;
+            }
+
+            h2.mobile-title {
+                font-size: 16px !important;
+            }
+
+            #cover p {
+                font-size: 14px !important;
+            }
+
+            #mobile-app-section {
+                margin-top: 25px !important;
+            }
         }
 
         @@font-face {
@@ -103,6 +131,10 @@
             border-radius: 10px !important;
             margin-top: 40px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #mobile-app-section {
+            margin-top: 60px;
         }
 
         #btn-daftar-mobile {
@@ -583,7 +615,7 @@
 <div class="container-fluid hidden-lg hidden-md feature-mobile" style="padding-bottom: 10px;">
     <div class="col-xs-12 col-sm-12 text-center">
         <h2 class="mobile-title" style="line-height: 40px;">FITUR CERDAS DAN EFISIEN</h2>
-        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 20px;">UNTUK MEMBANTU ANDA MENGELOLA BISNIS DENGAN BAIK</p>
+        <p style="color: #5a5a5a; font-size: 14px; margin-bottom: 20px;">UNTUK MEMBANTU ANDA MENGELOLA BISNIS DENGAN BAIK</p>
     </div>
     <div class="row feature-mobile-row">
         <div class="col-xs-12 col-sm-12">
@@ -701,9 +733,10 @@
     <div class="col-md-12 text-center">
         <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
         <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">KONTROL DAN MONITOR</h2>
-        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
+        <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;" class="hidden-xs hidden-sm">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
+        <p style="color: #5a5a5a; font-size: 14px; margin-bottom: 25px;" class="hidden-md hidden-lg">BISNIS ANDA DI MANA DAN KAPAN SAJA HANYA DALAM GENGGAMAN</p>
     </div>
-    <div class="row" style="margin-top: 60px;">
+    <div class="row" id="mobile-app-section">
         <div class="col-md-3"></div>
         <div class="col-md-6" style="padding-left: 30px; padding-right: 30px;">
             <img width="70%" style="display: block; margin: 0 auto;" src="~/Content/Images/HP_sample.png" />
