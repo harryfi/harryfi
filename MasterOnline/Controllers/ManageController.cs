@@ -2187,15 +2187,15 @@ namespace MasterOnline.Controllers
             var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
             if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
             {
-                for (int i = 0; i < imgPath.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(imgPath[i]))
-                    {
-                        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                        if (uploadImg.status == 1)
-                            imageUrl[i] = uploadImg.message;
-                    }
-                }
+                //for (int i = 0; i < imgPath.Length; i++)
+                //{
+                    //if (!string.IsNullOrEmpty(imgPath[i]))
+                    //{
+                    //    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                    //    if (uploadImg.status == 1)
+                    //        imageUrl[i] = uploadImg.message;
+                    //}
+                //}
 
                 BrgViewModel dataLazada = new BrgViewModel
                 {
@@ -2219,17 +2219,29 @@ namespace MasterOnline.Controllers
                 dataLazada.harga = productMarketPlace.HJUAL.ToString();
                 dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                if (!string.IsNullOrEmpty(imageUrl[2]))
+                //if (!string.IsNullOrEmpty(imageUrl[2]))
+                //{
+                //    dataLazada.imageUrl3 = imageUrl[2];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[1]))
+                //{
+                //    dataLazada.imageUrl2 = imageUrl[1];
+                //}
+                //if (!string.IsNullOrEmpty(imageUrl[0]))
+                //{
+                //    dataLazada.imageUrl = imageUrl[0];
+                //}
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_3))
                 {
-                    dataLazada.imageUrl3 = imageUrl[2];
+                    dataLazada.imageUrl3 = barangInDb.LINK_GAMBAR_3;
                 }
-                if (!string.IsNullOrEmpty(imageUrl[1]))
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_2))
                 {
-                    dataLazada.imageUrl2 = imageUrl[1];
+                    dataLazada.imageUrl2 = barangInDb.LINK_GAMBAR_2;
                 }
-                if (!string.IsNullOrEmpty(imageUrl[0]))
+                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_1))
                 {
-                    dataLazada.imageUrl = imageUrl[0];
+                    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
                 }
                 var result = lzdApi.CreateProduct(dataLazada);
             }
@@ -5072,14 +5084,17 @@ namespace MasterOnline.Controllers
                 {
                     Pesanan = pesananInDb
                 };
-                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                {
 
-                    var vmError = new StokViewModel();
-                    vmError.Errors.Add("Resi belum diisi");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
-                }
+                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //remark by nurul 23/11/2018 no resi boleh kosong 
+                //if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //{
+
+                //    var vmError = new StokViewModel();
+                //    vmError.Errors.Add("Resi belum diisi");
+                //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                //}
+                //end remark by nurul 23/11/2018 no resi boleh kosong 
 
                 var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 bool valid = true;
@@ -5125,6 +5140,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new PesananViewModel()
             {
+                //add by nurul 23/11/2018
+                Pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(b => b.NO_BUKTI == noBuk),
+                //end add 
                 ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList()
             };
@@ -5506,9 +5524,18 @@ namespace MasterOnline.Controllers
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
 
-            string[] shipment = new string[2];
+            //change by nurul 22/11/2018
+            //string[] shipment = new string[2];
+            //shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            //shipment[1] = pesananInDb.SHIPMENT;
+            string[] shipment = new string[5];
             shipment[0] = pesananInDb.TRACKING_SHIPMENT;
             shipment[1] = pesananInDb.SHIPMENT;
+            shipment[2] = pesananInDb.NO_BUKTI;
+            shipment[3] = pesananInDb.NAMAPEMESAN;
+            shipment[4] = pesananInDb.NAMAPENGIRIM;
+            //end change 
+
 
             return Json(shipment, JsonRequestBehavior.AllowGet);
         }
@@ -11582,6 +11609,40 @@ namespace MasterOnline.Controllers
                                     }
                                 }
                                 break;
+                            case "BLIBLI":
+                                var BliApi = new BlibliController();
+                                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                                {
+                                    API_client_username = arf01.API_CLIENT_U,
+                                    API_client_password = arf01.API_CLIENT_P,
+                                    API_secret_key = arf01.API_KEY,
+                                    mta_username_email_merchant = arf01.EMAIL,
+                                    mta_password_password_merchant = arf01.PASSWORD,
+                                    merchant_code = arf01.Sort1_Cust,
+                                    token = arf01.TOKEN
+                                };
+                                var resultBli = BliApi.getProduct(data, "", 0, arf01.CUST);
+                                var nextPageBli = true;
+                                while (nextPageBli)
+                                {
+                                    if (resultBli.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultBli.message))
+                                        {
+                                            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
+                                        }
+                                        else
+                                        {
+                                            nextPageBli = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        nextPageBli = false;
+                                    }
+                                }
+                                break;
+
                         }
                     }
 

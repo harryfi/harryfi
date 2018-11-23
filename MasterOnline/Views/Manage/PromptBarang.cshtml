@@ -15,36 +15,51 @@
         }
     </style>
 }
-
-<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
-    <thead>
-        <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 40px;">Kode Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama Barang</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Harga Jual</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.KODE</td>
-                <td>@item.NAMA</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", item.HARGA)</td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="pilihPromptBrg('@item.KODE')">
-                        <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+    <div>
+        <div class="col-lg-4 col-sm-6">
+            <div class="input-group">
+                <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                <span class="input-group-btn">
+                    <button type="button" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
                     </button>
-                </td>
-            </tr>
+                </span>
+            </div>
+        </div>
+        <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+            <thead>
+                <tr role="row">
+                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 40px;">Kode Barang</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama Barang</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 80px;">Harga Jual</th>
+                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Pilih</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.KODE</td>
+                    <td>@item.NAMA</td>
+                    <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", item.HARGA)</td>
+                    <td class="edit-hapus-col">
+                        <button class="btn btn-primary" onclick="pilihPromptBrg('@item.KODE')">
+                            <span class="glyphicon glyphicon-check" aria-hidden="true"></span>
+                        </button>
+                    </td>
+                </tr>
         }
-    </tbody>
-</table>
-
+            </tbody>
+        </table>
+    </div>
 @section scripts
 {
     <script>
+        var table = $('#datatable').DataTable();
+        $('#search_barang').keyup(function () {
+            table.search($(this).val()).draw();
+        });
+
         function pilihPromptBrg($value) {
             self.window.close();
             window.onunload = refreshTextBox;

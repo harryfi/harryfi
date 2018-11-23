@@ -1301,6 +1301,31 @@
                 <h4 class="modal-title" id="isiResiLabel">Isi Resi</h4>
             </div>
             <div class="modal-body">
+                @*add by nurul 22/11/2018*@
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_no_bukti">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_pembeli">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Kurir</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_kurir">
+                        </div>
+                    </div>
+                </div>
                 @* add by Tri, pilih shipment provider *@
                 <div class="row">
                     <div class="form-group">
@@ -1327,6 +1352,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
@@ -1978,6 +2004,9 @@
         function refreshInputan() {
             if ($('#Pesanan_TGL').val() != '') {
                 $('#TGL').val($('#Pesanan_TGL').val());
+            }
+            if ($('#TGL').val() != '') {
+                $('#Pesanan_TGL').val($('#TGL').val());
             }
 
             $('#Pesanan_NILAI_DISC').focus(function() {
@@ -3440,6 +3469,11 @@
                     $('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
                     $('#txtShipment').val(response[1]);
                     $('#Pesanan_SHIPMENT').val(response[1]);
+                    //add by nurul 22/11/2018
+                    $('#resi_no_bukti').val(response[2]);
+                    $('#resi_pembeli').val(response[3]);
+                    $('#resi_kurir').val(response[4]);
+                    //end add
 
                 },
                 error: function(xhr) {

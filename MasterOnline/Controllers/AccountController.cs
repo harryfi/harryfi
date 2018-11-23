@@ -277,6 +277,7 @@ namespace MasterOnline.Controllers
                         };
                         BliApi.GetToken(data, true);
                         BliApi.GetQueueFeedDetail(data, null);
+                        //BliApi.getProduct(data, "", 0, tblCustomer.CUST);
                     }
                 }
             }
