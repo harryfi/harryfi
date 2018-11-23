@@ -5518,9 +5518,18 @@ namespace MasterOnline.Controllers
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
 
-            string[] shipment = new string[2];
+            //change by nurul 22/11/2018
+            //string[] shipment = new string[2];
+            //shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            //shipment[1] = pesananInDb.SHIPMENT;
+            string[] shipment = new string[5];
             shipment[0] = pesananInDb.TRACKING_SHIPMENT;
             shipment[1] = pesananInDb.SHIPMENT;
+            shipment[2] = pesananInDb.NO_BUKTI;
+            shipment[3] = pesananInDb.NAMAPEMESAN;
+            shipment[4] = pesananInDb.NAMAPENGIRIM;
+            //end change 
+
 
             return Json(shipment, JsonRequestBehavior.AllowGet);
         }
