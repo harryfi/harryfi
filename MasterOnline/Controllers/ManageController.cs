@@ -5084,14 +5084,17 @@ namespace MasterOnline.Controllers
                 {
                     Pesanan = pesananInDb
                 };
-                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                {
 
-                    var vmError = new StokViewModel();
-                    vmError.Errors.Add("Resi belum diisi");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
-                }
+                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //remark by nurul 23/11/2018 no resi boleh kosong 
+                //if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //{
+
+                //    var vmError = new StokViewModel();
+                //    vmError.Errors.Add("Resi belum diisi");
+                //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                //}
+                //end remark by nurul 23/11/2018 no resi boleh kosong 
 
                 var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 bool valid = true;
