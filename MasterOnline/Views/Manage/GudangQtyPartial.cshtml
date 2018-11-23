@@ -2,8 +2,28 @@
 
 @{
     var listBarang = Model.ListBarang.ToList();
+    var Pesanan = Model.Pesanan;
 }
-
+@*add by nurul 23/11/2018*@
+<div class="row">
+    <div class="form-group" style="margin-top: 5px;">
+        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBox("gd_no_bukti", Pesanan?.NO_BUKTI, new { @class = "form-control" , disabled = "disabled" })
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="form-group" style="margin-top: 5px;">
+        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBox("gd_no_bukti", Pesanan?.NAMAPEMESAN, new { @class = "form-control", disabled = "disabled" })
+        </div>
+    </div>
+</div>
+<br/>
+<br/>
+@*end add by nurul 23/11/2018*@
 <div class="row">
     <div class="col-md-3 col-sm-3 col-xs-3">
         <i>Nama Barang</i>

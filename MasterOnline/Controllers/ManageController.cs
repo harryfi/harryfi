@@ -5140,6 +5140,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new PesananViewModel()
             {
+                //add by nurul 23/11/2018
+                Pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(b => b.NO_BUKTI == noBuk),
+                //end add 
                 ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList()
             };
