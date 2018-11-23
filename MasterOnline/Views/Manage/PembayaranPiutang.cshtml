@@ -824,6 +824,9 @@
                     $('#search_piutang').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_piutang').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

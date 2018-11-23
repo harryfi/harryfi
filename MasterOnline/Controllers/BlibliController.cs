@@ -1592,8 +1592,8 @@ namespace MasterOnline.Controllers
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
                                         myData += "\"price\": " + data.MarketPrice + ", ";
-                                        //myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                                        myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
+                                        myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
+                                        //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
                                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";

@@ -3020,6 +3020,9 @@
                     $('#loading_pesanan_tab').hide();
                     cekJumlahPesananBulanIni();
                     $('#datatable').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_pesanan').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -3048,6 +3051,9 @@
                     });
                     $('#loading_sudah_dibayar_tab').hide();
                     $('#datatable_nunggu').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_nunggu').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -3076,6 +3082,9 @@
                     });
                     $('#loading_siap_kirim_tab').hide();
                     $('#datatable_sedangproses').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_sedangproses').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -3104,6 +3113,9 @@
                     });
                     $('#loading_sudah_kirim_tab').hide();
                     $('#datatable_sudahkirim').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_sudahkirim').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -3132,6 +3144,9 @@
                     });
                     $('#loading_selesai_tab').hide();
                     $('#datatable_selesai').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_selesai').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -3160,6 +3175,9 @@
                     });
                     $('#loading_cancel_tab').hide();
                     $('#datatable_cancel').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_cancel').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
                     console.log(error);

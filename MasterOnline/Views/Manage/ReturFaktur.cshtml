@@ -1281,6 +1281,9 @@
                     $('#search_faktur').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_faktur').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
