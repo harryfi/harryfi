@@ -246,6 +246,7 @@
     <Compile Include="Controllers\MidtransController.cs" />
     <Compile Include="Controllers\PostingController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
+    <Compile Include="Controllers\ScrapperController.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
@@ -5696,6 +5697,8 @@
     <Content Include="Views\Manage\FormBarangUploadsPartial.cshtml" />
     <Content Include="Views\Admin\GeneratorSqlMenu.cshtml" />
     <Content Include="Views\Manage\PromptBarang.cshtml" />
+    <Content Include="Views\Scrapper\LoginScrapper.cshtml" />
+    <Content Include="Views\Scrapper\DataBarang.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
