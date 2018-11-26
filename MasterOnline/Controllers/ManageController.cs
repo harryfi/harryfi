@@ -5084,14 +5084,17 @@ namespace MasterOnline.Controllers
                 {
                     Pesanan = pesananInDb
                 };
-                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
-                {
 
-                    var vmError = new StokViewModel();
-                    vmError.Errors.Add("Resi belum diisi");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
-                }
+                //if (pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //remark by nurul 23/11/2018 no resi boleh kosong 
+                //if (dataVm.Pesanan.TRACKING_SHIPMENT == null || pesananInDb.TRACKING_SHIPMENT.Trim() == "")
+                //{
+
+                //    var vmError = new StokViewModel();
+                //    vmError.Errors.Add("Resi belum diisi");
+                //    return Json(vmError, JsonRequestBehavior.AllowGet);
+                //}
+                //end remark by nurul 23/11/2018 no resi boleh kosong 
 
                 var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
                 bool valid = true;
@@ -5137,6 +5140,9 @@ namespace MasterOnline.Controllers
         {
             var vm = new PesananViewModel()
             {
+                //add by nurul 23/11/2018
+                Pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(b => b.NO_BUKTI == noBuk),
+                //end add 
                 ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList(),
                 ListBarang = ErasoftDbContext.STF02.ToList()
             };
@@ -5518,9 +5524,18 @@ namespace MasterOnline.Controllers
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
 
-            string[] shipment = new string[2];
+            //change by nurul 22/11/2018
+            //string[] shipment = new string[2];
+            //shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            //shipment[1] = pesananInDb.SHIPMENT;
+            string[] shipment = new string[5];
             shipment[0] = pesananInDb.TRACKING_SHIPMENT;
             shipment[1] = pesananInDb.SHIPMENT;
+            shipment[2] = pesananInDb.NO_BUKTI;
+            shipment[3] = pesananInDb.NAMAPEMESAN;
+            shipment[4] = pesananInDb.NAMAPENGIRIM;
+            //end change 
+
 
             return Json(shipment, JsonRequestBehavior.AllowGet);
         }

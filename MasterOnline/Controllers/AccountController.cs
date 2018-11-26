@@ -348,6 +348,11 @@ namespace MasterOnline.Controllers
                 }
             }
             #endregion
+
+            #region Tokopedia
+            //var tes = new TokopediaController();
+            //var a = tes.GetToken();
+            #endregion
         }
 
         // Route ke halaman register
