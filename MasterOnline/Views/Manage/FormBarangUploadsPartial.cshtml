@@ -31,6 +31,9 @@
     @Html.HiddenFor(m => m.TempBrg.PICKUP_POINT)
     @Html.HiddenFor(m => m.TempBrg.CUST)
     @Html.HiddenFor(m => m.TempBrg.DISPLAY)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE2)
+    @Html.HiddenFor(m => m.TempBrg.IMAGE3)
     @Html.HiddenFor(m => m.TempBrg.ACODE_1)
     @Html.HiddenFor(m => m.TempBrg.ANAME_1)
     @Html.HiddenFor(m => m.TempBrg.AVALUE_1)
@@ -298,6 +301,9 @@
                                             </button>
                                         </span>
                                     </td>
+                                    <td>
+                                        <label id="statBarang" style="padding-left:15px"></label>
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -476,22 +482,25 @@
                         <div class="col-md-4 foto_produk_section">
                             @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_1">Hapus</button>*@
                             <div class="box_upload" id="box_upload_1">
-                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                <input type='file' id='foto_produk_1' name="foto_produk_1" accept=".jpg" />
+                                @*<span class="box_upload_placeholder">Tambah Gambar</span>*@
+                                @*<input type='file' id='foto_produk_1' name="foto_produk_1" accept=".jpg" />*@
+                                <input type="hidden" id="hidden_url_gambar_1" value="" />
                             </div>
                         </div>
                         <div class="col-md-4 foto_produk_section">
                             @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_2">Hapus</button>*@
                             <div class="box_upload" id="box_upload_2">
-                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                <input type='file' id='foto_produk_2' name="foto_produk_2" accept=".jpg" />
+                                @*<span class="box_upload_placeholder">Tambah Gambar</span>*@
+                                @*<input type='file' id='foto_produk_2' name="foto_produk_2" accept=".jpg" />*@
+                                <input type="hidden" id="hidden_url_gambar_2" value="" />
                             </div>
                         </div>
                         <div class="col-md-4 foto_produk_section">
                             @*<button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk" id="btn_hapus_3">Hapus</button>*@
                             <div class="box_upload" id="box_upload_3">
-                                <span class="box_upload_placeholder">Tambah Gambar</span>
-                                <input type='file' id='foto_produk_3' name="foto_produk_3" accept=".jpg" />
+                                @*<span class="box_upload_placeholder">Tambah Gambar</span>*@
+                                @*<input type='file' id='foto_produk_3' name="foto_produk_3" accept=".jpg" />*@
+                                <input type="hidden" id="hidden_url_gambar_3" value="" />
                             </div>
                         </div>
                     </div>
