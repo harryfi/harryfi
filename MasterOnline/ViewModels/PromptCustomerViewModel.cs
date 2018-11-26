@@ -20,4 +20,10 @@ namespace MasterOnline.ViewModels
         public Double HARGA { get; set; }
 
     }
+
+    public class PromptBrg
+    {
+        public string NAMA_BRG { get; set; }
+        public List<PromptBarangViewModel> data { get; set; }
+    }
 }

@@ -125,6 +125,69 @@ namespace MasterOnline.Services
             return imgurImage;
         }
 
+        public static ImgurImageResponse UploadSingleImageToImgurFromUrl(string url, string albumid)
+        {
+            var fileName = Guid.NewGuid().ToString();
+            var path = albumid + "/" + fileName;
+            var imgurImage = new ImgurImageResponse();
+
+            try
+            {
+                path = path + "." + url.Split('.').Last();
+                IAmazonS3 client;
+                Stream inputSteram = null;
+
+                //create stream from url
+                var req = System.Net.WebRequest.Create(url);
+                var imageStream = req.GetResponse().GetResponseStream();
+                //end create stream from url
+
+                if (url.Split('.')[1] == "gif")
+                {
+                    inputSteram = imageStream;
+                }
+                else
+                {
+                    inputSteram = ResizeImageFile(imageStream, 1024);
+                }
+
+                using (client = new AmazonS3Client(_awsAccessKey, _awsSecretKey, Amazon.RegionEndpoint.APSoutheast1))
+                {
+                    var request = new PutObjectRequest()
+                    {
+                        BucketName = _bucketName,
+                        CannedACL = S3CannedACL.PublicRead,//PERMISSION TO FILE PUBLIC ACCESIBLE
+                        Key = string.Format(path),
+                        InputStream = inputSteram,//SEND THE FILE STREAM,                            
+                    };
+
+
+                    if (url.Split('.')[1] == "gif")
+                    {
+                        request.ContentType = "image/gif";
+                    }
+
+                    client.PutObject(request);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            imgurImage.data = new ImgurData();
+
+            imgurImage.data.link = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_s = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_m = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.link_l = _amazonAwsUrl + "/" + _bucketName + "/" + path;
+            imgurImage.data.copyText = "";
+
+
+            return imgurImage;
+        }
+
         public static byte[] StreamToByteArray(Stream input)
         {
             byte[] buffer = new byte[16 * 1024];
