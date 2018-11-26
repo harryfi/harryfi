@@ -2189,12 +2189,12 @@ namespace MasterOnline.Controllers
             {
                 //for (int i = 0; i < imgPath.Length; i++)
                 //{
-                    //if (!string.IsNullOrEmpty(imgPath[i]))
-                    //{
-                    //    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                    //    if (uploadImg.status == 1)
-                    //        imageUrl[i] = uploadImg.message;
-                    //}
+                //if (!string.IsNullOrEmpty(imgPath[i]))
+                //{
+                //    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                //    if (uploadImg.status == 1)
+                //        imageUrl[i] = uploadImg.message;
+                //}
                 //}
 
                 BrgViewModel dataLazada = new BrgViewModel
@@ -10156,7 +10156,7 @@ namespace MasterOnline.Controllers
         {
             var barangVm = new UploadBarangViewModel()
             {
-                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListTempBrg = new List<TEMP_BRG_MP>(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
                 Stf02 = new STF02(),
                 TempBrg = new TEMP_BRG_MP(),
@@ -10594,7 +10594,20 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
+                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE))
+                        {
+                            data.Stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE2))
+                        {
+                            data.Stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE2, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE3))
+                        {
+                            data.Stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE3, "uploaded-image").data.link_l;
+                        }
                         ErasoftDbContext.STF02.Add(data.Stf02);
+
                         var brgMp = new STF02H();
                         brgMp.BRG = data.Stf02.BRG;
                         brgMp.BRG_MP = data.TempBrg.BRG_MP;
@@ -11226,6 +11239,20 @@ namespace MasterOnline.Controllers
                             stf02.KET_SORT1 = defaultCategoryCode.KET;
                             stf02.KET_SORT2 = defaultBrand.KET;
                             stf02.Deskripsi = item.Deskripsi;
+
+                            if (!string.IsNullOrEmpty(item.IMAGE))
+                            {
+                                stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(item.IMAGE2))
+                            {
+                                stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE2, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(item.IMAGE3))
+                            {
+                                stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(item.IMAGE3, "uploaded-image").data.link_l;
+                            }
+
                             ErasoftDbContext.STF02.Add(stf02);
                             var brgMp = new STF02H();
 
@@ -11467,10 +11494,12 @@ namespace MasterOnline.Controllers
         }
 
         [Route("manage/PromptBarang")]
-        public ActionResult PromptBarang(string cust)
+        public ActionResult PromptBarang(string cust, string nama)
         {
             try
             {
+                var retObj = new PromptBrg();
+                retObj.NAMA_BRG = nama.Length > 10 ? nama.Substring(0, 10) : nama;
                 var PromptModel = new List<PromptBarangViewModel>();
                 var listBarang = ErasoftDbContext.STF02.ToList();
                 var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault();
@@ -11507,7 +11536,8 @@ namespace MasterOnline.Controllers
                     }
 
                 }
-                return View("PromptBarang", PromptModel);
+                retObj.data = PromptModel;
+                return View("PromptBarang", retObj);
             }
             catch (Exception ex)
             {
@@ -11655,6 +11685,17 @@ namespace MasterOnline.Controllers
 
         public ActionResult AutoCompleteBrg(string brg, string brg_mp)
         {
+            //var barangVm = new UploadBarangViewModel()
+            //{
+            //    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+            //    ListMarket = ErasoftDbContext.ARF01.ToList(),
+            //    //Stf02 = new STF02(),
+            //    TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).FirstOrDefault(),
+            //    ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
+            //    ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
+
+            //};
+            
             var retBarang = new STF02();
             if (!string.IsNullOrEmpty(brg))
             {
@@ -11662,6 +11703,9 @@ namespace MasterOnline.Controllers
                 if (retBarang != null)
                 {
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
+                    //barangVm.Stf02 = retBarang;
+                    //return PartialView("FormBarangUploadsPartial", barangVm);
+
                 }
                 else
                 {
@@ -11682,17 +11726,23 @@ namespace MasterOnline.Controllers
                         retBarang.MAXI = 100;
                         retBarang.Deskripsi = tempBrg.Deskripsi;
                         retBarang.BRG = brg;
+                        retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
+                        retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
+                        retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
                         return Json(retBarang, JsonRequestBehavior.AllowGet);
+                        //barangVm.Stf02 = retBarang;
+                        //return PartialView("FormBarangUploadsPartial", barangVm);
+
                     }
                     else
                     {
-                        return JsonErrorMessage("");
+                        return JsonErrorMessage("Barang ini sudah disinkronisasi. Silahkan refresh halaman ini.");
                     }
                 }
             }
             else
             {
-                return JsonErrorMessage("");
+                return JsonErrorMessage("Kode Barang tidak ditemukan.");
 
             }
         }

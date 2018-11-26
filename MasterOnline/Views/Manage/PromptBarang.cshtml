@@ -18,7 +18,7 @@
     <div>
         <div class="col-lg-4 col-sm-6">
             <div class="input-group">
-                <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
+                <input id="search_barang" type="text" value="@Model.NAMA_BRG" class="form-control" placeholder="Pencarian">
                 <span class="input-group-btn">
                     <button type="button" class="btn btn-primary">
                         <i class="fa fa-search"></i>
@@ -36,7 +36,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @foreach (var item in Model.data)
             {
                 <tr>
                     <td>@item.KODE</td>
@@ -67,5 +67,6 @@
                 window.opener.afterPromptDelTempBrg($value);
             }
         }
+        table.search($('#search_barang').val()).draw();
     </script>
 }
