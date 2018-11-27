@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -152,6 +153,24 @@ namespace MasterOnline.Controllers
             };
 
             return View(barangVm);
+        }
+
+        [Route("scrapper/opencmd")]
+        public void RunCmd()
+        {
+            System.Diagnostics.Process si = new System.Diagnostics.Process();
+            //si.StartInfo.WorkingDirectory = "c:\\";
+            si.StartInfo.UseShellExecute = false;
+            si.StartInfo.FileName = Server.MapPath("~/Services/Batch/test.bat");
+            //si.StartInfo.Arguments = "/c cd Users dir";
+            si.StartInfo.CreateNoWindow = true;
+            si.StartInfo.RedirectStandardInput = true;
+            si.StartInfo.RedirectStandardOutput = true;
+            si.StartInfo.RedirectStandardError = true;
+            si.Start();
+            string output = si.StandardOutput.ReadToEnd();
+            si.Close();
+            Response.Write(output);
         }
     }
 }

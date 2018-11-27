@@ -5717,6 +5717,7 @@
     <Content Include="Views\Manage\PromptBarang.cshtml" />
     <Content Include="Views\Scrapper\LoginScrapper.cshtml" />
     <Content Include="Views\Scrapper\DataBarang.cshtml" />
+    <Content Include="Services\Batch\test.bat" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
