@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -12,19 +13,38 @@ namespace MasterOnline.Controllers
 {
     public class ScrapperController : Controller
     {
-        private static MoDbContext _moDbContext;
-        private static ErasoftContext _erasoftDbContext;
-        private static AccountUserViewModel _viewModel;
+        public MoDbContext MoDbContext { get; set; }
+        public ErasoftContext ErasoftDbContext { get; set; }
+        private AccountUserViewModel _viewModel;
 
         public ScrapperController()
         {
-            _moDbContext = new MoDbContext();
+            MoDbContext = new MoDbContext();
             _viewModel = new AccountUserViewModel();
+
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            if (sessionData?.Account != null)
+            {
+                if (sessionData.Account.UserId == "admin_manage")
+                    ErasoftDbContext = new ErasoftContext();
+                else
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)
         {
-            _moDbContext.Dispose();
+            MoDbContext.Dispose();
+            ErasoftDbContext?.Dispose();
         }
 
         [Route("scrapper/login")]
@@ -46,11 +66,11 @@ namespace MasterOnline.Controllers
             if (!ModelState.IsValid)
                 return View("LoginScrapper", account);
 
-            var accFromDb = _moDbContext.Account.SingleOrDefault(a => a.Email == account.Email);
+            var accFromDb = MoDbContext.Account.SingleOrDefault(a => a.Email == account.Email);
 
             if (accFromDb == null)
             {
-                var userFromDb = _moDbContext.User.SingleOrDefault(a => a.Email == account.Email);
+                var userFromDb = MoDbContext.User.SingleOrDefault(a => a.Email == account.Email);
 
                 if (userFromDb == null)
                 {
@@ -58,7 +78,7 @@ namespace MasterOnline.Controllers
                     return View("LoginScrapper", account);
                 }
 
-                var accInDb = _moDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
                 var key = accInDb.VCode;
                 var originPassword = account.Password;
                 var encodedPassword = Helper.EncodePassword(originPassword, key);
@@ -99,14 +119,16 @@ namespace MasterOnline.Controllers
                 _viewModel.Account = accFromDb;
             }
 
+            Session["SessionInfo"] = _viewModel;
+
             if (_viewModel?.Account != null)
             {
-                _erasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+                ErasoftDbContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
             }
             else
             {
-                var accFromUser = _moDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
-                _erasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
+                ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
             }
 
             return RedirectToAction("DataBarang");
@@ -116,21 +138,39 @@ namespace MasterOnline.Controllers
         [Route("scrapper/databarang")]
         public ActionResult DataBarang()
         {
-            if (_erasoftDbContext == null)
+            if (ErasoftDbContext == null)
             {
                 return Content("Null");
             }
 
             var barangVm = new BarangViewModel()
             {
-                ListStf02S = _erasoftDbContext.STF02.ToList(),
-                ListMarket = _erasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = _erasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
-                DataUsaha = _erasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
+                DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
 
             return View(barangVm);
+        }
+
+        [Route("scrapper/opencmd")]
+        public void RunCmd()
+        {
+            System.Diagnostics.Process si = new System.Diagnostics.Process();
+            //si.StartInfo.WorkingDirectory = "c:\\";
+            si.StartInfo.UseShellExecute = false;
+            si.StartInfo.FileName = Server.MapPath("~/Services/Batch/test.bat");
+            //si.StartInfo.Arguments = "/c cd Users dir";
+            si.StartInfo.CreateNoWindow = true;
+            si.StartInfo.RedirectStandardInput = true;
+            si.StartInfo.RedirectStandardOutput = true;
+            si.StartInfo.RedirectStandardError = true;
+            si.Start();
+            string output = si.StandardOutput.ReadToEnd();
+            si.Close();
+            Response.Write(output);
         }
     }
 }

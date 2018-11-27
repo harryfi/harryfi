@@ -219,7 +219,7 @@
                         <span>Refresh</span>
                     </button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show');">Tarik Data</button>
-                    <button class="btn btn-primary" id="upload_brg" onclick="UploadAllBrg();">Upload Semua Barang</button>
+                    <button class="btn btn-primary" id="upload_brg" onclick="$('#konfSyncAll').modal('show');">Sinkronisasi Semua Barang</button>
                 </div>
             </div>
         </div>
@@ -302,9 +302,61 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="konfSyncAll" tabindex="-1" role="dialog" aria-labelledby="konfSyncAllLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfSyncAllLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda ingin sikronisasi semua barang dari Akun ini?</h4>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer3" name="txtCustomer3" type="text">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="UploadAllBrg();">Ya</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" id="progressDiv">
+    <div class="col-md-12">
+        <label class="labelPosting">Status : Siap Memulai Posting</label>
+        <div class="progress">
+            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+                0% Complete (success)
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts{
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.ajax-progress.js"></script>
     <script type="text/javascript">
         var table = $('#datatable').DataTable();
         $('#search_barang').keyup(function () {
@@ -315,6 +367,7 @@
             $('#promptHiddenField').val('');
             $('#txtCustomer').val('');
             $('#txtCustomer2').val('');
+            $('#txtCustomer3').val('');
 
             $('#close-editor-1').off('click').on('click', function () {
                 $('#close-editor-1')[0].disabled = true;
@@ -323,6 +376,7 @@
                 refreshTableBarangUpload();
             });
 
+            $('#progressDiv').hide();
             refreshTableBarangUpload();
         });
 
@@ -381,6 +435,7 @@
             $('#promptHiddenField').val(val);
             $('#txtCustomer').val(val2);
             $('#txtCustomer2').val(val2);
+            $('#txtCustomer3').val(val2);
             refreshTableBarangUpload();
         }
 
@@ -413,6 +468,8 @@
                 });
             }
             $('#konfTarikData').modal('hide');
+            $('#konfSyncAll').modal('hide');
+
         }
         function UploadAllBrg() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
@@ -426,9 +483,24 @@
                     type: "GET",
                     url: link,
                     beforeSend: function () {
+                        $('#konfSyncAll').modal('hide');
                         $('#datatable').hide();
                         $('#loading_barang_tab').show();
                     },
+                    //progress: function (e) {
+                    //    //make sure we can compute the length
+                    //    if (e.lengthComputable) {
+                    //        //calculate the percentage loaded
+                    //        var pct = (e.loaded / e.total) * 100;
+
+                    //        //log percentage loaded
+                    //        console.log(pct);
+                    //    }
+                    //    //this usually happens when Content-Length isn't set
+                    //    else {
+                    //        console.warn('Content Length not reported!');
+                    //    }
+                    //},
                     success: function (response) {
                         if (response.Errors == null) {
                             $('#table-upload-barang-partial').html(response);
@@ -496,7 +568,78 @@
                 }
             });
         }
+        //async function loopCall() {
+        //    $('#progressDiv').show();
+        //    $('#datatable').hide();
+        //    $('#konfSyncAll').modal('hide');
+        //    for (var i = 1; i <= 4; i++) {
+        //        var a = await testProgressBar();
+        //        $('.progress-bar').css('width', (i / 4 * 100) + '%').attr('aria-valuenow', i/4 * 100);
+        //        $('.progress-bar').html((i / 4 * 100) + '% Complete');
+        //    }
+        //    $('#progressDiv').hide();
+        //    $('#datatable').show();
+        //}
 
+        @*async function testProgressBar() {
+            var link = '@Url.Action("testAja", "Manage")';
+            //link = link.replace("replaceId", idBarang);
+
+            $.ajax({
+                //xhr: function () {
+                //    var xhr = new window.XMLHttpRequest();
+                //    //Upload progress
+                //    xhr.upload.addEventListener("progress", function (evt) {
+                //        if (evt.lengthComputable) {
+                //            var percentComplete = evt.loaded / evt.total;
+                //            //Do something with upload progress
+                //            console.log(percentComplete);
+                //        }
+                //    }, false);
+                //    //Download progress
+                //    xhr.addEventListener("progress", function (evt) {
+                //        if (evt.lengthComputable) {
+                //            var percentComplete = evt.loaded / evt.total;
+                //            //Do something with download progress
+                //            console.log(percentComplete);
+                //        }
+                //    }, false);
+                //    return xhr;
+                //},
+                //xhrFields: {
+                //    onprogress: function (e) {
+                //        if (e.lengthComputable) {
+                //            console.log(e.loaded / e.total * 100 + '%');
+                //        }
+                //    }
+                //},
+                progress: function (e) {
+                    //make sure we can compute the length
+                    if (e.lengthComputable) {
+                        //calculate the percentage loaded
+                        var pct = (e.loaded / e.total) * 100;
+
+                        //log percentage loaded
+                        console.log(pct);
+                    }
+                    //this usually happens when Content-Length isn't set
+                    else {
+                        console.warn('Content Length not reported!');
+                    }
+                },
+                type: "GET",
+                url: link,
+                //beforeSend: function () {
+                //    $('#loading_spinner').show();
+                //},
+                success: function (response) {
+                    return response;
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
         function Initialize() {
             $('input[name="select_all"]').off('click').on('click',
                 function () {
@@ -767,6 +910,10 @@
                 });
                 //$('#box_upload_1 span').hide();
                 //$('#btn_hapus_1').show();
+            } else {
+                $('#box_upload_1').css({
+                    'background-image': '',
+                });
             }
 
             if ($('#hidden_url_gambar_2').val() != "") {
@@ -776,6 +923,10 @@
                 });
                 //$('#box_upload_2 span').hide();
                 //$('#btn_hapus_2').show();
+            } else {
+                $('#box_upload_2').css({
+                    'background-image': '',
+                });
             }
 
             if ($('#hidden_url_gambar_3').val() != "") {
@@ -785,6 +936,10 @@
                 });
                 //$('#box_upload_3 span').hide();
                 //$('#btn_hapus_3').show();
+            } else {
+                $('#box_upload_3').css({
+                    'background-image': '',
+                });
             }
         }
     </script>
