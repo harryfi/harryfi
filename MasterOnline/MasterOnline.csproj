@@ -5532,6 +5532,13 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="Scripts\shim.min.js" />
     <Content Include="Scripts\xlsx.full.min.js" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\items.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\middlewares.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\pipelines.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\settings.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\login.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__init__.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__init__.py" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -5718,7 +5725,12 @@
     <Content Include="Views\Manage\PromptBarang.cshtml" />
     <Content Include="Views\Scrapper\LoginScrapper.cshtml" />
     <Content Include="Views\Scrapper\DataBarang.cshtml" />
-    <Content Include="Services\Batch\test.bat" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\thzalyvuspulzjyhwwlyiha.bat" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\scrapy.cfg" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__pycache__\login.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__pycache__\__init__.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\settings.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\__init__.cpython-37.pyc" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

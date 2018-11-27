@@ -100,16 +100,6 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var pass = accFromDb.Password;
-                var hashCode = accFromDb.VCode;
-                var encodingPassString = Helper.EncodePassword(account.Password, hashCode);
-
-                if (!encodingPassString.Equals(pass))
-                {
-                    ModelState.AddModelError(string.Empty, @"Password salah!");
-                    return View("LoginScrapper", account);
-                }
-
                 if (!accFromDb.Status)
                 {
                     ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
@@ -138,11 +128,6 @@ namespace MasterOnline.Controllers
         [Route("scrapper/databarang")]
         public ActionResult DataBarang()
         {
-            if (ErasoftDbContext == null)
-            {
-                return Content("Null");
-            }
-
             var barangVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
@@ -156,21 +141,39 @@ namespace MasterOnline.Controllers
         }
 
         [Route("scrapper/opencmd")]
-        public void RunCmd()
+        public void RunCmd(string moe, string mop, string moai)
         {
-            System.Diagnostics.Process si = new System.Diagnostics.Process();
-            //si.StartInfo.WorkingDirectory = "c:\\";
-            si.StartInfo.UseShellExecute = false;
-            si.StartInfo.FileName = Server.MapPath("~/Services/Batch/test.bat");
-            //si.StartInfo.Arguments = "/c cd Users dir";
-            si.StartInfo.CreateNoWindow = true;
-            si.StartInfo.RedirectStandardInput = true;
-            si.StartInfo.RedirectStandardOutput = true;
-            si.StartInfo.RedirectStandardError = true;
+            Process si = new Process
+            {
+                StartInfo =
+                {
+                    WorkingDirectory = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/"),
+                    UseShellExecute = false,
+                    FileName = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/thzalyvuspulzjyhwwlyiha.bat"),
+                    Arguments = $"{moe} {mop} {$"databarang_{moai}.csv"}",
+                    CreateNoWindow = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
+            };
+
+            si.OutputDataReceived += p_OutputDataReceived;
+            si.ErrorDataReceived += p_ErrorDataReceived;
             si.Start();
-            string output = si.StandardOutput.ReadToEnd();
-            si.Close();
-            Response.Write(output);
+            si.BeginOutputReadLine();
+            si.BeginErrorReadLine();
+            si.WaitForExit();
+        }
+
+        void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Response.Write("Received from standard out: " + e.Data);
+        }
+
+        void p_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Response.Write("Received from standard error: " + e.Data);
         }
     }
 }
