@@ -148,6 +148,9 @@
             $('#search_hargaJual').keyup(function () {
                 table.search($(this).val()).draw();
             });
+            //add by nurul 26 nov 2018, setelah di close, search lg
+            table.search($('#search_hargaJual').val()).draw();
+            //end add by nurul 26 nov 2018, setelah di close, search lg
         }
 
         function pass(recNum, kdBrg, nmBrg, nmMp, hjual) {

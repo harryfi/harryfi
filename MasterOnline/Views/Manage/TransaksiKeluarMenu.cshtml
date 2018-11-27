@@ -572,7 +572,10 @@
                     cache: false,
                     success: function () {
                         alert('Data stok berhasil di-update');
-                        $this.hide();
+                        //change by nurul 26/11/2018
+                        //$this.hide();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end change
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -868,6 +871,9 @@
                     $('#search_stok').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by nurul 26 nov 2018, setelah di close, search lg
+                    table.search($('#search_stok').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
