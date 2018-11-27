@@ -151,13 +151,13 @@
         <table id="table_tambah_stok" class="table table-bordered" role="grid">
             <thead>
                 <tr>
-                    <th width="75">Kode Brg</th>
-                    <th width="170">Nama Brg</th>
+                    <th width="45">Kode Brg</th>
+                    <th width="200">Nama Brg</th>
                     <th width="80">Stn</th>
-                    <th width="120">Harga</th>
+                    <th width="100">Harga</th>
                     <th width="80">Ke Gd</th>
                     <th width="45">Qty</th>
-                    <th width="120">Total</th>
+                    <th width="100">Total</th>
                     <th width="45">Simpan</th>
                     <th width="45">Hapus</th>
                 </tr>
@@ -235,12 +235,12 @@
                     @Html.HiddenFor(m => m.BarangStok.No)
                     @Html.HiddenFor(m => m.BarangStok.Nobuk, new { Value = "-" })
                     @Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                    <td>
+                    <td style="width: 150px; max-width: 150px;">
                         <div id="BRG" class="selectivity-input" tabindex="0"></div>
                         @Html.HiddenFor(m => m.BarangStok.Kobar)
                     </td>
-                    <td class="nama-barang">-</td>
-                    <td class="stn-barang">
+                    <td class="nama-barang" style="width: 200px; max-width: 200px;">-</td>
+                    <td class="stn-barang" style="width: 50px; max-width: 50px;">
                         -
                         @Html.HiddenFor(m => m.BarangStok.Satuan)
                     </td>
@@ -248,7 +248,7 @@
                         0,00
                         @Html.HiddenFor(m => m.BarangStok.Harsat)
                     </td>
-                    <td class="gd-barang">
+                    <td class="gd-barang" style="width: 100px; max-width: 100px;">
                         <span id="gudang-kode">-</span>
                         <div id="gudang-select" style="display: none;">
                             <select id="GUDANG" placeholder="Harap pilih" required="required"></select>

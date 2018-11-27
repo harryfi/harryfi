@@ -354,11 +354,11 @@ var totalHargaBarang = 0d;
                 }
                 <tr data-invoice-id="0">
                     @Html.HiddenFor(m => m.InvoiceDetail.NO)
-                    <td>
-                        <div id="BRG" class="selectivity-input" tabindex="0"></div>
+                    <td style="width: 120px; max-width: 120px;">
+                        <div id="BRG" class="selectivity-input" tabindex="0" style="width: 100px; max-width: 100px;"></div>
                         @Html.HiddenFor(m => m.InvoiceDetail.BRG)
                     </td>
-                    <td class="nama-barang">
+                    <td class="nama-barang" style="width: 200px; max-width: 200px;">
                         -
                     </td>
                     <td class="stn-barang">
