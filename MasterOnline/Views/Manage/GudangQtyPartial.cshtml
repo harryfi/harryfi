@@ -1,28 +1,60 @@
 ﻿@model MasterOnline.ViewModels.PesananViewModel
-
 @{
     var listBarang = Model.ListBarang.ToList();
     var Pesanan = Model.Pesanan;
 }
 @*add by nurul 23/11/2018*@
+<script type="text/javascript">
+    //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+    @{
+        var listQOHPerGD = Model.ListQOHPerGD;
+        var ListQOOPerBRG = Model.ListQOOPerBRG;
+    }
+    var listQOHPerGD = @Html.Raw(Json.Encode(listQOHPerGD));
+    var ListQOOPerBRG = @Html.Raw(Json.Encode(ListQOOPerBRG));
+    //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+
+    $(".gudang-qty-num-only").on('keydown',
+        function(e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                // Allow: Ctrl+A, Command+A
+                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                // Allow: home, end, left, right, down, up
+                (e.keyCode >= 35 && e.keyCode <= 40)) {
+                // let it happen, don't do anything
+                return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                e.preventDefault();
+            }
+        });
+    $(".gudang-qty-num-only").on('blur',
+        function(e) {
+            if($(this).val().trim() == ''){
+                $(this).val(0);
+            }
+        });
+</script>
 <div class="row">
     <div class="form-group" style="margin-top: 5px;">
-        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.TextBox("gd_no_bukti", Pesanan?.NO_BUKTI, new { @class = "form-control" , disabled = "disabled" })
+        <label class="control-label col-md-2 col-sm-2">No. Pesanan</label>
+        <div class="col-md-4 col-sm-4">
+            @Html.TextBox("gd_no_bukti", Pesanan?.NO_BUKTI, new { @class = "form-control", disabled = "disabled" })
         </div>
     </div>
 </div>
 <div class="row">
     <div class="form-group" style="margin-top: 5px;">
-        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <label class="control-label col-md-2 col-sm-2">Pembeli</label>
+        <div class="col-md-4 col-sm-4">
             @Html.TextBox("gd_no_bukti", Pesanan?.NAMAPEMESAN, new { @class = "form-control", disabled = "disabled" })
         </div>
     </div>
 </div>
-<br/>
-<br/>
+<br />
+<br />
 @*end add by nurul 23/11/2018*@
 <div class="row">
     <div class="col-md-3 col-sm-3 col-xs-3">
@@ -31,31 +63,45 @@
     <div class="col-md-3 col-sm-3 col-xs-3">
         <i>Gudang</i>
     </div>
-    <div class="col-md-3 col-sm-3 col-xs-3">
-        <i>Kuantitas</i>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <i>Stok</i>
     </div>
-    <div class="col-md-3 col-sm-3 col-xs-3">
-        <i>Kuantitas Pesanan</i>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <i>Pesanan Lain</i>
+    </div>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <i>Tersedia</i>
+    </div>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <i>Qty Pesanan</i>
+    </div>
+    <div class="col-md-1 col-sm-1 col-xs-1">
+        <i>Qty Kirim</i>
     </div>
 </div>
 <br />
-
 <div id="scrollable_div">
     @foreach (var barang in Model.ListPesananDetail)
     {
         <div class="row">
             @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
             <div class="form-group">
-                @Html.Label(listBarang.Single(b => b.BRG == barang.BRG).NAMA, new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "margin-top: 6px;" })
-                <div class="col-md-3 col-sm-3 col-xs-3">
-                    <div id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-recnum="@(barang.NO_URUT)"></div>
+                @Html.Label(listBarang.Single(b => b.BRG == barang.BRG).NAMA, new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "padding-top: 11px;" })
+                <div class="col-md-3 col-sm-3 col-xs-3" style="">
+                    <div id="Gudang-Dropdown-@(barang.NO_URUT)" class="selectivity-input" tabindex="0" data-jenis="gudang" data-brg="@(barang.BRG)" data-recnum="@(barang.NO_URUT)"></div>
                     @Html.Hidden($"Gudang-{barang.NO_URUT}", barang.LOKASI, new { data_jenis = "gudang_siap_kirim" })
                 </div>
-                <div class="col-md-3 col-sm-3 col-xs-3">
-                    @Html.Hidden($"Max-Qty-{barang.NO_URUT}", barang.QTY)
-                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY_N, new { @class = "form-control", type = "number", min = "0", oninput = "maxLengthCheck(this)", maxlength = 3, Value = barang.QTY_N.HasValue ? (barang.QTY_N.Value == 0 ? barang.QTY : barang.QTY_N.Value) : barang.QTY })
+                <div id="Gudang-stok-@(barang.NO_URUT)" class="col-md-1 col-sm-1 col-xs-1" style="text-align:center;padding-top: 11px;">
                 </div>
-                @Html.Label(Convert.ToString(barang.QTY), new { @class = "col-md-3 col-sm-3 col-xs-3 control-label", style = "text-align: center;" })
+                <div id="Gudang-pesanan-@(barang.NO_URUT)" class="col-md-1 col-sm-1 col-xs-1" style="text-align:center;padding-top: 11px;">
+                </div>
+                <div id="Gudang-sisa-@(barang.NO_URUT)" class="col-md-1 col-sm-1 col-xs-1" style="text-align:center;padding-top: 11px;">
+                </div>
+                @Html.Label(Convert.ToString(barang.QTY), new { @class = "col-md-1 col-sm-1 col-xs-1 control-label", style = "text-align: center; padding-top: 11px;" })
+                <div class="col-md-1 col-sm-1 col-xs-1" style="padding-top:3px;padding-left:20px;padding-right:0px">
+                    @Html.Hidden($"Max-Qty-{barang.NO_URUT}", barang.QTY)
+                    @Html.TextBox($"Qty-{barang.NO_URUT}", barang.QTY_N, new { @class = "form-control gudang-qty-num-only", Value = barang.QTY_N.HasValue ? (barang.QTY_N.Value == 0 ? barang.QTY : barang.QTY_N.Value) : barang.QTY })
+                </div>
             </div>
         </div>
         <br />
