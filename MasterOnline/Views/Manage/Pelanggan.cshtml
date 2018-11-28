@@ -1228,7 +1228,9 @@ else
                     validateInput($(this), 'TOP');
                 });
             //END ADD
-
+            //add by nurul 26 nov 2018, setelah di close, search lg
+            table.search($('#search_customer').val()).draw();
+            //end add by nurul 26 nov 2018, setelah di close, search lg
         }
 
         function resetKabKot() {

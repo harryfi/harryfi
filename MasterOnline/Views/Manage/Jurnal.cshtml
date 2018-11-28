@@ -544,6 +544,7 @@
             }).datepicker('setDate', '0').change(function () {
                 $('#Jurnal_tgl').val($(this).val());
                 $(this).datepicker('hide');
+                $('#btn-simpan-perubahan-row').show();
             });
 
             //add by nurul 31/8/2018
@@ -581,7 +582,8 @@
                     type: "POST",
                     url: '@Url.Action("UpdateJurnal", "Manage")',
                     data: JSON.stringify({
-                        OrderId: "@(Model?.Jurnal?.bukti)",
+                        @*OrderId: "@(Model?.Jurnal?.bukti)",*@
+                        OrderId: $('#Jurnal_bukti').val(),
                         Tgl: $('#Jurnal_tgl').val(),
                         Debet: $('#Jurnal_tdebet').val(),
                         Kredit: $('#Jurnal_tkredit').val()
@@ -590,7 +592,10 @@
                     cache: false,
                     success: function () {
                         alert('Data jurnal berhasil di-update');
-                        $this.hide();
+                        //change by nurul 26/11/2018
+                        //$this.hide();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end change
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -867,6 +872,9 @@
                     $('#search_jurnal').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by nurul 26 nov 2018, setelah di close, search lg
+                    table.search($('#search_jurnal').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

@@ -11313,7 +11313,7 @@ namespace MasterOnline.Controllers
                             stf02.Sort2 = defaultBrand.KODE;
                             stf02.KET_SORT1 = defaultCategoryCode.KET;
                             stf02.KET_SORT2 = defaultBrand.KET;
-                            stf02.Deskripsi = item.Deskripsi;
+                            stf02.Deskripsi = (string.IsNullOrEmpty(item.Deskripsi) ? "-" : item.Deskripsi);
 
                             if (!string.IsNullOrEmpty(item.IMAGE))
                             {
@@ -11821,6 +11821,12 @@ namespace MasterOnline.Controllers
 
             }
         }
+
+        //public async Task<string> testAja()
+        //{
+        //    await Task.Delay(15000);
+        //    return "test";
+        //}
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {

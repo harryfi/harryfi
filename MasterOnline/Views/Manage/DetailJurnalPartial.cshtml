@@ -172,12 +172,13 @@
         <table id="table_tambah_jurnal" class="table table-bordered" role="grid">
             <thead>
                 <tr>
-                    <th style="width: 80px; max-width: 80px;">Kode Rekening</th>
-                    <th width="150">Nama Rekening</th>
+                    @*<th style="width: 80px; max-width: 80px;">Kode Rekening</th>*@
+                    <th style="width: 50px; max-width: 50px;">Kode Rekening</th>
+                    <th width="200">Nama Rekening</th>
                     <th width="150">D/K</th>
-                    <th width="200">Nilai</th>
-                    <th width="45">Simpan</th>
-                    <th width="45">Hapus</th>
+                    <th width="150">Nilai</th>
+                    <th width="40">Simpan</th>
+                    <th width="40">Hapus</th>
                 </tr>
             </thead>
             <tbody>
@@ -222,7 +223,7 @@
                 }
                 <tr data-jurnal-id="0">
                     @Html.HiddenFor(m => m.JurnalDetail.no)
-                    <td>
+                    <td style="width: 125px; max-width: 125px;">
                         <div id="REK" class="selectivity-input" tabindex="0"></div>
                         @Html.HiddenFor(m => m.JurnalDetail.rek)
                     </td>

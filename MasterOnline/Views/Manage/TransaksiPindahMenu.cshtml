@@ -573,7 +573,10 @@
                     cache: false,
                     success: function () {
                         alert('Data stok berhasil di-update');
-                        $this.hide();
+                        //change by nurul 26/11/2018
+                        //$this.hide();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //end change
                     },
                     error: function (xhr) {
                         console.log(xhr);
@@ -719,7 +722,8 @@
                         function (i, item) {
                             listKodeBarang[i] = {
                                 id: item.BRG,
-                                text: item.BRG + ' (' + item.NAMA + ')'
+                                //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                text: item.BRG + ' (' + item.NAMA + ' ' + item.NAMA2 + ')'
                             };
                         });
 
@@ -884,6 +888,9 @@
                     $('#search_stok').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by nurul 26 nov 2018, setelah di close, search lg
+                    table.search($('#search_stok').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
