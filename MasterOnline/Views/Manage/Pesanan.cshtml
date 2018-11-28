@@ -183,16 +183,30 @@
             margin: auto;
         }
 
-            #modal-print-option .modal-content {
+            #modal-print-option .modal-content .modal-header {
                 -webkit-box-shadow: none;
                 box-shadow: none;
                 border: none;
                 background-color: white;
             }
 
+            #modal-print-option .modal-content .modal-body {
+                height: 125px;
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                background-color: white;
+            }
+
         #gudang-qty {
             width: 80em;
         }
+
+        #modal-gudang-qty-body #scrollable_div {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 200px;
+        }
+
 
         #modal-pricing {
             margin: auto;
@@ -683,7 +697,6 @@
         transform: rotate(45deg);
     }
 </style>
-
 <!-- top tiles -->
 @*<div class="row top_tiles">
         <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
@@ -1475,40 +1488,50 @@
 </div>
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 class="modal-title" id="printOptionLabel">Konfirmasi Gudang dan Kuantitas</h4>
-        </div>
-        <div class="modal-content" style="width:200px">
-            <div class="row" style="padding-top:10px">
-                <div class="col-md-4" style="padding-bottom:10px">
-                    <label class="checkbox-container">
-                        <input type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                        <span class="checkmark"></span>
-                    </label>
-                </div>
-                <div class="col-md-8">
-                    Faktur
-                </div>
+        <div class="modal-content" style="width:300px;margin:auto">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
             </div>
-            <div class="row" style="padding-top:10px">
-                <div class="col-md-4">
-                    <label class="checkbox-container">
-                        <input type="checkbox" class="cbx" name="cbx-print-label-only" />
-                        <span class="checkmark"></span>
-                    </label>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Faktur
+                    </div>
+                    <div class="col-md-2">
+                    </div>
                 </div>
-                <div class="col-md-8">
-                    Label
+                <div class="row" style="margin-top:5px">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Label
+                    </div>
+                    <div class="col-md-2">
+                    </div>
                 </div>
-            </div>
-            <div class="row" style="padding-top:20px">
-                <div class="col-md-2">
-                </div>
-                <div class="col-md-8">
-                    <button id="btn-print-faktur" type="button" class="btn btn-success btn-block">Cetak</button>
-                </div>
-                <div class="col-md-2">
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8" style="padding-top:10px">
+                        <button id="btn-print-faktur" type="button" class="btn btn-success btn-block">Cetak</button>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
                 </div>
             </div>
         </div>
@@ -2313,20 +2336,6 @@
                 $('#btn-simpan-perubahan-row').show();
             });
 
-            //add by calvin 28 nov 2018, print dialog
-            $('#btn-print-faktur').click(function() {
-                var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
-                link = link.replace('replaceNoBuk', nobuk);
-
-                var win = window.open(link, '_blank');
-                if (win) {
-                    win.focus();
-                } else {
-                    alert('Please allow popups for this website');
-                }
-                $('#modalPrintOption').modal('hide');
-            });
-            //end add by calvin 28 nov 2018, print dialog
         }
 
         function refreshNettoBarang($trId) {
@@ -2975,7 +2984,7 @@
                                 $.each(data,
                                     function(i, item) {
                                         if (item.BRG === val) {
-                                            if (item.NAMA2 == null)
+                                            if (item.NAMA2 == null || item.NAMA2 == 'null')
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " ");
                                             else
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
@@ -3853,8 +3862,21 @@
                 alert('Please allow popups for this website');
             }*@
             $('#modalPrintOption').modal('show');
+            $('#btn-print-faktur').off('click').on('click', function() {
+                var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', nobuk);
+
+                var win = window.open(link, '_blank');
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+                $('#modalPrintOption').modal('hide');
+            });
             //end change by calvin 28 nov 2018, print dialog
         }
+
 
         function lihatPesanan(idPesanan) {
             var link = '@Url.Action("LihatPesanan", "Manage", new {orderId = "replaceId"})';
