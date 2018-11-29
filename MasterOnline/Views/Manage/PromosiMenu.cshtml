@@ -554,7 +554,8 @@
                         function (i, item) {
                             listKodeBarang[i] = {
                                 id: item.BRG,
-                                text: item.BRG + ' (' + item.NAMA + ')'
+                                //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                text: item.BRG + ' (' + item.NAMA + ' ' + item.NAMA2 + ')'
                             };
                         });
 
@@ -730,6 +731,9 @@
                     $('#search_promosi').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+                    //add by nurul 26 nov 2018, setelah di close, search lg
+                    table.search($('#search_promosi').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {

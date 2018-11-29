@@ -333,6 +333,42 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            //if (listTokPed.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listTokPed)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+            //        {
+            //            var tokopediaApi = new TokopediaController();
+
+            //            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+            //            //{
+            //            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+            //            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+            //            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //            //    token = tblCustomer.TOKEN
+            //            //};
+            //            TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+            //            {
+            //                merchant_code = "13072", //FSID
+            //                API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //                API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //                API_secret_key = "2619296", //Shop ID 
+            //                token = ""
+            //            };
+
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
+
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
+            //        }
+            //    }
+            //}
+
             //add by calvin 14 nov 2018, update qoh setelah get pesanan
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
 
@@ -4889,7 +4925,7 @@ namespace MasterOnline.Controllers
                               join b in ErasoftDbContext.STF02H on a.BRG equals b.BRG
                               join c in ErasoftDbContext.ARF01 on b.IDMARKET equals c.RecNum
                               where c.CUST == code
-                              select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
+                              select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = b.HJUAL });
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
         }
@@ -5138,13 +5174,37 @@ namespace MasterOnline.Controllers
 
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
+            //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+            var ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList();
+
+            List<string> items = new List<string>();
+            string brg = "";
+            foreach (var item in ListPesananDetail)
+            {
+                items.Add(item.BRG);
+                if (brg != "")
+                {
+                    brg += "','";
+                }
+                brg += item.BRG;
+            }
+
+            var ListBarang = ErasoftDbContext.STF02.Where(p => items.Contains(p.BRG)).ToList();
+            string sSQL = "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
+            sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brg + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang";
+            var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
+            //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+            sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
+            var ListQOOPerBRG = ErasoftDbContext.Database.SqlQuery<QOO_PER_BRG>(sSQL).ToList();
             var vm = new PesananViewModel()
             {
                 //add by nurul 23/11/2018
                 Pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(b => b.NO_BUKTI == noBuk),
                 //end add 
-                ListPesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_BUKTI == noBuk).ToList(),
-                ListBarang = ErasoftDbContext.STF02.ToList()
+                ListPesananDetail = ListPesananDetail,
+                ListBarang = ListBarang,
+                ListQOHPerGD = ListQOHPerGD,
+                ListQOOPerBRG = ListQOOPerBRG
             };
 
             return PartialView("GudangQtyPartial", vm);
@@ -5158,7 +5218,7 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
             };
 
             return PartialView("TablePesananSudahDibayarPartial", vm);
@@ -11734,7 +11794,7 @@ namespace MasterOnline.Controllers
             //    ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
 
             //};
-            
+
             var retBarang = new STF02();
             if (!string.IsNullOrEmpty(brg))
             {

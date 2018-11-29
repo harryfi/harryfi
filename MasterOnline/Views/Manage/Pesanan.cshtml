@@ -177,8 +177,44 @@
             .disabled-tab:visited {
                 color: #fff;
             }
+
+        /*add by nurul 29/11/2018*/
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        /*end add by nurul 29/11/2018*/
     </style>
     <style>
+        #modal-print-option {
+            margin: auto;
+        }
+
+            #modal-print-option .modal-content .modal-header {
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                border: none;
+                background-color: white;
+            }
+
+            #modal-print-option .modal-content .modal-body {
+                height: 125px;
+                -webkit-box-shadow: none;
+                box-shadow: none;
+                background-color: white;
+            }
+
+        #gudang-qty {
+            width: 80em;
+        }
+
+        #modal-gudang-qty-body #scrollable_div {
+            overflow-x: hidden;
+            overflow-y: scroll;
+            height: 200px;
+        }
+
+
         #modal-pricing {
             margin: auto;
             width: 60em;
@@ -600,6 +636,74 @@
         }
     </style>
 }
+<style>
+    .checkbox-container {
+        display: block;
+        position: relative;
+        /*padding-left: 35px;*/
+        margin-top: 4px;
+        cursor: pointer;
+        font-size: 11px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+        /* Hide the browser's default checkbox */
+        .checkbox-container input {
+            position: relative;
+            opacity: 100;
+            cursor: pointer;
+            display: none;
+        }
+
+    /* Create a custom checkbox */
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 18px;
+        height: 25px;
+        width: 25px;
+        background-color: #eee;
+        border: solid 1px #ccc;
+    }
+
+    /* On mouse-over, add a grey background color */
+    .checkbox-container:hover input ~ .checkmark {
+        background-color: #ccc;
+    }
+
+    /* When the checkbox is checked, add a blue background */
+    .checkbox-container input:checked ~ .checkmark {
+        background-color: #2196F3;
+    }
+
+    /* Create the checkmark/indicator (hidden when not checked) */
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    /* Show the checkmark when checked */
+    .checkbox-container input:checked ~ .checkmark:after {
+        display: block;
+    }
+
+    /* Style the checkmark/indicator */
+    .checkbox-container .checkmark:after {
+        left: 9px;
+        top: 5px;
+        width: 6px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+</style>
 <!-- top tiles -->
 @*<div class="row top_tiles">
         <div class="animated flipInY col-lg-3 col-md-3 col-sm-6 col-xs-12">
@@ -1352,7 +1456,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
@@ -1361,7 +1464,7 @@
     </div>
 </div>
 <div class="modal fade" id="modalGudangDanQty" tabindex="-1" role="dialog" aria-labelledby="gudangQtyLabel">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog" id="gudang-qty" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -1387,6 +1490,61 @@
     <div class="modal-dialog" id="modal-pricing-expired" role="document">
         <div class="modal-content">
             @Html.Partial("PricingExpiredPartialView")
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
+    <div class="modal-dialog" id="modal-print-option" role="document">
+        <div class="modal-content" style="width:550px;margin:auto">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
+                @*add by nurul 29/11/2018*@
+                <hr />
+                <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Pesanan <span id="cetakfaktur_label"></span>?</h5>
+                @*end add by nurul*@ 
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Faktur
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+                <div class="row" style="margin-top:5px">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Label
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8" style="padding-top:10px">
+                        <button id="btn-print-faktur" type="button" class="btn btn-success btn-block">Cetak</button>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1947,6 +2105,23 @@
             //    }
             //});
             if ($modeEdit == 1) { // mode edit
+
+                $('#Pesanan_TERM').change(function() {
+                    if ($('#TGL').val() == '') {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    if ($(this).val() != '') {
+                        var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                        var tglTop = $tgl.add($(this).val(), 'days');
+                        $('#Pesanan_TGL_JTH_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                    } else {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+                    }
+                    $('#btn-simpan-perubahan-row').show();
+                });
+
                 $('#TGL').datepicker({
                     format: 'dd/mm/yyyy',
                     language: 'id'
@@ -1972,6 +2147,21 @@
                 });
             }
             else { //new
+                $('#Pesanan_TERM').change(function() {
+                    if ($('#TGL').val() == '') {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    if ($(this).val() != '') {
+                        var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                        var tglTop = $tgl.add($(this).val(), 'days');
+                        $('#Pesanan_TGL_JTH_TEMPO').val(tglTop.format('DD/MM/YYYY'));
+                    } else {
+                        $('#Pesanan_TGL_JTH_TEMPO').val('Masukkan TOP dahulu');
+                    }
+                });
+
                 $('#TGL').datepicker({
                     format: 'dd/mm/yyyy',
                     language: 'id'
@@ -2156,6 +2346,7 @@
             $('#Pesanan_TGL_JTH_TEMPO').blur(function() {
                 $('#btn-simpan-perubahan-row').show();
             });
+
         }
 
         function refreshNettoBarang($trId) {
@@ -2617,7 +2808,7 @@
                                     $("#Pesanan_TERM").val($objSup[0].term).change();
                                 }
 
-                                //getTanggal();
+                                getTanggal();
                                 getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();
@@ -2784,7 +2975,8 @@
                             function(i, item) {
                                 listKodeBarang[i] = {
                                     id: item.BRG,
-                                    text: item.BRG + ' (' + item.NAMA + ')'
+                                    //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
+                                    text: item.BRG + ' (' + item.NAMA + ' ' + item.NAMA2 + ')'
                                 };
                             });
 
@@ -2803,7 +2995,7 @@
                                 $.each(data,
                                     function(i, item) {
                                         if (item.BRG === val) {
-                                            if (item.NAMA2 == null)
+                                            if (item.NAMA2 == null || item.NAMA2 == 'null')
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " ");
                                             else
                                                 $($trElement + ' .nama-barang').text(item.NAMA + " " + item.NAMA2);
@@ -3256,17 +3448,71 @@
                         var $this = $(this);
                         var $recNum = $this.attr('data-recnum');
 
+                        //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
+                        var $brg_sot01b = $this.attr('data-brg');
+                        var temp_listQOHPerGD = listQOHPerGD;
+
+                        temp_listQOHPerGD = $.grep(temp_listQOHPerGD, function( n, i ) {
+                            return n.BRG===$brg_sot01b;
+                        });
+
+                        $listGudang = [];
+                        if (temp_listQOHPerGD[0] != undefined) {
+                            $.each(temp_listQOHPerGD,
+                                function(i, item) {
+                                    $listGudang[i] = {
+                                        id: item.GD,
+                                        text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    };
+                                });
+                        }
+                        //end add by calvin 27 nov 2018
+
                         $('#Gudang-Dropdown-' + $recNum).selectivity({
                             allowClear: true,
                             items: $listGudang,
                             placeholder: 'Harap pilih'
                         }).selectivity('value', $('#Gudang-' + $recNum).val()).change(function() {
                             var $val = $(this).selectivity('value');
+
+                            //add by calvin 27 nov 2018, munculkan QOH, dan QSO
+                            var getQOH_listQOHPerGD = listQOHPerGD;
+                            getQOH_listQOHPerGD = $.grep(getQOH_listQOHPerGD, function( n, i ) {
+                                return n.BRG===$brg_sot01b && n.GD === $val;
+                            });
+
+                            var getQSO_ListQOOPerBRG= ListQOOPerBRG;
+                            getQSO_ListQOOPerBRG = $.grep(getQSO_ListQOOPerBRG, function( n, i ) {
+                                return n.BRG===$brg_sot01b && n.GD === $val;
+                            });
+
                             $('#Gudang-' + $recNum).val($val);
+                            if (getQOH_listQOHPerGD[0] != undefined) {
+                                $.each(getQOH_listQOHPerGD,
+                                function(i, item) {
+                                    $('#Gudang-stok-' + $recNum).html(item.QOH);
+                                });
+                            }else {
+                                $('#Gudang-stok-' + $recNum).html("");
+                            }
+
+                            if (getQSO_ListQOOPerBRG[0] != undefined) {
+                                $.each(getQSO_ListQOOPerBRG,
+                                function(i, item) {
+                                    $('#Gudang-pesanan-' + $recNum).html(item.QSO);
+                                });
+                            }else {
+                                $('#Gudang-pesanan-' + $recNum).html("0");
+                            }
+
+                            var stok = convertToAngka($('#Gudang-stok-' + $recNum).html().trim())
+                            var pesanan = convertToAngka($('#Gudang-pesanan-' + $recNum).html().trim())
+                            $('#Gudang-sisa-' + $recNum).html(stok - pesanan);
+                            //end add by calvin 27 nov 2018
                         }).click(function() {
                             var $offsetTop = $this.offset().top;
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
-                        });
+                        }).change();
 
                         $('#modal-gudang-qty-body #Qty-' + $recNum).change(function() {
                             var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();
@@ -3616,7 +3862,8 @@
         }
 
         function lihatFaktur(nobuk) {
-            var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+            //change by calvin 28 nov 2018, print dialog
+            @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
             link = link.replace('replaceNoBuk', nobuk);
 
             var win = window.open(link, '_blank');
@@ -3624,8 +3871,27 @@
                 win.focus();
             } else {
                 alert('Please allow popups for this website');
-            }
+            }*@
+            //add by nurul 29/11/2018
+            $('#cetakfaktur_label').text(nobuk);
+            //end add
+            $('#modalPrintOption').modal('show');
+            
+            $('#btn-print-faktur').off('click').on('click', function() {
+                var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', nobuk);
+
+                var win = window.open(link, '_blank');
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+                $('#modalPrintOption').modal('hide');
+            });
+            //end change by calvin 28 nov 2018, print dialog
         }
+
 
         function lihatPesanan(idPesanan) {
             var link = '@Url.Action("LihatPesanan", "Manage", new {orderId = "replaceId"})';
@@ -3793,7 +4059,7 @@
                                 //    $("#Pesanan_TERM").val($objSup[0].term).change();
                                 //}
 
-                                //getTanggal();
+                                getTanggal();
                                 getDataBarang();
                             }
                             $('#btn-simpan-perubahan-row').show();

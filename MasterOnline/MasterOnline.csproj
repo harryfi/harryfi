@@ -920,6 +920,7 @@
     <Compile Include="Models\Promo.cs" />
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
+    <Compile Include="Models\QOH_PER_GD.cs" />
     <Compile Include="Models\TEMP_ALL_MP_ORDER_ITEM.cs" />
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />
@@ -5674,6 +5675,13 @@
     <Content Include="Scripts\tinymce\tinymce.js" />
     <Content Include="Scripts\tinymce\tinymce.min.js" />
     <Content Include="Scripts\xlsx.full.min.js" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\items.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\middlewares.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\pipelines.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\settings.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\login.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__init__.py" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__init__.py" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
@@ -5868,6 +5876,12 @@
     <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-small.eot" />
     <Content Include="Scripts\tinymce\skins\lightgray\fonts\tinymce-mobile.woff" />
     <Content Include="Scripts\tinymce\langs\readme.md" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\thzalyvuspulzjyhwwlyiha.bat" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\scrapy.cfg" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__pycache__\login.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__pycache__\__init__.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\settings.cpython-37.pyc" />
+    <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\__init__.cpython-37.pyc" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -532,6 +532,9 @@
                         });
                         refreshInputan();
                         getCustomer();
+                        //add by nurul 26 nov 2018, setelah di close, search lg
+                        table.search($('#search_piutang').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
                     },
                     error: function (xhr, status, error) {
                         console.log(error);

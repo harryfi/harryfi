@@ -22,5 +22,7 @@ namespace MasterOnline.ViewModels
         public List<String> Errors { get; set; } = new List<String>();
         //add by nurul 26/9/2018
         public List<STF02H> ListBarangMarket { get; set; } = new List<STF02H>();
+        public List<QOH_PER_GD> ListQOHPerGD { get; set; } = new List<QOH_PER_GD>();
+        public List<QOO_PER_BRG> ListQOOPerBRG { get; set; } = new List<QOO_PER_BRG>();
     }
 }
