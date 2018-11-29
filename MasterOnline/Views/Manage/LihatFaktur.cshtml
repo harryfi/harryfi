@@ -179,8 +179,8 @@
                                             @fakturDetail.QTY @satuan
                                         </td>
                                         @*<td style="text-align: right;">
-                                            @(fakturDetail.QTY * beratBarang) gr
-                                        </td>*@
+                                @(fakturDetail.QTY * beratBarang) gr
+                            </td>*@
                                         <td style="text-align: right;">
                                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
                                         </td>
@@ -242,15 +242,31 @@
                             </div>
                         </div>
                         <h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Penjual</span> @Model.NamaToko
-                        </p>
-                        <p class="sub_title">
-                            @*<span class="block_subtitle">Pembeli</span> @pembeli.NAMA*@
-                            <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                        </p>
+                        //change by nurul 29/11/2018 (ubah susunannya)
+                        @*<p class="sub_title">
+                <span class="block_subtitle">Penjual</span> @Model.NamaToko
+            </p>*@
+                        @*<p class="sub_title">
+                //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
+                <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
+            </p>*@
+                        @*<p class="sub_title">
+                <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+            </p>
+            <p class="sub_title">
+                <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
+            </p>
+            <p class="sub_title">
+                <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
+            </p>*@
                         <p class="sub_title">
                             <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+                        </p>
+                        <p class="sub_title">
+                            <span class="block_subtitle">Tanggal</span> @(Model.Faktur.TGL)
+                        </p>
+                        <p class="sub_title">
+                            <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
                         </p>
                         <p class="sub_title">
                             <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
