@@ -76,6 +76,12 @@
             font-weight: bold;
             padding-top: 20px;
             font-size: 24px;
+            height:59px;
+        }
+        .bold_title_invoice{
+            font-weight: bold;
+            padding-top: 20px;
+            font-size: 36px;
         }
 
         .sub_title {
@@ -108,9 +114,9 @@
         }
 
         #print-btn {
-            position: absolute;
+            /*position: absolute;
             top: 20px;
-            right: 20px;
+            right: 20px;*/
         }
 
         #barang-faktur > tr > td {
@@ -127,16 +133,45 @@
                     {
                         var pembeli = Model.ListPembeli.SingleOrDefault(p => p.BUYER_CODE == Model.Faktur.PEMESAN);
 
-                        //~/ Content / Images / MO_new_logo_v2.png
                         <div class="row">
+                            <div class="col-md-12">
+                                <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
+                            </div>
+                        </div>
+                        @*<div class="row">
                             <div class="col-md-6">
                                 <img src="@Url.Content(Model.LogoMarket)" width="250" />
                                 <img src="@Url.Content($"~/Content/Logo_Perusahaan/LogoUsaha-{username}-{Model.NamaPerusahaan}.jpg")" width="100" />
-                                @*var namaFile = $"LogoUsaha-{dataVm.DataUsaha.USERNAME}-{dataVm.DataUsaha.NAMA_PT}{fileExtension}";*@
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="col-md-6" style="text-align:left">
+                                <h1 class="bold_title">@Model.NamaToko</h1>
+                            </div>
+                            <div class="col-md-6" style="text-align:right">
+                                <h1 class="bold_title_invoice">INVOICE</h1>
                             </div>
                         </div>
-                        <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
-                        <h2 class="bold_title">Faktur Penjualan Toko @Model.NamaToko</h2>
+                        <div class="row">
+                            <div class="col-md-6" style="text-align:left">
+                            </div>
+                            <div class="col-md-3" style="background-color:lightskyblue;text-align:center">
+                                <span class="block_subtitle" style="color:white">INVOICE #</span>
+                            </div>
+                            <div class="col-md-3" style="background-color:lightskyblue;text-align:center">
+                                <span class="block_subtitle" style="color:white">DATE</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6" style="text-align:left">
+                            </div>
+                            <div class="col-md-3" style="text-align:center">
+                                <span class="block_subtitle" >@(Model.Faktur.NO_BUKTI)</span>
+                            </div>
+                            <div class="col-md-3" style="text-align:center">
+                                <span class="block_subtitle">@(Model.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                            </div>
+                        </div>
                         <p class="sub_title">
                             <span class="block_subtitle">Pembeli</span> @pembeli.NAMA
                         </p>
@@ -152,7 +187,6 @@
                                 <tr>
                                     <th>Nama Produk</th>
                                     <th style="text-align: right;">Jumlah Barang</th>
-                                    @*<th style="text-align: right;">Berat Barang</th>*@
                                     <th style="text-align: right;">Harga Barang</th>
                                     <th style="text-align: right;">Diskon</th>
                                     <th style="text-align: right;">Subtotal</th>
@@ -163,8 +197,7 @@
                                 {
                                     var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
                                     var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                    @*var beratBarang = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.BERAT;*@
-                                    var discTotal = fakturDetail.NILAI_DISC ?? 0;//(fakturDetail.NILAI_DISC_1 ?? 0) + (fakturDetail.NILAI_DISC_2 ?? 0);
+                                    var discTotal = fakturDetail.NILAI_DISC ?? 0;
                                     var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
                                     var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
                                     <tr>
@@ -178,9 +211,6 @@
                                         <td style="text-align: right;">
                                             @fakturDetail.QTY @satuan
                                         </td>
-                                        @*<td style="text-align: right;">
-                                            @(fakturDetail.QTY * beratBarang) gr
-                                        </td>*@
                                         <td style="text-align: right;">
                                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
                                         </td>
@@ -246,7 +276,6 @@
                             <span class="block_subtitle">Penjual</span> @Model.NamaToko
                         </p>
                         <p class="sub_title">
-                            @*<span class="block_subtitle">Pembeli</span> @pembeli.NAMA*@
                             <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
                         </p>
                         <p class="sub_title">
