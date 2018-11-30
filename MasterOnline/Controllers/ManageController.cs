@@ -6061,6 +6061,10 @@ namespace MasterOnline.Controllers
                 var idMarket = Convert.ToInt32(cust.NAMA);
                 var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
                 var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                //add by nurul 29/11/2018 (modiv cetak faktur)
+                var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                //end add 
 
                 var vm = new FakturViewModel()
                 {
@@ -6070,7 +6074,11 @@ namespace MasterOnline.Controllers
                     Faktur = fakturInDb,
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList()
+                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                    //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+                    AlamatToko = alamat,
+                    TlpToko=tlp
+                    //end add 
                 };
 
                 return View(vm);
