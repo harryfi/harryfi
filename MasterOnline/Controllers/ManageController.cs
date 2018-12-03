@@ -6037,57 +6037,215 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult LihatFaktur(string noBukPesanan)
         {
+            string nobuk = noBukPesanan.Substring(0, 2);
+            //string nobuk = noBukPesanan.Substring(1,1);
             try
             {
-                var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
-                var namaToko = "";
+                //change by nurul 3/12/2018
+                //var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
+                if (nobuk == "SO")
+                {
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
+                    var namaToko = "";
 
-                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                if (sessionData?.Account != null)
-                {
-                    namaToko = sessionData.Account.NamaTokoOnline;
-                }
-                else
-                {
-                    if (sessionData?.User != null)
+                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    if (sessionData?.Account != null)
                     {
-                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                        namaToko = accFromUser.NamaTokoOnline;
+                        namaToko = sessionData.Account.NamaTokoOnline;
                     }
-                }
+                    else
+                    {
+                        if (sessionData?.User != null)
+                        {
+                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            namaToko = accFromUser.NamaTokoOnline;
+                        }
+                    }
 
 
-                var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
-                var idMarket = Convert.ToInt32(cust.NAMA);
-                var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
-                var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
-                //add by nurul 29/11/2018 (modiv cetak faktur)
-                var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
-                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
-                //end add 
-
-                var vm = new FakturViewModel()
-                {
-                    NamaToko = namaToko,
-                    NamaPerusahaan = namaPT,
-                    LogoMarket = urlLogoMarket,
-                    Faktur = fakturInDb,
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                    ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
-                    //add by nurul nurul 29/11/2018 (modiv cetak faktur)
-                    AlamatToko = alamat,
-                    TlpToko=tlp
+                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var idMarket = Convert.ToInt32(cust.NAMA);
+                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    //add by nurul 29/11/2018 (modiv cetak faktur)
+                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
                     //end add 
-                };
 
-                return View(vm);
+                    var vm = new FakturViewModel()
+                    {
+                        NamaToko = namaToko,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = urlLogoMarket,
+                        Faktur = fakturInDb,
+                        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.ToList(),
+                        ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                        //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+                        AlamatToko = alamat,
+                        TlpToko = tlp
+                        //end add 
+                    };
+
+                    return View(vm);
+                }else
+                {
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
+                    var namaToko = "";
+
+                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    if (sessionData?.Account != null)
+                    {
+                        namaToko = sessionData.Account.NamaTokoOnline;
+                    }
+                    else
+                    {
+                        if (sessionData?.User != null)
+                        {
+                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            namaToko = accFromUser.NamaTokoOnline;
+                        }
+                    }
+
+
+                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var idMarket = Convert.ToInt32(cust.NAMA);
+                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    //add by nurul 29/11/2018 (modiv cetak faktur)
+                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    //end add 
+
+                    var vm = new FakturViewModel()
+                    {
+                        NamaToko = namaToko,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = urlLogoMarket,
+                        Faktur = fakturInDb,
+                        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.ToList(),
+                        ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                        //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+                        AlamatToko = alamat,
+                        TlpToko = tlp
+                        //end add 
+                    };
+
+                    return View(vm);
+                }
+                //var fakturInDb = a;
+                //end change 
+
+                //var namaToko = "";
+
+                //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                //if (sessionData?.Account != null)
+                //{
+                //    namaToko = sessionData.Account.NamaTokoOnline;
+                //}
+                //else
+                //{
+                //    if (sessionData?.User != null)
+                //    {
+                //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                //        namaToko = accFromUser.NamaTokoOnline;
+                //    }
+                //}
+
+
+                //var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                //var idMarket = Convert.ToInt32(cust.NAMA);
+                //var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                //var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                ////add by nurul 29/11/2018 (modiv cetak faktur)
+                //var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                //var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                ////end add 
+
+                //var vm = new FakturViewModel()
+                //{
+                //    NamaToko = namaToko,
+                //    NamaPerusahaan = namaPT,
+                //    LogoMarket = urlLogoMarket,
+                //    Faktur = fakturInDb,
+                //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //    ListBarang = ErasoftDbContext.STF02.ToList(),
+                //    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                //    //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+                //    AlamatToko = alamat,
+                //    TlpToko=tlp
+                //    //end add 
+                //};
+
+                //return View(vm);
             }
             catch (Exception)
             {
                 return View("NotFoundPage");
             }
         }
+
+        //add by nurul 3/12/2018
+        //[HttpGet]
+        //public ActionResult CetakFaktur(string noBukPesanan)
+        //{
+        //    string nobuk = Convert.ToString(noBukPesanan.Split(2));
+        //    try
+        //    {
+        //        if (nobuk == "SO") {
+
+        //        }
+        //        var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
+        //        var namaToko = "";
+
+        //        var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+        //        if (sessionData?.Account != null)
+        //        {
+        //            namaToko = sessionData.Account.NamaTokoOnline;
+        //        }
+        //        else
+        //        {
+        //            if (sessionData?.User != null)
+        //            {
+        //                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+        //                namaToko = accFromUser.NamaTokoOnline;
+        //            }
+        //        }
+
+
+        //        var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+        //        var idMarket = Convert.ToInt32(cust.NAMA);
+        //        var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+        //        var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+        //        //add by nurul 29/11/2018 (modiv cetak faktur)
+        //        var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+        //        var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+        //        //end add 
+
+        //        var vm = new FakturViewModel()
+        //        {
+        //            NamaToko = namaToko,
+        //            NamaPerusahaan = namaPT,
+        //            LogoMarket = urlLogoMarket,
+        //            Faktur = fakturInDb,
+        //            ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+        //            ListBarang = ErasoftDbContext.STF02.ToList(),
+        //            ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+        //            //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+        //            AlamatToko = alamat,
+        //            TlpToko = tlp
+        //            //end add 
+        //        };
+
+        //        return View(vm);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        return View("NotFoundPage");
+        //    }
+        //}
+        //end add 
 
         // =============================================== Bagian Pesanan (END)
 

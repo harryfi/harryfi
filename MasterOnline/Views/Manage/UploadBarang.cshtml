@@ -453,6 +453,9 @@
                     });
                     $('#loading_barang_tab').hide();
                     $('#datatable').show();
+                    //add by nurul 3 des 2018, setelah di close, search lg
+                    table.search($('#search_barang').val()).draw();
+                    //end add by nurul 3 des 2018, setelah di close, search lg
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

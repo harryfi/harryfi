@@ -76,6 +76,13 @@
             .disabled-tab:visited {
                 color: #fff;
             }
+
+        /*add by nurul 3/12/2018*/
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        /*end add by nurul 3/12/2018*/
     </style>
     <style>
         #modal-upload-faktur {
@@ -534,6 +541,74 @@
         }
     </style>
 }
+    <style>
+        .checkbox-container {
+            display: block;
+            position: relative;
+            /*padding-left: 35px;*/
+            margin-top: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            /* Hide the browser's default checkbox */
+            .checkbox-container input {
+                position: relative;
+                opacity: 100;
+                cursor: pointer;
+                display: none;
+            }
+
+        /* Create a custom checkbox */
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 18px;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+            border: solid 1px #ccc;
+        }
+
+        /* On mouse-over, add a grey background color */
+        .checkbox-container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        /* When the checkbox is checked, add a blue background */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        /* Create the checkmark/indicator (hidden when not checked) */
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        /* Show the checkmark when checked */
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* Style the checkmark/indicator */
+        .checkbox-container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
@@ -811,6 +886,61 @@
         </div>
     </div>
 </div>
+@*add by nurul 3/12/2018 - tambah cetak faktur*@
+<div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
+    <div class="modal-dialog" id="modal-print-option" role="document">
+        <div class="modal-content" style="width:550px;margin:auto">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
+            </div>
+            <div class="modal-body">
+                <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Faktur <span id="cetakfaktur_label"></span>?</h5>
+                <br />
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span id="ctk_faktur" class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Faktur
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+                <div class="row" style="margin-top:5px">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-3" style="padding-bottom:10px">
+                        <label class="checkbox-container">
+                            <input id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span id="ctk_label" class="checkmark"></span>
+                        </label>
+                    </div>
+                    <div class="col-md-5" style="padding-top: 7px;">
+                        Label
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8" style="padding-top:10px">
+                        <button id="btn-print-faktur" type="button" class="btn btn-success btn-block">Cetak</button>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@*end add by nurul 3/12/2018 - tambah cetak faktur*@
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -2715,6 +2845,49 @@
             //link += '?filename=' + txt;
 
         }
+
+        //add by nurul 3/12/2018
+        function cetakFaktur(nobuk) {
+            //change by calvin 28 nov 2018, print dialog
+            @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+            link = link.replace('replaceNoBuk', nobuk);
+
+            var win = window.open(link, '_blank');
+            if (win) {
+                win.focus();
+            } else {
+                alert('Please allow popups for this website');
+            }*@
+            //add by nurul 29/11/2018
+            $('#cetakfaktur_label').text(nobuk);
+            //end add
+            $('#modalPrintOption').modal('show');
+
+            $('#btn-print-faktur').off('click').on('click', function() {
+                var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                link = link.replace('replaceNoBuk', nobuk);
+                //change by nurul 30/11/2018
+                //var win = window.open(link, '_blank');
+                var $faktur = '&faktur=1';
+                var $label = '&label=1';
+                if ($("#ctk_faktur").is(":checked") == true && $("#ctk_label").is(":checked") == false) {
+                    var win = window.open(link += $faktur, '_blank');
+                } else if ($("#ctk_label").is(":checked") == true && $("#ctk_faktur").is(":checked") == false) {
+                    var win = window.open(link += $label, '_blank');
+                } else {
+                    var win = window.open(link, '_blank');
+                }
+                //end add
+                if (win) {
+                    win.focus();
+                } else {
+                    alert('Please allow popups for this website');
+                }
+                $('#modalPrintOption').modal('hide');
+            });
+            //end change by calvin 28 nov 2018, print dialog
+        }
+        //end add
     </script>
     <script>
         //Disable Enter Key Submit Form
