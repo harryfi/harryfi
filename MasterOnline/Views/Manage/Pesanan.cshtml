@@ -177,6 +177,13 @@
             .disabled-tab:visited {
                 color: #fff;
             }
+
+        /*add by nurul 29/11/2018*/
+        #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        /*end add by nurul 29/11/2018*/
     </style>
     <style>
         #modal-print-option {
@@ -1488,10 +1495,14 @@
 </div>
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content" style="width:300px;margin:auto">
+        <div class="modal-content" style="width:550px;margin:auto">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
+                @*add by nurul 29/11/2018*@
+                <hr />
+                <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Pesanan <span id="cetakfaktur_label"></span>?</h5>
+                @*end add by nurul*@ 
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1499,8 +1510,8 @@
                     </div>
                     <div class="col-md-3" style="padding-bottom:10px">
                         <label class="checkbox-container">
-                            <input type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                            <span class="checkmark"></span>
+                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span id="ctk_faktur" class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-md-5" style="padding-top: 7px;">
@@ -1514,8 +1525,8 @@
                     </div>
                     <div class="col-md-3" style="padding-bottom:10px">
                         <label class="checkbox-container">
-                            <input type="checkbox" class="cbx" name="cbx-print-label-only" />
-                            <span class="checkmark"></span>
+                            <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span id="ctk_label" class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-md-5" style="padding-top: 7px;">
@@ -3451,7 +3462,7 @@
                                 function(i, item) {
                                     $listGudang[i] = {
                                         id: item.GD,
-                                        text: item.Nama_Gudang + " (Stok : " + item.QOH + ")"
+                                        text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                     };
                                 });
                         }
@@ -3861,12 +3872,26 @@
             } else {
                 alert('Please allow popups for this website');
             }*@
+            //add by nurul 29/11/2018
+            $('#cetakfaktur_label').text(nobuk);
+            //end add
             $('#modalPrintOption').modal('show');
+            
             $('#btn-print-faktur').off('click').on('click', function() {
                 var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', nobuk);
-
-                var win = window.open(link, '_blank');
+                //change by nurul 30/11/2018
+                //var win = window.open(link, '_blank');
+                var $faktur = '&faktur=1';
+                var $label = '&label=1';
+                if ($("#ctk_faktur").is(":checked") == true && $("#ctk_label").is(":checked") == false) {
+                    var win = window.open(link += $faktur, '_blank');
+                } else if ($("#ctk_label").is(":checked") == true && $("#ctk_faktur").is(":checked") == false) {
+                    var win = window.open(link += $label, '_blank');
+                } else {
+                    var win = window.open(link, '_blank');
+                }
+                //end add 
                 if (win) {
                     win.focus();
                 } else {

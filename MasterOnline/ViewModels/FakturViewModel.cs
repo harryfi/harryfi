@@ -24,5 +24,8 @@ namespace MasterOnline.ViewModels
         public List<String> Errors { get; set; } = new List<string>();
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
         public List<LOG_IMPORT_FAKTUR> ListImportFaktur { get; set; } = new List<LOG_IMPORT_FAKTUR>();
+        //add by nurul 29/11/2018 (modiv cetak faktur)
+        public string AlamatToko { get; set; }
+        public string TlpToko { get; set; }
     }
 }

@@ -2223,15 +2223,15 @@ namespace MasterOnline.Controllers
             var productMarketPlace = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == barangInDb.BRG && m.IDMARKET == tblCustomer.RecNum);
             if (!string.IsNullOrEmpty(tblCustomer.TOKEN) && productMarketPlace.DISPLAY)
             {
-                //for (int i = 0; i < imgPath.Length; i++)
-                //{
-                //if (!string.IsNullOrEmpty(imgPath[i]))
-                //{
-                //    var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
-                //    if (uploadImg.status == 1)
-                //        imageUrl[i] = uploadImg.message;
-                //}
-                //}
+                for (int i = 0; i < imgPath.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(imgPath[i]))
+                    {
+                        var uploadImg = lzdApi.UploadImage(imgPath[i], tblCustomer.TOKEN);
+                        if (uploadImg.status == 1)
+                            imageUrl[i] = uploadImg.message;
+                    }
+                }
 
                 BrgViewModel dataLazada = new BrgViewModel
                 {
@@ -2255,30 +2255,30 @@ namespace MasterOnline.Controllers
                 dataLazada.harga = productMarketPlace.HJUAL.ToString();
                 dataLazada.activeProd = productMarketPlace.DISPLAY;
 
-                //if (!string.IsNullOrEmpty(imageUrl[2]))
-                //{
-                //    dataLazada.imageUrl3 = imageUrl[2];
-                //}
-                //if (!string.IsNullOrEmpty(imageUrl[1]))
-                //{
-                //    dataLazada.imageUrl2 = imageUrl[1];
-                //}
-                //if (!string.IsNullOrEmpty(imageUrl[0]))
-                //{
-                //    dataLazada.imageUrl = imageUrl[0];
-                //}
-                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_3))
+                if (!string.IsNullOrEmpty(imageUrl[2]))
                 {
-                    dataLazada.imageUrl3 = barangInDb.LINK_GAMBAR_3;
+                    dataLazada.imageUrl3 = imageUrl[2];
                 }
-                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_2))
+                if (!string.IsNullOrEmpty(imageUrl[1]))
                 {
-                    dataLazada.imageUrl2 = barangInDb.LINK_GAMBAR_2;
+                    dataLazada.imageUrl2 = imageUrl[1];
                 }
-                if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_1))
+                if (!string.IsNullOrEmpty(imageUrl[0]))
                 {
-                    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
+                    dataLazada.imageUrl = imageUrl[0];
                 }
+                //if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_3))
+                //{
+                //    dataLazada.imageUrl3 = barangInDb.LINK_GAMBAR_3;
+                //}
+                //if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_2))
+                //{
+                //    dataLazada.imageUrl2 = barangInDb.LINK_GAMBAR_2;
+                //}
+                //if (!string.IsNullOrEmpty(barangInDb.LINK_GAMBAR_1))
+                //{
+                //    dataLazada.imageUrl = barangInDb.LINK_GAMBAR_1;
+                //}
                 var result = lzdApi.CreateProduct(dataLazada);
             }
             //    }
@@ -6061,6 +6061,10 @@ namespace MasterOnline.Controllers
                 var idMarket = Convert.ToInt32(cust.NAMA);
                 var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
                 var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                //add by nurul 29/11/2018 (modiv cetak faktur)
+                var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                //end add 
 
                 var vm = new FakturViewModel()
                 {
@@ -6070,7 +6074,11 @@ namespace MasterOnline.Controllers
                     Faktur = fakturInDb,
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                     ListBarang = ErasoftDbContext.STF02.ToList(),
-                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList()
+                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                    //add by nurul nurul 29/11/2018 (modiv cetak faktur)
+                    AlamatToko = alamat,
+                    TlpToko=tlp
+                    //end add 
                 };
 
                 return View(vm);
@@ -10317,6 +10325,7 @@ namespace MasterOnline.Controllers
             #endregion
             if (data != null)
             {
+                data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
                 if (data.Stf02 != null)
                 {
                     var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
@@ -10871,7 +10880,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        public ActionResult UploadItemByCust(string cust)
+        public ActionResult UploadItemByCust(string cust, string dataPerPage, int skipDataError)
         {
             var barangVm = new UploadBarangViewModel()
             {
@@ -10880,6 +10889,7 @@ namespace MasterOnline.Controllers
                 Stf02 = new STF02(),
                 TempBrg = new TEMP_BRG_MP(),
                 Errors = new List<string>(),
+                contRecursive = "0",
             };
             string username = "";
             List<string> listBrgSuccess = new List<string>();
@@ -10899,7 +10909,22 @@ namespace MasterOnline.Controllers
             var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(cust.ToUpper())).FirstOrDefault();
             if (customer != null)
             {
-                var dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                var dataBrg = new List<TEMP_BRG_MP>();
+                if (string.IsNullOrEmpty(dataPerPage))
+                {
+                    if(skipDataError > 0)
+                    {
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                    }
+                    else
+                    {
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                    }
+                }
+                else
+                {
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                }
                 if (dataBrg.Count > 0)
                 {
                     var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).FirstOrDefault();
@@ -11504,6 +11529,10 @@ namespace MasterOnline.Controllers
                     }
                     if (listBrgSuccess.Count > 0)
                     {
+                        if(Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
+                        {
+                            barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(dataPerPage) - listBrgSuccess.Count;
+                        }
                         foreach (var brg_mp in listBrgSuccess)
                         {
                             ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
@@ -11511,11 +11540,14 @@ namespace MasterOnline.Controllers
                         ErasoftDbContext.SaveChanges();
                     }
                     barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
-                    if (barangVm.Errors.Count == 0)
+                    barangVm.contRecursive = "1";
+                    //if (barangVm.Errors.Count == 0)
+                    //if(dataBrg.Count < Convert.ToInt32(dataPerPage))
+                    if (barangVm.Errors.Count == 0 && string.IsNullOrEmpty(dataPerPage))
                     {
                         return PartialView("TableUploadBarangPartial", barangVm);
                     }
-                    else
+                    //else
                     {
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
@@ -11822,11 +11854,70 @@ namespace MasterOnline.Controllers
             }
         }
 
-        //public async Task<string> testAja()
-        //{
-        //    await Task.Delay(15000);
-        //    return "test";
-        //}
+        public async Task<string> testAja(string page)
+        {
+            await Task.Delay(5000);
+            return (Convert.ToInt32(page) + 1).ToString();
+        }
+        public ActionResult GetTotalData(string cust)
+        {
+            var ret = new SimpleJsonObject();
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                if(listTempBrg != null)
+                {
+                    ret.Total = listTempBrg.Count();
+                }
+                else
+                {
+                    ret.Errors = "Gagal mengambil data.";
+                }
+            }
+            else
+            {
+                ret.Errors = "Anda belum memilih Akun.";
+            }
+
+            return Json(ret, JsonRequestBehavior.AllowGet);
+        }
+        #region test progress bar
+        delegate string ProcessTask(string id);
+        MyLongRunningClass longRunningClass = new MyLongRunningClass();
+
+        /// <summary>
+        /// Starts the long running process.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        public void StartLongRunningProcess(string id)
+        {
+            longRunningClass.Add(id);
+            ProcessTask processTask = new ProcessTask(longRunningClass.ProcessLongRunningAction);
+            processTask.BeginInvoke(id, new AsyncCallback(EndLongRunningProcess), processTask);
+        }
+
+        /// <summary>
+        /// Ends the long running process.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        public void EndLongRunningProcess(IAsyncResult result)
+        {
+            ProcessTask processTask = (ProcessTask)result.AsyncState;
+            string id = processTask.EndInvoke(result);
+            longRunningClass.Remove(id);
+        }
+
+        /// <summary>
+        /// Gets the current progress.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        public ContentResult GetCurrentProgress(string id)
+        {
+            this.ControllerContext.HttpContext.Response.AddHeader("cache-control", "no-cache");
+            var currentProgress = longRunningClass.GetStatus(id).ToString();
+            return Content(currentProgress);
+        }
+        #endregion
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {

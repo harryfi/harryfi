@@ -16,5 +16,14 @@ namespace MasterOnline.ViewModels
         public List<TEMP_BRG_MP> ListTempBrg { get; set; } = new List<TEMP_BRG_MP>();
         public TEMP_BRG_MP TempBrg { get; set; }
         public List<string> Errors { get; set; } = new List<string>();
+
+        public int failedRecord { get; set; }
+        public string contRecursive { get; set; }
+    }
+
+    public class SimpleJsonObject
+    {
+        public int Total { get; set; }
+        public string Errors { get; set; }
     }
 }
