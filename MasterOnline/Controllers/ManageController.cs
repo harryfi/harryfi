@@ -341,7 +341,7 @@ namespace MasterOnline.Controllers
             //    {
             //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
             //        {
-            //            var tokopediaApi = new TokopediaController();
+            //var tokopediaApi = new TokopediaController();
 
             //            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
             //            //{
@@ -351,18 +351,18 @@ namespace MasterOnline.Controllers
             //            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
             //            //    token = tblCustomer.TOKEN
             //            //};
-            //            TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-            //            {
-            //                merchant_code = "13072", //FSID
-            //                API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-            //                API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-            //                API_secret_key = "2619296", //Shop ID 
-            //                token = ""
-            //            };
+            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+            //{
+            //    merchant_code = "13072", //FSID
+            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //    API_secret_key = "2619296", //Shop ID 
+            //    token = "a9azcD8-R12AljUWpiTttw"
+            //};
 
             //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
-
+            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
+            //await tokopediaApi.GetCategoryTree(idenTest);
             //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
             //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
             //        }
@@ -5152,6 +5152,21 @@ namespace MasterOnline.Controllers
 
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 29 nov 2018
+            if (tipeStatus == "11") // cancel, update qoh
+            {
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+
+                List<string> listBrg = new List<string>();
+                foreach (var item in pesananDetailInDb)
+                {
+                    listBrg.Add(item.BRG);
+                }
+                updateStockMarketPlace(listBrg);
+            }
+            //end add by calvin 29 nov 2018
+
             //add by Tri, call marketplace api to update order status
             ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI);
             //end add by Tri, call marketplace api to update order status
