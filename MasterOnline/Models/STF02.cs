@@ -238,7 +238,7 @@ namespace MasterOnline
         public double BERAT { get; set; }
 
         public double HJUAL { get; set; }
-
+        
         [Required]
         public string Deskripsi { get; set; }
 

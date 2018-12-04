@@ -76,9 +76,10 @@
             font-weight: bold;
             padding-top: 20px;
             font-size: 24px;
-            height:59px;
+            height: 59px;
         }
-        .bold_title_invoice{
+
+        .bold_title_invoice {
             font-weight: bold;
             padding-top: 20px;
             font-size: 36px;
@@ -138,52 +139,84 @@
                                 <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
                             </div>
                         </div>
-                        @*<div class="row">
-                            <div class="col-md-6">
-                                <img src="@Url.Content(Model.LogoMarket)" width="250" />
-                                <img src="@Url.Content($"~/Content/Logo_Perusahaan/LogoUsaha-{username}-{Model.NamaPerusahaan}.jpg")" width="100" />
+                        //add by nurul 29/11/2018
+                        <div id="div_faktur">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table cellpadding="0">
+                                        <tr>
+                                            <td @*style="width:500px"*@>
+                                                <table class="table-hover">
+                                                    <tr>
+                                                        <td style="text-align:left; width:500px">
+                                                            <h1 class="bold_title_invoice">@Model.NamaToko</h1>
+                                                        </td>
+                                                        <td style="text-align:right; width:500px">
+                                                            <h1 class="bold_title_invoice" style="margin-right:10px">INVOICE</h1>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <span>@Model.AlamatToko</span>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <span>@Model.TlpToko</span>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
-                        </div>*@
-                        <div class="row">
-                            <div class="col-md-6" style="text-align:left">
-                                <h1 class="bold_title">@Model.NamaToko</h1>
-                            </div>
-                            <div class="col-md-6" style="text-align:right">
-                                <h1 class="bold_title_invoice">INVOICE</h1>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6" style="text-align:left">
-                            </div>
-                            <div class="col-md-3" style="background-color:lightskyblue;text-align:center">
-                                <span class="block_subtitle" style="color:white">INVOICE #</span>
-                            </div>
-                            <div class="col-md-3" style="background-color:lightskyblue;text-align:center">
-                                <span class="block_subtitle" style="color:white">DATE</span>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6" style="text-align:left">
-                            </div>
-                            <div class="col-md-3" style="text-align:center">
-                                <span class="block_subtitle" >@(Model.Faktur.NO_BUKTI)</span>
-                            </div>
-                            <div class="col-md-3" style="text-align:center">
-                                <span class="block_subtitle">@(Model.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
-                            </div>
-                        </div>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Pembeli</span> @pembeli.NAMA
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Nomor</span> @(Model.Faktur.NO_BUKTI)
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
-                        </p>
-                        <hr />
-                        <table class="table">
-                            <thead>
+                            <br />
+                            <table>
+                                <tr>
+                                    <td>
+                                        <table class="table-hover">
+                                            <tr>
+                                                <td style="text-align:left; background-color:lightskyblue; width:500px">
+                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline; margin-left:10px">BILL TO</span>
+                                                </td>
+                                                <td style="text-align:center; width:50px"></td>
+                                                <td style="width:250px; background-color:lightskyblue; text-align:center">
+                                                    <span class="block_subtitle" style="color:white;  font-size:16px; text-decoration-line:underline">INVOICE #</span>
+                                                </td>
+                                                <td style="width:250px; background-color:lightskyblue ; text-align:center">
+                                                    <span class="block_subtitle" style="color:white; font-size:16px; text-decoration-line:underline">DATE</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="width:500px">
+                                                    <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @pembeli.NAMA
+                                                </td>
+                                                <td style="text-align:center; width:50px"></td>
+                                                <td style="width:250px; text-align:center">
+                                                    <span class="block_subtitle">@(Model.Faktur.NO_BUKTI)</span>
+                                                </td>
+                                                <td style="width:250px; text-align:center">
+                                                    <span class="block_subtitle">@(Model.Faktur.TGL.ToString("dd/MM/yyyy"))</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <span class="block_subtitle" style="margin-left:10px">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                            <br /><br />
+                            <table class="table">
+                                @*<thead>*@
                                 <tr>
                                     <th>Nama Produk</th>
                                     <th style="text-align: right;">Jumlah Barang</th>
@@ -191,79 +224,84 @@
                                     <th style="text-align: right;">Diskon</th>
                                     <th style="text-align: right;">Subtotal</th>
                                 </tr>
-                            </thead>
-                            <tbody id="barang-faktur">
-                                @foreach (var fakturDetail in Model.ListFakturDetail)
-                                {
-                                    var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
-                                    var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
-                                    var discTotal = fakturDetail.NILAI_DISC ?? 0;
-                                    var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
-                                    var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                @*</thead>*@
+                                <tbody id="barang-faktur">
+                                    @foreach (var fakturDetail in Model.ListFakturDetail)
+                                    {
+                                        var namaBarang1 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA;
+                                        var namaBarang2 = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.NAMA2;
+                                        var discTotal = fakturDetail.NILAI_DISC ?? 0;
+                                        var merk = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.Sort2;
+                                        var satuan = Model?.ListBarang?.SingleOrDefault(b => b.BRG == fakturDetail.BRG)?.STN2;
+                                        <tr>
+                                            <td>
+                                                @namaBarang1
+                                                @if (!String.IsNullOrWhiteSpace(namaBarang2))
+                                                {
+                                                    @namaBarang2
+                                                }
+                                            </td>
+                                            <td style="text-align: right;">
+                                                @fakturDetail.QTY @satuan
+                                            </td>
+                                            <td style="text-align: right;">
+                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
+                                            </td>
+                                            <td style="text-align: right;">
+                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
+                                            </td>
+                                            <td style="text-align: right;">
+                                                @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <hr />
+                            <table class="table-hover" id="rincian_faktur">
+                                <thead>
                                     <tr>
-                                        <td>
-                                            @namaBarang1
-                                            @if (!String.IsNullOrWhiteSpace(namaBarang2))
-                                            {
-                                                @namaBarang2
-                                            }
-                                        </td>
-                                        <td style="text-align: right;">
-                                            @fakturDetail.QTY @satuan
-                                        </td>
-                                        <td style="text-align: right;">
-                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.H_SATUAN)
-                                        </td>
-                                        <td style="text-align: right;">
-                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", discTotal)
-                                        </td>
-                                        <td style="text-align: right;">
-                                            @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", fakturDetail.HARGA)
-                                        </td>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Subtotal</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.BRUTO)</td>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
-                        <table class="table" id="rincian_faktur">
-                            <thead>
-                                <tr>
-                                    <th style="width: 160px;">Subtotal</th>
-                                    <th style="width: 150px;"></th>
-                                    <th style="width: 70px;"></th>
-                                    <th style="width: 140px;"></th>
-                                    <th style="width: 109px; text-align: right;">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.BRUTO)</th>
-                                </tr>
-                                <tr>
-                                    <th style="width: 160px;">Nilai Diskon</th>
-                                    <th style="width: 150px;"></th>
-                                    <th style="width: 70px;"></th>
-                                    <th style="width: 140px;"></th>
-                                    <th style="width: 109px; text-align: right;">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", Model?.Faktur?.NILAI_DISC)</th>
-                                </tr>
-                                <tr>
-                                    <th style="width: 160px;">Nilai PPN (@(Model?.Faktur?.PPN)%)</th>
-                                    <th style="width: 150px;"></th>
-                                    <th style="width: 70px;"></th>
-                                    <th style="width: 140px;"></th>
-                                    <th style="width: 109px; text-align: right;">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.NILAI_PPN)</th>
-                                </tr>
-                                <tr>
-                                    <th style="width: 160px;">Ongkos Kirim</th>
-                                    <th style="width: 150px;"></th>
-                                    <th style="width: 70px;"></th>
-                                    <th style="width: 140px;"></th>
-                                    <th style="width: 109px; text-align: right;">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.MATERAI)</th>
-                                </tr>
-                                <tr>
-                                    <th style="width: 160px;">Total</th>
-                                    <th style="width: 150px;"></th>
-                                    <th style="width: 70px;"></th>
-                                    <th style="width: 140px;"></th>
-                                    <th style="width: 109px; text-align: right;">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NETTO)</th>
-                                </tr>
-                            </thead>
-                        </table>
-                        <div class="row">
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Nilai Diskon</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "- {0:N}", Model?.Faktur?.NILAI_DISC)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; ">Nilai PPN (@(Model?.Faktur?.PPN)%)</td>
+                                        <td style="width: 100px; "></td>
+                                        <td style="width: 109px; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.NILAI_PPN)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; border-bottom:groove;">Ongkos Kirim</td>
+                                        <td style="width: 100px; border-bottom:groove;"></td>
+                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "+ {0:N}", Model?.Faktur?.MATERAI)</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 160px; "></td>
+                                        <td style="width: 160px;"></td>
+                                        <td style="width: 100px; border-bottom:groove;">TOTAL</td>
+                                        <td style="width: 100px; border-bottom:groove;"></td>
+                                        <td style="width: 109px; border-bottom:groove; text-align: right; ">Rp. @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Faktur?.NETTO)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <br /><br />
+                        <div id="div_gunting" class="row">
                             <div class="col-md-1">
                                 <span style="font-size: 20px">&#9986;</span>
                             </div>
@@ -271,22 +309,40 @@
                                 <hr id="garis_potong" />
                             </div>
                         </div>
-                        <h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Penjual</span> @Model.NamaToko
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
-                        </p>
-                        <p class="sub_title">
-                            <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
-                        </p>
+                        <div id="div_label_pengiriman">
+                            <h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2>
+                            @* change by nurul 30/11/2018 -- rubah susunan -- <p class="sub_title">
+                    <span class="block_subtitle">Penjual</span> @Model.NamaToko
+                </p>*@
+                            @*<p class="sub_title">
+                    //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
+                    <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                </p>*@
+                            @*<p class="sub_title">
+                    <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+                </p>
+                <p class="sub_title">
+                    <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
+                </p>
+                <p class="sub_title">
+                    <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
+                </p>*@
+                            <p class="sub_title">
+                                <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+                            </p>
+                            <p class="sub_title">
+                                <span class="block_subtitle">Tanggal</span> @(Model.Faktur.TGL)
+                            </p>
+                            <p class="sub_title">
+                                <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                            </p>
+                            <p class="sub_title">
+                                <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
+                            </p>
+                            <p class="sub_title">
+                                <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
+                            </p>
+                        </div>
                     }
                 </div>
             </div>
@@ -302,6 +358,18 @@
 
             window.onafterprint = function () {
                 $('#print-btn').show();
+            }
+            //add by nurul 30/11/2018
+            var url = window.location.search.split('&')[1]; // tidak pakai label
+            if (url == "faktur=1") {
+                $('#div_faktur').show()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').hide()
+            }
+            if (url == "label=1") { // tidak pakai faktur
+                $('#div_faktur').hide()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').show()
             }
         });
     </script>
