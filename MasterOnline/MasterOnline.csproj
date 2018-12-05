@@ -921,6 +921,7 @@
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
     <Compile Include="Models\QOH_PER_GD.cs" />
+    <Compile Include="Models\TEMP_TOKPED_ORDERS.cs" />
     <Compile Include="Models\TEMP_ALL_MP_ORDER_ITEM.cs" />
     <Compile Include="Models\Subscription.cs" />
     <Compile Include="Models\TEMP_BRG_MP.cs" />

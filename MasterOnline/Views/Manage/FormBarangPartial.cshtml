@@ -9,7 +9,10 @@
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
-        context.Dispose();
+
+        //remark by calvin 3 desember 2018
+        //context.Dispose();
+        //end remark by calvin 3 desember 2018
     }
     else
     {

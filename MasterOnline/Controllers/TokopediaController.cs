@@ -53,6 +53,87 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+        public async Task<string> PostAckOrder(TokopediaAPIData iden, string ordNo)
+        {
+            string ret = "";
+            string urll = "https://fs.tokopedia.net//v1/order/" + Uri.EscapeDataString(ordNo) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/ack";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Accept Order",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
+                REQUEST_STATUS = "Pending",
+            };
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            AckOrder newData = new AckOrder();
+            var detailSO = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == ordNo).ToList();
+            foreach (var item in detailSO)
+            {
+                AckOrder_Product product = new AckOrder_Product
+                {
+                    product_id = item.BRG,
+                    quantity_deliver = item.QTY,
+                    quantity_reject = 0
+                };
+                newData.products.Add(product);
+            }
+            string myData = JsonConvert.SerializeObject(newData);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (responseFromServer != null)
+            {
+                TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                //if (string.IsNullOrEmpty(result.errorCode.Value))
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //    if (result.content.Count > 0)
+                //    {
+                //        foreach (var item in result.content)
+                //        {
+                //            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    currentLog.REQUEST_RESULT = result.errorCode.Value;
+                //    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return ret;
+        }
         public async Task<string> GetOrderList(TokopediaAPIData iden, StatusOrder stat, string connId, string CUST, string NAMA_CUST)
         {
             //if merchant code diisi. barulah GetOrderList
@@ -75,7 +156,7 @@ namespace MasterOnline.Controllers
                     break;
                 case StatusOrder.Paid:
                     //paid
-                    status = "220";
+                    status = "200";
                     break;
                 //case StatusOrder.PackagingINP:
                 //    status = "500";
@@ -94,7 +175,7 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
-            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Uri.EscapeDataString(Convert.ToString(unixTimestampFrom)) + "&to_date=" + Uri.EscapeDataString(Convert.ToString(unixTimestampTo)) + "&page=1&per_page=1&status=" + status + "";
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=1&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -111,8 +192,8 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
             //myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
             //myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
-            //myReq.Accept = "application/json";
-            //myReq.ContentType = "application/json";
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
             //myReq.Headers.Add("requestId", milis.ToString());
             //myReq.Headers.Add("sessionId", milis.ToString());
             //myReq.Headers.Add("username", userMTA);
@@ -130,12 +211,91 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
-            if (responseFromServer != null)
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
-                TokopediaOrder result = (TokopediaOrder)Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                //var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
+                //var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
+                //List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+                //foreach (var order in orderPaid)
+                //{
+                //    if (orderTokpedInDb.Where(p => Convert.ToInt32(p.order_id) == order.order_id).Count() == 0)
+                //    {
+                //        //belum ada di temp
+                //        foreach (var product in order.products)
+                //        {
+                //            TEMP_TOKPED_ORDERS newOrder = new TEMP_TOKPED_ORDERS()
+                //            {
+                //                fs_id = order.fs_id,
+                //                order_id = Convert.ToString(order.order_id),
+                //                accept_partial = order.accept_partial,
+                //                invoice_ref_num = order.invoice_ref_num,
+                //                product_id = product.id,
+                //                product_name = product.name,
+                //                product_quantity = product.quantity,
+                //                product_notes = product.notes,
+                //                product_weight = product.weight,
+                //                product_total_weight = product.total_weight,
+                //                product_price = product.price,
+                //                product_total_price = product.total_price,
+                //                product_currency = product.currency,
+                //                product_sku = product.sku,
+                //                products_fulfilled_product_id = 0,
+                //                products_fulfilled_quantity_deliver = 0,
+                //                products_fulfilled_quantity_reject = 0,
+                //                device_type = order.device_type,
+                //                buyer_id = order.buyer.id,
+                //                buyer_name = order.buyer.name,
+                //                buyer_email = order.buyer.email,
+                //                buyer_phone = order.buyer.phone,
+                //                shop_id = order.shop_id,
+                //                payment_id = order.payment_id,
+                //                recipient_name = order.recipient.name,
+                //                recipient_address_address_full = order.recipient.address.address_full,
+                //                recipient_address_district = order.recipient.address.district,
+                //                recipient_address_district_id = order.recipient.address.district_id,
+                //                recipient_address_city = order.recipient.address.city,
+                //                recipient_address_city_id = order.recipient.address.city_id,
+                //                recipient_address_province = order.recipient.address.province,
+                //                recipient_address_province_id = order.recipient.address.province_id,
+                //                recipient_address_country = order.recipient.address.country,
+                //                recipient_address_geo = order.recipient.address.geo,
+                //                recipient_address_postal_code = order.recipient.address.postal_code,
+                //                recipient_phone = order.recipient.phone,
+                //                logistics_shipping_id = order.logistics.shipping_id,
+                //                logistics_shipping_agency = order.logistics.shipping_agency,
+                //                logistics_service_type = order.logistics.service_type,
+                //                amt_ttl_product_price = order.amt.ttl_product_price,
+                //                amt_shipping_cost = order.amt.shipping_cost,
+                //                amt_insurance_cost = order.amt.insurance_cost,
+                //                amt_ttl_amount = order.amt.ttl_amount,
+                //                amt_voucher_amount = order.amt.voucher_amount,
+                //                amt_toppoints_amount = order.amt.toppoints_amount,
+                //                dropshipper_info_name = order.dropshipper_info.name,
+                //                dropshipper_info_phone = order.dropshipper_info.phone,
+                //                voucher_info_voucher_code = order.voucher_info.voucher_code,
+                //                voucher_info_voucher_type = order.voucher_info.voucher_type,
+                //                order_status = order.order_status,
+                //                create_time = order.create_time,
+                //                custom_fields_awb = order.custom_fields.awb,
+                //            };
+                //            var product_fulfilled = order.products_fulfilled.SingleOrDefault(p => p.product_id == product.id);
+                //            if (product_fulfilled != null)
+                //            {
+                //                newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
+                //                newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
+                //                newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
+                //            }
+                //            ListNewOrders.Add(newOrder);
+                //        }
+                //    }
+                //}
+                //ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
                 //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -167,7 +327,11 @@ namespace MasterOnline.Controllers
             string apiId = "36bc3d7bcc13404c9e670a84f0c61676:8a76adc52d144a9fa1ef4f96b59b7419";
             //apiId = "mta-api-sandbox:sandbox-secret-key";
             //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+
+
             string urll = "https://accounts.tokopedia.com/token";
+            //string urll = "https://accounts-staging.tokopedia.com";
+
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
             myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
@@ -227,7 +391,129 @@ namespace MasterOnline.Controllers
             //}
             return ret;
         }
+        //categoryAPIResult
 
+        public async Task<string> GetCategoryTree(TokopediaAPIData data)
+        {
+            //HASIL MEETING : SIMPAN CATEGORY DAN ATTRIBUTE NYA KE DATABASE MO
+            //INSERT JIKA CATEGORY_CODE UTAMA BELUM ADA DI MO
+            string ret = "";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/product/category";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(categoryAPIResult)) as categoryAPIResult;
+                if (string.IsNullOrEmpty(result.header.reason))
+                {
+                    if (result.data.categories.Count() > 0)
+                    {
+#if AWS
+                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+
+                        using (SqlConnection oConnection = new SqlConnection(con))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                //oCommand.ExecuteNonQuery();
+                                //oCommand.Transaction = oTransaction;
+                                oCommand.CommandType = CommandType.Text;
+                                oCommand.CommandText = "INSERT INTO [CATEGORY_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+
+                                try
+                                {
+                                    //oCommand.Parameters[0].Value = data.merchant_code;
+                                    foreach (var item in result.data.categories) //foreach parent level top
+                                    {
+                                        oCommand.Parameters[0].Value = item.id;
+                                        oCommand.Parameters[1].Value = item.name;
+                                        oCommand.Parameters[2].Value = "";
+                                        oCommand.Parameters[3].Value = item.child.Count() == 0 ? "1" : "0";
+                                        oCommand.Parameters[4].Value = "";
+                                        if (oCommand.ExecuteNonQuery() == 1)
+                                        {
+                                            if (item.child.Count() > 0)
+                                            {
+                                                RecursiveInsertCategory(oCommand, item.child, item.id, item.id, data);
+                                            }
+                                            //throw new InvalidProgramException();
+                                        }
+                                    }
+                                    //oTransaction.Commit();
+                                }
+                                catch (Exception ex)
+                                {
+                                    //oTransaction.Rollback();
+                                }
+                            }
+                            //}
+                        }
+                        //await GetAttributeList(data);
+                    }
+                }
+            }
+
+            return ret;
+        }
+        protected void RecursiveInsertCategory(SqlCommand oCommand, CategoryChild[] item_children, string parent, string master_category_code, TokopediaAPIData data)
+        {
+            foreach (var child in item_children)
+            {
+                oCommand.Parameters[0].Value = child.id;
+                oCommand.Parameters[1].Value = child.name;
+                oCommand.Parameters[2].Value = parent;
+                oCommand.Parameters[3].Value = child.child.Count() == 0 ? "1" : "0";
+                oCommand.Parameters[4].Value = master_category_code;
+
+                if (oCommand.ExecuteNonQuery() == 1)
+                {
+                    if (child.child.Count() > 0)
+                    {
+                        RecursiveInsertCategory(oCommand, child.child, child.id, master_category_code, data);
+                    }
+                }
+            }
+        }
         public enum StatusOrder
         {
             Cancel = 1,
@@ -374,11 +660,12 @@ namespace MasterOnline.Controllers
         }
 
 
-        public class TokopediaOrder
+
+        public class TokopediaOrders
         {
             public Jsonapi jsonapi { get; set; }
             public object meta { get; set; }
-            public Orders[] orders { get; set; }
+            public TokopediaOrder[] data { get; set; }
             public Links links { get; set; }
         }
 
@@ -397,25 +684,25 @@ namespace MasterOnline.Controllers
             public string next { get; set; }
         }
 
-        public class Orders
+        public class TokopediaOrder
         {
-            public int fs_id { get; set; }
+            public string fs_id { get; set; }
             public int order_id { get; set; }
             public bool accept_partial { get; set; }
             public string invoice_ref_num { get; set; }
             public Product[] products { get; set; }
+            public Products_Fulfilled[] products_fulfilled { get; set; }
+            public string device_type { get; set; }
             public Buyer buyer { get; set; }
-            public Recipient recipient { get; set; }
             public int shop_id { get; set; }
-            public string shop_name { get; set; }
             public int payment_id { get; set; }
+            public Recipient recipient { get; set; }
             public Logistics logistics { get; set; }
             public Amt amt { get; set; }
             public Dropshipper_Info dropshipper_info { get; set; }
             public Voucher_Info voucher_info { get; set; }
-            public string device_type { get; set; }
             public int order_status { get; set; }
-            public string create_time { get; set; }
+            public int create_time { get; set; }
             public Custom_Fields custom_fields { get; set; }
         }
 
@@ -442,6 +729,10 @@ namespace MasterOnline.Controllers
             public string province { get; set; }
             public string country { get; set; }
             public string postal_code { get; set; }
+            public int district_id { get; set; }
+            public int city_id { get; set; }
+            public int province_id { get; set; }
+            public string geo { get; set; }
         }
 
         public class Logistics
@@ -469,12 +760,13 @@ namespace MasterOnline.Controllers
 
         public class Voucher_Info
         {
-            public int voucher_type { get; set; }
+            public long voucher_type { get; set; }
             public string voucher_code { get; set; }
         }
 
         public class Custom_Fields
         {
+            public string awb { get; set; }
         }
 
         public class Product
@@ -488,6 +780,61 @@ namespace MasterOnline.Controllers
             public int price { get; set; }
             public int total_price { get; set; }
             public string currency { get; set; }
+            public string sku { get; set; }
+        }
+
+        public class Products_Fulfilled
+        {
+            public int product_id { get; set; }
+            public int quantity_deliver { get; set; }
+            public int quantity_reject { get; set; }
+        }
+
+
+        public class AckOrder
+        {
+            public List<AckOrder_Product> products { get; set; }
+        }
+
+        public class AckOrder_Product
+        {
+            public string product_id { get; set; }
+            public double quantity_deliver { get; set; }
+            public double quantity_reject { get; set; }
+        }
+
+
+        public class categoryAPIResult
+        {
+            public categoryAPIResultHeader header { get; set; }
+            public categoryAPIResultData data { get; set; }
+        }
+
+        public class categoryAPIResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class categoryAPIResultData
+        {
+            public Category[] categories { get; set; }
+        }
+
+        public class Category
+        {
+            public string name { get; set; }
+            public string id { get; set; }
+            public CategoryChild[] child { get; set; }
+        }
+
+        public class CategoryChild
+        {
+            public string name { get; set; }
+            public string id { get; set; }
+            public CategoryChild[] child { get; set; }
         }
 
     }

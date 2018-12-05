@@ -1510,8 +1510,8 @@
                     </div>
                     <div class="col-md-3" style="padding-bottom:10px">
                         <label class="checkbox-container">
-                            <input type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                            <span class="checkmark"></span>
+                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                            <span id="ctk_faktur" class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-md-5" style="padding-top: 7px;">
@@ -1525,8 +1525,8 @@
                     </div>
                     <div class="col-md-3" style="padding-bottom:10px">
                         <label class="checkbox-container">
-                            <input type="checkbox" class="cbx" name="cbx-print-label-only" />
-                            <span class="checkmark"></span>
+                            <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                            <span id="ctk_label" class="checkmark"></span>
                         </label>
                     </div>
                     <div class="col-md-5" style="padding-top: 7px;">
@@ -3880,8 +3880,18 @@
             $('#btn-print-faktur').off('click').on('click', function() {
                 var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', nobuk);
-
-                var win = window.open(link, '_blank');
+                //change by nurul 30/11/2018
+                //var win = window.open(link, '_blank');
+                var $faktur = '&faktur=1';
+                var $label = '&label=1';
+                if ($("#ctk_faktur").is(":checked") == true && $("#ctk_label").is(":checked") == false) {
+                    var win = window.open(link += $faktur, '_blank');
+                } else if ($("#ctk_label").is(":checked") == true && $("#ctk_faktur").is(":checked") == false) {
+                    var win = window.open(link += $label, '_blank');
+                } else {
+                    var win = window.open(link, '_blank');
+                }
+                //end add 
                 if (win) {
                     win.focus();
                 } else {
