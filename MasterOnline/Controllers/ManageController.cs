@@ -5990,18 +5990,17 @@ namespace MasterOnline.Controllers
         public ActionResult SaveGudangQty(int? recNum, string gd, int qty)
         {
             var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
-            barangPesananInDb.LOKASI = gd;
 
             //add by calvin, 22 juni 2018 validasi QOH
             var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
 
-            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0) - qty < 0)
+            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == gd ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
             {
                 var vmError = new StokViewModel()
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
+                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
@@ -6009,6 +6008,7 @@ namespace MasterOnline.Controllers
 
             //change by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
             //barangPesananInDb.QTY = qty;
+            barangPesananInDb.LOKASI = gd;
             barangPesananInDb.QTY_N = qty;
 
 
@@ -6103,7 +6103,8 @@ namespace MasterOnline.Controllers
                     };
 
                     return View(vm);
-                }else
+                }
+                else
                 {
                     var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
                     var namaToko = "";
@@ -8159,16 +8160,31 @@ namespace MasterOnline.Controllers
                     {
                         var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
                         string[] imgID = new string[3];
+                        //change by calvin 4 desember 2018
+                        //                        for (int i = 0; i < 3; i++)
+                        //                        {
+                        //#if AWS
+                        //                            imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                        //#else
+                        //                            imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                        //#endif
+                        //                        }
                         for (int i = 0; i < 3; i++)
                         {
-                            //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                            imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                            imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                            //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                            switch (i)
+                            {
+                                case 0:
+                                    imgID[0] = barangInDb.LINK_GAMBAR_1;
+                                    break;
+                                case 1:
+                                    imgID[1] = barangInDb.LINK_GAMBAR_2;
+                                    break;
+                                case 2:
+                                    imgID[2] = barangInDb.LINK_GAMBAR_3;
+                                    break;
+                            }
                         }
+                        //end change by calvin 4 desember 2018
 
                         EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                         {
@@ -10311,26 +10327,31 @@ namespace MasterOnline.Controllers
             else if (customer.NAMA.Equals(kdElevenia))
             {
                 string[] imgID = new string[3];
-                //if (Request.Files.Count > 0)
-                //{
+                //change by calvin 4 desember 2018
+                //                for (int i = 0; i < 3; i++)
+                //                {
+                //#if AWS
+                //                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                //#else
+                //                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                //#endif
+                //                }
                 for (int i = 0; i < 3; i++)
                 {
-                    //var file = Request.Files[i];
-
-                    //if (file != null && file.ContentLength > 0)
-                    //{
-                    //    var fileExtension = Path.GetExtension(file.FileName);
-
-                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-#else
-                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-#endif
-                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
-
-                    //}
+                    switch (i)
+                    {
+                        case 0:
+                            imgID[0] = brg.LINK_GAMBAR_1;
+                            break;
+                        case 1:
+                            imgID[1] = brg.LINK_GAMBAR_2;
+                            break;
+                        case 2:
+                            imgID[2] = brg.LINK_GAMBAR_3;
+                            break;
+                    }
                 }
+                //end change by calvin 4 desember 2018
                 EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                 {
                     api_key = customer.API_KEY,
@@ -11085,7 +11106,7 @@ namespace MasterOnline.Controllers
                 var dataBrg = new List<TEMP_BRG_MP>();
                 if (string.IsNullOrEmpty(dataPerPage))
                 {
-                    if(skipDataError > 0)
+                    if (skipDataError > 0)
                     {
                         dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
@@ -11702,7 +11723,7 @@ namespace MasterOnline.Controllers
                     }
                     if (listBrgSuccess.Count > 0)
                     {
-                        if(Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
+                        if (Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
                         {
                             barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(dataPerPage) - listBrgSuccess.Count;
                         }
@@ -12038,7 +12059,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(cust))
             {
                 var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                if(listTempBrg != null)
+                if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();
                 }
