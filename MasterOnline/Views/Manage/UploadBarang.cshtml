@@ -212,7 +212,7 @@
                                 </td>
                                 <td>
                                     <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                        <button class="btn btn-default" id="btnPromptCust" type="button" style="height: 34px;" onclick="PromptCustomer();">
                                             <span class="glyphicon glyphicon-option-horizontal"></span>
                                         </button>
                                     </span>
@@ -309,6 +309,19 @@
                                 </tr>
                             </table>
                         </div>
+                        @*<div id="upload_excel" class="row">
+                            <div class="col-md-4 file_upload_section">
+                                <input type='file' id='file_upload_brg' name="file_upload_brg" onchange="checkfile(this);"
+                                       accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" class="btn btn-primary" onclick="uploadfilebrg();" data-style="expand-right">
+                                    <span>Upload</span>
+                                </button>
+                            </div>
+                            <div class="col-md-4">
+                            </div>
+                        </div>*@
                     </div>
                 </div>
             </div>
@@ -328,7 +341,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda ingin sikronisasi semua barang dari Akun ini?</h4>
+                    <h4>Apakah Anda ingin mengupdate semua data barang dari Akun ini ke Master Online?</h4>
                 </div>
                 <div class="row text-center">
                     <div class="col-md-3 col-sm-3 col-xs-12"></div>
@@ -372,7 +385,7 @@
             <label id="txtMessage"></label>
         </div>
         <div>
-            <button type="button" id="btnSelesai" class="btn btn-success" onclick="refreshTableBarangUpload();">Selesai</button>
+            <button type="button" id="btnSelesai" class="btn btn-success" onclick="selesaiProgressBar();">Selesai</button>
         </div>
     </div>
 </div>
@@ -390,6 +403,151 @@
             table.search($(this).val()).draw();
         });
 
+        @*function checkfile(s) {
+            var validExts = new Array(".xlsx", ".xls");
+            var fileExt = s.value;
+            if (fileExt != null && fileExt != "") {
+                fileExt = fileExt.substring(fileExt.lastIndexOf('.'));
+                if (validExts.indexOf(fileExt) < 0) {
+                    alert("Invalid file selected, valid files are of " +
+                        validExts.toString() + " types.");
+                    document.getElementById("file_upload_brg").value = "";
+
+                    return false;
+                }
+            }
+        }
+
+        function uploadfilebrg(){
+            //if ($('#CUSTOMER_UPLOAD_FAKTUR_CUST').val() == "") {
+            //    alert('Harap pilih akun terlebih dahulu.');
+            //}
+            //else
+            if ($('#file_upload_brg')[0].files.length < 1) {
+                $('#file_upload_brg').click();
+            }
+            else {
+                var marketName = $('#txtCustomer2').val().split('(');
+                    var files = $('#file_upload_brg')[0].files;
+                var i,f;
+                for (i = 0, f = files[i]; i != files.length; ++i) {
+                    var reader = new FileReader();
+                    var name = f.name;
+                    reader.onload = function(e) {
+                        var data = e.target.result;
+                        //var cust = $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val();
+                        var workbook = XLSX.read(data, {type: 'binary'});
+
+                        var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        var jsondata = '';
+                        var link = '';
+                        //if ($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '15') {
+                        if (marketName[0].toUpperCase() == 'SHOPEE') {
+                            var range = XLSX.utils.decode_range(worksheet['!ref']);
+                            range.s.r = 3; // <-- zero-indexed, so setting to 4 will skip row 0,1,2,4
+                            worksheet['!ref'] = XLSX.utils.encode_range(range);
+
+                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
+                                ["KodeProduk","NoIndukSKU","NamaProduk","Berat","Stok","DiKirimDalam", "KodeVar1", "SkuVar1", "NamaVar1", "HargaVar1", "StokVar1",
+                                    "KodeVar2", "SkuVar2", "NamaVar2", "HargaVar2", "StokVar2", "KodeVar3", "SkuVar3", "NamaVar3", "HargaVar3", "StokVar3",
+                                    "KodeVar4", "SkuVar4", "NamaVar4", "HargaVar4", "StokVar4", "KodeVar5", "SkuVar5", "NamaVar5", "HargaVar5", "StokVar5",
+                                    "KodeVar6", "SkuVar6", "NamaVar6", "HargaVar6", "StokVar6", "KodeVar7", "SkuVar7", "NamaVar7", "HargaVar7", "StokVar7",
+                                    "KodeVar8", "SkuVar8", "NamaVar8", "HargaVar8", "StokVar8", "KodeVar9", "SkuVar9", "NamaVar9", "HargaVar9", "StokVar9",
+                                    "KodeVar10", "SkuVar10", "NamaVar10", "HargaVar10", "StokVar10", "KodeVar11", "SkuVar11", "NamaVar11", "HargaVar11", "StokVar11",
+                                    "KodeVar12", "SkuVar12", "NamaVar12", "HargaVar12", "StokVar12", "KodeVar13", "SkuVar13", "NamaVar13", "HargaVar13", "StokVar13",
+                                    "KodeVar14", "SkuVar14", "NamaVar14", "HargaVar14", "StokVar14", "KodeVar15", "SkuVar15", "NamaVar15", "HargaVar15", "StokVar15",
+                                    "KodeVar16", "SkuVar16", "NamaVar16", "HargaVar16", "StokVar16", "KodeVar17", "SkuVar17", "NamaVar17", "HargaVar17", "StokVar17",
+                                    "KodeVar18", "SkuVar18", "NamaVar18", "HargaVar18", "StokVar18", "KodeVar19", "SkuVar19", "NamaVar19", "HargaVar19", "StokVar19",
+                                    "KodeVar20", "SkuVar20", "NamaVar20", "HargaVar20", "StokVar20", "KodeVar21", "SkuVar21", "NamaVar21", "HargaVar21", "StokVar21",
+                                    "KodeVar22", "SkuVar22", "NamaVar22", "HargaVar22", "StokVar22", "KodeVar23", "SkuVar23", "NamaVar23", "HargaVar23", "StokVar23",
+                                    "KodeVar24", "SkuVar24", "NamaVar24", "HargaVar24", "StokVar24", "KodeVar25", "SkuVar25", "NamaVar25", "HargaVar25", "StokVar25",
+                                    "KodeVar26", "SkuVar26", "NamaVar26", "HargaVar26", "StokVar26", "KodeVar27", "SkuVar27", "NamaVar27", "HargaVar27", "StokVar27",
+                                    "KodeVar28", "SkuVar28", "NamaVar28", "HargaVar28", "StokVar28", "KodeVar29", "SkuVar29", "NamaVar29", "HargaVar29", "StokVar29",
+                                    "KodeVar30", "SkuVar30", "NamaVar30", "HargaVar30", "StokVar30", "KodeVar31", "SkuVar31", "NamaVar31", "HargaVar31", "StokVar31",
+                                    "KodeVar32", "SkuVar32", "NamaVar32", "HargaVar32", "StokVar32", "KodeVar33", "SkuVar33", "NamaVar33", "HargaVar33", "StokVar33",
+                                    "KodeVar34", "SkuVar34", "NamaVar34", "HargaVar34", "StokVar34", "KodeVar35", "SkuVar35", "NamaVar35", "HargaVar35", "StokVar35",
+                                    "KodeVar36", "SkuVar36", "NamaVar36", "HargaVar36", "StokVar36", "KodeVar37", "SkuVar37", "NamaVar37", "HargaVar37", "StokVar37",
+                                    "KodeVar38", "SkuVar38", "NamaVar38", "HargaVar38", "StokVar38", "KodeVar39", "SkuVar39", "NamaVar39", "HargaVar39", "StokVar39",
+                                    "KodeVar40", "SkuVar40", "NamaVar40", "HargaVar40", "StokVar40", "KodeVar41", "SkuVar41", "NamaVar41", "HargaVar41", "StokVar41",
+                                    "KodeVar42", "SkuVar42", "NamaVar42", "HargaVar42", "StokVar42", "KodeVar43", "SkuVar43", "NamaVar43", "HargaVar43", "StokVar43",
+                                    "KodeVar44", "SkuVar44", "NamaVar44", "HargaVar44", "StokVar44", "KodeVar45", "SkuVar45", "NamaVar45", "HargaVar45", "StokVar45",
+                                    "KodeVar46", "SkuVar46", "NamaVar46", "HargaVar46", "StokVar46", "KodeVar47", "SkuVar47", "NamaVar47", "HargaVar47", "StokVar47",
+                                    "KodeVar48", "SkuVar48", "NamaVar48", "HargaVar48", "StokVar48", "KodeVar49", "SkuVar49", "NamaVar49", "HargaVar49", "StokVar49",
+                                    "KodeVar50", "SkuVar50", "NamaVar50", "HargaVar50", "StokVar50"
+                                ],
+                                raw:true});
+
+                            link = '@Url.Action("UploadFakturTokped", "Manage")';
+                        }
+                        //else if($('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val() == '17') {
+                        if (marketName[0].toUpperCase() == 'TOKOPEDIA') {
+                            var range = XLSX.utils.decode_range(worksheet['!ref']);
+                            range.s.r = 1; // <-- zero-indexed, so setting to 3 will skip row 0,1,2
+                            worksheet['!ref'] = XLSX.utils.encode_range(range);
+
+                            jsondata = XLSX.utils.sheet_to_json(worksheet,{defval:"",header:
+                                ["NoPesanan","StatusPesanan","StatusPembatalanPengembalian","NoResi","OpsiPengiriman",
+                                "Antarkecounterpickup","PesananHarusDikirimkanSebelumMenghindariketerlambatan","WaktuPengirimanDiatur","WaktuPesananDibuat","WaktuPembayaranDilakukan",
+                                "SKUInduk","NamaProduk","NomorReferensiSKU","NamaVariasi","HargaSebelumDiskon",
+                                "HargaSetelahDiskon","Jumlah","TotalHargaProduk","TotalDiskon","DiskonDariPenjual",
+                                "DiskonDariShopee","BeratProduk","JumlahProdukdiPesan","TotalBerat","VoucherDitanggungPenjual",
+                                "VoucherDitanggungShopee","PaketDiskon","PaketDiskonDiskondariShopee","PaketDiskonDiskondariPenjual","PotonganKoinShopee",
+                                "DiskonKartuKredit","OngkosKirimDibayarolehPembeli","TotalPembayarandibayarpembeli","PerkiraanOngkosKirim","CatatandariPembeli",
+                                "Catatan","UsernamePembeli","NamaPenerima","NoTelepon","AlamatPengiriman",
+                                "KotaKabupaten","Provinsi","WaktuPesananSelesai"
+                                ],raw:true});
+
+                            link = '@Url.Action("UploadFakturShopee", "Manage")';
+                        }
+                        $.ajax({
+                            type: "POST",
+                            url: link,
+                            // The key needs to match your method's input parameter (case-sensitive).
+                            data: JSON.stringify({
+                                data : jsondata,
+                                cust: $('#CUSTOMER_UPLOAD_FAKTUR_CUST').val(),
+                                nama_cust: $('#CUSTOMER_UPLOAD_FAKTUR_NAMA').val(),
+                                perso: $('#CUSTOMER_UPLOAD_FAKTUR_PERSO').val()
+                            }),
+                            contentType: "application/json; charset=UTF-8",
+                            cache: false,
+                            success: function(response){
+                                $('#uploadfakturviewdiv').html(response);
+                                document.getElementById("file_upload_faktur").value = "";
+
+                            },
+                            error: function(errMsg) {
+                                alert(errMsg);
+                                document.getElementById("file_upload_faktur").value = "";
+                            },
+                        });
+                    };
+                    reader.readAsBinaryString(f);
+                }
+            }
+        }*@
+
+        function controlButton(status) {
+            if (status == 1) {
+                $('#upload_brg').prop('disabled', false);
+                $('#get_data').prop('disabled', false);
+                $('#btnPromptCust').prop('disabled', false);
+            } else {
+                $('#upload_brg').prop('disabled', true);
+                $('#get_data').prop('disabled', true);
+                $('#btnPromptCust').prop('disabled', true);
+            }
+        }
+        function selesaiProgressBar() {
+            refreshTableBarangUpload();
+            $('#progressDiv').hide();
+            $('#table-upload-barang-partial').show();
+            var table = $('#datatable').DataTable();
+            $('#search_barang').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+            controlButton(1);
+        }
         function getStatus() {
             var url = '@Url.Action("StartLongRunningProcess", "Manage")' + '?id=' + uniqueId;
             $.get(url, function (data) {
@@ -520,9 +678,9 @@
                         console.log(error);
                     }
                 });
+                $('#konfTarikData').modal('hide');
+                $('#konfSyncAll').modal('hide');
             }
-            $('#konfTarikData').modal('hide');
-            $('#konfSyncAll').modal('hide');
 
         }
         function UploadAllBrg() {
@@ -568,16 +726,17 @@
                             if (response.Errors.length > 0) {
                                 response.Errors.forEach(ErrorMessageDialog);
                                 alert(listErrorMessage);
-                            } else {
-                                var error = response.Errors[0].split(';');
-                                if (error.length > 1) {
-                                    alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
-                                } else {
-                                    alert(error);
-                                }
                             }
+                            //else {
+                            //    var error = response.Errors[0].split(';');
+                            //    if (error.length > 1) {
+                            //        alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
+                            //    } else {
+                            //        alert(error);
+                            //    }
+                            //}
                         }
-
+                        $('#table-upload-barang-partial').show();
                         $('#loading_barang_tab').hide();
                         $('#datatable').show();
                     },
@@ -586,6 +745,11 @@
                     }
                 });
             }
+        }
+        function removeTag(html) {
+            var tmp = document.createElement("DIV");
+            tmp.innerHTML = html;
+            return tmp.textContent || tmp.innerText || "";
         }
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
@@ -606,25 +770,30 @@
                     success: function (response) {
                         if (response.Errors != null) {
                                  if (response.Errors.length > 0) {
-                                response.Errors.forEach(ErrorMessageDialog);
-                                //alert(listErrorMessage);
-                                document.getElementById('txtMessage').innerText += ErrorMessageDialog + '\n';
-                            } else {
-                                var error = response.Errors[0].split(';');
-                                if (error.length > 1) {
-                                    //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
-                                    document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
-                                } else {
-                                    //alert(error);
-                                    document.getElementById('txtMessage').innerText += error +  '\n';
-                                }
-                            }
+                                    response.Errors.forEach(ErrorMessageDialog);
+                                    //alert(listErrorMessage);
+                                    document.getElementById('txtMessage').innerText = listErrorMessage;
+                                 }
+                                 //else
+                                 //{
+                                 //   var error = response.Errors[0].split(';');
+                                 //   if (error.length > 1) {
+                                 //       //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
+                                 //       document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                                 //   } else {
+                                 //       //alert(error);
+                                 //       document.getElementById('txtMessage').innerText += error +  '\n';
+                                 //   }
+                                 // }
                         }
                         if (response.contRecursive == "1") {
-                            $('.progress-bar').css('width', ((currentPage + 1) / maxPage * 100) + '%').attr('aria-valuenow', (currentPage + 1) / maxPage * 100);
-                            $('.progress-bar').html(((currentPage + 1) / maxPage * 100) + '% Complete');
-                            if ((currentPage + 1) >= maxPage) {
+                            $('.progress-bar').css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                            $('.progress-bar').html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
+                            if ((currentPage + 1) > maxPage) {
                                 alert('Sinkronisasi barang selesai');
+                                //$('#table-upload-barang-partial').show();
+                                $('#btnSelesai').prop('disabled', false)
+
                                 //$('#progressDiv').hide();
                                 //$('#datatable').show();
 
@@ -635,8 +804,11 @@
                                 //});
                             } else {
 
-                                UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, failedToSync);
+                                UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
                             }
+                        } else {
+                            //$('#table-upload-barang-partial').show();
+                            $('#btnSelesai').prop('disabled', false)
                         }
                         //else {
                         //    if (response.Errors.length > 0) {
@@ -661,6 +833,8 @@
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
+                        //$('#table-upload-barang-partial').show();
+                        $('#btnSelesai').prop('disabled', false)
                     }
                 });
             }
@@ -669,7 +843,11 @@
         function ErrorMessageDialog(item, index) {
             var error = item.split(';');
             if (error.length > 1) {
-                listErrorMessage += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                if (error.length > 2) {
+                    listErrorMessage += '\nKode Barang :' + error[0] + '\nError message :' + error[2] + '\n';
+                } else {
+                    listErrorMessage += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                }
             } else {
                 listErrorMessage += error;
             }
@@ -703,53 +881,70 @@
             });
         }
         function startSyncAll() {
-            $('#datatable').hide();
-            $('#konfSyncAll').modal('hide');
-            $('#btnSelesai').prop('disabled', true)
-            var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
-            link = link.replace("replaceId", $('#promptHiddenField').val() /*'000004'*/);
-            var maxPage = "";
-            var dataPerPage = 0;
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    //$('#loading_spinner').show();
-                },
-                success: function (response) {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+                alert('Anda belum memilih Toko');
+            } else {
+                $('.progress-bar').css('width', '0%').attr('aria-valuenow', 0 * 100);
+                $('.progress-bar').html('0% Complete');
+                $('#table-upload-barang-partial').hide();
+                listErrorMessage = '';
+                document.getElementById('txtMessage').innerText = '';
+                //$('#datatable').hide();
+                $('#konfSyncAll').modal('hide');
+                $('#btnSelesai').prop('disabled', true);
+                var link = '@Url.Action("GetTotalData", "Manage", new { cust = "replaceId" })';
+                link = link.replace("replaceId", $('#promptHiddenField').val() /*'000004'*/);
+                var maxPage = "";
+                var dataPerPage = 0;
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        //$('#loading_spinner').show();
+                    },
+                    success: function (response) {
 
-                    //$('#progressDiv').hide();
-                    //$('#datatable').show();
-                    if (response.Errors == null) {
-                        if (response.Total != null && response.Total != "") {
-                            if (parseInt(response.Total) > 0) {
-                                if (parseInt(response.Total) <= 10) {
-                                    //alert('loading image');
-                                    $('#loading_spinner').show();
-                                    UploadAllBrg();
-                                } else {
-                                    $('#progressDiv').show();
-                                    if (parseInt(response.Total) <= 50) {
-                                        maxPage = 4;
-                                        dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
+                        //$('#progressDiv').hide();
+                        //$('#datatable').show();
+                        if (response.Errors == null) {
+                            if (response.Total != null && response.Total != "") {
+                                if (parseInt(response.Total) > 0) {
+                                    if (parseInt(response.Total) <= 10) {
+                                        //alert('loading image');
+                                        //$('#loading_spinner').show();
+                                        UploadAllBrg();
                                     } else {
-                                        maxPage = 9;
-                                        dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
-                                        //alert(dataPerPage + ";" + response.Total);
+                                        $('#progressDiv').show();
+                                        controlButton();
+                                        if (parseInt(response.Total) <= 50) {
+                                            maxPage = 4;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 5) + 1;
+                                        } else {
+                                            maxPage = 9;
+                                            dataPerPage = parseInt(parseInt(response.Total) / 10) + 1;
+                                            //alert(dataPerPage + ";" + response.Total);
+                                        }
+                                        //UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync)
+                                        UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0)
                                     }
-                                    //UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync)
-                                    UploadAllBrgWithProgressBar(0, maxPage, dataPerPage, 0)
+                                } else {
+                                    alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                    $('#table-upload-barang-partial').show();
                                 }
+                            } else {
+                                alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
+                                $('#table-upload-barang-partial').show();
                             }
                         }
+                        //$('#btnSelesai').prop('disabled', false)
+                    },
+                    error: function (xhr, status, error) {
+                        $('#table-upload-barang-partial').show();
+                        console.log(error);
                     }
-                    $('#btnSelesai').prop('disabled', false)
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
+                });
                 //testProgressBar(0 , 4);
+            }
         }
 
         async function testProgressBar(currentPage, maxPage) {
@@ -899,47 +1094,80 @@
             return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
             //end change by calvin 26 september 2018
         }
+        function DataIsValid() {
+            var ret = true;
+            if ($("#Stf02_BRG").val().length > 30) {
+                addError($("#Stf02_BRG").parent().parent(), "Kode barang maksimal 30 karakter.");
+                ret = false;
+            } else {
+                $("#Stf02_BRG").closest('div').append('<span class="text-danger"></span>');
+            }
+            if ($("#Stf02_Deskripsi").val().length < 30) {
+                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
+                ret = false;
+            }
+            if (convertToAngka($("#Stf02_HJUAL").val()) <= 0) {
+                addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
+                ret = false;
+            }
+            return ret;
+        }
+
+        function addError(obj, msg) {
+            $this = obj;
+            $this.closest('.form-group').addClass('has-error');
+            if (!$this.closest('div').find('.text-danger').length) {
+                $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
+            }
+        }
 
         function uploadBarang(btnClicked) {
+            var valid = validateForm();
+            var valid2 = DataIsValid();
 
-            var input = $("#Stf02_HJUAL").val();
-            var angka = convertToAngka(input);
-            $("#Stf02_HJUAL").val(angka);
-            $('#Stf02_STN').val($('#Stf02_STN2').val());
+            if (valid && valid2) {
+                var input = $("#Stf02_HJUAL").val();
+                var angka = convertToAngka(input);
+                $("#Stf02_HJUAL").val(angka);
+                $('#Stf02_STN').val($('#Stf02_STN2').val());
 
-            //var desc = $('#Stf02_Deskripsi').val();
-            //var enc_desc = $('<div/>').text(desc).html();
-            //$('#Stf02_Deskripsi').val(enc_desc);
+                var desc = $('#TempBrg_Deskripsi').val();
+                var enc_desc = $('<div/>').text(desc).html();
+                $('#TempBrg_Deskripsi').val(enc_desc);
 
-            var $form = $(btnClicked).parents('form');
-            var $formData = new FormData($('form').get(0));
+                var $form = $(btnClicked).parents('form');
+                var $formData = new FormData($('form').get(0));
 
-            $.ajax({
-                type: "POST",
-                url: $form.attr('action'),
-                data: $formData,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
-                success: function (response) {
-                    if (response.Errors == null) {
-                        //refreshTableBarang();
-                        $('#close-editor-1')[0].click();
-                    } else {
-                        alert(response.Errors[0]);
+                $.ajax({
+                    type: "POST",
+                    url: $form.attr('action'),
+                    data: $formData,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            //refreshTableBarang();
+                            $('#close-editor-1')[0].click();
+                            //document.body.scrollTop = 0; // For Safari
+                            document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        var errorData = $.parseJSON(xhr.responseText);
+                        //if (errorData != null)
+                        //    alert(errorData);
+                        $('#loading_spinner').hide();
                     }
-                    $('#loading_spinner').hide();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    var errorData = $.parseJSON(xhr.responseText);
-                    if(errorData != null)
-                        alert(errorData);
-                    $('#loading_spinner').hide();
-                }
-            });
+                });
+            }
+
         }
         function getKategori() {
             $.ajax({
@@ -1063,7 +1291,8 @@
                 $('#Stf02_STN2').val(data.STN2);
                 $('#Stf02_MINI').val(data.MINI);
                 $('#Stf02_MAXI').val(data.MAXI);
-                $('#Stf02_Deskripsi').val(data.Deskripsi);
+                if (data.Deskripsi != '')
+                    $('#Stf02_Deskripsi').val(removeTag(data.Deskripsi));
                 $('#Stf02_BERAT').val(data.BERAT);
                 $('#Stf02_PANJANG').val(data.PANJANG);
                 $('#Stf02_LEBAR').val(data.LEBAR);
@@ -1078,12 +1307,14 @@
                     $('#hidden_url_gambar_3').val(data.LINK_GAMBAR_3);
                 getFotoProduk();
                 if (data.Sort1 != null) {
-                    document.getElementById('statBarang').innerText = ' Link dengan barang yang sudah ada';
+                    document.getElementById('statBarang').innerText = 'Kode Barang sudah ada\nLink dengan barang ini.';
                     $('#KATEGORI')[0].selectize.setValue(data.Sort1, true);
+                    $('#Stf02_Sort1').val(data.Sort1);
                     $('#MERK')[0].selectize.setValue(data.Sort2, true);
+                    $('#Stf02_Sort2').val(data.Sort2);
 
                 } else {
-                    document.getElementById('statBarang').innerText = ' Create barang baru';
+                    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
                 }
             }
         }

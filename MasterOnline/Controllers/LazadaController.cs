@@ -1234,7 +1234,7 @@ namespace MasterOnline.Controllers
                         if (result.data.products.Count > 0)
                         {
                             ret.status = 1;
-                            string IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.ToString();
+                            int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                             if (result.data.products.Count == 100)
                             {
                                 ret.message = (page + 1).ToString();
@@ -1252,7 +1252,7 @@ namespace MasterOnline.Controllers
                             {
                                 string kodeBrg = brg.skus[0].SellerSku;
                                 var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
-                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
+                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
                                 if (tempbrginDB == null && brgInDB == null)
                                 {
                                     sSQL_Value += " ( '" + brg.skus[0].SellerSku + "' , '";
@@ -1346,7 +1346,7 @@ namespace MasterOnline.Controllers
                                                 {
                                                     sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME1, out value) ? value : "") + "'";
                                                 }
-                                            }                                            
+                                            }
                                         }
                                         else
                                         {

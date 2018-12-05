@@ -907,8 +907,9 @@ namespace MasterOnline.Controllers
                     string sSQL_Value = "";
                     foreach (var brg in resListProd.products)
                     {
+                        int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                         var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper())).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper())).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
                             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
@@ -936,7 +937,7 @@ namespace MasterOnline.Controllers
                                 nama3 = "";
                             }
 
-                            if(brg.images != null)
+                            if (brg.images != null)
                             {
                                 urlImage = brg.images[0];
                                 if (brg.images.Length >= 2)
@@ -971,7 +972,7 @@ namespace MasterOnline.Controllers
                         sSQL = sSQL.Substring(0, sSQL.Length - 1);
                         EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     }
-                    
+
                 }
                 else
                 {
