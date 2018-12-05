@@ -10525,7 +10525,7 @@ namespace MasterOnline.Controllers
                     var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                     if (barangInDB != null)
                     {
-                        var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
+                        var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper()) && b.IDMARKET == data.TempBrg.IDMARKET).FirstOrDefault();
                         if (brgMp != null)
                         {
                             if (!string.IsNullOrEmpty(brgMp.BRG_MP))
@@ -11104,7 +11104,7 @@ namespace MasterOnline.Controllers
             if (customer != null)
             {
                 var dataBrg = new List<TEMP_BRG_MP>();
-                if (string.IsNullOrEmpty(dataPerPage))
+                if (!string.IsNullOrEmpty(dataPerPage))
                 {
                     if (skipDataError > 0)
                     {
@@ -11133,17 +11133,36 @@ namespace MasterOnline.Controllers
                         barangVm.Errors.Add("Kode Kategory tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
+
+                    var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
+
                     foreach (var item in dataBrg)
                     {
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.BRG_MP.ToUpper())).FirstOrDefault();
+                        string brgBlibli = "";
+                        if (marketplace != null)
+                        {
+                            if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
+                            {
+                                var kdBrgBlibli = item.BRG_MP.Split(';');
+                                //stf02.BRG = "";
+                                var kdBrg = kdBrgBlibli[0].Split('-');
+                                for (int i = 1; i < kdBrg.Length; i++)
+                                {
+                                    brgBlibli += kdBrg[i] + "-";
+                                }
+                                brgBlibli = brgBlibli.Substring(0, brgBlibli.Length - 1);
+                            }
+                        }
+
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
-                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(item.BRG_MP.ToUpper())).FirstOrDefault();
+                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
                             if (brgMp != null)
                             {
                                 if (!string.IsNullOrEmpty(brgMp.BRG_MP))
                                 {
-                                    barangVm.Errors.Add(brgMp.BRG_MP + ";Barang ini sudah link dengan barang lain di marketplace");
+                                    barangVm.Errors.Add(brgMp.BRG + ";Barang ini sudah link dengan barang lain di marketplace");
                                 }
                                 else
                                 {
@@ -11313,7 +11332,7 @@ namespace MasterOnline.Controllers
                             else
                             {
                                 brgMp = new STF02H();
-                                brgMp.BRG = item.BRG_MP;
+                                brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
                                 brgMp.BRG_MP = item.BRG_MP;
                                 brgMp.HJUAL = item.HJUAL;
                                 brgMp.DISPLAY = item.DISPLAY;
@@ -11517,7 +11536,22 @@ namespace MasterOnline.Controllers
                                 QSALES = 0,
                                 DISPLAY_MARKET = false,
                             };
-                            stf02.BRG = item.BRG_MP;
+                            stf02.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                            //var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
+                            //if (marketplace != null)
+                            //{
+                            //    if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
+                            //    {
+                            //        var kdBrgBlibli = item.BRG_MP.Split(';');
+                            //        stf02.BRG = "";
+                            //        var kdBrg = kdBrgBlibli[0].Split('-');
+                            //        for(int i =1; i < kdBrg.Length; i++)
+                            //        {
+                            //            stf02.BRG += kdBrg[i] + "-";
+                            //        }
+                            //        stf02.BRG = stf02.BRG.Substring(0, stf02.BRG.Length - 1);
+                            //    }
+                            //}
                             stf02.NAMA = item.NAMA;
                             stf02.NAMA2 = item.NAMA2;
                             stf02.NAMA3 = item.NAMA3;
@@ -11550,7 +11584,8 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.STF02.Add(stf02);
                             var brgMp = new STF02H();
 
-                            brgMp.BRG = item.BRG_MP;
+                            //brgMp.BRG = item.BRG_MP;
+                            brgMp.BRG = stf02.BRG;
                             brgMp.BRG_MP = item.BRG_MP;
                             brgMp.HJUAL = item.HJUAL;
                             brgMp.DISPLAY = item.DISPLAY;
@@ -11723,10 +11758,10 @@ namespace MasterOnline.Controllers
                     }
                     if (listBrgSuccess.Count > 0)
                     {
-                        if (Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
-                        {
-                            barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(dataPerPage) - listBrgSuccess.Count;
-                        }
+                        //if(Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
+                        //{
+                        barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(string.IsNullOrEmpty(dataPerPage) ? "0" : dataPerPage) - listBrgSuccess.Count;
+                        //}
                         foreach (var brg_mp in listBrgSuccess)
                         {
                             ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
@@ -11859,27 +11894,34 @@ namespace MasterOnline.Controllers
                         switch (marketplace.NamaMarket.ToUpper())
                         {
                             case "LAZADA":
-                                var lzdApi = new LazadaController();
-                                var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
-                                var nextPageLzd = true;
-                                while (nextPageLzd)
+                                if (string.IsNullOrEmpty(arf01.TOKEN))
                                 {
-                                    if (resultLzd.status == 1)
+                                    return JsonErrorMessage("Anda belum link dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    var lzdApi = new LazadaController();
+                                    var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
+                                    var nextPageLzd = true;
+                                    while (nextPageLzd)
                                     {
-                                        if (!string.IsNullOrEmpty(resultLzd.message))
+                                        if (resultLzd.status == 1)
                                         {
-                                            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                            if (!string.IsNullOrEmpty(resultLzd.message))
+                                            {
+                                                resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                            }
+                                            else
+                                            {
+                                                nextPageLzd = false;
+                                            }
                                         }
                                         else
                                         {
                                             nextPageLzd = false;
                                         }
                                     }
-                                    else
-                                    {
-                                        nextPageLzd = false;
-                                    }
-                                }
+                                }                                
                                 break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();

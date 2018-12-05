@@ -1879,12 +1879,13 @@ namespace MasterOnline.Controllers
                             if (listBrg.content.Count > 0)
                             {
                                 ret.status = 1;
+                                int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                                 if (listBrg.content.Count == 50)
                                     ret.message = (page + 1).ToString();
                                 foreach (var item in listBrg.content)
                                 {
                                     var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode)).FirstOrDefault();
-                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode)).FirstOrDefault();
+                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
