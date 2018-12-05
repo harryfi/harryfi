@@ -380,17 +380,20 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
 
                     //add by calvin 8 nov 2018
-                    //jika stok di bukalapak 0, di bukalapak akan menjadi non display, MO disamakan
-                    if (Convert.ToDouble(stock) == 0)
+                    if (!string.IsNullOrEmpty(stock))
                     {
-                        var arf01Bukalapak = ErasoftDbContext.ARF01.Where(p => p.NAMA == "8").ToList();
-                        foreach (var akun in arf01Bukalapak)
+                        //jika stok di bukalapak 0, di bukalapak akan menjadi non display, MO disamakan
+                        if (Convert.ToDouble(stock) == 0)
                         {
-                            string sSQL = "UPDATE STF02H SET DISPLAY = '0' WHERE IDMARKET = '" + Convert.ToString(akun.RecNum) + "' AND BRG = '" + brg + "'";
-                            var a = EDB.ExecuteSQL(sSQL, CommandType.Text, sSQL);
-                            if (a <= 0)
+                            var arf01Bukalapak = ErasoftDbContext.ARF01.Where(p => p.NAMA == "8").ToList();
+                            foreach (var akun in arf01Bukalapak)
                             {
+                                string sSQL = "UPDATE STF02H SET DISPLAY = '0' WHERE IDMARKET = '" + Convert.ToString(akun.RecNum) + "' AND BRG = '" + brg + "'";
+                                var a = EDB.ExecuteSQL(sSQL, CommandType.Text, sSQL);
+                                if (a <= 0)
+                                {
 
+                                }
                             }
                         }
                     }
@@ -907,8 +910,9 @@ namespace MasterOnline.Controllers
                     string sSQL_Value = "";
                     foreach (var brg in resListProd.products)
                     {
+                        int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                         var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper())).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper())).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
                             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
@@ -936,7 +940,7 @@ namespace MasterOnline.Controllers
                                 nama3 = "";
                             }
 
-                            if(brg.images != null)
+                            if (brg.images != null)
                             {
                                 urlImage = brg.images[0];
                                 if (brg.images.Length >= 2)
@@ -971,7 +975,7 @@ namespace MasterOnline.Controllers
                         sSQL = sSQL.Substring(0, sSQL.Length - 1);
                         EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
                     }
-                    
+
                 }
                 else
                 {

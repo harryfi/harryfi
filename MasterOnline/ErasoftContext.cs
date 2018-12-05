@@ -432,6 +432,7 @@ namespace MasterOnline
         public virtual DbSet<API_LOG_MARKETPLACE> API_LOG_MARKETPLACE { get; set; }
         public virtual DbSet<LOG_IMPORT_FAKTUR> LOG_IMPORT_FAKTUR { get; set; }
         public virtual DbSet<TEMP_BRG_MP> TEMP_BRG_MP { get; set; }
+        //public virtual DbSet<TEMP_TOKPED_ORDERS> TEMP_TOKPED_ORDERS { get; set; }
         //public virtual DbSet<API_LOG_MARKETPLACE_PER_ITEM> API_LOG_MARKETPLACE_PER_ITEM { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

@@ -341,7 +341,7 @@ namespace MasterOnline.Controllers
             //    {
             //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
             //        {
-            //            var tokopediaApi = new TokopediaController();
+            //var tokopediaApi = new TokopediaController();
 
             //            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
             //            //{
@@ -351,18 +351,18 @@ namespace MasterOnline.Controllers
             //            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
             //            //    token = tblCustomer.TOKEN
             //            //};
-            //            TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-            //            {
-            //                merchant_code = "13072", //FSID
-            //                API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-            //                API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-            //                API_secret_key = "2619296", //Shop ID 
-            //                token = ""
-            //            };
+            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+            //{
+            //    merchant_code = "13072", //FSID
+            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //    API_secret_key = "2619296", //Shop ID 
+            //    token = "a9azcD8-R12AljUWpiTttw"
+            //};
 
             //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
-
+            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
+            //await tokopediaApi.GetCategoryTree(idenTest);
             //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
             //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
             //        }
@@ -5229,6 +5229,21 @@ namespace MasterOnline.Controllers
 
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
+
+            //add by calvin 29 nov 2018
+            if (tipeStatus == "11") // cancel, update qoh
+            {
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+
+                List<string> listBrg = new List<string>();
+                foreach (var item in pesananDetailInDb)
+                {
+                    listBrg.Add(item.BRG);
+                }
+                updateStockMarketPlace(listBrg);
+            }
+            //end add by calvin 29 nov 2018
+
             //add by Tri, call marketplace api to update order status
             ChangeStatusPesanan(pesananInDb.NO_BUKTI, pesananInDb.STATUS_TRANSAKSI);
             //end add by Tri, call marketplace api to update order status
@@ -6052,18 +6067,17 @@ namespace MasterOnline.Controllers
         public ActionResult SaveGudangQty(int? recNum, string gd, int qty)
         {
             var barangPesananInDb = ErasoftDbContext.SOT01B.Single(b => b.NO_URUT == recNum);
-            barangPesananInDb.LOKASI = gd;
 
             //add by calvin, 22 juni 2018 validasi QOH
             var qtyOnHand = GetQOHSTF08A(barangPesananInDb.BRG, gd);
 
-            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0) - qty < 0)
+            if (qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? (barangPesananInDb.LOKASI == gd ? barangPesananInDb.QTY_N.Value : 0) : 0) - qty < 0)
             {
                 var vmError = new StokViewModel()
                 {
 
                 };
-                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand + (barangPesananInDb.QTY_N.HasValue ? barangPesananInDb.QTY_N.Value : 0)) + " )");
+                vmError.Errors.Add("Tidak bisa save, Qty item ( " + barangPesananInDb.BRG + " ) di gudang ( " + gd + " ) sisa ( " + Convert.ToString(qtyOnHand) + " )");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
             //}
@@ -6071,6 +6085,7 @@ namespace MasterOnline.Controllers
 
             //change by calvin 31 okt 2018, req by pak dani, harusnya update ke qty_n, bukan qty, dan so tidak dihitung ulang
             //barangPesananInDb.QTY = qty;
+            barangPesananInDb.LOKASI = gd;
             barangPesananInDb.QTY_N = qty;
 
 
@@ -6165,7 +6180,8 @@ namespace MasterOnline.Controllers
                     };
 
                     return View(vm);
-                }else
+                }
+                else
                 {
                     var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
                     var namaToko = "";
@@ -8221,16 +8237,31 @@ namespace MasterOnline.Controllers
                     {
                         var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
                         string[] imgID = new string[3];
+                        //change by calvin 4 desember 2018
+                        //                        for (int i = 0; i < 3; i++)
+                        //                        {
+                        //#if AWS
+                        //                            imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                        //#else
+                        //                            imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
+                        //#endif
+                        //                        }
                         for (int i = 0; i < 3; i++)
                         {
-                            //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                            imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#else
-                            imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}";
-#endif
-                            //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
+                            switch (i)
+                            {
+                                case 0:
+                                    imgID[0] = barangInDb.LINK_GAMBAR_1;
+                                    break;
+                                case 1:
+                                    imgID[1] = barangInDb.LINK_GAMBAR_2;
+                                    break;
+                                case 2:
+                                    imgID[2] = barangInDb.LINK_GAMBAR_3;
+                                    break;
+                            }
                         }
+                        //end change by calvin 4 desember 2018
 
                         EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                         {
@@ -10373,26 +10404,31 @@ namespace MasterOnline.Controllers
             else if (customer.NAMA.Equals(kdElevenia))
             {
                 string[] imgID = new string[3];
-                //if (Request.Files.Count > 0)
-                //{
+                //change by calvin 4 desember 2018
+                //                for (int i = 0; i < 3; i++)
+                //                {
+                //#if AWS
+                //                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                //#else
+                //                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
+                //#endif
+                //                }
                 for (int i = 0; i < 3; i++)
                 {
-                    //var file = Request.Files[i];
-
-                    //if (file != null && file.ContentLength > 0)
-                    //{
-                    //    var fileExtension = Path.GetExtension(file.FileName);
-
-                    //imgID[i] = "https://masteronline.co.id/ele/image?id=" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}.jpg";
-#if AWS
-                    imgID[i] = "https://masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-#else
-                    imgID[i] = "https://dev.masteronline.co.id/ele/image/" + $"FotoProduk-{brg.USERNAME}-{brg.BRG}-foto-{i + 1}";
-#endif
-                    //imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
-
-                    //}
+                    switch (i)
+                    {
+                        case 0:
+                            imgID[0] = brg.LINK_GAMBAR_1;
+                            break;
+                        case 1:
+                            imgID[1] = brg.LINK_GAMBAR_2;
+                            break;
+                        case 2:
+                            imgID[2] = brg.LINK_GAMBAR_3;
+                            break;
+                    }
                 }
+                //end change by calvin 4 desember 2018
                 EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
                 {
                     api_key = customer.API_KEY,
@@ -10566,7 +10602,7 @@ namespace MasterOnline.Controllers
                     var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                     if (barangInDB != null)
                     {
-                        var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
+                        var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper()) && b.IDMARKET == data.TempBrg.IDMARKET).FirstOrDefault();
                         if (brgMp != null)
                         {
                             if (!string.IsNullOrEmpty(brgMp.BRG_MP))
@@ -11145,9 +11181,9 @@ namespace MasterOnline.Controllers
             if (customer != null)
             {
                 var dataBrg = new List<TEMP_BRG_MP>();
-                if (string.IsNullOrEmpty(dataPerPage))
+                if (!string.IsNullOrEmpty(dataPerPage))
                 {
-                    if(skipDataError > 0)
+                    if (skipDataError > 0)
                     {
                         dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
@@ -11174,17 +11210,36 @@ namespace MasterOnline.Controllers
                         barangVm.Errors.Add("Kode Kategory tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
+
+                    var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
+
                     foreach (var item in dataBrg)
                     {
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.BRG_MP.ToUpper())).FirstOrDefault();
+                        string brgBlibli = "";
+                        if (marketplace != null)
+                        {
+                            if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
+                            {
+                                var kdBrgBlibli = item.BRG_MP.Split(';');
+                                //stf02.BRG = "";
+                                var kdBrg = kdBrgBlibli[0].Split('-');
+                                for (int i = 1; i < kdBrg.Length; i++)
+                                {
+                                    brgBlibli += kdBrg[i] + "-";
+                                }
+                                brgBlibli = brgBlibli.Substring(0, brgBlibli.Length - 1);
+                            }
+                        }
+
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
-                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(item.BRG_MP.ToUpper())).FirstOrDefault();
+                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
                             if (brgMp != null)
                             {
                                 if (!string.IsNullOrEmpty(brgMp.BRG_MP))
                                 {
-                                    barangVm.Errors.Add(brgMp.BRG_MP + ";Barang ini sudah link dengan barang lain di marketplace");
+                                    barangVm.Errors.Add(brgMp.BRG + ";Barang ini sudah link dengan barang lain di marketplace");
                                 }
                                 else
                                 {
@@ -11354,7 +11409,7 @@ namespace MasterOnline.Controllers
                             else
                             {
                                 brgMp = new STF02H();
-                                brgMp.BRG = item.BRG_MP;
+                                brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
                                 brgMp.BRG_MP = item.BRG_MP;
                                 brgMp.HJUAL = item.HJUAL;
                                 brgMp.DISPLAY = item.DISPLAY;
@@ -11558,7 +11613,22 @@ namespace MasterOnline.Controllers
                                 QSALES = 0,
                                 DISPLAY_MARKET = false,
                             };
-                            stf02.BRG = item.BRG_MP;
+                            stf02.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                            //var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
+                            //if (marketplace != null)
+                            //{
+                            //    if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
+                            //    {
+                            //        var kdBrgBlibli = item.BRG_MP.Split(';');
+                            //        stf02.BRG = "";
+                            //        var kdBrg = kdBrgBlibli[0].Split('-');
+                            //        for(int i =1; i < kdBrg.Length; i++)
+                            //        {
+                            //            stf02.BRG += kdBrg[i] + "-";
+                            //        }
+                            //        stf02.BRG = stf02.BRG.Substring(0, stf02.BRG.Length - 1);
+                            //    }
+                            //}
                             stf02.NAMA = item.NAMA;
                             stf02.NAMA2 = item.NAMA2;
                             stf02.NAMA3 = item.NAMA3;
@@ -11591,7 +11661,8 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.STF02.Add(stf02);
                             var brgMp = new STF02H();
 
-                            brgMp.BRG = item.BRG_MP;
+                            //brgMp.BRG = item.BRG_MP;
+                            brgMp.BRG = stf02.BRG;
                             brgMp.BRG_MP = item.BRG_MP;
                             brgMp.HJUAL = item.HJUAL;
                             brgMp.DISPLAY = item.DISPLAY;
@@ -11764,10 +11835,10 @@ namespace MasterOnline.Controllers
                     }
                     if (listBrgSuccess.Count > 0)
                     {
-                        if(Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
-                        {
-                            barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(dataPerPage) - listBrgSuccess.Count;
-                        }
+                        //if(Convert.ToInt32(dataPerPage) > listBrgSuccess.Count)
+                        //{
+                        barangVm.failedRecord = string.IsNullOrEmpty(skipDataError.ToString()) ? 0 : skipDataError + Convert.ToInt32(string.IsNullOrEmpty(dataPerPage) ? "0" : dataPerPage) - listBrgSuccess.Count;
+                        //}
                         foreach (var brg_mp in listBrgSuccess)
                         {
                             ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
@@ -11900,27 +11971,34 @@ namespace MasterOnline.Controllers
                         switch (marketplace.NamaMarket.ToUpper())
                         {
                             case "LAZADA":
-                                var lzdApi = new LazadaController();
-                                var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
-                                var nextPageLzd = true;
-                                while (nextPageLzd)
+                                if (string.IsNullOrEmpty(arf01.TOKEN))
                                 {
-                                    if (resultLzd.status == 1)
+                                    return JsonErrorMessage("Anda belum link dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    var lzdApi = new LazadaController();
+                                    var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
+                                    var nextPageLzd = true;
+                                    while (nextPageLzd)
                                     {
-                                        if (!string.IsNullOrEmpty(resultLzd.message))
+                                        if (resultLzd.status == 1)
                                         {
-                                            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                            if (!string.IsNullOrEmpty(resultLzd.message))
+                                            {
+                                                resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
+                                            }
+                                            else
+                                            {
+                                                nextPageLzd = false;
+                                            }
                                         }
                                         else
                                         {
                                             nextPageLzd = false;
                                         }
                                     }
-                                    else
-                                    {
-                                        nextPageLzd = false;
-                                    }
-                                }
+                                }                                
                                 break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();
@@ -12100,7 +12178,7 @@ namespace MasterOnline.Controllers
             if (!string.IsNullOrEmpty(cust))
             {
                 var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                if(listTempBrg != null)
+                if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();
                 }

@@ -1509,7 +1509,7 @@ namespace MasterOnline.Controllers
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
                 urll_1 += "&size=100";
                 if (!string.IsNullOrEmpty(data.nama))
                 {
@@ -1879,12 +1879,13 @@ namespace MasterOnline.Controllers
                             if (listBrg.content.Count > 0)
                             {
                                 ret.status = 1;
+                                int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                                 if (listBrg.content.Count == 50)
                                     ret.message = (page + 1).ToString();
                                 foreach (var item in listBrg.content)
                                 {
                                     var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode)).FirstOrDefault();
-                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode)).FirstOrDefault();
+                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
@@ -3074,20 +3075,27 @@ namespace MasterOnline.Controllers
                                     }
                                     catch (Exception ex)
                                     {
-                                        if (Convert.ToString(item.value.Value).Contains("postImage"))
+                                        try
                                         {
-                                            using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                            if (Convert.ToString(item.value.Value).Contains("postImage"))
                                             {
-                                                oConnection.Open();
-                                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                                 {
-                                                    oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-                                                    oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                                    oCommand.ExecuteNonQuery();
+                                                    oConnection.Open();
+                                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                                    {
+                                                        oCommand.CommandType = CommandType.Text;
+                                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+                                                        oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                                        oCommand.ExecuteNonQuery();
+                                                    }
                                                 }
                                             }
+                                        }
+                                        catch (Exception ex2)
+                                        {
+
                                         }
                                     }
                                     if (values != null)
