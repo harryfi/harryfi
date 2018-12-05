@@ -122,14 +122,18 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="input-group">
                         @Html.HiddenFor(m => m.Pesanan.PEMESAN)
-                        @Html.HiddenFor(m => m.Pesanan.NAMAPEMESAN)
-                        <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>
+                        @* change by nurul 4/12/2018 -- @Html.TextBoxFor(m => m.Pesanan.NAMAPEMESAN)*@
+                        @Html.TextBoxFor(m => m.Pesanan.NAMAPEMESAN, new { @class = "form-control" })
+                        @* remark by nurul 4/12/2018 -- <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>*@
                         <span class="input-group-btn">
-                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
-                                <span class="glyphicon glyphicon-plus"></span>
-                            </button>
-                            <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
-                                <span class="glyphicon glyphicon-eye-open"></span>
+                            @*  remark by nurul 4/12/2018 -- <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
+            <span class="glyphicon glyphicon-plus"></span>
+        </button>
+        <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
+            <span class="glyphicon glyphicon-eye-open"></span>
+        </button>*@
+                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 34px; ">
+                                <span class="glyphicon glyphicon-option-horizontal"></span>
                             </button>
                         </span>
                     </div>

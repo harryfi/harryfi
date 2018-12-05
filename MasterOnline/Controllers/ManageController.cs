@@ -603,9 +603,18 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult BuyerPopup()
+        //public ActionResult BuyerPopup()
+        //{
+        //    return View();
+        //}
+        public ActionResult BuyerPopUp1()
         {
-            return View();
+            var vm = new BuyerViewModel()
+            {
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+            };
+
+            return View(vm);
         }
 
         // =============================================== Menu Manage (END)
@@ -666,6 +675,63 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableBuyerPartial", partialVm);
         }
+        //add by nurul 5/12/2018
+        [HttpPost]
+        public ActionResult SaveBuyerPopUp(BuyerViewModel dataBuyer)
+        {
+            if (!ModelState.IsValid)
+            {
+                //dataBuyer.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                //return Json(dataBuyer, JsonRequestBehavior.AllowGet);
+                return View("BuyerPopup1", dataBuyer);
+            }
+
+            if (dataBuyer.Pembeli.RecNum == null)
+            {
+                var listPembeli = ErasoftDbContext.ARF01C.OrderBy(m => m.RecNum).ToList();
+                var noPembeli = "";
+
+                if (listPembeli.Count == 0)
+                {
+                    noPembeli = "000001";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ARF01C, RESEED, 0)");
+                }
+                else
+                {
+                    var lastRecNum = listPembeli.Last().RecNum;
+                    lastRecNum++;
+
+                    noPembeli = lastRecNum.ToString().PadLeft(6, '0');
+                }
+
+                dataBuyer.Pembeli.BUYER_CODE = noPembeli;
+                ErasoftDbContext.ARF01C.Add(dataBuyer.Pembeli);
+            }
+            else
+            {
+                var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == dataBuyer.Pembeli.RecNum);
+
+                buyerInDb.NAMA = dataBuyer.Pembeli.NAMA;
+                buyerInDb.AL = dataBuyer.Pembeli.AL;
+                buyerInDb.KODEPROV = dataBuyer.Pembeli.KODEPROV;
+                buyerInDb.KODEKABKOT = dataBuyer.Pembeli.KODEKABKOT;
+                buyerInDb.KODEPOS = dataBuyer.Pembeli.KODEPOS;
+                buyerInDb.PERSO = dataBuyer.Pembeli.PERSO;
+                buyerInDb.EMAIL = dataBuyer.Pembeli.EMAIL;
+                buyerInDb.TLP = dataBuyer.Pembeli.TLP;
+            }
+
+            ErasoftDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var partialVm = new BuyerViewModel()
+            {
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
+            };
+
+            return PartialView("TableBuyerPopUp", partialVm);
+        }
+        //end add
 
         [HttpPost]
         public ActionResult SavePembeliPopup(BuyerViewModel dataBuyer)
@@ -4916,6 +4982,17 @@ namespace MasterOnline.Controllers
 
             return Json(listPembeli, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 4/12/2018
+        [HttpGet]
+        public ActionResult GetPembeliPesanan(string kode)
+        {
+            //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
+             var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
+
+            return Json(pembeli, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
 
         [HttpGet]
         public ActionResult GetDataBarangPesanan(string code)

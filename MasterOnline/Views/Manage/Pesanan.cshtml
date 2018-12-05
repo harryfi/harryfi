@@ -1581,6 +1581,7 @@
     <script type="text/javascript">
         //add by nurul 1/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
+        var promptPembeli = "";
         //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
@@ -1981,9 +1982,11 @@
             refreshNetto();
 
             $('#tambah-pembeli').click(function() {
-                window.open('@Url.Action("BuyerPopup", "Manage")',
+                @*window.open('@Url.Action("BuyerPopup", "Manage")',*@
+                promptPembeli = "1";
+                window.open('@Url.Action("BuyerPopUp1", "Manage")',
                     "popupWindow",
-                    "width=600, height=400, scrollbars=yes");
+                    "width=850, height=400, scrollbars=yes, resizable=no");
             });
 
             $('#lihat-pembeli').click(function() {
@@ -2032,6 +2035,7 @@
                 function() {
                     $(this).removeData('bs.modal');
                 });
+
         }
 
         function cekJumlahPesananBulanIni() {
@@ -2298,7 +2302,7 @@
                 $('#btn-simpan-perubahan-row').show();
             });
 
-            $('#btn-simpan-perubahan').click(function() {
+            $('#btn-simpan-perubahan').click(function () {
                 var $this = $(this);
                 $.ajax({
                     type: "POST",
@@ -2347,6 +2351,13 @@
                 $('#btn-simpan-perubahan-row').show();
             });
 
+            $('#tambah-pembeli').click(function() {
+                @*window.open('@Url.Action("BuyerPopup", "Manage")',*@
+                promptPembeli = "1";
+                window.open('@Url.Action("BuyerPopUp1", "Manage")',
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+            });
         }
 
         function refreshNettoBarang($trId) {
@@ -2870,6 +2881,95 @@
                 url: '@Url.Action("GetPembeli", "Manage")',
                 contentType: 'application/json',
                 cache: false,
+                success: function (data) {
+                    
+                    var listPembeli = [];
+
+                    $.each(data,
+                        function(i, item) {
+                            listPembeli[i] = {
+                                id: item.BUYER_CODE,
+                                text: item.NAMA,
+                                address: item.AL
+                            };
+                            
+                        });
+                    $.each(listPembeli,
+                        function (i, item) {
+                            if ($('#Pesanan_NO_BUKTI').val() == "") {
+                                $('#Pesanan_PEMESAN').val();
+                                $('#Pesanan_NAMAPEMESAN').val();
+                                $('#Pesanan_ALAMAT_KIRIM').val();
+                            } else if ($('#Pesanan_NO_BUKTI').val() != "") {
+                                if ($('#Pesanan_PEMESAN').val() == item.id) {
+                                    $('#Pesanan_PEMESAN').val(item.id);
+                                    //$('#Pesanan_NAMAPEMESAN').val(item.NAMA);
+                                    $('#Pesanan_ALAMAT_KIRIM').val(item.address);
+                                }
+                            }
+                        });
+                    
+                    //$('#MARKETPEMESAN').selectize()[0].selectize.destroy();
+
+                    //var marketSelect = $('#MARKETPEMESAN').selectize({
+                    //    valueField: 'id',
+                    //    searchField: 'text',
+                    //    options: listPembeli,
+                    //    onChange: function(value) {
+                    //        $('#Pesanan_PEMESAN').val(value);
+                    //        $('#Pesanan_NAMAPEMESAN').val($("#MARKETPEMESAN option:selected").text());
+                    //        $.each(listPembeli,
+                    //            function(i, item) {
+                    //                if (item.id == value) {
+                    //                    $('#Pesanan_ALAMAT_KIRIM').val(item.address);
+                    //                }
+                    //            });
+
+                            //if (value == null) {
+                            //    $('#tambah-pembeli').show();
+                            //    $('#lihat-pembeli').hide();
+                            //} else {
+                            //    $('#tambah-pembeli').hide();
+                            //    $('#lihat-pembeli').show();
+                            //}
+                            //$('#btn-simpan-perubahan-row').show();
+                    //    }
+                    //});
+
+                    //marketSelect[0].selectize.setValue($('#Pesanan_PEMESAN').val());
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //add by nurul 4/12/2018
+        function getBuyerPrompt(kd) {
+            var link = '';
+
+            link = '@Url.Action("GetPembeliPesanan", "Manage", new { kode = "replaceKode" })';
+            link = link.replace("replaceKode", $('#Pesanan_PEMESAN').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                        $('#Pesanan_PEMESAN').val(res.BUYER_CODE);
+                        $('#Pesanan_NAMAPEMESAN').val(res.NAMA);
+                        $('#Pesanan_ALAMAT_KIRIM').val(res.AL);
+                        //$("#MARKETPEMESAN").val(res.NAMA);
+                        $('#btn-simpan-perubahan-row').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            @*$.ajax({
+                type: "GET",
+                url: '@Url.Action("GetPembeli", "Manage")',
+                contentType: 'application/json',
+                cache: false,
                 success: function(data) {
                     var listPembeli = [];
 
@@ -2882,15 +2982,15 @@
                             };
                         });
 
-                    $('#MARKETPEMESAN').selectize()[0].selectize.destroy();
+                    //$('#MARKETPEMESAN').selectize()[0].selectize.destroy();
 
-                    var marketSelect = $('#MARKETPEMESAN').selectize({
+                    var marketSelect = $('#MARKETPEMESAN').val({
                         valueField: 'id',
-                        searchField: 'text',
-                        options: listPembeli,
+                        //searchField: 'text',
+                        //options: listPembeli,
                         onChange: function(value) {
                             $('#Pesanan_PEMESAN').val(value);
-                            $('#Pesanan_NAMAPEMESAN').val($("#MARKETPEMESAN option:selected").text());
+                            $('#Pesanan_NAMAPEMESAN').val(item.NAMA);
                             $.each(listPembeli,
                                 function(i, item) {
                                     if (item.id == value) {
@@ -2909,14 +3009,15 @@
                         }
                     });
 
-                    marketSelect[0].selectize.setValue($('#Pesanan_PEMESAN').val());
+                    //marketSelect[0].selectize.setValue($('#Pesanan_PEMESAN').val());
                     $('#btn-simpan-perubahan-row').hide();
                 },
                 error: function(xhr) {
                     console.log(xhr);
                 }
-            });
+            });*@
         }
+        //end add by nurul 4/12/2018
 
         function hitungUlangdisc1() {
             var $trElement = 'tr[data-pesanan-id="0"]';
@@ -4151,6 +4252,15 @@
                 }
             }
         }
+        //add by nurul 4/12/2018
+        function afterPromptPembeli(kd) {
+            if (promptPembeli == "1") {
+                $('#Pesanan_PEMESAN').val(kd);
+                getBuyerPrompt(kd);
+            }
+            promptPembeli = "";
+        }
+        //end add
     </script>
     <script>
         //Disable Enter Key Submit Form
