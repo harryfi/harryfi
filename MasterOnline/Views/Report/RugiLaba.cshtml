@@ -26,21 +26,27 @@
 
     <h2>Laporan Laba/Rugi</h2>
 
-<div class="row">
-    <div class="col-md-2">
-        @Html.Label("", "Kode Laporan")
-        <div class="input-group text">
-            @Html.TextBox("KdLap", "", new { @class = "form-control", @MaxLength = "10" })
-            <span class="input-group-btn">
-                <button id="prompt-kdlap" class="btn btn-default" type="button" style="height: 34px;">
-                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                </button>
-            </span>
+    <div class="row">
+        <div class="col-md-2">
+            @Html.Label("", "Kode Laporan")
+            <div class="input-group text">
+                @Html.TextBox("KdLap", "", new { @class = "form-control", @MaxLength = "10" })
+                <span class="input-group-btn">
+                    <button id="prompt-kdlap" class="btn btn-default" type="button" style="height: 34px;">
+                        <span class="glyphicon glyphicon-option-horizontal"></span>
+                    </button>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-2">
+            @Html.Label("", "Keterangan")
+            <div class="input-group text">
+                @Html.TextBox("Ket", "", new { @class = "form-control", @MaxLength = "20", disabled = "disabled" })
+            </div>
+        </div>
+        <div class="col-md-8">
         </div>
     </div>
-    <div class="col-md-10">
-    </div>
-</div>
 <div class="row">
     <div class="col-md-1">
         @Html.Label("", "Tahun")
@@ -123,6 +129,29 @@
             $('#preview-report').click(function() {
                 previewing();
             });
+
+            //add by nurul 6/12/2018
+            $('#KdLap').val("01");
+            if ($('#KdLap').val() == "01" || $('#KdLap').val() == "02") {
+                $('#Ket').val("Laba / Rugi");
+            } else {
+                $('#Ket').val("");
+            }
+            $('#KdLap').change(function () {
+                if ($('#KdLap').val() == "01" || $('#KdLap').val() == "02") {
+                    $('#Ket').val("Laba / Rugi");
+                } else {
+                    $('#Ket').val("");
+                }
+            });
+            $('#KdLap').blur(function () {
+                if ($('#KdLap').val() == "01" || $('#KdLap').val() == "02") {
+                    $('#Ket').val("Laba / Rugi");
+                } else {
+                    $('#Ket').val("");
+                }
+            });
+            //end add
         });
 
         function FormatMonth() {
@@ -168,6 +197,7 @@
         function afterPromptKodeLR(kode) {
             if (promptKdLap == "1") {
                 $('#KdLap').val(kode);
+                $('#Ket').val("Laba / Rugi");
             }
             promptKdLap = "";
         }
