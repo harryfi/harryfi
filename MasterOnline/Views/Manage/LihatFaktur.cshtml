@@ -95,6 +95,12 @@
             font-weight: bold;
         }
 
+        .block_subtitle_label {
+            display: inline-block;
+            width: 135px;
+            font-weight: bold;
+        }
+
         hr {
             border: solid 1.5px #eee;
             margin: 15px 0 10px 0;
@@ -149,20 +155,21 @@
                                                 <table class="table-hover">
                                                     <tr>
                                                         <td style="text-align:left; width:500px">
-                                                            <h1 class="bold_title_invoice">@Model.NamaToko</h1>
+                                                            @*<div  id="nama_faktur"><h1 class="bold_title_invoice">@Model.NamaToko</h1></div>*@
+                                                            <div id="nama_faktur"><h1 class="bold_title_invoice"><span id="nama_toko"></span></h1></div>
                                                         </td>
                                                         <td style="text-align:right; width:500px">
                                                             <h1 class="bold_title_invoice" style="margin-right:10px">INVOICE</h1>
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>
-                                                            <span>@Model.AlamatToko</span>
+                                                        <td colspan="2">
+                                                            <div id="alamat_faktur" class="col-md-12"><span>@Model.AlamatToko</span></div>
                                                         </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>
-                                                            <span>@Model.TlpToko</span>
+                                                        <td colspan="2">
+                                                            <div id="tlp_faktur" class="col-md-12"><span>@Model.TlpToko</span></div>
                                                         </td>
                                                     </tr>
                                                 </table>
@@ -300,7 +307,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <br /><br />
+                        <br />
                         <div id="div_gunting" class="row">
                             <div class="col-md-1">
                                 <span style="font-size: 20px">&#9986;</span>
@@ -310,38 +317,50 @@
                             </div>
                         </div>
                         <div id="div_label_pengiriman">
-                            <h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2>
-                            @* change by nurul 30/11/2018 -- rubah susunan -- <p class="sub_title">
-                    <span class="block_subtitle">Penjual</span> @Model.NamaToko
-                </p>*@
-                            @*<p class="sub_title">
-                    //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
-                    <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                </p>*@
-                            @*<p class="sub_title">
-                    <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
-                </p>*@
-                            <p class="sub_title">
-                                <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
-                            </p>
-                            <p class="sub_title">
-                                <span class="block_subtitle">Tanggal</span> @(Model.Faktur.TGL)
-                            </p>
-                            <p class="sub_title">
-                                <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                            </p>
-                            <p class="sub_title">
-                                <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
-                            </p>
-                            <p class="sub_title">
-                                <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
-                            </p>
+                            @*<div id="nama_label"><h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2></div>*@
+                            <div id="nama_label"><h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko <span id="nama_toko_label"></span></h2></div>
+                                @* change by nurul 30/11/2018 -- rubah susunan -- <p class="sub_title">
+                <span class="block_subtitle">Penjual</span> @Model.NamaToko
+            </p>*@
+                                @*<p class="sub_title">
+                //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
+                <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
+            </p>*@
+                                @*<p class="sub_title">
+                <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+            </p>
+            <p class="sub_title">
+                <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
+            </p>
+            <p class="sub_title">
+                <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
+            </p>*@
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">No. SO</span> @(Model.Faktur.NO_SO)
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
+                                </p>
+                                <div id="alamat_label">
+                                    <p class="sub_title">
+                                        <span class="block_subtitle_label">Alamat Penjual</span> @(Model.AlamatToko)
+                                    </p>
+                                </div>
+                                <div id="tlp_label">
+                                    <p class="sub_title">
+                                        <span class="block_subtitle_label">No. Telepon Penjual</span> @(Model.TlpToko)
+                                    </p>
+                                </div>
+                                <hr />
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">Alamat</span> @(Model.Faktur.AL)
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli.TLP)
+                                </p>
                         </div>
                     }
                 </div>
@@ -360,17 +379,52 @@
                 $('#print-btn').show();
             }
             //add by nurul 30/11/2018
-            var url = window.location.search.split('&')[1]; // tidak pakai label
-            if (url == "faktur=1") {
+            var url1 = window.location.search.split('&')[1]; // faktur
+            var url2 = window.location.search.split('&')[2]; //label
+            var url3 = window.location.search.split('&')[3]; //alamat
+            var url4 = window.location.search.split('&')[4]; //tlp
+            var url5 = decodeURI(window.location.search.split('&')[5]); //nama toko
+            if (url1 == "faktur=1" && url2 == "label=1") {
+                $('#div_faktur').show()
+                $('#div_gunting').show()
+                $('#div_label_pengiriman').show()
+            } else if (url1 == "faktur=1" && url2 == "label=0") { 
                 $('#div_faktur').show()
                 $('#div_gunting').hide()
                 $('#div_label_pengiriman').hide()
-            }
-            if (url == "label=1") { // tidak pakai faktur
+            } else if (url1 == "faktur=0" && url2 == "label=1") { 
                 $('#div_faktur').hide()
                 $('#div_gunting').hide()
                 $('#div_label_pengiriman').show()
+            } else if (url1 == "faktur=0" && url2 == "label=0") { 
+                $('#div_faktur').hide()
+                $('#div_gunting').hide()
+                $('#div_label_pengiriman').hide()
             }
+
+            if (url3 == "alamat=1") {
+                $('#alamat_faktur').show()
+                $('#alamat_label').show()
+            } else if (url3 == "alamat=0") {
+                $('#alamat_faktur').hide()
+                $('#alamat_label').hide()
+            }
+            if (url4 == "tlp=1") {
+                $('#tlp_faktur').show()
+                $('#tlp_label').show()
+            } else if (url4 == "tlp=0") {
+                $('#tlp_faktur').hide()
+                $('#tlp_label').hide()
+            }
+
+            if (url5 == "") {
+                $('#nama_toko').text('@Model.NamaToko');
+                $('#nama_toko_label').text('@Model.NamaToko');
+            } else if (url5 != "") {
+                $('#nama_toko').text(url5);
+                $('#nama_toko_label').text(url5);
+            }
+            //end add
         });
     </script>
 </body>
