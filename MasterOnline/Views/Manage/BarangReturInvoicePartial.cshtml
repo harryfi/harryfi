@@ -24,7 +24,7 @@
 @Html.HiddenFor(m => m.Invoice.JENISFORM, new { Value = "2" })
 @Html.HiddenFor(m => m.Invoice.STATUS, new { Value = "1" })
 @Html.HiddenFor(m => m.Invoice.TUKAR, new { Value = 1 })
-@Html.HiddenFor(m => m.Invoice.BIAYA_LAIN, new { Value = 0 })
+@*@Html.HiddenFor(m => m.Invoice.BIAYA_LAIN, new { Value = 0 })*@
 @Html.HiddenFor(m => m.Invoice.PO, new { Value = "-" })
 @Html.HiddenFor(m => m.Invoice.KET, new { Value = "-" })
 @Html.HiddenFor(m => m.Invoice.POSTING, new { Value = "-" })
@@ -161,6 +161,16 @@
                 </div>
             </div>
         </div>
+        @*add by nurul 7/12/2018*@
+        <div class="col-lg-4">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Invoice.BIAYA_LAIN, "Ongkos Kirim", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
+                <div class="col-md-8">
+                    @Html.TextBoxFor(m => m.Invoice.BIAYA_LAIN, new { @class = "form-control num-only", Value = (Model?.Invoice?.BIAYA_LAIN > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Invoice?.BIAYA_LAIN) : "0,00") })
+                </div>
+            </div>
+        </div>
+        @*end add*@
     </div>
     <div class="row">
         <div class="col-lg-4">

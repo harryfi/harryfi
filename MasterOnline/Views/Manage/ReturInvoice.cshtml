@@ -687,6 +687,9 @@
                         //Term: $('#Invoice_TERM').val(),
                         //Buyer: $('#Invoice_NAMA').val(),
                         //Tempo: $('#Invoice_TGJT').val()
+                        //ADD BY NURUL 7/12/2018
+                        OngkosKirim: convertToAngka($('#Invoice_BIAYA_LAIN').val())
+                        //END ADD
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -713,6 +716,22 @@
                 autoloadInvoice();
 
             });
+
+            //add by nurul 10/12/2018
+            $('#Invoice_BIAYA_LAIN').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#Invoice_BIAYA_LAIN').focus(function () {
+                var value = $(this).val();
+                $(this).val(convertToAngka(value));
+            });
+
+            $('#Invoice_BIAYA_LAIN').blur(function () {
+                var value = $(this).val();
+                $(this).val(convertToRupiah(value));
+            });
+            //end add
         }
 
 
@@ -729,7 +748,11 @@
                 $('#Invoice_NILAI_PPN').val(convertToRupiah(0));
                 $('#Invoice_NILAI_DISC').val(convertToRupiah(0));
                 $('#Invoice_MATERAI').val(convertToRupiah(0));
+                //add by nurul 10/12/2018
+                $('#Invoice_BIAYA_LAIN').val(convertToRupiah(0));
+                //end add 
                 $('#Invoice_NETTO').val(convertToRupiah(0));
+                
             } else {
 
                 if ($('#Invoice_TGL').val() == '') {
@@ -740,6 +763,9 @@
                     $("#Invoice_BRUTO").val(convertToAngka($("#Invoice_BRUTO").val()));
                     $("#Invoice_NDISC1").val(convertToAngka($("#Invoice_NDISC1").val()));
                     $("#Invoice_NPPN").val(convertToAngka($("#Invoice_NPPN").val()));
+                    //add by nurul 10/12/2018
+                    $('#Invoice_BIAYA_LAIN').val(convertToAngka($("#Invoice_BIAYA_LAIN").val()));
+                    //end add
                     $("#Invoice_NETTO").val($bakalNetto);
 
                     $nettoSebelumnya += $bakalNetto;
@@ -867,6 +893,9 @@
 
             $bakalNetto -= convertToAngka($('#Invoice_NDISC1').val());
             $bakalNetto += $nPpn;
+            //add by nurul 10/12/2018
+            $bakalNetto += convertToAngka($('#Invoice_BIAYA_LAIN').val());
+            //end add 
 
             $('#Invoice_NETTO').val(convertToRupiah($bakalNetto));
         }
@@ -1613,6 +1642,7 @@
                 $("#Invoice_BRUTO").val(convertToAngka($("#Invoice_BRUTO").val()));
                 $("#Invoice_NDISC1").val(convertToAngka($("#Invoice_NDISC1").val()));
                 $("#Invoice_NPPN").val(convertToAngka($("#Invoice_NPPN").val()));
+                $('#Invoice_BIAYA_LAIN').val(convertToAngka($("#Invoice_BIAYA_LAIN").val()))
                 $("#Invoice_NETTO").val($bakalNetto);
 
                 $nettoSebelumnya += $bakalNetto;
