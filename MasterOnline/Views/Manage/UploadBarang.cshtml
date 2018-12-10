@@ -310,23 +310,23 @@
                             </table>
                         </div>
                         @*<div id="upload_excel" class="row">
-                            <div class="col-md-4 file_upload_section">
-                                <input type='file' id='file_upload_brg' name="file_upload_brg" onchange="checkfile(this);"
-                                       accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-                            </div>
-                            <div class="col-md-4">
-                                <button type="button" class="btn btn-primary" onclick="uploadfilebrg();" data-style="expand-right">
-                                    <span>Upload</span>
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                            </div>
-                        </div>*@
+                                <div class="col-md-4 file_upload_section">
+                                    <input type='file' id='file_upload_brg' name="file_upload_brg" onchange="checkfile(this);"
+                                           accept="application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+                                </div>
+                                <div class="col-md-4">
+                                    <button type="button" class="btn btn-primary" onclick="uploadfilebrg();" data-style="expand-right">
+                                        <span>Upload</span>
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>*@
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" onclick="GetDataBrg();">Ya</button>
+                <button type="button" class="btn btn-success" onclick="GetDataBrgWithRecord(0, 0, 1);">Ya</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
             </div>
         </div>
@@ -372,6 +372,26 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus barang <span id="hapus_label"></span>?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="DeleteBarangTemp()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row" id="progressDiv">
     <div class="col-md-12">
         <label class="labelPosting">Proses upload data barang ke Master Online</label>
@@ -392,6 +412,10 @@
 <div id="statusBorder">
     <div id="statusFill">
     </div>
+</div>
+<div id="info_record">
+    <br />
+    <label id="txtInfo" style="text-align:center"></label>
 </div>
 @section scripts{
     <script src="~/Content/selectize.js" type="text/javascript"></script>
@@ -573,7 +597,7 @@
             $('#txtCustomer').val('');
             $('#txtCustomer2').val('');
             $('#txtCustomer3').val('');
-
+            document.getElementById('txtInfo').innerText = '';
 
             $('#close-editor-1').off('click').on('click', function () {
                 $('#close-editor-1')[0].disabled = true;
@@ -581,7 +605,7 @@
                 $('.barang_editor_section').hide();
                 refreshTableBarangUpload();
             });
-
+            $('#info_record').hide();
             $('#progressDiv').hide();
             refreshTableBarangUpload();
             @*$.post('@Url.Action("StartLongRunningProcess", "Manage")', { id: uniqueId }, function () {
@@ -676,6 +700,63 @@
                         });
                         $('#loading_barang_tab').hide();
                         $('#datatable').show();
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+                $('#konfTarikData').modal('hide');
+                $('#konfSyncAll').modal('hide');
+            }
+
+        }
+        function GetDataBrgWithRecord(page, recordCount, statBL) {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
+                alert('Anda belum memilih Toko');
+            } else {
+                @*var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
+                link = link.replace("replaceCust", $('#promptHiddenField').val());*@
+                 var link = '@Url.Action("ImportDataMP", "Manage")';
+                link += '?cust=' + $('#promptHiddenField').val() + '&page=' + page + '&recordCount=' + recordCount + '&statBL=' + statBL;
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    beforeSend: function () {
+                        $('#datatable').hide();
+                        $('#loading_barang_tab').show();
+                        $('#info_record').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null || response.Errors.length == 0) {
+                            if (response.RecordCount != null) {
+                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : ' + response.RecordCount;
+                            }
+                            if (response.Recursive) {
+                                if (response.BLProductActive == 1) {
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 1);
+                                } else {
+                                    GetDataBrgWithRecord(response.Page, response.RecordCount, 0);
+                                }
+                            } else {
+                                document.getElementById('txtInfo').innerText = '';
+                                alert('Jumlah data berhasil tersimpan :' + response.RecordCount);
+                                //$('#table-upload-barang-partial').html(response);
+                                //var table = $('#datatable').DataTable();
+                                //$('#search_barang').keyup(function () {
+                                //    table.search($(this).val()).draw();
+                                //});
+                                refreshTableBarangUpload();
+                                $('#loading_barang_tab').hide();
+                                $('#info_record').hide();
+                                $('#datatable').show();
+                            }
+                        } else {
+                            $('#loading_barang_tab').hide();
+                            $('#datatable').show();
+                            $('#info_record').hide();
+                        }
+
+
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
@@ -883,6 +964,42 @@
                 }
             });
         }
+
+        function pass(idBarang, namaBarang) {
+            this.$idBarang = idBarang;
+            $('#hapus_label').text(namaBarang);
+        }
+
+        function DeleteBarangTemp() {
+            var link = '@Url.Action("DeleteBarangTemp", "Manage", new { barangId = "replaceId"})';
+            link = link.replace("replaceId", this.$idBarang);
+            link += '&cust=' + $('#promptHiddenField').val();
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    //change by nurul 30/7/2018
+                    //$('#table-barang-1-partial').html(response);
+                    //Initialize();
+                    $('#konfHapusBarang').modal('hide');
+                    if (response.Errors != undefined && response.Errors.length > 0) {
+                        //$('#konfHapusBarang').modal('hide');
+                        alert(response.Errors[0]);
+                    } else {
+                        //$('#TableUploadBarangPartial').html(response);
+                        //Initialize();
+                        refreshTableBarangUpload();
+                        //$('#konfHapusBarang').modal('hide');
+                    }
+                    //end change
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
         function startSyncAll() {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
                 alert('Anda belum memilih Toko');

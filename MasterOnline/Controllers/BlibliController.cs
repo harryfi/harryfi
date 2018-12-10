@@ -1825,11 +1825,12 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust)
+        public BindingBase getProduct(BlibliAPIData iden, string productCode, int page, string cust, int recordCount)
         {
             var ret = new BindingBase
             {
-                status = 0
+                status = 0,
+                recordCount = recordCount,
             };
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1839,7 +1840,7 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(Convert.ToString(milis)) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + (string.IsNullOrEmpty(productCode) ? "" : "&gdnSku=" + Uri.EscapeDataString(productCode));
-            urll += "&page=" + page + "&size=50";
+            urll += "&page=" + page + "&size=10";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
             myReq.Headers.Add("Authorization", ("bearer " + iden.token));
@@ -1864,7 +1865,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret.message = ex.Message;
             }
 
             if (responseFromServer != null)
@@ -1880,7 +1881,7 @@ namespace MasterOnline.Controllers
                             {
                                 ret.status = 1;
                                 int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                                if (listBrg.content.Count == 50)
+                                if (listBrg.content.Count == 10)
                                     ret.message = (page + 1).ToString();
                                 foreach (var item in listBrg.content)
                                 {
@@ -1888,17 +1889,37 @@ namespace MasterOnline.Controllers
                                     var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
+                                        ret.recordCount += getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
                                     }
                                 }
                             }
+                            else
+                            {
+                                ret.message = "Gagal mendapatkan produk";
+                            }
+                        }
+                        else
+                        {
+                            ret.message = "Gagal mendapatkan produk";
                         }
                     }
+                    else
+                    {
+                        ret.message = listBrg.errorMessage;
+                    }
                 }
+                else
+                {
+                    ret.message = "Gagal mendapatkan produk";
+                }
+            }
+            else
+            {
+                ret.message = "Failed to get response from Blibli API";
             }
             return ret;
         }
-        protected void getProductDetail(BlibliAPIData iden, string productCode, string cust, int display)
+        protected int getProductDetail(BlibliAPIData iden, string productCode, string cust, int display)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1980,10 +2001,10 @@ namespace MasterOnline.Controllers
                             nama2 = "";
                             nama3 = "";
                         }
-                        if(result.value.items[0].images != null)
+                        if (result.value.items[0].images != null)
                         {
                             urlImage = result.value.items[0].images[0].locationPath;
-                            if(result.value.items[0].images.Count >= 2)
+                            if (result.value.items[0].images.Count >= 2)
                             {
                                 urlImage2 = result.value.items[0].images[1].locationPath;
                                 if (result.value.items[0].images.Count >= 3)
@@ -2032,7 +2053,7 @@ namespace MasterOnline.Controllers
                                                 attrVal += ";";
                                             attrVal += property.values[0].ToString();
                                         }
-                                        
+
                                     }
                                 }
                                 sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
@@ -2338,7 +2359,7 @@ namespace MasterOnline.Controllers
                             else
                             {
                                 sSQL += ", '', '', ''";
-                            }                            
+                            }
                             if (!string.IsNullOrEmpty(attributeBlibli.ACODE_11))
                             {
                                 foreach (var property in result.value.attributes)
@@ -3003,11 +3024,12 @@ namespace MasterOnline.Controllers
                         #endregion
 
                         EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-
+                        return 1;
                     }
                 }
 
             }
+            return 0;
         }
 
 

@@ -22,4 +22,5 @@ namespace MasterOnline.ViewModels
         public List<QOH_QOO_ALL_ITEM> Stok { get; set; }
         public string errorHargaPerMP { get; set; }
     }
+    
 }

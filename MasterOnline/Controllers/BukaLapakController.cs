@@ -879,23 +879,42 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display)
+        public BindingBase getListProduct(string cust, string userId, string token, int page, bool display, int recordCount)
         {
             var ret = new BindingBase();
             ret.status = 0;
+            ret.recordCount = recordCount;
 
             Utils.HttpRequest req = new Utils.HttpRequest();
             string nonaktifUrl = "&not_for_sale_only=1";
-            ProdBL resListProd = req.CallBukaLapakAPI("", "products/mylapak.json?page=" + page + "&per_page=30" + (display ? "" : nonaktifUrl), "", userId, token, typeof(ProdBL)) as ProdBL;
+            ProdBL resListProd = req.CallBukaLapakAPI("", "products/mylapak.json?page=" + page + "&per_page=10" + (display ? "" : nonaktifUrl), "", userId, token, typeof(ProdBL)) as ProdBL;
             if (resListProd != null)
             {
                 if (resListProd.status.Equals("OK") && resListProd.products != null)
                 {
                     if (resListProd.products.Count == 0)
-                        return ret;
+                    {
+                        if (display)
+                        {
+                            ret.status = 1;
+                            ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                        }
+                        else
+                        {
+                            return ret;
+                        }
+
+                    }
                     ret.status = 1;
-                    if (resListProd.products.Count == 30)
+                    if (resListProd.products.Count == 10)
+                    {
                         ret.message = (page + 1).ToString();
+                    }
+                    else
+                    {
+                        if (display)
+                            ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
+                    }
                     string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
                     sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3";
                     //sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
@@ -912,6 +931,7 @@ namespace MasterOnline.Controllers
                         var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
+                            ret.recordCount++;
                             string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                             urlImage = "";
                             urlImage2 = "";
