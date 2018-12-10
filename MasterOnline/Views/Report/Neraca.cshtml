@@ -32,7 +32,7 @@
     <div class="col-md-2">
         @Html.Label("", "Kode Laporan")
         <div class="input-group text">
-            @Html.TextBox("KdLap", "", new { @class = "form-control", @MaxLength = "10" })
+            @Html.TextBox("KdLap", "", new { @class = "form-control", @MaxLength = "10", value = "01" })
             <span class="input-group-btn">
                 <button id="prompt-kdlap" class="btn btn-default" type="button" style="height: 34px;">
                     <span class="glyphicon glyphicon-option-horizontal"></span>
@@ -40,7 +40,13 @@
             </span>
         </div>
     </div>
-    <div class="col-md-10">
+    <div class="col-md-2">
+        @Html.Label("", "Keterangan")
+        <div class="input-group text">
+            @Html.TextBox("Ket", "", new { @class = "form-control", @MaxLength = "20", disabled="disabled" })
+        </div>
+    </div>
+    <div class="col-md-8">
     </div>
 </div>
 <div class="row">
@@ -124,6 +130,29 @@
             $('#preview-report').click(function() {
                 previewing();
             });
+
+            //add by nurul 6/12/2018
+            $('#KdLap').val("01");
+            if ($('#KdLap').val() == "01") {
+                $('#Ket').val("Neraca");
+            } else {
+                $('#Ket').val("");
+            }
+            $('#KdLap').change(function () {
+                if ($('#KdLap').val() == "01") {
+                    $('#Ket').val("Neraca");
+                } else {
+                    $('#Ket').val("");
+                }
+            });
+            $('#KdLap').blur(function () {
+                if ($('#KdLap').val() == "01") {
+                    $('#Ket').val("Neraca");
+                } else {
+                    $('#Ket').val("");
+                }
+            });
+            //end add
         });
 
         function FormatMonth() {
@@ -166,6 +195,8 @@
         function afterPromptKodeNeraca(kode) {
             if (promptKdLap == "1") {
                 $('#KdLap').val(kode);
+                //add by nurul 6/12/2018
+                $('#Ket').val("Neraca");
             }
             promptKdLap = "";
         }

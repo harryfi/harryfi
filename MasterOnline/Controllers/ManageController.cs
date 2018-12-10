@@ -603,9 +603,18 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult BuyerPopup()
+        //public ActionResult BuyerPopup()
+        //{
+        //    return View();
+        //}
+        public ActionResult BuyerPopUp1()
         {
-            return View();
+            var vm = new BuyerViewModel()
+            {
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+            };
+
+            return View(vm);
         }
 
         // =============================================== Menu Manage (END)
@@ -666,6 +675,63 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableBuyerPartial", partialVm);
         }
+        //add by nurul 5/12/2018
+        [HttpPost]
+        public ActionResult SaveBuyerPopUp(BuyerViewModel dataBuyer)
+        {
+            if (!ModelState.IsValid)
+            {
+                //dataBuyer.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                //return Json(dataBuyer, JsonRequestBehavior.AllowGet);
+                return View("BuyerPopup1", dataBuyer);
+            }
+
+            if (dataBuyer.Pembeli.RecNum == null)
+            {
+                var listPembeli = ErasoftDbContext.ARF01C.OrderBy(m => m.RecNum).ToList();
+                var noPembeli = "";
+
+                if (listPembeli.Count == 0)
+                {
+                    noPembeli = "000001";
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DBCC CHECKIDENT (ARF01C, RESEED, 0)");
+                }
+                else
+                {
+                    var lastRecNum = listPembeli.Last().RecNum;
+                    lastRecNum++;
+
+                    noPembeli = lastRecNum.ToString().PadLeft(6, '0');
+                }
+
+                dataBuyer.Pembeli.BUYER_CODE = noPembeli;
+                ErasoftDbContext.ARF01C.Add(dataBuyer.Pembeli);
+            }
+            else
+            {
+                var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == dataBuyer.Pembeli.RecNum);
+
+                buyerInDb.NAMA = dataBuyer.Pembeli.NAMA;
+                buyerInDb.AL = dataBuyer.Pembeli.AL;
+                buyerInDb.KODEPROV = dataBuyer.Pembeli.KODEPROV;
+                buyerInDb.KODEKABKOT = dataBuyer.Pembeli.KODEKABKOT;
+                buyerInDb.KODEPOS = dataBuyer.Pembeli.KODEPOS;
+                buyerInDb.PERSO = dataBuyer.Pembeli.PERSO;
+                buyerInDb.EMAIL = dataBuyer.Pembeli.EMAIL;
+                buyerInDb.TLP = dataBuyer.Pembeli.TLP;
+            }
+
+            ErasoftDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var partialVm = new BuyerViewModel()
+            {
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
+            };
+
+            return PartialView("TableBuyerPopUp", partialVm);
+        }
+        //end add
 
         [HttpPost]
         public ActionResult SavePembeliPopup(BuyerViewModel dataBuyer)
@@ -4128,23 +4194,8 @@ namespace MasterOnline.Controllers
         {
             //change by nurul 5/11/2018
             var listInvoice = ErasoftDbContext.PBT01A
-                                //change by nurul 5 / 11 / 2018--
                                 .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
-                                //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
                                 .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
-
-            //string sSQL = "";
-            ////sSQL += "SELECT A.RecNum, A.INV ";
-            //sSQL += "SELECT * ";
-            //sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
-            //sSQL += "A.JENISFORM = '1' ";
-            //sSQL += "AND B.JENISFORM = '2' ";
-            //sSQL += "AND A.INV = B.REF ";
-            //sSQL += "WHERE ISNULL(B.INV, '') = '' ";
-            //sSQL += "AND A.JENISFORM = '1' ";
-            //sSQL += "AND A.SUPP = '" + kodeSupplier + "' ";
-            //sSQL += "ORDER BY A.INV ASC, A.TGLINPUT DESC ";
-            //var listInvoice = ErasoftDbContext.Database.SqlQuery<PBT01A>(sSQL).ToList();
             ////end change 
             var listKodeInvoice = new List<InvoiceJson>();
 
@@ -4164,15 +4215,8 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetInvoiceBySuppNew(string kodeSupplier)
         {
-            //change by nurul 5/11/2018
-            //var listInvoice = ErasoftDbContext.PBT01A
-            //                    //change by nurul 5 / 11 / 2018--
-            //                    .Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier)
-            //                    //.Where(f => f.JENISFORM == "1" && f.SUPP == kodeSupplier && (String.IsNullOrEmpty(f.REF) || f.REF == "-"))
-            //                    .OrderBy(f => f.INV).ThenByDescending(f => f.TGLINPUT).ToList();
 
             string sSQL = "";
-            //sSQL += "SELECT A.RecNum, A.INV ";
             sSQL += "SELECT * ";
             sSQL += "FROM PBT01A A LEFT JOIN PBT01A B ON ";
             sSQL += "A.JENISFORM = '1' ";
@@ -4262,6 +4306,9 @@ namespace MasterOnline.Controllers
                 invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
                 invoiceInDb.PPN = dataVm.Invoice.PPN;
                 invoiceInDb.NPPN = dataVm.Invoice.NPPN;
+                //ADD BY NURUL 7/12/2018
+                invoiceInDb.BIAYA_LAIN = dataVm.Invoice.BIAYA_LAIN;
+                //END ADD
                 invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
                 invoiceInDb.KODE_REF_PESANAN = dataVm.Invoice.KODE_REF_PESANAN;
 
@@ -4355,6 +4402,12 @@ namespace MasterOnline.Controllers
                         dataVm.Invoice.TGJT = returInDb.TGJT;
                         dataVm.Invoice.BRUTO = returInDb.BRUTO;
                         dataVm.Invoice.NETTO = returInDb.NETTO;
+                        //add by nurul 10/12/2018
+                        dataVm.Invoice.PPN = returInDb.PPN;
+                        dataVm.Invoice.NPPN = returInDb.NPPN;
+                        dataVm.Invoice.NDISC1 = returInDb.NDISC1;
+                        dataVm.Invoice.BIAYA_LAIN = returInDb.BIAYA_LAIN;
+                        //end add 
                     }
 
                     //var recNumCust = ParseInt(dataVm.Invoice.SUPP);
@@ -4410,7 +4463,11 @@ namespace MasterOnline.Controllers
                     invoiceInDb.BRUTO = dataVm.Invoice.BRUTO;
                     invoiceInDb.NDISC1 = dataVm.Invoice.NDISC1;
                     invoiceInDb.PPN = dataVm.Invoice.PPN;
-                    invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
+                    //invoiceInDb.NILAI_PPN = dataVm.Invoice.NILAI_PPN;
+                    invoiceInDb.NPPN = dataVm.Invoice.NPPN;
+                    //add by nurul 10/12/2018
+                    invoiceInDb.BIAYA_LAIN = dataVm.Invoice.BIAYA_LAIN;
+                    //end add
 
                     //dataVm.InvoiceDetail.INV = dataVm.Invoice.INV;
                     //if (dataVm.InvoiceDetail.NO == null)
@@ -4741,8 +4798,10 @@ namespace MasterOnline.Controllers
                 //end add by calvin, validasi QOH
 
                 invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
-                invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
-                invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
+                //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
+                invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
 
                 ErasoftDbContext.PBT01B.Remove(barangInvoiceInDb);
                 ErasoftDbContext.SaveChanges();
@@ -4778,8 +4837,10 @@ namespace MasterOnline.Controllers
                 var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.INV == barangInvoiceInDb.INV && p.JENISFORM == "2");
 
                 invoiceInDb.BRUTO -= barangInvoiceInDb.THARGA;
-                invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
-                invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
+                //invoiceInDb.NILAI_PPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                invoiceInDb.NPPN = Math.Ceiling((double)invoiceInDb.PPN * (double)invoiceInDb.BRUTO / 100);
+                //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NILAI_PPN;
+                invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
 
                 ErasoftDbContext.PBT01B.Remove(barangInvoiceInDb);
                 ErasoftDbContext.SaveChanges();
@@ -4820,13 +4881,18 @@ namespace MasterOnline.Controllers
             //change by nurul 16/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
             invoiceInDb.NPPN = dataUpdate.NilaiPpn;
             //end change 
+            //ADD BY NURUL 7/12/2018
+            invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
+            //END ADD
             invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
             invoiceInDb.TGL = DateTime.ParseExact(dataUpdate.Tgl.Substring(0, 10), "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             invoiceInDb.SUPP = dataUpdate.Supp;
             invoiceInDb.TERM = dataUpdate.TermInvoice;
             invoiceInDb.NAMA = ErasoftDbContext.APF01.Single(s => s.SUPP == dataUpdate.Supp).NAMA;
             invoiceInDb.TGJT = DateTime.ParseExact(dataUpdate.Tempo, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
+            //CHANGE BY NURUL 7/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
+            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
+            //END CHANGE 
 
             ErasoftDbContext.SaveChanges();
 
@@ -4843,7 +4909,12 @@ namespace MasterOnline.Controllers
             //change by nurul 6/11/2018 -- invoiceInDb.NPPN = dataUpdate.Bruto * (invoiceInDb.PPN / 100);
             invoiceInDb.NPPN = ((dataUpdate.Bruto - invoiceInDb.NDISC1) * invoiceInDb.PPN / 100);
             //invoiceInDb.KODE_REF_PESANAN = dataUpdate.KodeRefPesanan;
-            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
+            //add by nurul 10/12/2018
+            invoiceInDb.BIAYA_LAIN = dataUpdate.OngkosKirim;
+            //end add
+            //change by nurul 10/12/2018 -- invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN;
+            invoiceInDb.NETTO = invoiceInDb.BRUTO - invoiceInDb.NDISC1 + invoiceInDb.NPPN + invoiceInDb.BIAYA_LAIN;
+            //end change 
 
             ErasoftDbContext.SaveChanges();
 
@@ -4921,6 +4992,17 @@ namespace MasterOnline.Controllers
 
             return Json(listPembeli, JsonRequestBehavior.AllowGet);
         }
+
+        //add by nurul 4/12/2018
+        [HttpGet]
+        public ActionResult GetPembeliPesanan(string kode)
+        {
+            //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
+             var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
+
+            return Json(pembeli, JsonRequestBehavior.AllowGet);
+        }
+        //end add 
 
         [HttpGet]
         public ActionResult GetDataBarangPesanan(string code)

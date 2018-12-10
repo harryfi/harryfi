@@ -5888,6 +5888,8 @@
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\spiders\__pycache__\__init__.cpython-37.pyc" />
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\settings.cpython-37.pyc" />
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\__init__.cpython-37.pyc" />
+    <Content Include="Views\Manage\TableBuyerPopUp.cshtml" />
+    <Content Include="Views\Manage\BuyerPopUp1.cshtml" />
     <Content Include="Views\Shopee\ShopeeAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
