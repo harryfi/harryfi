@@ -154,7 +154,7 @@
     <div class="row">
         <div class="col-md-6">
             <div class="form-group">
-                @Html.LabelFor(m => m.Faktur.TERM, "TOP", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
+                @Html.LabelFor(m => m.Faktur.TERM, "Term Of Payment (TOP)", new { @class = "control-label col-md-4 col-sm-4 col-xs-12", @style = "top: -10px;" })
                 <div class="col-md-6 col-sm-6 col-xs-6">
                     @*@Html.TextBoxFor(m => m.Faktur.TERM, new { @class = "form-control limited_number_textbox", type = "number", maxlength = 3 })*@
                     @Html.TextBoxFor(m => m.Faktur.TERM, new { @class = "form-control limited_number_textbox num-only", maxlength = 3 })

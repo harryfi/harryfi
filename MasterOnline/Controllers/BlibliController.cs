@@ -1509,7 +1509,7 @@ namespace MasterOnline.Controllers
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code);
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
                 urll_1 += "&size=100";
                 if (!string.IsNullOrEmpty(data.nama))
                 {
@@ -3097,20 +3097,27 @@ namespace MasterOnline.Controllers
                                     }
                                     catch (Exception ex)
                                     {
-                                        if (Convert.ToString(item.value.Value).Contains("postImage"))
+                                        try
                                         {
-                                            using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                            if (Convert.ToString(item.value.Value).Contains("postImage"))
                                             {
-                                                oConnection.Open();
-                                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
                                                 {
-                                                    oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-                                                    oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                                    oCommand.ExecuteNonQuery();
+                                                    oConnection.Open();
+                                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                                    {
+                                                        oCommand.CommandType = CommandType.Text;
+                                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
+                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
+                                                        oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
+                                                        oCommand.ExecuteNonQuery();
+                                                    }
                                                 }
                                             }
+                                        }
+                                        catch (Exception ex2)
+                                        {
+
                                         }
                                     }
                                     if (values != null)

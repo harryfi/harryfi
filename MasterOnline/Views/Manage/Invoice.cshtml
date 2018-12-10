@@ -1477,6 +1477,22 @@
                 //getTanggal();
 
             });
+            $('#Invoice_BIAYA_LAIN').change(function () {
+                $('#btn-simpan-perubahan-row').show();
+            });
+
+            $('#Invoice_BIAYA_LAIN').blur(function () {
+                if ($(this).val() == '') {
+                    $(this).val(0);
+                }
+                $(this).val(convertToAngka($(this).val()));
+                $(this).val(convertToRupiah($(this).val()));
+                refreshNetto();
+            });
+
+            $('#Invoice_BIAYA_LAIN').focus(function () {
+                $(this).val(convertToAngka($(this).val()));
+            });
             //end add
 
             $('#btn-simpan-perubahan').click(function () {
@@ -1495,6 +1511,9 @@
                         TermInvoice: $('#Invoice_TERM').val(),
                         Buyer: $('#Invoice_NAMA').val(),
                         Tempo: $('#Invoice_TGJT').val(),
+                        //ADD BY NURUL 7/12/2018
+                        OngkosKirim: convertToAngka($('#Invoice_BIAYA_LAIN').val()),
+                        //END ADD
                         Bruto: convertToAngka($('#Invoice_BRUTO').val()),
                         KodeRefPesanan: $('#Invoice_KODE_REF_PESANAN').val()
                     }),
@@ -1551,6 +1570,9 @@
 
             $bakalNetto -= parseInt(convertToAngka($('#Invoice_NDISC1').val()));
             $bakalNetto += $nPpn;
+            //add by nurul 10/12/2018
+            $bakalNetto += convertToAngka($('#Invoice_BIAYA_LAIN').val());
+            //end add 
 
             $('#Invoice_NETTO').val(convertToRupiah($bakalNetto));
         }
@@ -2084,10 +2106,18 @@
 
                     $.each(data,
                         function (i, item) {
+                            
+                            //add by calvin 4 desember 2018
+                            var nama2 = "";
+                            if (item.NAMA2 != null && item.NAMA2 != "null") {
+                                nama2 = item.NAMA2;
+                            }
+                            //end add by calvin 4 desember 2018
+
                             listKodeBarang[i] = {
                                 id: item.BRG,
                                 //change by nurul 27/11/2018 (tampilin nama barang 2) -- text: item.BRG + ' (' + item.NAMA + ')'
-                                text: item.BRG + ' (' + item.NAMA + ' ' + item.NAMA2 + ')'
+                                text: item.BRG + ' (' + item.NAMA + ' ' + nama2 + ')'
                             };
                         });
 
@@ -2120,6 +2150,9 @@
                             $beforeState.ndisc = $('#Invoice_NILAI_DISC').val();
                             $beforeState.ppn = $('#Invoice_PPN').val();
                             $beforeState.nppn = $('#Invoice_NILAI_PPN').val();
+                            //ADD BY NURUL 7/12/2018
+                            $beforeState.ongkir = $('#Invoice_BIAYA_LAIN').val();
+                            //end add
                             $($trElement + ' .btn-primary').removeAttr('disabled');
                             $('#gudang-select').show();
                             $('#gudang-kode').hide();
@@ -2152,12 +2185,18 @@
                                 $('#Invoice_NILAI_DISC').val(convertToRupiah(0));
                                 $('#Invoice_PPN').val(0);
                                 $('#Invoice_NILAI_PPN').val(convertToRupiah(0));
+                                //ADD BY NURUL 7/12/2018
+                                $('#Invoice_BIAYA_LAIN').val(convertToRupiah(0));
+                                //end add
                             } else {
                                 $('#Invoice_BRUTO').val($beforeState.brutto);
                                 $('#Invoice_NETTO').val($beforeState.netto);
                                 $('#Invoice_NILAI_DISC').val($beforeState.ndisc);
                                 $('#Invoice_PPN').val($beforeState.ppn);
                                 $('#Invoice_NILAI_PPN').val($beforeState.nppn);
+                                //ADD BY NURUL 7/12/2018
+                                $('#Invoice_BIAYA_LAIN').val($beforeState.ongkir);
+                                //end add
                             }
 
                             onTab();
@@ -2534,6 +2573,9 @@
                     $("#Invoice_BRUTO").val(convertToAngka($("#Invoice_BRUTO").val()));
                     $("#Invoice_NDISC1").val(convertToAngka($("#Invoice_NDISC1").val()));
                     $("#Invoice_NPPN").val(convertToAngka($("#Invoice_NPPN").val()));
+                    //add by nurul 7/12/2018
+                    $("#Invoice_BIAYA_LAIN").val(convertToAngka($("#Invoice_BIAYA_LAIN").val()));
+                    //end add 
                     $("#Invoice_NETTO").val($bakalNetto);
 
                     $totalAwal = 0;
