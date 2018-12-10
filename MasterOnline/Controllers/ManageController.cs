@@ -1013,12 +1013,17 @@ namespace MasterOnline.Controllers
             var partialVm = new CustomerViewModel()
             {
                 ListCustomer = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
-                kodeCust = kdCustomer,
+                kodeCust = kdCustomer
             };
             if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
             {
+                partialVm.marketplace = "LAZADA";
                 return Json(partialVm, JsonRequestBehavior.AllowGet);
-
+            }
+            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString()))
+            {
+                partialVm.marketplace = "SHOPEE";
+                return Json(partialVm, JsonRequestBehavior.AllowGet);
             }
             else
             {
