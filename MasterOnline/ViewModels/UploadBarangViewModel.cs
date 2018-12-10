@@ -21,6 +21,14 @@ namespace MasterOnline.ViewModels
         public string contRecursive { get; set; }
     }
 
+    public class SyncBarangViewModel : UploadBarangViewModel
+    {
+        public bool Recursive { get; set; }
+        public int Page { get; set; }
+        public int RecordCount { get; set; }
+        public int BLProductActive { get; set; }
+    }
+
     public class SimpleJsonObject
     {
         public int Total { get; set; }

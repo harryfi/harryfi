@@ -1205,22 +1205,23 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BindingBase GetBrgLazada(string cust, string accessToken, int page)
+        public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount)
         {
             var ret = new BindingBase();
             ret.status = 0;
+            ret.recordCount = recordCount;
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
             request.SetApiName("/products/get");
             request.SetHttpMethod("GET");
             request.AddApiParameter("filter", "all");//Possible values are all, live, inactive, deleted, image-missing, pending, rejected, sold-out. 
             //request.AddApiParameter("update_before", "2018-01-01T00:00:00+0800");
-            //request.AddApiParameter("search", "product_name");
+            //request.AddApiParameter("search", "vincenza tea set");
             //request.AddApiParameter("create_before", "2018-01-01T00:00:00+0800");
-            request.AddApiParameter("offset", (100 * page).ToString());
+            request.AddApiParameter("offset", (10 * page).ToString());
             //request.AddApiParameter("create_after", "2010-01-01T00:00:00+0800");
             //request.AddApiParameter("update_after", "2010-01-01T00:00:00+0800");
-            request.AddApiParameter("limit", "100");
+            request.AddApiParameter("limit", "10");
             //request.AddApiParameter("options", "1");
             //request.AddApiParameter("sku_seller_list", " [\"39817:01:01\", \"Apple 6S Black\"]");
             try
@@ -1235,7 +1236,7 @@ namespace MasterOnline.Controllers
                         {
                             ret.status = 1;
                             int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                            if (result.data.products.Count == 100)
+                            if (result.data.products.Count == 10)
                             {
                                 ret.message = (page + 1).ToString();
                             }
@@ -1250,848 +1251,853 @@ namespace MasterOnline.Controllers
                             string sSQL_Value = "";
                             foreach (var brg in result.data.products)
                             {
-                                string kodeBrg = brg.skus[0].SellerSku;
-                                var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
-                                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                if (tempbrginDB == null && brgInDB == null)
+                                for(int i = 0; i < brg.skus.Count; i++)
                                 {
-                                    sSQL_Value += " ( '" + brg.skus[0].SellerSku + "' , '";
-                                    string namaBrg = brg.attributes.name;
-                                    string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                                    urlImage = "";
-                                    urlImage2 = "";
-                                    urlImage3 = "";
-                                    if (namaBrg.Length > 30)
+                                    string kodeBrg = brg.skus[i].SellerSku;
+                                    var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
+                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        nama = namaBrg.Substring(0, 30);
-                                        if (namaBrg.Length > 60)
+                                        ret.recordCount++;
+                                        sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '";
+                                        string namaBrg = brg.attributes.name;
+                                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                        urlImage = "";
+                                        urlImage2 = "";
+                                        urlImage3 = "";
+                                        if (namaBrg.Length > 30)
                                         {
-                                            nama2 = namaBrg.Substring(30, 30);
-                                            nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                        }
-                                        else
-                                        {
-                                            nama2 = namaBrg.Substring(30);
-                                            nama3 = "";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        nama = namaBrg;
-                                        nama2 = "";
-                                        nama3 = "";
-                                    }
-                                    string categoryCode = brg.primary_category;
-                                    //if (namaBrg.Length > 30)
-                                    //{
-                                    //    sSQL += namaBrg.Substring(0, 30) + "' , '" + namaBrg.Substring(30) + "' , ";
-                                    //}
-                                    //else
-                                    //{
-                                    //    sSQL += namaBrg + "' , '' , ";
-
-                                    //}
-                                    sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
-
-                                    if (brg.skus[0].Images != null)
-                                    {
-                                        if (brg.skus[0].Images[0] != null)
-                                            urlImage = brg.skus[0].Images[0];
-                                        if (brg.skus[0].Images[1] != null)
-                                            urlImage2 = brg.skus[0].Images[1];
-                                        if (brg.skus[0].Images[2] != null)
-                                            urlImage3 = brg.skus[0].Images[2];
-                                    }
-
-                                    var brgAttribute = new Dictionary<string, string>();
-                                    var brgSku = new Dictionary<string, string>();
-                                    foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
-                                    {
-                                        brgAttribute.Add(property.Name, property.Value.ToString());
-                                    }
-                                    foreach (Newtonsoft.Json.Linq.JProperty property in brg.skus[0])
-                                    {
-                                        brgSku.Add(property.Name, property.Value.ToString());
-                                    }
-                                    string value;
-                                    var statusBrg = (brgSku.TryGetValue("Status", out value) ? value : "");
-                                    var display = statusBrg.Equals("active") ? 1 : 0;
-                                    string deskripsi = brg.attributes.description;
-                                    string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n");
-                                    if (s_deskripsi.Length > 250)
-                                        s_deskripsi = s_deskripsi.Substring(0, 250);
-                                    sSQL_Value += Convert.ToDouble(brg.skus[0].package_weight) * 1000 + " , " + brg.skus[0].package_length + " , " + brg.skus[0].package_width + " , " + brg.skus[0].package_height + " , '" + cust + "' , '";
-                                    sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
-                                    sSQL_Value += "' , " + IdMarket + " , " + brg.skus[0].price + " , " + brg.skus[0].price + " , ";
-                                    sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
-                                    sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
-                                    var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
-                                    #region set attribute
-                                    if (attributeLzd != null)
-                                    {
-
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME1))
-                                        {
-                                            if (attributeLzd.ANAME1.Equals("short_description"))
+                                            nama = namaBrg.Substring(0, 30);
+                                            if (namaBrg.Length > 60)
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + s_deskripsi + "'";
+                                                nama2 = namaBrg.Substring(30, 30);
+                                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
                                             }
                                             else
                                             {
-                                                if (attributeLzd.ATYPE1.Equals("sku"))
+                                                nama2 = namaBrg.Substring(30);
+                                                nama3 = "";
+                                            }
+                                        }
+                                        else
+                                        {
+                                            nama = namaBrg;
+                                            nama2 = "";
+                                            nama3 = "";
+                                        }
+                                        string categoryCode = brg.primary_category;
+                                        //if (namaBrg.Length > 30)
+                                        //{
+                                        //    sSQL += namaBrg.Substring(0, 30) + "' , '" + namaBrg.Substring(30) + "' , ";
+                                        //}
+                                        //else
+                                        //{
+                                        //    sSQL += namaBrg + "' , '' , ";
+
+                                        //}
+                                        sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+
+                                        if (brg.skus[i].Images != null)
+                                        {
+                                            if (brg.skus[i].Images[0] != null)
+                                                urlImage = brg.skus[i].Images[0];
+                                            if (brg.skus[i].Images[1] != null)
+                                                urlImage2 = brg.skus[i].Images[1];
+                                            if (brg.skus[i].Images[2] != null)
+                                                urlImage3 = brg.skus[i].Images[2];
+                                        }
+
+                                        var brgAttribute = new Dictionary<string, string>();
+                                        var brgSku = new Dictionary<string, string>();
+                                        foreach (Newtonsoft.Json.Linq.JProperty property in brg.attributes)
+                                        {
+                                            brgAttribute.Add(property.Name, property.Value.ToString());
+                                        }
+                                        foreach (Newtonsoft.Json.Linq.JProperty property in brg.skus[i])
+                                        {
+                                            brgSku.Add(property.Name, property.Value.ToString());
+                                        }
+                                        string value;
+                                        var statusBrg = (brgSku.TryGetValue("Status", out value) ? value : "");
+                                        var display = statusBrg.Equals("active") ? 1 : 0;
+                                        string deskripsi = brg.attributes.description;
+                                        string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n");
+                                        if (s_deskripsi.Length > 250)
+                                            s_deskripsi = s_deskripsi.Substring(0, 250);
+                                        sSQL_Value += Convert.ToDouble(brg.skus[i].package_weight) * 1000 + " , " + brg.skus[i].package_length + " , " + brg.skus[i].package_width + " , " + brg.skus[i].package_height + " , '" + cust + "' , '";
+                                        sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                                        sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
+                                        sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
+                                        sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+                                        var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                                        #region set attribute
+                                        if (attributeLzd != null)
+                                        {
+
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME1))
+                                            {
+                                                if (attributeLzd.ANAME1.Equals("short_description"))
                                                 {
-                                                    sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME1, out value) ? value : "") + "'";
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + s_deskripsi + "'";
                                                 }
                                                 else
                                                 {
-                                                    sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME1, out value) ? value : "") + "'";
+                                                    if (attributeLzd.ATYPE1.Equals("sku"))
+                                                    {
+                                                        sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME1, out value) ? value : "") + "'";
+                                                    }
+                                                    else
+                                                    {
+                                                        sSQL_Value += ", '" + attributeLzd.ANAME1 + "' , '" + attributeLzd.ALABEL1.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME1, out value) ? value : "") + "'";
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME2))
-                                        {
-                                            if (attributeLzd.ATYPE2.Equals("sku"))
+                                            else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME2 + "' , '" + attributeLzd.ALABEL2.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME2, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME2))
+                                            {
+                                                if (attributeLzd.ATYPE2.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME2 + "' , '" + attributeLzd.ALABEL2.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME2, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME2 + "' , '" + attributeLzd.ALABEL2.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME2, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME2 + "' , '" + attributeLzd.ALABEL2.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME2, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME3))
-                                        {
-                                            if (attributeLzd.ATYPE3.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME3))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME3 + "' , '" + attributeLzd.ALABEL3.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME3, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME3 + "' , '" + attributeLzd.ALABEL3.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME3, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME4))
-                                        {
-                                            if (attributeLzd.ATYPE4.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME4 + "' , '" + attributeLzd.ALABEL4.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME4, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE3.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME3 + "' , '" + attributeLzd.ALABEL3.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME3, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME3 + "' , '" + attributeLzd.ALABEL3.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME3, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME4 + "' , '" + attributeLzd.ALABEL4.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME4, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME5))
-                                        {
-                                            if (attributeLzd.ATYPE5.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME4))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME5 + "' , '" + attributeLzd.ALABEL5.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME5, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME5 + "' , '" + attributeLzd.ALABEL5.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME5, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME6))
-                                        {
-                                            if (attributeLzd.ATYPE6.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME6 + "' , '" + attributeLzd.ALABEL6.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME6, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE4.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME4 + "' , '" + attributeLzd.ALABEL4.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME4, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME4 + "' , '" + attributeLzd.ALABEL4.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME4, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME6 + "' , '" + attributeLzd.ALABEL6.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME6, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME7))
-                                        {
-                                            if (attributeLzd.ATYPE7.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME5))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME7 + "' , '" + attributeLzd.ALABEL7.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME7, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME7 + "' , '" + attributeLzd.ALABEL7.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME7, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME8))
-                                        {
-                                            if (attributeLzd.ATYPE8.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME8 + "' , '" + attributeLzd.ALABEL8.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME8, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE5.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME5 + "' , '" + attributeLzd.ALABEL5.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME5, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME5 + "' , '" + attributeLzd.ALABEL5.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME5, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME8 + "' , '" + attributeLzd.ALABEL8.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME8, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME9))
-                                        {
-                                            if (attributeLzd.ATYPE9.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME6))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME9 + "' , '" + attributeLzd.ALABEL9.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME9, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME9 + "' , '" + attributeLzd.ALABEL9.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME9, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME10))
-                                        {
-                                            if (attributeLzd.ATYPE10.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME10 + "' , '" + attributeLzd.ALABEL10.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME10, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE6.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME6 + "' , '" + attributeLzd.ALABEL6.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME6, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME6 + "' , '" + attributeLzd.ALABEL6.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME6, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME10 + "' , '" + attributeLzd.ALABEL10.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME10, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME11))
-                                        {
-                                            if (attributeLzd.ATYPE11.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME7))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME11 + "' , '" + attributeLzd.ALABEL11.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME11, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME11 + "' , '" + attributeLzd.ALABEL11.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME11, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME12))
-                                        {
-                                            if (attributeLzd.ATYPE12.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME12 + "' , '" + attributeLzd.ALABEL12.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME12, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE7.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME7 + "' , '" + attributeLzd.ALABEL7.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME7, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME7 + "' , '" + attributeLzd.ALABEL7.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME7, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME12 + "' , '" + attributeLzd.ALABEL12.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME12, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME13))
-                                        {
-                                            if (attributeLzd.ATYPE13.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME8))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME13 + "' , '" + attributeLzd.ALABEL13.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME13, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME13 + "' , '" + attributeLzd.ALABEL13.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME13, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME14))
-                                        {
-                                            if (attributeLzd.ATYPE14.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME14 + "' , '" + attributeLzd.ALABEL14.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME14, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE8.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME8 + "' , '" + attributeLzd.ALABEL8.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME8, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME8 + "' , '" + attributeLzd.ALABEL8.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME8, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME14 + "' , '" + attributeLzd.ALABEL14.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME14, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME15))
-                                        {
-                                            if (attributeLzd.ATYPE15.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME9))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME15 + "' , '" + attributeLzd.ALABEL15.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME15, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME15 + "' , '" + attributeLzd.ALABEL15.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME15, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME16))
-                                        {
-                                            if (attributeLzd.ATYPE16.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME16 + "' , '" + attributeLzd.ALABEL16.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME16, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE9.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME9 + "' , '" + attributeLzd.ALABEL9.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME9, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME9 + "' , '" + attributeLzd.ALABEL9.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME9, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME16 + "' , '" + attributeLzd.ALABEL16.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME16, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME17))
-                                        {
-                                            if (attributeLzd.ATYPE17.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME10))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME17 + "' , '" + attributeLzd.ALABEL17.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME17, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME17 + "' , '" + attributeLzd.ALABEL17.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME17, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME18))
-                                        {
-                                            if (attributeLzd.ATYPE18.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME18 + "' , '" + attributeLzd.ALABEL18.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME18, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE10.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME10 + "' , '" + attributeLzd.ALABEL10.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME10, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME10 + "' , '" + attributeLzd.ALABEL10.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME10, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME18 + "' , '" + attributeLzd.ALABEL18.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME18, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME19))
-                                        {
-                                            if (attributeLzd.ATYPE19.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME11))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME19 + "' , '" + attributeLzd.ALABEL19.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME19, out value) ? value : "") + "'";
-                                            }
-                                            else
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME19 + "' , '" + attributeLzd.ALABEL19.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME19, out value) ? value : "") + "'";
-                                            }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME20))
-                                        {
-                                            if (attributeLzd.ATYPE20.Equals("sku"))
-                                            {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME20 + "' , '" + attributeLzd.ALABEL20.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME20, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE11.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME11 + "' , '" + attributeLzd.ALABEL11.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME11, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME11 + "' , '" + attributeLzd.ALABEL11.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME11, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME20 + "' , '" + attributeLzd.ALABEL20.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME20, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME21))
-                                        {
-                                            if (attributeLzd.ATYPE21.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME12))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME21 + "' , '" + attributeLzd.ALABEL21.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME21, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE12.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME12 + "' , '" + attributeLzd.ALABEL12.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME12, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME12 + "' , '" + attributeLzd.ALABEL12.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME12, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME21 + "' , '" + attributeLzd.ALABEL21.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME21, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME22))
-                                        {
-                                            if (attributeLzd.ATYPE22.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME13))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME22 + "' , '" + attributeLzd.ALABEL22.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME22, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE13.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME13 + "' , '" + attributeLzd.ALABEL13.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME13, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME13 + "' , '" + attributeLzd.ALABEL13.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME13, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME22 + "' , '" + attributeLzd.ALABEL22.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME22, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME23))
-                                        {
-                                            if (attributeLzd.ATYPE23.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME14))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME23 + "' , '" + attributeLzd.ALABEL23.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME23, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE14.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME14 + "' , '" + attributeLzd.ALABEL14.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME14, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME14 + "' , '" + attributeLzd.ALABEL14.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME14, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME23 + "' , '" + attributeLzd.ALABEL23.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME23, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME24))
-                                        {
-                                            if (attributeLzd.ATYPE24.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME15))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME24 + "' , '" + attributeLzd.ALABEL24.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME24, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE15.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME15 + "' , '" + attributeLzd.ALABEL15.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME15, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME15 + "' , '" + attributeLzd.ALABEL15.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME15, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME24 + "' , '" + attributeLzd.ALABEL24.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME24, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME25))
-                                        {
-                                            if (attributeLzd.ATYPE25.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME16))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME25 + "' , '" + attributeLzd.ALABEL25.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME25, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE16.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME16 + "' , '" + attributeLzd.ALABEL16.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME16, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME16 + "' , '" + attributeLzd.ALABEL16.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME16, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME25 + "' , '" + attributeLzd.ALABEL25.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME25, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME26))
-                                        {
-                                            if (attributeLzd.ATYPE26.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME17))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME26 + "' , '" + attributeLzd.ALABEL26.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME26, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE17.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME17 + "' , '" + attributeLzd.ALABEL17.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME17, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME17 + "' , '" + attributeLzd.ALABEL17.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME17, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME26 + "' , '" + attributeLzd.ALABEL26.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME26, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME27))
-                                        {
-                                            if (attributeLzd.ATYPE27.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME18))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME27 + "' , '" + attributeLzd.ALABEL27.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME27, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE18.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME18 + "' , '" + attributeLzd.ALABEL18.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME18, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME18 + "' , '" + attributeLzd.ALABEL18.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME18, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME27 + "' , '" + attributeLzd.ALABEL27.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME27, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME28))
-                                        {
-                                            if (attributeLzd.ATYPE28.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME19))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME28 + "' , '" + attributeLzd.ALABEL28.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME28, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE19.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME19 + "' , '" + attributeLzd.ALABEL19.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME19, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME19 + "' , '" + attributeLzd.ALABEL19.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME19, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME28 + "' , '" + attributeLzd.ALABEL28.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME28, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME29))
-                                        {
-                                            if (attributeLzd.ATYPE29.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME20))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME29 + "' , '" + attributeLzd.ALABEL29.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME29, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE20.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME20 + "' , '" + attributeLzd.ALABEL20.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME20, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME20 + "' , '" + attributeLzd.ALABEL20.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME20, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME29 + "' , '" + attributeLzd.ALABEL29.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME29, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME30))
-                                        {
-                                            if (attributeLzd.ATYPE30.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME21))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME30 + "' , '" + attributeLzd.ALABEL30.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME30, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE21.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME21 + "' , '" + attributeLzd.ALABEL21.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME21, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME21 + "' , '" + attributeLzd.ALABEL21.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME21, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME30 + "' , '" + attributeLzd.ALABEL30.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME30, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME31))
-                                        {
-                                            if (attributeLzd.ATYPE31.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME22))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME31 + "' , '" + attributeLzd.ALABEL31.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME31, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE22.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME22 + "' , '" + attributeLzd.ALABEL22.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME22, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME22 + "' , '" + attributeLzd.ALABEL22.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME22, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME31 + "' , '" + attributeLzd.ALABEL31.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME31, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME32))
-                                        {
-                                            if (attributeLzd.ATYPE32.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME23))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME32 + "' , '" + attributeLzd.ALABEL32.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME32, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE23.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME23 + "' , '" + attributeLzd.ALABEL23.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME23, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME23 + "' , '" + attributeLzd.ALABEL23.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME23, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME32 + "' , '" + attributeLzd.ALABEL32.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME32, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME33))
-                                        {
-                                            if (attributeLzd.ATYPE33.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME24))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME33 + "' , '" + attributeLzd.ALABEL33.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME33, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE24.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME24 + "' , '" + attributeLzd.ALABEL24.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME24, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME24 + "' , '" + attributeLzd.ALABEL24.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME24, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME33 + "' , '" + attributeLzd.ALABEL33.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME33, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME34))
-                                        {
-                                            if (attributeLzd.ATYPE34.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME25))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME34, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE25.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME25 + "' , '" + attributeLzd.ALABEL25.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME25, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME25 + "' , '" + attributeLzd.ALABEL25.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME25, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME34, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME35))
-                                        {
-                                            if (attributeLzd.ATYPE35.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME26))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME35 + "' , '" + attributeLzd.ALABEL35.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME35, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE26.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME26 + "' , '" + attributeLzd.ALABEL26.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME26, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME26 + "' , '" + attributeLzd.ALABEL26.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME26, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME35 + "' , '" + attributeLzd.ALABEL35.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME35, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME36))
-                                        {
-                                            if (attributeLzd.ATYPE36.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME27))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME36 + "' , '" + attributeLzd.ALABEL36.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME36, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE27.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME27 + "' , '" + attributeLzd.ALABEL27.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME27, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME27 + "' , '" + attributeLzd.ALABEL27.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME27, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME36 + "' , '" + attributeLzd.ALABEL36.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME36, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME37))
-                                        {
-                                            if (attributeLzd.ATYPE37.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME28))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME37 + "' , '" + attributeLzd.ALABEL37.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME37, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE28.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME28 + "' , '" + attributeLzd.ALABEL28.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME28, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME28 + "' , '" + attributeLzd.ALABEL28.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME28, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME37 + "' , '" + attributeLzd.ALABEL37.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME37, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME38))
-                                        {
-                                            if (attributeLzd.ATYPE38.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME29))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME38 + "' , '" + attributeLzd.ALABEL38.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME38, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE29.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME29 + "' , '" + attributeLzd.ALABEL29.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME29, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME29 + "' , '" + attributeLzd.ALABEL29.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME29, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME38 + "' , '" + attributeLzd.ALABEL38.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME38, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME39))
-                                        {
-                                            if (attributeLzd.ATYPE39.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME30))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME39 + "' , '" + attributeLzd.ALABEL39.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME39, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE30.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME30 + "' , '" + attributeLzd.ALABEL30.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME30, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME30 + "' , '" + attributeLzd.ALABEL30.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME30, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME39 + "' , '" + attributeLzd.ALABEL39.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME39, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME40))
-                                        {
-                                            if (attributeLzd.ATYPE40.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME31))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME40 + "' , '" + attributeLzd.ALABEL40.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME40, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE31.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME31 + "' , '" + attributeLzd.ALABEL31.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME31, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME31 + "' , '" + attributeLzd.ALABEL31.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME31, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME40 + "' , '" + attributeLzd.ALABEL40.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME40, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME41))
-                                        {
-                                            if (attributeLzd.ATYPE41.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME32))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME41 + "' , '" + attributeLzd.ALABEL41.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME41, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE32.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME32 + "' , '" + attributeLzd.ALABEL32.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME32, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME32 + "' , '" + attributeLzd.ALABEL32.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME32, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME41 + "' , '" + attributeLzd.ALABEL41.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME41, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME42))
-                                        {
-                                            if (attributeLzd.ATYPE42.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME33))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME42 + "' , '" + attributeLzd.ALABEL42.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME42, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE33.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME33 + "' , '" + attributeLzd.ALABEL33.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME33, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME33 + "' , '" + attributeLzd.ALABEL33.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME33, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME42 + "' , '" + attributeLzd.ALABEL42.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME42, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME43))
-                                        {
-                                            if (attributeLzd.ATYPE43.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME34))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME43 + "' , '" + attributeLzd.ALABEL43.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME43, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE34.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME34, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME34 + "' , '" + attributeLzd.ALABEL34.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME34, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME43 + "' , '" + attributeLzd.ALABEL43.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME43, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME44))
-                                        {
-                                            if (attributeLzd.ATYPE44.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME35))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME44 + "' , '" + attributeLzd.ALABEL44.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME44, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE35.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME35 + "' , '" + attributeLzd.ALABEL35.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME35, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME35 + "' , '" + attributeLzd.ALABEL35.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME35, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME44 + "' , '" + attributeLzd.ALABEL44.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME44, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME45))
-                                        {
-                                            if (attributeLzd.ATYPE45.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME36))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME45 + "' , '" + attributeLzd.ALABEL45.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME45, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE36.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME36 + "' , '" + attributeLzd.ALABEL36.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME36, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME36 + "' , '" + attributeLzd.ALABEL36.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME36, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME45 + "' , '" + attributeLzd.ALABEL45.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME45, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME46))
-                                        {
-                                            if (attributeLzd.ATYPE46.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME37))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME46 + "' , '" + attributeLzd.ALABEL46.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME46, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE37.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME37 + "' , '" + attributeLzd.ALABEL37.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME37, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME37 + "' , '" + attributeLzd.ALABEL37.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME37, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME46 + "' , '" + attributeLzd.ALABEL46.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME46, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME47))
-                                        {
-                                            if (attributeLzd.ATYPE47.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME38))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME47 + "' , '" + attributeLzd.ALABEL47.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME47, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE38.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME38 + "' , '" + attributeLzd.ALABEL38.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME38, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME38 + "' , '" + attributeLzd.ALABEL38.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME38, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME47 + "' , '" + attributeLzd.ALABEL47.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME47, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME48))
-                                        {
-                                            if (attributeLzd.ATYPE48.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME39))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME48 + "' , '" + attributeLzd.ALABEL48.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME48, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE39.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME39 + "' , '" + attributeLzd.ALABEL39.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME39, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME39 + "' , '" + attributeLzd.ALABEL39.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME39, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME48 + "' , '" + attributeLzd.ALABEL48.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME48, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME49))
-                                        {
-                                            if (attributeLzd.ATYPE49.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME40))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME49 + "' , '" + attributeLzd.ALABEL49.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME49, out value) ? value : "") + "'";
+                                                if (attributeLzd.ATYPE40.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME40 + "' , '" + attributeLzd.ALABEL40.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME40, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME40 + "' , '" + attributeLzd.ALABEL40.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME40, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME49 + "' , '" + attributeLzd.ALABEL49.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME49, out value) ? value : "") + "'";
+                                                sSQL_Value += ", '', '', ''";
                                             }
-                                        }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', ''";
-                                        }
-                                        if (!string.IsNullOrEmpty(attributeLzd.ANAME50))
-                                        {
-                                            if (attributeLzd.ATYPE50.Equals("sku"))
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME41))
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME50 + "' , '" + attributeLzd.ALABEL50.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME50, out value) ? value : "") + "') ,";
+                                                if (attributeLzd.ATYPE41.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME41 + "' , '" + attributeLzd.ALABEL41.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME41, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME41 + "' , '" + attributeLzd.ALABEL41.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME41, out value) ? value : "") + "'";
+                                                }
                                             }
                                             else
                                             {
-                                                sSQL_Value += ", '" + attributeLzd.ANAME50 + "' , '" + attributeLzd.ALABEL50.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME50, out value) ? value : "") + "') ,";
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME42))
+                                            {
+                                                if (attributeLzd.ATYPE42.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME42 + "' , '" + attributeLzd.ALABEL42.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME42, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME42 + "' , '" + attributeLzd.ALABEL42.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME42, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME43))
+                                            {
+                                                if (attributeLzd.ATYPE43.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME43 + "' , '" + attributeLzd.ALABEL43.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME43, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME43 + "' , '" + attributeLzd.ALABEL43.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME43, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME44))
+                                            {
+                                                if (attributeLzd.ATYPE44.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME44 + "' , '" + attributeLzd.ALABEL44.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME44, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME44 + "' , '" + attributeLzd.ALABEL44.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME44, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME45))
+                                            {
+                                                if (attributeLzd.ATYPE45.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME45 + "' , '" + attributeLzd.ALABEL45.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME45, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME45 + "' , '" + attributeLzd.ALABEL45.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME45, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME46))
+                                            {
+                                                if (attributeLzd.ATYPE46.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME46 + "' , '" + attributeLzd.ALABEL46.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME46, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME46 + "' , '" + attributeLzd.ALABEL46.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME46, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME47))
+                                            {
+                                                if (attributeLzd.ATYPE47.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME47 + "' , '" + attributeLzd.ALABEL47.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME47, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME47 + "' , '" + attributeLzd.ALABEL47.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME47, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME48))
+                                            {
+                                                if (attributeLzd.ATYPE48.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME48 + "' , '" + attributeLzd.ALABEL48.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME48, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME48 + "' , '" + attributeLzd.ALABEL48.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME48, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME49))
+                                            {
+                                                if (attributeLzd.ATYPE49.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME49 + "' , '" + attributeLzd.ALABEL49.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME49, out value) ? value : "") + "'";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME49 + "' , '" + attributeLzd.ALABEL49.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME49, out value) ? value : "") + "'";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', ''";
+                                            }
+                                            if (!string.IsNullOrEmpty(attributeLzd.ANAME50))
+                                            {
+                                                if (attributeLzd.ATYPE50.Equals("sku"))
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME50 + "' , '" + attributeLzd.ALABEL50.Replace("\'", "\'\'") + "' , '" + (brgSku.TryGetValue(attributeLzd.ANAME50, out value) ? value : "") + "') ,";
+                                                }
+                                                else
+                                                {
+                                                    sSQL_Value += ", '" + attributeLzd.ANAME50 + "' , '" + attributeLzd.ALABEL50.Replace("\'", "\'\'") + "' , '" + (brgAttribute.TryGetValue(attributeLzd.ANAME50, out value) ? value : "") + "') ,";
+                                                }
+                                            }
+                                            else
+                                            {
+                                                sSQL_Value += ", '', '', '') ,";
                                             }
                                         }
-                                        else
-                                        {
-                                            sSQL_Value += ", '', '', '') ,";
-                                        }
+
+                                        #endregion
+
                                     }
-
-                                    #endregion
-
                                 }
+                                
                             }
                             if (!string.IsNullOrEmpty(sSQL_Value))
                             {
@@ -2102,6 +2108,10 @@ namespace MasterOnline.Controllers
                         }
                     }
 
+                }
+                else
+                {
+                    ret.message = response.Message;
                 }
             }
             catch (Exception ex)

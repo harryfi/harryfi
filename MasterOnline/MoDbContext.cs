@@ -33,6 +33,9 @@ namespace MasterOnline
         public DbSet<CATEGORY_ELEVENIA> CategoryElevenia { get; set; }
         public DbSet<ATTRIBUTE_ELEVENIA> AttributeElevenia { get; set; }
         public DbSet<Partner> Partner { get; set; }
+        public DbSet<CATEGORY_SHOPEE> CategoryShopee { get; set; }
+        public DbSet<ATTRIBUTE_SHOPEE> AttributeShopee { get; set; }
+        public DbSet<ATTRIBUTE_OPT_SHOPEE> AttributeOptShopee { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")

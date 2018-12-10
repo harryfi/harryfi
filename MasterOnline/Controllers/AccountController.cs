@@ -353,6 +353,15 @@ namespace MasterOnline.Controllers
             //var tes = new TokopediaController();
             //var a = tes.GetToken();
             #endregion
+
+            #region Shopee
+            //var ShopeeAPI = new ShopeeController();
+            //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData()
+            //{
+            //    merchant_code = "47219229"
+            //};
+            //ShopeeAPI.GetAttribute(iden);
+            #endregion
         }
 
         // Route ke halaman register

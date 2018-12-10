@@ -14,5 +14,6 @@ namespace MasterOnline.ViewModels
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
         //add by Tri
         public string kodeCust { get; set; }
+        public string marketplace { get; set; }
     }
 }

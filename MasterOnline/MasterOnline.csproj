@@ -265,6 +265,7 @@
     <Compile Include="Controllers\PostingController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\ScrapperController.cs" />
+    <Compile Include="Controllers\ShopeeController.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
@@ -616,6 +617,9 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
+    <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
+    <Compile Include="Models\CATEGORY_SHOPEE.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />
@@ -5886,6 +5890,7 @@
     <Content Include="Services\thzalyvuspulzjyhwwlymvskly\masteronlinescrapper\__pycache__\__init__.cpython-37.pyc" />
     <Content Include="Views\Manage\TableBuyerPopUp.cshtml" />
     <Content Include="Views\Manage\BuyerPopUp1.cshtml" />
+    <Content Include="Views\Shopee\ShopeeAuth.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
