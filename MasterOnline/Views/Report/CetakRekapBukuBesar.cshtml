@@ -157,7 +157,12 @@
             $('#DrBulan').datepicker({
                 format: 'MM',
                 language: 'id',
-                minViewMode: 1
+                //change by nurul 10/12/2018 (menghilangkan tahun)
+                //minViewMode: 1
+                minViewMode: 'months',
+                maxViewMode: 'months',
+                startView: 'months'
+                //end change
             }).datepicker('setDate', d).change(function () {
                 $('#DrBulan').val($(this).val());
                 $(this).datepicker('hide');
@@ -165,7 +170,12 @@
             $('#SdBulan').datepicker({
                 format: 'MM',
                 language: 'id',
-                minViewMode: 1
+                //change by nurul 10/12/2018 (menghilangkan tahun)
+                //minViewMode: 1
+                minViewMode: 'months',
+                maxViewMode: 'months',
+                startView: 'months'
+                //end change
             }).datepicker('setDate', d).change(function () {
                 $('#SdTanggal').val($(this).val());
                 $(this).datepicker('hide');
