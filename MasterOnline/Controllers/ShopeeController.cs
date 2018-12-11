@@ -29,6 +29,8 @@ namespace MasterOnline.Controllers
         string shpCallbackUrl = "https://dev.masteronline.co.id/shp/code?user=";
 #endif
 
+        protected int MOPartnerID = 841371;
+        protected string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
         public MoDbContext MoDbContext { get; set; }
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
@@ -71,11 +73,16 @@ namespace MasterOnline.Controllers
             return View("ShopeeAuth");
         }
 
-        public async Task<string> GetItemsList(ShopeeAPIData iden)
+        public async Task<BindingBase> GetItemsList(ShopeeAPIData iden, int IdMarket, int page, int recordCount)
         {
-            int MOPartnerID = 841371;
-            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "";
+            //int MOPartnerID = 841371;
+            //string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //string ret = "";
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = recordCount,
+            };
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -96,8 +103,8 @@ namespace MasterOnline.Controllers
                 partner_id = MOPartnerID, //MasterOnline Partner ID
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                pagination_offset = 0,
-                pagination_entries_per_page = 100
+                pagination_offset = page,
+                pagination_entries_per_page = 10
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -139,9 +146,24 @@ namespace MasterOnline.Controllers
                 {
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    ret.status = 1;
+                    if (listBrg.items.Length == 10)
+                        ret.message = (page + 1).ToString();
                     foreach (var item in listBrg.items)
                     {
-                        await GetItemDetail(iden, item.item_id);
+                        string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
+                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.SELLER_SKU.ToUpper().Equals(kdBrg.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.item_id) && t.IDMARKET == IdMarket).FirstOrDefault();
+
+                        if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
+                        {
+                            var getDetailResult = await GetItemDetail(iden, item.item_id);
+                            if (getDetailResult.status == 1)
+                            {
+                                ret.recordCount += getDetailResult.recordCount;
+                            }
+                        }
+
                     }
 
                 }
@@ -153,11 +175,16 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> GetItemDetail(ShopeeAPIData iden, int item_id)
+        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, int item_id)
         {
-            int MOPartnerID = 841371;
-            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
-            string ret = "";
+            //    int MOPartnerID = 841371;
+            //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            //string ret = "";
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = 0,
+            };
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -200,7 +227,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret.message = ex.Message;
             }
 
             if (responseFromServer != null)
@@ -213,29 +240,59 @@ namespace MasterOnline.Controllers
                     string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().CUST.ToString();
                     string categoryCode = detailBrg.item.category_id.ToString();
                     string categoryName = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault().CATEGORY_NAME;
+                    ret.status = 1;
+
+                    var sellerSku = "";
+                    //if (string.IsNullOrEmpty(sellerSku))
+                    //{
+                    //    var nm = barang_id.Split(';');
+                    //    if (nm.Length > 1)
+                    //    {
+                    //        sellerSku = nm[1];
+                    //    }
+                    //    else
+                    //    {
+                    //        sellerSku = barang_id;
+                    //    }
+                    //}
+
                     if (detailBrg.item.has_variation)
                     {
                         foreach (var item in detailBrg.item.variations)
                         {
-                            proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToInt64(Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id)), item.variation_sku, item.name, item.status, item.price);
+                            sellerSku = item.variation_sku;
+                            if (string.IsNullOrEmpty(sellerSku))
+                            {
+                                sellerSku = item.variation_id.ToString();
+                            }
+
+                            var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.SELLER_SKU.ToUpper().Equals(sellerSku.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id)) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            if (tempbrginDB == null && brgInDB == null) 
+                            {
+                                ret.recordCount++;
+                                proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id), item.variation_sku, detailBrg.item.name + " " + item.name, item.status, item.price, sellerSku);
+                            }
                         }
                     }
                     else
                     {
-                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id, detailBrg.item.item_sku, detailBrg.item.name, detailBrg.item.status, detailBrg.item.price);
+                        sellerSku = string.IsNullOrEmpty( detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
+                        ret.recordCount++;
+                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString(), detailBrg.item.item_sku, detailBrg.item.name, detailBrg.item.status, detailBrg.item.price, sellerSku);
                     }
                 }
                 catch (Exception ex2)
                 {
-
+                    ret.message = ex2.Message;
                 }
             }
             return ret;
         }
-        protected void proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, string IdMarket, long barang_id, string barang_sku, string barang_name, string barang_status, float barang_price)
+        protected void proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, string IdMarket, string barang_id, string barang_sku, string barang_name, string barang_status, float barang_price, string sellerSku)
         {
             string brand = "OEM";
-            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
+            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
             sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3,";
             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
@@ -278,8 +335,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-
-            sSQL += "('" + barang_id + ";" + barang_sku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += Convert.ToDouble(detailBrg.item.weight) * 1000 + "," + detailBrg.item.package_length + "," + detailBrg.item.package_width + "," + detailBrg.item.package_height + ", '";
             sSQL += cust + "' , '" + detailBrg.item.description + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
@@ -974,12 +1030,12 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    sSQL += ", '" + attributeShopee.ACODE_30 + "' , '" + attributeShopee.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    sSQL += ", '" + attributeShopee.ACODE_30 + "' , '" + attributeShopee.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal + "')";
                     attrVal = "";
                 }
                 else
                 {
-                    sSQL += ", '', '', ''";
+                    sSQL += ", '', '', '')";
                 }
             }
             #endregion

@@ -519,5 +519,8 @@ namespace MasterOnline.Models
         public string IMAGE2 { get; set; }
 
         public string IMAGE3 { get; set; }
+
+        [StringLength(50)]
+        public string SELLER_SKU { get; set; }
     }
 }
