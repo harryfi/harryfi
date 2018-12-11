@@ -111,14 +111,20 @@
             //    language: 'id',
             //    minViewMode: 1
             //}).datepicker('setDate', d);
+            
             $('#Bulan').datepicker({
                 format: 'MM',
                 language: 'id',
-                minViewMode: 1
+                //change by nurul 10/12/2018 (menghilangkan tahun)
+                //minViewMode: 1
+                minViewMode: 'months',
+                maxViewMode: 'months',
+                startView: 'months'
+                //end change
             }).datepicker('setDate', d).change(function () {
                 $('#Bulan').val($(this).val());
                 $(this).datepicker('hide');
-            });
+                });
             //end change 
 
             $('#prompt-kdlap').click(function () {
