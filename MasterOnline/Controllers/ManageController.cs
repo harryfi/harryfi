@@ -1165,11 +1165,32 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangKosong()
         {
             var listBarangMiniStok = new List<PenjualanBarang>();
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
+                if (cekQoh != null)
+                {
+                    getQoh = cekQoh.JUMLAH;
+                }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
 
                 if (barangUtkCek != null)
                 {
@@ -1190,7 +1211,11 @@ namespace MasterOnline.Controllers
                             HJual = barang.HJUAL,
                             Qty = qtyOnHand,
                             //add by nurul 21/11/2018
-                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Qoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH").JUMLAH,
+                            //Qoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO").JUMLAH,
+                            Qoh = getQoh,
+                            Qoo = getQoo
                         });
                     }
                 }
@@ -1202,27 +1227,62 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangTidakLaku()
         {
             var listBarangTidakLaku = new List<PenjualanBarang>();
-
-            foreach (var barang in ErasoftDbContext.STF02.ToList())
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') = ''").ToList();
+            foreach (var barang in stf02Filter)
             {
-                var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
-
-                // Kalo barangTerpesan == null tandanya ga laku
-                if (barangTerpesan == null)
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOO");
+                if (cekQoh != null)
                 {
-                    listBarangTidakLaku.Add(new PenjualanBarang
-                    {
-                        KodeBrg = barang.BRG,
-                        NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                        Kategori = barang.KET_SORT1,
-                        Merk = barang.KET_SORT2,
-                        HJual = barang.HJUAL,
-                        Laku = false,
-                        //add by nurul 21/11/2018
-                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
-                    });
+                    getQoh = cekQoh.JUMLAH;
                 }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
+                listBarangTidakLaku.Add(new PenjualanBarang
+                {
+
+                    KodeBrg = barang.KodeBrg,
+                    NamaBrg = barang.NamaBrg,
+                    Kategori = barang.Kategori,
+                    Merk = barang.Merk,
+                    HJual = barang.HJual,
+                    Qoh = getQoh,
+                    Qoo = getQoo
+                });
             }
+            //foreach (var barang in ErasoftDbContext.STF02.ToList())
+            //{
+            //    var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
+
+            //    // Kalo barangTerpesan == null tandanya ga laku
+            //    if (barangTerpesan == null)
+            //    {
+            //        listBarangTidakLaku.Add(new PenjualanBarang
+            //        {
+            //            KodeBrg = barang.BRG,
+            //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+            //            Kategori = barang.KET_SORT1,
+            //            Merk = barang.KET_SORT2,
+            //            HJual = barang.HJUAL,
+            //            Laku = false,
+            //            //add by nurul 21/11/2018
+            //            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+            //        });
+            //    }
+            //}
 
             return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderBy(b => b.NamaBrg).ToList());
         }
@@ -1230,19 +1290,36 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangDibawahMinimumStok()
         {
             var listBarangMiniStok = new List<PenjualanBarang>();
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
+                
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
+                if (cekQoh != null){
+                    getQoh = cekQoh.JUMLAH;
+                }else{
+                    getQoh = 0;
+                }
+                if (cekQoo != null){
+                    getQoo = cekQoo.JUMLAH;
+                }else{
+                    getQoo = 0;
+                }
 
-                if (barangUtkCek != null)
+                    if (barangUtkCek != null)
                 {
-                    qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
-                                + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
-                                + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
-                                - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
-                                - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+                    //qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                    //            + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                    //            + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                    //            - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                    //            - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+                    qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");
 
                     if (qtyOnHand < barang.MINI)
                     {
@@ -1254,7 +1331,10 @@ namespace MasterOnline.Controllers
                             Merk = barang.KET_SORT2,
                             HJual = barang.HJUAL,
                             //add by nurul 21/11/2018
-                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            Qoh = getQoh,
+                            Qoo = getQoo,
+                            Min = barang.MINI
                         });
                     }
                 }
@@ -1266,25 +1346,70 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangPalingLaku()
         {
             var listBarangLaku = new List<PenjualanBarang>();
-
-            foreach (var barang in ErasoftDbContext.STF02.ToList())
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') <> ''").ToList();
+            foreach(var barang in stf02Filter)
             {
-                var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
-
-                if (listBarangTerpesan.Count > 0)
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOO");
+                if (cekQoh != null)
                 {
-                    listBarangLaku.Add(new PenjualanBarang
-                    {
-                        KodeBrg = barang.BRG,
-                        NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                        Kategori = barang.KET_SORT1,
-                        Merk = barang.KET_SORT2,
-                        HJual = barang.HJUAL,
-                        //add by nurul 21/11/2018
-                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
-                    });
+                    getQoh = cekQoh.JUMLAH;
                 }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
+                listBarangLaku.Add(new PenjualanBarang
+                {
+
+                    KodeBrg = barang.KodeBrg,
+                    NamaBrg = barang.NamaBrg,
+                    Kategori = barang.Kategori,
+                    Merk = barang.Merk,
+                    HJual = barang.HJual,
+                    Qoh = getQoh,
+                    Qoo = getQoo
+                });
             }
+
+            //foreach (var barang in ErasoftDbContext.STF02.ToList())
+            //{
+            //    //change by nurul 10/12/2018 (periode 3 bulan terakhir)
+            //    //var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
+            //    var month = DateTime.Now.AddMonths(-3);
+            //    var listBarangTerpesan = (from a in ErasoftDbContext.SOT01A
+            //                              join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+            //                              where b.BRG == barang.BRG && a.TGL >= month
+            //                              select new { BRG = b.BRG, NO_BUKTI = a.NO_BUKTI, TGL = a.TGL }).ToList();
+            //    //end change 
+
+            //    if (listBarangTerpesan.Count > 0)
+            //    {
+            //        listBarangLaku.Add(new PenjualanBarang
+            //        {
+            //            KodeBrg = barang.BRG,
+            //            //KodeBrg = listBarangTerpesan.SingleOrDefault().BRG,
+            //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+            //            Kategori = barang.KET_SORT1,
+            //            Merk = barang.KET_SORT2,
+            //            HJual = barang.HJUAL,
+            //            //add by nurul 21/11/2018
+            //            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+            //        });
+            //    }
+            //}
+
 
             return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderBy(b => b.NamaBrg).ToList());
         }
@@ -4998,7 +5123,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetPembeliPesanan(string kode)
         {
             //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
-             var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
+            var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
 
             return Json(pembeli, JsonRequestBehavior.AllowGet);
         }

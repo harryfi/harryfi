@@ -28,6 +28,7 @@
         <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Pokok</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Jual</th>
             @*add by nurul 16/11/2018*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok Minimum</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>
@@ -37,18 +38,18 @@
     <tbody>
         @foreach (var barang in Model.ToList())
         {
-            double QOH = 0;
-            var getQOH = barang?.Stok?.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOH");
-            if (getQOH != null)
-            {
-                QOH = getQOH.JUMLAH;
-            }
-            double QOO = 0;
-            var getQOO = barang.Stok.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOO");
-            if (getQOO != null)
-            {
-                QOO = getQOO.JUMLAH;
-            }
+            //double QOH = 0;
+            //var getQOH = barang?.Stok?.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOH");
+            //if (getQOH != null)
+            //{
+            //    QOH = getQOH.JUMLAH;
+            //}
+            //double QOO = 0;
+            //var getQOO = barang.Stok.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOO");
+            //if (getQOO != null)
+            //{
+            //    QOO = getQOO.JUMLAH;
+            //}
         <tr>
             <td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>
             <td>@barang.KodeBrg</td>
@@ -59,9 +60,10 @@
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
             <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
             @*add by nurul 16/11/2018*@
-            <td>@QOH</td>
-            <td>@QOO</td>
-            <td>@(QOH - QOO)</td>
+            <td>@barang.Min</td>
+            <td>@barang.Qoh</td>
+            <td>@barang.Qoo</td>
+            <td>@(barang.Qoh - barang.Qoo)</td>
             @*end add by nurul*@
         </tr>
         }

@@ -15,5 +15,8 @@ namespace MasterOnline.Models
         public double Qty { get; set; }
         public bool Laku { get; set; }
         public List<QOH_QOO_ALL_ITEM> Stok { get; set; }
+        public double Min { get; set; }
+        public double Qoh { get; set; }
+        public double Qoo { get; set; }
     }
 }
