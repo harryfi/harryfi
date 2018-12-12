@@ -12119,7 +12119,7 @@ namespace MasterOnline.Controllers
             }
         }
         [Route("manage/ImportDataMP")]
-        public ActionResult ImportDataMP(string cust, int page, int recordCount, int statBL)
+        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL)
         {
             if (!string.IsNullOrEmpty(cust))
             {
@@ -12340,6 +12340,38 @@ namespace MasterOnline.Controllers
                                     //        nextPageBli = false;
                                     //    }
                                     //}
+                                }
+                            case "SHOPEE":
+                                var ShopeeApi = new ShopeeController();
+                                if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                {
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                    {
+                                        merchant_code = arf01.Sort1_Cust,
+                                        
+                                    };
+                                    var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
+                                    if (resultShopee.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultShopee.message))
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.Recursive = true;
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        retBarang.RecordCount = resultShopee.recordCount;
+                                    }
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
                                 }
                             default:
                                 return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
