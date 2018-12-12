@@ -610,6 +610,10 @@
     <Compile Include="Migrations\201810250441406_AddCustomReferalCode.Designer.cs">
       <DependentUpon>201810250441406_AddCustomReferalCode.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs" />
+    <Compile Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.Designer.cs">
+      <DependentUpon>201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\AktivitasSubscription.cs" />
     <Compile Include="Models\APF01.cs" />
     <Compile Include="Models\Api\ResultDataFaktur.cs" />
@@ -925,6 +929,8 @@
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
     <Compile Include="Models\QOH_PER_GD.cs" />
+    <Compile Include="Models\TEMP_SHOPEE_ORDERS_ITEM.cs" />
+    <Compile Include="Models\TEMP_SHOPEE_ORDERS.cs" />
     <Compile Include="Models\TEMP_TOKPED_ORDERS.cs" />
     <Compile Include="Models\TEMP_ALL_MP_ORDER_ITEM.cs" />
     <Compile Include="Models\Subscription.cs" />
@@ -6255,6 +6261,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201810250441406_AddCustomReferalCode.resx">
       <DependentUpon>201810250441406_AddCustomReferalCode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.resx">
+      <DependentUpon>201812110628511_AddCategoryShopeeAndAttributeAndAttributeOpt.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

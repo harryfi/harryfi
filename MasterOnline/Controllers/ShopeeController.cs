@@ -1271,7 +1271,177 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string connID)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
 
+            long seconds = CurrentTimeSecond();
+            long timestamp7Days = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/get";
+
+            ShopeeGetOrderByStatusData HttpBody = new ShopeeGetOrderByStatusData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                pagination_offset = 0,
+                pagination_entries_per_page = 50,
+                create_time_from = timestamp7Days,
+                create_time_to = seconds,
+                order_status = stat.ToString()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+
+                    var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
+                    if (stat == StatusOrder.READY_TO_SHIP)
+                    {
+                        string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
+                        await GetOrderDetails(iden, ordersn_list);
+                    }
+
+                }
+                catch (Exception ex2)
+                {
+                }
+            }
+            return ret;
+        }
+        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Get Order List", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string urll = "https://partner.shopeemobile.com/api/v1/orders/detail";
+
+            GetOrderDetailsData HttpBody = new GetOrderDetailsData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn_list = ordersn_list
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+
+                    //foreach (var order in result.orders)
+                    //{
+                    //    TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS({
+                    //        actual_shipping_cost=order.actual_shipping_cost,
+                    //        buyer_username = order.buyer_username,
+                    //        cod = order.cod,
+                    //        country = order.country,
+                    //        create_time = order.create_time,
+                    //        currency = order.currency,
+                    //        days_to_ship = order.days_to_ship,
+                    //        dropshipper = order.dropshipper,
+                    //        escrow_amount = order.escrow_amount,
+                    //        estimated_shipping_fee = order.estimated_shipping_fee,
+                    //        goods_to_declare = order.goods_to_declare,
+                    //        message_to_seller = order.message_to_seller,
+                    //        note = order.note,
+                    //        note_update_time = order.note_update_time,
+                    //        ordersn = order.ordersn,
+                    //    });
+                    //}
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
         public async Task<string> Template(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -1353,6 +1523,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
         [HttpGet]
         public string ShopeeUrl(string cust)
         {
@@ -1379,11 +1550,12 @@ namespace MasterOnline.Controllers
         }
         public enum StatusOrder
         {
-            Cancel = 1,
-            Paid = 2,
-            PackagingINP = 3,
-            ShippingINP = 4,
-            Completed = 5
+            IN_CANCEL = 1,
+            CANCELLED = 2,
+            READY_TO_SHIP = 3,
+            COMPLETED = 4,
+            TO_RETURN = 5,
+            UNPAID = 6
         }
         protected enum api_status
         {
@@ -1521,6 +1693,26 @@ namespace MasterOnline.Controllers
             public long timestamp { get; set; }
             public string language { get; set; }
         }
+
+        public class ShopeeGetOrderByStatusData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public int pagination_offset { get; set; }
+            public int pagination_entries_per_page { get; set; }
+            public long create_time_from { get; set; }
+            public long create_time_to { get; set; }
+            public string order_status { get; set; }
+        }
+        public class GetOrderDetailsData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string[] ordersn_list { get; set; }
+        }
+
         public class ShopeeGetItemListData
         {
             public int partner_id { get; set; }
@@ -1670,6 +1862,85 @@ namespace MasterOnline.Controllers
         {
             public string original_value { get; set; }
             public string translate_value { get; set; }
+        }
+        //public class ShopeeGetOrderByStatusResult
+
+        public class ShopeeGetOrderByStatusResult
+        {
+            public string request_id { get; set; }
+            public ShopeeGetOrderByStatusResultOrder[] orders { get; set; }
+            public bool more { get; set; }
+        }
+
+        public class ShopeeGetOrderByStatusResultOrder
+        {
+            public string ordersn { get; set; }
+            public string order_status { get; set; }
+            public int update_time { get; set; }
+        }
+
+        public class ShopeeGetOrderDetailsResult
+        {
+            public object[] errors { get; set; }
+            public ShopeeGetOrderDetailsResultOrder[] orders { get; set; }
+            public string request_id { get; set; }
+        }
+
+        public class ShopeeGetOrderDetailsResultOrder
+        {
+            public string note { get; set; }
+            public string estimated_shipping_fee { get; set; }
+            public string payment_method { get; set; }
+            public string escrow_amount { get; set; }
+            public string message_to_seller { get; set; }
+            public string shipping_carrier { get; set; }
+            public string currency { get; set; }
+            public int create_time { get; set; }
+            public int pay_time { get; set; }
+            public ShopeeGetOrderDetailsResultRecipient_Address recipient_address { get; set; }
+            public int days_to_ship { get; set; }
+            public string tracking_no { get; set; }
+            public string order_status { get; set; }
+            public int note_update_time { get; set; }
+            public int update_time { get; set; }
+            public bool goods_to_declare { get; set; }
+            public string total_amount { get; set; }
+            public string service_code { get; set; }
+            public string country { get; set; }
+            public string actual_shipping_cost { get; set; }
+            public bool cod { get; set; }
+            public ShopeeGetOrderDetailsResultItem[] items { get; set; }
+            public string ordersn { get; set; }
+            public string dropshipper { get; set; }
+            public string buyer_username { get; set; }
+        }
+
+        public class ShopeeGetOrderDetailsResultRecipient_Address
+        {
+            public string town { get; set; }
+            public string city { get; set; }
+            public string name { get; set; }
+            public string district { get; set; }
+            public string country { get; set; }
+            public string zipcode { get; set; }
+            public string full_address { get; set; }
+            public string phone { get; set; }
+            public string state { get; set; }
+        }
+
+        public class ShopeeGetOrderDetailsResultItem
+        {
+            public float weight { get; set; }
+            public string item_name { get; set; }
+            public bool is_wholesale { get; set; }
+            public string item_sku { get; set; }
+            public string variation_discounted_price { get; set; }
+            public long variation_id { get; set; }
+            public string variation_name { get; set; }
+            public int item_id { get; set; }
+            public int variation_quantity_purchased { get; set; }
+            public string variation_sku { get; set; }
+            public string variation_original_price { get; set; }
         }
 
     }

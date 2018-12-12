@@ -23,7 +23,7 @@
         @foreach (var pesanan in Model.ListPesanan)
         {
             var generatedFaktur = Model.ListFaktur.SingleOrDefault(p => p.NO_SO == pesanan.NO_BUKTI);
-            var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.PEMESAN);
+            var buyer = Model.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
             var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
             var idMarket = 0;
             if (pelanggan != null)
@@ -43,7 +43,7 @@
                 <td>@NamaMarket</td>
                 <td>
                     @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                    @(buyer.NAMA + " (" + pelanggan.PERSO + ")")
+                    @(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")
                 </td>
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
                 <td class="edit-hapus-col">

@@ -256,13 +256,11 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-            //GetPesanan(connectionID, username);
-            int bliAcc = 0;
+
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
             {
-                bliAcc = 1;
                 foreach (ARF01 tblCustomer in listBliShop)
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
@@ -288,15 +286,10 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-
-            int lazadaAcc = 0;
-            int blAcc = 0;
-            int elAcc = 0;
             var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
-                elAcc = 1;
                 foreach (ARF01 tblCustomer in listELShop)
                 {
                     var elApi = new EleveniaController();
@@ -312,7 +305,6 @@ namespace MasterOnline.Controllers
             var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             if (listBLShop.Count > 0)
             {
-                blAcc = 1;
                 foreach (ARF01 tblCustomer in listBLShop)
                 {
                     var blApi = new BukaLapakController();
@@ -325,7 +317,6 @@ namespace MasterOnline.Controllers
             var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
             if (listLzdShop.Count > 0)
             {
-                blAcc = 1;
                 foreach (ARF01 tblCustomer in listLzdShop)
                 {
                     var lzdApi = new LazadaController();
@@ -366,6 +357,19 @@ namespace MasterOnline.Controllers
             //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
             //            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
             //        }
+            //    }
+            //}
+
+            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            //if (listShopeeShop.Count > 0)
+            //{
+            //    var shopeeApi = new ShopeeController();
+            //    foreach (ARF01 tblCustomer in listShopeeShop)
+            //    {
+            //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+            //        iden.merchant_code = tblCustomer.Sort1_Cust;
+            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID);
             //    }
             //}
 
@@ -4998,7 +5002,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetPembeliPesanan(string kode)
         {
             //var listPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList();
-             var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
+            var pembeli = ErasoftDbContext.ARF01C.Single(x => x.BUYER_CODE == kode);
 
             return Json(pembeli, JsonRequestBehavior.AllowGet);
         }
@@ -5086,7 +5090,7 @@ namespace MasterOnline.Controllers
             var idMarket = Convert.ToInt32(marketInDb.NAMA);
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
             var namaAkunMarket = $"{namaMarketplace} ({marketInDb.PERSO})";
-            var namaBuyer = ErasoftDbContext.ARF01C.Single(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
+            var namaBuyer = ErasoftDbContext.ARF01C.SingleOrDefault(b => b.BUYER_CODE == pesananInDb.PEMESAN).NAMA;
 
             var infoPesanan = new InfoPesanan()
             {
@@ -12008,7 +12012,7 @@ namespace MasterOnline.Controllers
                                             nextPageLzd = false;
                                         }
                                     }
-                                }                                
+                                }
                                 break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();
