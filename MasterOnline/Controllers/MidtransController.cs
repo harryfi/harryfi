@@ -291,7 +291,7 @@ namespace MasterOnline.Controllers
         public static string Base64Encode()
         {
 
-            string plainText = "SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0";
+            string plainText = "Mid-server-OB_-aJie9ELUo3pDnZSj0vYq";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }

@@ -37,18 +37,18 @@
     <tbody>
         @foreach (var barang in Model.ToList())
         {
-            double QOH = 0;
-            var getQOH = barang?.Stok?.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOH");
-            if (getQOH != null)
-            {
-                QOH = getQOH.JUMLAH;
-            }
-            double QOO = 0;
-            var getQOO = barang.Stok.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOO");
-            if (getQOO != null)
-            {
-                QOO = getQOO.JUMLAH;
-            }
+            //double QOH = 0;
+            //var getQOH = barang?.Stok?.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOH");
+            //if (getQOH != null)
+            //{
+            //    QOH = getQOH.JUMLAH;
+            //}
+            //double QOO = 0;
+            //var getQOO = barang.Stok.SingleOrDefault(b => b.BRG == barang.KodeBrg && b.JENIS == "QOO");
+            //if (getQOO != null)
+            //{
+            //    QOO = getQOO.JUMLAH;
+            //}
         <tr>
             <td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>
             <td>@barang.KodeBrg</td>
@@ -59,9 +59,9 @@
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
             <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
             @*add by nurul 16/11/2018*@
-            <td>@QOH</td>
-            <td>@QOO</td>
-            <td>@(QOH - QOO)</td>
+            <td>@barang.Qoh</td>
+            <td>@barang.Qoo</td>
+            <td>@(barang.Qoh - barang.Qoo)</td>
             @*end add by nurul*@
         </tr>
         }

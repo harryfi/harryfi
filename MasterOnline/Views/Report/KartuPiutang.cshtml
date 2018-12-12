@@ -130,16 +130,34 @@
             $('#DrBulan').datepicker({
                 format: '01 MM',
                 language: 'id',
-                minViewMode: 1
+                //change by nurul 10/12/2018 (menghilangkan tahun)
+                //minViewMode: 1
+                minViewMode: 'months',
+                maxViewMode: 'months',
+                startView: 'months'
+                //end change
             }).datepicker('setDate', d).change(function () {
                 $('#DrBulan').val($(this).val());
                 $(this).datepicker('hide');
             });
 
+            //$('#SdBulan').datepicker({
+            //    format: 'dd MM',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    $('#SdBulan').val($(this).val());
+            //    $(this).datepicker('hide');
+            //});
             $('#SdBulan').datepicker({
                 format: 'dd MM',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
+            }).datepicker('setDate', '0').off('show').on('show', function () {
+                // remove the year from the date title before the datepicker show
+                var dateText = $(".datepicker-days .datepicker-switch").text().split(" ");
+                var dateTitle = dateText[0];
+                $(".datepicker-days .datepicker-switch").text(dateTitle);
+                $(".datepicker-months .datepicker-switch").css({ "visibility": "hidden" });
+                });
+            $('#SdBulan').change(function () {
                 $('#SdBulan').val($(this).val());
                 $(this).datepicker('hide');
             });

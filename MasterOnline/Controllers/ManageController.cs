@@ -1169,11 +1169,32 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangKosong()
         {
             var listBarangMiniStok = new List<PenjualanBarang>();
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
+                if (cekQoh != null)
+                {
+                    getQoh = cekQoh.JUMLAH;
+                }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
 
                 if (barangUtkCek != null)
                 {
@@ -1194,7 +1215,11 @@ namespace MasterOnline.Controllers
                             HJual = barang.HJUAL,
                             Qty = qtyOnHand,
                             //add by nurul 21/11/2018
-                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Qoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH").JUMLAH,
+                            //Qoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO").JUMLAH,
+                            Qoh = getQoh,
+                            Qoo = getQoo
                         });
                     }
                 }
@@ -1206,27 +1231,62 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangTidakLaku()
         {
             var listBarangTidakLaku = new List<PenjualanBarang>();
-
-            foreach (var barang in ErasoftDbContext.STF02.ToList())
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') = ''").ToList();
+            foreach (var barang in stf02Filter)
             {
-                var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
-
-                // Kalo barangTerpesan == null tandanya ga laku
-                if (barangTerpesan == null)
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOO");
+                if (cekQoh != null)
                 {
-                    listBarangTidakLaku.Add(new PenjualanBarang
-                    {
-                        KodeBrg = barang.BRG,
-                        NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                        Kategori = barang.KET_SORT1,
-                        Merk = barang.KET_SORT2,
-                        HJual = barang.HJUAL,
-                        Laku = false,
-                        //add by nurul 21/11/2018
-                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
-                    });
+                    getQoh = cekQoh.JUMLAH;
                 }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
+                listBarangTidakLaku.Add(new PenjualanBarang
+                {
+
+                    KodeBrg = barang.KodeBrg,
+                    NamaBrg = barang.NamaBrg,
+                    Kategori = barang.Kategori,
+                    Merk = barang.Merk,
+                    HJual = barang.HJual,
+                    Qoh = getQoh,
+                    Qoo = getQoo
+                });
             }
+            //foreach (var barang in ErasoftDbContext.STF02.ToList())
+            //{
+            //    var barangTerpesan = ErasoftDbContext.SOT01B.FirstOrDefault(b => b.BRG == barang.BRG);
+
+            //    // Kalo barangTerpesan == null tandanya ga laku
+            //    if (barangTerpesan == null)
+            //    {
+            //        listBarangTidakLaku.Add(new PenjualanBarang
+            //        {
+            //            KodeBrg = barang.BRG,
+            //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+            //            Kategori = barang.KET_SORT1,
+            //            Merk = barang.KET_SORT2,
+            //            HJual = barang.HJUAL,
+            //            Laku = false,
+            //            //add by nurul 21/11/2018
+            //            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+            //        });
+            //    }
+            //}
 
             return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderBy(b => b.NamaBrg).ToList());
         }
@@ -1234,19 +1294,36 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangDibawahMinimumStok()
         {
             var listBarangMiniStok = new List<PenjualanBarang>();
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
+                
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
+                if (cekQoh != null){
+                    getQoh = cekQoh.JUMLAH;
+                }else{
+                    getQoh = 0;
+                }
+                if (cekQoo != null){
+                    getQoo = cekQoo.JUMLAH;
+                }else{
+                    getQoo = 0;
+                }
 
-                if (barangUtkCek != null)
+                    if (barangUtkCek != null)
                 {
-                    qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
-                                + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
-                                + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
-                                - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
-                                - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+                    //qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
+                    //            + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
+                    //            + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
+                    //            - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
+                    //            - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
+                    qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");
 
                     if (qtyOnHand < barang.MINI)
                     {
@@ -1258,7 +1335,10 @@ namespace MasterOnline.Controllers
                             Merk = barang.KET_SORT2,
                             HJual = barang.HJUAL,
                             //add by nurul 21/11/2018
-                            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+                            Qoh = getQoh,
+                            Qoo = getQoo,
+                            Min = barang.MINI
                         });
                     }
                 }
@@ -1270,25 +1350,70 @@ namespace MasterOnline.Controllers
         public ActionResult RefreshTableBarangPalingLaku()
         {
             var listBarangLaku = new List<PenjualanBarang>();
-
-            foreach (var barang in ErasoftDbContext.STF02.ToList())
+            var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') <> ''").ToList();
+            foreach(var barang in stf02Filter)
             {
-                var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
-
-                if (listBarangTerpesan.Count > 0)
+                var getQoh = 0d;
+                var getQoo = 0d;
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOO");
+                if (cekQoh != null)
                 {
-                    listBarangLaku.Add(new PenjualanBarang
-                    {
-                        KodeBrg = barang.BRG,
-                        NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                        Kategori = barang.KET_SORT1,
-                        Merk = barang.KET_SORT2,
-                        HJual = barang.HJUAL,
-                        //add by nurul 21/11/2018
-                        Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
-                    });
+                    getQoh = cekQoh.JUMLAH;
                 }
+                else
+                {
+                    getQoh = 0;
+                }
+                if (cekQoo != null)
+                {
+                    getQoo = cekQoo.JUMLAH;
+                }
+                else
+                {
+                    getQoo = 0;
+                }
+                listBarangLaku.Add(new PenjualanBarang
+                {
+
+                    KodeBrg = barang.KodeBrg,
+                    NamaBrg = barang.NamaBrg,
+                    Kategori = barang.Kategori,
+                    Merk = barang.Merk,
+                    HJual = barang.HJual,
+                    Qoh = getQoh,
+                    Qoo = getQoo
+                });
             }
+
+            //foreach (var barang in ErasoftDbContext.STF02.ToList())
+            //{
+            //    //change by nurul 10/12/2018 (periode 3 bulan terakhir)
+            //    //var listBarangTerpesan = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
+            //    var month = DateTime.Now.AddMonths(-3);
+            //    var listBarangTerpesan = (from a in ErasoftDbContext.SOT01A
+            //                              join b in ErasoftDbContext.SOT01B on a.NO_BUKTI equals b.NO_BUKTI
+            //                              where b.BRG == barang.BRG && a.TGL >= month
+            //                              select new { BRG = b.BRG, NO_BUKTI = a.NO_BUKTI, TGL = a.TGL }).ToList();
+            //    //end change 
+
+            //    if (listBarangTerpesan.Count > 0)
+            //    {
+            //        listBarangLaku.Add(new PenjualanBarang
+            //        {
+            //            KodeBrg = barang.BRG,
+            //            //KodeBrg = listBarangTerpesan.SingleOrDefault().BRG,
+            //            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+            //            Kategori = barang.KET_SORT1,
+            //            Merk = barang.KET_SORT2,
+            //            HJual = barang.HJUAL,
+            //            //add by nurul 21/11/2018
+            //            Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
+            //        });
+            //    }
+            //}
+
 
             return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderBy(b => b.NamaBrg).ToList());
         }
@@ -11894,6 +12019,32 @@ namespace MasterOnline.Controllers
             return PartialView("FormBarangUploadsPartial", barangVm);
         }
 
+        public ActionResult DeleteBarangTemp(string barangId, string cust)
+        {
+            try
+            {
+                var barangInDb = ErasoftDbContext.TEMP_BRG_MP.Single(b => b.BRG_MP.ToUpper() == barangId.ToUpper() && b.CUST == cust);
+
+                ErasoftDbContext.TEMP_BRG_MP.Remove(barangInDb);
+                ErasoftDbContext.SaveChanges();
+
+                var barangVm = new UploadBarangViewModel()
+                {
+                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                    ListMarket = ErasoftDbContext.ARF01.ToList(),
+                    Stf02 = new STF02(),
+                    TempBrg = new TEMP_BRG_MP(),
+                };
+
+                return Json(barangVm, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage(ex.Message);
+            }
+
+        }
+
         [Route("manage/PromptCustomer")]
         public ActionResult PromptCustomer()
         {
@@ -11972,7 +12123,7 @@ namespace MasterOnline.Controllers
             }
         }
         [Route("manage/ImportDataMP")]
-        public ActionResult ImportDataMP(string cust)
+        public async Task<ActionResult> ImportDataMP(string cust, int page, int recordCount, int statBL)
         {
             if (!string.IsNullOrEmpty(cust))
             {
@@ -11982,129 +12133,268 @@ namespace MasterOnline.Controllers
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
                     if (marketplace != null)
                     {
+                        var retBarang = new SyncBarangViewModel
+                        {
+                            Recursive = false,
+                            Page = page + 1,
+                            RecordCount = recordCount,
+                            Stf02 = new STF02(),
+                            TempBrg = new TEMP_BRG_MP(),
+                            BLProductActive = statBL,
+                        };
+                        //int recordCount = 0;
                         switch (marketplace.NamaMarket.ToUpper())
                         {
                             case "LAZADA":
                                 if (string.IsNullOrEmpty(arf01.TOKEN))
                                 {
-                                    return JsonErrorMessage("Anda belum link dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                 }
                                 else
                                 {
                                     var lzdApi = new LazadaController();
-                                    var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, 0);
-                                    var nextPageLzd = true;
-                                    while (nextPageLzd)
+                                    var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount);
+                                    if (resultLzd.status == 1)
                                     {
-                                        if (resultLzd.status == 1)
+                                        if (!string.IsNullOrEmpty(resultLzd.message))
                                         {
-                                            if (!string.IsNullOrEmpty(resultLzd.message))
-                                            {
-                                                resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message));
-                                            }
-                                            else
-                                            {
-                                                nextPageLzd = false;
-                                            }
+                                            retBarang.RecordCount = resultLzd.recordCount;
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
-                                            nextPageLzd = false;
+                                            retBarang.RecordCount = resultLzd.recordCount;
+                                            //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                            //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                            //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
                                     }
+                                    else
+                                    {
+                                        retBarang.RecordCount = resultLzd.recordCount;
+                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //return PartialView("TableUploadBarangPartial", retBarang);
+                                    }
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                    //var nextPageLzd = true;
+                                    //while (nextPageLzd)
+                                    //{
+                                    //    if (resultLzd.status == 1)
+                                    //    {
+                                    //        if (!string.IsNullOrEmpty(resultLzd.message))
+                                    //        {
+                                    //            recordCount += resultLzd.recordCount;
+                                    //            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message), recordCount);
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            nextPageLzd = false;
+                                    //        }
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        nextPageLzd = false;
+                                    //    }
+                                    //}
                                 }
-                                break;
                             case "BUKALAPAK":
                                 var blApi = new BukaLapakController();
-                                var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, true);
-                                var nextPage = true;
-                                while (nextPage)
+                                if (string.IsNullOrEmpty(arf01.TOKEN))
                                 {
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount);
                                     if (result.status == 1)
                                     {
                                         if (!string.IsNullOrEmpty(result.message))
                                         {
-                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
+                                            if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
+                                            {
+                                                retBarang.BLProductActive = 0;
+                                                retBarang.Page = 0;
+                                            }
+                                            //else
+                                            //{
+                                            retBarang.RecordCount = result.recordCount;
+                                            //}
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
-                                            nextPage = false;
+                                            retBarang.RecordCount = result.recordCount;
+                                            //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                            //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                            //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
                                     }
                                     else
                                     {
-                                        nextPage = false;
+                                        retBarang.RecordCount = result.recordCount;
+                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //return PartialView("TableUploadBarangPartial", retBarang);
                                     }
-                                }
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                    //var nextPage = true;
+                                    //while (nextPage)
+                                    //{
+                                    //    if (result.status == 1)
+                                    //    {
+                                    //        if (!string.IsNullOrEmpty(result.message))
+                                    //        {
+                                    //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            nextPage = false;
+                                    //        }
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        nextPage = false;
+                                    //    }
+                                    //}
 
-                                result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
-                                nextPage = true;
-                                while (nextPage)
-                                {
-                                    if (result.status == 1)
-                                    {
-                                        if (!string.IsNullOrEmpty(result.message))
-                                        {
-                                            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
-                                        }
-                                        else
-                                        {
-                                            nextPage = false;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        nextPage = false;
-                                    }
+                                    //result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
+                                    //nextPage = true;
+                                    //while (nextPage)
+                                    //{
+                                    //    if (result.status == 1)
+                                    //    {
+                                    //        if (!string.IsNullOrEmpty(result.message))
+                                    //        {
+                                    //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            nextPage = false;
+                                    //        }
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        nextPage = false;
+                                    //    }
+                                    //}
                                 }
-                                break;
                             case "BLIBLI":
                                 var BliApi = new BlibliController();
-                                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                                if (string.IsNullOrEmpty(arf01.TOKEN))
                                 {
-                                    API_client_username = arf01.API_CLIENT_U,
-                                    API_client_password = arf01.API_CLIENT_P,
-                                    API_secret_key = arf01.API_KEY,
-                                    mta_username_email_merchant = arf01.EMAIL,
-                                    mta_password_password_merchant = arf01.PASSWORD,
-                                    merchant_code = arf01.Sort1_Cust,
-                                    token = arf01.TOKEN
-                                };
-                                var resultBli = BliApi.getProduct(data, "", 0, arf01.CUST);
-                                var nextPageBli = true;
-                                while (nextPageBli)
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
                                 {
+                                    BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                                    {
+                                        API_client_username = arf01.API_CLIENT_U,
+                                        API_client_password = arf01.API_CLIENT_P,
+                                        API_secret_key = arf01.API_KEY,
+                                        mta_username_email_merchant = arf01.EMAIL,
+                                        mta_password_password_merchant = arf01.PASSWORD,
+                                        merchant_code = arf01.Sort1_Cust,
+                                        token = arf01.TOKEN
+                                    };
+                                    var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
                                     if (resultBli.status == 1)
                                     {
                                         if (!string.IsNullOrEmpty(resultBli.message))
                                         {
-                                            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
+                                            retBarang.RecordCount = resultBli.recordCount;
+                                            retBarang.Recursive = true;
+                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                         }
                                         else
                                         {
-                                            nextPageBli = false;
+                                            retBarang.RecordCount = resultBli.recordCount;
+                                            //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                            //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                            //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
                                     }
                                     else
                                     {
-                                        nextPageBli = false;
+                                        retBarang.RecordCount = resultBli.recordCount;
+                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                        //return PartialView("TableUploadBarangPartial", retBarang);
                                     }
-                                }
-                                break;
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
 
+                                    //var nextPageBli = true;
+                                    //while (nextPageBli)
+                                    //{
+                                    //    if (resultBli.status == 1)
+                                    //    {
+                                    //        if (!string.IsNullOrEmpty(resultBli.message))
+                                    //        {
+                                    //            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            nextPageBli = false;
+                                    //        }
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        nextPageBli = false;
+                                    //    }
+                                    //}
+                                }
+                            case "SHOPEE":
+                                var ShopeeApi = new ShopeeController();
+                                if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                {
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                    {
+                                        merchant_code = arf01.Sort1_Cust,
+                                        
+                                    };
+                                    var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
+                                    if (resultShopee.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultShopee.message))
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.Recursive = true;
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        retBarang.RecordCount = resultShopee.recordCount;
+                                    }
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                }
+                            default:
+                                return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
                         }
                     }
-
-
-                    var barangVm = new UploadBarangViewModel()
+                    else
                     {
-                        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
-                        ListMarket = ErasoftDbContext.ARF01.ToList(),
-                        Stf02 = new STF02(),
-                        TempBrg = new TEMP_BRG_MP(),
-                    };
+                        return JsonErrorMessage("Toko tidak dapat ditemukan.");
+                    }
 
-                    return PartialView("TableUploadBarangPartial", barangVm);
+                    //var barangVm = new UploadBarangViewModel()
+                    //{
+                    //    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
+                    //    ListMarket = ErasoftDbContext.ARF01.ToList(),
+                    //    Stf02 = new STF02(),
+                    //    TempBrg = new TEMP_BRG_MP(),
+                    //};
+
+                    //return PartialView("TableUploadBarangPartial", barangVm);
                 }
                 else
                 {
