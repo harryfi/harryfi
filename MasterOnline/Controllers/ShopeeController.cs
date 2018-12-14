@@ -268,7 +268,7 @@ namespace MasterOnline.Controllers
 
                             var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.SELLER_SKU.ToUpper().Equals(sellerSku.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                             var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id)) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                            if (tempbrginDB == null && brgInDB == null) 
+                            if (tempbrginDB == null && brgInDB == null)
                             {
                                 ret.recordCount++;
                                 proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id), item.variation_sku, detailBrg.item.name + " " + item.name, item.status, item.price, sellerSku);
@@ -277,7 +277,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        sellerSku = string.IsNullOrEmpty( detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
+                        sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         ret.recordCount++;
                         proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString(), detailBrg.item.item_sku, detailBrg.item.name, detailBrg.item.status, detailBrg.item.price, sellerSku);
                     }
@@ -1327,7 +1327,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string connID)
+        public async Task<string> GetOrderByStatus(ShopeeAPIData iden, StatusOrder stat, string connID, string CUST, string NAMA_CUST)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1391,7 +1391,7 @@ namespace MasterOnline.Controllers
                     if (stat == StatusOrder.READY_TO_SHIP)
                     {
                         string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
-                        await GetOrderDetails(iden, ordersn_list);
+                        await GetOrderDetails(iden, ordersn_list, connID, CUST, NAMA_CUST);
                     }
 
                 }
@@ -1401,7 +1401,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list)
+        public async Task<string> GetOrderDetails(ShopeeAPIData iden, string[] ordersn_list, string connID, string CUST, string NAMA_CUST)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1467,28 +1467,104 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
+                    var connIdARF01C = Guid.NewGuid().ToString();
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    List<TEMP_SHOPEE_ORDERS> batchinsert = new List<TEMP_SHOPEE_ORDERS>();
+                    List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                    var kabKot = "3174";
+                    var prov = "31";
+                    foreach (var order in result.orders)
+                    {
+                        TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
+                        {
+                            actual_shipping_cost = order.actual_shipping_cost,
+                            buyer_username = order.buyer_username,
+                            cod = order.cod,
+                            country = order.country,
+                            create_time = order.create_time,
+                            currency = order.currency,
+                            days_to_ship = order.days_to_ship,
+                            dropshipper = order.dropshipper,
+                            escrow_amount = order.escrow_amount,
+                            estimated_shipping_fee = order.estimated_shipping_fee,
+                            goods_to_declare = order.goods_to_declare,
+                            message_to_seller = order.message_to_seller,
+                            note = order.note,
+                            note_update_time = order.note_update_time,
+                            ordersn = order.ordersn,
+                            order_status = order.order_status,
+                            payment_method = order.payment_method,
+                            pay_time = order.pay_time,
+                            Recipient_Address_country = order.recipient_address.country,
+                            Recipient_Address_state = order.recipient_address.state,
+                            Recipient_Address_city = order.recipient_address.city,
+                            Recipient_Address_town = order.recipient_address.town,
+                            Recipient_Address_district = order.recipient_address.district,
+                            Recipient_Address_full_address = order.recipient_address.full_address,
+                            Recipient_Address_name = order.recipient_address.name,
+                            Recipient_Address_phone = order.recipient_address.phone,
+                            Recipient_Address_zipcode = order.recipient_address.zipcode,
+                            service_code = order.service_code,
+                            shipping_carrier = order.shipping_carrier,
+                            total_amount = order.total_amount,
+                            tracking_no = order.tracking_no,
+                            update_time = order.update_time
+                        };
+                        foreach (var item in order.items)
+                        {
+                            TEMP_SHOPEE_ORDERS_ITEM newOrderItem = new TEMP_SHOPEE_ORDERS_ITEM()
+                            {
+                                ordersn = order.ordersn,
+                                is_wholesale = item.is_wholesale,
+                                item_id = item.item_id,
+                                item_name = item.item_name,
+                                item_sku = item.item_sku,
+                                variation_discounted_price = item.variation_discounted_price,
+                                variation_id = item.variation_id,
+                                variation_name = item.variation_name,
+                                variation_original_price = item.variation_original_price,
+                                variation_quantity_purchased = item.variation_quantity_purchased,
+                                variation_sku = item.variation_sku,
+                                weight = item.weight
+                            };
+                            batchinsertItem.Add(newOrderItem);
+                        }
+                        insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
-                    //foreach (var order in result.orders)
-                    //{
-                    //    TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS({
-                    //        actual_shipping_cost=order.actual_shipping_cost,
-                    //        buyer_username = order.buyer_username,
-                    //        cod = order.cod,
-                    //        country = order.country,
-                    //        create_time = order.create_time,
-                    //        currency = order.currency,
-                    //        days_to_ship = order.days_to_ship,
-                    //        dropshipper = order.dropshipper,
-                    //        escrow_amount = order.escrow_amount,
-                    //        estimated_shipping_fee = order.estimated_shipping_fee,
-                    //        goods_to_declare = order.goods_to_declare,
-                    //        message_to_seller = order.message_to_seller,
-                    //        note = order.note,
-                    //        note_update_time = order.note_update_time,
-                    //        ordersn = order.ordersn,
-                    //    });
-                    //}
+                        batchinsert.Add(newOrder);
+                    }
+                    ErasoftDbContext.TEMP_SHOPEE_ORDERS.AddRange(batchinsert);
+                    ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
+                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                    ErasoftDbContext.SaveChanges();
+                    using (SqlCommand CommandSQL = new SqlCommand())
+                    {
+                        //call sp to insert buyer data
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+
+                        //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                        //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                        //CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                        //CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        //CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                        //CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
+
+                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                    };
                 }
                 catch (Exception ex2)
                 {

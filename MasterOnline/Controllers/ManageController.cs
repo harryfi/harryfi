@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-
+            //remark by calvin 13 desember 2018, testing
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -323,6 +323,7 @@ namespace MasterOnline.Controllers
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
+            //end remark by calvin 13 desember 2018, testing
 
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
@@ -369,7 +370,7 @@ namespace MasterOnline.Controllers
             //    {
             //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
             //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID);
+            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID,tblCustomer.CUST,tblCustomer.PERSO);
             //    }
             //}
 
