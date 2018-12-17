@@ -597,7 +597,8 @@
             $('#txtCustomer').val('');
             $('#txtCustomer2').val('');
             $('#txtCustomer3').val('');
-            document.getElementById('txtInfo').innerText = '';
+            //document.getElementById('txtInfo').innerText = '';
+            document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
 
             $('#close-editor-1').off('click').on('click', function () {
                 $('#close-editor-1')[0].disabled = true;
@@ -746,9 +747,10 @@
                                 //    table.search($(this).val()).draw();
                                 //});
                                 refreshTableBarangUpload();
-                                $('#loading_barang_tab').hide();
+                                //$('#loading_barang_tab').hide();
                                 $('#info_record').hide();
-                                $('#datatable').show();
+                                document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
+                                //$('#datatable').show();
                             }
                         } else {
                             $('#loading_barang_tab').hide();
@@ -937,9 +939,9 @@
             }
         }
         function editBarang(idBarang) {
-            var link = '@Url.Action("EditBarangUpload", "Manage", new { brg_mp = "replaceId" })';
-            link = link.replace("replaceId", idBarang);
-
+            var link = '@Url.Action("EditBarangUpload", "Manage"@*, new { brg_mp = "replaceId" }*@)';
+            //link = link.replace("replaceId", idBarang);
+            link += '?brg_mp=' + idBarang + '&cust=' + $('#promptHiddenField').val();
             $.ajax({
                 type: "GET",
                 url: link,
@@ -951,7 +953,7 @@
                     $('.barang_table_section').hide();
                     $('.barang_editor_section').show();
                     $('#form-partial').html(response);
-                    $('#txtBrg').val($('#TempBrg_BRG_MP').val()).change();
+                    $('#txtBrg').val($('#TempBrg_SELLER_SKU').val()).change();
                     //$('#Stf02_BRG').attr('disabled', 'disabled');
                     Initialize();
                     initRequired();
@@ -978,11 +980,15 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#datatable').hide();
+                    $('#loading_barang_tab').show();
+                    $('#konfHapusBarang').modal('hide');
+                },
                 success: function (response) {
                     //change by nurul 30/7/2018
                     //$('#table-barang-1-partial').html(response);
                     //Initialize();
-                    $('#konfHapusBarang').modal('hide');
                     if (response.Errors != undefined && response.Errors.length > 0) {
                         //$('#konfHapusBarang').modal('hide');
                         alert(response.Errors[0]);
@@ -1378,7 +1384,7 @@
             var link = '@Url.Action("AutoCompleteBrg", "Manage"@*, new { brg = "replaceId", brg_mp = "replaceBrgMp" }*@)';
             //link = link.replace("replaceId", $('#txtBrg').val());
             //link = link.replace("replaceBrgMp", $('#TempBrg_BRG_MP').val());
-            link += '?brg=' + $('#txtBrg').val() + '&brg_mp=' + $('#TempBrg_BRG_MP').val();
+            link += '?brg=' + $('#txtBrg').val() + '&brg_mp=' + $('#TempBrg_BRG_MP').val() + '&cust=' + $('#promptHiddenField').val();
             $.ajax({
                 type: "GET",
                 url: link,
@@ -1417,7 +1423,7 @@
                 $('#Stf02_PANJANG').val(data.PANJANG);
                 $('#Stf02_LEBAR').val(data.LEBAR);
                 $('#Stf02_TINGGI').val(data.TINGGI);
-                $('#Stf02_HJUAL').val(data.HJUAL);
+                $('#Stf02_HJUAL').val(convertToRupiah(data.HJUAL));
                 $('#Stf02_BRG').val(data.BRG);
                 if (data.LINK_GAMBAR_1 != '')
                     $('#hidden_url_gambar_1').val(data.LINK_GAMBAR_1);

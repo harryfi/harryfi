@@ -10701,6 +10701,7 @@ namespace MasterOnline.Controllers
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
 
             var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == data.TempBrg.IDMARKET).FirstOrDefault().NAMA;
             if (kdMarket == kdLazada.IdMarket.ToString())
@@ -10731,6 +10732,17 @@ namespace MasterOnline.Controllers
                 {
                     return JsonErrorMessage("Harga Jual harus kelipatan 100.");
                 }
+            }
+            else if (kdMarket == kdShopee.IdMarket.ToString())
+            {
+                if (data.Stf02.HJUAL < 100)
+                {
+                    return JsonErrorMessage("Harga Jual harus lebih dari 100.");
+                }
+                //else if (data.Stf02.HJUAL > 9999999999999)
+                //{
+                //    return JsonErrorMessage("Harga Jual tidak boleh lebih dari 9,999,999,999,999.");
+                //}
             }
             #endregion
             if (data != null)
@@ -11340,13 +11352,13 @@ namespace MasterOnline.Controllers
                     var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).FirstOrDefault();
                     if (defaultCategoryCode == null)
                     {
-                        barangVm.Errors.Add("Kode Kategory tidak ditemukan");
+                        barangVm.Errors.Add("Kode Kategori tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
                     var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).FirstOrDefault();
                     if (defaultBrand == null)
                     {
-                        barangVm.Errors.Add("Kode Kategory tidak ditemukan");
+                        barangVm.Errors.Add("Kode Merek tidak ditemukan");
                         return Json(barangVm, JsonRequestBehavior.AllowGet);
                     }
 
@@ -11354,23 +11366,24 @@ namespace MasterOnline.Controllers
 
                     foreach (var item in dataBrg)
                     {
-                        string brgBlibli = "";
-                        if (marketplace != null)
-                        {
-                            if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
-                            {
-                                var kdBrgBlibli = item.BRG_MP.Split(';');
-                                //stf02.BRG = "";
-                                var kdBrg = kdBrgBlibli[0].Split('-');
-                                for (int i = 1; i < kdBrg.Length; i++)
-                                {
-                                    brgBlibli += kdBrg[i] + "-";
-                                }
-                                brgBlibli = brgBlibli.Substring(0, brgBlibli.Length - 1);
-                            }
-                        }
+                        //string brgBlibli = "";
+                        //if (marketplace != null)
+                        //{
+                        //    if (marketplace.NamaMarket.ToUpper().Equals("BLIBLI"))
+                        //    {
+                        //        var kdBrgBlibli = item.BRG_MP.Split(';');
+                        //        //stf02.BRG = "";
+                        //        var kdBrg = kdBrgBlibli[0].Split('-');
+                        //        for (int i = 1; i < kdBrg.Length; i++)
+                        //        {
+                        //            brgBlibli += kdBrg[i] + "-";
+                        //        }
+                        //        brgBlibli = brgBlibli.Substring(0, brgBlibli.Length - 1);
+                        //    }
+                        //}
 
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
+                        //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals( item.SELLER_SKU.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
                             var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
@@ -11548,7 +11561,10 @@ namespace MasterOnline.Controllers
                             else
                             {
                                 brgMp = new STF02H();
-                                brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                                //change stf02h brg = seller sku
+                                //brgMp.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                                brgMp.BRG = item.SELLER_SKU;
+                                //end change stf02h brg = seller sku
                                 brgMp.BRG_MP = item.BRG_MP;
                                 brgMp.HJUAL = item.HJUAL;
                                 brgMp.DISPLAY = item.DISPLAY;
@@ -11752,7 +11768,10 @@ namespace MasterOnline.Controllers
                                 QSALES = 0,
                                 DISPLAY_MARKET = false,
                             };
-                            stf02.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                            //change stf02 brg = seller sku
+                            //stf02.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
+                            stf02.BRG = item.SELLER_SKU;
+                            //end change stf02 brg = seller sku
                             //var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
                             //if (marketplace != null)
                             //{
@@ -12003,14 +12022,14 @@ namespace MasterOnline.Controllers
             barangVm.Errors.Add("Toko ini tidak ditemukan.");
             return Json(barangVm, JsonRequestBehavior.AllowGet);
         }
-        public ActionResult EditBarangUpload(string brg_mp)
+        public ActionResult EditBarangUpload(string brg_mp, string cust)
         {
             var barangVm = new UploadBarangViewModel()
             {
-                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
                 ListMarket = ErasoftDbContext.ARF01.ToList(),
                 Stf02 = new STF02(),
-                TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).FirstOrDefault(),
+                TempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp.ToUpper()) && t.CUST == cust).FirstOrDefault(),
                 ListKategoriMerk = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("2")).OrderBy(m => m.KET).ToList(),
                 ListKategoriBrg = ErasoftDbContext.STF02E.Where(m => m.LEVEL.Equals("1")).OrderBy(m => m.KET).ToList(),
 
@@ -12030,7 +12049,7 @@ namespace MasterOnline.Controllers
 
                 var barangVm = new UploadBarangViewModel()
                 {
-                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.ToList(),
+                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.ToList(),
                     Stf02 = new STF02(),
                     TempBrg = new TEMP_BRG_MP(),
@@ -12407,7 +12426,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult AutoCompleteBrg(string brg, string brg_mp)
+        public ActionResult AutoCompleteBrg(string brg, string brg_mp, string cust)
         {
             //var barangVm = new UploadBarangViewModel()
             //{
@@ -12433,7 +12452,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper())).FirstOrDefault();
+                    var tempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP.ToUpper().Equals(brg_mp.ToUpper()) && b.CUST == cust).FirstOrDefault();
                     if (tempBrg != null)
                     {
                         retBarang = new STF02();

@@ -32,6 +32,7 @@ namespace MasterOnline.Models
     {
         public string seller_sku { get; set; }
         public string message { get; set; }
+        public string field { get; set; }
     }
     public class dataUploadBrg
     {

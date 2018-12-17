@@ -152,8 +152,9 @@ namespace MasterOnline.Controllers
                     foreach (var item in listBrg.items)
                     {
                         string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
-                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.SELLER_SKU.ToUpper().Equals(kdBrg.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.item_id) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        string brgMp = item.item_id.ToString() + ";0";
+                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
 
                         if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
                         {
@@ -265,13 +266,13 @@ namespace MasterOnline.Controllers
                             {
                                 sellerSku = item.variation_id.ToString();
                             }
-
-                            var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.SELLER_SKU.ToUpper().Equals(sellerSku.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id)) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
+                            var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
                             if (tempbrginDB == null && brgInDB == null) 
                             {
                                 ret.recordCount++;
-                                proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id), item.variation_sku, detailBrg.item.name + " " + item.name, item.status, item.price, sellerSku);
+                                proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.price, sellerSku);
                             }
                         }
                     }
@@ -279,7 +280,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty( detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         ret.recordCount++;
-                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString(), detailBrg.item.item_sku, detailBrg.item.name, detailBrg.item.status, detailBrg.item.price, sellerSku);
+                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString() + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.price, sellerSku);
                     }
                 }
                 catch (Exception ex2)
@@ -289,7 +290,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected void proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, string IdMarket, string barang_id, string barang_sku, string barang_name, string barang_status, float barang_price, string sellerSku)
+        protected void proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, string IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku)
         {
             string brand = "OEM";
             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";

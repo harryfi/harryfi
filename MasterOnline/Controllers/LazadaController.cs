@@ -324,8 +324,36 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
-                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    if(res.detail.Length == 1)
+                    {
+                        if (!string.IsNullOrEmpty(res.detail[0].field))
+                        {
+                            ret.message = res.detail[0].field + " : " + res.detail[0].message;
+                        }
+                        else
+                        {
+                            ret.message = res.detail[0].message;
+
+                        }
+                    }
+                    else if (res.detail.Length > 1)
+                    {
+                        ret.message = "";
+                        for(int i = 0; i < res.detail.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(res.detail[i].field))
+                            {
+                                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                            }
+                            else
+                            {
+                                ret.message += res.detail[i].message + "\n";
+
+                            }
+                        }
+                    }
+                    
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
 
@@ -744,7 +772,7 @@ namespace MasterOnline.Controllers
             ret.status = 0;
 
             var fromDt = DateTime.Now.AddDays(-14);
-            var toDt = DateTime.Now;
+            var toDt = DateTime.Now.AddDays(1);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -1243,7 +1271,7 @@ namespace MasterOnline.Controllers
                             {
                                 ret.message = (page + 1).ToString();
                             }
-                            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
+                            string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
                             sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3,";
                             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
@@ -1262,7 +1290,7 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         ret.recordCount++;
-                                        sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '";
+                                        sSQL_Value += " ( '" + brg.skus[i].SellerSku + "' , '" + brg.skus[i].SellerSku + "' , '";
                                         string namaBrg = brg.attributes.name;
                                         string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                                         urlImage = "";
