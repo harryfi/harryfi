@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-
+            //remark by calvin 13 desember 2018, testing
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -323,6 +323,7 @@ namespace MasterOnline.Controllers
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
+            //end remark by calvin 13 desember 2018, testing
 
             //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
@@ -369,7 +370,7 @@ namespace MasterOnline.Controllers
             //    {
             //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
             //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID);
+            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID,tblCustomer.CUST,tblCustomer.PERSO);
             //    }
             //}
 
@@ -1232,7 +1233,7 @@ namespace MasterOnline.Controllers
         {
             var listBarangTidakLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
-            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') = ''").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl_input >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') = ''").ToList();
             foreach (var barang in stf02Filter)
             {
                 var getQoh = 0d;
@@ -1351,7 +1352,7 @@ namespace MasterOnline.Controllers
         {
             var listBarangLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
-            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join sot01b b on c.brg = b.brg left join sot01a a on b.no_bukti = a.no_bukti where a.tgl >= dateadd(month, -3, getdate()) and isnull(b.brg, '') <> ''").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl_input >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
             foreach(var barang in stf02Filter)
             {
                 var getQoh = 0d;

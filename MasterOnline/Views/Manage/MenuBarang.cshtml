@@ -254,15 +254,31 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-sm-3">
-                            <h4 style="border-bottom:solid; ">Periode 3 Bulan Terakhir</h4>
-                        </div>
-                        <div class="col-lg-5 col-sm-3">
+
+                        <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 <button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+
+                            <div class="input-group date">
+                                @Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+
+                            <div class="input-group date">
+                                @Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                            </div>
+                        </div>
+                        <div class="col-md-8">
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
@@ -315,10 +331,10 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-sm-3">
-                            <h4 style="border-bottom:solid; ">Periode 3 Bulan Terakhir</h4>
-                        </div>
-                        <div class="col-lg-5 col-sm-3">
+                        @*<div class="col-sm-3">
+                                <h4 style="border-bottom:solid; ">Periode 3 Bulan Terakhir</h4>
+                            </div>*@
+                        <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
                                 <button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -326,6 +342,24 @@
                             </div>
                         </div>
 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+
+                            <div class="input-group date">
+                                @Html.TextBox("DrTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+
+                            <div class="input-group date">
+                                @Html.TextBox("SdTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                        </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
                         <div id="loading_palinglaku_tab" class="text-center">
@@ -425,6 +459,7 @@
                 refreshTableMinimumStok();
             });
 
+
             Initialize();
         });
 
@@ -494,6 +529,7 @@
                     $('#search_tidaklaku').keyup(function () {
                         table.search($(this).val()).draw();
                     });
+
                     $('#loading_tidak_laku_tab').hide();
                     $('#datatable_tidaklaku').show();
                 },
