@@ -105,9 +105,9 @@
             width: 100px;
         }
 
-        #BRG {
+        /*#BRG {
             width: 150px !important;
-        }
+        }*/
 
         #scrollable_div {
             overflow-x: hidden;
@@ -2096,6 +2096,13 @@
                     $(this).removeData('bs.modal');
                 });
 
+            $('#BRG').click(function() {
+                $(this).css('max-width', '300px').attr('style', 'width: 300px !important');;
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '100px').attr('style', 'width: 100px !important');;
+            });
         }
 
         function cekJumlahPesananBulanIni() {
@@ -3151,7 +3158,7 @@
                         $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
-                            placeholder: 'Harap pilih'
+                            placeholder: 'Harap pilih',
                         }).change(function() {
                             var val = $(this).selectivity('value');
                             var $trId = $(this).closest('tr').attr('data-pesanan-id');

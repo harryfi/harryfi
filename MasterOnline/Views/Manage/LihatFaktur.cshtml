@@ -197,7 +197,7 @@
                                             </tr>
                                             <tr>
                                                 <td style="width:500px">
-                                                    <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @pembeli.NAMA
+                                                    <span class="block_subtitle" style="margin-left:10px">Pembeli</span> @(pembeli == null ? "" : pembeli.NAMA)
                                                 </td>
                                                 <td style="text-align:center; width:50px"></td>
                                                 <td style="width:250px; text-align:center">
@@ -359,7 +359,7 @@
                                     <span class="block_subtitle_label">Alamat</span> @(Model.Faktur.AL)
                                 </p>
                                 <p class="sub_title">
-                                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli.TLP)
+                                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
                                 </p>
                         </div>
                     }

@@ -796,6 +796,8 @@ namespace MasterOnline.Controllers
                     CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 1;
                     CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
                     CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
 
                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
                     #endregion
