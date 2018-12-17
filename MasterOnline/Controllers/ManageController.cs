@@ -5404,6 +5404,8 @@ namespace MasterOnline.Controllers
             return PartialView("TablePesananPartial", vm);
         }
 
+        
+
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
             //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
@@ -6992,6 +6994,28 @@ namespace MasterOnline.Controllers
 
             return Json(listGudang, JsonRequestBehavior.AllowGet);
         }
+        //add by nurul 13/12/2018
+        [HttpGet]
+        public ActionResult GetGudangBarang(string brgId)
+        {
+
+            if (brgId != "")
+            {
+                string sSQL = "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
+                sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brgId + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang";
+                var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
+                return Json(ListQOHPerGD, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                var listGudang = ErasoftDbContext.STF18.ToList();
+                return Json(listGudang, JsonRequestBehavior.AllowGet);
+            }
+
+
+            //return Json(ListQOHPerGD, JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul
 
         [Route("manage/sa/stok")]
         public ActionResult StokMenu()
