@@ -502,7 +502,8 @@
             $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getDataBarang();
-            getGudang();
+            //getGudang();
+            getGudangForBarang();
             var $flagPerubahan = 0;
 
             if ($modeEdit == 1) { // mode edit
@@ -690,6 +691,57 @@
                 }
             });
         }
+        //add by nurul 18/12/2018
+        function getGudangForBarang() {
+            if ($('#BarangStok_Nobuk').val() != '') {
+
+                var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';
+                link = link.replace("replaceId", $('#BarangStok_Nobuk').val());
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (response) {
+                        var listGudang = [];
+                        if (response[0] != undefined) {
+                            $.each(response,
+                                function (i, item) {
+                                    listGudang[i] = {
+                                        id: item.GD,
+                                        text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    };
+                                });
+                        }
+                        var gudangSelect = $('#GUDANG').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listGudang,
+                            onChange: function (value) {
+                                $('#BarangStok_Dr_Gd').val(value);
+
+                                if (value != null) {
+                                    $('#gudang-kode').text(value);
+                                } else {
+                                    $('#gudang-kode').text('-');
+                                }
+                            }
+                        });
+                        gudangSelect[0].selectize.clearOptions();
+                        gudangSelect[0].selectize.renderCache = {};
+                        gudangSelect[0].selectize.load(function (callback) {
+                            callback(listGudang);
+                        });
+                        gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
+
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        //end add
 
         function getDataBarang() {
             $.ajax({
@@ -738,6 +790,10 @@
                                         }
                                         $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field Satuan must be a string with a maximum length of 10." data-val-length-max="10" id="BarangStok_Satuan" name="BarangStok.Satuan" type="hidden" value="">');
                                         $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
+                                        //add by nurul 18/12/2018
+                                        $('#BarangStok_Nobuk').val(item.BRG);
+                                        getGudangForBarang();
+                                        //end add
                                         return;
                                     }
                                 });
@@ -760,7 +816,8 @@
                             //    '<input data-val="true" data-val-number="The field Dr_Gd must be a number." data-val-required="The Dr_Gd field is required." id="BarangStok_Dr_Gd" name="BarangStok.Dr_Gd" type="hidden" value="">');
                             $($trElement + ' .netto-barang').html('0,00' + '<input data-val="true" data-val-number="The field Harga must be a number." data-val-required="The Harga field is required." id="BarangStok_Harga" name="BarangStok.Harga" type="hidden" value="">');
                             $($trElement + ' .btn-primary').attr('disabled', 'disabled');
-                            getGudang();
+                            //getGudang();
+                            getGudangForBarang();
                             $('#gudang-select').hide();
                             $('#gudang-kode').show();
                             refreshNettoBarang(0);
@@ -960,7 +1017,8 @@
                     refreshNettoBarang();
                     $('#form-partial').html(response);
                     getDataBarang();
-                    getGudang();
+                    //getGudang();
+                    getGudangForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -987,7 +1045,8 @@
                             if (response.Errors == null) {
                                 $('#form-partial').html(response);
                                 getDataBarang();
-                                getGudang();
+                                //getGudang();
+                                getGudangForBarang();
 
                                 if ($('#Stok_Tgl').val() != '') {
                                     $('#Stok_Tgl').val($('#Stok_Tgl').val().split(' ')[0]);
