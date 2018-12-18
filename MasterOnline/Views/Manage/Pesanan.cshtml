@@ -105,9 +105,9 @@
             width: 100px;
         }
 
-        #BRG {
+        /*#BRG {
             width: 150px !important;
-        }
+        }*/
 
         #scrollable_div {
             overflow-x: hidden;
@@ -1678,6 +1678,7 @@
             nppn: 0,
             ongkir: 0
         };
+        var $scrolling = false;
 
         var tableSiapProses = $('#datatable_siapproses').DataTable({
             columnDefs: [
@@ -1948,6 +1949,7 @@
             //            $('input[name="data-2"]').attr('checked', 'checked');
             //        }
             //    });
+
             $('#tambah_pesanan').on('click',
                 function() {
                     $('.pesanan_table_section').hide();
@@ -2127,7 +2129,6 @@
                 function() {
                     $(this).removeData('bs.modal');
                 });
-
         }
 
         function cekJumlahPesananBulanIni() {
@@ -2288,6 +2289,31 @@
         var $flagPerubahan = 0;
 
         function refreshInputan() {
+            $(window).on('resize', function () {
+                //var win = $(this); //this = window
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 100px', 'width: 400px'));
+                }
+            });
+
+            $(window).scroll(function () {
+                //var scrollTop = $(window).scrollTop();
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 100px', 'width: 400px'));
+                }
+            });
+
+            $('#BRG').click(function () {
+                $(this).attr('style', 'width: 400px !important').attr('style', 'min-width: 400px !important');
+                $('.selectivity-dropdown').attr('style', 'min-width: 400px !important');
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '100px').attr('style', 'width: 100px !important');
+            });
+
             if ($('#Pesanan_TGL').val() != '') {
                 $('#TGL').val($('#Pesanan_TGL').val());
             }
@@ -3183,7 +3209,7 @@
                         $('#BRG').selectivity({
                             allowClear: true,
                             items: listKodeBarang,
-                            placeholder: 'Harap pilih'
+                            placeholder: 'Harap pilih',
                         }).change(function() {
                             var val = $(this).selectivity('value');
                             var $trId = $(this).closest('tr').attr('data-pesanan-id');

@@ -18,6 +18,7 @@
 }
 <div class="hiddenField">
     @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.TempBrg.BRG_MP)
     @Html.HiddenFor(m => m.TempBrg.BERAT)
     @Html.HiddenFor(m => m.TempBrg.NAMA3)
     @Html.HiddenFor(m => m.TempBrg.PANJANG)
@@ -230,11 +231,11 @@
                 <div class="x_content">
                     <br>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Kode Barang di Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        @Html.LabelFor(m => m.TempBrg.BRG_MP, "Seller SKU/Kode Barang di Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.HiddenFor(m => m.TempBrg.BRG_MP)
+                            @Html.HiddenFor(m => m.TempBrg.SELLER_SKU)
                             @*@Html.TextBoxFor(m => m.TempBrg.BRG_MP, new { @class = "form-control", maxlength = 20 })*@
-                            <input class="form-control" value="@Model.TempBrg.BRG_MP" disabled />
+                            <input class="form-control" value="@Model.TempBrg.SELLER_SKU" disabled />
                         </div>
                     </div>
                     <div class="form-group">
