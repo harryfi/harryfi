@@ -1418,8 +1418,8 @@
             getMarketplace();
             getBuyer();
             getDataBarang();
-            getGudang();
-            //getGudangForBarang();
+            //getGudang();
+            getGudangForBarang();
             getMarketplaceTokopediaShopee();
 
             if ($('#Faktur_TGL').val() != '') {
@@ -2295,7 +2295,6 @@
                     contentType: 'application/json',
                     cache: false,
                     success: function (response) {
-                        //var listGudang = [];
                         var listGudang = [];
                         if (response[0] != undefined) {
                             $.each(response,
@@ -2306,14 +2305,6 @@
                                     };
                                 });
                         }
-                        //$.each(data,
-                        //    function (i, item) {
-                        //        listGudang[i] = {
-                        //            id: item.Kode_Gudang,
-                        //            text: item.Nama_Gudang
-                        //        };
-                        //    });
-                        
                         var gudangSelect = $('#GUDANG').selectize({
                             valueField: 'id',
                             searchField: 'text',
@@ -2331,7 +2322,11 @@
                                 }
                             }
                         });
-
+                        gudangSelect[0].selectize.clearOptions();
+                        gudangSelect[0].selectize.renderCache = {};
+                        gudangSelect[0].selectize.load(function (callback) {
+                            callback(listGudang);
+                        });
                         gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
 
                     },
@@ -2447,8 +2442,10 @@
 
                                             $($trElement + ' .stn-barang').html(item.STN2 + '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="FakturDetail_SATUAN" name="FakturDetail.SATUAN" type="hidden" value="">');
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) + '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="FakturDetail_H_SATUAN" name="FakturDetail.H_SATUAN" type="hidden" value="">');
+                                            //add by nurul 13/12/2018
                                             $('#FakturDetail_BRG').val(item.BRG);
-                                            //getGudangForBarang();
+                                            getGudangForBarang();
+                                            //end add 
                                             return;
                                         }
                                     });
@@ -2582,8 +2579,8 @@
                     getTanggal();
                     getBuyer();
                     getDataBarang();
-                    getGudang();
-                    //getGudangForBarang();
+                    //getGudang();
+                    getGudangForBarang();
                     getMarketplace();
 
                     $('#tambah_faktur').click();
@@ -2660,8 +2657,8 @@
                     getMarketplace();
                     getBuyer();
                     getDataBarang();
-                    getGudang();
-                    //getGudangForBarang();
+                    //getGudang();
+                    getGudangForBarang();
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -2716,8 +2713,8 @@
                     getMarketplace();
                     getBuyer();
                     getDataBarang();
-                    getGudang();
-                    //getGudangForBarang();
+                    //getGudang();
+                    getGudangForBarang();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -2808,8 +2805,8 @@
                                 getTanggal();
                                 getBuyer();
                                 getDataBarang();
-                                getGudang();
-                                //getGudangForBarang();
+                                //getGudang();
+                                getGudangForBarang();
                                 getMarketplace();
                                 $('#btn-simpan-perubahan-row').show();
                             } else {
