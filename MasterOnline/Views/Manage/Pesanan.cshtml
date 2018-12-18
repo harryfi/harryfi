@@ -184,6 +184,10 @@
             font-weight: bold;
         }
         /*end add by nurul 29/11/2018*/
+
+        .selectivity-single-select-input {
+            display: none;
+        }
     </style>
     <style>
         #modal-print-option {
@@ -2309,9 +2313,7 @@
                 $(this).attr('style', 'width: 400px !important').attr('style', 'min-width: 400px !important');
                 var checkExist = setInterval(function() {
                     if ($('.selectivity-dropdown').length) {
-                        $([document.documentElement, document.body]).animate({
-                            scrollTop: $("#BRG").offset().top - 0.5
-                        }, 2000);
+                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
                         clearInterval(checkExist);
                     }
                 }, 100);
