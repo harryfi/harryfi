@@ -361,18 +361,18 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
-            //if (listShopeeShop.Count > 0)
-            //{
-            //    var shopeeApi = new ShopeeController();
-            //    foreach (ARF01 tblCustomer in listShopeeShop)
-            //    {
-            //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
-            //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID,tblCustomer.CUST,tblCustomer.PERSO);
-            //    }
-            //}
+            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            if (listShopeeShop.Count > 0)
+            {
+                var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopeeShop)
+                {
+                    ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+                    iden.merchant_code = tblCustomer.Sort1_Cust;
+                    await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                }
+            }
 
             //add by calvin 14 nov 2018, update qoh setelah get pesanan
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
@@ -1299,25 +1299,31 @@ namespace MasterOnline.Controllers
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
-                
+
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
                 var getQoh = 0d;
                 var getQoo = 0d;
                 var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
                 var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
-                if (cekQoh != null){
+                if (cekQoh != null)
+                {
                     getQoh = cekQoh.JUMLAH;
-                }else{
+                }
+                else
+                {
                     getQoh = 0;
                 }
-                if (cekQoo != null){
+                if (cekQoo != null)
+                {
                     getQoo = cekQoo.JUMLAH;
-                }else{
+                }
+                else
+                {
                     getQoo = 0;
                 }
 
-                    if (barangUtkCek != null)
+                if (barangUtkCek != null)
                 {
                     //qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
                     //            + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
@@ -5212,6 +5218,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetPesananInfo(string nobuk)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
+            var pesananDetailInDb = ErasoftDbContext.SOT01B.SingleOrDefault(p => p.NO_BUKTI == nobuk && p.BRG == "NOT_FOUND");
             var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
             var idMarket = Convert.ToInt32(marketInDb.NAMA);
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
@@ -5224,7 +5231,8 @@ namespace MasterOnline.Controllers
                 TglPesanan = pesananInDb.TGL?.ToString("dd/MM/yyyy"),
                 Marketplace = namaAkunMarket,
                 Pembeli = namaBuyer,
-                Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO)
+                Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO),
+                allowContinue = pesananDetailInDb == null ? 1 : 0
             };
 
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
@@ -5403,9 +5411,61 @@ namespace MasterOnline.Controllers
 
             return PartialView("TablePesananPartial", vm);
         }
+        //add by calvin 17 desember 2018
+        public ActionResult FillModalFixNotFound(string recNum)
+        {
+            var intRecnum = Convert.ToInt64(recNum);
+            var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == intRecnum).FirstOrDefault();
 
-        
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+            var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
+            var idMarket = Convert.ToInt32(marketInDb.RecNum);
+            var ListBarangMarket = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == idMarket).ToList();
+            var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
+            var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList();
+            var vm = new PesananViewModel()
+            {
+                PesananDetail = PesananDetail,
+                ListBarangMarket = ListBarangMarket,
+                ListBarang = ListBarang
+            };
+            return PartialView("BarangFixNotFoundPartial", vm);
+        }
+        public ActionResult UpdateFixNotFound(string nourut, string recnum)
+        {
+            try
+            {
+                int no_urut_sot01b = Convert.ToInt32(nourut);
+                int recnum_stf02h = Convert.ToInt32(recnum);
+                var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
+                var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
+                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+                PesananDetail.BRG = dataStf02h.BRG;
+                //dataStf02h.BRG_MP = untuk tokopedia, belakangan
+                ErasoftDbContext.SaveChanges();
+
+                var vm = new PesananViewModel()
+                {
+                    Pesanan = pesananInDb,
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListEkspedisi = MoDbContext.Ekspedisi.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                };
+
+                return PartialView("BarangPesananSelesaiPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+            return View("Error");
+        }
+
+        //end add by calvn 17 desember 2018
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
             //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
@@ -5441,7 +5501,7 @@ namespace MasterOnline.Controllers
                 ListQOOPerBRG = ListQOOPerBRG
             };
 
-            return PartialView("GudangQtyPartial", vm);
+            return PartialView("BarangFixNotFoundPartial", vm);
         }
 
         public ActionResult RefreshTablePesananSudahDibayar()
@@ -12400,7 +12460,7 @@ namespace MasterOnline.Controllers
                                     ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
                                     {
                                         merchant_code = arf01.Sort1_Cust,
-                                        
+
                                     };
                                     var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
                                     if (resultShopee.status == 1)

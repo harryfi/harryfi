@@ -17,8 +17,8 @@ namespace MasterOnline
         public string message_to_seller { get; set; }
         public string shipping_carrier { get; set; }
         public string currency { get; set; }
-        public int create_time { get; set; }
-        public int pay_time { get; set; }
+        public DateTime create_time { get; set; }
+        public DateTime pay_time { get; set; }
 
         public string Recipient_Address_town { get; set; }
         public string Recipient_Address_city { get; set; }
@@ -33,8 +33,8 @@ namespace MasterOnline
         public int days_to_ship { get; set; }
         public string tracking_no { get; set; }
         public string order_status { get; set; }
-        public int note_update_time { get; set; }
-        public int update_time { get; set; }
+        public DateTime note_update_time { get; set; }
+        public DateTime update_time { get; set; }
         public bool goods_to_declare { get; set; }
         public string total_amount { get; set; }
         public string service_code { get; set; }
@@ -47,6 +47,9 @@ namespace MasterOnline
         public string dropshipper { get; set; }
         public string buyer_username { get; set; }
 
+        public string CUST { get; set; }
+        public string NAMA_CUST { get; set; }
+        public string CONN_ID { get; set; }
     }
 
 }

@@ -12,5 +12,6 @@ namespace MasterOnline.Models
         public string Marketplace { get; set; }
         public string Pembeli { get; set; }
         public string Total { get; set; }
+        public int allowContinue { get; set; }
     }
 }

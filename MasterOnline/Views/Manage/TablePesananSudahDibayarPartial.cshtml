@@ -23,7 +23,7 @@
             //var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.NAMAPEMESAN);
             var buyer = Model.ListPembeli.FirstOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
             //end change by Tri, buyer_code = pemesan
-
+            
             var buyerNama = "";
             var buyerPerso = "";
             if (buyer != null)

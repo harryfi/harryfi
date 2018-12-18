@@ -25,6 +25,10 @@ namespace MasterOnline
         public int variation_quantity_purchased { get; set; }
         public string variation_sku { get; set; }
         public string variation_original_price { get; set; }
+        public DateTime pay_time { get; set; }
+        public string CUST { get; set; }
+        public string NAMA_CUST { get; set; }
+        public string CONN_ID { get; set; }
     }
 
 }

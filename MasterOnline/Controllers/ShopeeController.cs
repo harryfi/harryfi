@@ -1470,8 +1470,8 @@ namespace MasterOnline.Controllers
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderDetailsResult)) as ShopeeGetOrderDetailsResult;
                     var connIdARF01C = Guid.NewGuid().ToString();
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    List<TEMP_SHOPEE_ORDERS> batchinsert = new List<TEMP_SHOPEE_ORDERS>();
-                    List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
+                    TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
+                    TEMP_SHOPEE_ORDERS_ITEM batchinsertItem = new TEMP_SHOPEE_ORDERS_ITEM();
                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
@@ -1479,13 +1479,16 @@ namespace MasterOnline.Controllers
                     var prov = "31";
                     foreach (var order in result.orders)
                     {
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
+                        ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
+
                         TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
                         {
                             actual_shipping_cost = order.actual_shipping_cost,
                             buyer_username = order.buyer_username,
                             cod = order.cod,
                             country = order.country,
-                            create_time = order.create_time,
+                            create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
                             currency = order.currency,
                             days_to_ship = order.days_to_ship,
                             dropshipper = order.dropshipper,
@@ -1494,11 +1497,11 @@ namespace MasterOnline.Controllers
                             goods_to_declare = order.goods_to_declare,
                             message_to_seller = order.message_to_seller,
                             note = order.note,
-                            note_update_time = order.note_update_time,
+                            note_update_time = DateTimeOffset.FromUnixTimeSeconds(order.note_update_time).UtcDateTime,
                             ordersn = order.ordersn,
                             order_status = order.order_status,
                             payment_method = order.payment_method,
-                            pay_time = order.pay_time,
+                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time).UtcDateTime,
                             Recipient_Address_country = order.recipient_address.country,
                             Recipient_Address_state = order.recipient_address.state,
                             Recipient_Address_city = order.recipient_address.city,
@@ -1512,7 +1515,10 @@ namespace MasterOnline.Controllers
                             shipping_carrier = order.shipping_carrier,
                             total_amount = order.total_amount,
                             tracking_no = order.tracking_no,
-                            update_time = order.update_time
+                            update_time = DateTimeOffset.FromUnixTimeSeconds(order.update_time).UtcDateTime,
+                            CONN_ID = connID,
+                            CUST = CUST,
+                            NAMA_CUST = NAMA_CUST
                         };
                         foreach (var item in order.items)
                         {
@@ -1529,43 +1535,50 @@ namespace MasterOnline.Controllers
                                 variation_original_price = item.variation_original_price,
                                 variation_quantity_purchased = item.variation_quantity_purchased,
                                 variation_sku = item.variation_sku,
-                                weight = item.weight
+                                weight = item.weight,
+                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time).UtcDateTime,
+                                CONN_ID = connID,
+                                CUST = CUST,
+                                NAMA_CUST = NAMA_CUST
+
                             };
-                            batchinsertItem.Add(newOrderItem);
+                            batchinsertItem = (newOrderItem);
                         }
                         insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
                         insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
 
-                        batchinsert.Add(newOrder);
+                        batchinsert = (newOrder);
+
+                        ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
+                        ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.Add(batchinsertItem);
+                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+                        ErasoftDbContext.SaveChanges();
+                        using (SqlCommand CommandSQL = new SqlCommand())
+                        {
+                            //call sp to insert buyer data
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                        };
+                        using (SqlCommand CommandSQL = new SqlCommand())
+                        {
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
+                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
+
+                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                        }
                     }
-                    ErasoftDbContext.TEMP_SHOPEE_ORDERS.AddRange(batchinsert);
-                    ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
-                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                    ErasoftDbContext.SaveChanges();
-                    using (SqlCommand CommandSQL = new SqlCommand())
-                    {
-                        //call sp to insert buyer data
-                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
-
-                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-
-                        //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-
-                        //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connID;
-                        //CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                        //CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                        //CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                        //CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                        //CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                        //CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                        //CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                        //CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 1;
-
-                        //EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                    };
                 }
                 catch (Exception ex2)
                 {
@@ -1575,6 +1588,156 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<ShopeeGetParameterForInitLogisticResult> GetParameterForInitLogistic(ShopeeAPIData iden, string ordersn)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            ShopeeGetParameterForInitLogisticResult ret = null;
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_parameter/get";
+
+            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
+                    ret = result;
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+            return ret;
+        }
+        public async Task<string> InitLogistic(ShopeeAPIData iden, string ordersn, string trackingno)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Update No Resi",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init";
+            ShopeeInitLogisticData HttpBody = new ShopeeInitLogisticData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn,
+                dropoff = new ShopeeInitLogisticDropOffDetailData { },
+                pickup = new ShopeeInitLogisticPickupDetailData { },
+                non_integrated = new ShopeeInitLogisticNotIntegratedDetailData { }
+            };
+
+            ShopeeGetParameterForInitLogisticResult InitParam;
+            InitParam = await GetParameterForInitLogistic(iden, ordersn);
+            if (InitParam.non_integrated.FirstOrDefault() == "tracking_no")
+            {
+                HttpBody.non_integrated.tracking_no = trackingno;
+            }
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+
         public async Task<string> Template(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -1838,6 +2001,14 @@ namespace MasterOnline.Controllers
             public long create_time_to { get; set; }
             public string order_status { get; set; }
         }
+
+        public class ShopeeGetParameterForInitLogisticData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string ordersn { get; set; }
+        }
         public class GetOrderDetailsData
         {
             public int partner_id { get; set; }
@@ -2075,6 +2246,43 @@ namespace MasterOnline.Controllers
             public string variation_sku { get; set; }
             public string variation_original_price { get; set; }
         }
-
+        public class ShopeeGetParameterForInitLogisticResult
+        {
+            public string[] pickup { get; set; }
+            public string[] dropoff { get; set; }
+            public string[] non_integrated { get; set; }
+            public string request_id { get; set; }
+        }
+        
+        public class ShopeeInitLogisticData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public string ordersn { get; set; }
+            public ShopeeInitLogisticPickupDetailData pickup { get; set; }
+            public ShopeeInitLogisticDropOffDetailData dropoff { get; set; }
+            public ShopeeInitLogisticNotIntegratedDetailData non_integrated { get; set; }
+        }
+        public class ShopeeInitLogisticPickupDetailData
+        {
+            public long address_id { get; set; }
+            public string pickup_time_id { get; set; }
+            public string tracking_no { get; set; }
+        }
+        public class ShopeeInitLogisticDropOffDetailData
+        {
+            public long branch_id { get; set; }
+            public string sender_real_name { get; set; }
+            public string tracking_no { get; set; }
+        }
+        public class ShopeeInitLogisticNotIntegratedDetailData {
+            public string tracking_no { get; set; }
+        }
+        public class ShopeeInitLogisticResult
+        {
+            public string tracking_no { get; set; }
+            public string request_id { get; set; }
+        }
     }
 }
