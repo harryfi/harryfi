@@ -2248,8 +2248,8 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeGetParameterForInitLogisticResult
         {
-            public string[] pickup { get; set }
-            public string[] dropoff { get; set }
+            public string[] pickup { get; set;  }
+            public string[] dropoff { get; set; }
             public string[] non_integrated { get; set; }
             public string request_id { get; set; }
         }
