@@ -5901,6 +5901,7 @@
     <Content Include="Views\Manage\TableBuyerPopUp.cshtml" />
     <Content Include="Views\Manage\BuyerPopUp1.cshtml" />
     <Content Include="Views\Shopee\ShopeeAuth.cshtml" />
+    <Content Include="Views\Manage\BarangFixNotFoundPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
