@@ -184,6 +184,10 @@
             font-weight: bold;
         }
         /*end add by nurul 29/11/2018*/
+
+        .selectivity-single-select-input {
+            display: none;
+        }
     </style>
     <style>
         #modal-print-option {
@@ -1153,7 +1157,7 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?</h4>
+                    <h4 id="SudahBayarKonfUbahStatusText"></h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1173,7 +1177,7 @@
                     </p>
                 </div>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer" id="footer_info_pesananSudahBayar" style="display:none">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
                 <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
             </div>
@@ -1463,6 +1467,21 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
+    <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
+        <div class="modal-content" style="height:600px;width:900px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
+            </div>
+            <div class="modal-body" id="modal-fix-not-found-body">
+                @Html.Partial("BarangFixNotFoundPartial")
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalGudangDanQty" tabindex="-1" role="dialog" aria-labelledby="gudangQtyLabel">
     <div class="modal-dialog" id="gudang-qty" role="document">
         <div class="modal-content">
@@ -1663,6 +1682,7 @@
             nppn: 0,
             ongkir: 0
         };
+        var $scrolling = false;
 
         var tableSiapProses = $('#datatable_siapproses').DataTable({
             columnDefs: [
@@ -1933,6 +1953,7 @@
             //            $('input[name="data-2"]').attr('checked', 'checked');
             //        }
             //    });
+
             $('#tambah_pesanan').on('click',
                 function() {
                     $('.pesanan_table_section').hide();
@@ -2056,10 +2077,14 @@
             });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
-            $(
-                    '#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .on('shown.bs.modal',
                     function() {
+                        //add by calvin 17 desember 2018
+                        $('#footer_info_pesananSudahBayar').hide();
+                        $('#SudahBayarKonfUbahStatusText').html("");
+                        //end add by calvin 17 desember 2018
+
                         var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
                         link = link.replace("replaceNoBuk", $nobukPesanan);
 
@@ -2072,6 +2097,15 @@
                                 $('.market_pesanan').text(response.Marketplace);
                                 $('.buyer_pesanan').text(response.Pembeli);
                                 $('.total_pesanan').text(response.Total);
+                                //add by calvin 17 desember 2018
+                                if (response.allowContinue == 0) {
+                                    $('#footer_info_pesananSudahBayar').hide();
+                                    $('#SudahBayarKonfUbahStatusText').html("Ada kode barang yang belum terdaftar di Master Online, silahkan cek detail pesanan anda");
+                                }else {
+                                    $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
+                                    $('#footer_info_pesananSudahBayar').show();
+                                }
+                                //end add by calvin 17 desember 2018
                             },
                             error: function(xhr, status, error) {
                                 console.log(error);
@@ -2089,20 +2123,16 @@
                         $('.market_pesanan').text('-');
                         $('.buyer_pesanan').text('-');
                         $('.total_pesanan').text('0,00');
+                        //add by calvin 17 desember 2018
+                        $('#SudahBayarKonfUbahStatusText').html("");
+                        $('#footer_info_pesananSudahBayar').hide();
+                        //end add by calvin 17 desember 2018
                     });
 
             $('.modal').on('hidden.bs.modal',
                 function() {
                     $(this).removeData('bs.modal');
                 });
-
-            $('#BRG').click(function() {
-                $(this).css('max-width', '300px').attr('style', 'width: 300px !important');;
-            });
-
-            $('body').click(function () {
-                $('#BRG').css('max-width', '100px').attr('style', 'width: 100px !important');;
-            });
         }
 
         function cekJumlahPesananBulanIni() {
@@ -2263,6 +2293,35 @@
         var $flagPerubahan = 0;
 
         function refreshInputan() {
+            $(window).on('resize', function () {
+                //var win = $(this); //this = window
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 100px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $(window).scroll(function () {
+                //var scrollTop = $(window).scrollTop();
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 100px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $('#BRG').click(function () {
+                var checkExist = setInterval(function() {
+                    if ($('.selectivity-dropdown').length) {
+                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                        clearInterval(checkExist);
+                    }
+                }, 100);
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '100px').attr('style', 'width: 100px !important');
+            });
+
             if ($('#Pesanan_TGL').val() != '') {
                 $('#TGL').val($('#Pesanan_TGL').val());
             }
@@ -2949,7 +3008,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
-                    
+
                     var listPembeli = [];
 
                     $.each(data,
@@ -2959,7 +3018,7 @@
                                 text: item.NAMA,
                                 address: item.AL
                             };
-                            
+
                         });
                     $.each(listPembeli,
                         function (i, item) {
@@ -2975,7 +3034,7 @@
                                 }
                             }
                         });
-                    
+
                     //$('#MARKETPEMESAN').selectize()[0].selectize.destroy();
 
                     //var marketSelect = $('#MARKETPEMESAN').selectize({
@@ -2992,14 +3051,14 @@
                     //                }
                     //            });
 
-                            //if (value == null) {
-                            //    $('#tambah-pembeli').show();
-                            //    $('#lihat-pembeli').hide();
-                            //} else {
-                            //    $('#tambah-pembeli').hide();
-                            //    $('#lihat-pembeli').show();
-                            //}
-                            //$('#btn-simpan-perubahan-row').show();
+                    //if (value == null) {
+                    //    $('#tambah-pembeli').show();
+                    //    $('#lihat-pembeli').hide();
+                    //} else {
+                    //    $('#tambah-pembeli').hide();
+                    //    $('#lihat-pembeli').show();
+                    //}
+                    //$('#btn-simpan-perubahan-row').show();
                     //    }
                     //});
 
@@ -3022,11 +3081,11 @@
                 type: "GET",
                 url: link,
                 success: function (res) {
-                        $('#Pesanan_PEMESAN').val(res.BUYER_CODE);
-                        $('#Pesanan_NAMAPEMESAN').val(res.NAMA);
-                        $('#Pesanan_ALAMAT_KIRIM').val(res.AL);
-                        //$("#MARKETPEMESAN").val(res.NAMA);
-                        $('#btn-simpan-perubahan-row').show();
+                    $('#Pesanan_PEMESAN').val(res.BUYER_CODE);
+                    $('#Pesanan_NAMAPEMESAN').val(res.NAMA);
+                    $('#Pesanan_ALAMAT_KIRIM').val(res.AL);
+                    //$("#MARKETPEMESAN").val(res.NAMA);
+                    $('#btn-simpan-perubahan-row').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -3607,6 +3666,77 @@
             getResi(rec);
         }
 
+        //ADD BY CALVIN 17 DESEMBER 2018
+        function fixDataBarangNotFound(rec) {
+            this.$recDataBarangNotFound = rec;
+            fillModalFixNotFound(rec);
+        }
+
+        function fillModalFixNotFound(rec) {
+            var link = '@Url.Action("FillModalFixNotFound", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", rec);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function(response) {
+                    $('#modal-fix-not-found-body').html(response);
+                    //$('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
+                    //$('#txtShipment').val(response[1]);
+                    //$('#Pesanan_SHIPMENT').val(response[1]);
+                    //$('#resi_no_bukti').val(response[2]);
+                    //$('#resi_pembeli').val(response[3]);
+                    //$('#resi_kurir').val(response[4]);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function updateNotFound(sot01b_nourut,stf02h_recnum,kode){
+            if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
+                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", sot01b_nourut + ';' + stf02h_recnum);
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function(response) {
+                        alert('Data berhasil disimpan!');
+                        $('#modalFixNotFound').modal('hide');
+                        //samakan dengan function lihatPesananSudahDibayar onSuccess
+                        $modeEdit = 1;
+                        $('#form-partial-sudah-dibayar').html(response);
+                        $('#see_tgl_pesanan').removeAttr('style');
+                        $('#TGL').parent().hide();
+                        $('.pesanan_sudah_dibayar_section').hide();
+                        $('.pesanan_editor_sudah_dibayar_section').show();
+                        $('#myTab li a').each(function () {
+                            $(this).removeAttr('data-toggle');
+
+                            if ($(this).attr('id') === 'nunggu-tab') return;
+
+                            $(this).addClass('disabled-tab');
+                        });
+                        $('#loading_spinner').hide();
+                        //end samakan dengan function lihatPesananSudahDibayar onSuccess
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+
+            }
+        }
+        //END ADD BY CALVIN 17 DESEMBER 2018
+
         function getBarangForGudangQty(nobuk) {
             var link = '@Url.Action("RefreshGudangQtyPesanan", "Manage", new {noBuk = "replaceNoBuk"})';
             link = link.replace("replaceNoBuk", nobuk);
@@ -4059,7 +4189,7 @@
             $('#ctk_tlp').attr('checked', true);
             $('#nama_toko').val("");
             //end add
-            
+
             $('#btn-print-faktur').off('click').on('click', function() {
                 var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', nobuk);
@@ -4112,7 +4242,7 @@
 
                 var win = encodeURI(window.open(link += $faktur += $label += $alamat += $tlp += $toko, '_blank'));
                 $('#modalPrintOption').modal('hide');
-                //end add 
+                //end add
                 if (win) {
                     win.focus();
                 } else {

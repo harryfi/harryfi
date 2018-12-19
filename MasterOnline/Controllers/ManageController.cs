@@ -361,18 +361,18 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            //var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            //var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
-            //if (listShopeeShop.Count > 0)
-            //{
-            //    var shopeeApi = new ShopeeController();
-            //    foreach (ARF01 tblCustomer in listShopeeShop)
-            //    {
-            //        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
-            //        iden.merchant_code = tblCustomer.Sort1_Cust;
-            //        await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID,tblCustomer.CUST,tblCustomer.PERSO);
-            //    }
-            //}
+            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            if (listShopeeShop.Count > 0)
+            {
+                var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopeeShop)
+                {
+                    ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+                    iden.merchant_code = tblCustomer.Sort1_Cust;
+                    await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                }
+            }
 
             //add by calvin 14 nov 2018, update qoh setelah get pesanan
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
@@ -1233,7 +1233,7 @@ namespace MasterOnline.Controllers
         {
             var listBarangTidakLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
-            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl_input >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') = ''").ToList();
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') = ''").ToList();
             foreach (var barang in stf02Filter)
             {
                 var getQoh = 0d;
@@ -1358,8 +1358,8 @@ namespace MasterOnline.Controllers
         {
             var listBarangLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
-            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl_input >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
-            foreach (var barang in stf02Filter)
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
+            foreach(var barang in stf02Filter)
             {
                 var getQoh = 0d;
                 var getQoo = 0d;
@@ -1595,6 +1595,65 @@ namespace MasterOnline.Controllers
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
+        //add by calvin 18 desember 2018
+        #region Kategori Shopee
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_SHOPEE> listKategoriShopee = new List<CATEGORY_SHOPEE>();
+            var category = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            listKategoriShopee.Add(category);
+
+            if (category.PARENT_CODE != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    listKategoriShopee.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeShopee(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptShopee(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptShopee = MoDbContext.AttributeOptShopee.Where(k => codelist.Contains(k.ACODE)).ToList();
+            return Json(listAttributeOptShopee, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        //end add by calvin 18 desember 2018
+
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -5218,6 +5277,7 @@ namespace MasterOnline.Controllers
         public ActionResult GetPesananInfo(string nobuk)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == nobuk);
+            var pesananDetailInDb = ErasoftDbContext.SOT01B.SingleOrDefault(p => p.NO_BUKTI == nobuk && p.BRG == "NOT_FOUND");
             var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
             var idMarket = Convert.ToInt32(marketInDb.NAMA);
             var namaMarketplace = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket;
@@ -5230,7 +5290,8 @@ namespace MasterOnline.Controllers
                 TglPesanan = pesananInDb.TGL?.ToString("dd/MM/yyyy"),
                 Marketplace = namaAkunMarket,
                 Pembeli = namaBuyer,
-                Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO)
+                Total = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesananInDb.NETTO),
+                allowContinue = pesananDetailInDb == null ? 1 : 0
             };
 
             return Json(infoPesanan, JsonRequestBehavior.AllowGet);
@@ -5409,9 +5470,62 @@ namespace MasterOnline.Controllers
 
             return PartialView("TablePesananPartial", vm);
         }
+        //add by calvin 17 desember 2018
+        public ActionResult FillModalFixNotFound(string recNum)
+        {
+            var intRecnum = Convert.ToInt64(recNum);
+            var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == intRecnum).FirstOrDefault();
 
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+            var marketInDb = ErasoftDbContext.ARF01.Single(m => m.CUST == pesananInDb.CUST);
+            var idMarket = Convert.ToInt32(marketInDb.RecNum);
+            var ListBarangMarket = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == idMarket).ToList();
+            var ListKodeBarangMarket = ListBarangMarket.Select(p => p.BRG).ToList();
+            var ListBarang = ErasoftDbContext.STF02.Where(p => ListKodeBarangMarket.Contains(p.BRG)).ToList();
+            var vm = new PesananViewModel()
+            {
+                PesananDetail = PesananDetail,
+                ListBarangMarket = ListBarangMarket,
+                ListBarang = ListBarang
+            };
+            return PartialView("BarangFixNotFoundPartial", vm);
+        }
+        public ActionResult UpdateFixNotFound(string nourut)
+        {
+            try
+            {
+                var no_urut = nourut.Split(';');
+                int no_urut_sot01b = Convert.ToInt32(no_urut[0]);
+                int recnum_stf02h = Convert.ToInt32(no_urut[1]);
+                var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
+                var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
+                var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
+                PesananDetail.BRG = dataStf02h.BRG;
+                //dataStf02h.BRG_MP = untuk tokopedia, belakangan
+                ErasoftDbContext.SaveChanges();
 
+                var vm = new PesananViewModel()
+                {
+                    Pesanan = pesananInDb,
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListPesananDetail = ErasoftDbContext.SOT01B.Where(pd => pd.NO_BUKTI == pesananInDb.NO_BUKTI).ToList(),
+                    ListBarang = ErasoftDbContext.STF02.ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListEkspedisi = MoDbContext.Ekspedisi.ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                };
+
+                return PartialView("BarangPesananSelesaiPartial", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+            return View("Error");
+        }
+
+        //end add by calvn 17 desember 2018
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
             //add by calvin 27 nov 2018, munculkan QOH di combobox gudang
@@ -5447,7 +5561,7 @@ namespace MasterOnline.Controllers
                 ListQOOPerBRG = ListQOOPerBRG
             };
 
-            return PartialView("GudangQtyPartial", vm);
+            return PartialView("BarangFixNotFoundPartial", vm);
         }
 
         public ActionResult RefreshTablePesananSudahDibayar()
@@ -8384,6 +8498,7 @@ namespace MasterOnline.Controllers
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
             var kdBli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
             var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
             var blApi = new BukaLapakController();
             var lzdApi = new LazadaController();
             var eleApi = new EleveniaController();
@@ -8480,6 +8595,32 @@ namespace MasterOnline.Controllers
                             new BlibliController().UpdateProdukQOH_Display(iden, data);
                         }
                     }
+                    //add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    {
+                        var ShopeeApi = new ShopeeController();
+
+                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                        {
+                            merchant_code = marketPlace.Sort1_Cust,
+                        };
+                        if (stf02h.BRG_MP != "")
+                        {
+                            string[] brg_mp = stf02h.BRG_MP.Split(';');
+                            if (brg_mp.Count() == 2)
+                            {
+                                if (brg_mp[1] == "0")
+                                { 
+                                    Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
+                                }
+                                else if (brg_mp[1] != "")
+                                {
+                                    Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
+                                }
+                            }
+                        }
+                    }
+                    //end add by calvin 18 desember 2018
                 }
             }
         }
