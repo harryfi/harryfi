@@ -1589,10 +1589,10 @@ namespace MasterOnline.Controllers
             return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeOptLazada(string code)
+        public ActionResult GetAttributeOptLazada(string code, string kategoryCode)
         {
             string[] codelist = code.Split(';');
-            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME)).ToList();
+            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -12416,7 +12416,8 @@ namespace MasterOnline.Controllers
                                             if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
                                             {
                                                 retBarang.BLProductActive = 0;
-                                                retBarang.Page = 0;
+                                                if (statBL == 1)
+                                                    retBarang.Page = 0;
                                             }
                                             //else
                                             //{

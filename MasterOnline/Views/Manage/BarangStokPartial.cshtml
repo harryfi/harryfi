@@ -202,7 +202,7 @@
                     @Html.HiddenFor(m => m.BarangStok.No)
                     @Html.HiddenFor(m => m.BarangStok.Nobuk, new { Value = "-" })
                     @Html.HiddenFor(m => m.BarangStok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-                    <td>
+                    <td style="width: 110px; max-width: 110px;">
                         <div id="BRG" class="selectivity-input" tabindex="0"></div>
                         @Html.HiddenFor(m => m.BarangStok.Kobar)
                     </td>
