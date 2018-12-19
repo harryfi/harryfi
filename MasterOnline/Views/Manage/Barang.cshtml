@@ -1241,13 +1241,13 @@
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionLazada(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                                getAttributeOptionLazada(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
                                             }
                                         }
                                         else if (loop == 0) {
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionLazada(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                                getAttributeOptionLazada(SelectList[(i * 6) + 0], SelectList[(i * 6) + 1], SelectList[(i * 6) + 2], SelectList[(i * 6) + 3], SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], categoryCode);
                                             }
                                         }
                                     }
@@ -1260,10 +1260,10 @@
                 }
             });
         }
-        function getAttributeOptionLazada(ANAME,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,AINPUT_TYPE){
+        function getAttributeOptionLazada(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE, categoryCode){
             var link = '@Url.Action("GetAttributeOptLazada", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ANAME);
-
+            link += "&kategoryCode=" + categoryCode;
             $.ajax({
                 type: "GET",
                 url: link,

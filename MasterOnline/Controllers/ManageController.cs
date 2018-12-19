@@ -1299,25 +1299,31 @@ namespace MasterOnline.Controllers
 
             foreach (var barang in ErasoftDbContext.STF02.ToList())
             {
-                
+
                 var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
                 var qtyOnHand = 0d;
                 var getQoh = 0d;
                 var getQoo = 0d;
                 var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
                 var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
-                if (cekQoh != null){
+                if (cekQoh != null)
+                {
                     getQoh = cekQoh.JUMLAH;
-                }else{
+                }
+                else
+                {
                     getQoh = 0;
                 }
-                if (cekQoo != null){
+                if (cekQoo != null)
+                {
                     getQoo = cekQoo.JUMLAH;
-                }else{
+                }
+                else
+                {
                     getQoo = 0;
                 }
 
-                    if (barangUtkCek != null)
+                if (barangUtkCek != null)
                 {
                     //qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
                     //            + barangUtkCek.QM5 + barangUtkCek.QM6 + barangUtkCek.QM7 + barangUtkCek.QM8 + barangUtkCek.QM9
@@ -1353,7 +1359,7 @@ namespace MasterOnline.Controllers
             var listBarangLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
             var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl_input >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
-            foreach(var barang in stf02Filter)
+            foreach (var barang in stf02Filter)
             {
                 var getQoh = 0d;
                 var getQoo = 0d;
@@ -1582,10 +1588,10 @@ namespace MasterOnline.Controllers
             return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeOptLazada(string code)
+        public ActionResult GetAttributeOptLazada(string code, string kategoryCode)
         {
             string[] codelist = code.Split(';');
-            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME)).ToList();
+            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -5404,7 +5410,7 @@ namespace MasterOnline.Controllers
             return PartialView("TablePesananPartial", vm);
         }
 
-        
+
 
         public ActionResult RefreshGudangQtyPesanan(string noBuk)
         {
@@ -11408,7 +11414,7 @@ namespace MasterOnline.Controllers
                         //}
 
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals( item.SELLER_SKU.ToUpper())).FirstOrDefault();
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
                             var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
@@ -12259,7 +12265,8 @@ namespace MasterOnline.Controllers
                                             if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
                                             {
                                                 retBarang.BLProductActive = 0;
-                                                retBarang.Page = 0;
+                                                if (statBL == 1)
+                                                    retBarang.Page = 0;
                                             }
                                             //else
                                             //{
@@ -12400,7 +12407,7 @@ namespace MasterOnline.Controllers
                                     ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
                                     {
                                         merchant_code = arf01.Sort1_Cust,
-                                        
+
                                     };
                                     var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
                                     if (resultShopee.status == 1)
