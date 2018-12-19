@@ -78,6 +78,25 @@ namespace MasterOnline.Controllers
 
             return View();
         }
+        public ActionResult FAQ(string Ref)
+        {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
+            return View();
+        }
 
         public ActionResult Contact()
         {

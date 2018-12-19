@@ -706,12 +706,15 @@ namespace MasterOnline.Controllers
                             {
                                 foreach (ProductBukaLapak items in order.products)
                                 {
-                                    var ds = EDB.GetDataSet("MOConnectionString", "0", "SELECT STF02.NAMA AS NAMA_BRG FROM STF02H S INNER JOIN ARF01 A ON S.AKUNMARKET = A.PERSO INNER JOIN STF02 ON S.BRG = STF02.BRG WHERE BRG_MP = '" + items.id + "' AND CUST = '" + Cust + "'");
                                     string namaBrg = "";
-                                    if (ds.Tables[0].Rows.Count > 0)
-                                    {
-                                        namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
-                                    }
+                                    //CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
+                                    //var ds = EDB.GetDataSet("MOConnectionString", "0", "SELECT STF02.NAMA AS NAMA_BRG FROM STF02H S INNER JOIN ARF01 A ON S.AKUNMARKET = A.PERSO INNER JOIN STF02 ON S.BRG = STF02.BRG WHERE BRG_MP = '" + items.id + "' AND CUST = '" + Cust + "'");
+                                    //if (ds.Tables[0].Rows.Count > 0)
+                                    //{
+                                    //    namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
+                                    //}
+                                    //END CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
+                                    namaBrg = items.name;
                                     insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg + "',";
                                     insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
                                     insertOrderItems += " ,";
