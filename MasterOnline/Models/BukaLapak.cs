@@ -378,7 +378,7 @@ namespace MasterOnline.Models
         public object[] product_sin { get; set; }
         //public Rating rating { get; set; }
         public string current_variant_name { get; set; }
-        public int current_product_sku_id { get; set; }
+        public long current_product_sku_id { get; set; }
         public object[] product_sku { get; set; }
         public object[] options { get; set; }
         public object alternative_image { get; set; }
