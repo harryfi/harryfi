@@ -914,6 +914,8 @@ namespace MasterOnline.Controllers
                     if (resListProd.products.Count == 10)
                     {
                         ret.message = (page + 1).ToString();
+                        if (!display)
+                            ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                     }
                     else
                     {

@@ -1261,6 +1261,10 @@
                 var enc_desc = $('<div/>').text(desc).html();
                 $('#TempBrg_Deskripsi').val(enc_desc);
 
+                var desc2 = $('#TempBrg_AVALUE_1').val();
+                var enc_desc2 = $('<div/>').text(desc2).html();
+                $('#TempBrg_AVALUE_1').val(enc_desc2);
+
                 var $form = $(btnClicked).parents('form');
                 var $formData = new FormData($('form').get(0));
 

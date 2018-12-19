@@ -3697,9 +3697,8 @@
         }
         function updateNotFound(sot01b_nourut,stf02h_recnum,kode){
             if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
-                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut", recnum = "replaceRecNum" })';
-                link = link.replace("replaceNoUrut", sot01b_nourut);
-                link = link.replace("replaceRecNum", stf02h_recnum);
+                var link = '@Url.Action("UpdateFixNotFound", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", sot01b_nourut + ';' + stf02h_recnum);
 
                 $.ajax({
                     type: "POST",
@@ -3710,22 +3709,24 @@
                         $('#loading_spinner').show();
                     },
                     success: function(response) {
-                        $('#loading_spinner').hide();
                         alert('Data berhasil disimpan!');
                         $('#modalFixNotFound').modal('hide');
-                        //samakan dengan function lihatPesanan onSuccess
+                        //samakan dengan function lihatPesananSudahDibayar onSuccess
                         $modeEdit = 1;
-                        $('#form-partial-selesai').html(response);
+                        $('#form-partial-sudah-dibayar').html(response);
                         $('#see_tgl_pesanan').removeAttr('style');
                         $('#TGL').parent().hide();
-                        $('.pesanan_selesai_section').hide();
-                        $('.pesanan_editor_selesai_section').show();
+                        $('.pesanan_sudah_dibayar_section').hide();
+                        $('.pesanan_editor_sudah_dibayar_section').show();
                         $('#myTab li a').each(function () {
                             $(this).removeAttr('data-toggle');
-                            if ($(this).attr('id') === 'selesai-tab') return;
+
+                            if ($(this).attr('id') === 'nunggu-tab') return;
+
                             $(this).addClass('disabled-tab');
                         });
-                        //end samakan dengan function lihatPesanan onSuccess
+                        $('#loading_spinner').hide();
+                        //end samakan dengan function lihatPesananSudahDibayar onSuccess
                     },
                     error: function(xhr) {
                         console.log(xhr);

@@ -1588,13 +1588,72 @@ namespace MasterOnline.Controllers
             return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeOptLazada(string code)
+        public ActionResult GetAttributeOptLazada(string code, string kategoryCode)
         {
             string[] codelist = code.Split(';');
-            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME)).ToList();
+            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
+        //add by calvin 18 desember 2018
+        #region Kategori Shopee
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriShopee = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriShopeeByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_SHOPEE> listKategoriShopee = new List<CATEGORY_SHOPEE>();
+            var category = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            listKategoriShopee.Add(category);
+
+            if (category.PARENT_CODE != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    listKategoriShopee.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeShopee(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptShopee(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptShopee = MoDbContext.AttributeOptShopee.Where(k => codelist.Contains(k.ACODE)).ToList();
+            return Json(listAttributeOptShopee, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        //end add by calvin 18 desember 2018
+
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -5431,12 +5490,13 @@ namespace MasterOnline.Controllers
             };
             return PartialView("BarangFixNotFoundPartial", vm);
         }
-        public ActionResult UpdateFixNotFound(string nourut, string recnum)
+        public ActionResult UpdateFixNotFound(string nourut)
         {
             try
             {
-                int no_urut_sot01b = Convert.ToInt32(nourut);
-                int recnum_stf02h = Convert.ToInt32(recnum);
+                var no_urut = nourut.Split(';');
+                int no_urut_sot01b = Convert.ToInt32(no_urut[0]);
+                int recnum_stf02h = Convert.ToInt32(no_urut[1]);
                 var PesananDetail = ErasoftDbContext.SOT01B.Where(b => b.NO_URUT == no_urut_sot01b).SingleOrDefault();
                 var dataStf02h = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h).SingleOrDefault();
 
@@ -5458,7 +5518,7 @@ namespace MasterOnline.Controllers
 
                 return PartialView("BarangPesananSelesaiPartial", vm);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return View("Error");
             }
@@ -8438,6 +8498,7 @@ namespace MasterOnline.Controllers
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket;
             var kdBli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
             var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
             var blApi = new BukaLapakController();
             var lzdApi = new LazadaController();
             var eleApi = new EleveniaController();
@@ -8534,6 +8595,32 @@ namespace MasterOnline.Controllers
                             new BlibliController().UpdateProdukQOH_Display(iden, data);
                         }
                     }
+                    //add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
+                    {
+                        var ShopeeApi = new ShopeeController();
+
+                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                        {
+                            merchant_code = marketPlace.Sort1_Cust,
+                        };
+                        if (stf02h.BRG_MP != "")
+                        {
+                            string[] brg_mp = stf02h.BRG_MP.Split(';');
+                            if (brg_mp.Count() == 2)
+                            {
+                                if (brg_mp[1] == "0")
+                                { 
+                                    Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
+                                }
+                                else if (brg_mp[1] != "")
+                                {
+                                    Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
+                                }
+                            }
+                        }
+                    }
+                    //end add by calvin 18 desember 2018
                 }
             }
         }
@@ -11468,7 +11555,7 @@ namespace MasterOnline.Controllers
                         //}
 
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals( item.SELLER_SKU.ToUpper())).FirstOrDefault();
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
                             var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
@@ -12319,7 +12406,8 @@ namespace MasterOnline.Controllers
                                             if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
                                             {
                                                 retBarang.BLProductActive = 0;
-                                                retBarang.Page = 0;
+                                                if (statBL == 1)
+                                                    retBarang.Page = 0;
                                             }
                                             //else
                                             //{
