@@ -5530,6 +5530,7 @@
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-radar-boundary-origin-spline.json" />
     <Content Include="Content\vendors\chart.js\test\fixtures\plugin.filler\fill-radar-boundary-origin.json" />
     <Content Include="Content\admin\ERASOFT_backup_for_new_account.bak" />
+    <Content Include="MO_Panduan.pdf" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Development.pubxml" />
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
