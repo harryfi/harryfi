@@ -5531,7 +5531,6 @@ namespace MasterOnline.Controllers
             {
                 return View("Error");
             }
-            return View("Error");
         }
 
         //end add by calvn 17 desember 2018

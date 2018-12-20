@@ -1477,6 +1477,16 @@ namespace MasterOnline.Controllers
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
                     var kabKot = "3174";
                     var prov = "31";
+
+                    foreach (var order in result.orders)
+                    {
+                        insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+                    }
+                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
                     foreach (var order in result.orders)
                     {
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
