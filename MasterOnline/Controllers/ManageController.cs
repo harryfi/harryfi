@@ -5570,7 +5570,7 @@ namespace MasterOnline.Controllers
                 ListQOOPerBRG = ListQOOPerBRG
             };
 
-            return PartialView("BarangFixNotFoundPartial", vm);
+            return PartialView("GudangQtyPartial", vm);
         }
 
         public ActionResult RefreshTablePesananSudahDibayar()
