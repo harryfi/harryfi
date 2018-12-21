@@ -2266,7 +2266,7 @@ namespace MasterOnline.Controllers
                             var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                             if (item != null)
                             {
-                                item.BRG_MP = resServer.item_id.ToString();
+                                item.BRG_MP = resServer.item_id.ToString() + ";0";
                                 ErasoftDbContext.SaveChanges();
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }

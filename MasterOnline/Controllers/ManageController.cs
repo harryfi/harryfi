@@ -2382,6 +2382,7 @@ namespace MasterOnline.Controllers
                     //update harga, qty, dll
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
+                    saveBarangShopee(2, dataBarang);
 
 
                     //get image
@@ -2664,11 +2665,32 @@ namespace MasterOnline.Controllers
                         #endregion
                         case 2:
                             {
-                                //var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
-                                //foreach (ARF01 tblCustomer in listBlibli)
-                                //{
+                                foreach (ARF01 tblCustomer in listShopee)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
 
-                                //}
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                    };
+                                                    ShopeeController shoAPI = new ShopeeController();
+                                                    Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             break;
                         default:
