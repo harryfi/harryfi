@@ -5595,6 +5595,12 @@ namespace MasterOnline.Controllers
                     ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
                 };
 
+                //add by calvin 21 Desember 2018, update stok marketplace
+                List<string> listBrg = new List<string>();
+                listBrg.Add(PesananDetail.BRG);
+                updateStockMarketPlace(listBrg);
+                //end add by calvin 21 Desember 2018
+
                 return PartialView("BarangPesananSelesaiPartial", vm);
             }
             catch (Exception ex)
