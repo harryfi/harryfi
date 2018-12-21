@@ -1,0 +1,1223 @@
+﻿
+@{
+    ViewBag.Title = "Master Online";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles
+{
+    <style>
+        @@media (min-width: 320px) and (max-width: 480px) {
+            .modal-content {
+                margin-top: 225px !important;
+            }
+
+            .modal-dialog {
+                height: auto !important;
+            }
+
+            .title-features-mobile {
+                font-size: 10px !important;
+            }
+
+            .sub-title-features-mobile {
+                font-size: 9px !important;
+            }
+
+            .feature-mobile-row {
+                margin-bottom: 25px !important;
+            }
+
+            #top a span {
+                font-size: 12px !important;
+            }
+
+            h2.mobile-title {
+                font-size: 16px !important;
+            }
+
+            #cover p {
+                font-size: 14px !important;
+            }
+
+            #mobile-app-section {
+                margin-top: 25px !important;
+            }
+        }
+
+        @@font-face {
+            font-family: 'RoundedElegance';
+            src: url("../../fonts/rounded_elegance.svg");
+            src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+        }
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        html {
+            -webkit-text-stroke-width: 0.5pt;
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+
+        #cover {
+            margin-top: 175px;
+            margin-bottom: 18px;
+            background-size: cover;
+            min-height: 250px;
+        }
+
+        h2.pc-title {
+            color: #891539;
+            font-size: 45px;
+            line-height: 60px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        h2.mobile-title {
+            color: #891539;
+            font-size: 30px;
+            line-height: 58px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        #cover h3 {
+            font-size: 58px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'RoundedElegance';
+        }
+
+            #cover h3 span {
+                color: #ed5565;
+            }
+
+        #cover span {
+            font-size: 53px;
+        }
+
+        #cover p {
+            font-size: 18px;
+            letter-spacing: .5px;
+        }
+
+        #cover .btn {
+            background-color: #891539;
+            color: #fff;
+        }
+
+            #cover .btn:hover {
+                background-color: #f37100 !important;
+            }
+
+        .focus-text {
+            text-transform: uppercase;
+            color: #f37100;
+        }
+
+        #btn-daftar-pc {
+            width: 50%;
+            float: right;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #mobile-app-section {
+            margin-top: 60px;
+        }
+
+        #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-pc {
+            width: 50%;
+            float: left;
+            background-color: #5db836 !important;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-mobile {
+            background-color: #5db836 !important;
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #gradient-mo {
+            background: rgba(255,23,23,1);
+            background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+            background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .videoWrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+
+            .videoWrapper iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+        .modal-dialog {
+            width: 75%;
+            height: 75%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .modal-content {
+            margin-top: 35px;
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
+        }
+
+        .videoBox {
+            position: relative;
+            padding-bottom: 30.25%; /* 16:9 */
+            height: 0;
+        }
+
+            .videoBox iframe {
+                position: absolute;
+                top: 0;
+                left: 25%;
+                width: 50%;
+                height: 100%;
+            }
+
+        #marketplace .logo-container {
+            padding: 40px 0;
+        }
+
+        .grayish-white {
+            background-color: #F5F5F5;
+        }
+
+        .grayish-white-f6 {
+            background-color: #f6f6f6;
+        }
+
+        #marketplace .title-box-red,
+        .carakerja .title-box-red {
+            padding: 10px 7px;
+        }
+
+            #marketplace .title-box-red h3,
+            .carakerja .title-box-red h3 {
+                font-size: 20px;
+                color: #fff;
+                font-weight: 400;
+                margin: 0px;
+                text-align: left !important;
+            }
+
+        #marketplace .mp-logo:first-child {
+            margin-left: 60px;
+        }
+
+        #marketplace .mp-logo {
+            margin-right: 15px;
+        }
+
+        .titleSection {
+            color: #ed5565;
+            font-size: 35px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .carakerja {
+            padding: 0 0 40px 0;
+            background-color: #fff;
+        }
+
+            .carakerja h3, .carakerja p {
+                font-weight: 300;
+                text-align: center;
+            }
+
+            .carakerja h3 {
+                font-size: 22px;
+            }
+
+            .carakerja p {
+                font-size: 17px;
+                line-height: 24px;
+                color: #777;
+            }
+
+            .carakerja strong {
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                display: block;
+            }
+
+            .carakerja img {
+                margin-top: 25px;
+            }
+
+        #banner {
+            background: url(../../Content/Images/shattered.png) 0 50%;
+            min-height: 200px;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+            #banner h2 {
+                color: #999;
+                font-size: 25px;
+                font-weight: 400;
+                margin: 30px 0 28px 0;
+            }
+
+        footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
+
+        .title-box-red {
+            background: rgba(137,21,57,1);
+            background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+            background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
+        }
+
+        .carakerja .content-feature {
+            background-color: #f6f6f6;
+            padding-bottom: 10px;
+        }
+
+        #promo_pulsa {
+            display: none; /* Sementara */
+            position: absolute;
+            width: 20%;
+            right: 15px;
+            top: 175px;
+            z-index: 100;
+        }
+
+        .no-padding {
+            padding: 0 !important;
+        }
+
+        .title-features {
+            font-size: 15px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features {
+            font-size: 14px;
+            position: absolute;
+            top: 30px;
+            left: 0;
+        }
+
+        .title-features-mobile {
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features-mobile {
+            font-size: 11px;
+            position: absolute;
+            top: 25px;
+            left: 0;
+        }
+
+        .feature-mobile-row {
+            margin-bottom: 30px;
+        }
+    </style>
+}
+@*<!DOCTYPE html>
+
+    <html>
+    <head>*@
+<title>FAQ</title>
+@*<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap4.min.js"></script>
+    <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/site.css" rel="stylesheet" />*@
+<link href="~/Content/hover-min.css" rel="stylesheet" />
+
+@*<style type="text/css">
+        /*nav {
+            background-color: #fff;
+            height: 120px;
+        }
+
+            nav .container {
+                color: #5a5a5a;
+            }
+
+            nav .container-fluid a {
+                color: #fff;
+            }
+
+                nav .container-fluid a span {
+                    font-size: 18px;
+                }
+
+            nav .container-fluid .col-md-2 {
+                padding: 7px 0;
+            }*/
+
+        /*.navbar-default {
+            background-color: #fff !important;
+        }*/
+
+        /*.navbar-nav {
+            margin: 7.5px 5px;
+            padding: 5px 0;
+        }*/
+
+            /*.navbar-nav li a {
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: .5px;
+            }*/
+
+        /*.nav li a {
+            padding: 10px;
+        }
+
+        .nav li div {
+            padding: 15px;
+        }*/
+
+        /*.navbar-brand {
+            padding: 20px 15px;
+        }*/
+
+        /*.bar {
+            font-size: 30px;
+            color: #ed1338;
+        }*/
+
+        /*.header-menu-new .col-md-2 a:hover span {
+            color: #FFA500;
+        }
+
+        .header-menu-new .col-md-2 a span {
+            padding: 0 20px;
+            font-size: 18px;
+            color: #891539;
+            margin-left: -10px;
+        }*/
+
+        /*.nav-row {
+            padding: 30px;
+        }
+
+            .nav-row > div > a {
+                padding: 7px;
+            }*/
+
+        #loading_spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_spinner_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        #loading_spinner_btn {
+            display: none;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        #loading_spinner_image_btn {
+            width: 20px;
+            height: 40px;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        /*#soc-med-btn-nav {
+            float: right;
+            margin-right: 80px;
+            margin-bottom: 15px;
+        }*/
+
+        body {
+            background: #f1f1f1;
+            letter-spacing: 0.4px;
+            font-family: 'RoundedElegance';
+        }
+
+        font-face {
+            font-family: 'RoundedElegance';
+            src: url("fonts/rounded_elegance.svg");
+            src: url("fonts/rounded_elegance.ttf") format('truetype');
+        }
+
+        footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
+
+
+        .modal-content {
+            margin-top: 225px !important;
+        }
+
+        .modal-dialog {
+            height: auto !important;
+        }
+
+        .title-features-mobile {
+            font-size: 10px !important;
+        }
+
+        .sub-title-features-mobile {
+            font-size: 9px !important;
+        }
+
+        .feature-mobile-row {
+            margin-bottom: 25px !important;
+        }
+
+
+        h2.mobile-title {
+            font-size: 16px !important;
+        }
+
+        #cover p {
+            font-size: 14px !important;
+        }
+
+        #mobile-app-section {
+            margin-top: 25px !important;
+        }
+
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        html {
+            -webkit-text-stroke-width: 0.5pt;
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+
+        #cover {
+            margin-top: 175px;
+            margin-bottom: 18px;
+            background-size: cover;
+            min-height: 350px;
+        }
+
+        h2.pc-title {
+            color: #891539;
+            font-size: 45px;
+            line-height: 60px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        h2.mobile-title {
+            color: #891539;
+            font-size: 30px;
+            line-height: 58px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        #cover h3 {
+            font-size: 58px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'RoundedElegance';
+        }
+
+            #cover h3 span {
+                color: #ed5565;
+            }
+
+        #cover span {
+            font-size: 53px;
+        }
+
+        #cover p {
+            font-size: 18px;
+            letter-spacing: .5px;
+        }
+
+        #cover .btn {
+            background-color: #891539;
+            color: #fff;
+        }
+
+            #cover .btn:hover {
+                background-color: #f37100 !important;
+            }
+
+        .focus-text {
+            text-transform: uppercase;
+            color: #f37100;
+        }
+
+        #btn-daftar-pc {
+            width: 50%;
+            float: right;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #mobile-app-section {
+            margin-top: 60px;
+        }
+
+        #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-pc {
+            width: 50%;
+            float: left;
+            background-color: #5db836 !important;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-mobile {
+            background-color: #5db836 !important;
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #gradient-mo {
+            background: rgba(255,23,23,1);
+            background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+            background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .videoWrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+
+            .videoWrapper iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+        .modal-dialog {
+            width: 75%;
+            height: 75%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .modal-content {
+            margin-top: 35px;
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
+        }
+
+        .videoBox {
+            position: relative;
+            padding-bottom: 30.25%; /* 16:9 */
+            height: 0;
+        }
+
+            .videoBox iframe {
+                position: absolute;
+                top: 0;
+                left: 25%;
+                width: 50%;
+                height: 100%;
+            }
+
+        #marketplace .logo-container {
+            padding: 40px 0;
+        }
+
+        .grayish-white {
+            background-color: #F5F5F5;
+        }
+
+        .grayish-white-f6 {
+            background-color: #f6f6f6;
+        }
+
+        #marketplace .title-box-red,
+        .carakerja .title-box-red {
+            padding: 10px 7px;
+        }
+
+            #marketplace .title-box-red h3,
+            .carakerja .title-box-red h3 {
+                font-size: 20px;
+                color: #fff;
+                font-weight: 400;
+                margin: 0px;
+                text-align: left !important;
+            }
+
+        #marketplace .mp-logo:first-child {
+            margin-left: 60px;
+        }
+
+        #marketplace .mp-logo {
+            margin-right: 15px;
+        }
+
+        .titleSection {
+            color: #ed5565;
+            font-size: 35px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .carakerja {
+            padding: 0 0 40px 0;
+            background-color: #fff;
+        }
+
+            .carakerja h3, .carakerja p {
+                font-weight: 300;
+                text-align: center;
+            }
+
+            .carakerja h3 {
+                font-size: 22px;
+            }
+
+            .carakerja p {
+                font-size: 17px;
+                line-height: 24px;
+                color: #777;
+            }
+
+            .carakerja strong {
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                display: block;
+            }
+
+            .carakerja img {
+                margin-top: 25px;
+            }
+
+        #banner {
+            background: url(../../Content/Images/shattered.png) 0 50%;
+            min-height: 200px;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+            #banner h2 {
+                color: #999;
+                font-size: 25px;
+                font-weight: 400;
+                margin: 30px 0 28px 0;
+            }
+
+        footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
+
+        .title-box-red {
+            background: rgba(137,21,57,1);
+            background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+            background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
+        }
+
+        .carakerja .content-feature {
+            background-color: #f6f6f6;
+            padding-bottom: 10px;
+        }
+
+        #promo_pulsa {
+            display: none; /* Sementara */
+            position: absolute;
+            width: 20%;
+            right: 15px;
+            top: 175px;
+            z-index: 100;
+        }
+
+        .no-padding {
+            padding: 0 !important;
+        }
+
+        .title-features {
+            font-size: 15px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features {
+            font-size: 14px;
+            position: absolute;
+            top: 30px;
+            left: 0;
+        }
+
+        .title-features-mobile {
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features-mobile {
+            font-size: 11px;
+            position: absolute;
+            top: 25px;
+            left: 0;
+        }
+
+        .feature-mobile-row {
+            margin-bottom: 30px;
+        }
+    </style>*@
+
+
+@*</head>
+    <body>*@
+<!--Start Top Slogan-->
+<div id="cover">
+    <div class="container text-center">
+        <img width="60%" src="~/Content/Images/header_image.png" />
+    </div>
+    <div class="container-fluid">
+        <div class="col-md-12 text-center">
+            <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">SOLUSI CERDAS PEBISNIS ONLINE</h2>
+            <h2 class="hidden-xs hidden-sm pc-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
+            <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
+            <p style="margin-bottom: 0;">Kontrol Bisnis Anda dari Satu Tempat</p>
+            @*<p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>*@
+        </div>
+    </div>
+</div>
+<!--End of Top Slogan-->
+<div class="container-fluid"  style="padding: 20px 0 40px 0;">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>1.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Bagaimana cara daftar di MO ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Cara daftar di MasterOnline (MO) sangat mudah dan Gratis, silahkan klik di "<b>Daftar</b>", lalu isi data pribadi anda dan submit. silahkan tunggu sekita satu hari kerja untuk approval dari admin. Setelah mendapatkan email approval, anda sudah bisa melakukan login dan mulai menggunakan MO.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>2.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Apakah saya harus membayar biaya tertentu ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>MasterOnline menawarkan 3 option berlangganan (subcription), dari yang gratis sampai berbayar, silahkan lihat detail harga di menu pricing.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>3.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Apabila saya membutuhkan bantuan cara pemakaian atau masalah teknis, saya bisa menghubungi siapa ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Silahkan menghubungi kami di no tlp <b>021 6349318</b> atau dengan email, silahkan baca keterangan lengkap di menu Support.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>4.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Bagaimana cara berhenti berlangganan ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Silahkan menghubungi Customer Service kami.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>5.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Apakah saya bisa menjadi partner bisnis MO ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                    MasterOnline menawarkan 2 jenis kerjasama, yaitu Sales Partner (SP) dan Certified Support Partner (CSP), silahkan baca keterangan detail di menu partner.
+                                    Setelah daftar sebagai Partner, silahkan tunggu konfirmasi approval melalui email.
+                                
+                            </td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>6.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Apakah saya bisa minta perubahan atau penambahan system MO ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Tidak, MO merupakan paket system yang dirancang untuk umum, tapi anda bisa memberi masukan dan usulan melalui email kepada kami dan kami akan melakukan evaluasi, apabila bermanfaat untuk kepentingan umum, kami akan melakukan revisi versi baru.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>7.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Bagaimana dengan keamanan data saya ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Data anda akan di encrip dan disimpan di server Amazon Web Service (AWS) yang merupakan penyedia layanan cloud terbaik dunia.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel panel-body">
+                    <table border="0">
+                        <tr height="40px">
+                            <td><b>8.&nbsp;&nbsp;&nbsp;</b> </td>
+                            <td><b>Apakah MO bisa digunakan untuk bisnis tradisional (bukan online) atau UKMK ?</b><br></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Bisa.</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<footer>
+    <div class="container">
+        <div class="col-md-3 col-md-offset-1 col-xs-12 col-sm-12 text-center">
+            <a href="http://www.masteronline.co.id">
+                <img width="75%" style="display: block; margin: 0 auto;" src="~/Content/Images/MO_new_logo_bottom.png" alt="MasterOnline" class="img-responsive">
+            </a><br /><br />
+            <span style="color: #f7f7f7">
+                PT Erasoft Teknologi Indonesia.<br />
+                Jl. Alaydrus No. 37,<br />
+                Jakarta Pusat, 10130<br />
+                ------------------------<br>
+                csmasteronline@gmail.com<br />
+                Tel: 021-634-9318
+            </span>
+            <br class="hidden-md hidden-lg">
+            <br class="hidden-md hidden-lg">
+            <div class="container text-center hidden-md hidden-lg">
+                <a href="https://www.facebook.com/csmasteronline">
+                    <img src="~/Content/Images/facebook-white.jpg" alt="Facebook" width="24" height="24" />
+                </a>
+                <a href="https://www.instagram.com/csmasteronline" style="margin: 0 10px;">
+                    <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
+                </a>
+                <a href="http://13.250.30.255/blog">
+                    <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
+                </a>
+            </div>
+        </div>
+        <br class="hidden-md hidden-lg" />
+        <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+            <h3>Hubungi Kami</h3>
+            <ul>
+                <li><a href="mailto:csmasteronline@gmail.com">Email</a></li>
+                <li><a href="https://www.facebook.com/csmasteronline">Facebook</a></li>
+                <li><a href="https://www.instagram.com/csmasteronline">Instagram</a></li>
+                <li><a href="http://13.250.30.255/blog">Blog</a></li>
+                <li><a href="https://www.youtube.com/channel/UCFQSo4VeQKGhUgk7nuqowuQ">Youtube</a></li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+                <h3>Dukungan</h3>
+                <ul>
+                    <li><a href="@Url.Content("~/MO_Panduan.pdf")" target="_blank">Panduan Pemakaian</a></li>
+                    <li><a href="/Home/FAQ">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+                <h3>Kebijakan</h3>
+                <ul>
+                    <li><a href="~/Content/Static/termsandconditions.html">Privasi</a></li>
+                    <li><a href="~/Content/Static/termsandconditions.html#security">Keamanan</a></li>
+                    <li><a href="~/Content/Static/termsandconditions.html#terms">Syarat dan Ketentuan</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+@*</html>*@

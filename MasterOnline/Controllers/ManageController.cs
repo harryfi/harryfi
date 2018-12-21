@@ -1359,7 +1359,7 @@ namespace MasterOnline.Controllers
             var listBarangLaku = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
             var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl >= dateadd(month, -3, getdate())) b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
-            foreach(var barang in stf02Filter)
+            foreach (var barang in stf02Filter)
             {
                 var getQoh = 0d;
                 var getQoo = 0d;
@@ -5502,7 +5502,16 @@ namespace MasterOnline.Controllers
 
                 var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.NO_BUKTI == PesananDetail.NO_BUKTI);
                 PesananDetail.BRG = dataStf02h.BRG;
-                //dataStf02h.BRG_MP = untuk tokopedia, belakangan
+
+                if (string.IsNullOrWhiteSpace(dataStf02h.BRG_MP))
+                {
+                    var catatan_split = PesananDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+
+                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                    {
+                        dataStf02h.BRG_MP = catatan_split[2];
+                    }
+                }
                 ErasoftDbContext.SaveChanges();
 
                 var vm = new PesananViewModel()
@@ -5522,7 +5531,6 @@ namespace MasterOnline.Controllers
             {
                 return View("Error");
             }
-            return View("Error");
         }
 
         //end add by calvn 17 desember 2018
@@ -5561,7 +5569,7 @@ namespace MasterOnline.Controllers
                 ListQOOPerBRG = ListQOOPerBRG
             };
 
-            return PartialView("BarangFixNotFoundPartial", vm);
+            return PartialView("GudangQtyPartial", vm);
         }
 
         public ActionResult RefreshTablePesananSudahDibayar()
@@ -5690,6 +5698,19 @@ namespace MasterOnline.Controllers
             var lzdAPI = new LazadaController();
             switch (status)
             {
+                case "11"://cancel
+                    {
+                        if (mp.NamaMarket.ToUpper().Contains("SHOPEE"))
+                        {
+                            var shoAPI = new ShopeeController();
+                            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                            {
+                                merchant_code = marketPlace.Sort1_Cust,
+                            };
+                            Task.Run(() => shoAPI.CancelOrder(data, pesanan.NO_REFERENSI).Wait());
+                        }
+                    }
+                    break;
                 case "02":
                     if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                     {
@@ -8610,7 +8631,7 @@ namespace MasterOnline.Controllers
                             if (brg_mp.Count() == 2)
                             {
                                 if (brg_mp[1] == "0")
-                                { 
+                                {
                                     Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
                                 }
                                 else if (brg_mp[1] != "")

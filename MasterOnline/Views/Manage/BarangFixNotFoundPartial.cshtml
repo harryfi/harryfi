@@ -21,8 +21,12 @@
             <label class="control-label col-md-3 col-sm-3">Nama Barang</label>
             <div class="col-md-9 col-sm-9">
                 @{
-                    var namaDiCatatan = PesananDetail.CATATAN.Substring(PesananDetail.CATATAN.IndexOf("[") + 1);
-                    namaDiCatatan = namaDiCatatan.Substring(0, namaDiCatatan.Length - 1);
+                    var catatan_split = PesananDetail.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
+                    var namaDiCatatan = "";
+                    if (catatan_split.Count() > 2) //OrderNo_;_NamaBarang_;_IdBarang
+                    {
+                        namaDiCatatan = catatan_split[1];
+                    }
                 }
                 @Html.TextBox("not_found_nama_barang", namaDiCatatan, new { @class = "form-control", disabled = "disabled" })
             </div>

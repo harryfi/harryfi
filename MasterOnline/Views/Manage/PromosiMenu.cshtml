@@ -358,6 +358,37 @@
         var $flagPerubahan = 0;
 
         function refreshInputan() {
+            //add by nurul 19/12/2018 ngatur width barang
+            $(window).on('resize', function () {
+                //var win = $(this); //this = window
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 165px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $(window).scroll(function () {
+                //var scrollTop = $(window).scrollTop();
+                var style = $('.selectivity-dropdown').attr('style');
+                if (style !== undefined && style !== null) {
+                    $('.selectivity-dropdown').attr('style', style.replace('width: 165px', 'width: 400px; min-width: 400px !important'));
+                }
+            });
+
+            $('#BRG').click(function () {
+                var checkExist = setInterval(function () {
+                    if ($('.selectivity-dropdown').length) {
+                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                        clearInterval(checkExist);
+                    }
+                }, 100);
+            });
+
+            $('body').click(function () {
+                $('#BRG').css('max-width', '165px').attr('style', 'width: 165px !important');
+            });
+            //end add
+
             if ($('#Promosi_TGL_MULAI').val() != '') {
                 $('#Promosi_TGL_MULAI').val($('#Promosi_TGL_MULAI').val().split(' ')[0]);
                 $('#TGL_MULAI').val($('#Promosi_TGL_MULAI').val());
