@@ -715,6 +715,83 @@ namespace MasterOnline.Controllers
 
         }
 
+        public BindingBase SetStatusToCanceled(string orderItemId, string accessToken)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Set Status Order to Cancel",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = orderItemId,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/cancel");
+            request.AddApiParameter("reason_detail", "Out of stock");
+            request.AddApiParameter("reason_id", "15");
+            request.AddApiParameter("order_item_id", orderItemId);
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                //ret = tgl + ":" + param;
+                var resCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCancelOrder)) as LazadaCancelOrder;
+                if (resCancel != null)
+                {
+                    if (resCancel.code.Equals("0"))
+                    {
+                        ret.status = 1;
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.Message;
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            }
+            
+            return ret;
+
+        }
+        public LazadaGetLabel GetLabel(List<string> orderItemId, string accessToken)
+        {
+            string ordItems = "";
+            if (orderItemId.Count > 1)
+            {
+                foreach (var id in orderItemId)
+                {
+                    ordItems += id;
+                    ordItems += ",";
+                }
+                ordItems = ordItems.Substring(0, ordItems.Length - 1);
+            }
+            else
+            {
+                ordItems = orderItemId[0];
+            }
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/order/document/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("doc_type", "shippingLabel");
+            request.AddApiParameter("order_item_ids", "[235687964297090]");
+            LazopResponse response = client.Execute(request, accessToken);
+
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetLabel)) as LazadaGetLabel; ;
+        }
         public BindingBase UploadImage(string imagePath, string accessToken)
         {
             var ret = new BindingBase();
