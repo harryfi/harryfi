@@ -1892,6 +1892,164 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> CreateProduct(ShopeeAPIData iden, string brg, string cust, List<ShopeeLogisticsClass> logistics)
+        {
+            string ret = "";
+            var brgInDb = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper() == brg.ToUpper()).FirstOrDefault();
+            var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper() == cust.ToUpper()).FirstOrDefault();
+            if (brgInDb == null || marketplace == null)
+                return "invalid passing data";
+            var detailBrg = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+            if (detailBrg == null)
+                return "invalid passing data";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Create Product", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            //ganti
+            string urll = "https://partner.shopeemobile.com/api/v1/item/add";
+
+            //ganti
+            ShopeeProductData HttpBody = new ShopeeProductData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_sku = brg,
+                category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
+                condition = "NEW",
+                name = brgInDb.NAMA + " " + brgInDb.NAMA2,
+                description = brgInDb.Deskripsi,
+                package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
+                package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
+                package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
+                weight = brgInDb.BERAT / 1000,
+                price = detailBrg.HJUAL,
+                stock = 1,//create product min stock = 1
+                images = new List<ShopeeImageClass>(),
+                attributes = new List<ShopeeAttributeClass>(),
+                //logistics = new List<ShopeeLogisticsClass>()
+                logistics = logistics
+            };
+
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
+                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_2))
+                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_2 });
+            if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_3))
+                HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_3 });
+
+            try
+            {
+                string sSQL = "SELECT * FROM (";
+                for (int i = 1; i <= 30; i++)
+                {
+                    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
+                    if (i < 30)
+                    {
+                        sSQL += "UNION ALL " + System.Environment.NewLine;
+                    }
+                }
+
+                DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
+
+                for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+                {
+                    HttpBody.attributes.Add(new ShopeeAttributeClass
+                    {
+                        attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
+                        value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    //ganti
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
+                    if (resServer != null)
+                    {
+                        if (!string.IsNullOrEmpty(resServer.error))
+                        {
+                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+                            if(item != null)
+                            {
+                                item.BRG_MP = resServer.item_id.ToString();
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = "item not found";
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = resServer.error + ";" + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
+
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+
         public async Task<string> Template(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -2464,5 +2622,102 @@ namespace MasterOnline.Controllers
             public string request_id { get; set; }
             public string error { get; set; }
         }
+
+        public class ShopeeProductData
+        {
+            public long category_id { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+            public double price { get; set; }
+            public int stock { get; set; }
+            public string item_sku { get; set; }
+            //public object variations { get; set; }
+            public List<ShopeeImageClass> images { get; set; }
+            public List<ShopeeAttributeClass> attributes { get; set; }
+            public List<ShopeeLogisticsClass> logistics { get; set; }
+            public double weight { get; set; } // in kg
+            public int package_length { get; set; }
+            public int package_width { get; set; }
+            public int package_height { get; set; }
+            public int days_to_ship { get; set; }
+            //public object wholesales { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
+            public long timestamp { get; set; }
+            //public string size_chart { get; set; }
+            public string condition { get; set; }//NEW or USED
+
+        }
+
+        public class ShopeeImageClass
+        {
+            public string url { get; set; }
+        }
+        public class ShopeeAttributeClass
+        {
+            public long attributes_id { get; set; }
+            public string value { get; set; }
+
+        }
+        public class ShopeeLogisticsClass
+        {
+            public long logistic_id { get; set; }
+            public bool enabled { get; set; }
+            public double shipping_fee { get; set; }//Only needed when logistics fee_type = CUSTOM_PRICE.
+            public long size_id { get; set; }//If specify logistic fee_type is SIZE_SELECTION size_id is required
+            public bool is_free { get; set; }
+
+        }
+
+        public class ShopeeCreateProdResponse : ShopeeError
+        {
+            public long item_id { get; set; }
+            public Item item { get; set; }
+        }
+
+        public class Item
+        {
+            public List<ShopeeLogisticsClass> logistics { get; set; }
+            public double original_price { get; set; }
+            public double package_width { get; set; }
+            public int cmt_count { get; set; }
+            public double weight { get; set; }
+            public int shopid { get; set; }
+            public string currency { get; set; }
+            public int create_time { get; set; }
+            public int likes { get; set; }
+            public List<string> images { get; set; }
+            public int days_to_ship { get; set; }
+            public double package_length { get; set; }
+            public int stock { get; set; }
+            public string status { get; set; }
+            public int update_time { get; set; }
+            public string description { get; set; }
+            public int views { get; set; }
+            public double price { get; set; }
+            public int sales { get; set; }
+            public int discount_id { get; set; }
+            public object[] wholesales { get; set; }
+            public string condition { get; set; }
+            public double package_height { get; set; }
+            public string name { get; set; }
+            public double rating_star { get; set; }
+            public string item_sku { get; set; }
+            public object[] variations { get; set; }
+            public string size_chart { get; set; }
+            public bool has_variation { get; set; }
+            public List<Attribute> attributes { get; set; }
+            public long category_id { get; set; }
+        }        
+
+        public class Attribute
+        {
+            public string attribute_name { get; set; }
+            public bool is_mandatory { get; set; }
+            public long attribute_id { get; set; }
+            public string attribute_value { get; set; }
+            public string attribute_type { get; set; }
+        }
+
     }
 }
