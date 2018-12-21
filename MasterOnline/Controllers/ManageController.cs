@@ -377,6 +377,7 @@ namespace MasterOnline.Controllers
             //add by calvin 14 nov 2018, update qoh setelah get pesanan
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
 
+
             List<string> listBrg = new List<string>();
             foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
             {
