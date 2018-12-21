@@ -2225,6 +2225,22 @@
                                         }
                                     }
                                 }
+                                else {
+                                    if (loop == 1) {
+                                        $('#attribute_shopee_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                        fieldAVALUE = "";
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                        }
+                                    }
+                                    else if (loop == 0) {
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                        }
+                                    }
+                                }
                             }
                         });
                 },
