@@ -377,6 +377,7 @@ namespace MasterOnline.Controllers
             //add by calvin 14 nov 2018, update qoh setelah get pesanan
             var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
 
+
             List<string> listBrg = new List<string>();
             foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
             {
@@ -2606,6 +2607,23 @@ namespace MasterOnline.Controllers
             //        //panggil api utk non-aktif barang yg baru di insert
             //        result = blApi.prodNonAktif(barangInDb.BRG, result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
             //    }
+        }
+        protected void saveBarangShopee(int mode, BarangViewModel dataBarang)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            if (barangInDb != null && kdShopee != null)
+            {
+                var listShopee = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+                if (listShopee.Count > 0)
+                {
+                    var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                    if (display)
+                    {
+
+                    }
+                }
+            }
         }
         protected void saveBarangBlibli(int mode, BarangViewModel dataBarang)
         {

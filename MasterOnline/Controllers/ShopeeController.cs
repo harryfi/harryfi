@@ -2030,7 +2030,7 @@ namespace MasterOnline.Controllers
                 {
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
 
-       
+
 
                 }
                 catch (Exception ex2)
@@ -2282,6 +2282,162 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+        public async Task<string> UpdatePrice(ShopeeAPIData iden, string brg_mp, float price)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Update Price", //ganti
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string urll = "https://partner.shopeemobile.com/api/v1/items/update_price";
+
+            string[] brg_mp_split = brg_mp.Split(';');
+            ShopeeUpdatePriceData HttpBody = new ShopeeUpdatePriceData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = Convert.ToInt64(brg_mp_split[0]),
+                price = price
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+        public async Task<string> UpdateVariationPrice(ShopeeAPIData iden, string brg_mp, float price)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            string ret = "";
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = seconds.ToString(),
+                REQUEST_ACTION = "Update Price",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+
+            string urll = "https://partner.shopeemobile.com/api/v1/items/update_variation_price";
+
+            string[] brg_mp_split = brg_mp.Split(';');
+            ShopeeUpdateVariantionPriceData HttpBody = new ShopeeUpdateVariantionPriceData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                item_id = Convert.ToInt64(brg_mp_split[0]),
+                variation_id = Convert.ToInt64(brg_mp_split[1]),
+                price = price
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                }
+                catch (Exception ex2)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                }
+            }
+            return ret;
+        }
+
         public async Task<string> Template(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -2989,7 +3145,7 @@ namespace MasterOnline.Controllers
             public bool has_variation { get; set; }
             public List<Attribute> attributes { get; set; }
             public long category_id { get; set; }
-        }        
+        }
 
         public class Attribute
         {
@@ -3006,6 +3162,23 @@ namespace MasterOnline.Controllers
             public int shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
+        }
+        public class ShopeeUpdatePriceData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public long item_id { get; set; }
+            public float price { get; set; }
+        }
+        public class ShopeeUpdateVariantionPriceData
+        {
+            public int partner_id { get; set; }
+            public int shopid { get; set; }
+            public long timestamp { get; set; }
+            public long item_id { get; set; }
+            public long variation_id { get; set; }
+            public float price { get; set; }
         }
     }
 }
