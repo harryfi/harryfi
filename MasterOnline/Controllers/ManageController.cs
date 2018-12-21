@@ -5779,6 +5779,19 @@ namespace MasterOnline.Controllers
                             };
                             Task.Run(() => shoAPI.CancelOrder(data, pesanan.NO_REFERENSI).Wait());
                         }
+
+                        if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+                        {
+                            var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                            if (sot01b.Count > 0)
+                            {
+                                foreach (var tbl in sot01b)
+                                {
+                                    lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
+
+                                }
+                            }
+                        }
                     }
                     break;
                 case "02":
@@ -5894,6 +5907,29 @@ namespace MasterOnline.Controllers
 
         }
         //end add by Tri, call marketplace api to change status
+        public ActionResult LazadaLabel(int recnum)
+        {
+            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recnum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+            {
+                var lzdApi = new LazadaController();
+                List<string> orderItemIds = new List<string>();
+                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                if (sot01b.Count > 0)
+                {
+                    foreach (var tbl in sot01b)
+                    {
+                        orderItemIds.Add(tbl.ORDER_ITEM_ID);
+                    }
+                    var a = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                    var b = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(a.data.document.file));
+                    return Json(b, JsonRequestBehavior.AllowGet);
+                }
+            }
+            return JsonErrorMessage("Lazada only");
+        }
 
         public ActionResult LihatPesanan(int? orderId)
         {

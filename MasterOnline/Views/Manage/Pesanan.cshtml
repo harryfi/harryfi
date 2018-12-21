@@ -1459,7 +1459,11 @@
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
                     </div>
+                    <div>
+                        <button name="btnLabel" type="button" id="btnLabel" onclick="LazadaGetLabel()"></button>
+                    </div>
                 </div>
+                <div class="row" id="labelContainer"></div>
             </div>
             <div class="modal-footer">
                 <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
@@ -1759,6 +1763,27 @@
             tableSudahKirim.search($(this).val()).draw();
         });
 
+        function LazadaGetLabel() {
+            var link = '@Url.Action("LazadaLabel", "Manage", new { recnum = "replaceRecNum" })';
+                    //link += '?code=' + kode + '&bulan=' + bln;
+            link = link.replace("replaceRecNum", this.$recResi);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                $('#labelContainer').html(response);
+
+                            }
+                            //window.open(response, "_self");
+                            //window.location.href(response);
+
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+        }
         $(document).ready(function() {
             refreshTablePesanan();
 

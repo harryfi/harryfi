@@ -66,6 +66,30 @@ namespace MasterOnline.Models
         public string short_code { get; set; }
     }
 
+    public class LazadaCancelOrder : LazadaCommonRes
+    {
+        public string success { get; set; }
+    }
+
+    public class LazadaGetLabel
+    {
+        public Data data { get; set; }
+        public string code { get; set; }
+        public string request_id { get; set; }
+    }
+
+    public class Data
+    {
+        public Document document { get; set; }
+    }
+
+    public class Document
+    {
+        public string document_type { get; set; }
+        public string mime_type { get; set; }
+        public string file { get; set; }
+    }
+
     public class ImageLzd : LazadaCommonRes
     {
         public DataImage data { get; set; }
