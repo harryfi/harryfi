@@ -2142,16 +2142,27 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = seconds.ToString(),
-                REQUEST_ACTION = "Create Product", //ganti
+                REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
                 REQUEST_STATUS = "Pending",
             };
-
-            //ganti
+            
             string urll = "https://partner.shopeemobile.com/api/v1/item/add";
 
-            //ganti
+            //add by calvin 21 desember 2018, default nya semua logistic enabled
+            var ShopeeGetLogisticsResult = await GetLogistics(iden);
+
+            foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p=>p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
+            {
+                logistics.Add(new ShopeeLogisticsClass() {
+                    enabled = log.enabled,
+                    is_free = false,
+                    logistic_id = log.logistic_id,
+                });
+            }
+            //end add by calvin 21 desember 2018, default nya semua logistic enabled
+
             ShopeeProductData HttpBody = new ShopeeProductData
             {
                 partner_id = MOPartnerID,
@@ -2170,7 +2181,6 @@ namespace MasterOnline.Controllers
                 stock = 1,//create product min stock = 1
                 images = new List<ShopeeImageClass>(),
                 attributes = new List<ShopeeAttributeClass>(),
-                //logistics = new List<ShopeeLogisticsClass>()
                 logistics = logistics
             };
 
@@ -2248,16 +2258,16 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    //ganti
                     var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreateProdResponse)) as ShopeeCreateProdResponse;
                     if (resServer != null)
                     {
-                        if (!string.IsNullOrEmpty(resServer.error))
+                        if (string.IsNullOrEmpty(resServer.error))
                         {
-                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).FirstOrDefault();
+                            var item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == brg.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
                             if (item != null)
                             {
                                 item.BRG_MP = resServer.item_id.ToString();
+                                ErasoftDbContext.SaveChanges();
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
                             else
@@ -3076,7 +3086,7 @@ namespace MasterOnline.Controllers
             public int package_length { get; set; }
             public int package_width { get; set; }
             public int package_height { get; set; }
-            public int days_to_ship { get; set; }
+            //public int days_to_ship { get; set; } // jika di remark, jadi 2 hari, jika diisi, minimal 7-15 hari
             //public object wholesales { get; set; }
             public long partner_id { get; set; }
             public long shopid { get; set; }
@@ -3100,8 +3110,8 @@ namespace MasterOnline.Controllers
         {
             public long logistic_id { get; set; }
             public bool enabled { get; set; }
-            public double shipping_fee { get; set; }//Only needed when logistics fee_type = CUSTOM_PRICE.
-            public long size_id { get; set; }//If specify logistic fee_type is SIZE_SELECTION size_id is required
+            //public double shipping_fee { get; set; }//Only needed when logistics fee_type = CUSTOM_PRICE.
+            //public long size_id { get; set; }//If specify logistic fee_type is SIZE_SELECTION size_id is required
             public bool is_free { get; set; }
 
         }

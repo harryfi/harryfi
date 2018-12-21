@@ -5904,6 +5904,7 @@
     <Content Include="Views\Shopee\ShopeeAuth.cshtml" />
     <Content Include="Views\Manage\BarangFixNotFoundPartial.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
+    <Content Include="Views\Manage\BarangShopeeLogisticInfo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
