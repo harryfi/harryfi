@@ -312,7 +312,8 @@
                         @invoice.GD
                     </td>
                     <td class="qty-barang">
-                        <input type="number" min="0" max="99999" class="qty-input-box" style="display: none; width: 45px;" />
+                        @*change by nurul 26/12/2018 -- <input type="number" min="0" max="99999" class="qty-input-box" style="display: none; width: 45px;" />*@
+                        <input min="0" max="99999" class="qty-input-box num-only" style="display: none; width: 45px;" />
                         <span class="qty-initial">@invoice.QTY</span>
                     </td>
                     <td class="disc1-barang">
