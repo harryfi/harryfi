@@ -1522,9 +1522,9 @@
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
-                        @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        @Html.Label("lbl_resi_tracking_shipment_Shopee", "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
+                            <input type="text" class="form-control" id="resi_tracking_shipment_Shopee">
                         </div>
                     </div>
                     @*<div>
@@ -4141,7 +4141,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function(response) {
-                    $('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
+                    $('#resi_tracking_shipment_Shopee').val(response[0]);
                     $('#txtShipment').val(response[1]);
                     $('#Pesanan_SHIPMENT').val(response[1]);
                     //add by nurul 22/11/2018
@@ -4192,9 +4192,9 @@
             if (cekValidasi()) {
                 //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi"}))';
                 var link =
-                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv"}))';
+                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = ""}))';
                 link = link.replace("replaceRecNum", this.$recResiShopee);
-                link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
+                link = link.replace("replaceResi", $('#resi_tracking_shipment_Shopee').val());
                 if (document.getElementById("txtShipment") != null) {
                     link = link.replace("replaceDeliveryProv",
                         $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());

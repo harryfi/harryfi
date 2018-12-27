@@ -1687,49 +1687,67 @@ namespace MasterOnline.Controllers
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 ordersn = ordersn,
-                dropoff = new ShopeeInitLogisticDropOffDetailData { },
-                pickup = new ShopeeInitLogisticPickupDetailData { },
-                non_integrated = new ShopeeInitLogisticNotIntegratedDetailData { }
+                dropoff = new object(),// new ShopeeInitLogisticDropOffDetailData { branch_id = 0, sender_real_name = "", tracking_no = "" },
+                pickup = new object(),// new ShopeeInitLogisticPickupDetailData { address_id = 0, pickup_time_id = "", tracking_no = "" },
+                non_integrated = new object(),// new ShopeeInitLogisticNotIntegratedDetailData { tracking_no = "" }
             };
 
             ShopeeGetParameterForInitLogisticResult InitParam;
             InitParam = await GetParameterForInitLogistic(iden, ordersn);
             if (InitParam.non_integrated != null)
             {
+                ShopeeInitLogisticNotIntegratedDetailData nonIntegated = new ShopeeInitLogisticNotIntegratedDetailData()
+                {
+                    tracking_no = ""
+                };
                 if (InitParam.non_integrated.Contains("tracking_no"))
                 {
-                    HttpBody.non_integrated.tracking_no = trackingno;
+                    nonIntegated.tracking_no = trackingno;
                 }
+                HttpBody.non_integrated = nonIntegated;
             }
 
             if (InitParam.dropoff != null)
             {
+                ShopeeInitLogisticDropOffDetailData dropOff = new ShopeeInitLogisticDropOffDetailData()
+                {
+                    branch_id = 0,
+                    sender_real_name = "",
+                    tracking_no = ""
+                };
                 if (InitParam.dropoff.Contains("branch_id"))
                 {
-                    HttpBody.dropoff.branch_id = 0;
+                    dropOff.branch_id = 0;
                 }
                 if (InitParam.dropoff.Contains("sender_real_name"))
                 {
-                    HttpBody.dropoff.sender_real_name = "";
+                    dropOff.sender_real_name = "";
                 }
                 if (InitParam.dropoff.Contains("tracking_no"))
                 {
-                    HttpBody.dropoff.tracking_no = trackingno;
+                    dropOff.tracking_no = trackingno;
                 }
+                HttpBody.dropoff = dropOff;
             }
 
             if (InitParam.pickup != null)
             {
+                ShopeeInitLogisticPickupDetailData pickUp = new ShopeeInitLogisticPickupDetailData()
+                {
+                    tracking_no = "",
+                    address_id = 0,
+                    pickup_time_id = ""
+                };
                 if (InitParam.pickup.Contains("address_id"))
                 {
-                    HttpBody.pickup.address_id = 0;
+                    pickUp.address_id = 0;
                 }
                 if (InitParam.pickup.Contains("pickup_time_id"))
                 {
-                    HttpBody.pickup.pickup_time_id = "";
+                    pickUp.pickup_time_id = "";
                 }
+                HttpBody.pickup = pickUp;
             }
-
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -3669,9 +3687,9 @@ namespace MasterOnline.Controllers
             public int shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
-            public ShopeeInitLogisticPickupDetailData pickup { get; set; }
-            public ShopeeInitLogisticDropOffDetailData dropoff { get; set; }
-            public ShopeeInitLogisticNotIntegratedDetailData non_integrated { get; set; }
+            public object pickup { get; set; }
+            public object dropoff { get; set; }
+            public object non_integrated { get; set; }
         }
         public class ShopeeInitLogisticPickupDetailData
         {
@@ -3967,6 +3985,6 @@ namespace MasterOnline.Controllers
             public long timestamp { get; set; }
             public long discount_id { get; set; }
         }
-        
+
     }
 }
