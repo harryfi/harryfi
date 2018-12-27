@@ -1471,6 +1471,74 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalIsiResiShopee" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelShopee">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="isiResiLabelShopee">Pengiriman</h4>
+            </div>
+            <div class="modal-body">
+                @*add by nurul 22/11/2018*@
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_no_bukti_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_pembeli_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Kurir</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_kurir_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
+                        <div class="col-md-4 col-sm-4 col-xs-12" id="divLblShipShopee"></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td id="divTextShipShopee"></td>
+                                        <td id="divBtnShipShopee"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    @*<div>
+                        <button name="btnLabel" type="button" id="btnLabel" onclick="LazadaGetLabel()"></button>
+                    </div>*@
+                </div>
+                <div class="row" id="labelContainerShopee"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveResiShopee();" type="button" class="btn btn-success">Mulai Pengiriman</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
         <div class="modal-content" style="height:600px;width:900px">
@@ -1675,6 +1743,7 @@
         var $statusPesanan = '0';
         var $totalAwal = 0;
         var $recResi = 0;
+        var $recResiShopee = 0;
         var $listGudang = [];
         var $readyToShip = false;
         var $nobukPesanan = '';
@@ -3690,6 +3759,10 @@
             this.$recResi = rec;
             getResi(rec);
         }
+        function passRecResiShopee(rec) {
+            this.$recResiShopee = rec;
+            getResiShopee(rec);
+        }
 
         //ADD BY CALVIN 17 DESEMBER 2018
         function fixDataBarangNotFound(rec) {
@@ -4058,6 +4131,31 @@
                 }
             });
         }
+        function getResiShopee(rec) {
+            var link = '@Url.Action("GetResiShopee", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", rec);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function(response) {
+                    $('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
+                    $('#txtShipment').val(response[1]);
+                    $('#Pesanan_SHIPMENT').val(response[1]);
+                    //add by nurul 22/11/2018
+                    $('#resi_no_bukti_Shopee').val(response[2]);
+                    $('#resi_pembeli_Shopee').val(response[3]);
+                    $('#resi_kurir_Shopee').val(response[4]);
+                    //end add
+
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
 
         function saveResi() {
             if (cekValidasi()) {
@@ -4081,6 +4179,37 @@
                     cache: false,
                     success: function() {
                         $('#modalIsiResi').modal('hide');
+                        refreshTableSiapKirim();
+                        this.$recResiShopee = 0;
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        function saveResiShopee() {
+            if (cekValidasi()) {
+                //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi"}))';
+                var link =
+                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv"}))';
+                link = link.replace("replaceRecNum", this.$recResiShopee);
+                link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
+                if (document.getElementById("txtShipment") != null) {
+                    link = link.replace("replaceDeliveryProv",
+                        $('#txtShipment').val() == undefined ? '' : $('#txtShipment').val());
+                } else if (document.getElementById("txtShipmentBL") != null) {
+                    link = link.replace("replaceDeliveryProv",
+                        $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
+
+                }
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function() {
+                        $('#modalIsiResiShopee').modal('hide');
                         refreshTableSiapKirim();
                     },
                     error: function(xhr) {
