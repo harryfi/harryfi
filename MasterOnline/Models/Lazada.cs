@@ -71,11 +71,9 @@ namespace MasterOnline.Models
         public string success { get; set; }
     }
 
-    public class LazadaGetLabel
+    public class LazadaGetLabel : LazadaCommonRes
     {
         public Data data { get; set; }
-        public string code { get; set; }
-        public string request_id { get; set; }
     }
 
     public class Data

@@ -1436,7 +1436,7 @@
                 </div>
                 @* add by Tri, pilih shipment provider *@
                 <div class="row">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
                         <div class="col-md-4 col-sm-4 col-xs-12" id="divLblShip"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -1458,10 +1458,11 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
+                        <div id="print_label">
+                            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
+                        </div>
                     </div>
-                    <div>
-                        <button name="btnLabel" type="button" id="btnLabel" onclick="LazadaGetLabel()"></button>
-                    </div>
+
                 </div>
                 <div class="row" id="labelContainer"></div>
             </div>
@@ -1525,39 +1526,39 @@
                 @*add by nurul 29/11/2018*@
                 <hr />
                 <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Pesanan <span id="cetakfaktur_label"></span>?</h5>
-                @*end add by nurul*@ 
+                @*end add by nurul*@
             </div>
             <div class="modal-body">
                 @*<div class="row">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-3" style="padding-bottom:10px">
-                <label class="checkbox-container">
-                    <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                    <span id="ctk_faktur" class="checkmark"></span>
-                </label>
-            </div>
-            <div class="col-md-5" style="padding-top: 7px;">
-                Faktur
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>*@
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-3" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-5" style="padding-top: 7px;">
+                            Faktur
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>*@
                 @*<div class="row" style="margin-top:5px">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-3" style="padding-bottom:10px">
-                <label class="checkbox-container">
-                    <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                    <span id="ctk_label" class="checkmark"></span>
-                </label>
-            </div>
-            <div class="col-md-5" style="padding-top: 7px;">
-                Label
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>*@
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-3" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_label" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-5" style="padding-top: 7px;">
+                            Label
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>*@
                 <div class="row">
                     <div class="col-md-2">
                     </div>
@@ -1772,8 +1773,17 @@
                         url: link,
                         success: function (response) {
                             if (response != null) {
-                                $('#labelContainer').html(response);
+                                if (response.Errors == null) {
+                                    //$('#labelContainer').html(response);
 
+                                    //window.open(response, "_self");
+                                    var w = window.open('about:blank');
+                                    w.document.open();
+                                    w.document.write(response);
+                                    w.document.close();
+                                } else {
+                                    alert(response.Errors[0]);
+                                }
                             }
                             //window.open(response, "_self");
                             //window.location.href(response);
@@ -3983,8 +3993,9 @@
             $('#txtShipment').remove();
             $('#txtShipmentBL').remove();
             $('#btnShipment').remove();
-
+            $('#print_label').hide();
             if (NamaMarket.toUpperCase() == "LAZADA") {
+                $('#print_label').show();
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip')
                     .append(

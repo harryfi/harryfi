@@ -761,7 +761,11 @@
 
                     },
                     error: function (xhr, status, error) {
-                        console.log(error);
+                        //console.log(error);
+                        var err = JSON.parse(xhr.responseText);
+                        //alert(err.Message);
+                        console.log(err.error);
+
                     }
                 });
                 $('#konfTarikData').modal('hide');

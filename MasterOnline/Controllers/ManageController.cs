@@ -1474,22 +1474,25 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             List<CATEGORY_ELEVENIA> listKategoriEle = new List<CATEGORY_ELEVENIA>();
-            var category = MoDbContext.CategoryElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
-            listKategoriEle.Add(category);
-
-            if (category.PARENT_CODE != "")
+            if (!string.IsNullOrEmpty(code))
             {
-                bool TopParent = false;
-                while (!TopParent)
+                var category = MoDbContext.CategoryElevenia.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+                listKategoriEle.Add(category);
+
+                if (category.PARENT_CODE != "")
                 {
-                    category = MoDbContext.CategoryElevenia.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
-                    listKategoriEle.Add(category);
-                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    bool TopParent = false;
+                    while (!TopParent)
                     {
-                        TopParent = true;
+                        category = MoDbContext.CategoryElevenia.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                        listKategoriEle.Add(category);
+                        if (string.IsNullOrEmpty(category.PARENT_CODE))
+                        {
+                            TopParent = true;
+                        }
                     }
                 }
-            }
+            }           
 
             return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
@@ -1637,23 +1640,25 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             List<CATEGORY_SHOPEE> listKategoriShopee = new List<CATEGORY_SHOPEE>();
-            var category = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
-            listKategoriShopee.Add(category);
-
-            if (category.PARENT_CODE != "")
+            if (!string.IsNullOrEmpty(code))
             {
-                bool TopParent = false;
-                while (!TopParent)
+                var category = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+                listKategoriShopee.Add(category);
+
+                if (category.PARENT_CODE != "")
                 {
-                    category = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
-                    listKategoriShopee.Add(category);
-                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    bool TopParent = false;
+                    while (!TopParent)
                     {
-                        TopParent = true;
+                        category = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                        listKategoriShopee.Add(category);
+                        if (string.IsNullOrEmpty(category.PARENT_CODE))
+                        {
+                            TopParent = true;
+                        }
                     }
                 }
             }
-
             return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -5951,9 +5956,33 @@ namespace MasterOnline.Controllers
                     {
                         orderItemIds.Add(tbl.ORDER_ITEM_ID);
                     }
-                    var a = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                    var b = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(a.data.document.file));
-                    return Json(b, JsonRequestBehavior.AllowGet);
+                    var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
+                    if(retApi.code == "0")
+                    {
+                        var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
+                        #region add button cetak
+                        htmlString += "<button id='print-btn' >Cetak</button>";
+                        htmlString += "<script>";
+                        htmlString += " function run() { document.getElementById('print-btn').onclick = function () {";
+                        htmlString += "document.getElementById('print-btn').style.visibility = 'hidden';";
+                        htmlString += "window.print(); }; window.onafterprint = function () {";
+                        htmlString += "document.getElementById('print-btn').style.visibility = 'visible'; } }";
+                        htmlString += " if (document.readyState!='loading') run();";
+                        htmlString += " else if (document.addEventListener) document.addEventListener('DOMContentLoaded', run);";
+                        htmlString += "else document.attachEvent('onreadystatechange', function(){ if (document.readyState=='complete') run(); });";
+                        htmlString += "</script>";
+                        #endregion
+                        return Json(htmlString, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage(retApi.message);
+                    }
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Detail Order not found.");
                 }
             }
             return JsonErrorMessage("Lazada only");
