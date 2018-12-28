@@ -3372,11 +3372,24 @@ namespace MasterOnline.Controllers
                 try
                 {
                     ret = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetTimeSlotResult)) as ShopeeGetTimeSlotResult;
-                    foreach (var item in ret.pickup_time)
+                    if (ret.pickup_time != null)
                     {
-                        System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-                        dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
-                        item.date_string = dtDateTime.ToString("dd MMMM yyyy");
+                        foreach (var item in ret.pickup_time)
+                        {
+                            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                            dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
+                            item.date_string = dtDateTime.ToString("dd MMMM yyyy");
+                        }
+                    }
+                    else
+                    {
+                        var err = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
+                        ShopeeGetTimeSlotResultPickup_Time errItem = new ShopeeGetTimeSlotResultPickup_Time() {
+                            pickup_time_id = "-1",
+                            date_string = "Order sudah Expired."
+                        };
+                        ret.pickup_time = new ShopeeGetTimeSlotResultPickup_Time[1];
+                        ret.pickup_time[0] = (errItem);
                     }
                 }
                 catch (Exception ex2)
@@ -4335,6 +4348,13 @@ namespace MasterOnline.Controllers
             public string date_string { get; set; }
             public string pickup_time_id { get; set; }
             public string time_text { get; set; }
+        }
+
+        public class GetPickupTimeSlotError
+        {
+            public string msg { get; set; }
+            public string request_id { get; set; }
+            public string error { get; set; }
         }
 
     }
