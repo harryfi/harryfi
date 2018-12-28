@@ -257,72 +257,72 @@ namespace MasterOnline.Controllers
                 username = sessionData?.Account?.Username;
             }
             ////remark by calvin 13 desember 2018, testing
-            //var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            //var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
-            //if (listBliShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listBliShop)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
-            //        {
-            //            var bliApi = new BlibliController();
+            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            if (listBliShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBliShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                    {
+                        var bliApi = new BlibliController();
 
-            //            BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
-            //            {
-            //                merchant_code = tblCustomer.Sort1_Cust,
-            //                API_client_password = tblCustomer.API_CLIENT_P,
-            //                API_client_username = tblCustomer.API_CLIENT_U,
-            //                API_secret_key = tblCustomer.API_KEY,
-            //                token = tblCustomer.TOKEN,
-            //                mta_username_email_merchant = tblCustomer.EMAIL,
-            //                mta_password_password_merchant = tblCustomer.PASSWORD
-            //            };
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD
+                        };
 
-            //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
 
-            //            //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
-            //            await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //            //end add by calvin 8 nov 2018
-            //        }
-            //    }
-            //}
-            //var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            //var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
-            //if (listELShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listELShop)
-            //    {
-            //        var elApi = new EleveniaController();
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //end add by calvin 8 nov 2018
+                    }
+                }
+            }
+            var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+            if (listELShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listELShop)
+                {
+                    var elApi = new EleveniaController();
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
 
-            //        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //        await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            //        //end add by calvin 8 nov 2018
-            //    }
-            //}
-            //var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            //var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            //if (listBLShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listBLShop)
-            //    {
-            //        var blApi = new BukaLapakController();
-            //        blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
-            //    }
+                    //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    //end add by calvin 8 nov 2018
+                }
+            }
+            var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            if (listBLShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBLShop)
+                {
+                    var blApi = new BukaLapakController();
+                    blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
+                }
 
-            //}
+            }
 
-            //var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
-            //var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
-            //if (listLzdShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listLzdShop)
-            //    {
-            //        var lzdApi = new LazadaController();
-            //        lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
-            //    }
-            //}
+            var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
+            if (listLzdShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listLzdShop)
+                {
+                    var lzdApi = new LazadaController();
+                    lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
+                }
+            }
             ////end remark by calvin 13 desember 2018, testing
 
             ////var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
@@ -5950,15 +5950,6 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    else if (mp.NamaMarket.ToUpper().Contains("SHOPEE"))
-                    {
-                        //var shoAPI = new ShopeeController();
-                        //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
-                        //{
-                        //    merchant_code = marketPlace.Sort1_Cust,
-                        //};
-                        //Task.Run(() => shoAPI.InitLogistic(data, pesanan.NO_REFERENSI, pesanan.TRACKING_SHIPMENT).Wait());
-                    }
                     break;
             }
 
@@ -6139,23 +6130,71 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetResiShopee(int? recNum)
+        public async Task<ActionResult> GetResiShopee(int? recNum)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
 
-            //change by nurul 22/11/2018
-            //string[] shipment = new string[2];
-            //shipment[0] = pesananInDb.TRACKING_SHIPMENT;
-            //shipment[1] = pesananInDb.SHIPMENT;
-            string[] shipment = new string[5];
+
+            string[] shipment = new string[6];
             shipment[0] = pesananInDb.TRACKING_SHIPMENT;
             shipment[1] = pesananInDb.SHIPMENT;
             shipment[2] = pesananInDb.NO_BUKTI;
             shipment[3] = pesananInDb.NAMAPEMESAN;
             shipment[4] = pesananInDb.NAMAPENGIRIM;
-            //end change 
 
+            string parameters = "";
+            shipment[5] = "";
+            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+            {
+                var shoAPI = new ShopeeController();
+                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                {
+                    merchant_code = marketPlace.Sort1_Cust,
+                };
+                ShopeeController.ShopeeGetParameterForInitLogisticResult InitParam;
+                InitParam = await shoAPI.GetParameterForInitLogistic(data, pesananInDb.NO_REFERENSI);
 
+                if (InitParam.dropoff != null)
+                {
+                    parameters += "DROPOFF;";
+
+                    if (InitParam.dropoff.Contains("branch_id"))
+                    {
+                        parameters += "BRANCH_ID;";
+                    }
+                    if (InitParam.dropoff.Contains("sender_real_name"))
+                    {
+                        parameters += "SENDER;";
+                    }
+                    if (InitParam.dropoff.Contains("tracking_no"))
+                    {
+                        parameters += "DROPOFF_TRACKING_NO;";
+                    }
+                }
+                if (InitParam.pickup != null)
+                {
+                    parameters += "PICKUP;";
+
+                    if (InitParam.pickup.Contains("address_id"))
+                    {
+                        parameters += "ADDRESS_ID;";
+                    }
+                    if (InitParam.pickup.Contains("pickup_time_id"))
+                    {
+                        parameters += "PICKUP_TIME;";
+                    }
+                }
+                if (InitParam.non_integrated != null)
+                {
+                    parameters += "NON;";
+                    if (InitParam.non_integrated.Contains("tracking_no"))
+                    {
+                        parameters += "TRACKING_NO;";
+                    }
+                }
+            }
+            shipment[5] = parameters;
             return Json(shipment, JsonRequestBehavior.AllowGet);
         }
 
@@ -6184,6 +6223,141 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        [HttpGet]
+        public async Task<ActionResult> SaveResiShopee(int? recNum, string metode,
+            string dBranch, string dSender, string dTrackNo,
+            string pAddress, string pTime,
+            string nTrackNo)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recNum);
+            bool changeStat = false;
+            if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
+                changeStat = true;
+
+            string nilaiTRACKING_SHIPMENT = "";
+            if (metode == "0") // DROPOFF
+            {
+                //format : D[;]BRANCH_ID[;]SENDER_REAL_NAME[;]TRACKING_NO
+                nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+            }
+            if (metode == "1") // PICKUP
+            {
+                //format : P[;]ADDRESS_ID[;]PICKUP_TIME
+                nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+            }
+            if (metode == "2") // NON INTEGRATED
+            {
+                //format : N[;]TRACKING_NO
+                nilaiTRACKING_SHIPMENT = "N[;]" + nTrackNo;
+            }
+
+            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+            ErasoftDbContext.SaveChanges();
+
+            if (changeStat)
+            {
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+                var shoAPI = new ShopeeController();
+                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                {
+                    merchant_code = marketPlace.Sort1_Cust,
+                };
+                if (metode == "0") // DROPOFF
+                {
+                    ShopeeController.ShopeeInitLogisticDropOffDetailData detail = new ShopeeController.ShopeeInitLogisticDropOffDetailData()
+                    {
+                        branch_id = 0,
+                        sender_real_name = "",
+                        tracking_no = ""
+                    };
+                    if (dBranch != "")
+                    {
+                        detail.branch_id = Convert.ToInt64(dBranch);
+                    }
+                    if (dSender != "")
+                    {
+                        detail.sender_real_name = dSender;
+                    }
+                    if (dTrackNo != "")
+                    {
+                        detail.tracking_no = dTrackNo;
+                    }
+                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail);
+                }
+                else if (metode == "1") // PICKUP
+                {
+                    ShopeeController.ShopeeInitLogisticPickupDetailData detail = new ShopeeController.ShopeeInitLogisticPickupDetailData()
+                    {
+                        address_id = 0,
+                        pickup_time_id = ""
+                    };
+                    if (pAddress != "")
+                    {
+                        detail.address_id = Convert.ToInt64(pAddress);
+                    }
+                    if (pTime != "")
+                    {
+                        detail.pickup_time_id = pTime;
+                    }
+                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail);
+                }
+                else if (metode == "2") // NON INTEGRATED
+                {
+                    ShopeeController.ShopeeInitLogisticNotIntegratedDetailData detail = new ShopeeController.ShopeeInitLogisticNotIntegratedDetailData()
+                    {
+                        tracking_no = ""
+                    };
+                    if (nTrackNo != "")
+                    {
+                        detail.tracking_no = nTrackNo;
+                    }
+                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail);
+                }
+            }
+            return new EmptyResult();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeeDropoffBranch(int? recNum)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetBranch(data, pesananInDb.NO_REFERENSI);
+            return new EmptyResult();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeePickupAddress(int? recNum)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetAddress(data);
+            return Json(result.address_list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeePickupTime(int? recNum, long address_id)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetTimeSlot(data, address_id, pesananInDb.NO_REFERENSI);
+            return Json(result.pickup_time, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public ActionResult GenerateFaktur(int? recNumPesanan, string uname)
         {
