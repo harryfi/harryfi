@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-            //remark by calvin 13 desember 2018, testing
+            ////remark by calvin 13 desember 2018, testing
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -323,7 +323,7 @@ namespace MasterOnline.Controllers
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
-            //end remark by calvin 13 desember 2018, testing
+            ////end remark by calvin 13 desember 2018, testing
 
             ////var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             ////var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
@@ -370,8 +370,7 @@ namespace MasterOnline.Controllers
                 {
                     ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
                     iden.merchant_code = tblCustomer.Sort1_Cust;
-                    //await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-                    await shopeeApi.GetLogistics(iden);
+                    await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                 }
             }
 
@@ -2378,7 +2377,7 @@ namespace MasterOnline.Controllers
                     #region Blibli
                     saveBarangBlibli(1, dataBarang);
                     #endregion
-                    saveBarangShopee(1, dataBarang);
+                    saveBarangShopee(1, dataBarang, false);
                 }
                 //end add by tri call marketplace api to create product
                 else
@@ -2387,7 +2386,7 @@ namespace MasterOnline.Controllers
                     //update harga, qty, dll
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
-                    saveBarangShopee(2, dataBarang);
+                    saveBarangShopee(2, dataBarang, updateHarga);
 
 
                     //get image
@@ -2635,7 +2634,7 @@ namespace MasterOnline.Controllers
             //        result = blApi.prodNonAktif(barangInDb.BRG, result.message, tblCustomer.API_KEY, tblCustomer.TOKEN);
             //    }
         }
-        protected void saveBarangShopee(int mode, BarangViewModel dataBarang)
+        protected void saveBarangShopee(int mode, BarangViewModel dataBarang, bool updateHarga)
         {
             var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
             var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -2679,7 +2678,29 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
+                                                ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust,
+                                                };
+                                                ShopeeController shoAPI = new ShopeeController();
 
+                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
+                                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                if (updateHarga)
+                                                {
+                                                    if (brg_mp.Count() == 2)
+                                                    {
+                                                        if (brg_mp[1] == "0")
+                                                        {
+                                                            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                        }
+                                                        else if (brg_mp[1] != "")
+                                                        {
+                                                            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                        }
+                                                    }
+                                                }
                                             }
                                             else
                                             {
@@ -5934,7 +5955,6 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-
                     break;
             }
 
@@ -6139,6 +6159,75 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
+        public async Task<ActionResult> GetResiShopee(int? recNum)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+
+
+            string[] shipment = new string[6];
+            shipment[0] = pesananInDb.TRACKING_SHIPMENT;
+            shipment[1] = pesananInDb.SHIPMENT;
+            shipment[2] = pesananInDb.NO_BUKTI;
+            shipment[3] = pesananInDb.NAMAPEMESAN;
+            shipment[4] = pesananInDb.NAMAPENGIRIM;
+
+            string parameters = "";
+            shipment[5] = "";
+            if (string.IsNullOrWhiteSpace(pesananInDb.TRACKING_SHIPMENT))
+            {
+                var shoAPI = new ShopeeController();
+                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                {
+                    merchant_code = marketPlace.Sort1_Cust,
+                };
+                ShopeeController.ShopeeGetParameterForInitLogisticResult InitParam;
+                InitParam = await shoAPI.GetParameterForInitLogistic(data, pesananInDb.NO_REFERENSI);
+
+                if (InitParam.dropoff != null)
+                {
+                    parameters += "DROPOFF;";
+
+                    if (InitParam.dropoff.Contains("branch_id"))
+                    {
+                        parameters += "BRANCH_ID;";
+                    }
+                    if (InitParam.dropoff.Contains("sender_real_name"))
+                    {
+                        parameters += "SENDER;";
+                    }
+                    if (InitParam.dropoff.Contains("tracking_no"))
+                    {
+                        parameters += "DROPOFF_TRACKING_NO;";
+                    }
+                }
+                if (InitParam.pickup != null)
+                {
+                    parameters += "PICKUP;";
+
+                    if (InitParam.pickup.Contains("address_id"))
+                    {
+                        parameters += "ADDRESS_ID;";
+                    }
+                    if (InitParam.pickup.Contains("pickup_time_id"))
+                    {
+                        parameters += "PICKUP_TIME;";
+                    }
+                }
+                if (InitParam.non_integrated != null)
+                {
+                    parameters += "NON;";
+                    if (InitParam.non_integrated.Contains("tracking_no"))
+                    {
+                        parameters += "TRACKING_NO;";
+                    }
+                }
+            }
+            shipment[5] = parameters;
+            return Json(shipment, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
         public ActionResult SaveResi(int? recNum, string noResi, string deliveryProv)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
@@ -6163,6 +6252,141 @@ namespace MasterOnline.Controllers
             return new EmptyResult();
         }
 
+        [HttpGet]
+        public async Task<ActionResult> SaveResiShopee(int? recNum, string metode,
+            string dBranch, string dSender, string dTrackNo,
+            string pAddress, string pTime,
+            string nTrackNo)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recNum);
+            bool changeStat = false;
+            if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
+                changeStat = true;
+
+            string nilaiTRACKING_SHIPMENT = "";
+            if (metode == "0") // DROPOFF
+            {
+                //format : D[;]BRANCH_ID[;]SENDER_REAL_NAME[;]TRACKING_NO
+                nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+            }
+            if (metode == "1") // PICKUP
+            {
+                //format : P[;]ADDRESS_ID[;]PICKUP_TIME
+                nilaiTRACKING_SHIPMENT = "P[;]" + pAddress + "[;]" + pTime;
+            }
+            if (metode == "2") // NON INTEGRATED
+            {
+                //format : N[;]TRACKING_NO
+                nilaiTRACKING_SHIPMENT = "N[;]" + nTrackNo;
+            }
+
+            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+            ErasoftDbContext.SaveChanges();
+
+            if (changeStat)
+            {
+                var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+                var shoAPI = new ShopeeController();
+                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                {
+                    merchant_code = marketPlace.Sort1_Cust,
+                };
+                if (metode == "0") // DROPOFF
+                {
+                    ShopeeController.ShopeeInitLogisticDropOffDetailData detail = new ShopeeController.ShopeeInitLogisticDropOffDetailData()
+                    {
+                        branch_id = 0,
+                        sender_real_name = "",
+                        tracking_no = ""
+                    };
+                    if (dBranch != "")
+                    {
+                        detail.branch_id = Convert.ToInt64(dBranch);
+                    }
+                    if (dSender != "")
+                    {
+                        detail.sender_real_name = dSender;
+                    }
+                    if (dTrackNo != "")
+                    {
+                        detail.tracking_no = dTrackNo;
+                    }
+                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail);
+                }
+                else if (metode == "1") // PICKUP
+                {
+                    ShopeeController.ShopeeInitLogisticPickupDetailData detail = new ShopeeController.ShopeeInitLogisticPickupDetailData()
+                    {
+                        address_id = 0,
+                        pickup_time_id = ""
+                    };
+                    if (pAddress != "")
+                    {
+                        detail.address_id = Convert.ToInt64(pAddress);
+                    }
+                    if (pTime != "")
+                    {
+                        detail.pickup_time_id = pTime;
+                    }
+                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail);
+                }
+                else if (metode == "2") // NON INTEGRATED
+                {
+                    ShopeeController.ShopeeInitLogisticNotIntegratedDetailData detail = new ShopeeController.ShopeeInitLogisticNotIntegratedDetailData()
+                    {
+                        tracking_no = ""
+                    };
+                    if (nTrackNo != "")
+                    {
+                        detail.tracking_no = nTrackNo;
+                    }
+                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail);
+                }
+            }
+            return new EmptyResult();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeeDropoffBranch(int? recNum)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetBranch(data, pesananInDb.NO_REFERENSI);
+            return new EmptyResult();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeePickupAddress(int? recNum)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetAddress(data);
+            return Json(result.address_list, JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetShopeePickupTime(int? recNum, long address_id)
+        {
+            var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = marketPlace.Sort1_Cust,
+            };
+            var result = await shoAPI.GetTimeSlot(data, address_id, pesananInDb.NO_REFERENSI);
+            return Json(result.pickup_time, JsonRequestBehavior.AllowGet);
+        }
         [HttpGet]
         public ActionResult GenerateFaktur(int? recNumPesanan, string uname)
         {
@@ -10665,6 +10889,28 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.PROMOSI.Remove(promosiInDb);
             ErasoftDbContext.SaveChanges();
 
+            //add by calvin 26 desember 2018
+            var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+
+            if (customer.NAMA.Equals(kdShopee))
+            {
+                if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                {
+                    if (!string.IsNullOrWhiteSpace(promosiInDb.MP_PROMO_ID))
+                    {
+                        var ShopeeApi = new ShopeeController();
+
+                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                        {
+                            merchant_code = customer.Sort1_Cust,
+                        };
+                        Task.Run(() => ShopeeApi.DeleteDiscount(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID))).Wait();
+                    }
+                }
+            }
+            //end add by calvin 26 desember 2018
+
             var vm = new PromosiViewModel()
             {
                 ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
@@ -10686,6 +10932,28 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.DETAILPROMOSI.Remove(barangPromosiInDb);
                 ErasoftDbContext.SaveChanges();
+
+                //add by calvin 26 desember 2018
+                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+                var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+
+                if (customer.NAMA.Equals(kdShopee))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                    {
+                        if (!string.IsNullOrWhiteSpace(promosiInDb.MP_PROMO_ID))
+                        {
+                            var ShopeeApi = new ShopeeController();
+
+                            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                            {
+                                merchant_code = customer.Sort1_Cust,
+                            };
+                            Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
+                        }
+                    }
+                }
+                //end add by calvin 26 desember 2018
 
                 var vm = new PromosiViewModel()
                 {
@@ -10735,6 +11003,25 @@ namespace MasterOnline.Controllers
                     dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
                 }
+
+                //add by calvin 26 desember 2018
+                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+
+                if (customer.NAMA.Equals(kdShopee))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                    {
+                        var ShopeeApi = new ShopeeController();
+
+                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                        {
+                            merchant_code = customer.Sort1_Cust,
+                        };
+                        Task.Run(() => ShopeeApi.AddDiscount(data, lastRecNum.HasValue ? lastRecNum.Value : 0)).Wait();
+                    }
+                }
+                //end add by calvin 26 desember 2018
             }
             else
             {
@@ -10749,6 +11036,28 @@ namespace MasterOnline.Controllers
                 {
                     dataVm.PromosiDetail.RecNumPromosi = promosiInDb.RecNum;
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
+
+                    //add by calvin 26 desember 2018
+                    var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                    var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+
+                    if (customer.NAMA.Equals(kdShopee))
+                    {
+                        if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                        {
+                            if (!string.IsNullOrWhiteSpace(dataVm.Promosi.MP_PROMO_ID))
+                            {
+                                var ShopeeApi = new ShopeeController();
+
+                                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                {
+                                    merchant_code = customer.Sort1_Cust,
+                                };
+                                Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(dataVm.Promosi.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
+                            }
+                        }
+                    }
+                    //end add by calvin 26 desember 2018
                 }
             }
 
@@ -10951,7 +11260,7 @@ namespace MasterOnline.Controllers
             //add by calvin 18 desember 2018
             else if (customer.NAMA.Equals(kdShopee))
             {
-                if (string.IsNullOrWhiteSpace(customer.Sort1_Cust))
+                if (!string.IsNullOrWhiteSpace(customer.Sort1_Cust))
                 {
                     var ShopeeApi = new ShopeeController();
 

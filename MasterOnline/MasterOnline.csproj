@@ -1359,6 +1359,8 @@
     <Content Include="Content\Images\screenshot04.jpg" />
     <Content Include="Content\Images\security.PNG" />
     <Content Include="Content\Images\shattered.png" />
+    <Content Include="Content\Images\shopee_dropoff.png" />
+    <Content Include="Content\Images\shopee_pickup.png" />
     <Content Include="Content\Images\spinner.gif" />
     <Content Include="Content\Images\store.png" />
     <Content Include="Content\Images\temp-ava.png" />

@@ -27,5 +27,8 @@ namespace MasterOnline.Models
 
         [Column(TypeName = "date")]
         public DateTime? TGL_INPUT { get; set; }
+
+        [StringLength(100)]
+        public string MP_PROMO_ID { get; set; }
     }
 }

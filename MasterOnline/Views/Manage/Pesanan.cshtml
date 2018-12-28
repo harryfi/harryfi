@@ -1472,6 +1472,140 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalIsiResiShopee" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelShopee">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="isiResiLabelShopee">Pengiriman</h4>
+            </div>
+            <div class="modal-body">
+                @*add by nurul 22/11/2018*@
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_no_bukti_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_pembeli_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Kurir</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_kurir_Shopee">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 5px;" id="shopee-resi-dropoff-section">
+                    <div class="col-md-10 col-sm-10 col-xs-10">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <table>
+                                    <tr>
+                                        <td><img src="~/Content/Images/shopee_dropoff.png" /></td>
+                                        <td>
+                                            <ul class="nav navbar-left panel_toolbox">
+                                                <li>
+                                                    <a class="collapse-link" style="height:35px"><h2 style="font-size: 16px; color:#73879C">Saya akan Antar ke Counter</h2></a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="x_content">
+                                <div class="form-group" id="div-shopee-resi-dropoff-branch">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Cabang</label>
+                                    <div id="shopee-resi-dropoff-branch" class="col-md-8 col-sm-8 col-xs-12">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="div-shopee-resi-dropoff-sender-real-name">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Nama Pengirim</label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        <input type="text" class="form-control" id="shopee-resi-dropoff-sender-real-name">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="div-shopee-resi-dropoff-tracking-no">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
+                                    <div class="col-md-8 col-sm-8 col-xs-12">
+                                        <input type="text" class="form-control" id="shopee-resi-dropoff-tracking-no">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                        <button id="btn-resi-shopee-dropoff" onclick="saveResiShopee(0);" type="button" class="btn btn-success">Mulai Pengiriman</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 5px;" id="shopee-resi-pickup-section">
+                    <div class="col-md-10 col-sm-10 col-xs-10">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <table>
+                                    <tr>
+                                        <td><img src="~/Content/Images/shopee_pickup.png" /></td>
+                                        <td>
+                                            <ul class="nav navbar-left panel_toolbox">
+                                                <li>
+                                                    <a class="collapse-link" style="height:35px"><h2 style="font-size: 16px; color:#73879C">Saya akan gunakan jasa Pick-up (jemput)</h2></a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="x_content" id="div-shopee-resi-pickup-address">
+                                <div class="form-group">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Alamat</label>
+                                    <div id="shopee-resi-pickup-address" class="col-md-8 col-sm-8 col-xs-12">
+                                    </div>
+                                </div>
+                                <div class="form-group" id="div-shopee-resi-pickup-time">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Waktu</label>
+                                    <div id="shopee-resi-pickup-time" class="col-md-8 col-sm-8 col-xs-12">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                        <button id="btn-resi-shopee-pickup" onclick="saveResiShopee(1);" type="button" class="btn btn-success">Mulai Pengiriman</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="shopee-resi-non-integrated-section">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
+                        <div class="col-md-8 col-sm-8 col-xs-12">
+                            <input type="text" class="form-control" id="shopee-resi-non-integrated-tracking-no">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="labelContainerShopee"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="form-group">
+                    <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:right">
+                        <button id="btn-resi-shopee-non" onclick="saveResiShopee(2);" type="button" class="btn btn-success">Mulai Pengiriman</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
         <div class="modal-content" style="height:600px;width:900px">
@@ -1676,6 +1810,7 @@
         var $statusPesanan = '0';
         var $totalAwal = 0;
         var $recResi = 0;
+        var $recResiShopee = 0;
         var $listGudang = [];
         var $readyToShip = false;
         var $nobukPesanan = '';
@@ -1766,7 +1901,7 @@
 
         function LazadaGetLabel() {
             var link = '@Url.Action("LazadaLabel", "Manage", new { recnum = "replaceRecNum" })';
-                    //link += '?code=' + kode + '&bulan=' + bln;
+            //link += '?code=' + kode + '&bulan=' + bln;
             link = link.replace("replaceRecNum", this.$recResi);
                     $.ajax({
                         type: "GET",
@@ -1788,11 +1923,11 @@
                             //window.open(response, "_self");
                             //window.location.href(response);
 
-                        },
-                        error: function (xhr, status, error) {
-                            console.log(error);
-                        }
-                    });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
         $(document).ready(function() {
             refreshTablePesanan();
@@ -3700,6 +3835,10 @@
             this.$recResi = rec;
             getResi(rec);
         }
+        function passRecResiShopee(rec) {
+            window.$recResiShopee = rec;
+            getResiShopee(rec);
+        }
 
         //ADD BY CALVIN 17 DESEMBER 2018
         function fixDataBarangNotFound(rec) {
@@ -4069,6 +4208,180 @@
                 }
             });
         }
+        function getResiShopee(rec) {
+            $('#shopee-resi-dropoff-section').hide();
+            $('#div-shopee-resi-dropoff-branch').hide();
+            $('#div-shopee-resi-dropoff-sender-real-name').hide();
+            $('#div-shopee-resi-dropoff-tracking-no').hide();
+            $('#shopee-resi-dropoff-branch').html('');
+            $('#shopee-resi-dropoff-sender-real-name').val('');
+            $('#shopee-resi-dropoff-tracking-no').val('');
+
+            $('#shopee-resi-pickup-section').hide();
+            $('#div-shopee-resi-pickup-address').hide();
+            $('#div-shopee-resi-pickup-time').hide();
+            $('#shopee-resi-pickup-address').html('');
+            $('#shopee-resi-pickup-time').html('');
+
+            $('#shopee-resi-non-integrated-section').hide();
+            $('#btn-resi-shopee-non').hide();
+            $('#shopee-resi-non-integrated-tracking-no').val('');
+
+            var link = '@Url.Action("GetResiShopee", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", rec);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function(response) {
+                    //$('#shopee-resi-non-integrated-tracking-no').val(response[0]);
+                    $('#txtShipment').val(response[1]);
+                    $('#Pesanan_SHIPMENT').val(response[1]);
+
+                    $('#resi_no_bukti_Shopee').val(response[2]);
+                    $('#resi_pembeli_Shopee').val(response[3]);
+                    $('#resi_kurir_Shopee').val(response[4]);
+
+                    var valueTRACKING_SHIPMENT = response[0].split('[;]');
+
+                    if (response[0] != "") {
+
+                    }
+                    else {
+                        if (response[5] != "") {
+                            var parameters = response[5].split(';');
+                            if (parameters.includes("DROPOFF")) {
+                                $('#shopee-resi-dropoff-section').show();
+                                if (parameters.includes("BRANCH_ID")) {
+                                    $('#div-shopee-resi-dropoff-branch').show();
+                                    var nextselect = '<select id="select-shopee-resi-dropoff-branch" placeholder="Harap pilih" required="required"></select>';
+                                    $('#shopee-resi-dropoff-branch').append(nextselect);
+
+                                    var link = '@Html.Raw(Url.Action("GetShopeeDropoffBranch", "Manage", new { recNum = "replaceCode" }))';
+                                    link = link.replace("replaceCode", window.$recResiShopee);
+
+                                    $.ajax({
+                                        type: "GET",
+                                        url: link,
+                                        contentType: 'application/json',
+                                        cache: false,
+                                        success: function (data) {
+
+                                        },
+                                        error: function (xhr) {
+                                            console.log(xhr);
+                                        }
+                                    });
+                                }
+                                if (parameters.includes("SENDER")) {
+                                    $('#div-shopee-resi-dropoff-sender-real-name').show();
+                                }
+                                if (parameters.includes("DROPOFF_TRACKING_NO")) {
+                                    $('#div-shopee-resi-dropoff-tracking-no').show();
+                                }
+                            }
+                            if (parameters.includes("PICKUP")) {
+                                $('#shopee-resi-pickup-section').show();
+                                if (parameters.includes("ADDRESS_ID")) {
+                                    $('#div-shopee-resi-pickup-address').show();
+                                    var nextselect = '<select id="select-shopee-resi-pickup-address" placeholder="Harap pilih" required="required"></select>';
+                                    $('#shopee-resi-pickup-address').append(nextselect);
+
+                                    var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
+                                    link = link.replace("replaceCode", window.$recResiShopee);
+
+                                    $.ajax({
+                                        type: "GET",
+                                        url: link,
+                                        contentType: 'application/json',
+                                        cache: false,
+                                        success: function (data) {
+                                            var listAddress = [];
+
+                                            $.each(data,
+                                                function (i, item) {
+                                                    listAddress[i] = {
+                                                        id: item.address_id,
+                                                        text: item.address
+                                                    };
+                                                });
+
+                                            var Select = $('#select-shopee-resi-pickup-address').selectize({
+                                                valueField: 'id',
+                                                searchField: 'text',
+                                                options: listAddress,
+                                                onChange: function (value) {
+                                                    getShopeePickupTime(value);
+                                                }
+                                            });
+                                        },
+                                        error: function (xhr) {
+                                            console.log(xhr);
+                                        }
+                                    });
+                                }
+                                if (parameters.includes("PICKUP_TIME")) {
+                                    $('#div-shopee-resi-pickup-time').show();
+                                    var nextselect = '<select id="select-shopee-resi-pickup-time" placeholder="Harap pilih" required="required"></select>';
+                                    $('#shopee-resi-pickup-time').append(nextselect);
+                                }
+                            }
+                            if (parameters.includes("NON")) {
+                                $('#shopee-resi-non-integrated-section').show();
+                                $('#btn-resi-shopee-non').show();
+                            }
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+        function getShopeePickupTime(address_id){
+            var link = '@Html.Raw(Url.Action("GetShopeePickupTime", "Manage", new { recNum = "replaceCode", address_id = "replaceAddressId" }))';
+            link = link.replace("replaceCode", window.$recResiShopee);
+            link = link.replace("replaceAddressId", address_id);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listTime = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listTime[i] = {
+                                id: item.pickup_time_id,
+                                text: item.date_string
+                            };
+                        });
+
+                    var Select = $('#select-shopee-resi-pickup-time').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listTime,
+                        onChange: function (value) {
+
+                        }
+                    });
+
+                    Select[0].selectize.clearOptions();
+                    Select[0].selectize.renderCache = {};
+                    Select[0].selectize.load(function (callback) {
+                        callback(listTime);
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
 
         function saveResi() {
             if (cekValidasi()) {
@@ -4092,6 +4405,93 @@
                     cache: false,
                     success: function() {
                         $('#modalIsiResi').modal('hide');
+                        refreshTableSiapKirim();
+                        window.$recResiShopee = 0;
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+        function saveResiShopee(metode) {
+            var ret = true;
+            if (metode == 0) { // DROPOFF
+                if($("#div-shopee-resi-dropoff-branch").is(":visible")){
+                    var value = $('#select-shopee-resi-dropoff-branch').val();
+                    if (value == null || value == '') {
+                        alert("Cabang harus dipilih.");
+                        ret = false;
+                    }
+                }
+                if($("#shopee-resi-dropoff-sender-real-name").is(":visible")){
+                    var value = $('#shopee-resi-dropoff-sender-real-name').val();
+                    if (value == null || value == '') {
+                        alert("Nama Pengirim harus diisi.");
+                        ret = false;
+                    }
+                }
+                if($("#shopee-resi-dropoff-tracking-no").is(":visible")){
+                    var value = $('#shopee-resi-dropoff-tracking-no').val();
+                    if (value == null || value == '') {
+                        alert("No. Resi harus diisi.");
+                        ret = false;
+                    }
+                }
+            }
+            if (metode == 1) { // PICKUP
+                if($("#div-shopee-resi-pickup-address").is(":visible")){
+                    var value = $('#select-shopee-resi-pickup-address').val();
+                    if (value == null || value == '') {
+                        alert("Alamat Pickup harus dipilih.");
+                        ret = false;
+                    }
+                }
+                if($("#div-shopee-resi-pickup-time").is(":visible")){
+                    var value = $('#select-shopee-resi-pickup-time').val();
+                    if (value == null || value == '') {
+                        alert("Waktu Pickup harus dipilih.");
+                        ret = false;
+                    }
+                }
+            }
+            if (metode == 2) { // NON INTEGRATED
+                if($("#shopee-resi-non-integrated-tracking-no").is(":visible")){
+                    var value = $('#shopee-resi-non-integrated-tracking-no').val();
+                    if (value == null || value == '') {
+                        alert("No. Resi harus diisi.");
+                        ret = false;
+                    }
+                }
+            }
+
+            if (ret) {
+                var link =
+                    '@Html.Raw(Url.Action("SaveResiShopee", "Manage", new {recNum = "replaceRecNum", metode = "replaceMetode",
+                    dBranch = "replacedBranch", dSender = "replacedSender", dTrackNo = "replacedTrackNo",
+                    pAddress = "replacepAddress", pTime = "replacepTime",
+                    nTrackNo = "replacenTrackNo"
+                }))';
+
+                link = link.replace("replaceRecNum", window.$recResiShopee);
+                link = link.replace("replaceMetode", metode);
+
+                link = link.replace("replacedBranch", $('#select-shopee-resi-dropoff-branch').val());
+                link = link.replace("replacedSender", $('#shopee-resi-dropoff-sender-real-name').val());
+                link = link.replace("replacedTrackNo", $('#shopee-resi-dropoff-tracking-no').val());
+
+                link = link.replace("replacepAddress", $('#select-shopee-resi-pickup-address').val());
+                link = link.replace("replacepTime", $('#select-shopee-resi-pickup-time').val());
+
+                link = link.replace("replacenTrackNo", $('#shopee-resi-non-integrated-tracking-no').val());
+
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function() {
+                        $('#modalIsiResiShopee').modal('hide');
                         refreshTableSiapKirim();
                     },
                     error: function(xhr) {
