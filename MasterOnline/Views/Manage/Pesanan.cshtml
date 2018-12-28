@@ -1436,7 +1436,7 @@
                 </div>
                 @* add by Tri, pilih shipment provider *@
                 <div class="row">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
                         <div class="col-md-4 col-sm-4 col-xs-12" id="divLblShip"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -1458,10 +1458,11 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
+                        <div id="print_label">
+                            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
+                        </div>
                     </div>
-                    <div>
-                        <button name="btnLabel" type="button" id="btnLabel" onclick="LazadaGetLabel()"></button>
-                    </div>
+
                 </div>
                 <div class="row" id="labelContainer"></div>
             </div>
@@ -1902,16 +1903,25 @@
             var link = '@Url.Action("LazadaLabel", "Manage", new { recnum = "replaceRecNum" })';
             //link += '?code=' + kode + '&bulan=' + bln;
             link = link.replace("replaceRecNum", this.$recResi);
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    if (response != null) {
-                        $('#labelContainer').html(response);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                if (response.Errors == null) {
+                                    //$('#labelContainer').html(response);
 
-                    }
-                    //window.open(response, "_self");
-                    //window.location.href(response);
+                                    //window.open(response, "_self");
+                                    var w = window.open('about:blank');
+                                    w.document.open();
+                                    w.document.write(response);
+                                    w.document.close();
+                                } else {
+                                    alert(response.Errors[0]);
+                                }
+                            }
+                            //window.open(response, "_self");
+                            //window.location.href(response);
 
                 },
                 error: function (xhr, status, error) {
@@ -4122,8 +4132,9 @@
             $('#txtShipment').remove();
             $('#txtShipmentBL').remove();
             $('#btnShipment').remove();
-
+            $('#print_label').hide();
             if (NamaMarket.toUpperCase() == "LAZADA") {
+                $('#print_label').show();
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip')
                     .append(

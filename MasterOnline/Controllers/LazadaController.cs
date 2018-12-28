@@ -324,7 +324,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    if(res.detail.Length == 1)
+                    if (res.detail.Length == 1)
                     {
                         if (!string.IsNullOrEmpty(res.detail[0].field))
                         {
@@ -339,7 +339,7 @@ namespace MasterOnline.Controllers
                     else if (res.detail.Length > 1)
                     {
                         ret.message = "";
-                        for(int i = 0; i < res.detail.Length; i++)
+                        for (int i = 0; i < res.detail.Length; i++)
                         {
                             if (!string.IsNullOrEmpty(res.detail[i].field))
                             {
@@ -352,7 +352,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    
+
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
@@ -492,6 +492,13 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, token, currentLog);
 
+            if (string.IsNullOrEmpty(kdBrg))
+            {
+                ret.message = "Item not linked to MP";
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+                return ret;
+            }
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
             if (!string.IsNullOrEmpty(qty))
@@ -761,7 +768,7 @@ namespace MasterOnline.Controllers
                 currentLog.REQUEST_EXCEPTION = ex.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
-            
+
             return ret;
 
         }
@@ -779,7 +786,8 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                ordItems = orderItemId[0];
+                if (orderItemId.Count == 1)
+                    ordItems = orderItemId[0];
             }
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
@@ -787,7 +795,7 @@ namespace MasterOnline.Controllers
             request.SetApiName("/order/document/get");
             request.SetHttpMethod("GET");
             request.AddApiParameter("doc_type", "shippingLabel");
-            request.AddApiParameter("order_item_ids", "[235687964297090]");
+            request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
             LazopResponse response = client.Execute(request, accessToken);
 
             return Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaGetLabel)) as LazadaGetLabel; ;
@@ -1361,7 +1369,7 @@ namespace MasterOnline.Controllers
                             string sSQL_Value = "";
                             foreach (var brg in result.data.products)
                             {
-                                for(int i = 0; i < brg.skus.Count; i++)
+                                for (int i = 0; i < brg.skus.Count; i++)
                                 {
                                     string kodeBrg = brg.skus[i].SellerSku;
                                     var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
@@ -2207,7 +2215,7 @@ namespace MasterOnline.Controllers
 
                                     }
                                 }
-                                
+
                             }
                             if (!string.IsNullOrEmpty(sSQL_Value))
                             {
