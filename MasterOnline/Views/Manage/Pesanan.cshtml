@@ -1608,15 +1608,13 @@
 </div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
-        <div class="modal-content" style="height:600px;width:900px">
+        <div class="modal-content" style="height:610px;width:900px">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @Html.Partial("BarangFixNotFoundPartial")
-            </div>
-            <div class="modal-footer">
             </div>
         </div>
     </div>
@@ -3856,6 +3854,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function(response) {
+                    $('#modal-fix-not-found-body').html("");
                     $('#modal-fix-not-found-body').html(response);
                     //$('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
                     //$('#txtShipment').val(response[1]);
