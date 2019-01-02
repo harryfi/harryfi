@@ -27,5 +27,6 @@ namespace MasterOnline.ViewModels
         //add by nurul 29/11/2018 (modiv cetak faktur)
         public string AlamatToko { get; set; }
         public string TlpToko { get; set; }
+        public string noRef { get; set; }
     }
 }
