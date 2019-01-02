@@ -1471,7 +1471,7 @@ namespace MasterOnline.Controllers
                     var connIdARF01C = Guid.NewGuid().ToString();
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     TEMP_SHOPEE_ORDERS batchinsert = new TEMP_SHOPEE_ORDERS();
-                    TEMP_SHOPEE_ORDERS_ITEM batchinsertItem = new TEMP_SHOPEE_ORDERS_ITEM();
+                    List<TEMP_SHOPEE_ORDERS_ITEM> batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
@@ -1550,9 +1550,8 @@ namespace MasterOnline.Controllers
                                 CONN_ID = connID,
                                 CUST = CUST,
                                 NAMA_CUST = NAMA_CUST
-
                             };
-                            batchinsertItem = (newOrderItem);
+                            batchinsertItem.Add(newOrderItem);
                         }
                         insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
@@ -1561,7 +1560,7 @@ namespace MasterOnline.Controllers
                         batchinsert = (newOrder);
 
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
-                        ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.Add(batchinsertItem);
+                        ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
                         insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                         EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
                         ErasoftDbContext.SaveChanges();
@@ -2287,7 +2286,8 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = seconds.ToString(),
                 REQUEST_ACTION = "Create Product",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_1 = brg,
+                REQUEST_ATTRIBUTE_2 = brgInDb.NAMA,
                 REQUEST_STATUS = "Pending",
             };
 
