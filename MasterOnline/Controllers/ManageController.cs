@@ -63,6 +63,13 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("manage/keepsession")]
+        public JsonResult KeepSessionAlive()
+        {
+            return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
         protected override void Dispose(bool disposing)
         {
             MoDbContext.Dispose();
