@@ -237,6 +237,7 @@
                     </button>
                     <button class="btn btn-primary" id="get_data" onclick="$('#konfTarikData').modal('show');">Ambil data dari Marketplace</button>
                     <button class="btn btn-primary" id="upload_brg" onclick="$('#konfSyncAll').modal('show');">Update data barang ke Master Online</button>
+                    @*<button class="btn btn-primary" id="generate_brg" onclick="$('#konfGenerateTokped').modal('show');">Generate barang Tokopedia</button>*@
                 </div>
             </div>
         </div>
@@ -367,6 +368,46 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" onclick="startSyncAll();">Ya</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfGenerateTokped" tabindex="-1" role="dialog" aria-labelledby="konfGenerateTokpedLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfGenerateTokpedLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda ingin men-generate semua data barang anda ke Akun ini di Master Online?</h4>
+                </div>
+                <div class="row text-center">
+                    <div class="col-md-3 col-sm-3 col-xs-12"></div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <div class="input-group text">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <input maxlength="10" value="" class="form-control" disabled="disabled" id="txtCustomer4" name="txtCustomer4" type="text">
+                                    </td>
+                                    <td>
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptCustomer();">
+                                                <span class="glyphicon glyphicon-option-horizontal"></span>
+                                            </button>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" onclick="GenerateTokped();">Ya</button>
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
             </div>
         </div>
@@ -597,6 +638,7 @@
             $('#txtCustomer').val('');
             $('#txtCustomer2').val('');
             $('#txtCustomer3').val('');
+            $('#txtCustomer4').val('');
             //document.getElementById('txtInfo').innerText = '';
             document.getElementById('txtInfo').innerText = 'Jumlah data berhasil tersimpan ke Master Online : 0';
 
@@ -676,6 +718,8 @@
             $('#txtCustomer').val(val2);
             $('#txtCustomer2').val(val2);
             $('#txtCustomer3').val(val2);
+            $('#txtCustomer4').val(val2);
+
             refreshTableBarangUpload();
         }
 
@@ -761,10 +805,10 @@
 
                     },
                     error: function (xhr, status, error) {
-                        //console.log(error);
-                        var err = JSON.parse(xhr.responseText);
+                        console.log(error);
+                        //var err = JSON.parse(xhr.responseText);
                         //alert(err.Message);
-                        console.log(err.error);
+                        //console.log(err.error);
 
                     }
                 });
@@ -841,6 +885,34 @@
             tmp.innerHTML = html;
             return tmp.textContent || tmp.innerText || "";
         }
+
+        function GenerateTokped() {
+            if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "") {
+                alert('Anda belum memilih Toko');
+            } else {
+                var link = '@Url.Action("CreateSTF02HTokped", "Manage")';
+            link += '?cust=' + $('#promptHiddenField').val();
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    //$('#loading_spinner').show();
+                    $('#konfGenerateTokped').modal('hide');
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        alert('Generate barang berhasil!');
+                    } else {
+                        alert(response.Errors);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            }
+        }
+
         function UploadAllBrgWithProgressBar(currentPage, maxPage, dataPerPage, failedToSync) {
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');

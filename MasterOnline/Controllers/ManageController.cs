@@ -1491,7 +1491,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }           
+            }
 
             return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
@@ -5977,7 +5977,7 @@ namespace MasterOnline.Controllers
                         orderItemIds.Add(tbl.ORDER_ITEM_ID);
                     }
                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                    if(retApi.code == "0")
+                    if (retApi.code == "0")
                     {
                         var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
                         #region add button cetak
@@ -13186,10 +13186,38 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<string> testAja(string page)
+        public ActionResult CreateSTF02HTokped(string cust)
         {
-            await Task.Delay(5000);
-            return (Convert.ToInt32(page) + 1).ToString();
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault();
+                var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                if (marketplace != null && tokped != null)
+                {
+                    if (marketplace.NAMA == tokped.IdMarket.ToString())
+                    {
+                        SqlCommand CommandSQL = new SqlCommand();
+                        CommandSQL.Parameters.Add("@idmarket", SqlDbType.Int).Value = marketplace.RecNum;
+                        CommandSQL.Parameters.Add("@username", SqlDbType.NVarChar, 30).Value = "AUTO_CREATE_SP";
+                        CommandSQL.Parameters.Add("@akunmarket", SqlDbType.NVarChar, 50).Value = marketplace.PERSO;
+                        EDB.ExecuteSQL("MOConnectionString", "autocreate_stf02h_tokped", CommandSQL);
+                        return Json("sukses", JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Akun yang anda pilih bukan akun dari marketplace Tokopedia");
+                    }
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Akun tidak ditemukan");
+                }
+
+
+            }
+            return JsonErrorMessage("Akun tidak ada");
+
         }
         public ActionResult GetTotalData(string cust)
         {
@@ -13213,43 +13241,6 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
-        #region test progress bar
-        delegate string ProcessTask(string id);
-        MyLongRunningClass longRunningClass = new MyLongRunningClass();
-
-        /// <summary>
-        /// Starts the long running process.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public void StartLongRunningProcess(string id)
-        {
-            longRunningClass.Add(id);
-            ProcessTask processTask = new ProcessTask(longRunningClass.ProcessLongRunningAction);
-            processTask.BeginInvoke(id, new AsyncCallback(EndLongRunningProcess), processTask);
-        }
-
-        /// <summary>
-        /// Ends the long running process.
-        /// </summary>
-        /// <param name="result">The result.</param>
-        public void EndLongRunningProcess(IAsyncResult result)
-        {
-            ProcessTask processTask = (ProcessTask)result.AsyncState;
-            string id = processTask.EndInvoke(result);
-            longRunningClass.Remove(id);
-        }
-
-        /// <summary>
-        /// Gets the current progress.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public ContentResult GetCurrentProgress(string id)
-        {
-            this.ControllerContext.HttpContext.Response.AddHeader("cache-control", "no-cache");
-            var currentProgress = longRunningClass.GetStatus(id).ToString();
-            return Content(currentProgress);
-        }
-        #endregion
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {
