@@ -89,7 +89,7 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = seconds.ToString() + "_" + page,
                 REQUEST_ACTION = "Get Item List",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,

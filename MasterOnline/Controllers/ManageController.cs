@@ -63,6 +63,13 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("manage/keepsession")]
+        public JsonResult KeepSessionAlive()
+        {
+            return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
         protected override void Dispose(bool disposing)
         {
             MoDbContext.Dispose();
@@ -1493,7 +1500,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }           
+            }
 
             return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
@@ -5979,7 +5986,7 @@ namespace MasterOnline.Controllers
                         orderItemIds.Add(tbl.ORDER_ITEM_ID);
                     }
                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                    if(retApi.code == "0")
+                    if (retApi.code == "0")
                     {
                         var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
                         #region add button cetak
@@ -6834,6 +6841,9 @@ namespace MasterOnline.Controllers
                     //add by nurul 29/11/2018 (modiv cetak faktur)
                     var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                     var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    //end add
+                    //add by nurul 2/1/2019 (tambah no referensi)
+                    var noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NO_REFERENSI;
                     //end add 
 
                     var vm = new FakturViewModel()
@@ -6847,7 +6857,10 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
-                        TlpToko = tlp
+                        TlpToko = tlp,
+                        //end add
+                        //add by nurul 2/1/2019 (tambah no referensi)
+                        noRef = noRef
                         //end add 
                     };
 
@@ -6880,6 +6893,17 @@ namespace MasterOnline.Controllers
                     //add by nurul 29/11/2018 (modiv cetak faktur)
                     var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                     var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    //end add
+                    //add by nurul 2/1/2019 (tambah no referensi)
+                    var noRef = "";
+                    if (fakturInDb.NO_SO == null || fakturInDb.NO_SO == "" || fakturInDb.NO_SO == "-")
+                    {
+                        noRef = "-";
+                    }
+                    else
+                    {
+                        noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
+                    }
                     //end add 
 
                     var vm = new FakturViewModel()
@@ -6893,7 +6917,10 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
-                        TlpToko = tlp
+                        TlpToko = tlp,
+                        //end add
+                        //add by nurul 2/1/2019 (tambah no referensi)
+                        noRef = noRef
                         //end add 
                     };
 
@@ -13188,10 +13215,38 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<string> testAja(string page)
+        public ActionResult CreateSTF02HTokped(string cust)
         {
-            await Task.Delay(5000);
-            return (Convert.ToInt32(page) + 1).ToString();
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault();
+                var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                if (marketplace != null && tokped != null)
+                {
+                    if (marketplace.NAMA == tokped.IdMarket.ToString())
+                    {
+                        SqlCommand CommandSQL = new SqlCommand();
+                        CommandSQL.Parameters.Add("@idmarket", SqlDbType.Int).Value = marketplace.RecNum;
+                        CommandSQL.Parameters.Add("@username", SqlDbType.NVarChar, 30).Value = "AUTO_CREATE_SP";
+                        CommandSQL.Parameters.Add("@akunmarket", SqlDbType.NVarChar, 50).Value = marketplace.PERSO;
+                        EDB.ExecuteSQL("MOConnectionString", "autocreate_stf02h_tokped", CommandSQL);
+                        return Json("sukses", JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Akun yang anda pilih bukan akun dari marketplace Tokopedia");
+                    }
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Akun tidak ditemukan");
+                }
+
+
+            }
+            return JsonErrorMessage("Akun tidak ada");
+
         }
         public ActionResult GetTotalData(string cust)
         {
@@ -13215,43 +13270,6 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
-        #region test progress bar
-        delegate string ProcessTask(string id);
-        MyLongRunningClass longRunningClass = new MyLongRunningClass();
-
-        /// <summary>
-        /// Starts the long running process.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public void StartLongRunningProcess(string id)
-        {
-            longRunningClass.Add(id);
-            ProcessTask processTask = new ProcessTask(longRunningClass.ProcessLongRunningAction);
-            processTask.BeginInvoke(id, new AsyncCallback(EndLongRunningProcess), processTask);
-        }
-
-        /// <summary>
-        /// Ends the long running process.
-        /// </summary>
-        /// <param name="result">The result.</param>
-        public void EndLongRunningProcess(IAsyncResult result)
-        {
-            ProcessTask processTask = (ProcessTask)result.AsyncState;
-            string id = processTask.EndInvoke(result);
-            longRunningClass.Remove(id);
-        }
-
-        /// <summary>
-        /// Gets the current progress.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public ContentResult GetCurrentProgress(string id)
-        {
-            this.ControllerContext.HttpContext.Response.AddHeader("cache-control", "no-cache");
-            var currentProgress = longRunningClass.GetStatus(id).ToString();
-            return Content(currentProgress);
-        }
-        #endregion
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {
