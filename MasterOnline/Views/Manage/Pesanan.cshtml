@@ -1608,15 +1608,13 @@
 </div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
     <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
-        <div class="modal-content" style="height:600px;width:900px">
+        <div class="modal-content" style="height:610px;width:900px">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
             </div>
             <div class="modal-body" id="modal-fix-not-found-body">
                 @Html.Partial("BarangFixNotFoundPartial")
-            </div>
-            <div class="modal-footer">
             </div>
         </div>
     </div>
@@ -3856,6 +3854,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function(response) {
+                    $('#modal-fix-not-found-body').html("");
                     $('#modal-fix-not-found-body').html(response);
                     //$('#Pesanan_TRACKING_SHIPMENT').val(response[0]);
                     //$('#txtShipment').val(response[1]);
@@ -4216,12 +4215,14 @@
             $('#shopee-resi-dropoff-branch').html('');
             $('#shopee-resi-dropoff-sender-real-name').val('');
             $('#shopee-resi-dropoff-tracking-no').val('');
+            $('#btn-resi-shopee-dropoff').hide();
 
             $('#shopee-resi-pickup-section').hide();
             $('#div-shopee-resi-pickup-address').hide();
             $('#div-shopee-resi-pickup-time').hide();
             $('#shopee-resi-pickup-address').html('');
             $('#shopee-resi-pickup-time').html('');
+            $('#btn-resi-shopee-pickup').hide();
 
             $('#shopee-resi-non-integrated-section').hide();
             $('#btn-resi-shopee-non').hide();
@@ -4247,13 +4248,102 @@
                     var valueTRACKING_SHIPMENT = response[0].split('[;]');
 
                     if (response[0] != "") {
+                        //LANJUT DSINI, TRACKING SHIPMENT SUDAH TERISI
+                        if (valueTRACKING_SHIPMENT[0] == 'D') {
+                            //format : D[;]BRANCH_ID[;]SENDER_REAL_NAME[;]TRACKING_NO
+                            if (valueTRACKING_SHIPMENT[1] != "") {//BRANCH_ID
+                                $('#div-shopee-resi-dropoff-branch').show();
+                                var nextselect = '<select id="select-shopee-resi-dropoff-branch" placeholder="Harap pilih" required="required"></select>';
+                                $('#shopee-resi-dropoff-branch').append(nextselect);
 
+                                var link = '@Html.Raw(Url.Action("GetShopeeDropoffBranch", "Manage", new { recNum = "replaceCode" }))';
+                                link = link.replace("replaceCode", window.$recResiShopee);
+
+                                $.ajax({
+                                    type: "GET",
+                                    url: link,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (data) {
+                                        
+                                        //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
+                            }
+                            if (valueTRACKING_SHIPMENT[2] != "") {//SENDER_REAL_NAME
+                                $('#div-shopee-resi-dropoff-sender-real-name').show();
+                                $('#shopee-resi-dropoff-sender-real-name').val(valueTRACKING_SHIPMENT[2]).attr('readonly', true);
+                            }
+                            if (valueTRACKING_SHIPMENT[3] != "") {//TRACKING_NO
+                                $('#div-shopee-resi-dropoff-tracking-no').show();
+                                $('#shopee-resi-dropoff-tracking-no').val(valueTRACKING_SHIPMENT[3]).attr('readonly', true);
+                            }
+                        }
+                        else if (valueTRACKING_SHIPMENT[0] == 'P') {
+                            //format : P[;]ADDRESS_ID[;]PICKUP_TIME
+                            if (valueTRACKING_SHIPMENT[1] != "") {//ADDRESS_ID
+                                $('#div-shopee-resi-pickup-address').show();
+                                var nextselect = '<select id="select-shopee-resi-pickup-address" placeholder="Harap pilih" required="required"></select>';
+                                $('#shopee-resi-pickup-address').append(nextselect);
+
+                                var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
+                                link = link.replace("replaceCode", window.$recResiShopee);
+
+                                $.ajax({
+                                    type: "GET",
+                                    url: link,
+                                    contentType: 'application/json',
+                                    cache: false,
+                                    success: function (data) {
+                                        var listAddress = [];
+
+                                        $.each(data,
+                                            function (i, item) {
+                                                listAddress[i] = {
+                                                    id: item.address_id,
+                                                    text: item.address
+                                                };
+                                            });
+
+                                        var Select = $('#select-shopee-resi-pickup-address').selectize({
+                                            valueField: 'id',
+                                            searchField: 'text',
+                                            options: listAddress,
+                                            onChange: function (value) {
+                                                
+                                            }
+                                        });
+
+                                        Select[0].selectize.setValue(valueTRACKING_SHIPMENT[1]);
+                                    },
+                                    error: function (xhr) {
+                                        console.log(xhr);
+                                    }
+                                });
+                            }
+                            if (valueTRACKING_SHIPMENT[2] != "") {//PICKUP_TIME
+                                $('#div-shopee-resi-pickup-time').show();
+                                var nextselect = '<select id="select-shopee-resi-pickup-time" placeholder="Harap pilih" required="required"></select>';
+                                $('#shopee-resi-pickup-time').append(nextselect);
+                                getShopeePickupTime(valueTRACKING_SHIPMENT[1],valueTRACKING_SHIPMENT[2]);
+                            }
+                        }
+                        else if (valueTRACKING_SHIPMENT[0] == 'N') {
+                            //format : N[;]TRACKING_NO
+                            $('#shopee-resi-non-integrated-section').show();
+                            $('#shopee-resi-non-integrated-tracking-no').val(valueTRACKING_SHIPMENT[1]).attr('readonly', true);
+                        }
                     }
                     else {
                         if (response[5] != "") {
                             var parameters = response[5].split(';');
                             if (parameters.includes("DROPOFF")) {
                                 $('#shopee-resi-dropoff-section').show();
+                                $('#btn-resi-shopee-dropoff').show();
+
                                 if (parameters.includes("BRANCH_ID")) {
                                     $('#div-shopee-resi-dropoff-branch').show();
                                     var nextselect = '<select id="select-shopee-resi-dropoff-branch" placeholder="Harap pilih" required="required"></select>';
@@ -4269,6 +4359,7 @@
                                         cache: false,
                                         success: function (data) {
 
+                                            //belum ada contoh
                                         },
                                         error: function (xhr) {
                                             console.log(xhr);
@@ -4286,6 +4377,8 @@
                                 $('#shopee-resi-pickup-section').show();
                                 if (parameters.includes("ADDRESS_ID")) {
                                     $('#div-shopee-resi-pickup-address').show();
+                                    $('#btn-resi-shopee-pickup').show();
+
                                     var nextselect = '<select id="select-shopee-resi-pickup-address" placeholder="Harap pilih" required="required"></select>';
                                     $('#shopee-resi-pickup-address').append(nextselect);
 
@@ -4313,7 +4406,7 @@
                                                 searchField: 'text',
                                                 options: listAddress,
                                                 onChange: function (value) {
-                                                    getShopeePickupTime(value);
+                                                    getShopeePickupTime(value, null);
                                                 }
                                             });
                                         },
@@ -4341,7 +4434,7 @@
             });
         }
 
-        function getShopeePickupTime(address_id){
+        function getShopeePickupTime(address_id,time_value){
             var link = '@Html.Raw(Url.Action("GetShopeePickupTime", "Manage", new { recNum = "replaceCode", address_id = "replaceAddressId" }))';
             link = link.replace("replaceCode", window.$recResiShopee);
             link = link.replace("replaceAddressId", address_id);
@@ -4353,13 +4446,14 @@
                 cache: false,
                 success: function (data) {
                     var listTime = [];
-
+                    var orderExpired = false;
                     $.each(data,
                         function (i, item) {
                             listTime[i] = {
                                 id: item.pickup_time_id,
                                 text: item.date_string
                             };
+                            if (item.pickup_time_id == "-1"){ orderExpired = true;}
                         });
 
                     var Select = $('#select-shopee-resi-pickup-time').selectize({
@@ -4376,6 +4470,16 @@
                     Select[0].selectize.load(function (callback) {
                         callback(listTime);
                     });
+
+                    if (orderExpired) {
+                        $('#btn-resi-shopee-dropoff').hide();
+                        $('#btn-resi-shopee-pickup').hide();
+                        $('#btn-resi-shopee-non').hide();
+                    }
+
+                    if (time_value != null) {
+                        Select[0].selectize.setValue(time_value);
+                    }
                 },
                 error: function (xhr) {
                     console.log(xhr);

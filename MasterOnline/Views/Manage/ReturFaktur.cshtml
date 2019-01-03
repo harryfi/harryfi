@@ -1086,8 +1086,16 @@
                                 $('#loading_spinner').hide();
 
                             } else {
-                                console.log(response.Errors);
-                                alert('Ada data yang tidak valid!');
+                                //change by nurul 2/1/2019
+                                //console.log(response.Errors);
+                                //alert('Ada data yang tidak valid!');
+                                if (response.Errors[0] == "") {
+                                    console.log(response.Errors);
+                                    alert('Ada data yang tidak valid!');
+                                } else {
+                                    alert(response.Errors[0]);
+                                }
+                                //end change 
                                 $('#loading_spinner').hide();
                             }
                         },

@@ -1365,6 +1365,7 @@
     <Content Include="Content\Images\store.png" />
     <Content Include="Content\Images\temp-ava.png" />
     <Content Include="Content\Images\tia-logo.png" />
+    <Content Include="Content\Images\timeout-icon.png" />
     <Content Include="Content\Images\twitter.png" />
     <Content Include="Content\Images\user.png" />
     <Content Include="Content\Images\visa.png" />
@@ -1384,6 +1385,8 @@
     <Content Include="Content\selectize.js" />
     <Content Include="Content\Static\termsandconditions.html" />
     <Content Include="Content\Images\photo_not_available.jpg" />
+    <Content Include="Content\timeout-dialog.css" />
+    <Content Include="Content\timeout-dialog.js" />
     <Content Include="Content\vendors\animate.css\animate.css" />
     <Content Include="Content\vendors\animate.css\animate.min.css" />
     <Content Include="Content\vendors\animate.css\gulpfile.js" />

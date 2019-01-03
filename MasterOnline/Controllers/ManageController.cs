@@ -63,6 +63,13 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("manage/keepsession")]
+        public JsonResult KeepSessionAlive()
+        {
+            return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
         protected override void Dispose(bool disposing)
         {
             MoDbContext.Dispose();
@@ -6832,6 +6839,9 @@ namespace MasterOnline.Controllers
                     //add by nurul 29/11/2018 (modiv cetak faktur)
                     var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                     var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    //end add
+                    //add by nurul 2/1/2019 (tambah no referensi)
+                    var noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NO_REFERENSI;
                     //end add 
 
                     var vm = new FakturViewModel()
@@ -6845,7 +6855,10 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
-                        TlpToko = tlp
+                        TlpToko = tlp,
+                        //end add
+                        //add by nurul 2/1/2019 (tambah no referensi)
+                        noRef = noRef
                         //end add 
                     };
 
@@ -6878,6 +6891,17 @@ namespace MasterOnline.Controllers
                     //add by nurul 29/11/2018 (modiv cetak faktur)
                     var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
                     var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    //end add
+                    //add by nurul 2/1/2019 (tambah no referensi)
+                    var noRef = "";
+                    if (fakturInDb.NO_SO == null || fakturInDb.NO_SO == "" || fakturInDb.NO_SO == "-")
+                    {
+                        noRef = "-";
+                    }
+                    else
+                    {
+                        noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
+                    }
                     //end add 
 
                     var vm = new FakturViewModel()
@@ -6891,7 +6915,10 @@ namespace MasterOnline.Controllers
                         ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
                         //add by nurul nurul 29/11/2018 (modiv cetak faktur)
                         AlamatToko = alamat,
-                        TlpToko = tlp
+                        TlpToko = tlp,
+                        //end add
+                        //add by nurul 2/1/2019 (tambah no referensi)
+                        noRef = noRef
                         //end add 
                     };
 

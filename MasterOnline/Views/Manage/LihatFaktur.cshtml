@@ -209,12 +209,21 @@
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
+                                                    <span class="block_subtitle" style="margin-left:10px">Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                @*<td>
+            <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
+        </td>*@
+                                                <td style="text-align:left; background-color:lightskyblue; width:500px">
+                                                    <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
                                                 </td>
                                             </tr>
                                             <tr>
                                                 <td>
-                                                    <span class="block_subtitle" style="margin-left:10px">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
+                                                    @*<span class="block_subtitle" style="margin-left:10px">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))*@
+                                                    <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.noRef == null || Model.noRef == "" ? "-" : Model.noRef)
                                                 </td>
                                             </tr>
                                         </table>
@@ -335,8 +344,13 @@
             <p class="sub_title">
                 <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
             </p>*@
+                                @*add by nurul 2/1/2019*@
                                 <p class="sub_title">
-                                    <span class="block_subtitle_label">No. SO</span> @(Model.Faktur.NO_SO)
+                                    <span class="block_subtitle_label">No. Referensi</span> @(Model.noRef == null || Model.noRef == "" ? "-" : Model.noRef)
+                                </p>                                
+                                @*end add by nurul*@
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">No. SO</span> @(Model.Faktur.NO_SO == null || Model.Faktur.NO_SO == "" ? "-" : Model.Faktur.NO_SO)
                                 </p>
                                 <p class="sub_title">
                                     <span class="block_subtitle_label">Tanggal</span> @(Model.Faktur.TGL.ToString("dd/MM/yyyy"))
