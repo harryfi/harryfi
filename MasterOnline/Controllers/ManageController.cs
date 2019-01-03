@@ -256,7 +256,7 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-            ////remark by calvin 13 desember 2018, testing
+            //remark by calvin 13 desember 2018, testing
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -323,43 +323,45 @@ namespace MasterOnline.Controllers
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
-            ////end remark by calvin 13 desember 2018, testing
+            //end remark by calvin 13 desember 2018, testing
 
-            ////var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            ////var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            ////if (listTokPed.Count > 0)
-            ////{
-            ////    foreach (ARF01 tblCustomer in listTokPed)
-            ////    {
-            ////        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
-            ////        {
-            ////var tokopediaApi = new TokopediaController();
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            //if (listTokPed.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listTokPed)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+            //        {
+            //            var tokopediaApi = new TokopediaController();
 
-            ////            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
-            ////            //{
-            ////            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
-            ////            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-            ////            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-            ////            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            ////            //    token = tblCustomer.TOKEN
-            ////            //};
-            ////TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-            ////{
-            ////    merchant_code = "13072", //FSID
-            ////    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-            ////    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-            ////    API_secret_key = "2619296", //Shop ID 
-            ////    token = "a9azcD8-R12AljUWpiTttw"
-            ////};
+            //            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+            //            //{
+            //            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+            //            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+            //            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //            //    token = tblCustomer.TOKEN
+            //            //};
+            //            TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+            //            {
+            //                merchant_code = "13072", //FSID
+            //                API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //                API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //                API_secret_key = "2619296", //Shop ID 
+            //                token = "GwGhkku4QYW_RjI_lUQqBg"
+            //            };
 
-            ////            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            ////await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
-            ////await tokopediaApi.GetCategoryTree(idenTest);
-            ////            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            ////            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
-            ////        }
-            ////    }
-            ////}
+            //            //tokopediaApi.GetToken();
+            //            await tokopediaApi.GetActiveItemList(idenTest, connectionID, "", "");
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
+            //            //await tokopediaApi.GetCategoryTree(idenTest);
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
+            //        }
+            //    }
+            //}
 
             var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
@@ -6280,8 +6282,8 @@ namespace MasterOnline.Controllers
                 nilaiTRACKING_SHIPMENT = "N[;]" + nTrackNo;
             }
 
-            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-            ErasoftDbContext.SaveChanges();
+            //pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+            //ErasoftDbContext.SaveChanges();
 
             if (changeStat)
             {
@@ -6311,7 +6313,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = dTrackNo;
                     }
-                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch,dSender,dTrackNo);
                 }
                 else if (metode == "1") // PICKUP
                 {
@@ -6328,7 +6330,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.pickup_time_id = pTime;
                     }
-                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value,nilaiTRACKING_SHIPMENT);
                 }
                 else if (metode == "2") // NON INTEGRATED
                 {
@@ -6340,7 +6342,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = nTrackNo;
                     }
-                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
                 }
             }
             return new EmptyResult();

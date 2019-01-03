@@ -1491,7 +1491,7 @@ namespace MasterOnline.Controllers
                     {
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS");
                         ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_SHOPEE_ORDERS_ITEM");
-
+                        batchinsertItem = new List<TEMP_SHOPEE_ORDERS_ITEM>();
                         TEMP_SHOPEE_ORDERS newOrder = new TEMP_SHOPEE_ORDERS()
                         {
                             actual_shipping_cost = order.actual_shipping_cost,
@@ -1661,7 +1661,71 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> InitLogisticDropOff(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data)
+        public async Task<ShopeeGetParameterForInitLogisticResult> GetLogisticInfo(ShopeeAPIData iden, string ordersn)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            ShopeeGetParameterForInitLogisticResult ret = null;
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/logistics/init_info/get";
+
+            ShopeeGetParameterForInitLogisticData HttpBody = new ShopeeGetParameterForInitLogisticData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                ordersn = ordersn
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetParameterForInitLogisticResult)) as ShopeeGetParameterForInitLogisticResult;
+                    ret = result;
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+            return ret;
+        }
+        public async Task<string> InitLogisticDropOff(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticDropOffDetailData data, int recnum, string dBranch, string dSender, string dTrackNo)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1727,7 +1791,29 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    if (result.error == null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(result.tracking_no))
+                        {
+                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                            if (pesananInDb != null)
+                            {
+                                if (dTrackNo == "")
+                                {
+                                    dTrackNo = result.tracking_no;
+                                }
+                                string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
+                                pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+                                ErasoftDbContext.SaveChanges();
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = result.msg;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -1737,7 +1823,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> InitLogisticNonIntegrated(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticNotIntegratedDetailData data)
+        public async Task<string> InitLogisticNonIntegrated(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticNotIntegratedDetailData data, int recnum, string savedParam)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1813,7 +1899,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> InitLogisticPickup(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticPickupDetailData data)
+        public async Task<string> InitLogisticPickup(ShopeeAPIData iden, string ordersn, ShopeeInitLogisticPickupDetailData data, int recnum, string savedParam)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1879,7 +1965,24 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    if (result.error == null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(result.tracking_no))
+                        {
+                            var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
+                            if (pesananInDb != null)
+                            {
+                                pesananInDb.TRACKING_SHIPMENT = savedParam;
+                                ErasoftDbContext.SaveChanges();
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = result.msg;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -3378,13 +3481,14 @@ namespace MasterOnline.Controllers
                         {
                             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                             dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
-                            item.date_string = dtDateTime.ToString("dd MMMM yyyy");
+                            item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
                         }
                     }
                     else
                     {
                         var err = JsonConvert.DeserializeObject(responseFromServer, typeof(GetPickupTimeSlotError)) as GetPickupTimeSlotError;
-                        ShopeeGetTimeSlotResultPickup_Time errItem = new ShopeeGetTimeSlotResultPickup_Time() {
+                        ShopeeGetTimeSlotResultPickup_Time errItem = new ShopeeGetTimeSlotResultPickup_Time()
+                        {
                             pickup_time_id = "-1",
                             date_string = "Order sudah Expired."
                         };
@@ -4021,6 +4125,8 @@ namespace MasterOnline.Controllers
         {
             public string tracking_no { get; set; }
             public string request_id { get; set; }
+            public string msg { get; set; }
+            public string error { get; set; }
         }
 
         public class ShopeeUpdateStockData

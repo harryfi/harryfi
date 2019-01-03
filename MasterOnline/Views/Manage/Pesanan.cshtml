@@ -4250,6 +4250,7 @@
                     if (response[0] != "") {
                         //LANJUT DSINI, TRACKING SHIPMENT SUDAH TERISI
                         if (valueTRACKING_SHIPMENT[0] == 'D') {
+                            $('#shopee-resi-dropoff-section').show();
                             //format : D[;]BRANCH_ID[;]SENDER_REAL_NAME[;]TRACKING_NO
                             if (valueTRACKING_SHIPMENT[1] != "") {//BRANCH_ID
                                 $('#div-shopee-resi-dropoff-branch').show();
@@ -4283,10 +4284,11 @@
                             }
                         }
                         else if (valueTRACKING_SHIPMENT[0] == 'P') {
+                            $('#shopee-resi-pickup-section').show();
                             //format : P[;]ADDRESS_ID[;]PICKUP_TIME
                             if (valueTRACKING_SHIPMENT[1] != "") {//ADDRESS_ID
                                 $('#div-shopee-resi-pickup-address').show();
-                                var nextselect = '<select id="select-shopee-resi-pickup-address" placeholder="Harap pilih" required="required"></select>';
+                                var nextselect = '<select id="select-shopee-resi-pickup-address" disabled="disabled" placeholder="Harap pilih" required="required"></select>';
                                 $('#shopee-resi-pickup-address').append(nextselect);
 
                                 var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
@@ -4326,7 +4328,7 @@
                             }
                             if (valueTRACKING_SHIPMENT[2] != "") {//PICKUP_TIME
                                 $('#div-shopee-resi-pickup-time').show();
-                                var nextselect = '<select id="select-shopee-resi-pickup-time" placeholder="Harap pilih" required="required"></select>';
+                                var nextselect = '<select id="select-shopee-resi-pickup-time" disabled="disabled" placeholder="Harap pilih" required="required"></select>';
                                 $('#shopee-resi-pickup-time').append(nextselect);
                                 getShopeePickupTime(valueTRACKING_SHIPMENT[1],valueTRACKING_SHIPMENT[2]);
                             }
@@ -4580,12 +4582,24 @@
                 link = link.replace("replaceRecNum", window.$recResiShopee);
                 link = link.replace("replaceMetode", metode);
 
-                link = link.replace("replacedBranch", $('#select-shopee-resi-dropoff-branch').val());
+                var replacedBranchValue = $('#select-shopee-resi-dropoff-branch').val();
+                if (replacedBranchValue == undefined) {
+                    replacedBranchValue = "";
+                }
+                var replacepAddressValue = $('#select-shopee-resi-pickup-address').val();
+                if (replacepAddressValue == undefined) {
+                    replacepAddressValue = "";
+                }
+                var replacepTimeValue = $('#select-shopee-resi-pickup-time').val();
+                if (replacepTimeValue == undefined) {
+                    replacepTimeValue = "";
+                }
+                link = link.replace("replacedBranch", replacedBranchValue);
                 link = link.replace("replacedSender", $('#shopee-resi-dropoff-sender-real-name').val());
                 link = link.replace("replacedTrackNo", $('#shopee-resi-dropoff-tracking-no').val());
 
-                link = link.replace("replacepAddress", $('#select-shopee-resi-pickup-address').val());
-                link = link.replace("replacepTime", $('#select-shopee-resi-pickup-time').val());
+                link = link.replace("replacepAddress", replacepAddressValue);
+                link = link.replace("replacepTime", replacepTimeValue);
 
                 link = link.replace("replacenTrackNo", $('#shopee-resi-non-integrated-tracking-no').val());
 
