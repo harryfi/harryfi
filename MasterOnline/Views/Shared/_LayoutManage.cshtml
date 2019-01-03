@@ -507,18 +507,16 @@
             document.onkeypress = resetTimer;
 
             function reloginSession() {
-                $.timeoutDialog({ timeout: 1, countdown: 60, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
+                $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
             }
 
             function logout() {
                 reloginSession();
-                //location.href = 'logout.php'
             }
 
             function resetTimer() {
                 clearTimeout(t);
-                t = setTimeout(logout, 60000);
-                // 1000 milisec = 1 sec
+                t = setTimeout(logout, 5000);
             }
         };
 

@@ -41,14 +41,27 @@ String.prototype.format = function() {
   return s;
 };
 
+function msToTime(duration) {
+    var milliseconds = parseInt((duration % 1000) / 100)
+        , detik = parseInt((duration / 1000) % 60)
+        , menit = parseInt((duration / (1000 * 60)) % 60)
+        , hours = parseInt((duration / (1000 * 60 * 60)) % 24);
+
+    //hours = (hours < 10) ? "0" + hours : hours;
+    menit = (menit < 10) ? "0" + menit : menit;
+    detik = (detik < 10) ? "0" + detik : detik;
+
+    return menit + ":" + detik;
+}
+
 !function($) {
   $.timeoutDialog = function(options) {
 
     var settings = {
         timeout: 1,
-        countdown: 60,
+        countdown: 300000,
         title : 'Sesi Anda akan segera habis!',
-        message : 'Anda akan segera keluar dalam {0} detik.',
+        message : 'Anda akan segera keluar dalam waktu {0}.',
         question: 'Apakah Anda ingin melanjutkan sesi?',
         keep_alive_button_text: 'Ya, lanjutkan',
         sign_out_button_text: 'Tidak, keluarkan sekarang',
@@ -68,7 +81,6 @@ String.prototype.format = function() {
 
       setupDialogTimer: function() {
           var self = this;
-          setTimeout("reloginSession()", 60000); // Tiap 1 menit tanya sesi
           self.setupDialog();
 
         //window.setTimeout(function() {
@@ -81,7 +93,7 @@ String.prototype.format = function() {
 
         $('#bg-timeout').css('display', 'block');
         $('<div id="timeout-dialog">' +
-            '<p id="timeout-message">' + settings.message.format('<span id="timeout-countdown">' + settings.countdown + '</span>') + '</p>' + 
+            '<p id="timeout-message">' + settings.message.format('<span id="timeout-countdown"></span>') + '</p>' + 
             '<p id="timeout-question">' + settings.question + '</p>' +
           '</div>')
         .appendTo('body')
@@ -129,8 +141,8 @@ String.prototype.format = function() {
             counter = settings.countdown;
 
         this.countdown = window.setInterval(function() {
-          counter -= 1;
-          $("#timeout-countdown").html(counter);
+            counter -= 1000; // Kurang 1 detik (1000ms)
+            $("#timeout-countdown").html(msToTime(counter));
 
           if (counter <= 0) {
             window.clearInterval(self.countdown);
