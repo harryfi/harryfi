@@ -45,13 +45,13 @@ String.prototype.format = function() {
   $.timeoutDialog = function(options) {
 
     var settings = {
-        timeout: 120,
+        timeout: 1,
         countdown: 60,
-        title : 'Your session is about to expire!',
-        message : 'You will be logged out in {0} seconds.',
-        question: 'Do you want to stay signed in?',
-        keep_alive_button_text: 'Yes, Keep me signed in',
-        sign_out_button_text: 'No, Sign me out',
+        title : 'Sesi Anda akan segera habis!',
+        message : 'Anda akan segera keluar dalam {0} detik.',
+        question: 'Apakah Anda ingin melanjutkan sesi?',
+        keep_alive_button_text: 'Ya, lanjutkan',
+        sign_out_button_text: 'Tidak, keluarkan sekarang',
         keep_alive_url: '/manage/keepsession',
         logout_url: null,
         logout_redirect_url: '/',
@@ -67,10 +67,12 @@ String.prototype.format = function() {
       }, 
 
       setupDialogTimer: function() {
-        var self = this;
-        window.setTimeout(function() {
-           self.setupDialog();
-        }, (settings.timeout - settings.countdown) * 1000);
+          var self = this;
+          setTimeout("reloginSession()", 60000); // Tiap 1 menit tanya sesi
+          self.setupDialog();
+
+        //window.setTimeout(function() {
+        //}, (settings.timeout - settings.countdown) * 1000);
       },
 
       setupDialog: function() {
