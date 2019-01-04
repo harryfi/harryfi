@@ -5561,6 +5561,28 @@ namespace MasterOnline.Controllers
                 }
             }
 
+            //add by nurul 4/1/2019 (tambah validasi jika gudang belum diisi)
+            if (tipeStatus == "03")
+            {
+                var pesananDetailInDb = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesananInDb.NO_BUKTI).ToList();
+                bool valid = true;
+                foreach (var item in pesananDetailInDb)
+                {
+                    if (item.LOKASI.Trim() == "")
+                    {
+                        valid = false;
+                    }
+                }
+
+                if (!valid)
+                {
+                    var vmError = new StokViewModel();
+                    vmError.Errors.Add("Isi semua gudang / qty terlebih dahulu!");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+            }
+            //end add
+
             pesananInDb.STATUS_TRANSAKSI = tipeStatus;
             ErasoftDbContext.SaveChanges();
 
