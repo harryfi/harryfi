@@ -1793,14 +1793,14 @@ namespace MasterOnline.Controllers
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                     if (result.error == null)
                     {
-                        if (!string.IsNullOrWhiteSpace(result.tracking_no))
+                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
                         {
                             var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                             if (pesananInDb != null)
                             {
                                 if (dTrackNo == "")
                                 {
-                                    dTrackNo = result.tracking_no;
+                                    dTrackNo = (result.tracking_no == null || result.tracking_no == "" ) ? (result.tracking_number) : result.tracking_no;
                                 }
                                 string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
                                 pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
@@ -1967,7 +1967,7 @@ namespace MasterOnline.Controllers
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
                     if (result.error == null)
                     {
-                        if (!string.IsNullOrWhiteSpace(result.tracking_no))
+                        if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
                         {
                             var pesananInDb = ErasoftDbContext.SOT01A.SingleOrDefault(p => p.RecNum == recnum);
                             if (pesananInDb != null)
@@ -4124,6 +4124,7 @@ namespace MasterOnline.Controllers
         public class ShopeeInitLogisticResult
         {
             public string tracking_no { get; set; }
+            public string tracking_number { get; set; }
             public string request_id { get; set; }
             public string msg { get; set; }
             public string error { get; set; }

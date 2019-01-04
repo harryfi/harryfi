@@ -435,7 +435,46 @@ namespace MasterOnline.Controllers
                 {
                     foreach (var item in result.data.products)
                     {
+                        string namaBrg = item.name;
+                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                        urlImage = "";
+                        urlImage2 = "";
+                        urlImage3 = "";
+                        if (namaBrg.Length > 30)
+                        {
+                            nama = namaBrg.Substring(0, 30);
+                            if (namaBrg.Length > 60)
+                            {
+                                nama2 = namaBrg.Substring(30, 30);
+                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                            }
+                            else
+                            {
+                                nama2 = namaBrg.Substring(30);
+                                nama3 = "";
+                            }
+                        }
+                        else
+                        {
+                            nama = namaBrg;
+                            nama2 = "";
+                            nama3 = "";
+                        }
 
+                        Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                        {
+                            SELLER_SKU = item.sku,
+                            BRG_MP = Convert.ToString(item.id),
+                            NAMA = nama,
+                            NAMA2 = nama2,
+                            NAMA3 = nama3,
+                            CATEGORY_CODE = Convert.ToString(item.category_id),
+                            CATEGORY_NAME = item.category_name,
+                            
+                            CUST = CUST,
+
+                        }
+                        ;
                     }
                 }
             }
