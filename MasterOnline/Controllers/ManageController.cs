@@ -10910,7 +10910,8 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
 
             //add by calvin 26 desember 2018
-            var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+            //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+            var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
             var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
 
             if (customer.NAMA.Equals(kdShopee))
@@ -10954,7 +10955,8 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
 
                 //add by calvin 26 desember 2018
-                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+                //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
+                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
                 var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
 
                 if (customer.NAMA.Equals(kdShopee))
@@ -11020,12 +11022,14 @@ namespace MasterOnline.Controllers
 
                 if (dataVm.PromosiDetail.RecNum == null)
                 {
-                    dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
+                    //change by nurul 3/1/2019 -- dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
+                    dataVm.PromosiDetail.RecNumPromosi = dataVm.Promosi.RecNum;
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
                 }
 
                 //add by calvin 26 desember 2018
-                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                 var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
 
                 if (customer.NAMA.Equals(kdShopee))
@@ -11058,7 +11062,8 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
 
                     //add by calvin 26 desember 2018
-                    var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                    //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
+                    var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                     var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
 
                     if (customer.NAMA.Equals(kdShopee))

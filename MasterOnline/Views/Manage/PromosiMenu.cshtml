@@ -268,6 +268,7 @@
             //    });
 
             $('#tambah_promosi').on('click', function () {
+                $modeEdit = 0;
                 refreshForm1();
             });
 
@@ -543,6 +544,11 @@
                         },
                     });
                     //change by calvin 7 juni 2018, set silent jadi true, agar event onchange tidak jalan saat set Promosi_NAMA_MARKET saat buka form promosi
+                    if ($modeEdit == 1) {
+                            $('#CUSTOMER')[0].selectize.disable();
+                    } else {
+                        $('#CUSTOMER')[0].selectize.enable();
+                    }
                     custSelect[0].selectize.setValue($('#Promosi_NAMA_MARKET').val(),true);
                     //end change by calvin 7 juni 2018
 
@@ -676,7 +682,14 @@
                     getTanggal();
                     getDataBarang();
                     getMarketplace();
-
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                                //END ADD
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
                     $('.promosi_editor_section').show();
@@ -734,10 +747,21 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $modeEdit = 1;
                     $('#form-partial').html(response);
+                    refreshInputan();
                     getTanggal();
-                    getMarketplace();
                     getDataBarang();
+                    getMarketplace();
+                    //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                    $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+
+                                //END ADD
                     $('#konfHapusBarang').modal('hide');
                     $('#loading_spinner').hide();
                 },
@@ -819,11 +843,24 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
+                                //add by nurul 3/1/2019
+                                $modeEdit = 1;
+                                //end add
                                 $('#form-partial').html(response);
                                 refreshInputan();
                                 getTanggal();
                                 getDataBarang();
                                 getMarketplace();
+                                //ADD BY NURUL 2/1/2019 (HIDDEN HEADER KALO UDAH ADA DETAIL)
+                                $('#Promosi_NAMA_PROMOSI').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                //$('#Promosi_NAMA_MARKET').attr('readonly', 'readonly').css('background-color', '#eee')
+                                //.css('cursor', 'not-allowed');
+                                $('#TGL_MULAI').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
+                                    .css('cursor', 'not-allowed');
+                                //END ADD
                             } else {
                                 console.log(response.Errors);
                                 alert(response.Errors[0]);

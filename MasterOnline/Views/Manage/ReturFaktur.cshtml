@@ -1547,26 +1547,55 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#form-partial').html(response);
-                    $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
-                    refreshInputan();
-                    getTanggal();
-                    getMarketplace();
-                    getFaktur(false);
-                    $('#tambah_faktur').click();
-                    $nettoSebelumnya += $bakalNetto;
-                    //add by nurul 16/11/2018
-                    $(' select ').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
-                    getDataReturFaktur();
-                    //end add
-                    $('tr[data-faktur-id="0"]').hide();
-                    //$("#btn-autoload-row").hide();
-                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
-                    $('#btn-simpan-perubahan-row').hide();
-                    $('#konfHapusBarang').modal('hide');
-                    $('#loading_spinner').hide();
+                    //change by nurul 3/1/2019
+                    //$('#form-partial').html(response);
+                    //$totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                    //refreshInputan();
+                    //getTanggal();
+                    //getMarketplace();
+                    //getFaktur(false);
+                    //$('#tambah_faktur').click();
+                    //$nettoSebelumnya += $bakalNetto;
+                    ////add by nurul 16/11/2018
+                    //$(' select ').each(function () {
+                    //    $(this).attr('disabled', 'disabled');
+                    //});
+                    //getDataReturFaktur();
+                    ////end add
+                    //$('tr[data-faktur-id="0"]').hide();
+                    ////$("#btn-autoload-row").hide();
+                    ////change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    //$('#btn-simpan-perubahan-row').hide();
+                    //$('#konfHapusBarang').modal('hide');
+                    //$('#loading_spinner').hide();
+
+                    if (response.Errors != undefined) {
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                        alert(response.Errors[0]);
+                    } else {
+                        $('#form-partial').html(response);
+                        $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                        refreshInputan();
+                        getTanggal();
+                        getMarketplace();
+                        getFaktur(false);
+                        $('#tambah_faktur').click();
+                        $nettoSebelumnya += $bakalNetto;
+                        //add by nurul 16/11/2018
+                        $(' select ').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        getDataReturFaktur();
+                        //end add
+                        $('tr[data-faktur-id="0"]').hide();
+                        //$("#btn-autoload-row").hide();
+                        //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                        $('#btn-simpan-perubahan-row').hide();
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                    }
+                    //end change by nurul 
                 },
                 error: function (xhr) {
                     console.log(xhr);
