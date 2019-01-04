@@ -16,6 +16,7 @@ using Erasoft.Function;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Security.Cryptography;
+using System.Net.Http;
 
 namespace MasterOnline.Controllers
 {
@@ -1756,13 +1757,28 @@ namespace MasterOnline.Controllers
             string myData = JsonConvert.SerializeObject(HttpBody);
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+            string responseFromServer = "";
+
+            //var client = new HttpClient();
+            //client.DefaultRequestHeaders.Add("Authorization", signature);
+            //var content = new FormUrlEncodedContent(ToKeyValue(HttpBody));
+
+            //HttpResponseMessage clientResponse = await client.PostAsync(
+            //    urll, content);
+
+            //using (HttpContent responseContent = clientResponse.Content)
+            //{
+            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    {
+            //        responseFromServer = await reader.ReadToEndAsync();
+            //    }
+            //};
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
             myReq.Headers.Add("Authorization", signature);
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
-            string responseFromServer = "";
             try
             {
                 myReq.ContentLength = myData.Length;
@@ -1791,7 +1807,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeInitLogisticResult)) as ShopeeInitLogisticResult;
-                    if (result.error == null)
+                    if ((result.error == null ? "" : result.error) == "")
                     {
                         if (!string.IsNullOrWhiteSpace(result.tracking_no) || !string.IsNullOrWhiteSpace(result.tracking_number))
                         {
@@ -1800,7 +1816,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (dTrackNo == "")
                                 {
-                                    dTrackNo = (result.tracking_no == null || result.tracking_no == "" ) ? (result.tracking_number) : result.tracking_no;
+                                    dTrackNo = ((result.tracking_no == null ? "" : result.tracking_no) == "") ? (result.tracking_number) : result.tracking_no;
                                 }
                                 string nilaiTRACKING_SHIPMENT = "D[;]" + dBranch + "[;]" + dSender + "[;]" + dTrackNo;
                                 pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
@@ -3791,7 +3807,47 @@ namespace MasterOnline.Controllers
             //).TotalMilliseconds;
             return (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         }
+        public IDictionary<string, string> ToKeyValue(object metaToken)
+        {
+            if (metaToken == null)
+            {
+                return null;
+            }
 
+            Newtonsoft.Json.Linq.JToken token = metaToken as Newtonsoft.Json.Linq.JToken;
+            if (token == null)
+            {
+                return ToKeyValue(Newtonsoft.Json.Linq.JObject.FromObject(metaToken));
+            }
+
+            if (token.HasValues)
+            {
+                var contentData = new Dictionary<string, string>();
+                foreach (var child in token.Children().ToList())
+                {
+                    var childContent = ToKeyValue(child);
+                    if (childContent != null)
+                    {
+                        contentData = contentData.Concat(childContent)
+                                                 .ToDictionary(k => k.Key, v => v.Value);
+                    }
+                }
+
+                return contentData;
+            }
+
+            var jValue = token as Newtonsoft.Json.Linq.JValue;
+            if (jValue?.Value == null)
+            {
+                return null;
+            }
+
+            var value = jValue?.Type == Newtonsoft.Json.Linq.JTokenType.Date ?
+                            jValue?.ToString("o", System.Globalization.CultureInfo.InvariantCulture) :
+                            jValue?.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+            return new Dictionary<string, string> { { token.Path, value } };
+        }
         public class ShopeeAPIData
         {
             public string merchant_code { get; set; }
