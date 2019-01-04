@@ -16,7 +16,7 @@ using Erasoft.Function;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Security.Cryptography;
-
+using System.Net.Http;
 namespace MasterOnline.Controllers
 {
     public class TokopediaController : Controller
@@ -173,7 +173,7 @@ namespace MasterOnline.Controllers
                     break;
             }
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
-            long unixTimestampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
             string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=1&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
 
@@ -316,6 +316,171 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public async Task<string> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/1/100";
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Item List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+
+            }
+            return ret;
+        }
+
+        public async Task<string> GetActiveItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST)
+        {
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            //order by name
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
+            string queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=100&start=0&product_id=&order_by=12&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Item List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            //debug
+            string responseFromServer = "";
+            //var client = new HttpClient();
+            //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+            //HttpResponseMessage clientResponse = await client.GetAsync(
+            //    urll + queryParam);
+
+            //using (HttpContent responseContent = clientResponse.Content)
+            //{
+            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    {
+            //        responseFromServer = await reader.ReadToEndAsync();
+            //    }
+            //};
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + queryParam);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
+                if (result.header.error_code == 0)
+                {
+                    foreach (var item in result.data.products)
+                    {
+                        string namaBrg = item.name;
+                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                        urlImage = "";
+                        urlImage2 = "";
+                        urlImage3 = "";
+                        if (namaBrg.Length > 30)
+                        {
+                            nama = namaBrg.Substring(0, 30);
+                            if (namaBrg.Length > 60)
+                            {
+                                nama2 = namaBrg.Substring(30, 30);
+                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                            }
+                            else
+                            {
+                                nama2 = namaBrg.Substring(30);
+                                nama3 = "";
+                            }
+                        }
+                        else
+                        {
+                            nama = namaBrg;
+                            nama2 = "";
+                            nama3 = "";
+                        }
+
+                        Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                        {
+                            SELLER_SKU = item.sku,
+                            BRG_MP = Convert.ToString(item.id),
+                            NAMA = nama,
+                            NAMA2 = nama2,
+                            NAMA3 = nama3,
+                            CATEGORY_CODE = Convert.ToString(item.category_id),
+                            CATEGORY_NAME = item.category_name,
+                            
+                            CUST = CUST,
+
+                        }
+                        ;
+                    }
+                }
+            }
+            return ret;
+        }
+
         //public TokopediaToken GetToken(TokopediaAPIData data, bool syncData)
         public TokopediaToken GetToken()
         {
@@ -468,11 +633,11 @@ namespace MasterOnline.Controllers
                                         oCommand.Parameters[0].Value = item.id;
                                         oCommand.Parameters[1].Value = item.name;
                                         oCommand.Parameters[2].Value = "";
-                                        oCommand.Parameters[3].Value = item.child.Count() == 0 ? "1" : "0";
+                                        oCommand.Parameters[3].Value = item.child == null ? "1" : item.child.Count() == 0 ? "1" : "0";
                                         oCommand.Parameters[4].Value = "";
                                         if (oCommand.ExecuteNonQuery() == 1)
                                         {
-                                            if (item.child.Count() > 0)
+                                            if ((item.child == null ? 0 : item.child.Count()) > 0)
                                             {
                                                 RecursiveInsertCategory(oCommand, item.child, item.id, item.id, data);
                                             }
@@ -502,12 +667,12 @@ namespace MasterOnline.Controllers
                 oCommand.Parameters[0].Value = child.id;
                 oCommand.Parameters[1].Value = child.name;
                 oCommand.Parameters[2].Value = parent;
-                oCommand.Parameters[3].Value = child.child.Count() == 0 ? "1" : "0";
+                oCommand.Parameters[3].Value = child.child == null ? "1" : child.child.Count() == 0 ? "1" : "0";
                 oCommand.Parameters[4].Value = master_category_code;
 
                 if (oCommand.ExecuteNonQuery() == 1)
                 {
-                    if (child.child.Count() > 0)
+                    if ((child.child == null ? 0 : child.child.Count()) > 0)
                     {
                         RecursiveInsertCategory(oCommand, child.child, child.id, master_category_code, data);
                     }
@@ -835,6 +1000,82 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public string id { get; set; }
             public CategoryChild[] child { get; set; }
+        }
+
+        public class ActiveProductListResult
+        {
+            public ActiveProductListResultHeader header { get; set; }
+            public ActiveProductListResultData data { get; set; }
+        }
+
+        public class ActiveProductListResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class ActiveProductListResultData
+        {
+            public int total_data { get; set; }
+            public ActiveProductListResultShop shop { get; set; }
+            public ActiveProductListResultProduct[] products { get; set; }
+        }
+
+        public class ActiveProductListResultShop
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public string uri { get; set; }
+            public string location { get; set; }
+        }
+
+        public class ActiveProductListResultProduct
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public int[] childs { get; set; }
+            public string url { get; set; }
+            public string image_url { get; set; }
+            public string image_url_700 { get; set; }
+            public string price { get; set; }
+            public ActiveProductListResultShop1 shop { get; set; }
+            public object[] wholesale_price { get; set; }
+            public int courier_count { get; set; }
+            public int condition { get; set; }
+            public int category_id { get; set; }
+            public string category_name { get; set; }
+            public string category_breadcrumb { get; set; }
+            public int department_id { get; set; }
+            public object[] labels { get; set; }
+            public ActiveProductListResultBadge[] badges { get; set; }
+            public int is_featured { get; set; }
+            public int rating { get; set; }
+            public int count_review { get; set; }
+            public string original_price { get; set; }
+            public string discount_expired { get; set; }
+            public int discount_percentage { get; set; }
+            public string sku { get; set; }
+            public int stock { get; set; }
+        }
+
+        public class ActiveProductListResultShop1
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public string url { get; set; }
+            public bool is_gold { get; set; }
+            public string location { get; set; }
+            public string city { get; set; }
+            public string reputation { get; set; }
+            public string clover { get; set; }
+        }
+
+        public class ActiveProductListResultBadge
+        {
+            public string title { get; set; }
+            public string image_url { get; set; }
         }
 
     }

@@ -41,6 +41,7 @@
     <link href="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
     <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
     <link href="~/Content/ManageSite.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/timeout-dialog.css" type="text/css" media="screen, projection" />
     <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
     <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -161,10 +162,21 @@
         .site_title {
             overflow: visible;
         }
+
+        #bg-timeout {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: #000000;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
     </style>
 </head>
 <body class="nav-md">
     <div class="container body">
+        <div id="bg-timeout"></div>
         <div class="main_container">
             <div class="col-md-3 left_col">
                 <div class="left_col scroll-view">
@@ -480,7 +492,36 @@
     <script src="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
     <script src="~/Content/build/js/custom.min.js"></script>
     <script src="~/Scripts/jquery.number.js"></script>
+    <script
+        src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+        crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="~/Content/timeout-dialog.js"></script>
+    <script type="text/javascript">
+        var inactivityTime = function () {
+            var t;
+            window.onload = resetTimer;
+            // DOM Events
+            document.onmousemove = resetTimer;
+            document.onkeypress = resetTimer;
+
+            function reloginSession() {
+                $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
+            }
+
+            function logout() {
+                reloginSession();
+            }
+
+            function resetTimer() {
+                clearTimeout(t);
+                t = setTimeout(logout, 120000);
+            }
+        };
+
+        inactivityTime();
+    </script>   
     <script type="text/javascript">
         $(".alert").fadeTo(4000, 500).slideUp(500, function () {
             $(".alert").slideUp(500);
@@ -489,6 +530,7 @@
         var counter = 0;
 
         $(document).ready(function () {
+
             @if (dataSession?.User != null)
             {
                 if (dataSession.User.UserId != null)

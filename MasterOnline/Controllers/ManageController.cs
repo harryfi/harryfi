@@ -63,6 +63,13 @@ namespace MasterOnline.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("manage/keepsession")]
+        public JsonResult KeepSessionAlive()
+        {
+            return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
+        }
+
         protected override void Dispose(bool disposing)
         {
             MoDbContext.Dispose();
@@ -256,7 +263,7 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
-            ////remark by calvin 13 desember 2018, testing
+            //remark by calvin 13 desember 2018, testing
             var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
@@ -323,43 +330,45 @@ namespace MasterOnline.Controllers
                     lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
-            ////end remark by calvin 13 desember 2018, testing
+            //end remark by calvin 13 desember 2018, testing
 
-            ////var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            ////var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
-            ////if (listTokPed.Count > 0)
-            ////{
-            ////    foreach (ARF01 tblCustomer in listTokPed)
-            ////    {
-            ////        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
-            ////        {
-            ////var tokopediaApi = new TokopediaController();
+            //var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            //var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            //if (listTokPed.Count > 0)
+            //{
+            //    foreach (ARF01 tblCustomer in listTokPed)
+            //    {
+            //        if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+            //        {
+            //            var tokopediaApi = new TokopediaController();
 
-            ////            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
-            ////            //{
-            ////            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
-            ////            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-            ////            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-            ////            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-            ////            //    token = tblCustomer.TOKEN
-            ////            //};
-            ////TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-            ////{
-            ////    merchant_code = "13072", //FSID
-            ////    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-            ////    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-            ////    API_secret_key = "2619296", //Shop ID 
-            ////    token = "a9azcD8-R12AljUWpiTttw"
-            ////};
+            //            //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+            //            //{
+            //            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+            //            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+            //            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+            //            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+            //            //    token = tblCustomer.TOKEN
+            //            //};
+            //            TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+            //            {
+            //                merchant_code = "13072", //FSID
+            //                API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+            //                API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+            //                API_secret_key = "2619296", //Shop ID 
+            //                token = "GwGhkku4QYW_RjI_lUQqBg"
+            //            };
 
-            ////            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            ////await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
-            ////await tokopediaApi.GetCategoryTree(idenTest);
-            ////            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
-            ////            await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
-            ////        }
-            ////    }
-            ////}
+            //            //tokopediaApi.GetToken();
+            //            await tokopediaApi.GetActiveItemList(idenTest, connectionID, "", "");
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, "", "");
+            //            //await tokopediaApi.GetCategoryTree(idenTest);
+            //            //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+            //            //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
+            //        }
+            //    }
+            //}
 
             var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
@@ -1491,7 +1500,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-            }           
+            }
 
             return Json(listKategoriEle.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
@@ -5977,7 +5986,7 @@ namespace MasterOnline.Controllers
                         orderItemIds.Add(tbl.ORDER_ITEM_ID);
                     }
                     var retApi = lzdApi.GetLabel(orderItemIds, marketPlace.TOKEN);
-                    if(retApi.code == "0")
+                    if (retApi.code == "0")
                     {
                         var htmlString = System.Text.Encoding.UTF8.GetString(System.Convert.FromBase64String(retApi.data.document.file));
                         #region add button cetak
@@ -6280,8 +6289,8 @@ namespace MasterOnline.Controllers
                 nilaiTRACKING_SHIPMENT = "N[;]" + nTrackNo;
             }
 
-            pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
-            ErasoftDbContext.SaveChanges();
+            //pesananInDb.TRACKING_SHIPMENT = nilaiTRACKING_SHIPMENT;
+            //ErasoftDbContext.SaveChanges();
 
             if (changeStat)
             {
@@ -6311,7 +6320,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = dTrackNo;
                     }
-                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch,dSender,dTrackNo);
                 }
                 else if (metode == "1") // PICKUP
                 {
@@ -6328,7 +6337,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.pickup_time_id = pTime;
                     }
-                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value,nilaiTRACKING_SHIPMENT);
                 }
                 else if (metode == "2") // NON INTEGRATED
                 {
@@ -6340,7 +6349,7 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = nTrackNo;
                     }
-                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail);
+                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
                 }
             }
             return new EmptyResult();
@@ -13211,10 +13220,38 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public async Task<string> testAja(string page)
+        public ActionResult CreateSTF02HTokped(string cust)
         {
-            await Task.Delay(5000);
-            return (Convert.ToInt32(page) + 1).ToString();
+            if (!string.IsNullOrEmpty(cust))
+            {
+                var marketplace = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault();
+                var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                if (marketplace != null && tokped != null)
+                {
+                    if (marketplace.NAMA == tokped.IdMarket.ToString())
+                    {
+                        SqlCommand CommandSQL = new SqlCommand();
+                        CommandSQL.Parameters.Add("@idmarket", SqlDbType.Int).Value = marketplace.RecNum;
+                        CommandSQL.Parameters.Add("@username", SqlDbType.NVarChar, 30).Value = "AUTO_CREATE_SP";
+                        CommandSQL.Parameters.Add("@akunmarket", SqlDbType.NVarChar, 50).Value = marketplace.PERSO;
+                        EDB.ExecuteSQL("MOConnectionString", "autocreate_stf02h_tokped", CommandSQL);
+                        return Json("sukses", JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Akun yang anda pilih bukan akun dari marketplace Tokopedia");
+                    }
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Akun tidak ditemukan");
+                }
+
+
+            }
+            return JsonErrorMessage("Akun tidak ada");
+
         }
         public ActionResult GetTotalData(string cust)
         {
@@ -13238,43 +13275,6 @@ namespace MasterOnline.Controllers
 
             return Json(ret, JsonRequestBehavior.AllowGet);
         }
-        #region test progress bar
-        delegate string ProcessTask(string id);
-        MyLongRunningClass longRunningClass = new MyLongRunningClass();
-
-        /// <summary>
-        /// Starts the long running process.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public void StartLongRunningProcess(string id)
-        {
-            longRunningClass.Add(id);
-            ProcessTask processTask = new ProcessTask(longRunningClass.ProcessLongRunningAction);
-            processTask.BeginInvoke(id, new AsyncCallback(EndLongRunningProcess), processTask);
-        }
-
-        /// <summary>
-        /// Ends the long running process.
-        /// </summary>
-        /// <param name="result">The result.</param>
-        public void EndLongRunningProcess(IAsyncResult result)
-        {
-            ProcessTask processTask = (ProcessTask)result.AsyncState;
-            string id = processTask.EndInvoke(result);
-            longRunningClass.Remove(id);
-        }
-
-        /// <summary>
-        /// Gets the current progress.
-        /// </summary>
-        /// <param name="id">The id.</param>
-        public ContentResult GetCurrentProgress(string id)
-        {
-            this.ControllerContext.HttpContext.Response.AddHeader("cache-control", "no-cache");
-            var currentProgress = longRunningClass.GetStatus(id).ToString();
-            return Content(currentProgress);
-        }
-        #endregion
         // =============================================== Bagian Upload Barang (END)
         protected double GetQOHSTF08A(string Barang, string Gudang)
         {
