@@ -185,15 +185,26 @@
                 @{
                     var listRekening = Model.ListRekening.ToList();
                     var iPd = 0;
+                    
                 }
                 @foreach (var jurnal in Model.ListJurnalDetail.Where(pb => pb.bukti == Model?.Jurnal?.bukti).ToList())
                 {
+                    
                     <tr data-rekening-id="rek-@jurnal.no">
                         <td>
                             @jurnal.rek
                         </td>
                         <td class="nama-rekening">
-                            @listRekening.Single(b => b.KODE == jurnal.rek).NAMA
+                            @*change by nurul 4/1/2019 -- @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA*@
+                            @if (listRekening.SingleOrDefault(b => b.KODE == jurnal.rek) == null)
+                            {
+                                @(jurnal.rek)
+                            }
+                            else
+                            {
+                                @listRekening.SingleOrDefault(b => b.KODE == jurnal.rek).NAMA
+                            }
+                            @*end change*@
                         </td>
                         <td class="dk-rekening">
                             @if (jurnal.dk == "D")
