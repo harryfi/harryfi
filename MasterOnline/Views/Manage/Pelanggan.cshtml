@@ -1090,8 +1090,11 @@
                                             }
                                         }
                                         else if (response.marketplace == "SHOPEE") {
-                                            GetShopeeShopId(custCode);
+                                            if (confirm("Generate New API Key?")) {
+                                                GetShopeeShopId(custCode);
+                                            }
                                         }
+                                        $('#loading_spinner').hide();
                                     } else {
                                         $('#table-customer-partial').html(response);
                                         Initialize();
