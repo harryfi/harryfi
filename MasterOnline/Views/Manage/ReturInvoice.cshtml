@@ -1486,28 +1486,59 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $modeEdit = 1; // 0 new, 1 edit
+                    //change by nurul 3/1/2019
+                    //$modeEdit = 1; // 0 new, 1 edit
 
-                    $('#form-partial').html(response);
-                    refreshInputan();
-                    getTanggal();
-                    getSupplier();
-                    getInvoice(false);
-                    $('#tambah_invoice').click();
-                    $nettoSebelumnya += $bakalNetto;
-                    $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
-                    //ADD BY NURUL 16/11/2018
-                    $(' select ').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
-                    getDataReturInvoice();
-                    //END ADD
-                    $('tr[data-invoice-id="0"]').hide();
-                    //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
-                    $('#btn-simpan-perubahan-row').hide();
-                    //$("#btn-autoload-row").hide();
-                    $('#konfHapusBarang').modal('hide');
-                    $('#loading_spinner').hide();
+                    //$('#form-partial').html(response);
+                    //refreshInputan();
+                    //getTanggal();
+                    //getSupplier();
+                    //getInvoice(false);
+                    //$('#tambah_invoice').click();
+                    //$nettoSebelumnya += $bakalNetto;
+                    //$totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
+                    ////ADD BY NURUL 16/11/2018
+                    //$(' select ').each(function () {
+                    //    $(this).attr('disabled', 'disabled');
+                    //});
+                    //getDataReturInvoice();
+                    ////END ADD
+                    //$('tr[data-invoice-id="0"]').hide();
+                    ////change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                    //$('#btn-simpan-perubahan-row').hide();
+                    ////$("#btn-autoload-row").hide();
+                    //$('#konfHapusBarang').modal('hide');
+                    //$('#loading_spinner').hide();
+
+                    if (response.Errors != undefined) {
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                        alert(response.Errors[0]);
+                    } else {
+                        $modeEdit = 1; // 0 new, 1 edit
+
+                        $('#form-partial').html(response);
+                        refreshInputan();
+                        getTanggal();
+                        getSupplier();
+                        getInvoice(false);
+                        $('#tambah_invoice').click();
+                        $nettoSebelumnya += $bakalNetto;
+                        $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
+                        //ADD BY NURUL 16/11/2018
+                        $(' select ').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        getDataReturInvoice();
+                        //END ADD
+                        $('tr[data-invoice-id="0"]').hide();
+                        //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
+                        $('#btn-simpan-perubahan-row').hide();
+                        //$("#btn-autoload-row").hide();
+                        $('#konfHapusBarang').modal('hide');
+                        $('#loading_spinner').hide();
+                    }
+                    //end change 
                 },
                 error: function (xhr) {
                     console.log(xhr);

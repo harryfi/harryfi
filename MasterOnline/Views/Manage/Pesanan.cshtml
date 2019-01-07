@@ -2624,10 +2624,10 @@
                         $('#loading_spinner').hide();
                         $('#btn-simpan-perubahan-row').hide();
                         //add by nurul 6/11/2018
-                        $('#myTab li a').each(function (index) {
-                            $(this).attr('data-toggle', 'tab');
-                            $(this).removeClass('disabled-tab');
-                        });
+                        //$('#myTab li a').each(function (index) {
+                        //    $(this).attr('data-toggle', 'tab');
+                        //    $(this).removeClass('disabled-tab');
+                        //});
                         //end add by nurul 6/11/2018
                     },
                     error: function(xhr) {
@@ -4638,10 +4638,10 @@
             //    return;
             //}
 
-            if ($readyToShip == false && $statusPesanan == '03') {
-                alert('Isi semua gudang / qty terlebih dahulu!');
-                return;
-            }
+            //if ($readyToShip == false && $statusPesanan == '03') {
+            //    alert('Isi semua gudang / qty terlebih dahulu!');
+            //    return;
+            //}
 
             if ($statusPesanan == '03-undo')
                 $statusPesanan = '03';
