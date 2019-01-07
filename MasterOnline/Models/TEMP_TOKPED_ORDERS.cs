@@ -12,13 +12,17 @@ namespace MasterOnline
     {
         public string fs_id { get; set; }
 
+        [Key]
+        [Column(Order = 0)]
         public string order_id { get; set; }
 
         public bool? accept_partial { get; set; }
 
         public string invoice_ref_num { get; set; }
 
-        public int? product_id { get; set; }
+        [Key]
+        [Column(Order = 1)]
+        public int product_id { get; set; }
 
         public string product_name { get; set; }
 
@@ -110,9 +114,15 @@ namespace MasterOnline
 
         public int? order_status { get; set; }
 
-        public int? create_time { get; set; }
+        public DateTime create_time { get; set; }
 
         public string custom_fields_awb { get; set; }
+
+        [Key]
+        [Column(Order = 2)]
+        public string conn_id { get; set; }
+        public string CUST { get; set; }
+        public string NAMA_CUST { get; set; }
 
     }
 
