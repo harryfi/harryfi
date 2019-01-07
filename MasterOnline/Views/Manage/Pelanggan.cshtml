@@ -1090,11 +1090,16 @@
                                             }
                                         }
                                         else if (response.marketplace == "SHOPEE") {
-                                            if (confirm("Generate New API Key?")) {
+                                            //change by nurul 7/1/2019
+                                            //GetShopeeShopId(custCode);
+                                            if (confirm("Authorization Shopee account?")) {
                                                 GetShopeeShopId(custCode);
                                             }
+                                            //end change
                                         }
+                                        //add by nurul 7/1/2019
                                         $('#loading_spinner').hide();
+                                        //end add
                                     } else {
                                         $('#table-customer-partial').html(response);
                                         Initialize();
