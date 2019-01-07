@@ -1837,31 +1837,38 @@
         });
 
         var table = $('#datatable').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableNunggu = $('#datatable_nunggu').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSedangProses = $('#datatable_sedangproses').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSiapKirim = $('#datatable_siapkirim').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSudahKirim = $('#datatable_sudahkirim').DataTable({
-            "order": [[0, 2, "desc"]], //or asc
+            //"order": [[0, 2, "desc"]], //or asc
+            "order": [[2, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 2, "type": "date-eu" }],
         });
         var tableSelesai = $('#datatable_selesai').DataTable({
-            "order": [[0, 2, "desc"]], //or asc
+            //"order": [[0, 2, "desc"]], //or asc
+            "order": [[2, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 2, "type": "date-eu" }],
         });
         var tableCancel = $('#datatable_cancel').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
@@ -3634,7 +3641,8 @@
                     $('#tambah_pesanan').remove();
                     $('#table-pesanan-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_pesanan').keyup(function() {
@@ -3666,7 +3674,8 @@
                 success: function(response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
                     var table = $('#datatable_nunggu').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_nunggu').keyup(function() {
@@ -3697,7 +3706,8 @@
                 success: function(response) {
                     $('#table-pesanan-siap-kirim-partial').html(response);
                     var table = $('#datatable_sedangproses').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_sedangproses').keyup(function() {
@@ -3728,7 +3738,8 @@
                 success: function(response) {
                     $('#table-pesanan-sudah-kirim-partial').html(response);
                     var table = $('#datatable_sudahkirim').DataTable({
-                        "order": [[0, 2, "desc"]], //or asc
+                        //"order": [[0, 2, "desc"]], //or asc
+                        "order": [[2, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
                     });
                     $('#search_sudahkirim').keyup(function() {
@@ -3759,7 +3770,8 @@
                 success: function(response) {
                     $('#table-pesanan-selesai-partial').html(response);
                     var table = $('#datatable_selesai').DataTable({
-                        "order": [[0, 2, "desc"]], //or asc
+                        //"order": [[0, 2, "desc"]], //or asc
+                        "order": [[2, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
                     });
                     $('#search_selesai').keyup(function() {
@@ -3790,7 +3802,8 @@
                 success: function(response) {
                     $('#table-pesanan-cancel-partial').html(response);
                     var table = $('#datatable_cancel').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_cancel').keyup(function() {
