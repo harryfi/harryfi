@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -345,7 +345,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST)
+        public async Task<string> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, string product_id)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -356,7 +356,7 @@ namespace MasterOnline.Controllers
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
-            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/1/100";
+            string urll = "https://fs.tokopedia.net/v1/products/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/1/100?product_id=" + Uri.EscapeDataString(product_id);
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -420,7 +420,7 @@ namespace MasterOnline.Controllers
             //};
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
-            //debug
+
             string responseFromServer = "";
             //var client = new HttpClient();
             //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
@@ -463,49 +463,129 @@ namespace MasterOnline.Controllers
                 {
                     foreach (var item in result.data.products)
                     {
-                        string namaBrg = item.name;
-                        string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                        urlImage = "";
-                        urlImage2 = "";
-                        urlImage3 = "";
-                        if (namaBrg.Length > 30)
+                        bool adaChild = false;
+                        if (item.childs != null)
                         {
-                            nama = namaBrg.Substring(0, 30);
-                            if (namaBrg.Length > 60)
+                            if (item.childs.Count() > 0)
                             {
-                                nama2 = namaBrg.Substring(30, 30);
-                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                adaChild = true;
+                                await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, Convert.ToString(item.id));
+                            }
+                        }
+                        if (!adaChild)
+                        {
+                            string namaBrg = item.name;
+                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                            urlImage = "";
+                            urlImage2 = "";
+                            urlImage3 = "";
+                            if (namaBrg.Length > 30)
+                            {
+                                nama = namaBrg.Substring(0, 30);
+                                if (namaBrg.Length > 60)
+                                {
+                                    nama2 = namaBrg.Substring(30, 30);
+                                    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                }
+                                else
+                                {
+                                    nama2 = namaBrg.Substring(30);
+                                    nama3 = "";
+                                }
                             }
                             else
                             {
-                                nama2 = namaBrg.Substring(30);
+                                nama = namaBrg;
+                                nama2 = "";
                                 nama3 = "";
                             }
+                            var dsa = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(item.id));
+                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                            {
+                                SELLER_SKU = item.sku,
+                                BRG_MP = Convert.ToString(item.id),
+                                NAMA = nama,
+                                NAMA2 = nama2,
+                                NAMA3 = nama3,
+                                CATEGORY_CODE = Convert.ToString(item.category_id),
+                                CATEGORY_NAME = item.category_name,
+                                IDMARKET = recnumArf01,
+                                IMAGE = item.image_url_700,
+                                CUST = CUST
+                            };
                         }
-                        else
-                        {
-                            nama = namaBrg;
-                            nama2 = "";
-                            nama3 = "";
-                        }
-
-                        Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                        {
-                            SELLER_SKU = item.sku,
-                            BRG_MP = Convert.ToString(item.id),
-                            NAMA = nama,
-                            NAMA2 = nama2,
-                            NAMA3 = nama3,
-                            CATEGORY_CODE = Convert.ToString(item.category_id),
-                            CATEGORY_NAME = item.category_name,
-                            IDMARKET = recnumArf01,
-                            IMAGE = item.image_url_700,
-
-                            CUST = CUST,
-
-                        }
-                        ;
                     }
+                }
+            }
+            return ret;
+        }
+
+        public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, string product_id)
+        {
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            //order by name
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/variant/" + Uri.EscapeDataString(product_id);
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Item List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            string responseFromServer = "";
+            //var client = new HttpClient();
+            //client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+            //HttpResponseMessage clientResponse = await client.GetAsync(
+            //    urll + queryParam);
+
+            //using (HttpContent responseContent = clientResponse.Content)
+            //{
+            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    {
+            //        responseFromServer = await reader.ReadToEndAsync();
+            //    }
+            //};
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
+                if (result.header.error_code == 200)
+                {
+                    var dsa = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(product_id));
+
                 }
             }
             return ret;
@@ -690,250 +770,250 @@ namespace MasterOnline.Controllers
         }
 
 
-//        public async Task<string> GetAttribute(TokopediaAPIData data, string catid)
-//        {
-//            string ret = "";
+        //        public async Task<string> GetAttribute(TokopediaAPIData data, string catid)
+        //        {
+        //            string ret = "";
 
-//            long milis = CurrentTimeMillis();
-//            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+        //            long milis = CurrentTimeMillis();
+        //            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-//            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(catid);
+        //            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(catid);
 
-//            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//            myReq.Method = "GET";
-//            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
-//            myReq.Accept = "application/x-www-form-urlencoded";
-//            myReq.ContentType = "application/json";
-//            string responseFromServer = "";
-//            try
-//            {
-//                using (WebResponse response = await myReq.GetResponseAsync())
-//                {
-//                    using (Stream stream = response.GetResponseStream())
-//                    {
-//                        StreamReader reader = new StreamReader(stream);
-//                        responseFromServer = reader.ReadToEnd();
-//                    }
-//                }
-//            }
-//            catch (Exception ex)
-//            {
+        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //            myReq.Method = "GET";
+        //            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+        //            myReq.Accept = "application/x-www-form-urlencoded";
+        //            myReq.ContentType = "application/json";
+        //            string responseFromServer = "";
+        //            try
+        //            {
+        //                using (WebResponse response = await myReq.GetResponseAsync())
+        //                {
+        //                    using (Stream stream = response.GetResponseStream())
+        //                    {
+        //                        StreamReader reader = new StreamReader(stream);
+        //                        responseFromServer = reader.ReadToEnd();
+        //                    }
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
 
-//            }
+        //            }
 
-//            if (responseFromServer != null)
-//            {
-//                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(categoryAPIResult)) as categoryAPIResult;
-//                if (string.IsNullOrEmpty(result.header.reason))
-//                {
-//                    if (result.data.categories.Count() > 0)
-//                    {
-//#if AWS
-//                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
+        //            if (responseFromServer != null)
+        //            {
+        //                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(categoryAPIResult)) as categoryAPIResult;
+        //                if (string.IsNullOrEmpty(result.header.reason))
+        //                {
+        //                    if (result.data.categories.Count() > 0)
+        //                    {
+        //#if AWS
+        //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#elif Debug_AWS
+        //                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#else
+        //                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#endif
 
-//                        using (SqlConnection oConnection = new SqlConnection(con))
-//                        {
-//                            oConnection.Open();
-//                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-//                            //{
-//                            using (SqlCommand oCommand = oConnection.CreateCommand())
-//                            {
-//                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-//                                //oCommand.ExecuteNonQuery();
-//                                //oCommand.Transaction = oTransaction;
-//                                oCommand.CommandType = CommandType.Text;
-//                                oCommand.CommandText = "INSERT INTO [CATEGORY_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-//                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-//                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-//                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-//                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+        //                        using (SqlConnection oConnection = new SqlConnection(con))
+        //                        {
+        //                            oConnection.Open();
+        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+        //                            //{
+        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
+        //                            {
+        //                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+        //                                //oCommand.ExecuteNonQuery();
+        //                                //oCommand.Transaction = oTransaction;
+        //                                oCommand.CommandType = CommandType.Text;
+        //                                oCommand.CommandText = "INSERT INTO [CATEGORY_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
+        //                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+        //                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+        //                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
+        //                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
 
-//                                try
-//                                {
-//                                    //oCommand.Parameters[0].Value = data.merchant_code;
-//                                    foreach (var item in result.data.categories) //foreach parent level top
-//                                    {
-//                                        oCommand.Parameters[0].Value = item.id;
-//                                        oCommand.Parameters[1].Value = item.name;
-//                                        oCommand.Parameters[2].Value = "";
-//                                        oCommand.Parameters[3].Value = item.child == null ? "1" : item.child.Count() == 0 ? "1" : "0";
-//                                        oCommand.Parameters[4].Value = "";
-//                                        if (oCommand.ExecuteNonQuery() == 1)
-//                                        {
-//                                            if ((item.child == null ? 0 : item.child.Count()) > 0)
-//                                            {
-//                                                RecursiveInsertCategory(oCommand, item.child, item.id, item.id, data);
-//                                            }
-//                                            //throw new InvalidProgramException();
-//                                        }
-//                                    }
-//                                    //oTransaction.Commit();
-//                                }
-//                                catch (Exception ex)
-//                                {
-//                                    //oTransaction.Rollback();
-//                                }
-//                            }
-//                            //}
-//                        }
-//                        //await GetAttributeList(data);
-//                    }
-//                }
-//            }
+        //                                try
+        //                                {
+        //                                    //oCommand.Parameters[0].Value = data.merchant_code;
+        //                                    foreach (var item in result.data.categories) //foreach parent level top
+        //                                    {
+        //                                        oCommand.Parameters[0].Value = item.id;
+        //                                        oCommand.Parameters[1].Value = item.name;
+        //                                        oCommand.Parameters[2].Value = "";
+        //                                        oCommand.Parameters[3].Value = item.child == null ? "1" : item.child.Count() == 0 ? "1" : "0";
+        //                                        oCommand.Parameters[4].Value = "";
+        //                                        if (oCommand.ExecuteNonQuery() == 1)
+        //                                        {
+        //                                            if ((item.child == null ? 0 : item.child.Count()) > 0)
+        //                                            {
+        //                                                RecursiveInsertCategory(oCommand, item.child, item.id, item.id, data);
+        //                                            }
+        //                                            //throw new InvalidProgramException();
+        //                                        }
+        //                                    }
+        //                                    //oTransaction.Commit();
+        //                                }
+        //                                catch (Exception ex)
+        //                                {
+        //                                    //oTransaction.Rollback();
+        //                                }
+        //                            }
+        //                            //}
+        //                        }
+        //                        //await GetAttributeList(data);
+        //                    }
+        //                }
+        //            }
 
-//            return ret;
-//            var categories = MoDbContext.CategoryShopee.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
-//            foreach (var category in categories)
-//            {
-//                long seconds = CurrentTimeSecond();
-//                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+        //            return ret;
+        //            var categories = MoDbContext.CategoryShopee.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
+        //            foreach (var category in categories)
+        //            {
+        //                long seconds = CurrentTimeSecond();
+        //                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
-//                //ganti
-//                string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+        //                //ganti
+        //                string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
 
-//                //ganti
-//                ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
-//                {
-//                    partner_id = MOPartnerID,
-//                    shopid = Convert.ToInt32(iden.merchant_code),
-//                    timestamp = seconds,
-//                    language = "id",
-//                    category_id = Convert.ToInt32(category.CATEGORY_CODE)
-//                };
+        //                //ganti
+        //                ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
+        //                {
+        //                    partner_id = MOPartnerID,
+        //                    shopid = Convert.ToInt32(iden.merchant_code),
+        //                    timestamp = seconds,
+        //                    language = "id",
+        //                    category_id = Convert.ToInt32(category.CATEGORY_CODE)
+        //                };
 
-//                string myData = JsonConvert.SerializeObject(HttpBody);
+        //                string myData = JsonConvert.SerializeObject(HttpBody);
 
-//                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+        //                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
 
-//                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-//                myReq.Method = "POST";
-//                myReq.Headers.Add("Authorization", signature);
-//                myReq.Accept = "application/json";
-//                myReq.ContentType = "application/json";
-//                string responseFromServer = "";
-//                try
-//                {
-//                    myReq.ContentLength = myData.Length;
-//                    using (var dataStream = myReq.GetRequestStream())
-//                    {
-//                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-//                    }
-//                    using (WebResponse response = await myReq.GetResponseAsync())
-//                    {
-//                        using (Stream stream = response.GetResponseStream())
-//                        {
-//                            StreamReader reader = new StreamReader(stream);
-//                            responseFromServer = reader.ReadToEnd();
-//                        }
-//                    }
-//                }
-//                catch (Exception ex)
-//                {
-//                }
+        //                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+        //                myReq.Method = "POST";
+        //                myReq.Headers.Add("Authorization", signature);
+        //                myReq.Accept = "application/json";
+        //                myReq.ContentType = "application/json";
+        //                string responseFromServer = "";
+        //                try
+        //                {
+        //                    myReq.ContentLength = myData.Length;
+        //                    using (var dataStream = myReq.GetRequestStream())
+        //                    {
+        //                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+        //                    }
+        //                    using (WebResponse response = await myReq.GetResponseAsync())
+        //                    {
+        //                        using (Stream stream = response.GetResponseStream())
+        //                        {
+        //                            StreamReader reader = new StreamReader(stream);
+        //                            responseFromServer = reader.ReadToEnd();
+        //                        }
+        //                    }
+        //                }
+        //                catch (Exception ex)
+        //                {
+        //                }
 
-//                if (responseFromServer != null)
-//                {
-//                    try
-//                    {
-//                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
-//#if AWS
-//                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#elif Debug_AWS
-//                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#else
-//                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-//#endif
-//                        using (SqlConnection oConnection = new SqlConnection(con))
-//                        {
-//                            oConnection.Open();
-//                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-//                            //{
-//                            using (SqlCommand oCommand = oConnection.CreateCommand())
-//                            {
-//                                var AttributeInDb = MoDbContext.AttributeShopee.ToList();
-//                                //cek jika belum ada di database, insert
-//                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
-//                                if (cari.Count() == 0)
-//                                {
-//                                    oCommand.CommandType = CommandType.Text;
-//                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-//                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+        //                if (responseFromServer != null)
+        //                {
+        //                    try
+        //                    {
+        //                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
+        //#if AWS
+        //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#elif Debug_AWS
+        //                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#else
+        //                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+        //#endif
+        //                        using (SqlConnection oConnection = new SqlConnection(con))
+        //                        {
+        //                            oConnection.Open();
+        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+        //                            //{
+        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
+        //                            {
+        //                                var AttributeInDb = MoDbContext.AttributeShopee.ToList();
+        //                                //cek jika belum ada di database, insert
+        //                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
+        //                                if (cari.Count() == 0)
+        //                                {
+        //                                    oCommand.CommandType = CommandType.Text;
+        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
 
-//                                    string sSQL = "INSERT INTO [ATTRIBUTE_SHOPEE] ([CATEGORY_CODE], [CATEGORY_NAME],";
-//                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-//                                    string a = "";
-//                                    int i = 0;
-//                                    foreach (var attribs in result.attributes)
-//                                    {
-//                                        a = Convert.ToString(i + 1);
-//                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],[AMANDATORY_" + a + "],";
-//                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",@AMANDATORY_" + a + ",";
-//                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
-//                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
-//                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-//                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
-//                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY_" + a, SqlDbType.NVarChar, 1));
+        //                                    string sSQL = "INSERT INTO [ATTRIBUTE_SHOPEE] ([CATEGORY_CODE], [CATEGORY_NAME],";
+        //                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+        //                                    string a = "";
+        //                                    int i = 0;
+        //                                    foreach (var attribs in result.attributes)
+        //                                    {
+        //                                        a = Convert.ToString(i + 1);
+        //                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],[AMANDATORY_" + a + "],";
+        //                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",@AMANDATORY_" + a + ",";
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+        //                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY_" + a, SqlDbType.NVarChar, 1));
 
-//                                        a = Convert.ToString(i * 5 + 2);
-//                                        oCommand.Parameters[(i * 5) + 2].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 3].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 4].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 5].Value = "";
-//                                        oCommand.Parameters[(i * 5) + 6].Value = "";
+        //                                        a = Convert.ToString(i * 5 + 2);
+        //                                        oCommand.Parameters[(i * 5) + 2].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 3].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 4].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 5].Value = "";
+        //                                        oCommand.Parameters[(i * 5) + 6].Value = "";
 
-//                                        oCommand.Parameters[(i * 5) + 2].Value = attribs.attribute_id;
-//                                        oCommand.Parameters[(i * 5) + 3].Value = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
-//                                        oCommand.Parameters[(i * 5) + 4].Value = attribs.attribute_name;
-//                                        oCommand.Parameters[(i * 5) + 5].Value = attribs.options.Count() > 0 ? "1" : "0";
-//                                        oCommand.Parameters[(i * 5) + 6].Value = attribs.is_mandatory ? "1" : "0";
+        //                                        oCommand.Parameters[(i * 5) + 2].Value = attribs.attribute_id;
+        //                                        oCommand.Parameters[(i * 5) + 3].Value = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
+        //                                        oCommand.Parameters[(i * 5) + 4].Value = attribs.attribute_name;
+        //                                        oCommand.Parameters[(i * 5) + 5].Value = attribs.options.Count() > 0 ? "1" : "0";
+        //                                        oCommand.Parameters[(i * 5) + 6].Value = attribs.is_mandatory ? "1" : "0";
 
-//                                        if (attribs.options.Count() > 0)
-//                                        {
-//                                            var AttributeOptInDb = MoDbContext.AttributeOptShopee.AsNoTracking().ToList();
-//                                            foreach (var option in attribs.options)
-//                                            {
-//                                                var cariOpt = AttributeOptInDb.Where(p => p.ACODE == Convert.ToString(attribs.attribute_id) && p.OPTION_VALUE == option);
-//                                                if (cariOpt.Count() == 0)
-//                                                {
-//                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
-//                                                    {
-//                                                        oCommand2.CommandType = CommandType.Text;
-//                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_SHOPEE ([ACODE], [OPTION_VALUE]) VALUES (@ACODE, @OPTION_VALUE)";
-//                                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
-//                                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
-//                                                        oCommand2.Parameters[0].Value = attribs.attribute_id;
-//                                                        oCommand2.Parameters[1].Value = option;
-//                                                        oCommand2.ExecuteNonQuery();
-//                                                    }
-//                                                }
-//                                            }
-//                                        }
-//                                        i = i + 1;
-//                                    }
-//                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-//                                    oCommand.CommandText = sSQL;
-//                                    oCommand.Parameters[0].Value = category.CATEGORY_CODE;
-//                                    oCommand.Parameters[1].Value = "";
-//                                    oCommand.ExecuteNonQuery();
-//                                }
-//                            }
-//                        }
-//                    }
-//                    catch (Exception ex2)
-//                    {
+        //                                        if (attribs.options.Count() > 0)
+        //                                        {
+        //                                            var AttributeOptInDb = MoDbContext.AttributeOptShopee.AsNoTracking().ToList();
+        //                                            foreach (var option in attribs.options)
+        //                                            {
+        //                                                var cariOpt = AttributeOptInDb.Where(p => p.ACODE == Convert.ToString(attribs.attribute_id) && p.OPTION_VALUE == option);
+        //                                                if (cariOpt.Count() == 0)
+        //                                                {
+        //                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+        //                                                    {
+        //                                                        oCommand2.CommandType = CommandType.Text;
+        //                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_SHOPEE ([ACODE], [OPTION_VALUE]) VALUES (@ACODE, @OPTION_VALUE)";
+        //                                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+        //                                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+        //                                                        oCommand2.Parameters[0].Value = attribs.attribute_id;
+        //                                                        oCommand2.Parameters[1].Value = option;
+        //                                                        oCommand2.ExecuteNonQuery();
+        //                                                    }
+        //                                                }
+        //                                            }
+        //                                        }
+        //                                        i = i + 1;
+        //                                    }
+        //                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+        //                                    oCommand.CommandText = sSQL;
+        //                                    oCommand.Parameters[0].Value = category.CATEGORY_CODE;
+        //                                    oCommand.Parameters[1].Value = "";
+        //                                    oCommand.ExecuteNonQuery();
+        //                                }
+        //                            }
+        //                        }
+        //                    }
+        //                    catch (Exception ex2)
+        //                    {
 
-//                    }
-//                }
-//            }
-//            return ret;
-//        }
+        //                    }
+        //                }
+        //            }
+        //            return ret;
+        //        }
 
         protected void RecursiveInsertCategory(SqlCommand oCommand, CategoryChild[] item_children, string parent, string master_category_code, TokopediaAPIData data)
         {
@@ -1353,5 +1433,82 @@ namespace MasterOnline.Controllers
             public string image_url { get; set; }
         }
 
+        public class ActiveProductVariantResult
+        {
+            public ActiveProductVariantResultHeader header { get; set; }
+            public ActiveProductVariantResultData data { get; set; }
+        }
+
+        public class ActiveProductVariantResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class ActiveProductVariantResultData
+        {
+            public int parent_id { get; set; }
+            public int default_child { get; set; }
+            public string sizechart { get; set; }
+            public ActiveProductVariantResultDataVariant[] variant { get; set; }
+            public ActiveProductVariantResultDataChild[] children { get; set; }
+        }
+
+        public class ActiveProductVariantResultDataVariant
+        {
+            public string name { get; set; }
+            public string identifier { get; set; }
+            public string unit_name { get; set; }
+            public int position { get; set; }
+            public ActiveProductVariantResultDataVariantOption[] option { get; set; }
+        }
+
+        public class ActiveProductVariantResultDataVariantOption
+        {
+            public int id { get; set; }
+            public string value { get; set; }
+            public string hex { get; set; }
+        }
+
+        public class ActiveProductVariantResultDataChild
+        {
+            public string name { get; set; }
+            public string url { get; set; }
+            public int product_id { get; set; }
+            public int price { get; set; }
+            public string price_fmt { get; set; }
+            public int stock { get; set; }
+            public string sku { get; set; }
+            public int[] option_ids { get; set; }
+            public bool enabled { get; set; }
+            public bool is_buyable { get; set; }
+            public bool is_wishlist { get; set; }
+            public ActiveProductVariantResultDataChildPicture picture { get; set; }
+            public ActiveProductVariantResultDataChildCampaign campaign { get; set; }
+            public bool always_available { get; set; }
+            public string stock_wording { get; set; }
+            public string other_variant_stock { get; set; }
+            public bool is_limited_stock { get; set; }
+        }
+
+        public class ActiveProductVariantResultDataChildPicture
+        {
+            public string original { get; set; }
+            public string thumbnail { get; set; }
+        }
+
+        public class ActiveProductVariantResultDataChildCampaign
+        {
+            public bool is_active { get; set; }
+            public int discounted_percentage { get; set; }
+            public int discounted_price { get; set; }
+            public string discounted_price_fmt { get; set; }
+            public int campaign_type { get; set; }
+            public string campaign_type_name { get; set; }
+            public string start_date { get; set; }
+            public string end_date { get; set; }
+        }
     }
 }

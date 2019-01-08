@@ -1,4 +1,6 @@
 ﻿using System;
+using System.CodeDom;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -36,6 +38,18 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string username;
+        private static string ToLiteral(string input)
+        {
+            using (var writer = new StringWriter())
+            {
+                using (var provider = CodeDomProvider.CreateProvider("CSharp"))
+                {
+                    provider.GenerateCodeFromExpression(new CodePrimitiveExpression(input), writer, null);
+                    return writer.ToString();
+                }
+            }
+        }
+
         public ShopeeController()
         {
             MoDbContext = new MoDbContext();
@@ -1481,9 +1495,22 @@ namespace MasterOnline.Controllers
 
                     foreach (var order in result.orders)
                     {
-                        insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                        insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+                        //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                        //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                        //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+                        insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
+                            ((order.recipient_address.name ?? "").Replace("'", "`")),
+                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                            ((order.recipient_address.phone ?? "").Replace("'", "`")),
+                            (NAMA_CUST.Replace(',', '.')),
+                            ((order.recipient_address.full_address ?? "").Replace("'", "`")),
+                            DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                            (username),
+                            ((order.recipient_address.zipcode ?? "").Replace("'", "`")),
+                            kabKot,
+                            prov,
+                            connIdARF01C
+                            );
                     }
                     insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
@@ -1512,7 +1539,7 @@ namespace MasterOnline.Controllers
                             ordersn = order.ordersn,
                             order_status = order.order_status,
                             payment_method = order.payment_method,
-                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time).UtcDateTime,
+                            pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                             Recipient_Address_country = order.recipient_address.country,
                             Recipient_Address_state = order.recipient_address.state,
                             Recipient_Address_city = order.recipient_address.city,
@@ -1547,7 +1574,7 @@ namespace MasterOnline.Controllers
                                 variation_quantity_purchased = item.variation_quantity_purchased,
                                 variation_sku = item.variation_sku,
                                 weight = item.weight,
-                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time).UtcDateTime,
+                                pay_time = DateTimeOffset.FromUnixTimeSeconds(order.pay_time ?? order.create_time).UtcDateTime,
                                 CONN_ID = connID,
                                 CUST = CUST,
                                 NAMA_CUST = NAMA_CUST
@@ -4084,7 +4111,7 @@ namespace MasterOnline.Controllers
             public string shipping_carrier { get; set; }
             public string currency { get; set; }
             public int create_time { get; set; }
-            public int pay_time { get; set; }
+            public int? pay_time { get; set; }
             public ShopeeGetOrderDetailsResultRecipient_Address recipient_address { get; set; }
             public int days_to_ship { get; set; }
             public string tracking_no { get; set; }
