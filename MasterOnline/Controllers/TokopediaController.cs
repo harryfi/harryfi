@@ -345,10 +345,10 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, string product_id)
+        public async Task<ItemListResult> GetItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, string product_id)
         {
             //if merchant code diisi. barulah GetOrderList
-            string ret = "";
+            var ret = new ItemListResult();
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
@@ -392,8 +392,21 @@ namespace MasterOnline.Controllers
             }
             if (!string.IsNullOrWhiteSpace(responseFromServer))
             {
-
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ItemListResult)) as ItemListResult;
+                bool adaError = false;
+                if (result.error_message != null)
+                {
+                    if (result.error_message.Count() > 0)
+                    {
+                        adaError = true;
+                    }
+                }
+                if (!adaError)
+                {
+                    ret = result;
+                }
             }
+
             return ret;
         }
 
@@ -469,7 +482,7 @@ namespace MasterOnline.Controllers
                             if (item.childs.Count() > 0)
                             {
                                 adaChild = true;
-                                await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, Convert.ToString(item.id));
+                                await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, item);
                             }
                         }
                         if (!adaChild)
@@ -520,7 +533,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, string product_id)
+        public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, ActiveProductListResultProduct parent)
         {
             string ret = "";
             long milis = CurrentTimeMillis();
@@ -531,7 +544,7 @@ namespace MasterOnline.Controllers
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
 
             //order by name
-            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/variant/" + Uri.EscapeDataString(product_id);
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/variant/" + Uri.EscapeDataString(Convert.ToString(parent.id));
 
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -584,8 +597,74 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
                 if (result.header.error_code == 200)
                 {
-                    var dsa = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(product_id));
+                    List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
 
+                    foreach (var item in result.data.children)
+                    {
+                        string brgMp = Convert.ToString(item.product_id);
+                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == recnumArf01).FirstOrDefault();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == recnumArf01).FirstOrDefault();
+                        if (tempbrginDB == null && brgInDB == null)
+                        {
+                            string namaBrg = item.name;
+                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                            urlImage = "";
+                            urlImage2 = "";
+                            urlImage3 = "";
+                            if (namaBrg.Length > 30)
+                            {
+                                nama = namaBrg.Substring(0, 30);
+                                if (namaBrg.Length > 60)
+                                {
+                                    nama2 = namaBrg.Substring(30, 30);
+                                    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                }
+                                else
+                                {
+                                    nama2 = namaBrg.Substring(30);
+                                    nama3 = "";
+                                }
+                            }
+                            else
+                            {
+                                nama = namaBrg;
+                                nama2 = "";
+                                nama3 = "";
+                            }
+
+                            var desc = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(parent.id));
+
+                            string description = "";
+                            foreach (var dtail in desc.data)
+                            {
+                                description = dtail.desc;
+                            }
+                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                            {
+                                SELLER_SKU = item.sku,
+                                BRG_MP = Convert.ToString(item.product_id),
+                                NAMA = nama,
+                                NAMA2 = nama2,
+                                NAMA3 = nama3,
+                                CATEGORY_CODE = Convert.ToString(parent.category_id),
+                                CATEGORY_NAME = parent.category_name,
+                                IDMARKET = recnumArf01,
+                                IMAGE = parent.image_url_700,
+                                DISPLAY = item.is_buyable,
+                                HJUAL = item.price,
+                                HJUAL_MP = item.price,
+                                Deskripsi = description,
+                                MEREK = "OEM",
+                                CUST = CUST
+                            };
+                            listNewData.Add(newrecord);
+                        }
+                    }
+                    if (listNewData.Count() > 0)
+                    {
+                        ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewData);
+                        ErasoftDbContext.SaveChanges();
+                    }
                 }
             }
             return ret;
@@ -1510,5 +1589,27 @@ namespace MasterOnline.Controllers
             public string start_date { get; set; }
             public string end_date { get; set; }
         }
+
+
+        public class ItemListResult
+        {
+            public ItemListResultData[] data { get; set; }
+            public string status { get; set; }
+            public object[] error_message { get; set; }
+        }
+
+        public class ItemListResultData
+        {
+            public int product_id { get; set; }
+            public string name { get; set; }
+            public int shop_id { get; set; }
+            public string shop_name { get; set; }
+            public int category_id { get; set; }
+            public string desc { get; set; }
+            public int stock { get; set; }
+            public int price { get; set; }
+            public string status { get; set; }
+        }
+
     }
 }
