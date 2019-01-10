@@ -13116,6 +13116,43 @@ namespace MasterOnline.Controllers
                                     //    }
                                     //}
                                 }
+
+                            case "TOKOPEDIA":
+                                var TokoAPI = new TokopediaController();
+                                if (string.IsNullOrEmpty(arf01.Sort1_Cust))
+                                {
+                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                }
+                                else
+                                {
+                                    TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                                    {
+                                        merchant_code = arf01.Sort1_Cust, //FSID
+                                        API_client_password = arf01.API_CLIENT_P, //Client ID
+                                        API_client_username = arf01.API_CLIENT_U, //Client Secret
+                                        API_secret_key = arf01.API_KEY, //Shop ID 
+                                        token = arf01.TOKEN
+                                    };
+                                    var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+                                    if (resultShopee.status == 1)
+                                    {
+                                        if (!string.IsNullOrEmpty(resultShopee.message))
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                            retBarang.Recursive = true;
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultShopee.recordCount;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        retBarang.RecordCount = resultShopee.recordCount;
+                                    }
+                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                }
+
                             case "SHOPEE":
                                 var ShopeeApi = new ShopeeController();
                                 if (string.IsNullOrEmpty(arf01.Sort1_Cust))
@@ -13148,6 +13185,7 @@ namespace MasterOnline.Controllers
                                     }
                                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                                 }
+
                             default:
                                 return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
                         }

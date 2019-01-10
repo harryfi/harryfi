@@ -410,19 +410,23 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> GetActiveItemList(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01)
+        public async Task<BindingBase> GetActiveItemList(TokopediaAPIData iden,int page,int recordCount, string CUST, string NAMA_CUST, int recnumArf01)
         {
-            string ret = "";
+            var connId = Guid.NewGuid().ToString();
+
+            BindingBase ret = new BindingBase();
+            ret.message = "";// jika perlu lanjut recursive, isi
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string status = "";
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-
+            int rows = 10;
+            int Rowsstart = page * rows;
             //order by name
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
-            string queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=100&start=0&product_id=&order_by=12&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
+            string queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&product_id=&order_by=12&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = milis.ToString(),
@@ -474,6 +478,12 @@ namespace MasterOnline.Controllers
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
                 if (result.header.error_code == 0)
                 {
+                    if (Rowsstart + rows >= result.data.total_data)
+                    {
+
+                    }
+                    ret.status = 1;
+                    ret.recordCount = recordCount;
                     foreach (var item in result.data.products)
                     {
                         bool adaChild = false;
@@ -482,58 +492,59 @@ namespace MasterOnline.Controllers
                             if (item.childs.Count() > 0)
                             {
                                 adaChild = true;
-                                await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, item);
+                                await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, item,ret);
                             }
                         }
-                        if (!adaChild)
-                        {
-                            string namaBrg = item.name;
-                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                            urlImage = "";
-                            urlImage2 = "";
-                            urlImage3 = "";
-                            if (namaBrg.Length > 30)
-                            {
-                                nama = namaBrg.Substring(0, 30);
-                                if (namaBrg.Length > 60)
-                                {
-                                    nama2 = namaBrg.Substring(30, 30);
-                                    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                }
-                                else
-                                {
-                                    nama2 = namaBrg.Substring(30);
-                                    nama3 = "";
-                                }
-                            }
-                            else
-                            {
-                                nama = namaBrg;
-                                nama2 = "";
-                                nama3 = "";
-                            }
-                            var dsa = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(item.id));
-                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                            {
-                                SELLER_SKU = item.sku,
-                                BRG_MP = Convert.ToString(item.id),
-                                NAMA = nama,
-                                NAMA2 = nama2,
-                                NAMA3 = nama3,
-                                CATEGORY_CODE = Convert.ToString(item.category_id),
-                                CATEGORY_NAME = item.category_name,
-                                IDMARKET = recnumArf01,
-                                IMAGE = item.image_url_700,
-                                CUST = CUST
-                            };
-                        }
+                        //if (!adaChild)
+                        //{
+                        //    string namaBrg = item.name;
+                        //    string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                        //    urlImage = "";
+                        //    urlImage2 = "";
+                        //    urlImage3 = "";
+                        //    if (namaBrg.Length > 30)
+                        //    {
+                        //        nama = namaBrg.Substring(0, 30);
+                        //        if (namaBrg.Length > 60)
+                        //        {
+                        //            nama2 = namaBrg.Substring(30, 30);
+                        //            nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                        //        }
+                        //        else
+                        //        {
+                        //            nama2 = namaBrg.Substring(30);
+                        //            nama3 = "";
+                        //        }
+                        //    }
+                        //    else
+                        //    {
+                        //        nama = namaBrg;
+                        //        nama2 = "";
+                        //        nama3 = "";
+                        //    }
+                        //    var dsa = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(item.id));
+                        //    Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                        //    {
+                        //        SELLER_SKU = item.sku,
+                        //        BRG_MP = Convert.ToString(item.id),
+                        //        NAMA = nama,
+                        //        NAMA2 = nama2,
+                        //        NAMA3 = nama3,
+                        //        CATEGORY_CODE = Convert.ToString(item.category_id),
+                        //        CATEGORY_NAME = item.category_name,
+                        //        IDMARKET = recnumArf01,
+                        //        IMAGE = item.image_url_700,
+                        //        CUST = CUST
+                        //    };
+                        //}
                     }
                 }
             }
+
             return ret;
         }
 
-        public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, ActiveProductListResultProduct parent)
+        public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, ActiveProductListResultProduct parent,BindingBase retParent)
         {
             string ret = "";
             long milis = CurrentTimeMillis();
@@ -658,6 +669,7 @@ namespace MasterOnline.Controllers
                                 CUST = CUST
                             };
                             listNewData.Add(newrecord);
+                            retParent.recordCount = retParent.recordCount + 1;
                         }
                     }
                     if (listNewData.Count() > 0)

@@ -634,6 +634,9 @@ namespace MasterOnline.Controllers
                 //ret = bindOrder;
                 if (bindOrder.status.Equals("OK"))
                 {
+                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == Cust).Select(p => p.NO_REFERENSI).ToList();
+                    bool adaInsert = false;
+
                     string insertQ = "INSERT INTO TEMP_BL_ORDER ([ID],[INVOICE_ID],[STATE],[TRANSACTION_ID],[AMOUNT],[QUANTITY],[COURIER],[BUYERS_NOTE],[SHIPPING_FEE],";
                     insertQ += "[SHIPPING_ID],[SHIPPING_CODE],[SHIPPING_SERVICE],[SUBTOTAL_AMOUNT],[TOTAL_AMOUNT],[PAYMENT_AMOUNT],[CREATED_AT],[UPDATED_AT],";
                     insertQ += "[BUYER_EMAIL],[BUYER_ID],[BUYER_NAME],[BUYER_USERNAME],[BUYER_LOGISTIC_CHOICE],[CONSIGNEE_ADDRESS],[CONSIGNEE_AREA],[CONSIGNEE_CITY],";
@@ -653,157 +656,171 @@ namespace MasterOnline.Controllers
                     {
                         if (!order.buyer.email.Equals(email))//cek email pembeli != email user untuk mendapatkan order penjualan
                         {
-                            var statusEra = "";
-                            switch (order.state.ToString().ToLower())
+                            bool doInsert = true;
+                            if (OrderNoInDb.Contains(Convert.ToString(order.id)) && order.state.ToString().ToLower() == "paid")
                             {
-                                case "pending":
-                                case "addressed":
-                                case "payment_chosen":
-                                case "confirm_payment":
-                                case "paid":
-                                    statusEra = "01";
-                                    break;
-                                case "accepted":
-                                    statusEra = "02";
-                                    break;
-                                case "delivered":
-                                    statusEra = "03";
-                                    break;
-                                case "received":
-                                //statusEra = "03";
-                                //break;
-                                case "remitted":
-                                    statusEra = "04";
-                                    break;
-                                case "rejected":
-                                case "expired":
-                                case "cancelled":
-                                //statusEra = "11";
-                                //break;
-                                case "refunded":
-                                    statusEra = "11";
-                                    break;
-                                default:
-                                    statusEra = "99";
-                                    break;
+                                doInsert = false;
                             }
-                            //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                            if (statusEra == "01")
+                            if (doInsert)
                             {
-                                var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.id + "'", "STATUS_TRANSAKSI").ToString();
-                                if (!string.IsNullOrEmpty(currentStatus))
-                                    if (currentStatus == "02" || currentStatus == "03")
-                                        statusEra = currentStatus;
-                            }
-                            //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-
-                            insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier + "','" + order.buyer_notes + "'," + order.shipping_fee + ",";
-                            insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + /*Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + /*Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
-                            insertQ += order.buyer.email + "','" + order.buyer.id + "','" + order.buyer.name + "','" + order.buyer.username + "','" + order.buyer_logistic_choice + "','" + order.consignee.address + "','" + order.consignee.area + "','" + order.consignee.city + "','";
-                            insertQ += order.consignee.name + "','" + order.consignee.phone + "','" + order.consignee.post_code + "','" + order.consignee.province + "','" + Cust + "','" + username + "','" + connectionID + "')";
-
-                            if (order.products != null)
-                            {
-                                foreach (ProductBukaLapak items in order.products)
+                                adaInsert = true;
+                                var statusEra = "";
+                                switch (order.state.ToString().ToLower())
                                 {
-                                    string namaBrg = "";
-                                    //CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
-                                    //var ds = EDB.GetDataSet("MOConnectionString", "0", "SELECT STF02.NAMA AS NAMA_BRG FROM STF02H S INNER JOIN ARF01 A ON S.AKUNMARKET = A.PERSO INNER JOIN STF02 ON S.BRG = STF02.BRG WHERE BRG_MP = '" + items.id + "' AND CUST = '" + Cust + "'");
-                                    //if (ds.Tables[0].Rows.Count > 0)
-                                    //{
-                                    //    namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
-                                    //}
-                                    //END CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
-                                    namaBrg = items.name;
-                                    insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg + "',";
-                                    insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
-                                    insertOrderItems += " ,";
+                                    case "pending":
+                                    case "addressed":
+                                    case "payment_chosen":
+                                    case "confirm_payment":
+                                    case "paid":
+                                        statusEra = "01";
+                                        break;
+                                    case "accepted":
+                                        statusEra = "02";
+                                        break;
+                                    case "delivered":
+                                        statusEra = "03";
+                                        break;
+                                    case "received":
+                                    //statusEra = "03";
+                                    //break;
+                                    case "remitted":
+                                        statusEra = "04";
+                                        break;
+                                    case "rejected":
+                                    case "expired":
+                                    case "cancelled":
+                                    //statusEra = "11";
+                                    //break;
+                                    case "refunded":
+                                        statusEra = "11";
+                                        break;
+                                    default:
+                                        statusEra = "99";
+                                        break;
                                 }
+                                //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+                                if (statusEra == "01")
+                                {
+                                    var currentStatus = EDB.GetFieldValue("", "SOT01A", "NO_REFERENSI = '" + order.id + "'", "STATUS_TRANSAKSI").ToString();
+                                    if (!string.IsNullOrEmpty(currentStatus))
+                                        if (currentStatus == "02" || currentStatus == "03")
+                                            statusEra = currentStatus;
+                                }
+                                //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
+
+                                insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier + "','" + order.buyer_notes + "'," + order.shipping_fee + ",";
+                                insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + /*Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + /*Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
+                                insertQ += order.buyer.email + "','" + order.buyer.id + "','" + order.buyer.name + "','" + order.buyer.username + "','" + order.buyer_logistic_choice + "','" + order.consignee.address + "','" + order.consignee.area + "','" + order.consignee.city + "','";
+                                insertQ += order.consignee.name + "','" + order.consignee.phone + "','" + order.consignee.post_code + "','" + order.consignee.province + "','" + Cust + "','" + username + "','" + connectionID + "')";
+
+                                if (order.products != null)
+                                {
+                                    foreach (ProductBukaLapak items in order.products)
+                                    {
+                                        string namaBrg = "";
+                                        //CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
+                                        //var ds = EDB.GetDataSet("MOConnectionString", "0", "SELECT STF02.NAMA AS NAMA_BRG FROM STF02H S INNER JOIN ARF01 A ON S.AKUNMARKET = A.PERSO INNER JOIN STF02 ON S.BRG = STF02.BRG WHERE BRG_MP = '" + items.id + "' AND CUST = '" + Cust + "'");
+                                        //if (ds.Tables[0].Rows.Count > 0)
+                                        //{
+                                        //    namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
+                                        //}
+                                        //END CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
+                                        namaBrg = items.name;
+                                        insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg + "',";
+                                        insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
+                                        insertOrderItems += " ,";
+                                    }
+                                }
+
+                                var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
+                                var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
+
+                                var kabKot = "3174";//set default value jika tidak ada di db
+                                var prov = "31";//set default value jika tidak ada di db
+
+                                if (tblProv.Tables[0].Rows.Count > 0)
+                                    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                if (tblKabKot.Tables[0].Rows.Count > 0)
+                                    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                insertPembeli += "('" + order.buyer.name + "','" + order.consignee.address + "','" + order.consignee.phone + "','" + order.buyer.email + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + order.consignee.address + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.consignee.post_code + "', '" + order.buyer.email + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city + "', '" + order.consignee.province + "', '" + connIDARF01C + "')";
+
+                                //if (i < bindOrder.transactions.Length)
+                                insertQ += " ,";
+                                insertPembeli += " ,";
                             }
-
-                            var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
-                            var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
-
-                            var kabKot = "3174";//set default value jika tidak ada di db
-                            var prov = "31";//set default value jika tidak ada di db
-
-                            if (tblProv.Tables[0].Rows.Count > 0)
-                                prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
-                            if (tblKabKot.Tables[0].Rows.Count > 0)
-                                kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
-
-                            insertPembeli += "('" + order.buyer.name + "','" + order.consignee.address + "','" + order.consignee.phone + "','" + order.buyer.email + "',0,0,'0','01',";
-                            insertPembeli += "1, 'IDR', '01', '" + order.consignee.address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                            insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.consignee.post_code + "', '" + order.buyer.email + "', '" + kabKot + "', '" + prov + "', '" + order.consignee.city + "', '" + order.consignee.province + "', '" + connIDARF01C + "')";
-
-                            //if (i < bindOrder.transactions.Length)
-                            insertQ += " ,";
-                            insertPembeli += " ,";
                         }
 
                         //i = i + 1;
                     }
                     string errorMsg = "";
-                    insertQ = insertQ.Substring(0, insertQ.Length - 2);
-                    var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
-                    if (a <= 0)
+                    if (adaInsert)
                     {
-                        errorMsg = "failed to insert order to temp table;";
-                    }
+                        insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                        var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+                        if (a <= 0)
+                        {
+                            errorMsg = "failed to insert order to temp table;";
+                        }
 
-                    insertOrderItems = insertOrderItems.Substring(0, insertOrderItems.Length - 2);
-                    a = EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems);
-                    if (a <= 0)
-                    {
-                        errorMsg += "failed to insert order item to temp table;";
-                    }
+                        insertOrderItems = insertOrderItems.Substring(0, insertOrderItems.Length - 2);
+                        a = EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems);
+                        if (a <= 0)
+                        {
+                            errorMsg += "failed to insert order item to temp table;";
+                        }
 
-                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
-                    a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
-                    if (a <= 0)
-                    {
-                        errorMsg += "failed to insert pembeli to temp table;";
-                    }
+                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                        a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+                        if (a <= 0)
+                        {
+                            errorMsg += "failed to insert pembeli to temp table;";
+                        }
+                        if (!string.IsNullOrEmpty(errorMsg))
+                        {
+                            currentLog.REQUEST_EXCEPTION = errorMsg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                        }
+                        else
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                        }
 
+                        ret.status = 1;
+                        ret.message = a.ToString();
 
-                    if (!string.IsNullOrEmpty(errorMsg))
-                    {
-                        currentLog.REQUEST_EXCEPTION = errorMsg;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                        #region call sp
+                        SqlCommand CommandSQL = new SqlCommand();
+
+                        //add by Tri call sp to insert buyer data
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+
+                        EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                        //end add by Tri call sp to insert buyer data
+
+                        CommandSQL = new SqlCommand();
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 1;
+                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+
+                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                        #endregion
                     }
                     else
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
                     }
-
-                    ret.status = 1;
-                    ret.message = a.ToString();
-
-                    #region call sp
-                    SqlCommand CommandSQL = new SqlCommand();
-
-                    //add by Tri call sp to insert buyer data
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
-
-                    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
-                    //end add by Tri call sp to insert buyer data
-
-                    CommandSQL = new SqlCommand();
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 1;
-                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-
-                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
-                    #endregion
                 }
                 else
                 {
