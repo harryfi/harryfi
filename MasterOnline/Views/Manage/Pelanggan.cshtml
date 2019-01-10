@@ -630,11 +630,11 @@
                                             </div>
                                             @*add by nurul 24/10/2018*@
                                             <div id="descAPIKey2" class="form-group">
-                                                <div id="emptyDiv3" class=" col-md-3 col-sm-3 col-xs-1"></div>
-                                                <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.</label>
+                                                <div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
+                                                <label id="lblDesc3" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer service kami.</label>
                                                 <br />
-                                                <label id="lblDesc4" style="visibility:hidden">1. Untuk dapat tersambung secara otomatis ke Shopee, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Shopee, silahkan hubungi customer servise kami.</label>
-                                                <div id="emptyDiv4" class=" col-md-3 col-sm-3 col-xs-1"></div>
+                                                <label id="lblDesc4" style="visibility:hidden"></label>
+                                                <div id="emptyDiv4" class="col-md-3 col-sm-3 col-xs-1"></div>
                                             </div>
                                             @*end add by nurul 24/10/2018*@
                                             <div id="BlibliMerchantID" class="form-group">
@@ -1015,6 +1015,17 @@
                                 else {
                                     showHideBlibliForm(false);
                                 }
+                                @*if (@tokped == value) {
+                                    showHideTokpedForm(true);
+                                    lblDesc3.innerText = '';
+                                    lblDesc4.innerText = '';
+                                }
+                                else {
+                                    showHideTokpedForm(false);
+                                    lblDesc3.innerText = '';
+                                    lblDesc4.innerText = '';
+                                }*@
+
                                 //end add by Tri, remove/append api_key
                             }
                         }
@@ -1090,8 +1101,16 @@
                                             }
                                         }
                                         else if (response.marketplace == "SHOPEE") {
-                                            GetShopeeShopId(custCode);
+                                            //change by nurul 7/1/2019
+                                            //GetShopeeShopId(custCode);
+                                            if (confirm("Authorization Shopee account?")) {
+                                                GetShopeeShopId(custCode);
+                                            }
+                                            //end change
                                         }
+                                        //add by nurul 7/1/2019
+                                        $('#loading_spinner').hide();
+                                        //end add
                                     } else {
                                         $('#table-customer-partial').html(response);
                                         Initialize();
@@ -1171,6 +1190,44 @@
             }
         }
 
+        function showHideTokpedForm(show){
+            $('#labelSort1_Cust').remove();
+            $('#txtSort1_Cust').remove();
+            $('#labelAPI_CLIENT_U').remove();
+            $('#txtAPI_CLIENT_U').remove();
+            $('#labelAPI_CLIENT_P').remove();
+            $('#txtAPI_CLIENT_P').remove();
+            if (show) {
+                var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID *</label>';
+
+                var valuetxtSort1_Cust = "";
+                if ($('#Customers_Sort1_Cust').val() != null) {
+                    valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
+                }
+                var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
+
+                var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">Client ID *</label>';
+
+                var valuetxtAPI_CLIENT_U = "";
+                if ($('#Customers_API_CLIENT_U').val() != null) {
+                    valuetxtAPI_CLIENT_U = $('#Customers_API_CLIENT_U').val();
+                }
+                var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
+
+                var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">Client Secret *</label>';
+                var valuetxtAPI_CLIENT_P = "";
+                if ($('#Customers_API_CLIENT_P').val() != null) {
+                    valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
+                }
+                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="'+ valuetxtAPI_CLIENT_P +'"></div>';
+
+                $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                $('#lbl_Customers_API_KEY').html("Shop ID *");
+                $('#labelAPI_CLIENT_U').html("Client ID *");
+            }
+        }
         function Initialize() {
             $('#modalPricing').on('hidden.bs.modal', function () {
                 namaMarket[0].selectize.setValue(null, true);

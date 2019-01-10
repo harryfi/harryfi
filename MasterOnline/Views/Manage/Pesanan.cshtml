@@ -1837,31 +1837,38 @@
         });
 
         var table = $('#datatable').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableNunggu = $('#datatable_nunggu').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSedangProses = $('#datatable_sedangproses').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSiapKirim = $('#datatable_siapkirim').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
         var tableSudahKirim = $('#datatable_sudahkirim').DataTable({
-            "order": [[0, 2, "desc"]], //or asc
+            //"order": [[0, 2, "desc"]], //or asc
+            "order": [[2, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 2, "type": "date-eu" }],
         });
         var tableSelesai = $('#datatable_selesai').DataTable({
-            "order": [[0, 2, "desc"]], //or asc
+            //"order": [[0, 2, "desc"]], //or asc
+            "order": [[2, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 2, "type": "date-eu" }],
         });
         var tableCancel = $('#datatable_cancel').DataTable({
-            "order": [[0, 1, "desc"]], //or asc
+            //"order": [[0, 1, "desc"]], //or asc
+            "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
 
@@ -2624,10 +2631,10 @@
                         $('#loading_spinner').hide();
                         $('#btn-simpan-perubahan-row').hide();
                         //add by nurul 6/11/2018
-                        $('#myTab li a').each(function (index) {
-                            $(this).attr('data-toggle', 'tab');
-                            $(this).removeClass('disabled-tab');
-                        });
+                        //$('#myTab li a').each(function (index) {
+                        //    $(this).attr('data-toggle', 'tab');
+                        //    $(this).removeClass('disabled-tab');
+                        //});
                         //end add by nurul 6/11/2018
                     },
                     error: function(xhr) {
@@ -3634,7 +3641,8 @@
                     $('#tambah_pesanan').remove();
                     $('#table-pesanan-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_pesanan').keyup(function() {
@@ -3666,7 +3674,8 @@
                 success: function(response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
                     var table = $('#datatable_nunggu').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_nunggu').keyup(function() {
@@ -3697,7 +3706,8 @@
                 success: function(response) {
                     $('#table-pesanan-siap-kirim-partial').html(response);
                     var table = $('#datatable_sedangproses').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_sedangproses').keyup(function() {
@@ -3728,7 +3738,8 @@
                 success: function(response) {
                     $('#table-pesanan-sudah-kirim-partial').html(response);
                     var table = $('#datatable_sudahkirim').DataTable({
-                        "order": [[0, 2, "desc"]], //or asc
+                        //"order": [[0, 2, "desc"]], //or asc
+                        "order": [[2, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
                     });
                     $('#search_sudahkirim').keyup(function() {
@@ -3759,7 +3770,8 @@
                 success: function(response) {
                     $('#table-pesanan-selesai-partial').html(response);
                     var table = $('#datatable_selesai').DataTable({
-                        "order": [[0, 2, "desc"]], //or asc
+                        //"order": [[0, 2, "desc"]], //or asc
+                        "order": [[2, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
                     });
                     $('#search_selesai').keyup(function() {
@@ -3790,7 +3802,8 @@
                 success: function(response) {
                     $('#table-pesanan-cancel-partial').html(response);
                     var table = $('#datatable_cancel').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_cancel').keyup(function() {
@@ -4250,6 +4263,7 @@
                     if (response[0] != "") {
                         //LANJUT DSINI, TRACKING SHIPMENT SUDAH TERISI
                         if (valueTRACKING_SHIPMENT[0] == 'D') {
+                            $('#shopee-resi-dropoff-section').show();
                             //format : D[;]BRANCH_ID[;]SENDER_REAL_NAME[;]TRACKING_NO
                             if (valueTRACKING_SHIPMENT[1] != "") {//BRANCH_ID
                                 $('#div-shopee-resi-dropoff-branch').show();
@@ -4283,10 +4297,11 @@
                             }
                         }
                         else if (valueTRACKING_SHIPMENT[0] == 'P') {
+                            $('#shopee-resi-pickup-section').show();
                             //format : P[;]ADDRESS_ID[;]PICKUP_TIME
                             if (valueTRACKING_SHIPMENT[1] != "") {//ADDRESS_ID
                                 $('#div-shopee-resi-pickup-address').show();
-                                var nextselect = '<select id="select-shopee-resi-pickup-address" placeholder="Harap pilih" required="required"></select>';
+                                var nextselect = '<select id="select-shopee-resi-pickup-address" disabled="disabled" placeholder="Harap pilih" required="required"></select>';
                                 $('#shopee-resi-pickup-address').append(nextselect);
 
                                 var link = '@Html.Raw(Url.Action("GetShopeePickupAddress", "Manage", new { recNum = "replaceCode" }))';
@@ -4326,7 +4341,7 @@
                             }
                             if (valueTRACKING_SHIPMENT[2] != "") {//PICKUP_TIME
                                 $('#div-shopee-resi-pickup-time').show();
-                                var nextselect = '<select id="select-shopee-resi-pickup-time" placeholder="Harap pilih" required="required"></select>';
+                                var nextselect = '<select id="select-shopee-resi-pickup-time" disabled="disabled" placeholder="Harap pilih" required="required"></select>';
                                 $('#shopee-resi-pickup-time').append(nextselect);
                                 getShopeePickupTime(valueTRACKING_SHIPMENT[1],valueTRACKING_SHIPMENT[2]);
                             }
@@ -4580,12 +4595,24 @@
                 link = link.replace("replaceRecNum", window.$recResiShopee);
                 link = link.replace("replaceMetode", metode);
 
-                link = link.replace("replacedBranch", $('#select-shopee-resi-dropoff-branch').val());
+                var replacedBranchValue = $('#select-shopee-resi-dropoff-branch').val();
+                if (replacedBranchValue == undefined) {
+                    replacedBranchValue = "";
+                }
+                var replacepAddressValue = $('#select-shopee-resi-pickup-address').val();
+                if (replacepAddressValue == undefined) {
+                    replacepAddressValue = "";
+                }
+                var replacepTimeValue = $('#select-shopee-resi-pickup-time').val();
+                if (replacepTimeValue == undefined) {
+                    replacepTimeValue = "";
+                }
+                link = link.replace("replacedBranch", replacedBranchValue);
                 link = link.replace("replacedSender", $('#shopee-resi-dropoff-sender-real-name').val());
                 link = link.replace("replacedTrackNo", $('#shopee-resi-dropoff-tracking-no').val());
 
-                link = link.replace("replacepAddress", $('#select-shopee-resi-pickup-address').val());
-                link = link.replace("replacepTime", $('#select-shopee-resi-pickup-time').val());
+                link = link.replace("replacepAddress", replacepAddressValue);
+                link = link.replace("replacepTime", replacepTimeValue);
 
                 link = link.replace("replacenTrackNo", $('#shopee-resi-non-integrated-tracking-no').val());
 
@@ -4624,10 +4651,10 @@
             //    return;
             //}
 
-            if ($readyToShip == false && $statusPesanan == '03') {
-                alert('Isi semua gudang / qty terlebih dahulu!');
-                return;
-            }
+            //if ($readyToShip == false && $statusPesanan == '03') {
+            //    alert('Isi semua gudang / qty terlebih dahulu!');
+            //    return;
+            //}
 
             if ($statusPesanan == '03-undo')
                 $statusPesanan = '03';
