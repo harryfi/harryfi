@@ -350,8 +350,24 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Tokopedia
-            //var tes = new TokopediaController();
-            //var a = tes.GetToken();
+
+            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var lisTokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            if (lisTokpedShop.Count > 0)
+            {
+                var tokopediaApi = new TokopediaController();
+                foreach (var tblCustomer in lisTokpedShop)
+                {
+                    TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                    {
+                        merchant_code = tblCustomer.Sort1_Cust, //FSID
+                        API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+                        API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+                        API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                    };
+                    tokopediaApi.GetToken(iden);
+                }
+            }
             #endregion
 
             #region Shopee
