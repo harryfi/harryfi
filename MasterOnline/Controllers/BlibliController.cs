@@ -353,17 +353,17 @@ namespace MasterOnline.Controllers
                                                                  //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/order/orderList", iden.API_secret_key);
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Get Order List",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = stat.ToString(),
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -389,28 +389,59 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             if (responseFromServer != null)
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     if (result.content.Count > 0)
                     {
-                        foreach (var item in result.content)
+                        if (stat == StatusOrder.Paid)
                         {
-                            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+
+                            foreach (var item in result.content)
+                            {
+                                if (!OrderNoInDb.Contains(item.orderNo.Value))
+                                {
+                                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (stat == StatusOrder.Completed)
+                            {
+                                foreach (var item in result.content)
+                                {
+                                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
+                                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                    {
+                                        oConnection.Open();
+                                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                        //{
+                                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                                        {
+                                            oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" & item.orderNo.Value & "' AND STATUS_TRANSAKSI='03'";
+                                            oCommand.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
                 else
                 {
-                    currentLog.REQUEST_RESULT = result.errorCode.Value;
-                    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
             return ret;
@@ -681,6 +712,7 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 1;
                                     CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                     EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
 

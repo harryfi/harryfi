@@ -1098,17 +1098,17 @@ namespace MasterOnline.Controllers
 
             long milis = BlibliController.CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Get Order",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = auth,
-                REQUEST_ATTRIBUTE_2 = stat.ToString(),
-                REQUEST_ATTRIBUTE_3 = param,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = auth,
+            //    REQUEST_ATTRIBUTE_2 = stat.ToString(),
+            //    REQUEST_ATTRIBUTE_3 = param,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
 
             var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
             //var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
@@ -1121,6 +1121,8 @@ namespace MasterOnline.Controllers
                 var res = new JavaScriptSerializer().Deserialize<ElOrdersM>(json);
                 if (res.Orders != null)
                 {
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                    var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
                     string username = "Auto Elevenia";
                     string sellerShop = "seller elv";
                     string sSQL = "insert into TEMP_ELV_ORDERS ([DELIVERY_NO],[DELIVERY_MTD_CD],[DELIVERY_ETR_CD],[DELIVERY_ETR_NAME],[ORDER_NO]";
@@ -1132,37 +1134,50 @@ namespace MasterOnline.Controllers
                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
 
                     string PESANAN_DI_ELEVENIA = "";
+                    bool adaInsert = false;
                     if (res.Orders.order.Count > 0)
                     {
                         ret.message = "multi\n" + json;
                         ret.status = 1;
                         foreach (ElOrder dataOrder in res.Orders.order)
                         {
-                            sSQL += "('" + dataOrder.dlvNo + "','" + dataOrder.dlvMthdCd + "','" + dataOrder.dlvEtprsCd + "','" + dataOrder.dlvEtprsNm + "','" + dataOrder.ordNo + "',";
-                            sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + dataOrder.orderAmt + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
-                            sSQL += "'" + dataOrder.rcvrTlphn + "','" + Convert.ToDecimal(dataOrder.lstDlvCst) + "','" + dataOrder.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','"+ dataOrder.prdNm + "')";//17 desember 2018
-                            PESANAN_DI_ELEVENIA += "'" + dataOrder.dlvNo + "',";
-                            //var tblKabKot = EDB.GetDataSet("dotnet", "SCREEN_MO", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
-                            //var tblProv = EDB.GetDataSet("dotnet", "SCREEN_MO", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
+                            bool doInsert = true;
+                            if (OrderNoInDb.Contains(dataOrder.dlvNo) && stat == StatusOrder.Paid)
+                            {
+                                doInsert = false;
+                            }
+                            if (doInsert)
+                            {
+                                adaInsert = true;
+                                sSQL += "('" + dataOrder.dlvNo + "','" + dataOrder.dlvMthdCd + "','" + dataOrder.dlvEtprsCd + "','" + dataOrder.dlvEtprsNm + "','" + dataOrder.ordNo + "',";
+                                sSQL += "'" + dataOrder.rcvrNm + "','" + dataOrder.ordDt + "'," + dataOrder.orderAmt + ",'" + dataOrder.ordPrdSeq + "'," + dataOrder.ordQty + ",'" + dataOrder.prdNo + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrPostalCode + "',";
+                                sSQL += "'" + dataOrder.rcvrTlphn + "','" + Convert.ToDecimal(dataOrder.lstDlvCst) + "','" + dataOrder.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + dataOrder.prdNm + "')";//17 desember 2018
+                                PESANAN_DI_ELEVENIA += "'" + dataOrder.dlvNo + "',";
+                                //var tblKabKot = EDB.GetDataSet("dotnet", "SCREEN_MO", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.consignee.city + "%'");
+                                //var tblProv = EDB.GetDataSet("dotnet", "SCREEN_MO", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.consignee.province + "%'");
 
-                            var kabKot = "3174";
-                            var prov = "31";
-                            //if (tblProv.Tables[0].Rows.Count > 0)
-                            //    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
-                            //if (tblKabKot.Tables[0].Rows.Count > 0)
-                            //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+                                var kabKot = "3174";
+                                var prov = "31";
+                                //if (tblProv.Tables[0].Rows.Count > 0)
+                                //    prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                //if (tblKabKot.Tables[0].Rows.Count > 0)
+                                //    kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
 
-                            insertPembeli += "('" + dataOrder.ordNm + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                            insertPembeli += "1, 'IDR', '01', '" + dataOrder.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
-                            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + dataOrder.rcvrPostalCode + "', '" + dataOrder.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                                insertPembeli += "('" + dataOrder.ordNm + "','" + dataOrder.rcvrBaseAddr + "','" + dataOrder.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + dataOrder.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + dataOrder.rcvrPostalCode + "', '" + dataOrder.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
 
-
-                            sSQL += ",";
-                            insertPembeli += ",";
+                                sSQL += ",";
+                                insertPembeli += ",";
+                            }
                         }
-                        PESANAN_DI_ELEVENIA = PESANAN_DI_ELEVENIA.Substring(0, PESANAN_DI_ELEVENIA.Length - 1);
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        sSQL = sSQL.Substring(0, sSQL.Length - 1);
+
+                        if (adaInsert)
+                        {
+                            PESANAN_DI_ELEVENIA = PESANAN_DI_ELEVENIA.Substring(0, PESANAN_DI_ELEVENIA.Length - 1);
+                            insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                            sSQL = sSQL.Substring(0, sSQL.Length - 1);
+                        }
                     }
                     else
                     {
@@ -1172,111 +1187,69 @@ namespace MasterOnline.Controllers
                             ret.status = 1;
                             ret.message = "single\n" + json;
 
-                            sSQL += "('" + res2.Orders.order.dlvNo + "','" + res2.Orders.order.dlvMthdCd + "','" + res2.Orders.order.dlvEtprsCd + "','" + res2.Orders.order.dlvEtprsNm + "','" + res2.Orders.order.ordNo + "',";
-                            sSQL += "'" + res2.Orders.order.ordNm + "','" + res2.Orders.order.ordDt + "'," + res2.Orders.order.orderAmt + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
-                            sSQL += "'" + res2.Orders.order.rcvrTlphn + "'," + Convert.ToDecimal(res2.Orders.order.lstDlvCst) + ",'" + res2.Orders.order.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','"+ res2.Orders.order.prdNm + "')";//17 desember 2018
+                            bool doInsert = true;
+                            if (OrderNoInDb.Contains(res2.Orders.order.dlvNo) && stat == StatusOrder.Paid)
+                            {
+                                doInsert = false;
+                            }
 
-                            PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.dlvNo + "'";
+                            if (doInsert)
+                            {
+                                adaInsert = true;
+                                sSQL += "('" + res2.Orders.order.dlvNo + "','" + res2.Orders.order.dlvMthdCd + "','" + res2.Orders.order.dlvEtprsCd + "','" + res2.Orders.order.dlvEtprsNm + "','" + res2.Orders.order.ordNo + "',";
+                                sSQL += "'" + res2.Orders.order.ordNm + "','" + res2.Orders.order.ordDt + "'," + res2.Orders.order.orderAmt + ",'" + res2.Orders.order.ordPrdSeq + "'," + res2.Orders.order.ordQty + ",'" + res2.Orders.order.prdNo + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrPostalCode + "',";
+                                sSQL += "'" + res2.Orders.order.rcvrTlphn + "'," + Convert.ToDecimal(res2.Orders.order.lstDlvCst) + ",'" + res2.Orders.order.ordPrdStat + "','" + sellerShop + "','" + CUST + "','" + NAMA_CUST.Replace(',', '.') + "','" + username + "','" + connId + "','" + res2.Orders.order.prdNm + "')";//17 desember 2018
 
-                            var kabKot = "3174";
-                            var prov = "31";
+                                PESANAN_DI_ELEVENIA += "'" + res2.Orders.order.dlvNo + "'";
 
-                            insertPembeli += "('" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                            insertPembeli += "1, 'IDR', '01', '" + res2.Orders.order.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
-                            insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + res2.Orders.order.rcvrPostalCode + "', '" + res2.Orders.order.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                                var kabKot = "3174";
+                                var prov = "31";
 
+                                insertPembeli += "('" + res2.Orders.order.rcvrNm + "','" + res2.Orders.order.rcvrBaseAddr + "','" + res2.Orders.order.rcvrTlphn + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                insertPembeli += "1, 'IDR', '01', '" + res2.Orders.order.rcvrBaseAddr + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + res2.Orders.order.rcvrPostalCode + "', '" + res2.Orders.order.memId + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                            }
                         }
                     }
-                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
-                    if (EDB.ExecuteSQL("Constring", CommandType.Text, sSQL) == 1)
+                    if (adaInsert)
                     {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                        if (EDB.ExecuteSQL("Constring", CommandType.Text, sSQL) == 1)
+                        {
+                            SqlCommand CommandSQL = new SqlCommand();
+                            //call sp to insert buyer data
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                            EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+
+                            //call sp to insert pesanan
+                            CommandSQL = new SqlCommand();
+                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                            CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                            CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 1;
+                            CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                            EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                        }
                     }
-                    //SqlCommand CommandSQL = new SqlCommand();
-                    //CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                    //CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                    //CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                    //CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    //CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                    //CommandSQL.Parameters.Add("@Bukalapak", SqlDbType.Int).Value = 0;
-                    //CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 1;
-
-                    SqlCommand CommandSQL = new SqlCommand();
-                    //call sp to insert buyer data
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
-
-                    EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
-
-                    //call sp to insert pesanan
-                    CommandSQL = new SqlCommand();
-                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-
-                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
-                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 1;
-                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
-                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
-
-                    EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
-                    ////remark by calvin, dipindah ke saat ChangeStatusPesanan di managecontroller
-                    ////setelah ambil pesanan yang berstatus paid, sync ( cek SO berstatus paid di MO berdasarkan delivery_no, jika sudha jadi 02 ( siap dikirim ), jalankan API 
-                    //if (stat == StatusOrder.Paid)
-                    //{
-                    //    //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SIAP DIKIRIM, JIKA YA, JALANKAN API ACCEPT_ORDER
-                    //    DataSet dsMO = new DataSet();
-                    //    dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='02'");
-                    //    if (dsMO.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
-                    //        {
-                    //            string ordNo = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_NO"));
-                    //            string ordPrdSeq = Convert.ToString(EDB.GetFieldValue("Con", "TEMP_ELV_ORDERS", "DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "'", "ORDER_PROD_NO"));
-                    //            AcceptOrder(auth, ordNo, ordPrdSeq);
-                    //        }
-                    //    }
-                    //    //setelah cek status order paid, cek status order packagingINP
-                    //    GetOrder(auth, EleveniaController.StatusOrder.PackagingINP, connId, CUST, NAMA_CUST);
-                    //}
-                    //if (stat == StatusOrder.PackagingINP)
-                    //{
-                    //    //CEK APAKAH DI SOT01A, PESANAN TERSEBUT SUDAH BERSTATUS SUDAH DIKIRIM, JIKA YA, JALANKAN API Update Airway Bill Number
-                    //    DataSet dsMO = new DataSet();
-                    //    dsMO = EDB.GetDataSet("Con", "SOT01A", "SELECT NO_REFERENSI,TRACKING_SHIPMENT FROM SOT01A WHERE NO_REFERENSI IN (" + PESANAN_DI_ELEVENIA + ") AND STATUS_TRANSAKSI='03' AND ISNULL(TRACKING_SHIPMENT,'') <> ''");
-                    //    if (dsMO.Tables[0].Rows.Count > 0)
-                    //    {
-                    //        for (int i = 0; i < dsMO.Tables[0].Rows.Count; i++)
-                    //        {
-                    //            DataSet dsTEMP_ELV_ORDER = new DataSet();
-                    //            dsTEMP_ELV_ORDER = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]) + "' AND CONN_ID='" + connId + "' ");
-                    //            if (dsTEMP_ELV_ORDER.Tables[0].Rows.Count > 0)
-                    //            {
-                    //                string awb = Convert.ToString(dsMO.Tables[0].Rows[i]["TRACKING_SHIPMENT"]);
-                    //                string dlvNo = Convert.ToString(dsMO.Tables[0].Rows[i]["NO_REFERENSI"]);
-                    //                string dlvMthdCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_MTD_CD"]);
-                    //                string dlvEtprsCd = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_CD"]);
-                    //                string ordNo = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_NO"]);
-                    //                string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["DELIVERY_ETR_NAME"]);
-                    //                string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDER.Tables[0].Rows[0]["ORDER_PROD_NO"]);
-                    //                UpdateAWBNumber(auth, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
-                    //            }
-                    //        }
-                    //    }
-                    //}
-                    ////end remark by calvin, dipindah ke saat ChangeStatusPesanan
-
                 }
                 else
                 {
                     var res3 = new JavaScriptSerializer().Deserialize<ClientMessage>(json);
                     if (res3 != null)
                     {
-                        currentLog.REQUEST_RESULT = "No Orders";
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        //currentLog.REQUEST_RESULT = "No Orders";
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "error\n" + json;
                         if (stat == StatusOrder.Paid)
                         {
@@ -1286,16 +1259,16 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = "Internal Error";
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        //currentLog.REQUEST_RESULT = "Internal Error";
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "unknown error";
                     }
                 }
             }
             else
             {
-                currentLog.REQUEST_RESULT = "Internal Error";
-                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                //currentLog.REQUEST_RESULT = "Internal Error";
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
             }
 
             return ret;
