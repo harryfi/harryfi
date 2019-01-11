@@ -1098,17 +1098,17 @@ namespace MasterOnline.Controllers
 
             long milis = BlibliController.CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);// Jan1st1970.AddMilliseconds(Convert.ToDouble(milis)).AddHours(7);
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Get Order",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = auth,
-                REQUEST_ATTRIBUTE_2 = stat.ToString(),
-                REQUEST_ATTRIBUTE_3 = param,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = auth,
+            //    REQUEST_ATTRIBUTE_2 = stat.ToString(),
+            //    REQUEST_ATTRIBUTE_3 = param,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, auth, currentLog);
 
             var test = await req.RequestJSONObjectEl(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, content, typeof(string), auth) as string;
             //var test = req.CallElevAPI(Utils.HttpRequest.PROTOCOL.Https, Utils.HttpRequest.RESTServices.rest, Utils.HttpRequest.METHOD.GET, "orderservices/orders?" + param, "", typeof(string), auth) as string;
@@ -1121,7 +1121,7 @@ namespace MasterOnline.Controllers
                 var res = new JavaScriptSerializer().Deserialize<ElOrdersM>(json);
                 if (res.Orders != null)
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, auth, currentLog);
                     var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
                     string username = "Auto Elevenia";
                     string sellerShop = "seller elv";
@@ -1237,6 +1237,7 @@ namespace MasterOnline.Controllers
                             CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                             CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                            CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                             EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
                         }
@@ -1247,8 +1248,8 @@ namespace MasterOnline.Controllers
                     var res3 = new JavaScriptSerializer().Deserialize<ClientMessage>(json);
                     if (res3 != null)
                     {
-                        currentLog.REQUEST_RESULT = "No Orders";
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        //currentLog.REQUEST_RESULT = "No Orders";
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "error\n" + json;
                         if (stat == StatusOrder.Paid)
                         {
@@ -1258,16 +1259,16 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_RESULT = "Internal Error";
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                        //currentLog.REQUEST_RESULT = "Internal Error";
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
                         ret.message = "unknown error";
                     }
                 }
             }
             else
             {
-                currentLog.REQUEST_RESULT = "Internal Error";
-                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
+                //currentLog.REQUEST_RESULT = "Internal Error";
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, auth, currentLog);
             }
 
             return ret;
