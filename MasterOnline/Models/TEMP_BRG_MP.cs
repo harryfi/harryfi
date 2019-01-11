@@ -58,7 +58,7 @@ namespace MasterOnline.Models
         [StringLength(250)]
         public string ANAME_1 { get; set; }
 
-        [StringLength(250)]
+        //[StringLength(250)]
         public string AVALUE_1 { get; set; }
 
         [StringLength(50)]
