@@ -1357,7 +1357,7 @@ namespace MasterOnline.Controllers
             //request.AddApiParameter("update_after", "2010-01-01T00:00:00+0800");
             request.AddApiParameter("limit", "10");
             //request.AddApiParameter("options", "1");
-            //request.AddApiParameter("sku_seller_list", " [\"39817:01:01\", \"Apple 6S Black\"]");
+            //request.AddApiParameter("sku_seller_list", " [\"OX-2004\"]");
             try
             {
                 LazopResponse response = client.Execute(request, accessToken);
@@ -1455,9 +1455,11 @@ namespace MasterOnline.Controllers
                                         var statusBrg = (brgSku.TryGetValue("Status", out value) ? value : "");
                                         var display = statusBrg.Equals("active") ? 1 : 0;
                                         string deskripsi = brg.attributes.description;
-                                        string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n");
-                                        if (s_deskripsi.Length > 250)
-                                            s_deskripsi = s_deskripsi.Substring(0, 250);
+                                        string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                                        //remark by Tri, length avalue_1 sudah diubah 250 -> max
+                                        //if (s_deskripsi.Length > 250)
+                                        //    s_deskripsi = s_deskripsi.Substring(0, 250);
+                                        //end remark by Tri, length avalue_1 sudah diubah 250 -> max
                                         sSQL_Value += Convert.ToDouble(brg.skus[i].package_weight) * 1000 + " , " + brg.skus[i].package_length + " , " + brg.skus[i].package_width + " , " + brg.skus[i].package_height + " , '" + cust + "' , '";
                                         sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
                                         sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
