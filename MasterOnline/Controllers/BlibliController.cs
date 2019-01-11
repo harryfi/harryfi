@@ -355,15 +355,15 @@ namespace MasterOnline.Controllers
             //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
             string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/order/orderList?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&storeId=10001&status=" + status + "&channelId=MasterOnline&filterStartDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss")) + "&filterEndDate=" + Uri.EscapeDataString(DateTime.UtcNow.AddHours(14).ToString("yyyy-MM-dd HH:mm:ss"));
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Get Order List",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = stat.ToString(),
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -389,15 +389,15 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             if (responseFromServer != null)
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     if (result.content.Count > 0)
                     {
                         if (stat == StatusOrder.Paid)
@@ -439,9 +439,9 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    currentLog.REQUEST_RESULT = result.errorCode.Value;
-                    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
             return ret;
@@ -712,6 +712,7 @@ namespace MasterOnline.Controllers
                                     CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 1;
                                     CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                                     CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
 
                                     EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
 

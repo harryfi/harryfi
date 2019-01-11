@@ -360,14 +360,17 @@ namespace MasterOnline.Controllers
                 {
                     if (tblCustomer.Sort1_Cust != "")
                     {
-                        TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                        if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                         {
-                            merchant_code = tblCustomer.Sort1_Cust, //FSID
-                            API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
-                            API_client_username = tblCustomer.API_CLIENT_U, //Client ID
-                            API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                        };
-                        tokopediaApi.GetToken(iden);
+                            TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                            {
+                                merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
+                                API_client_username = tblCustomer.API_CLIENT_U, //Client ID
+                                API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                            };
+                            tokopediaApi.GetToken(iden);
+                        }
                     }
                 }
             }

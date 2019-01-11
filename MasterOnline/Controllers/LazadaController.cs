@@ -1043,6 +1043,7 @@ namespace MasterOnline.Controllers
                                 CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
                                 CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
 
