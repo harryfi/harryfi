@@ -287,7 +287,7 @@ namespace MasterOnline.Controllers
                             if (tempbrginDB == null && brgInDB == null)
                             {
                                 ret.recordCount++;
-                                proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.price, sellerSku);
+                                proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku);
                             }
                         }
                     }
@@ -295,7 +295,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         ret.recordCount++;
-                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString() + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.price, sellerSku);
+                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString() + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku);
                     }
                 }
                 catch (Exception ex2)

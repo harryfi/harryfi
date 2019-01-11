@@ -7373,9 +7373,11 @@ namespace MasterOnline.Controllers
                 dataVm.Piutang.FAKTUR = noHutang;
 
                 ErasoftDbContext.ART01A.Add(dataVm.Piutang);
+
             }
             else
             {
+
                 var piutangInDb = ErasoftDbContext.ART01A.Single(h => h.RecNum == dataVm.Piutang.RecNum);
 
                 piutangInDb.TGL = dataVm.Piutang.TGL;
@@ -8170,11 +8172,14 @@ namespace MasterOnline.Controllers
 
         public ActionResult SaveBayarPiutang(BayarPiutangViewModel dataVm)
         {
+
             if (!ModelState.IsValid)
             {
                 dataVm.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(dataVm, JsonRequestBehavior.AllowGet);
             }
+
+            //var piutangBaru = false;
 
             if (dataVm.Piutang.RecNum == null)
             {
@@ -8202,39 +8207,183 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.ART03A.Add(dataVm.Piutang);
 
-                if (dataVm.PiutangDetail.NO == null)
+                //if (dataVm.PiutangDetail.NO == null)
+                if (!string.IsNullOrEmpty(dataVm.PiutangDetail.NFAKTUR))
                 {
                     ErasoftDbContext.ART03B.Add(dataVm.PiutangDetail);
                 }
+                //else
+                //{
+                //    piutangBaru = true;
+                //}
             }
             else
             {
                 dataVm.PiutangDetail.BUKTI = dataVm.Piutang.BUKTI;
-
-                if (dataVm.PiutangDetail.NO == null)
-                {
-                    ErasoftDbContext.ART03B.Add(dataVm.PiutangDetail);
-                }
-                //add by nurul 10/10/2018
                 var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
 
-                piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
-                piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR;
+                //if (dataVm.PiutangDetail.NO == null)
+                if (!string.IsNullOrEmpty(dataVm.PiutangDetail.NFAKTUR))
+                {
+                    ErasoftDbContext.ART03B.Add(dataVm.PiutangDetail);
+                    piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
+                    piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR;
+                }
+                //else
+                //{
+                //    //    var detPiutang = ErasoftDbContext.ART03B.Where(p => p.BUKTI == dataVm.Piutang.BUKTI && p.NO == dataVm.PiutangDetail.NO).Single();
+                //    //    var oldRecordPot = detPiutang.POT;
+                //    //    var oldRecordBayar = detPiutang.BAYAR;
+
+                //    //    detPiutang.POT = dataVm.PiutangDetail.POT;
+                //    //    detPiutang.BAYAR = dataVm.PiutangDetail.BAYAR;
+
+                //    //    piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT - oldRecordPot;
+                //    //    piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR - oldRecordBayar;
+
+                //    //}
+
+                //    //add by nurul 10/10/2018
+                //    //var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
+                //    var detailPiutang = ErasoftDbContext.ART03B.Where(p => p.BUKTI == piutangInDb.BUKTI).ToList();
+                //    if (detailPiutang.Count == 0)
+                //    {
+                //        piutangBaru = true;
+                //    }
+                //    //else
+                //    //{
+                //    //    piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
+                //    //    piutangInDb.TBAYAR = piutangInDb.TBAYAR + dataVm.PiutangDetail.BAYAR;
+                //}
+
                 //end add
             }
 
             ErasoftDbContext.SaveChanges();
+
+            if (dataVm.bayarPiutang > 0)
+            {
+                var piutangInDb = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.Piutang.BUKTI);
+                if (piutangInDb != null)
+                {
+                    //delete detail
+                    var oldDetail = ErasoftDbContext.ART03B.Where(m => m.BUKTI == piutangInDb.BUKTI).ToList();
+                    if(oldDetail.Count > 0)
+                    {
+                        ErasoftDbContext.ART03B.Where(m => m.BUKTI == piutangInDb.BUKTI).Delete();
+                        piutangInDb.TBAYAR = 0;
+                        ErasoftDbContext.SaveChanges();
+                    }
+
+                    var listFaktur = ErasoftDbContext.ART01D.Where(p => p.CUST == dataVm.Piutang.CUST
+                                                                && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0
+                                                                //&& p.TGL <= dataVm.sdTgl && p.TGL >= dataVm.drTgl
+                                                                ).OrderBy(p => p.TGL).ToList();
+
+                    if (listFaktur.Count > 0)
+                    {
+                        var totalSisa = ErasoftDbContext.ART01D.Where(p => p.CUST == dataVm.Piutang.CUST && (p.NETTO - p.BAYAR - p.KREDIT + p.DEBET) > 0)
+                            .Sum(p => p.NETTO - p.BAYAR - p.KREDIT + p.DEBET).Value;
+                        if (totalSisa >= dataVm.bayarPiutang)
+                        {
+                            foreach (var faktur in listFaktur)
+                            {
+                                var detailPembayaran = new ART03B();
+                                detailPembayaran.BUKTI = dataVm.Piutang.BUKTI;
+                                detailPembayaran.NFAKTUR = faktur.FAKTUR;
+                                double sisa = faktur.NETTO.Value - faktur.BAYAR.Value - faktur.KREDIT.Value + faktur.DEBET.Value;
+                                detailPembayaran.SISA = sisa;
+                                detailPembayaran.BAYAR = dataVm.bayarPiutang >= sisa ? sisa : dataVm.bayarPiutang;
+                                detailPembayaran.POT = 0;
+                                detailPembayaran.USERNAME = "AUTOLOAD_FAKTUR";
+                                try
+                                {
+                                    ErasoftDbContext.ART03B.Add(detailPembayaran);
+
+                                    //piutangInDb.TPOT = piutangInDb.TPOT + dataVm.PiutangDetail.POT;
+                                    piutangInDb.TBAYAR = piutangInDb.TBAYAR + detailPembayaran.BAYAR;
+
+                                    ErasoftDbContext.SaveChanges();
+
+                                    dataVm.bayarPiutang = dataVm.bayarPiutang - detailPembayaran.BAYAR;
+                                    if (dataVm.bayarPiutang == 0)
+                                        break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    return JsonErrorMessage(ex.Message);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            return JsonErrorMessage("Anda tidak dapat melakukan pembayaran dengan Nilai Rp." + String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", dataVm.bayarPiutang) + "\nNilai sisa faktur untuk customer ini adalah Rp." + String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSisa));
+                        }
+
+                    }
+                    else
+                    {
+                        return JsonErrorMessage("Tidak ditemukan Faktur yang belum lunas");
+                    }
+                }
+                else
+                {
+                    return JsonErrorMessage("Pembayaran Piutan tidak ditemukan.");
+                }
+
+            }
+
             ModelState.Clear();
 
             var vm = new BayarPiutangViewModel()
             {
-                Piutang = ErasoftDbContext.ART03A.Single(p => p.BUKTI == dataVm.PiutangDetail.BUKTI),
-                ListPiutangDetail = ErasoftDbContext.ART03B.Where(pd => pd.BUKTI == dataVm.Piutang.BUKTI).ToList(),
+                //Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == dataVm.PiutangDetail.BUKTI),
+                Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == dataVm.Piutang.BUKTI),
+                ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == dataVm.Piutang.BUKTI).ToList(),
                 ListFaktur = ErasoftDbContext.SIT01A.ToList(),
                 ListSisa = ErasoftDbContext.ART01D.Where(s => s.CUST == dataVm.Piutang.CUST).ToList()
             };
 
             return PartialView("DetailBayarPiutangPartial", vm);
+        }
+
+        public ActionResult SaveEditDetail(string bukti, string no, double bayar, double pot)
+        {
+            var piutangInDB = ErasoftDbContext.ART03A.Where(a => a.BUKTI == bukti).SingleOrDefault();
+            if (piutangInDB != null)
+            {
+                var sNmr = no.Split('-');
+                int iNmr = Convert.ToInt32(sNmr[sNmr.Length - 1]);
+                var detPiutang = ErasoftDbContext.ART03B.Where(b => b.BUKTI == bukti && b.NO == iNmr).SingleOrDefault();
+                if (detPiutang != null)
+                {
+                    var oldRecordPot = detPiutang.POT;
+                    var oldRecordBayar = detPiutang.BAYAR;
+
+                    detPiutang.POT = pot;
+                    detPiutang.BAYAR = bayar;
+
+                    piutangInDB.TPOT = piutangInDB.TPOT + pot - oldRecordPot;
+                    piutangInDB.TBAYAR = piutangInDB.TBAYAR + bayar - oldRecordBayar;
+
+                    ErasoftDbContext.SaveChanges();
+
+                    var vm = new BayarPiutangViewModel()
+                    {
+                        Piutang = ErasoftDbContext.ART03A.AsNoTracking().Single(p => p.BUKTI == bukti),
+                        ListPiutangDetail = ErasoftDbContext.ART03B.AsNoTracking().Where(pd => pd.BUKTI == bukti).ToList(),
+                        ListFaktur = ErasoftDbContext.SIT01A.ToList(),
+                        ListSisa = ErasoftDbContext.ART01D.Where(s => s.CUST == piutangInDB.CUST).ToList()
+                    };
+
+                    return PartialView("DetailBayarPiutangPartial", vm);
+                }
+                else
+                {
+                    return JsonErrorMessage("Piutang detail not found");
+                }
+            }
+            return JsonErrorMessage("Piutang not found");
         }
 
         [HttpPost]
