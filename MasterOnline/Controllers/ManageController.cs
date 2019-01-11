@@ -1232,7 +1232,8 @@ namespace MasterOnline.Controllers
                     //            - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
                     qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");
 
-                    if (qtyOnHand == 0)
+                    //if (qtyOnHand == 0) //change by nurul 10/1/2019 -- yang minus jg d tampilin 
+                    if (qtyOnHand <= 0)
                     {
                         listBarangMiniStok.Add(new PenjualanBarang
                         {
@@ -4054,12 +4055,17 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableFakturLunasPartial", vm);
         }
-        public ActionResult RefreshTableFakturTempo()
+        public ActionResult RefreshTableFakturTempo(string tgl)
         {
             //IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
+            //add by nurul 10/1/2019
+            var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //end add
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
+                //change by nurul 10/1/2019 -- ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
+                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= tanggal).ToList(),
+                //end change 
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
@@ -4899,11 +4905,16 @@ namespace MasterOnline.Controllers
             return PartialView("TableInvoiceLunasPartial", vm);
         }
 
-        public ActionResult RefreshTableInvoiceTempo()
+        public ActionResult RefreshTableInvoiceTempo(string tgl)
         {
+            //add by nurul 10/1/2019
+            var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //end add 
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
+                //change by nurul 10/1/2019 -- ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
+                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= tanggal).ToList(),
+                //end change 
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),

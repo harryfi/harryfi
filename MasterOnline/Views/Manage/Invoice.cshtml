@@ -611,6 +611,20 @@
                             </div>
                         </div>
                     </div>
+                    @*add by nurul 10/1/2019 //tambah tgl*@
+                    <div class="row" id="div_tgl_Tempo">
+                        <div class="col-md-2">
+                            @Html.Label("", "Per Tanggal")
+                            <div class="input-group date">
+                                @Html.TextBox("Tanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-10"></div>
+                    </div>
+                    @*end add by nurul 10/1/2019 //tambah tgl*@
                     <div class="row invoice_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-invoice-partial">
                             @Html.Partial("TableInvoicePartial")
@@ -947,6 +961,9 @@
         var table = $('#datatable').DataTable({ "order": [[0,1, "desc"]], "columnDefs": [{ "targets": 1, "type": "date-eu" }], });
 
         $(document).ready(function () {
+            //add by nurul 10/1/2019
+            $('#div_tgl_Tempo').hide();
+                    //end add
             var tableSiapProses = $('#datatable_siapproses').DataTable({
                 columnDefs: [{
                     orderable: false,
@@ -963,26 +980,52 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
+            
+
             $('#invoice-tab').click(function () {
                 $TabAktif = 0;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                    //end add
                 refreshTableInvoice1();
+                
                 $('#refresh_invoice').show();
                 $('#tambah_invoice').show();
             });
 
             $('#invoice-lunas-tab').click(function () {
                 $TabAktif = 1;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                    //end add
                 refreshTableInvoiceLunas();
+                
                 $('#refresh_invoice').hide();
                 $('#tambah_invoice').hide();
             });
 
             $('#invoice-tempo-tab').click(function () {
-                $TabAktif = 2;
-                refreshTableInvoiceTempo();
-                $('#refresh_invoice').hide();
-                $('#tambah_invoice').hide();
+                if ($modeEdit == 1) {
+                    $('#div_tgl_Tempo').hide();
+                } else {
+                    $TabAktif = 2;
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                    });
+                    //end add by nurul 
+                    refreshTableInvoiceTempo();
+                    $('#refresh_invoice').hide();
+                    $('#tambah_invoice').hide();
+                }
             });
+
 
             Initialize();
             //add 09-10-2018, function button di subscription
@@ -1194,17 +1237,42 @@
             $('#tambah_invoice').on('click', function () {
                 $('.invoice_table_section').hide();
                 $('.invoice_editor_section').show();
+                $('#invoice-tempo-tab').off('click').on('click', function () {
+                    $('#div_tgl_Tempo').hide();
+                });
             });
 
             $('#refresh_invoice').on('click', function () {
                 if ($TabAktif == 0) {
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').hide();
+                    //end add
                     refreshTableInvoice1();
+                    
                 }
                 else if ($TabAktif == 1) {
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').hide();
+                    //end add
                     refreshTableInvoiceLunas();
+                    
                 }
                 else if ($TabAktif == 2) {
+                    //add by nurul 10/1/2019
+                    
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                        });
+                    //end add by nurul
                     refreshTableInvoiceTempo();
+                     
+                    
                 }
             });
 
@@ -1573,6 +1641,58 @@
                     }
                 });
             });
+
+            //add by nurul 10/1/2019
+            $('#Tanggal').change(function () {
+                $('#Tanggal').val($(this).val());
+                $(this).datepicker('hide');
+                refreshTableInvoiceTempo();
+            });
+
+            $('#invoice-tab').click(function () {
+                $TabAktif = 0;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                //end add
+                refreshTableInvoice1();
+
+                $('#refresh_invoice').show();
+                $('#tambah_invoice').show();
+            });
+
+            $('#invoice-lunas-tab').click(function () {
+                $TabAktif = 1;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                //end add
+                refreshTableInvoiceLunas();
+
+                $('#refresh_invoice').hide();
+                $('#tambah_invoice').hide();
+            });
+
+            $('#invoice-tempo-tab').click(function () {
+                if ($modeEdit == 1) {
+                    $('#div_tgl_Tempo').hide();
+                } else {
+                    $TabAktif = 2;
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                    });
+                    //end add by nurul 
+                    refreshTableInvoiceTempo();
+                    $('#refresh_invoice').hide();
+                    $('#tambah_invoice').hide();
+                }
+            });
+            //end add by nurul 
         }
 
         function refreshNettoBarang($trId) {
@@ -2078,6 +2198,10 @@
 
                                 $(this).addClass('disabled-tab');
                             });
+
+                            $('#invoice-tempo-tab').off('click').on('click', function () {
+                                $('#div_tgl_Tempo').hide();
+                            });
                             //end add
                         });
                     }
@@ -2453,6 +2577,7 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
+                    
                     var table = $('#datatable').DataTable({
                         "order": [[0,1, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
@@ -2478,6 +2603,7 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
+                    
                     var table = $('#datatable').DataTable({
                         "order": [[0,2, "asc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
@@ -2496,13 +2622,16 @@
         }
 
         function refreshTableInvoiceTempo() {
-            var link = '@Url.Action("RefreshTableInvoiceTempo", "Manage")';
+            @*change by nurul 10/1/2019 -- var link = '@Url.Action("RefreshTableInvoiceTempo", "Manage")';*@
+            var link = '@Url.Action("RefreshTableInvoiceTempo", "Manage", new { tgl = "replacetgl" })';
+            link = link.replace("replacetgl", $('#Tanggal').val());
 
             $.ajax({
                 type: "GET",
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
+                    
                     var table = $('#datatable').DataTable({
                         "order": [[0,2, "asc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
