@@ -662,6 +662,20 @@
                             </div>
                         </div>
                     </div>
+                    @*add by nurul 10/1/2019 //tambah tgl*@
+                    <div class="row" id="div_tgl_Tempo">
+                        <div class="col-md-2">
+                            @Html.Label("", "Per Tanggal")
+                            <div class="input-group date">
+                                @Html.TextBox("Tanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-10"></div>
+                    </div>
+                    @*end add by nurul 10/1/2019 //tambah tgl*@
                     <div class="row faktur_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-faktur-partial">
                             @Html.Partial("TableFakturPartial")
@@ -1009,6 +1023,9 @@
         });
 
         $(document).ready(function () {
+            //add by nurul 10/1/2019
+            $('#div_tgl_Tempo').hide();
+                    //end add
             $('.btn-subs').click(function () {
 
                 var $this = $(this);
@@ -1050,7 +1067,11 @@
 
             $('#faktur-tab').click(function () {
                 $TabAktif = 0;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                    //end add
                 refreshTableFaktur1();
+                
                 $('#tambah_faktur').show();
                 $('#refresh_faktur').show();
                 $('#btn-upload-faktur').show();
@@ -1058,18 +1079,38 @@
 
             $('#faktur-lunas-tab').click(function () {
                 $TabAktif = 1;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                    //end add
                 refreshTableFakturLunas();
+                
                 $('#tambah_faktur').hide();
                 $('#refresh_faktur').hide();
                 $('#btn-upload-faktur').hide();
             });
 
             $('#faktur-tempo-tab').click(function () {
-                $TabAktif = 2;
-                refreshTableFakturTempo();
-                $('#tambah_faktur').hide();
-                $('#refresh_faktur').hide();
-                $('#btn-upload-faktur').hide();
+                if ($modeEdit == 1) {
+                    $('#div_tgl_Tempo').hide();
+                } else {
+                    $TabAktif = 2;
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                    });
+                    //end add by nurul 
+                    refreshTableFakturTempo();
+
+                    $('#tambah_faktur').hide();
+                    $('#refresh_faktur').hide();
+                    $('#btn-upload-faktur').hide();
+                }
             });
 
             $('#box_upload_1').off('click').on('click', function () {
@@ -1234,7 +1275,9 @@
         }
 
         function refreshTableFakturTempo() {
-            var link = '@Url.Action("RefreshTableFakturTempo", "Manage")';
+            @*change by nurul 10/1/2019 -- var link = '@Url.Action("RefreshTableFakturTempo", "Manage")';*@
+            var link = '@Url.Action("RefreshTableFakturTempo", "Manage", new { tgl = "replacetgl" })';
+            link = link.replace("replacetgl", $('#Tanggal').val());
 
             $.ajax({
                 type: "GET",
@@ -1298,6 +1341,11 @@
                                 if ($(this).attr('id') === 'faktur-tab') return;
 
                                 $(this).addClass('disabled-tab');
+                                
+                            });
+
+                            $('#faktur-tempo-tab').off('click').on('click', function () {
+                                    $('#div_tgl_Tempo').hide();
                             });
                             //end add
                         });
@@ -1354,16 +1402,39 @@
             $('#tambah_faktur').on('click', function () {
                 $('.faktur_table_section').hide();
                 $('.faktur_editor_section').show();
+                $('#faktur-tempo-tab').off('click').on('click', function () {
+                        $('#div_tgl_Tempo').hide();
+                });
             });
 
             $('#refresh_faktur').on('click', function () {
                 if ($TabAktif == 0) {
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').hide();
+                    //end add
                     refreshTableFaktur1();
+                    
                 }
                 else if ($TabAktif == 1) {
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').hide();
+                    //end add
                     refreshTableFakturLunas();
+                    
                 }
                 else if ($TabAktif == 2) {
+                    //add by nurul 10/1/2019
+
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                    });
+                    //end add by nurul
                     refreshTableFakturTempo();
                 }
             });
@@ -1767,6 +1838,65 @@
                 $link = $link.replace("replaceId", $('#Faktur_PEMESAN').val());
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
+
+            //add by nurul 10/1/2019
+            $('#Tanggal').change(function () {
+                $('#Tanggal').val($(this).val());
+                $(this).datepicker('hide');
+                refreshTableFakturTempo();
+            });
+
+
+            $('#faktur-tempo-tab').click(function () {
+                if ($modeEdit == 1) {
+                    $('#div_tgl_Tempo').hide();
+                } else {
+                    $TabAktif = 2;
+                    //add by nurul 10/1/2019
+                    $('#div_tgl_Tempo').show();
+
+                    $('#Tanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#Tanggal').val($(this).val());
+                        $(this).datepicker('hide');
+                    });
+                    //end add by nurul 
+                    refreshTableFakturTempo();
+
+                    $('#tambah_faktur').hide();
+                    $('#refresh_faktur').hide();
+                    $('#btn-upload-faktur').hide();
+                }
+            });
+
+            $('#faktur-tab').click(function () {
+                $TabAktif = 0;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                //end add
+                refreshTableFaktur1();
+
+                $('#tambah_faktur').show();
+                $('#refresh_faktur').show();
+                $('#btn-upload-faktur').show();
+            });
+
+            $('#faktur-lunas-tab').click(function () {
+                $TabAktif = 1;
+                //add by nurul 10/1/2019
+                $('#div_tgl_Tempo').hide();
+                //end add
+                refreshTableFakturLunas();
+
+                $('#tambah_faktur').hide();
+                $('#refresh_faktur').hide();
+                $('#btn-upload-faktur').hide();
+            });
+
+            
+            //end add by nurul 
         }
 
         function refreshNettoBarang($trId) {
