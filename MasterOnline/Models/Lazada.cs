@@ -311,4 +311,27 @@ namespace MasterOnline.Models
         public string status { get; set; }
     }
     #endregion
+
+    public class AttributeBody : LazadaCommonRes
+    {
+        public List<DataAttr> data { get; set; }
+        //public string code { get; set; }
+        //public string request_id { get; set; }
+    }
+
+    public class DataAttr
+    {
+        public int is_sale_prop { get; set; }
+        public string name { get; set; }
+        public string input_type { get; set; }
+        public List<Option> options { get; set; }
+        public int is_mandatory { get; set; }
+        public string attribute_type { get; set; }
+        public string label { get; set; }
+    }
+
+    public class Option
+    {
+        public string name { get; set; }
+    }
 }
