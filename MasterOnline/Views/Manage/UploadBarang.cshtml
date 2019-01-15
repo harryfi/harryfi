@@ -1063,19 +1063,30 @@
                     $('#konfHapusBarang').modal('hide');
                 },
                 success: function (response) {
-                    //change by nurul 30/7/2018
-                    //$('#table-barang-1-partial').html(response);
-                    //Initialize();
-                    if (response.Errors != undefined && response.Errors.length > 0) {
-                        //$('#konfHapusBarang').modal('hide');
-                        alert(response.Errors[0]);
-                    } else {
-                        //$('#TableUploadBarangPartial').html(response);
-                        //Initialize();
-                        refreshTableBarangUpload();
-                        //$('#konfHapusBarang').modal('hide');
-                    }
-                    //end change
+                    //change by calvin 14 januari 2019
+                    ////change by nurul 30/7/2018
+                    ////$('#table-barang-1-partial').html(response);
+                    ////Initialize();
+                    //if (response.Errors != undefined && response.Errors.length > 0) {
+                    //    //$('#konfHapusBarang').modal('hide');
+                    //    alert(response.Errors[0]);
+                    //} else {
+                    //    //$('#TableUploadBarangPartial').html(response);
+                    //    //Initialize();
+                    //    refreshTableBarangUpload();
+                    //    //$('#konfHapusBarang').modal('hide');
+                    //}
+                    ////end change
+                    $('#table-upload-barang-partial').html(response);
+                    var table = $('#datatable').DataTable();
+                    $('#search_barang').keyup(function () {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_barang_tab').hide();
+                    $('#datatable').show();
+                    table.search($('#search_barang').val()).draw();
+                    //end change by calvin 14 januari 2019
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

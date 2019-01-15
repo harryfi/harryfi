@@ -83,7 +83,7 @@ namespace MasterOnline.Controllers
             if (param.Count() == 2)
             {
                 DatabaseSQL EDB = new DatabaseSQL(param[0]);
-                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET Sort1_Cust = '" + shop_id + "' WHERE CUST = '" + param[1] + "'");
+                var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE ARF01 SET STATUS_API = '1', Sort1_Cust = '" + shop_id + "' WHERE CUST = '" + param[1] + "'");
             }
             return View("ShopeeAuth");
         }
@@ -295,7 +295,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         ret.recordCount++;
-                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, detailBrg.item.item_id.ToString() + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku);
+                        proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku);
                     }
                 }
                 catch (Exception ex2)
@@ -322,11 +322,18 @@ namespace MasterOnline.Controllers
             if (namaBrg.Length > 30)
             {
                 nama = namaBrg.Substring(0, 30);
-                if (namaBrg.Length > 60)
+                //change by calvin 15 januari 2019
+                //if (namaBrg.Length > 60)
+                //{
+                //    nama2 = namaBrg.Substring(30, 30);
+                //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                //}
+                if (namaBrg.Length > 285)
                 {
-                    nama2 = namaBrg.Substring(30, 30);
-                    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                    nama2 = namaBrg.Substring(30, 255);
+                    nama3 = "";
                 }
+                //end change by calvin 15 januari 2019
                 else
                 {
                     nama2 = namaBrg.Substring(30);
@@ -353,7 +360,7 @@ namespace MasterOnline.Controllers
             }
             sSQL += "('" + barang_id + "' , '" + sellerSku + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
             sSQL += detailBrg.item.weight * 1000 + "," + detailBrg.item.package_length + "," + detailBrg.item.package_width + "," + detailBrg.item.package_height + ", '";
-            sSQL += cust + "' , '" + detailBrg.item.description + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
+            sSQL += cust + "' , '" + detailBrg.item.description.Replace('\'', '`') + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
 
             var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();

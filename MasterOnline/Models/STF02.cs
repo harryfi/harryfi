@@ -25,7 +25,6 @@ namespace MasterOnline
         [StringLength(30)]
         public string NAMA { get; set; }
 
-        //[StringLength(30)] 'change by nurul 15/1/2019 'penambahan length jadi 255
         [StringLength(255)]
         public string NAMA2 { get; set; }
 
