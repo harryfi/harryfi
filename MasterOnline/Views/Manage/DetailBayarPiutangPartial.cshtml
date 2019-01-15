@@ -175,18 +175,21 @@
             </div>
         </div>
     </div>
-    <div id="btn-autoload-row" class="row">
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4"></div>
-        <div class="col-lg-4">
-            <div class="form-group">
-                <div class="col-md-4"></div>
-                <div class="col-md-8">
-                    <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Autoload</button>
+    @if (Model?.Piutang?.POSTING != "Y")
+    {
+        <div id="btn-autoload-row" class="row">
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4"></div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-8">
+                        <button id="btn-autoload" type="button" data-toggle="modal" data-target="#konfAutoload" onclick="$('#BAYAR_PIUTANG').val('0')" class="btn btn-primary btn-block">Autoload</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
     @if (Model?.Piutang?.RecNum != null)
     {
         <div id="btn-simpan-perubahan-row" class="row" style="display: none;">

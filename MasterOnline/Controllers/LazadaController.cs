@@ -1357,7 +1357,7 @@ namespace MasterOnline.Controllers
             //request.AddApiParameter("update_after", "2010-01-01T00:00:00+0800");
             request.AddApiParameter("limit", "10");
             //request.AddApiParameter("options", "1");
-            //request.AddApiParameter("sku_seller_list", " [\"39817:01:01\", \"Apple 6S Black\"]");
+            //request.AddApiParameter("sku_seller_list", " [\"OX-292\"]");
             try
             {
                 LazopResponse response = client.Execute(request, accessToken);
@@ -1462,17 +1462,30 @@ namespace MasterOnline.Controllers
                                         var statusBrg = (brgSku.TryGetValue("Status", out value) ? value : "");
                                         var display = statusBrg.Equals("active") ? 1 : 0;
                                         string deskripsi = brg.attributes.description;
-                                        string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n");
-                                        if (s_deskripsi.Length > 250)
-                                            s_deskripsi = s_deskripsi.Substring(0, 250);
+                                        string s_deskripsi = (brgAttribute.TryGetValue("short_description", out value) ? value : "").ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
+                                        //remark by Tri, length avalue_1 sudah diubah 250 -> max
+                                        //if (s_deskripsi.Length > 250)
+                                        //    s_deskripsi = s_deskripsi.Substring(0, 250);
+                                        //end remark by Tri, length avalue_1 sudah diubah 250 -> max
                                         sSQL_Value += Convert.ToDouble(brg.skus[i].package_weight) * 1000 + " , " + brg.skus[i].package_length + " , " + brg.skus[i].package_width + " , " + brg.skus[i].package_height + " , '" + cust + "' , '";
                                         sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
                                         sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
                                         sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
                                         sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
                                         var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                                        //bool getAttr = true;
+                                        if (attributeLzd == null)
+                                        {
+                                            var retAPI = getMissingAttr(categoryCode);
+                                            if(retAPI.status == 1)
+                                            {
+                                                attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.AsNoTracking().Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+                                            }
+                                        }
                                         #region set attribute
+
                                         if (attributeLzd != null)
+                                        //if (getAttr)
                                         {
 
                                             if (!string.IsNullOrEmpty(attributeLzd.ANAME1))
@@ -2233,6 +2246,14 @@ namespace MasterOnline.Controllers
                                                 sSQL_Value += ", '', '', '') ,";
                                             }
                                         }
+                                        else//fail to get lazada attribute from db and API
+                                        {
+                                            sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                                            sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                                            sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                                            sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                                            sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '')";
+                                        }
 
                                         #endregion
 
@@ -2264,6 +2285,149 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+
+        public BindingBase getMissingAttr(string code)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            var tbl = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID == code).FirstOrDefault();
+            if (tbl != null)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/category/attributes/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("primary_category_id", code);
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr != null)
+                {
+                    if (bindAttr.code == "0")
+                    {
+                        try
+                        {
+#if AWS
+                    string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+
+                                oConnection.Open();
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+                                    oCommand.CommandType = CommandType.Text;
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.VarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 150));
+                                    string sSQL = "INSERT INTO ATTRIBUTE_LAZADA ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                    string a = "";
+                                    #region Generate Parameters dan CommandText
+                                    for (int j = 1; j <= 50; j++)
+                                    {
+                                        a = Convert.ToString(j);
+                                        sSQL += "[ALABEL" + a + "],[ANAME" + a + "],[ATYPE" + a + "],[AINPUT_TYPE" + a + "],[ASALE_PROP" + a + "],[AMANDATORY" + a + "],";
+                                        sSQLValue += "@ALABEL" + a + ",@ANAME" + a + ",@ATYPE" + a + ",@AINPUT_TYPE" + a + ",@ASALE_PROP" + a + ",@AMANDATORY" + a + ",";
+                                        oCommand.Parameters.Add(new SqlParameter("@ALABEL" + a, SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@ANAME" + a, SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE" + a, SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@AINPUT_TYPE" + a, SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@ASALE_PROP" + a, SqlDbType.VarChar, 1));
+                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY" + a, SqlDbType.VarChar, 1));
+                                    }
+                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                    #endregion
+                                    oCommand.CommandText = sSQL;
+                                    oCommand.Parameters[0].Value = tbl.CATEGORY_ID;
+                                    oCommand.Parameters[1].Value = tbl.NAME;
+                                    int i = 0;
+
+                                    //for (int i = 0; i < 30; i++)
+                                    foreach (var attr in bindAttr.data)
+                                    {
+                                        //a = Convert.ToString(i * 4 + 2);
+                                        //if (i < bindData.data.Count())
+                                        //{
+                                        //if (ANAME != "__images__" && ANAME != "color_thumbnail" && ANAME != "special_price" && ANAME != "special_from_date" && ANAME != "special_to_date" && ANAME != "seller_promotion" && ANAME != "tax_class") {
+                                        if (attr.name.Equals("name") || attr.name.Equals("description") || attr.name.Equals("brand") || attr.name.Equals("SellerSku") || attr.name.Equals("price") || attr.name.Equals("package_weight") || attr.name.Equals("package_length") || attr.name.Equals("package_width") || attr.name.Equals("package_height") || attr.name.Equals("__images__") || attr.name.Equals("color_thumbnail") || attr.name.Equals("special_price") || attr.name.Equals("special_from_date") || attr.name.Equals("special_to_date") || attr.name.Equals("seller_promotion") || attr.name.Equals("tax_class"))
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            oCommand.Parameters[(i * 6) + 2].Value = attr.label;
+                                            oCommand.Parameters[(i * 6) + 3].Value = attr.name;
+                                            oCommand.Parameters[(i * 6) + 4].Value = attr.attribute_type;
+                                            oCommand.Parameters[(i * 6) + 5].Value = attr.input_type;
+                                            oCommand.Parameters[(i * 6) + 6].Value = attr.is_sale_prop.ToString();
+                                            oCommand.Parameters[(i * 6) + 7].Value = attr.is_mandatory.ToString();
+                                            if (attr.options != null)
+                                            {
+                                                if (attr.options.Count > 0)
+                                                {
+                                                    //var cekOpt = (from t in MoDbContext.ATTRIBUTE_OPT_LAZADA where t.A_NAME.Equals(attr.name) && t.CATEGORY_CODE.Equals(tbl.CATEGORY_ID) select t).ToList();
+                                                    var cekOpt = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(t => t.A_NAME.ToUpper() == attr.name.ToUpper() && t.CATEGORY_CODE == tbl.CATEGORY_ID).ToList();
+                                                    if (cekOpt.Count == 0)
+                                                    {
+                                                        //string sSQL2 = "INSERT INTO ATTRIBUTE_OPT_LAZADA ([A_NAME] , [O_NAME]) VALUES ";
+                                                        //string sSQL2Value = "";
+                                                        foreach (var opt in attr.options)
+                                                        {
+                                                            //if (cekOpt.Where(t => t.O_NAME.Equals(opt.name)).FirstOrDefault() == null)
+                                                            //{
+                                                            var newOpt = new ATTRIBUTE_OPT_LAZADA();
+                                                            newOpt.CATEGORY_CODE = tbl.CATEGORY_ID;
+                                                            newOpt.A_NAME = attr.name;
+                                                            newOpt.O_NAME = opt.name;
+
+                                                            MoDbContext.ATTRIBUTE_OPT_LAZADA.Add(newOpt);
+                                                            MoDbContext.SaveChanges();
+
+                                                        }
+
+                                                    }
+                                                }
+                                            }
+                                            i++;
+
+                                        }
+
+                                    }
+                                    for (int k = i; k < 50; k++)
+                                    {
+                                        oCommand.Parameters[(k * 6) + 2].Value = "";
+                                        oCommand.Parameters[(k * 6) + 3].Value = "";
+                                        oCommand.Parameters[(k * 6) + 4].Value = "";
+                                        oCommand.Parameters[(k * 6) + 5].Value = "";
+                                        oCommand.Parameters[(k * 6) + 6].Value = "0";
+                                        oCommand.Parameters[(k * 6) + 7].Value = "0";
+
+                                    }
+                                    oCommand.ExecuteNonQuery();
+
+                                }
+
+                            }
+                            ret.status = 1;
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                        
+                    }
+                }
+            }            
+
+            return ret;
+        }
+
         public enum api_status
         {
             Pending = 1,

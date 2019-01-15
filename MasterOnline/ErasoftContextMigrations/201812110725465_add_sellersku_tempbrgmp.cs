@@ -7,12 +7,12 @@ namespace MasterOnline.ErasoftContextMigrations
     {
         public override void Up()
         {
-            AddColumn("dbo.TEMP_BRG_MP", "SELLER_SKU", c => c.String(maxLength: 50));
+            //AddColumn("dbo.TEMP_BRG_MP", "SELLER_SKU", c => c.String(maxLength: 50));
         }
         
         public override void Down()
         {
-            DropColumn("dbo.TEMP_BRG_MP", "SELLER_SKU");
+            //DropColumn("dbo.TEMP_BRG_MP", "SELLER_SKU");
         }
     }
 }
