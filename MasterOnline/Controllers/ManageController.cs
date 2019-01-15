@@ -12947,15 +12947,26 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.TEMP_BRG_MP.Remove(barangInDb);
                 ErasoftDbContext.SaveChanges();
 
+                //change by calvin 14 januari 2019
+                //var barangVm = new UploadBarangViewModel()
+                //{
+                //    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
+                //    ListMarket = ErasoftDbContext.ARF01.ToList(),
+                //    Stf02 = new STF02(),
+                //    TempBrg = new TEMP_BRG_MP(),
+                //};
+
+                //return Json(barangVm, JsonRequestBehavior.AllowGet);
                 var barangVm = new UploadBarangViewModel()
                 {
-                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST == cust).ToList(),
+                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
                     ListMarket = ErasoftDbContext.ARF01.ToList(),
                     Stf02 = new STF02(),
                     TempBrg = new TEMP_BRG_MP(),
                 };
 
-                return Json(barangVm, JsonRequestBehavior.AllowGet);
+                return PartialView("TableUploadBarangPartial", barangVm);
+                //end change by calvin 14 januari 2019
             }
             catch (Exception ex)
             {
@@ -13282,7 +13293,9 @@ namespace MasterOnline.Controllers
                                         API_secret_key = arf01.API_KEY, //Shop ID 
                                         token = arf01.TOKEN
                                     };
-                                    var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+                                    //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+                                    var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+                                    
                                     if (resultShopee.status == 1)
                                     {
                                         if (!string.IsNullOrEmpty(resultShopee.message))

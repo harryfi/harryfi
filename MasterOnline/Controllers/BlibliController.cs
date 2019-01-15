@@ -2018,10 +2018,14 @@ namespace MasterOnline.Controllers
                         if (namaBrg.Length > 30)
                         {
                             nama = namaBrg.Substring(0, 30);
-                            if (namaBrg.Length > 60)
+                            if (namaBrg.Length > 285)
                             {
-                                nama2 = namaBrg.Substring(30, 30);
-                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                //change by calvin 15 januari 2019
+                                //nama2 = namaBrg.Substring(30, 30);
+                                //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                nama2 = namaBrg.Substring(30,255);
+                                nama3 = "";
+                                //end change by calvin 15 januari 2019
                             }
                             else
                             {
@@ -2056,7 +2060,7 @@ namespace MasterOnline.Controllers
                         string merchantSku = result.value.items[0].merchantSku.ToString();
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-                        sSQL += cust + "' , '" + result.value.description + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
+                        sSQL += cust + "' , '" + result.value.description.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
                         sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
 
                         var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();

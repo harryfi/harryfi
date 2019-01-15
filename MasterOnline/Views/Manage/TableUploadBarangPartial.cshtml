@@ -34,19 +34,21 @@
     <tbody>
         @foreach (var barang in Model.ListTempBrg)
         {
-            var pelanggan = Model.ListMarket.FirstOrDefault(m => m.CUST == barang.CUST);
-            var namaToko = "";
-            var NamaMarket = "";
+            //remark by calvin 14 januar 2019
+            //var pelanggan = Model.ListMarket.FirstOrDefault(m => m.CUST == barang.CUST);
+            //var namaToko = "";
+            //var NamaMarket = "";
 
-            if (pelanggan != null)
-            {
-                namaToko = pelanggan.PERSO;
-                var market = context.Marketplaces.FirstOrDefault(m => m.IdMarket.ToString() == pelanggan.NAMA);
-                if (market != null)
-                {
-                    NamaMarket = market.NamaMarket;
-                }
-            }
+            //if (pelanggan != null)
+            //{
+            //    namaToko = pelanggan.PERSO;
+            //    var market = context.Marketplaces.FirstOrDefault(m => m.IdMarket.ToString() == pelanggan.NAMA);
+            //    if (market != null)
+            //    {
+            //        NamaMarket = market.NamaMarket;
+            //    }
+            //}
+            //end remark by calvin 14 januar 2019
 
         <tr>
             <td>@barang.SELLER_SKU</td>
