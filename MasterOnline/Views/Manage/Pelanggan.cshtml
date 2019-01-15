@@ -1130,10 +1130,21 @@
                                     //    $('#loading_spinner').hide();
                                     //    $("html, body").animate({ scrollTop: 0 }, "slow");
                                     //} else {
-                                    console.log(response.Errors);
-                                    alert('Ada data yang tidak valid!');
-                                    Initialize();
-                                    $('#loading_spinner').hide();
+
+                                    //change by nurul 14/1/2019
+                                    ////console.log(response.Errors);
+                                    ////alert('Ada data yang tidak valid!');
+                                    ////Initialize();
+                                    ////$('#loading_spinner').hide();
+                                    if (response.Errors[0] == "") {
+                                        console.log(response.errors);
+                                        alert('ada data yang tidak valid!');
+                                        $('#loading_spinner').hide();
+                                    } else {
+                                        alert(response.Errors[0]);
+                                        $('#loading_spinner').hide();
+                                    }
+                                    //end change by nurul 14/1/2019
                                     //}
                                 }
                             },

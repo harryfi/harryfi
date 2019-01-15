@@ -1021,6 +1021,19 @@ namespace MasterOnline.Controllers
                 //customer.Customers.TLP = "";
                 //end add by Tri, not null hidden field > blank
 
+                //add by nurul 14/1/2019 'validasi email dan marketplace sama 
+                var vmError = new CustomerViewModel() { };
+
+                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL).ToList();
+                int nm = Convert.ToInt32(customer.Customers.NAMA);
+                var getMP = MoDbContext.Marketplaces.SingleOrDefault(a => a.IdMarket == nm).NamaMarket;
+                if (cekEmailMP.Count > 0)
+                {
+                    vmError.Errors.Add("Email sudah digunakan untuk Marketplace ( " + getMP + " ) !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //end add by nurul 14/1/2019
+
                 ErasoftDbContext.ARF01.Add(customer.Customers);
                 ErasoftDbContext.SaveChanges();
 
@@ -1046,6 +1059,19 @@ namespace MasterOnline.Controllers
             else
             {
                 var custInDb = ErasoftDbContext.ARF01.Single(c => c.RecNum == customer.Customers.RecNum);
+
+                //add by nurul 14/1/2019 'validasi email dan marketplace sama 
+                var vmError = new CustomerViewModel() { };
+
+                var cekEmailMP = ErasoftDbContext.ARF01.Where(a => a.NAMA == customer.Customers.NAMA && a.EMAIL == customer.Customers.EMAIL && a.RecNum != customer.Customers.RecNum).ToList();
+                int nm = Convert.ToInt32(customer.Customers.NAMA);
+                var getMP = MoDbContext.Marketplaces.SingleOrDefault(a => a.IdMarket == nm).NamaMarket;
+                if (cekEmailMP.Count > 0)
+                {
+                    vmError.Errors.Add("Email sudah digunakan untuk Marketplace ( " + getMP + " ) !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                //end add by nurul 14/1/2019
 
                 custInDb.TOP = customer.Customers.TOP;
                 custInDb.AL = customer.Customers.AL;
