@@ -1435,6 +1435,17 @@
                     </div>
                 </div>
                 @* add by Tri, pilih shipment provider *@
+                @*<div class="row" id="divType">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select class="form-control" id="TypePengiriman" name="TypePengiriman">
+                                <option value="0" selected="selected">Dropship</option>
+                                <option value="1">Pick Up</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>*@
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
@@ -4182,6 +4193,7 @@
             $('#txtShipmentBL').remove();
             $('#btnShipment').remove();
             $('#print_label').hide();
+            //$('#divType').hide();
             if (NamaMarket.toUpperCase() == "LAZADA") {
                 $('#print_label').show();
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
@@ -4193,6 +4205,7 @@
                         '<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada(\'' +
                         cust +
                         '\')"><span class="glyphicon glyphicon-option-horizontal"></span></button>');
+                //$('#divType').show();
             } else if (NamaMarket.toUpperCase() == "BUKALAPAK") {
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip').append('<input id="txtShipmentBL" class="form-control"></input>');
@@ -4543,7 +4556,7 @@
             if (cekValidasi()) {
                 //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi"}))';
                 var link =
-                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv"}))';
+                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv" }))';
                 link = link.replace("replaceRecNum", this.$recResi);
                 link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
                 if (document.getElementById("txtShipment") != null) {
@@ -4554,6 +4567,8 @@
                         $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
 
                 }
+                //link = link.replace("replaceTypeDelivery", $('#TypePengiriman').val());
+
                 $.ajax({
                     type: "GET",
                     url: link,

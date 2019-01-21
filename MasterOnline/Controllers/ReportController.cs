@@ -160,23 +160,28 @@ namespace MasterOnline.Controllers
         public string Preview5(ReportViewModel.Report5 data)
         {
 #if AWS
-            return string.Format("https://report.masteronline.co.id/Report/Form/frm_LAnalisaPem.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frm_LAnalisaPem.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromSupp),
                 Uri.EscapeDataString(data.ToSupp),
                 Uri.EscapeDataString(data.FromBrg),
                 Uri.EscapeDataString(data.ToBrg),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(data.Order));
 #else
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaPem.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            //change by nurul 11/1/2019 -- return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaPem.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaPem.aspx?UserID={0}&FromSupp={1}&ToSupp={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromSupp),
                 Uri.EscapeDataString(data.ToSupp),
                 Uri.EscapeDataString(data.FromBrg),
                 Uri.EscapeDataString(data.ToBrg),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                //add by nurul 11/1/2019
+                Uri.EscapeDataString(data.Order));
+                //end add
 #endif
 
         }
@@ -191,23 +196,28 @@ namespace MasterOnline.Controllers
         public string Preview6(ReportViewModel.Report6 data)
         {
 #if AWS
-            return string.Format("https://report.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
                 Uri.EscapeDataString(data.FromBrg),
                 Uri.EscapeDataString(data.ToBrg),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                Uri.EscapeDataString(data.Order));
 #else
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            //change by nurul 11/1/2019 -- return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
                 Uri.EscapeDataString(data.FromBrg),
                 Uri.EscapeDataString(data.ToBrg),
                 Uri.EscapeDataString(data.DrTanggal),
-                Uri.EscapeDataString(data.SdTanggal));
+                Uri.EscapeDataString(data.SdTanggal),
+                //add by nurul 11/1/2019
+                Uri.EscapeDataString(data.Order));
+                //end add 
 #endif
         }
 

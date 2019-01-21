@@ -377,7 +377,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`').Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -400,7 +400,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -424,7 +424,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -447,7 +447,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -471,7 +471,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -494,7 +494,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -517,7 +517,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -540,7 +540,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -563,7 +563,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -586,7 +586,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -609,7 +609,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -632,7 +632,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -655,7 +655,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -678,7 +678,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -701,7 +701,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -724,7 +724,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -747,7 +747,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -770,7 +770,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -793,7 +793,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -816,7 +816,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -839,7 +839,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -862,7 +862,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -885,7 +885,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -908,7 +908,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -931,7 +931,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -954,7 +954,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -977,7 +977,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -1000,7 +1000,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -1023,7 +1023,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;
@@ -1046,7 +1046,7 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(attrVal))
                                 attrVal += ";";
-                            attrVal += Convert.ToString(property.attribute_value);
+                            attrVal += Convert.ToString(property.attribute_value).Replace('\'', '`');
                             if (property.attribute_name.ToUpper() == "MEREK")
                             {
                                 brand = property.attribute_value;

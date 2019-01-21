@@ -146,6 +146,9 @@ namespace MasterOnline.ViewModels
             string _ToSupp = "";
             string _FromBrg = "";
             string _ToBrg = "";
+            //add by nurul 11/1/2019
+            string _Order = "";
+            //end add
 
             public string UserId { get; set; }
 
@@ -196,6 +199,21 @@ namespace MasterOnline.ViewModels
                     _ToBrg = string.IsNullOrEmpty(value) ? "" : value;
                 }
             }
+
+            //add by nurul 11/1/2019
+            public string Order
+            {
+                get
+                {
+                    return _Order;
+                }
+                set
+                {
+                    _Order = string.IsNullOrEmpty(value) ? "" : value;
+                }
+            }
+            //end add
+
             public string DrTanggal { get; set; }
             public string SdTanggal { get; set; }
         }
@@ -206,6 +224,9 @@ namespace MasterOnline.ViewModels
             string _ToCust = "";
             string _FromBrg = "";
             string _ToBrg = "";
+            //add by nurul 11/1/2019
+            string _Order = "";
+            //end add
 
             public string UserId { get; set; }
 
@@ -256,6 +277,21 @@ namespace MasterOnline.ViewModels
                     _ToBrg = string.IsNullOrEmpty(value) ? "" : value;
                 }
             }
+
+            //add by nurul 11/1/2019
+            public string Order
+            {
+                get
+                {
+                    return _Order;
+                }
+                set
+                {
+                    _Order = string.IsNullOrEmpty(value) ? "" : value;
+                }
+            }
+            //end add
+
             public string DrTanggal { get; set; }
             public string SdTanggal { get; set; }
         }
