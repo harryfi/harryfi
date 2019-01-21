@@ -774,7 +774,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -832,7 +832,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -887,7 +887,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -916,7 +916,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -945,7 +945,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1000,7 +1000,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1936,9 +1936,15 @@
         }
         $(document).ready(function() {
             refreshTablePesanan();
-
+            $('#btn_refresh_pesanan').click(function() {
+                refreshTablePesanan();
+            });
             $('#pesanan-tab').click(function() {
                 refreshTablePesanan();
+            });
+
+            $('#btn_refresh_pesanan_dibayar').click(function() {
+                RefreshPesananDibayarMarketplace();
             });
 
             $('#nunggu-tab').click(function() {
@@ -3660,7 +3666,38 @@
                 }
             });
         }
+        
+        function RefreshPesananDibayarMarketplace() {
+            var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#datatable_nunggu').hide();
+                    $('#loading_sudah_dibayar_tab').show();
+                },
+                success: function(response) {
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+                    var table = $('#datatable_nunggu').DataTable({
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
+                    $('#search_nunggu').keyup(function() {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_sudah_dibayar_tab').hide();
+                    $('#datatable_nunggu').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_nunggu').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableSudahDibayar() {
             var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
 
@@ -4279,7 +4316,7 @@
                                     contentType: 'application/json',
                                     cache: false,
                                     success: function (data) {
-                                        
+
                                         //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
                                     },
                                     error: function (xhr) {
@@ -4328,7 +4365,7 @@
                                             searchField: 'text',
                                             options: listAddress,
                                             onChange: function (value) {
-                                                
+
                                             }
                                         });
 

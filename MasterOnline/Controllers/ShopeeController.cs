@@ -1588,16 +1588,10 @@ namespace MasterOnline.Controllers
                             };
                             batchinsertItem.Add(newOrderItem);
                         }
-                        insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                        insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
-
                         batchinsert = (newOrder);
 
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
                         ErasoftDbContext.SaveChanges();
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
@@ -3532,7 +3526,14 @@ namespace MasterOnline.Controllers
                         {
                             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                             dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
-                            item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
+                            if (!string.IsNullOrWhiteSpace(item.time_text))
+                            {
+                                item.date_string = item.time_text;
+                            }
+                            else
+                            {
+                                item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
+                            }
                         }
                     }
                     else

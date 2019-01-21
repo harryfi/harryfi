@@ -25,13 +25,11 @@
 
     }
 }
-
 @section styles
 {
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
-
     <style>
         .input-group {
             margin-bottom: 0;
@@ -77,7 +75,6 @@
         }
     </style>
 }
-
 <div class="row" id="stok-section">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="row stok_table_section">
@@ -136,7 +133,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -156,7 +152,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -176,7 +171,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -196,7 +190,6 @@
         </div>
     </div>
 </div>
-
 @section scripts
 {
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
@@ -205,7 +198,6 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
-
     <script type="text/javascript">
         var $modeEdit = 0; // 0 new, 1 edit
 
@@ -324,11 +316,11 @@
                     //if ($flagPerubahan == 1) {
                     if ($flagPerubahan == 0) {
                         $('#btn-simpan-perubahan-row').show();
-                        
+
                     }
                     //add by nurul 31/10/2018
                     $(this).datepicker('hide');
-                        //end add
+                    //end add
 
                     $flagPerubahan++;
                 });
@@ -344,7 +336,7 @@
                     }
                     //add by nurul 31/10/2018
                     $(this).datepicker('hide');
-                        //end add
+                    //end add
 
                     $flagPerubahan++;
                 });
@@ -406,8 +398,9 @@
                     $('.selectivity-dropdown').attr('style', style.replace('width: 105px', 'width: 400px; min-width: 400px !important'));
                 }
             });
-
+            var cekDropDown = false;
             $('#BRG').click(function () {
+                cekDropDown = true;
                 var checkExist = setInterval(function () {
                     if ($('.selectivity-dropdown').length) {
                         $('html, body').animate({ scrollTop: '-=10px' }, 500);
@@ -415,6 +408,19 @@
                     }
                 }, 100);
             });
+            function checkDropDown() {
+                if (cekDropDown) {
+                    if ($('.selectivity-dropdown').length) {
+                        var style = $('.selectivity-dropdown').attr('style');
+                        if (style !== undefined && style !== null) {
+                            $('.selectivity-dropdown').attr('style', style.replace('width: 105px', 'width: 400px; min-width: 400px !important'));
+                            cekDropDown = false;
+                        }
+                    }
+                }
+                setTimeout(function () { checkDropDown(); }, 500);
+            }
+            checkDropDown();
 
             $('body').click(function () {
                 $('#BRG').css('max-width', '105px').attr('style', 'width: 105px !important');
@@ -431,66 +437,66 @@
             //$('#table_tambah_stok > tbody > tr > td.editable').on('click', function () {
             $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > td.editable').off('click').on('click',
                 function () {
-                var $this = $(this);
-                var $class = $this.attr('class');
-                var $inputClass = '';
-                var $trId = $this.parent().attr('data-stok-id');
-                //var $harga = convertToAngka($this.text());
-                if ($this.text() !== '') {
-                    $harga = convertToAngka($this.text());
-                }
-                if ($class == 'qty-barang editable') {
-                    $inputClass = 'qty-input';
-                } else if ($class == 'harga-barang editable') {
-                    $inputClass = 'harga-input';
-                }
-
-                var $input = $('<input>', {
-                    'class': $inputClass + 'num-only',
-                    //value: $this.val(),
-                    //type: 'number',
-                    value: $harga,
-                    blur: function () {
-                        if (this.value == '') {
-                            if ($class === 'qty-barang editable') {
-                                $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
-                            } else if ($class === 'harga-barang editable') {
-                                $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
-                            }
-                            refreshNettoBarang($trId);
-                        } else {
-                            if ($class === 'qty-barang editable') {
-                                $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
-                            } else if ($class === 'harga-barang editable') {
-                                $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
-                                $('#BarangStok_Harsat').val(this.value);
-                            }
-                            refreshNettoBarang($trId);
-                        }
-                    },
-                    //focus: function () {
-                    //    this.value = $harga;
-                    //},
-                    focus: function () {
-                        if ($harga == 0) {
-                            this.value = '';
-                        } else {
-                            this.value = $harga;
-                        }
-                    },
-                    keyup: function (e) {
-                        if (e.which === 13) $input.blur();
-                    },
-                    keypress: function (e) {
-                        if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
-                        if ($(this).attr('class') == 'qty-input') {
-                            if ($(this).val() > 99) {
-                                $(this).val(99);
-                            }
-                        }
+                    var $this = $(this);
+                    var $class = $this.attr('class');
+                    var $inputClass = '';
+                    var $trId = $this.parent().attr('data-stok-id');
+                    //var $harga = convertToAngka($this.text());
+                    if ($this.text() !== '') {
+                        $harga = convertToAngka($this.text());
                     }
-                }).appendTo($this.empty()).focus();
-            });
+                    if ($class == 'qty-barang editable') {
+                        $inputClass = 'qty-input';
+                    } else if ($class == 'harga-barang editable') {
+                        $inputClass = 'harga-input';
+                    }
+
+                    var $input = $('<input>', {
+                        'class': $inputClass + 'num-only',
+                        //value: $this.val(),
+                        //type: 'number',
+                        value: $harga,
+                        blur: function () {
+                            if (this.value == '') {
+                                if ($class === 'qty-barang editable') {
+                                    $this.html(0 + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
+                                } else if ($class === 'harga-barang editable') {
+                                    $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
+                                }
+                                refreshNettoBarang($trId);
+                            } else {
+                                if ($class === 'qty-barang editable') {
+                                    $this.html(this.value + '<input data-val="true" data-val-number="The field Qty must be a number." data-val-required="The Qty field is required." id="BarangStok_Qty" name="BarangStok.Qty" type="hidden" value="" maxlength="3">');
+                                } else if ($class === 'harga-barang editable') {
+                                    $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field Harsat must be a number." data-val-required="The Harsat field is required." id="BarangStok_Harsat" name="BarangStok.Harsat" type="hidden" value="">');
+                                    $('#BarangStok_Harsat').val(this.value);
+                                }
+                                refreshNettoBarang($trId);
+                            }
+                        },
+                        //focus: function () {
+                        //    this.value = $harga;
+                        //},
+                        focus: function () {
+                            if ($harga == 0) {
+                                this.value = '';
+                            } else {
+                                this.value = $harga;
+                            }
+                        },
+                        keyup: function (e) {
+                            if (e.which === 13) $input.blur();
+                        },
+                        keypress: function (e) {
+                            if (e.which != 8 && e.which != 0 && e.which < 48 || e.which > 57) e.preventDefault();
+                            if ($(this).attr('class') == 'qty-input') {
+                                if ($(this).val() > 99) {
+                                    $(this).val(99);
+                                }
+                            }
+                        }
+                    }).appendTo($this.empty()).focus();
+                });
         }
 
         function getDataBarang() {
@@ -917,7 +923,7 @@
             //    });
             var $flagPerubahan = 0;
 
-            
+
             if ($modeEdit == 1) { // mode edit
                 $('#Stok_Tgl').datepicker({
                     format: 'dd/mm/yyyy',
@@ -926,11 +932,11 @@
                     //if ($flagPerubahan == 1) {
                     if ($flagPerubahan == 0) {
                         $('#btn-simpan-perubahan-row').show();
-                        
+
                     }
                     //add by nurul 31/10/2018
                     $(this).datepicker('hide');
-                        //end add
+                    //end add
 
                     $flagPerubahan++;
                 });
@@ -946,14 +952,13 @@
                     }
                     //add by nurul 31/10/2018
                     $(this).datepicker('hide');
-                        //end add
+                    //end add
 
                     $flagPerubahan++;
                 });
             }
         }
     </script>
-
     <script>
         //Disable Enter Key Submit Form
         function stopRKey(evt) {

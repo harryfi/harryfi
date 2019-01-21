@@ -437,6 +437,9 @@ namespace MasterOnline
 
         public virtual DbSet<TEMP_TOKPED_ORDERS> TEMP_TOKPED_ORDERS { get; set; }
         //public virtual DbSet<API_LOG_MARKETPLACE_PER_ITEM> API_LOG_MARKETPLACE_PER_ITEM { get; set; }
+        //public virtual DbSet<TEMP_BRG_MP_EXCEL> TEMP_BRG_MP_EXCEL { get; set; }
+        public virtual DbSet<STF20> STF20 { get; set; }
+        public virtual DbSet<STF20B> STF20B { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

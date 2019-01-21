@@ -369,7 +369,28 @@ namespace MasterOnline.Controllers
                                 API_client_username = tblCustomer.API_CLIENT_U, //Client ID
                                 API_secret_key = tblCustomer.API_KEY, //Shop ID 
                             };
+                            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+                            //{
+                            //    merchant_code = "13072", //FSID
+                            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+                            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+                            //    API_secret_key = "2619296", //Shop ID 
+                            //    token = "pmgdpFANTcC0PM9tVzrwmw"
+                            //};
                             tokopediaApi.GetToken(iden);
+
+                            ////debug
+                            //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                            //{
+                            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                            //    token = tblCustomer.TOKEN
+                            //};
+                            //var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
+                            //Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
+                            //Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
                         }
                     }
                 }
@@ -377,12 +398,14 @@ namespace MasterOnline.Controllers
             #endregion
 
             #region Shopee
-            //var ShopeeAPI = new ShopeeController();
-            //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData()
+            //debug
+            //ShopeeController.ShopeeAPIData dataaa = new ShopeeController.ShopeeAPIData()
             //{
-            //    merchant_code = "47219229"
+            //    merchant_code = "6297330",
+
             //};
-            //ShopeeAPI.GetAttribute(iden);
+            //var ShopeeApi = new ShopeeController();
+            //var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
             #endregion
         }
 
@@ -475,7 +498,7 @@ namespace MasterOnline.Controllers
             }
 
             var email = new MailAddress(account.Email);
-            account.UserId = email.User + "_" + email.Host.Replace(".","_");
+            account.UserId = email.User + "_" + email.Host.Replace(".", "_");
             account.Status = false; //User tidak aktif untuk pertama kali
 
             account.KODE_SUBSCRIPTION = "01"; //Free account

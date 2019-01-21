@@ -245,7 +245,163 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+        public async System.Threading.Tasks.Task<ActionResult> RefreshPesananDibayarMarketplace()
+        {
+            //add by Tri call market place api getorder
+            var connectionID = Guid.NewGuid().ToString();
+            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string username = "";
+            if (sessionData?.User != null)
+            {
+                var accId = MoDbContext.User.Single(u => u.Username == sessionData.User.Username).AccountId;
+                username = MoDbContext.Account.Single(a => a.AccountId == accId).Username;
+            }
+            else
+            {
+                username = sessionData?.Account?.Username;
+            }
+            //remark by calvin 13 desember 2018, testing
+            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            if (listBliShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBliShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                    {
+                        var bliApi = new BlibliController();
 
+                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            API_client_password = tblCustomer.API_CLIENT_P,
+                            API_client_username = tblCustomer.API_CLIENT_U,
+                            API_secret_key = tblCustomer.API_KEY,
+                            token = tblCustomer.TOKEN,
+                            mta_username_email_merchant = tblCustomer.EMAIL,
+                            mta_password_password_merchant = tblCustomer.PASSWORD
+                        };
+
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                        //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari blibli
+                        await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //end add by calvin 8 nov 2018
+                    }
+                }
+            }
+            var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+            if (listELShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listELShop)
+                {
+                    var elApi = new EleveniaController();
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+
+                    //add by calvin 8 nov 2018, update status so di MO jika sudah ada order complete dari elevenia
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    await elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.ConfirmPurchase, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                    //end add by calvin 8 nov 2018
+                }
+            }
+            var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            if (listBLShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBLShop)
+                {
+                    var blApi = new BukaLapakController();
+                    blApi.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, connectionID);
+                }
+
+            }
+
+            var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
+            if (listLzdShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listLzdShop)
+                {
+                    var lzdApi = new LazadaController();
+                    lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
+                }
+            }
+            //end remark by calvin 13 desember 2018, testing
+
+            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            if (listTokPed.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listTokPed)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                    {
+                        var tokopediaApi = new TokopediaController();
+
+                        TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust, //FSID
+                            API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                            API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                            API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                            token = tblCustomer.TOKEN
+                        };
+                        //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
+                        //{
+                        //    merchant_code = "13072", //FSID
+                        //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
+                        //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
+                        //    API_secret_key = "2619296", //Shop ID 
+                        //    token = "pmgdpFANTcC0PM9tVzrwmw"
+                        //};
+                        //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
+                        await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //await tokopediaApi.GetCategoryTree(idenTest);
+                        //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Completed, connectionID, "", "");
+                    }
+                }
+            }
+
+            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            if (listShopeeShop.Count > 0)
+            {
+                var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopeeShop)
+                {
+                    ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData();
+                    iden.merchant_code = tblCustomer.Sort1_Cust;
+                    await shopeeApi.GetOrderByStatus(iden, ShopeeController.StatusOrder.READY_TO_SHIP, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                }
+            }
+
+            //add by calvin 14 nov 2018, update qoh setelah get pesanan
+            var TEMP_ALL_MP_ORDER_ITEMs = ErasoftDbContext.Database.SqlQuery<TEMP_ALL_MP_ORDER_ITEM>("SELECT * FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'").ToList();
+
+
+            List<string> listBrg = new List<string>();
+            foreach (var item in TEMP_ALL_MP_ORDER_ITEMs)
+            {
+                listBrg.Add(item.BRG);
+            }
+            updateStockMarketPlace(listBrg);
+            ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connectionID + "'");
+            //end add by calvin 14 nov 2018, update qoh setelah get pesanan
+
+            var vm = new PesananViewModel()
+            {
+                ListPesanan = ErasoftDbContext.SOT01A.AsNoTracking().Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                ListBarang = ErasoftDbContext.STF02.ToList(),
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+            };
+
+            return PartialView("TablePesananSudahDibayarPartial", vm);
+        }
         [Route("manage/order")]
         //public ActionResult Pesanan()
         public async System.Threading.Tasks.Task<ActionResult> Pesanan()
@@ -358,7 +514,6 @@ namespace MasterOnline.Controllers
                         //    API_secret_key = "2619296", //Shop ID 
                         //    token = "pmgdpFANTcC0PM9tVzrwmw"
                         //};
-                        //var a = tokopediaApi.GetToken();
                         //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
                         await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                         //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -502,7 +657,7 @@ namespace MasterOnline.Controllers
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1)
             };
@@ -535,7 +690,7 @@ namespace MasterOnline.Controllers
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
                 DataUsaha = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1),
                 StatusLog = ErasoftDbContext.Database.SqlQuery<API_LOG_MARKETPLACE_PER_ITEM>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE 0 = 1").ToList(),
@@ -2506,7 +2661,7 @@ namespace MasterOnline.Controllers
             var partialVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.OrderBy(p => p.IDMARKET).ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
             };
 
             return PartialView("TableBarang1Partial", partialVm);
@@ -3277,7 +3432,50 @@ namespace MasterOnline.Controllers
 
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult EditStrukturVar(int? recNum)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new MasterStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_1 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 1
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_2 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 2
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_3 = new STF20B() {
+                 CATEGORY_MO = kategori.KODE,
+                 LEVEL_VAR = 3
+                },
+                VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).OrderBy(m => m.LEVEL_VAR).ToList()
+            };
 
+            return PartialView("StrukturVarPartial", vm);
+        }
         public ActionResult DeleteKategori(int? recNum)
         {
             var kategoriInDb = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
@@ -8279,7 +8477,7 @@ namespace MasterOnline.Controllers
                 {
                     //delete detail
                     var oldDetail = ErasoftDbContext.ART03B.Where(m => m.BUKTI == piutangInDb.BUKTI).ToList();
-                    if(oldDetail.Count > 0)
+                    if (oldDetail.Count > 0)
                     {
                         ErasoftDbContext.ART03B.Where(m => m.BUKTI == piutangInDb.BUKTI).Delete();
                         piutangInDb.TBAYAR = 0;
@@ -9118,6 +9316,7 @@ namespace MasterOnline.Controllers
             var kdBli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket;
             var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
             var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
+            var kdTokped = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
             var blApi = new BukaLapakController();
             var lzdApi = new LazadaController();
             var eleApi = new EleveniaController();
@@ -9215,6 +9414,25 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //add by calvin 18 desember 2018
+                    else if (marketPlace.NAMA.Equals(kdTokped.ToString()))
+                    {
+                        var TokoAPI = new TokopediaController();
+                        if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
+                        {
+                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                            {
+                                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                                {
+                                    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                    token = marketPlace.TOKEN
+                                };
+                                Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
+                            }
+                        }
+                    }
                     else if (marketPlace.NAMA.Equals(kdShopee.ToString()))
                     {
                         var ShopeeApi = new ShopeeController();
@@ -11565,7 +11783,9 @@ namespace MasterOnline.Controllers
                 Stf02 = new STF02(),
                 TempBrg = new TEMP_BRG_MP(),
             };
-
+            //add and remark by calvin, untuk excel
+            //ProsesTempExcelAutoCompleteBrg("000002");
+            //end add and remark by calvin, untuk excel
             return View(barangVm);
         }
 
@@ -13306,7 +13526,7 @@ namespace MasterOnline.Controllers
                                     };
                                     //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
                                     var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-                                    
+
                                     if (resultShopee.status == 1)
                                     {
                                         if (!string.IsNullOrEmpty(resultShopee.message))
@@ -13387,6 +13607,637 @@ namespace MasterOnline.Controllers
             {
                 return JsonErrorMessage("Anda belum memilih Toko");
             }
+        }
+
+        public ActionResult ProsesTempExcelAutoCompleteBrg(string cust)
+        {
+            List<string> listBrgSuccess = new List<string>();
+            var dataBrg = ErasoftDbContext.Database.SqlQuery<TEMP_BRG_MP_EXCEL>("SELECT B.*, A.SELLER_SKU AS MO_SKU,A.MEREK AS MO_MEREK, A.CATEGORY AS MO_CATEGORY FROM TEMP_BRG_MP_EXCEL A INNER JOIN TEMP_BRG_MP B ON A.CUST = B.CUST AND A.BRG_MP = B.BRG_MP WHERE A.CUST='" + cust + "'").ToList();
+            //var dataBrg = ErasoftDbContext.Database.SqlQuery<TEMP_BRG_MP_EXCEL>("SELECT B.*, A.SELLER_SKU AS MO_SKU,A.MEREK AS MO_MEREK, A.CATEGORY AS MO_CATEGORY FROM TEMP_BRG_MP_EXCEL A INNER JOIN TEMP_BRG_MP B ON A.CUST = B.CUST AND A.BRG_MP = B.BRG_MP WHERE A.CUST='000003' and A.SELLER_SKU IN(select b.seller_sku from stf02 a right join TEMP_BRG_MP_EXCEL b on a.brg = b.seller_sku where isnull(a.brg ,'') = '')").ToList();
+            foreach (var data in dataBrg)
+            {
+                var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.MO_SKU.ToUpper())).FirstOrDefault();
+                if (barangInDB != null)
+                {
+                    var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.MO_SKU.ToUpper()) && b.IDMARKET == data.IDMARKET).FirstOrDefault();
+                    if (brgMp != null)
+                    {
+                        if (!string.IsNullOrEmpty(brgMp.BRG_MP))
+                        {
+                            //return JsonErrorMessage("Barang ini sudah link dengan barang lain di marketplace");
+                        }
+                        else
+                        {
+                            brgMp.HJUAL = data.HJUAL;
+                            brgMp.DISPLAY = data.DISPLAY;
+                            brgMp.BRG_MP = data.BRG_MP;
+                            brgMp.CATEGORY_CODE = data.CATEGORY_CODE;
+                            brgMp.CATEGORY_NAME = data.CATEGORY_NAME;
+                            brgMp.DeliveryTempElevenia = data.DeliveryTempElevenia;
+                            brgMp.PICKUP_POINT = data.PICKUP_POINT;
+                            #region attribute mp
+                            brgMp.ACODE_1 = data.ACODE_1;
+                            brgMp.ANAME_1 = data.ANAME_1;
+                            brgMp.AVALUE_1 = data.AVALUE_1;
+                            brgMp.ACODE_2 = data.ACODE_2;
+                            brgMp.ANAME_2 = data.ANAME_2;
+                            brgMp.AVALUE_2 = data.AVALUE_2;
+                            brgMp.ACODE_3 = data.ACODE_3;
+                            brgMp.ANAME_3 = data.ANAME_3;
+                            brgMp.AVALUE_3 = data.AVALUE_3;
+                            brgMp.ACODE_4 = data.ACODE_4;
+                            brgMp.ANAME_4 = data.ANAME_4;
+                            brgMp.AVALUE_4 = data.AVALUE_4;
+                            brgMp.ACODE_5 = data.ACODE_5;
+                            brgMp.ANAME_5 = data.ANAME_5;
+                            brgMp.AVALUE_5 = data.AVALUE_5;
+                            brgMp.ACODE_6 = data.ACODE_6;
+                            brgMp.ANAME_6 = data.ANAME_6;
+                            brgMp.AVALUE_6 = data.AVALUE_6;
+                            brgMp.ACODE_7 = data.ACODE_7;
+                            brgMp.ANAME_7 = data.ANAME_7;
+                            brgMp.AVALUE_7 = data.AVALUE_7;
+                            brgMp.ACODE_8 = data.ACODE_8;
+                            brgMp.ANAME_8 = data.ANAME_8;
+                            brgMp.AVALUE_8 = data.AVALUE_8;
+                            brgMp.ACODE_9 = data.ACODE_9;
+                            brgMp.ANAME_9 = data.ANAME_9;
+                            brgMp.AVALUE_9 = data.AVALUE_9;
+                            brgMp.ACODE_10 = data.ACODE_10;
+                            brgMp.ANAME_10 = data.ANAME_10;
+                            brgMp.AVALUE_10 = data.AVALUE_10;
+                            brgMp.ACODE_11 = data.ACODE_11;
+                            brgMp.ANAME_11 = data.ANAME_11;
+                            brgMp.AVALUE_11 = data.AVALUE_11;
+                            brgMp.ACODE_12 = data.ACODE_12;
+                            brgMp.ANAME_12 = data.ANAME_12;
+                            brgMp.AVALUE_12 = data.AVALUE_12;
+                            brgMp.ACODE_13 = data.ACODE_13;
+                            brgMp.ANAME_13 = data.ANAME_13;
+                            brgMp.AVALUE_13 = data.AVALUE_13;
+                            brgMp.ACODE_14 = data.ACODE_14;
+                            brgMp.ANAME_14 = data.ANAME_14;
+                            brgMp.AVALUE_14 = data.AVALUE_14;
+                            brgMp.ACODE_15 = data.ACODE_15;
+                            brgMp.ANAME_15 = data.ANAME_15;
+                            brgMp.AVALUE_15 = data.AVALUE_15;
+                            brgMp.ACODE_16 = data.ACODE_16;
+                            brgMp.ANAME_16 = data.ANAME_16;
+                            brgMp.AVALUE_16 = data.AVALUE_16;
+                            brgMp.ACODE_17 = data.ACODE_17;
+                            brgMp.ANAME_17 = data.ANAME_17;
+                            brgMp.AVALUE_17 = data.AVALUE_17;
+                            brgMp.ACODE_18 = data.ACODE_18;
+                            brgMp.ANAME_18 = data.ANAME_18;
+                            brgMp.AVALUE_18 = data.AVALUE_18;
+                            brgMp.ACODE_19 = data.ACODE_19;
+                            brgMp.ANAME_19 = data.ANAME_19;
+                            brgMp.AVALUE_19 = data.AVALUE_19;
+                            brgMp.ACODE_20 = data.ACODE_20;
+                            brgMp.ANAME_20 = data.ANAME_20;
+                            brgMp.AVALUE_20 = data.AVALUE_20;
+                            brgMp.ACODE_21 = data.ACODE_21;
+                            brgMp.ANAME_21 = data.ANAME_21;
+                            brgMp.AVALUE_21 = data.AVALUE_21;
+                            brgMp.ACODE_22 = data.ACODE_22;
+                            brgMp.ANAME_22 = data.ANAME_22;
+                            brgMp.AVALUE_22 = data.AVALUE_22;
+                            brgMp.ACODE_23 = data.ACODE_23;
+                            brgMp.ANAME_23 = data.ANAME_23;
+                            brgMp.AVALUE_23 = data.AVALUE_23;
+                            brgMp.ACODE_24 = data.ACODE_24;
+                            brgMp.ANAME_24 = data.ANAME_24;
+                            brgMp.AVALUE_24 = data.AVALUE_24;
+                            brgMp.ACODE_25 = data.ACODE_25;
+                            brgMp.ANAME_25 = data.ANAME_25;
+                            brgMp.AVALUE_25 = data.AVALUE_25;
+                            brgMp.ACODE_26 = data.ACODE_26;
+                            brgMp.ANAME_26 = data.ANAME_26;
+                            brgMp.AVALUE_26 = data.AVALUE_26;
+                            brgMp.ACODE_27 = data.ACODE_27;
+                            brgMp.ANAME_27 = data.ANAME_27;
+                            brgMp.AVALUE_27 = data.AVALUE_27;
+                            brgMp.ACODE_28 = data.ACODE_28;
+                            brgMp.ANAME_28 = data.ANAME_28;
+                            brgMp.AVALUE_28 = data.AVALUE_28;
+                            brgMp.ACODE_29 = data.ACODE_29;
+                            brgMp.ANAME_29 = data.ANAME_29;
+                            brgMp.AVALUE_29 = data.AVALUE_29;
+                            brgMp.ACODE_30 = data.ACODE_30;
+                            brgMp.ANAME_30 = data.ANAME_30;
+                            brgMp.AVALUE_30 = data.AVALUE_30;
+                            brgMp.ACODE_31 = data.ACODE_31;
+                            brgMp.ANAME_31 = data.ANAME_31;
+                            brgMp.AVALUE_31 = data.AVALUE_31;
+                            brgMp.ACODE_32 = data.ACODE_32;
+                            brgMp.ANAME_32 = data.ANAME_32;
+                            brgMp.AVALUE_32 = data.AVALUE_32;
+                            brgMp.ACODE_33 = data.ACODE_33;
+                            brgMp.ANAME_33 = data.ANAME_33;
+                            brgMp.AVALUE_33 = data.AVALUE_33;
+                            brgMp.ACODE_34 = data.ACODE_34;
+                            brgMp.ANAME_34 = data.ANAME_34;
+                            brgMp.AVALUE_34 = data.AVALUE_34;
+                            brgMp.ACODE_35 = data.ACODE_35;
+                            brgMp.ANAME_35 = data.ANAME_35;
+                            brgMp.AVALUE_35 = data.AVALUE_35;
+                            brgMp.ACODE_36 = data.ACODE_36;
+                            brgMp.ANAME_36 = data.ANAME_36;
+                            brgMp.AVALUE_36 = data.AVALUE_36;
+                            brgMp.ACODE_37 = data.ACODE_37;
+                            brgMp.ANAME_37 = data.ANAME_37;
+                            brgMp.AVALUE_37 = data.AVALUE_37;
+                            brgMp.ACODE_38 = data.ACODE_38;
+                            brgMp.ANAME_38 = data.ANAME_38;
+                            brgMp.AVALUE_38 = data.AVALUE_38;
+                            brgMp.ACODE_39 = data.ACODE_39;
+                            brgMp.ANAME_39 = data.ANAME_39;
+                            brgMp.AVALUE_39 = data.AVALUE_39;
+                            brgMp.ACODE_40 = data.ACODE_40;
+                            brgMp.ANAME_40 = data.ANAME_40;
+                            brgMp.AVALUE_40 = data.AVALUE_40;
+                            brgMp.ACODE_41 = data.ACODE_41;
+                            brgMp.ANAME_41 = data.ANAME_41;
+                            brgMp.AVALUE_41 = data.AVALUE_41;
+                            brgMp.ACODE_42 = data.ACODE_42;
+                            brgMp.ANAME_42 = data.ANAME_42;
+                            brgMp.AVALUE_42 = data.AVALUE_42;
+                            brgMp.ACODE_43 = data.ACODE_43;
+                            brgMp.ANAME_43 = data.ANAME_43;
+                            brgMp.AVALUE_43 = data.AVALUE_43;
+                            brgMp.ACODE_44 = data.ACODE_44;
+                            brgMp.ANAME_44 = data.ANAME_44;
+                            brgMp.AVALUE_44 = data.AVALUE_44;
+                            brgMp.ACODE_45 = data.ACODE_45;
+                            brgMp.ANAME_45 = data.ANAME_45;
+                            brgMp.AVALUE_45 = data.AVALUE_45;
+                            brgMp.ACODE_46 = data.ACODE_46;
+                            brgMp.ANAME_46 = data.ANAME_46;
+                            brgMp.AVALUE_46 = data.AVALUE_46;
+                            brgMp.ACODE_47 = data.ACODE_47;
+                            brgMp.ANAME_47 = data.ANAME_47;
+                            brgMp.AVALUE_47 = data.AVALUE_47;
+                            brgMp.ACODE_48 = data.ACODE_48;
+                            brgMp.ANAME_48 = data.ANAME_48;
+                            brgMp.AVALUE_48 = data.AVALUE_48;
+                            brgMp.ACODE_49 = data.ACODE_49;
+                            brgMp.ANAME_49 = data.ANAME_49;
+                            brgMp.AVALUE_49 = data.AVALUE_49;
+                            brgMp.ACODE_50 = data.ACODE_50;
+                            brgMp.ANAME_50 = data.ANAME_50;
+                            brgMp.AVALUE_50 = data.AVALUE_50;
+                            #endregion
+                            ErasoftDbContext.SaveChanges();
+
+                            listBrgSuccess.Add(data.BRG_MP);
+                        }
+                    }
+                    else
+                    {
+                        brgMp = new STF02H();
+                        brgMp.BRG = data.MO_SKU;
+                        brgMp.BRG_MP = data.BRG_MP;
+                        brgMp.HJUAL = data.HJUAL;
+                        brgMp.DISPLAY = data.DISPLAY;
+                        brgMp.CATEGORY_CODE = data.CATEGORY_CODE;
+                        brgMp.CATEGORY_NAME = data.CATEGORY_NAME;
+                        brgMp.IDMARKET = data.IDMARKET;
+                        brgMp.DeliveryTempElevenia = data.DeliveryTempElevenia;
+                        brgMp.PICKUP_POINT = data.PICKUP_POINT;
+                        var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.CUST.ToUpper())).FirstOrDefault();
+                        if (customer != null)
+                            brgMp.AKUNMARKET = customer.PERSO;
+                        //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
+                        brgMp.USERNAME = "EXCEL_SYNC_ITEM";
+                        #region attribute mp
+                        brgMp.ACODE_1 = data.ACODE_1;
+                        brgMp.ANAME_1 = data.ANAME_1;
+                        brgMp.AVALUE_1 = data.AVALUE_1;
+                        brgMp.ACODE_2 = data.ACODE_2;
+                        brgMp.ANAME_2 = data.ANAME_2;
+                        brgMp.AVALUE_2 = data.AVALUE_2;
+                        brgMp.ACODE_3 = data.ACODE_3;
+                        brgMp.ANAME_3 = data.ANAME_3;
+                        brgMp.AVALUE_3 = data.AVALUE_3;
+                        brgMp.ACODE_4 = data.ACODE_4;
+                        brgMp.ANAME_4 = data.ANAME_4;
+                        brgMp.AVALUE_4 = data.AVALUE_4;
+                        brgMp.ACODE_5 = data.ACODE_5;
+                        brgMp.ANAME_5 = data.ANAME_5;
+                        brgMp.AVALUE_5 = data.AVALUE_5;
+                        brgMp.ACODE_6 = data.ACODE_6;
+                        brgMp.ANAME_6 = data.ANAME_6;
+                        brgMp.AVALUE_6 = data.AVALUE_6;
+                        brgMp.ACODE_7 = data.ACODE_7;
+                        brgMp.ANAME_7 = data.ANAME_7;
+                        brgMp.AVALUE_7 = data.AVALUE_7;
+                        brgMp.ACODE_8 = data.ACODE_8;
+                        brgMp.ANAME_8 = data.ANAME_8;
+                        brgMp.AVALUE_8 = data.AVALUE_8;
+                        brgMp.ACODE_9 = data.ACODE_9;
+                        brgMp.ANAME_9 = data.ANAME_9;
+                        brgMp.AVALUE_9 = data.AVALUE_9;
+                        brgMp.ACODE_10 = data.ACODE_10;
+                        brgMp.ANAME_10 = data.ANAME_10;
+                        brgMp.AVALUE_10 = data.AVALUE_10;
+                        brgMp.ACODE_11 = data.ACODE_11;
+                        brgMp.ANAME_11 = data.ANAME_11;
+                        brgMp.AVALUE_11 = data.AVALUE_11;
+                        brgMp.ACODE_12 = data.ACODE_12;
+                        brgMp.ANAME_12 = data.ANAME_12;
+                        brgMp.AVALUE_12 = data.AVALUE_12;
+                        brgMp.ACODE_13 = data.ACODE_13;
+                        brgMp.ANAME_13 = data.ANAME_13;
+                        brgMp.AVALUE_13 = data.AVALUE_13;
+                        brgMp.ACODE_14 = data.ACODE_14;
+                        brgMp.ANAME_14 = data.ANAME_14;
+                        brgMp.AVALUE_14 = data.AVALUE_14;
+                        brgMp.ACODE_15 = data.ACODE_15;
+                        brgMp.ANAME_15 = data.ANAME_15;
+                        brgMp.AVALUE_15 = data.AVALUE_15;
+                        brgMp.ACODE_16 = data.ACODE_16;
+                        brgMp.ANAME_16 = data.ANAME_16;
+                        brgMp.AVALUE_16 = data.AVALUE_16;
+                        brgMp.ACODE_17 = data.ACODE_17;
+                        brgMp.ANAME_17 = data.ANAME_17;
+                        brgMp.AVALUE_17 = data.AVALUE_17;
+                        brgMp.ACODE_18 = data.ACODE_18;
+                        brgMp.ANAME_18 = data.ANAME_18;
+                        brgMp.AVALUE_18 = data.AVALUE_18;
+                        brgMp.ACODE_19 = data.ACODE_19;
+                        brgMp.ANAME_19 = data.ANAME_19;
+                        brgMp.AVALUE_19 = data.AVALUE_19;
+                        brgMp.ACODE_20 = data.ACODE_20;
+                        brgMp.ANAME_20 = data.ANAME_20;
+                        brgMp.AVALUE_20 = data.AVALUE_20;
+                        brgMp.ACODE_21 = data.ACODE_21;
+                        brgMp.ANAME_21 = data.ANAME_21;
+                        brgMp.AVALUE_21 = data.AVALUE_21;
+                        brgMp.ACODE_22 = data.ACODE_22;
+                        brgMp.ANAME_22 = data.ANAME_22;
+                        brgMp.AVALUE_22 = data.AVALUE_22;
+                        brgMp.ACODE_23 = data.ACODE_23;
+                        brgMp.ANAME_23 = data.ANAME_23;
+                        brgMp.AVALUE_23 = data.AVALUE_23;
+                        brgMp.ACODE_24 = data.ACODE_24;
+                        brgMp.ANAME_24 = data.ANAME_24;
+                        brgMp.AVALUE_24 = data.AVALUE_24;
+                        brgMp.ACODE_25 = data.ACODE_25;
+                        brgMp.ANAME_25 = data.ANAME_25;
+                        brgMp.AVALUE_25 = data.AVALUE_25;
+                        brgMp.ACODE_26 = data.ACODE_26;
+                        brgMp.ANAME_26 = data.ANAME_26;
+                        brgMp.AVALUE_26 = data.AVALUE_26;
+                        brgMp.ACODE_27 = data.ACODE_27;
+                        brgMp.ANAME_27 = data.ANAME_27;
+                        brgMp.AVALUE_27 = data.AVALUE_27;
+                        brgMp.ACODE_28 = data.ACODE_28;
+                        brgMp.ANAME_28 = data.ANAME_28;
+                        brgMp.AVALUE_28 = data.AVALUE_28;
+                        brgMp.ACODE_29 = data.ACODE_29;
+                        brgMp.ANAME_29 = data.ANAME_29;
+                        brgMp.AVALUE_29 = data.AVALUE_29;
+                        brgMp.ACODE_30 = data.ACODE_30;
+                        brgMp.ANAME_30 = data.ANAME_30;
+                        brgMp.AVALUE_30 = data.AVALUE_30;
+                        brgMp.ACODE_31 = data.ACODE_31;
+                        brgMp.ANAME_31 = data.ANAME_31;
+                        brgMp.AVALUE_31 = data.AVALUE_31;
+                        brgMp.ACODE_32 = data.ACODE_32;
+                        brgMp.ANAME_32 = data.ANAME_32;
+                        brgMp.AVALUE_32 = data.AVALUE_32;
+                        brgMp.ACODE_33 = data.ACODE_33;
+                        brgMp.ANAME_33 = data.ANAME_33;
+                        brgMp.AVALUE_33 = data.AVALUE_33;
+                        brgMp.ACODE_34 = data.ACODE_34;
+                        brgMp.ANAME_34 = data.ANAME_34;
+                        brgMp.AVALUE_34 = data.AVALUE_34;
+                        brgMp.ACODE_35 = data.ACODE_35;
+                        brgMp.ANAME_35 = data.ANAME_35;
+                        brgMp.AVALUE_35 = data.AVALUE_35;
+                        brgMp.ACODE_36 = data.ACODE_36;
+                        brgMp.ANAME_36 = data.ANAME_36;
+                        brgMp.AVALUE_36 = data.AVALUE_36;
+                        brgMp.ACODE_37 = data.ACODE_37;
+                        brgMp.ANAME_37 = data.ANAME_37;
+                        brgMp.AVALUE_37 = data.AVALUE_37;
+                        brgMp.ACODE_38 = data.ACODE_38;
+                        brgMp.ANAME_38 = data.ANAME_38;
+                        brgMp.AVALUE_38 = data.AVALUE_38;
+                        brgMp.ACODE_39 = data.ACODE_39;
+                        brgMp.ANAME_39 = data.ANAME_39;
+                        brgMp.AVALUE_39 = data.AVALUE_39;
+                        brgMp.ACODE_40 = data.ACODE_40;
+                        brgMp.ANAME_40 = data.ANAME_40;
+                        brgMp.AVALUE_40 = data.AVALUE_40;
+                        brgMp.ACODE_41 = data.ACODE_41;
+                        brgMp.ANAME_41 = data.ANAME_41;
+                        brgMp.AVALUE_41 = data.AVALUE_41;
+                        brgMp.ACODE_42 = data.ACODE_42;
+                        brgMp.ANAME_42 = data.ANAME_42;
+                        brgMp.AVALUE_42 = data.AVALUE_42;
+                        brgMp.ACODE_43 = data.ACODE_43;
+                        brgMp.ANAME_43 = data.ANAME_43;
+                        brgMp.AVALUE_43 = data.AVALUE_43;
+                        brgMp.ACODE_44 = data.ACODE_44;
+                        brgMp.ANAME_44 = data.ANAME_44;
+                        brgMp.AVALUE_44 = data.AVALUE_44;
+                        brgMp.ACODE_45 = data.ACODE_45;
+                        brgMp.ANAME_45 = data.ANAME_45;
+                        brgMp.AVALUE_45 = data.AVALUE_45;
+                        brgMp.ACODE_46 = data.ACODE_46;
+                        brgMp.ANAME_46 = data.ANAME_46;
+                        brgMp.AVALUE_46 = data.AVALUE_46;
+                        brgMp.ACODE_47 = data.ACODE_47;
+                        brgMp.ANAME_47 = data.ANAME_47;
+                        brgMp.AVALUE_47 = data.AVALUE_47;
+                        brgMp.ACODE_48 = data.ACODE_48;
+                        brgMp.ANAME_48 = data.ANAME_48;
+                        brgMp.AVALUE_48 = data.AVALUE_48;
+                        brgMp.ACODE_49 = data.ACODE_49;
+                        brgMp.ANAME_49 = data.ANAME_49;
+                        brgMp.AVALUE_49 = data.AVALUE_49;
+                        brgMp.ACODE_50 = data.ACODE_50;
+                        brgMp.ANAME_50 = data.ANAME_50;
+                        brgMp.AVALUE_50 = data.AVALUE_50;
+                        #endregion
+                        ErasoftDbContext.STF02H.Add(brgMp);
+                        ErasoftDbContext.SaveChanges();
+
+                        listBrgSuccess.Add(data.BRG_MP);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+
+                        var data_Stf02 = new STF02
+                        {
+                            HPP = 0,
+                            HBELI = 0,
+                            HBESAR = 0,
+                            HKECIL = 0,
+                            TYPE = "3",
+                            KLINK = "1",
+                            HP_STD = 0,
+                            QPROD = 0,
+                            ISI3 = 3,
+                            ISI4 = 1,
+                            TOLERANSI = 0,
+                            H_STN_3 = 0,
+                            H_STN_4 = 0,
+                            SS = 0,
+                            METODA_HPP_PER_SN = false,
+                            HNA_PPN = 0,
+                            LABA = 0,
+                            DEFAULT_STN_HRG_JUAL = 0,
+                            DEFAULT_STN_JUAL = 0,
+                            ISI = 1,
+                            Metoda = "1",
+                            Tgl_Input = DateTime.Now,
+                            TGL_KLR = DateTime.Now,
+                            MAXI = 100,
+                            MINI = 1,
+                            QSALES = 0,
+                            DISPLAY_MARKET = false,
+                        };
+                        data_Stf02.BRG = data.MO_SKU;
+
+                        data_Stf02.NAMA = data.NAMA;
+                        data_Stf02.NAMA2 = data.NAMA2;
+                        data_Stf02.NAMA3 = data.NAMA3;
+                        data_Stf02.HJUAL = data.HJUAL;
+                        data_Stf02.STN = "pcs";
+                        data_Stf02.STN2 = "pcs";
+                        data_Stf02.BERAT = data.BERAT;
+                        data_Stf02.TINGGI = data.TINGGI;
+                        data_Stf02.LEBAR = data.LEBAR;
+                        data_Stf02.PANJANG = data.PANJANG;
+                        data_Stf02.Sort1 = data.MO_CATEGORY;
+                        data_Stf02.Sort1 = "1";
+                        //data_Stf02.Sort2 = data.MO_MEREK;
+                        data_Stf02.Sort2 = "HB";
+                        //var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.CUST.ToUpper())).FirstOrDefault();
+                        //if (customer != null)
+                        //{
+                        //    stf02.KET_SORT1 = defaultCategoryCode.KET;
+                        //    stf02.KET_SORT2 = defaultBrand.KET;
+                        //}
+
+                        data_Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Deskripsi);
+                        if (!string.IsNullOrEmpty(data.IMAGE))
+                        {
+                            data_Stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(data.IMAGE, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(data.IMAGE2))
+                        {
+                            data_Stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(data.IMAGE2, "uploaded-image").data.link_l;
+                        }
+                        if (!string.IsNullOrEmpty(data.IMAGE3))
+                        {
+                            data_Stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(data.IMAGE3, "uploaded-image").data.link_l;
+                        }
+                        ErasoftDbContext.STF02.Add(data_Stf02);
+
+                        var brgMp = new STF02H();
+                        brgMp.BRG = data.MO_SKU;
+                        brgMp.BRG_MP = data.BRG_MP;
+                        brgMp.HJUAL = data.HJUAL;
+                        brgMp.DISPLAY = data.DISPLAY;
+                        brgMp.CATEGORY_CODE = data.CATEGORY_CODE;
+                        brgMp.CATEGORY_NAME = data.CATEGORY_NAME;
+                        brgMp.IDMARKET = data.IDMARKET;
+                        brgMp.DeliveryTempElevenia = data.DeliveryTempElevenia;
+                        brgMp.PICKUP_POINT = data.PICKUP_POINT;
+                        var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.CUST.ToUpper())).FirstOrDefault();
+                        if (customer != null)
+                            brgMp.AKUNMARKET = customer.PERSO;
+                        //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
+                        brgMp.USERNAME = "EXCEL_SYNC_ITEM";
+                        #region attribute mp
+                        brgMp.ACODE_1 = data.ACODE_1;
+                        brgMp.ANAME_1 = data.ANAME_1;
+                        brgMp.AVALUE_1 = data.AVALUE_1;
+                        brgMp.ACODE_2 = data.ACODE_2;
+                        brgMp.ANAME_2 = data.ANAME_2;
+                        brgMp.AVALUE_2 = data.AVALUE_2;
+                        brgMp.ACODE_3 = data.ACODE_3;
+                        brgMp.ANAME_3 = data.ANAME_3;
+                        brgMp.AVALUE_3 = data.AVALUE_3;
+                        brgMp.ACODE_4 = data.ACODE_4;
+                        brgMp.ANAME_4 = data.ANAME_4;
+                        brgMp.AVALUE_4 = data.AVALUE_4;
+                        brgMp.ACODE_5 = data.ACODE_5;
+                        brgMp.ANAME_5 = data.ANAME_5;
+                        brgMp.AVALUE_5 = data.AVALUE_5;
+                        brgMp.ACODE_6 = data.ACODE_6;
+                        brgMp.ANAME_6 = data.ANAME_6;
+                        brgMp.AVALUE_6 = data.AVALUE_6;
+                        brgMp.ACODE_7 = data.ACODE_7;
+                        brgMp.ANAME_7 = data.ANAME_7;
+                        brgMp.AVALUE_7 = data.AVALUE_7;
+                        brgMp.ACODE_8 = data.ACODE_8;
+                        brgMp.ANAME_8 = data.ANAME_8;
+                        brgMp.AVALUE_8 = data.AVALUE_8;
+                        brgMp.ACODE_9 = data.ACODE_9;
+                        brgMp.ANAME_9 = data.ANAME_9;
+                        brgMp.AVALUE_9 = data.AVALUE_9;
+                        brgMp.ACODE_10 = data.ACODE_10;
+                        brgMp.ANAME_10 = data.ANAME_10;
+                        brgMp.AVALUE_10 = data.AVALUE_10;
+                        brgMp.ACODE_11 = data.ACODE_11;
+                        brgMp.ANAME_11 = data.ANAME_11;
+                        brgMp.AVALUE_11 = data.AVALUE_11;
+                        brgMp.ACODE_12 = data.ACODE_12;
+                        brgMp.ANAME_12 = data.ANAME_12;
+                        brgMp.AVALUE_12 = data.AVALUE_12;
+                        brgMp.ACODE_13 = data.ACODE_13;
+                        brgMp.ANAME_13 = data.ANAME_13;
+                        brgMp.AVALUE_13 = data.AVALUE_13;
+                        brgMp.ACODE_14 = data.ACODE_14;
+                        brgMp.ANAME_14 = data.ANAME_14;
+                        brgMp.AVALUE_14 = data.AVALUE_14;
+                        brgMp.ACODE_15 = data.ACODE_15;
+                        brgMp.ANAME_15 = data.ANAME_15;
+                        brgMp.AVALUE_15 = data.AVALUE_15;
+                        brgMp.ACODE_16 = data.ACODE_16;
+                        brgMp.ANAME_16 = data.ANAME_16;
+                        brgMp.AVALUE_16 = data.AVALUE_16;
+                        brgMp.ACODE_17 = data.ACODE_17;
+                        brgMp.ANAME_17 = data.ANAME_17;
+                        brgMp.AVALUE_17 = data.AVALUE_17;
+                        brgMp.ACODE_18 = data.ACODE_18;
+                        brgMp.ANAME_18 = data.ANAME_18;
+                        brgMp.AVALUE_18 = data.AVALUE_18;
+                        brgMp.ACODE_19 = data.ACODE_19;
+                        brgMp.ANAME_19 = data.ANAME_19;
+                        brgMp.AVALUE_19 = data.AVALUE_19;
+                        brgMp.ACODE_20 = data.ACODE_20;
+                        brgMp.ANAME_20 = data.ANAME_20;
+                        brgMp.AVALUE_20 = data.AVALUE_20;
+                        brgMp.ACODE_21 = data.ACODE_21;
+                        brgMp.ANAME_21 = data.ANAME_21;
+                        brgMp.AVALUE_21 = data.AVALUE_21;
+                        brgMp.ACODE_22 = data.ACODE_22;
+                        brgMp.ANAME_22 = data.ANAME_22;
+                        brgMp.AVALUE_22 = data.AVALUE_22;
+                        brgMp.ACODE_23 = data.ACODE_23;
+                        brgMp.ANAME_23 = data.ANAME_23;
+                        brgMp.AVALUE_23 = data.AVALUE_23;
+                        brgMp.ACODE_24 = data.ACODE_24;
+                        brgMp.ANAME_24 = data.ANAME_24;
+                        brgMp.AVALUE_24 = data.AVALUE_24;
+                        brgMp.ACODE_25 = data.ACODE_25;
+                        brgMp.ANAME_25 = data.ANAME_25;
+                        brgMp.AVALUE_25 = data.AVALUE_25;
+                        brgMp.ACODE_26 = data.ACODE_26;
+                        brgMp.ANAME_26 = data.ANAME_26;
+                        brgMp.AVALUE_26 = data.AVALUE_26;
+                        brgMp.ACODE_27 = data.ACODE_27;
+                        brgMp.ANAME_27 = data.ANAME_27;
+                        brgMp.AVALUE_27 = data.AVALUE_27;
+                        brgMp.ACODE_28 = data.ACODE_28;
+                        brgMp.ANAME_28 = data.ANAME_28;
+                        brgMp.AVALUE_28 = data.AVALUE_28;
+                        brgMp.ACODE_29 = data.ACODE_29;
+                        brgMp.ANAME_29 = data.ANAME_29;
+                        brgMp.AVALUE_29 = data.AVALUE_29;
+                        brgMp.ACODE_30 = data.ACODE_30;
+                        brgMp.ANAME_30 = data.ANAME_30;
+                        brgMp.AVALUE_30 = data.AVALUE_30;
+                        brgMp.ACODE_31 = data.ACODE_31;
+                        brgMp.ANAME_31 = data.ANAME_31;
+                        brgMp.AVALUE_31 = data.AVALUE_31;
+                        brgMp.ACODE_32 = data.ACODE_32;
+                        brgMp.ANAME_32 = data.ANAME_32;
+                        brgMp.AVALUE_32 = data.AVALUE_32;
+                        brgMp.ACODE_33 = data.ACODE_33;
+                        brgMp.ANAME_33 = data.ANAME_33;
+                        brgMp.AVALUE_33 = data.AVALUE_33;
+                        brgMp.ACODE_34 = data.ACODE_34;
+                        brgMp.ANAME_34 = data.ANAME_34;
+                        brgMp.AVALUE_34 = data.AVALUE_34;
+                        brgMp.ACODE_35 = data.ACODE_35;
+                        brgMp.ANAME_35 = data.ANAME_35;
+                        brgMp.AVALUE_35 = data.AVALUE_35;
+                        brgMp.ACODE_36 = data.ACODE_36;
+                        brgMp.ANAME_36 = data.ANAME_36;
+                        brgMp.AVALUE_36 = data.AVALUE_36;
+                        brgMp.ACODE_37 = data.ACODE_37;
+                        brgMp.ANAME_37 = data.ANAME_37;
+                        brgMp.AVALUE_37 = data.AVALUE_37;
+                        brgMp.ACODE_38 = data.ACODE_38;
+                        brgMp.ANAME_38 = data.ANAME_38;
+                        brgMp.AVALUE_38 = data.AVALUE_38;
+                        brgMp.ACODE_39 = data.ACODE_39;
+                        brgMp.ANAME_39 = data.ANAME_39;
+                        brgMp.AVALUE_39 = data.AVALUE_39;
+                        brgMp.ACODE_40 = data.ACODE_40;
+                        brgMp.ANAME_40 = data.ANAME_40;
+                        brgMp.AVALUE_40 = data.AVALUE_40;
+                        brgMp.ACODE_41 = data.ACODE_41;
+                        brgMp.ANAME_41 = data.ANAME_41;
+                        brgMp.AVALUE_41 = data.AVALUE_41;
+                        brgMp.ACODE_42 = data.ACODE_42;
+                        brgMp.ANAME_42 = data.ANAME_42;
+                        brgMp.AVALUE_42 = data.AVALUE_42;
+                        brgMp.ACODE_43 = data.ACODE_43;
+                        brgMp.ANAME_43 = data.ANAME_43;
+                        brgMp.AVALUE_43 = data.AVALUE_43;
+                        brgMp.ACODE_44 = data.ACODE_44;
+                        brgMp.ANAME_44 = data.ANAME_44;
+                        brgMp.AVALUE_44 = data.AVALUE_44;
+                        brgMp.ACODE_45 = data.ACODE_45;
+                        brgMp.ANAME_45 = data.ANAME_45;
+                        brgMp.AVALUE_45 = data.AVALUE_45;
+                        brgMp.ACODE_46 = data.ACODE_46;
+                        brgMp.ANAME_46 = data.ANAME_46;
+                        brgMp.AVALUE_46 = data.AVALUE_46;
+                        brgMp.ACODE_47 = data.ACODE_47;
+                        brgMp.ANAME_47 = data.ANAME_47;
+                        brgMp.AVALUE_47 = data.AVALUE_47;
+                        brgMp.ACODE_48 = data.ACODE_48;
+                        brgMp.ANAME_48 = data.ANAME_48;
+                        brgMp.AVALUE_48 = data.AVALUE_48;
+                        brgMp.ACODE_49 = data.ACODE_49;
+                        brgMp.ANAME_49 = data.ANAME_49;
+                        brgMp.AVALUE_49 = data.AVALUE_49;
+                        brgMp.ACODE_50 = data.ACODE_50;
+                        brgMp.ANAME_50 = data.ANAME_50;
+                        brgMp.AVALUE_50 = data.AVALUE_50;
+                        #endregion
+                        ErasoftDbContext.STF02H.Add(brgMp);
+                        ErasoftDbContext.SaveChanges();
+
+                        listBrgSuccess.Add(data.BRG_MP);
+                    }
+                    catch (DbEntityValidationException e)
+                    {
+                        foreach (var eve in e.EntityValidationErrors)
+                        {
+                            Console.WriteLine("Entity of type \"{0}\" in state \"{1}\" has the following validation errors:",
+                                eve.Entry.Entity.GetType().Name, eve.Entry.State);
+                            foreach (var ve in eve.ValidationErrors)
+                            {
+                                Console.WriteLine("- Property: \"{0}\", Error: \"{1}\"",
+                                    ve.PropertyName, ve.ErrorMessage);
+                            }
+                        }
+                        throw;
+                    }
+                }
+            }
+
+            if (listBrgSuccess.Count > 0)
+            {
+                foreach (var brg_mp in listBrgSuccess)
+                {
+                    ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
+                }
+                ErasoftDbContext.SaveChanges();
+            }
+            return JsonErrorMessage("Akun tidak ada");
         }
 
         public ActionResult AutoCompleteBrg(string brg, string brg_mp, string cust)
