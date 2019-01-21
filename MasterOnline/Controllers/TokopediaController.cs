@@ -889,7 +889,7 @@ namespace MasterOnline.Controllers
         //                if (string.IsNullOrEmpty(result.header.reason))
         //                {
         //                    if (result.data.categories.Count() > 0)
-        //                    {
+        //                    {178
         //#if AWS
         //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
         //#elif Debug_AWS
