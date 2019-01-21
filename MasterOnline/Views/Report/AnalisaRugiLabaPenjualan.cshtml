@@ -49,6 +49,22 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-md-3">
+        @Html.Label("", "Berdasarkan")
+        <div class="input-group text">
+            <select class="form-control" id="Order" name="Order" required="required">
+                <option>--Pilih--</option>
+                <option value="1">Cust</option>
+                <option value="2">Barang</option>
+                <option value="3">Cust/Barang</option>
+                <option value="4">Barang/Cust</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-9">
+    </div>
+</div>
+<div class="row" id="div_Cust">
     <div class="col-md-2">
         @Html.Label("", "Dari Customer")
         <div class="input-group text">
@@ -75,7 +91,7 @@
 
     </div>
 </div>
-<div class="row">
+<div class="row" id="div_Brg">
     <div class="col-md-2">
         @Html.Label("", "Dari Barang")
         <div class="input-group text">
@@ -93,6 +109,33 @@
             @Html.TextBox("ToBrg", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
             <span class="input-group-btn">
                 <button id="prompt-sdbrg" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+
+    </div>
+</div>
+<div class="row" id="div_Cust2">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Customer")
+        <div class="input-group text">
+            @Html.TextBox("FromCust2", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-daricustomer2" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "Sampai Customer")
+        <div class="input-group text">
+            @Html.TextBox("ToCust2", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-sdcustomer2" class="btn btn-default" type="button" style="height: 34px;">
                     <span class="glyphicon glyphicon-option-horizontal"></span>
                 </button>
             </span>
@@ -122,6 +165,12 @@
         var promptBrg = "";
         var promptCust = "";
         $(document).ready(function () {
+            //add by nurul 11/1/2019
+            $('#div_Cust').hide();
+            $('#div_Brg').hide();
+            $('#div_Cust2').hide();
+            //end add
+
             var d = new Date();
 
             //change by nurul 6/11/2018
@@ -173,9 +222,70 @@
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
 
-            $('#preview-report').click(function() {
+            $('#preview-report').click(function () {
                 previewing();
             });
+
+            //add by nurul 11/1/2019
+            $('#Order').change(function () {
+                if ($('#Order').val() == 1) {
+                    $('#div_Cust').show();
+                    $('#div_Brg').hide();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 2) {
+                    $('#div_Cust').hide();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 3) {
+                    $('#div_Cust').show();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 4) {
+                    $('#div_Cust').hide();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').show();
+                } else {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                }
+            }); 
+
+            $('#Order').click(function () {
+                if ($('#Order').val() == 1) {
+                    $('#div_Cust').show();
+                    $('#div_Brg').hide();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 2) {
+                    $('#div_Cust').hide();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 3) {
+                    $('#div_Cust').show();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').hide();
+                } else if ($('#Order').val() == 4) {
+                    $('#div_Cust').hide();
+                    $('#div_Brg').show();
+                    $('#div_Cust2').show();
+                } else {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                }
+            }); 
+
+            $('#prompt-daricustomer2').click(function () {
+                promptCust = "3";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdcustomer2').click(function () {
+                promptCust = "4";
+                var $link = '@Url.Action("PromptCustomer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            //end add by nurul 11/1/2019
         });
 
         function formatDateToYYYYmmDD(a) {
@@ -198,17 +308,47 @@
         var tanggalcutoff = "";
         function previewing() {
             //if (selisihValid()) {
+            //add by nurul 11/1/2019
+            var drCust = "";
+            var sdCust = "";
+            //if ($('#FromCust').val() != "" || $('#ToCust').val() != "") {
+            //    drCust = $('#FromCust').val();
+            //    sdCust = $('#ToCust').val();
+            //} else if ($('#FromCust2').val() != "" || $('#ToCust2').val() != "") {
+            //    drCust = $('#FromCust2').val();
+            //    sdCust = $('#ToCust2').val();
+            //}
+
+            if ($('#Order').val() == 1) {
+                drCust = $('#FromCust').val();
+                sdCust = $('#ToCust').val();
+            } else if ($('#Order').val() == 3) {
+                drCust = $('#FromCust').val();
+                sdCust = $('#ToCust').val();
+            } else if ($('#Order').val() == 4) {
+                drCust = $('#FromCust2').val();
+                sdCust = $('#ToCust2').val();
+            }
+            //end add
+
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("Preview6", "Report")',
                     data: JSON.stringify({
                         UserId: '@(userId)',
-                        FromCust: $('#FromCust').val(),
-                        ToCust: $('#ToCust').val(),
+                        //change by nurul 11/1/2019
+                        //FromCust: $('#FromCust').val(),
+                        //ToCust: $('#ToCust').val(),
+                        FromCust: drCust,
+                        ToCust: sdCust,
+                        //end change 
                         FromBrg: $('#FromBrg').val(),
                         ToBrg: $('#ToBrg').val(),
                         DrTanggal: formatDateToYYYYmmDD(1),
-                        SdTanggal: formatDateToYYYYmmDD(2)
+                        SdTanggal: formatDateToYYYYmmDD(2),
+                        //add by nurul 
+                        Order: $('#Order').val()
+                        //end add 
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -236,6 +376,14 @@
             else if (promptCust == "2") {
                 $('#ToCust').val(cust);
             }
+            //add by nurul 11/1/2019
+            else if (promptCust == "3") {
+                $('#FromCust2').val(cust);
+            }
+            else if (promptCust == "4") {
+                $('#ToCust2').val(cust);
+            }
+            //end add 
             promptCust = "";
         }
         function afterPromptBarang(brg) {

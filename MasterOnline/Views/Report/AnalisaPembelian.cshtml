@@ -50,6 +50,22 @@
     </div>
 </div>
 <div class="row">
+    <div class="col-md-3">
+        @Html.Label("", "Berdasarkan")
+        <div class="input-group text">
+            <select class="form-control" id="Order" name="Order" required="required">
+                <option>--Pilih--</option>
+                <option value="1">Supp</option>
+                <option value="2">Barang</option>
+                <option value="3">Supp/Barang</option>
+                <option value="4">Barang/Supp</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-9">
+    </div>
+</div>
+<div class="row" id="div_Supp">
     <div class="col-md-2">
         @Html.Label("", "Dari Supplier")
         <div class="input-group text">
@@ -76,7 +92,7 @@
 
     </div>
 </div>
-<div class="row">
+<div class="row" id="div_Brg">
     <div class="col-md-2">
         @Html.Label("", "Dari Barang")
         <div class="input-group text">
@@ -96,6 +112,34 @@
                 <button id="prompt-sdbrg" class="btn btn-default" type="button" style="height: 34px;">
                     <span class="glyphicon glyphicon-option-horizontal"></span>
                 </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+
+    </div>
+</div>
+<div class="row" id="div_Supp2">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Supplier")
+        <div class="input-group text">
+            @Html.TextBox("FromSupp2", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-darisupp2" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "Sampai Supplier")
+        <div class="input-group text">
+            @Html.TextBox("ToSupp2", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-sdsupp2" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
         </div>
     </div>
     <div class="col-md-8">
@@ -122,6 +166,12 @@
         var promptSupp = "";
         var promptBrg = "";
         $(document).ready(function () {
+            //add by nurul 11/1/2019
+            $('#div_Supp').hide();
+            $('#div_Brg').hide();
+            $('#div_Supp2').hide();
+            //end add
+
             var d = new Date();
 
             //change by nurul 2/11/2018
@@ -176,6 +226,67 @@
             $('#preview-report').click(function() {
                 previewing();
             });
+
+            //add by nurul 11/1/2019
+            $('#Order').change(function () {
+                if ($('#Order').val() == 1) {
+                    $('#div_Supp').show();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 2) {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 3) {
+                    $('#div_Supp').show();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 4) {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').show();
+                } else {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                }
+            }); 
+
+            $('#Order').click(function () {
+                if ($('#Order').val() == 1) {
+                    $('#div_Supp').show();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 2) {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 3) {
+                    $('#div_Supp').show();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').hide();
+                } else if ($('#Order').val() == 4) {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').show();
+                    $('#div_Supp2').show();
+                } else {
+                    $('#div_Supp').hide();
+                    $('#div_Brg').hide();
+                    $('#div_Supp2').hide();
+                }
+            }); 
+
+            $('#prompt-darisupp2').click(function () {
+                promptSupp = "3";
+                var $link = '@Url.Action("PromptSupplier", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdsupp2').click(function () {
+                promptSupp = "4";
+                var $link = '@Url.Action("PromptSupplier", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            //end add by nurul 11/1/2019
         });
 
         function formatDateToYYYYmmDD(a) {
@@ -197,17 +308,48 @@
         var tanggalcutoff = "";
         function previewing() {
             //if (selisihValid()) {
+            //add by nurul 11/1/2019
+            var drSupp = "";
+            var sdSupp = "";
+            //if ($('#FromSupp').val() != "" || $('#ToSupp').val() != "") {
+            //    drSupp = $('#FromSupp').val();
+            //    sdSupp = $('#ToSupp').val();
+            //} else if ($('#FromSupp2').val() != "" || $('#ToSupp2').val() != "") {
+            //    drSupp = $('#FromSupp2').val();
+            //    sdSupp = $('#ToSupp2').val();
+            //}
+
+            if ($('#Order').val() == 1) {
+                drSupp = $('#FromSupp').val();
+                sdSupp = $('#ToSupp').val();
+            } else if ($('#Order').val() == 3) {
+                drSupp = $('#FromSupp').val();
+                sdSupp = $('#ToSupp').val();
+            } else if ($('#Order').val() == 4) {
+                drSupp = $('#FromSupp2').val();
+                sdSupp = $('#ToSupp2').val();
+            }
+
+            //end add
+
                 $.ajax({
                     type: "POST",
                     url: '@Url.Action("Preview5", "Report")',
                     data: JSON.stringify({
                         UserId: '@(userId)',
-                        FromSupp: $('#FromSupp').val(),
-                        ToSupp: $('#ToSupp').val(),
+                        //change by nurul 11/1/2019
+                        //FromSupp: $('#FromSupp').val(),
+                        //ToSupp: $('#ToSupp').val(),
+                        FromSupp: drSupp,
+                        ToSupp: sdSupp,
+                        //end change 
                         FromBrg: $('#FromBrg').val(),
                         ToBrg: $('#ToBrg').val(),
                         DrTanggal: formatDateToYYYYmmDD(1),
-                        SdTanggal: formatDateToYYYYmmDD(2)
+                        SdTanggal: formatDateToYYYYmmDD(2),
+                        //add by nurul 11/1/2019
+                        Order: $('#Order').val()
+                        //end add
                     }),
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
@@ -235,6 +377,14 @@
             else if (promptSupp == "2") {
                 $('#ToSupp').val(supp);
             }
+            //add by nurul 11/1/2019
+            else if (promptSupp == "3") {
+                $('#FromSupp2').val(supp);
+            }
+            else if (promptSupp == "4") {
+                $('#ToSupp2').val(supp);
+            }
+            //end add 
             promptSupp = "";
         }
         function afterPromptBarang(brg) {

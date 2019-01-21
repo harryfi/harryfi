@@ -1403,11 +1403,18 @@ namespace MasterOnline.Controllers
                                         if (namaBrg.Length > 30)
                                         {
                                             nama = namaBrg.Substring(0, 30);
-                                            if (namaBrg.Length > 60)
+                                            //change by calvin 15 januari 2019
+                                            //if (namaBrg.Length > 60)
+                                            //{
+                                            //    nama2 = namaBrg.Substring(30, 30);
+                                            //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                            //}
+                                            if (namaBrg.Length > 285)
                                             {
-                                                nama2 = namaBrg.Substring(30, 30);
-                                                nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                                nama2 = namaBrg.Substring(30, 255);
+                                                nama3 = "";
                                             }
+                                            //end change by calvin 15 januari 2019
                                             else
                                             {
                                                 nama2 = namaBrg.Substring(30);

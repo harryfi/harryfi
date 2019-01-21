@@ -22,7 +22,7 @@ namespace MasterOnline.Models
         [StringLength(30)]
         public string NAMA { get; set; }
 
-        [StringLength(30)]
+        [StringLength(255)]
         public string NAMA2 { get; set; }
 
         public double HJUAL { get; set; }

@@ -967,11 +967,18 @@ namespace MasterOnline.Controllers
                             if (brg.name.Length > 30)
                             {
                                 nama = brg.name.Substring(0, 30);
-                                if (brg.name.Length > 60)
+                                //change by calvin 15 januari 2019
+                                //if (brg.name.Length > 60)
+                                //{
+                                //    nama2 = brg.name.Substring(30, 30);
+                                //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
+                                //}
+                                if (brg.name.Length > 285)
                                 {
-                                    nama2 = brg.name.Substring(30, 30);
-                                    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
+                                    nama2 = brg.name.Substring(30, 255);
+                                    nama3 = "";
                                 }
+                                //end change by calvin 15 januari 2019
                                 else
                                 {
                                     nama2 = brg.name.Substring(30);
