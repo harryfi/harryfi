@@ -196,7 +196,7 @@ namespace MasterOnline.Controllers
         public string Preview6(ReportViewModel.Report6 data)
         {
 #if AWS
-            return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
+            return string.Format("https://report.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
                 Uri.EscapeDataString(data.ToCust),
