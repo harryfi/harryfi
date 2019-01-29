@@ -12450,14 +12450,14 @@ namespace MasterOnline.Controllers
             //listBrg.Add(stt01b);
             //updateStockMarketPlace(listBrg);
 
-            var shoAPI = new ShopeeController();
-            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
-            {
-                merchant_code = "6297330",
-            };
+            //var shoAPI = new ShopeeController();
+            //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            //{
+            //    merchant_code = "6297330",
+            //};
             //ShopeeController.ShopeeGetParameterForInitLogisticResult InitParam;
             //InitParam = shoAPI.GetParameterForInitLogistic(data, "");
-            var InitParam = shoAPI.GetParameterForInitLogistic(data, "19012314340WD5C");
+            //var InitParam = shoAPI.GetParameterForInitLogistic(data, "19012314340WD5C");
 
             return View(barangVm);
         }
