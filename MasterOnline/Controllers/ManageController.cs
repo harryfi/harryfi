@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
                         lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
-            //end remark by calvin 13 desember 2018, testing
+            ////end remark by calvin 13 desember 2018, testing
 
             var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
@@ -657,6 +657,9 @@ namespace MasterOnline.Controllers
         {
             var barangVm = new BarangViewModel()
             {
+                //add filter 1 brg by calvin, agar saat development cepat
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => p.BRG == "08.OBBD00.00.3m").ToList(),
+
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -2097,6 +2100,10 @@ namespace MasterOnline.Controllers
                     }
                 }
 
+                if (string.IsNullOrWhiteSpace(dataBarang.Stf02.TYPE))
+                {
+                    dataBarang.Stf02.TYPE = "3";
+                }
                 ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
             else
@@ -3488,6 +3495,364 @@ namespace MasterOnline.Controllers
 
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
+
+        [HttpPost]
+        public ActionResult GetStrukturVar(string kode, string brg)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == kode);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new BarangStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList(),
+                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+            };
+            return PartialView("BarangVarPartial", vm);
+        }
+        [HttpPost]
+        public ActionResult GetOptVariantBarang(string brg, string code, int level)
+        {
+            var VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == code && m.LEVEL_VAR == level).ToList();
+            var VariantSelected = ErasoftDbContext.STF02I.Where(m => m.BRG == brg && m.CATEGORY_MO == code && m.LEVEL_VAR == level).ToList();
+            string selectedValues = "";
+            foreach (var item in VariantSelected)
+            {
+                selectedValues += item.KODE_VAR + ",";
+            }
+            var data = new
+            {
+                selected = selectedValues,
+                options = VariantOptInDb
+            };
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        {
+            List<STF02I> listNewData = new List<STF02I>();
+            {
+                //Shopee
+                var Histori_Shopee_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPEE" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopee_code).OrderByDescending(p => p.RECNUM).ToList();
+
+                if (opt_selected_1 != null)
+                {
+                    var Histori_lv1 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).ToList();
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            STF02I newdata = new STF02I()
+                            {
+                                MARKET = "SHOPEE",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_lv1.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_lv1.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdata);
+                        }
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var Histori_lv2 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).ToList();
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            STF02I newdata = new STF02I()
+                            {
+                                MARKET = "SHOPEE",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_lv2.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_lv2.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdata);
+                        }
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var Histori_lv3 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).ToList();
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            STF02I newdata = new STF02I()
+                            {
+                                MARKET = "SHOPEE",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_lv3.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_lv3.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdata);
+                        }
+                    }
+                }
+            }
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new BarangStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList(),
+                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+            };
+            return PartialView("BarangVarPartial", vm);
+        }
+        public class StrukturVariantMp
+        {
+            public string code { get; set; }
+            public StrukturVariantMPJudul var_judul { get; set; }
+            public StrukturVariantMPOpt var_detail { get; set; }
+        }
+        public class StrukturVariantMPJudul
+        {
+            public string lv_1 { get; set; }
+            public string lv_2 { get; set; }
+            public string lv_3 { get; set; }
+        }
+        public class StrukturVariantMPOpt
+        {
+            public string[] lv_1 { get; set; }
+            public string[] lv_2 { get; set; }
+            public string[] lv_3 { get; set; }
+        }
+        [HttpPost]
+        public ActionResult AutoloadVariantBarang(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopee)
+        {
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_1,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_2,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_3,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+
+            //Generate STF02
+            if (opt_selected_1 != null)
+            {
+                var i = 0;
+                foreach (var item in opt_selected_1)
+                {
+                    if (item != "")
+                    {
+                        if (opt_selected_2.Count() > 0)
+                        {
+                            foreach (var item2 in opt_selected_2)
+                            {
+                                if (opt_selected_3.Count() > 0)
+                                {
+                                    foreach (var item3 in opt_selected_3)
+                                    {
+
+                                    }
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                        }
+                    }
+                    i++;
+                }
+            }
+            //end Generate STF02
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new BarangStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList(),
+                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+            };
+            return PartialView("BarangVarPartial", vm);
+        }
+
         public ActionResult EditStrukturVar(int? recNum)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
@@ -3523,15 +3888,240 @@ namespace MasterOnline.Controllers
                     LEVEL_JUDUL_VAR = 3,
                     VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
                 },
-                VariantOpt_Level_3 = new STF20B() {
-                 CATEGORY_MO = kategori.KODE,
-                 LEVEL_VAR = 3
+                VariantOpt_Level_3 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 3
                 },
                 VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).OrderBy(m => m.LEVEL_VAR).ToList()
             };
 
             return PartialView("StrukturVarPartial", vm);
         }
+
+        public ActionResult UpdateStrukturVar(int? recNum, string JUDUL_VAR_1, string JUDUL_VAR_2, string JUDUL_VAR_3)
+        {
+            var kategori = ErasoftDbContext.STF02E.SingleOrDefault(k => k.RecNum == recNum);
+            if (kategori != null)
+            {
+                List<STF20> batchNewStf20 = new List<STF20>();
+                var updateStf20_1 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE && m.LEVEL_JUDUL_VAR == 1).SingleOrDefault();
+                if (updateStf20_1 != null)
+                {
+                    updateStf20_1.VALUE_JUDUL_VAR = JUDUL_VAR_1;
+                }
+                else
+                {
+                    STF20 newStf20 = new STF20()
+                    {
+                        CATEGORY_MO = kategori.KODE,
+                        LEVEL_JUDUL_VAR = 1,
+                        VALUE_JUDUL_VAR = JUDUL_VAR_1
+                    };
+                    batchNewStf20.Add(newStf20);
+                }
+                var updateStf20_2 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE && m.LEVEL_JUDUL_VAR == 2).SingleOrDefault();
+                if (updateStf20_2 != null)
+                {
+                    updateStf20_2.VALUE_JUDUL_VAR = JUDUL_VAR_2;
+                }
+                else
+                {
+                    STF20 newStf20 = new STF20()
+                    {
+                        CATEGORY_MO = kategori.KODE,
+                        LEVEL_JUDUL_VAR = 2,
+                        VALUE_JUDUL_VAR = JUDUL_VAR_2
+                    };
+                    batchNewStf20.Add(newStf20);
+                }
+                var updateStf20_3 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE && m.LEVEL_JUDUL_VAR == 3).SingleOrDefault();
+                if (updateStf20_3 != null)
+                {
+                    updateStf20_3.VALUE_JUDUL_VAR = JUDUL_VAR_3;
+                }
+                else
+                {
+                    STF20 newStf20 = new STF20()
+                    {
+                        CATEGORY_MO = kategori.KODE,
+                        LEVEL_JUDUL_VAR = 3,
+                        VALUE_JUDUL_VAR = JUDUL_VAR_3
+                    };
+                    batchNewStf20.Add(newStf20);
+                }
+                if (batchNewStf20.Count() > 0)
+                {
+                    ErasoftDbContext.STF20.AddRange(batchNewStf20);
+                }
+                ErasoftDbContext.SaveChanges();
+            }
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new MasterStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_1 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 1
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_2 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 2
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_3 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 3
+                },
+                VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).OrderBy(m => m.LEVEL_VAR).ToList()
+            };
+
+            return PartialView("StrukturVarPartial", vm);
+        }
+
+        public ActionResult SaveVariantOptLevel(string JUDUL_VAR, STF20B data)
+        {
+            var updateStf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_JUDUL_VAR == data.LEVEL_VAR).SingleOrDefault();
+            if (updateStf20 != null)
+            {
+                updateStf20.VALUE_JUDUL_VAR = JUDUL_VAR;
+            }
+            else
+            {
+                STF20 newStf20 = new STF20()
+                {
+                    CATEGORY_MO = data.CATEGORY_MO,
+                    LEVEL_JUDUL_VAR = data.LEVEL_VAR,
+                    VALUE_JUDUL_VAR = JUDUL_VAR
+                };
+                ErasoftDbContext.STF20.Add(newStf20);
+            }
+            ErasoftDbContext.SaveChanges();
+
+            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
+            if (stf20b == null)
+            {
+                ErasoftDbContext.STF20B.Add(data);
+                ErasoftDbContext.SaveChanges();
+            }
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == data.CATEGORY_MO);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new MasterStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_1 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 1
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_2 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 2
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_3 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 3
+                },
+                VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).OrderBy(m => m.LEVEL_VAR).ToList()
+            };
+
+            return PartialView("StrukturVarPartial", vm);
+        }
+
+        public ActionResult DeleteVariantOptLevel(int? recNum, int? recNumVariantOpt)
+        {
+            var deleteStf20b = ErasoftDbContext.STF20B.Where(m => m.RECNUM == recNumVariantOpt.Value).SingleOrDefault();
+            if (deleteStf20b != null)
+            {
+                ErasoftDbContext.STF20B.Remove(deleteStf20b);
+                ErasoftDbContext.SaveChanges();
+            }
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum.Value);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new MasterStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_1 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 1
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_2 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 2
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                VariantOpt_Level_3 = new STF20B()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_VAR = 3
+                },
+                VariantOptInDb = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).OrderBy(m => m.LEVEL_VAR).ToList()
+            };
+
+            return PartialView("StrukturVarPartial", vm);
+        }
+
         public ActionResult DeleteKategori(int? recNum)
         {
             var kategoriInDb = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
@@ -11852,8 +12442,23 @@ namespace MasterOnline.Controllers
                 TempBrg = new TEMP_BRG_MP(),
             };
             //add and remark by calvin, untuk excel
-            //ProsesTempExcelAutoCompleteBrg("000002");
+            //ProsesTempExcelAutoCompleteBrg("000003");
             //end add and remark by calvin, untuk excel
+
+            //List<string> listBrg = new List<string>();
+            //var stt01b = ErasoftDbContext.STT01B.Select(p => p.Kobar).FirstOrDefault();
+            //listBrg.Add(stt01b);
+            //updateStockMarketPlace(listBrg);
+
+            var shoAPI = new ShopeeController();
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = "6297330",
+            };
+            //ShopeeController.ShopeeGetParameterForInitLogisticResult InitParam;
+            //InitParam = shoAPI.GetParameterForInitLogistic(data, "");
+            var InitParam = shoAPI.GetParameterForInitLogistic(data, "19012314340WD5C");
+
             return View(barangVm);
         }
 
@@ -14094,6 +14699,10 @@ namespace MasterOnline.Controllers
                         //}
 
                         data_Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Deskripsi);
+                        if (data_Stf02.Deskripsi == "")
+                        {
+                            data_Stf02.Deskripsi = "-";
+                        }
                         if (!string.IsNullOrEmpty(data.IMAGE))
                         {
                             data_Stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(data.IMAGE, "uploaded-image").data.link_l;

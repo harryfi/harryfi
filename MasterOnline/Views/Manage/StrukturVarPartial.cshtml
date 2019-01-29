@@ -34,6 +34,7 @@
 
         $ICON.toggleClass('fa-chevron-up fa-chevron-down');
     });
+
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -84,30 +85,33 @@
                             <table id="table_tambah_opt_level_1" class="table table-bordered" role="grid">
                                 <thead>
                                     <tr>
-                                        <th width="50%">Kode Opsi</th>
+                                        <th width="30%">Kode Opsi</th>
                                         <th width="50%">Nama Opsi</th>
-                                        <th width="50%">Action</th>
+                                        <th width="20%">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in Model.VariantOpt.Where(m => m.LEVEL_VAR.Equals(1)).ToList())
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(1)).ToList())
                                     {
                                         <tr data-barang-id="opt-@item.RECNUM">
                                             <td>@item.KODE_VAR</td>
                                             <td>@item.KET_VAR</td>
                                             <td class="edit-hapus-col">
-                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel1('@item.RECNUM')">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
                                                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                                                 </button>
                                             </td>
                                         </tr>
                                     }
-                                    <tr data-faktur-id="0">
-                                        <td class="kode-opt-var-level1 editable">
-                                            @Html.HiddenFor(m => m.VariantOpt)</td>
-                                        <td class="nama-opt-var-level1 editable"></td>
+                                    <tr>
+                                        <td class="kode-opt-var-level1">
+                                            @Html.TextBoxFor(m=>m.VariantOpt_Level_1.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level1">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_1.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
+                                        </td>
                                         <td class="edit-hapus-col">
-                                            <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpanOptLevel1('opt-0')">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(1)">
                                                 <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                                             </button>
                                         </td>
@@ -135,6 +139,49 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Opsi Variasi Level 2")
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table id="table_tambah_opt_level_2" class="table table-bordered" role="grid">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">Kode Opsi</th>
+                                        <th width="50%">Nama Opsi</th>
+                                        <th width="20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(2)).ToList())
+                                    {
+                                        <tr data-barang-id="opt-@item.RECNUM">
+                                            <td>@item.KODE_VAR</td>
+                                            <td>@item.KET_VAR</td>
+                                            <td class="edit-hapus-col">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="kode-opt-var-level2">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level2">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="edit-hapus-col">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(2)">
+                                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
                             @($"Variasi Level 3")
                         </label>
                         <div class="col-md-4 col-sm-4 col-xs-12">
@@ -150,7 +197,50 @@
                         <div class="col-md-5 col-sm-5 col-xs-12">
                         </div>
                     </div>
-                    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanStrukturVar(this)" />
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Opsi Variasi Level 3")
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table id="table_tambah_opt_level_3" class="table table-bordered" role="grid">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">Kode Opsi</th>
+                                        <th width="50%">Nama Opsi</th>
+                                        <th width="20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(3)).ToList())
+                                    {
+                                        <tr data-barang-id="opt-@item.RECNUM">
+                                            <td>@item.KODE_VAR</td>
+                                            <td>@item.KET_VAR</td>
+                                            <td class="edit-hapus-col">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="kode-opt-var-level3">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level3">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="edit-hapus-col">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(3)">
+                                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanStrukturVar('@Model.Kategori.RecNum')" />
                 </div>
             </div>
         </div>

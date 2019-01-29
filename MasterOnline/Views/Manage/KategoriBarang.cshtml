@@ -108,34 +108,34 @@
                                         {
                                             foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
                                             {
-                                        <div class="alert alert-danger">
-                                            <span class="message-error">@modelError.ErrorMessage</span>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
                                             }
                                         }
                                         <br>
                                         @using (Html.BeginForm("SaveKategoriBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-kategori" }))
                                         {
-                                        @Html.HiddenFor(m => m.Kategori.LEVEL, new { Value = "1" })
-                                        @Html.HiddenFor(m => m.Kategori.TOLERANSI, new { Value = 0 })
-                                        @Html.HiddenFor(m => m.Kategori.RecNum)
-                                        @Html.HiddenFor(m => m.Kategori.USERNAME, new { Value = username })
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Kategori.KODE, "Kode Kategori *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-2 col-sm-2 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Kategori.KODE, new { @class = "form-control", required = "required" })
+                                            @Html.HiddenFor(m => m.Kategori.LEVEL, new { Value = "1" })
+                                            @Html.HiddenFor(m => m.Kategori.TOLERANSI, new { Value = 0 })
+                                            @Html.HiddenFor(m => m.Kategori.RecNum)
+                                            @Html.HiddenFor(m => m.Kategori.USERNAME, new { Value = username })
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Kategori.KODE, "Kode Kategori *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Kategori.KODE, new { @class = "form-control", required = "required" })
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="form-group">
-                                            @Html.LabelFor(m => m.Kategori.KET, "Nama Kategori *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
-                                            <div class="col-md-5 col-sm-5 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Kategori.KET, new { @class = "form-control", required = "required" })
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Kategori.KET, "Nama Kategori *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-5 col-sm-5 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.Kategori.KET, new { @class = "form-control", required = "required" })
+                                                </div>
                                             </div>
-                                        </div>
-                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanKategori(this)" />
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanKategori(this)" />
                                         }
                                     </div>
                                 </div>
@@ -153,8 +153,11 @@
                     <button id="close-editor-1" type="button" class="pull-right page-close">
                         <span class="close-btn thick"></span>
                     </button>
-                    <div id="var-structure-partial">
-                    </div>
+                    @using (Html.BeginForm("UpdateStrukturVariant", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-struktur-var" }))
+                    {
+                        <div id="var-structure-partial">
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -283,18 +286,153 @@
                     $('.kategori_table_section').hide();
                     $('#var-structure-partial').html(response);
                     $('.kategori_var_structure_editor_section').show();
-                    //$('#Kategori_LEVEL').val(response.Kategori.LEVEL);
-                    //$('#Kategori_TOLERANSI').val(response.Kategori.TOLERANSI);
-                    //$('#Kategori_RecNum').val(response.Kategori.RecNum);
-                    //$('#Kategori_USERNAME').val(response.Kategori.USERNAME);
-                    //$('#Kategori_KODE').val(response.Kategori.KODE).attr('disabled', 'disabled');
-                    //$('#Kategori_KET').val(response.Kategori.KET);
-                    //$('#tambah_kategori').click();
-                    //$("html, body").animate({ scrollTop: 0 }, "slow");
-
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                }
+            });
+        }
+
+        function validasiTambahan() {
+            var $isValid = true;
+            //var $Gd = $('#GUDANG');
+            //var $this = $('tr[data-faktur-id="0"] .qty-barang');
+            //if ($Gd.val() == "-" || $Gd.val() == "") {
+            //    if (!$Gd.closest('div').find('.text-danger').length) {
+            //        if ($Gd.closest('div').hasClass('input-group')) {
+            //            $('tr[data-faktur-id="0"] .gd-barang').parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+            //        } else {
+            //            $('tr[data-faktur-id="0"] .gd-barang').closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+            //        }
+            //        $isValid = false;
+            //    }
+            //} else if ($this.text().trim() == "0" || $this.text().trim() == "") {
+            //    if (!$this.closest('div').find('.text-danger').length) {
+            //        if ($this.closest('div').hasClass('input-group')) {
+            //            $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+            //        } else {
+            //            $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+            //        }
+            //        $isValid = false;
+            //    }
+            //} else {
+            //    if ($Gd.closest('div').find('.text-danger').length) {
+            //        $Gd.closest('div').find('.text-danger').remove();
+            //    } else if ($this.closest('div').find('.text-danger').length) {
+            //        $this.closest('div').find('.text-danger').remove();
+            //    }
+            //}
+            return $isValid;
+        }
+        function simpanStrukturVar(recnum) {
+
+            var data = {
+                recNum: recnum,
+                JUDUL_VAR_1: $('#Variant_Level_1_VALUE_JUDUL_VAR').val(),
+                JUDUL_VAR_2: $('#Variant_Level_2_VALUE_JUDUL_VAR').val(),
+                JUDUL_VAR_3: $('#Variant_Level_3_VALUE_JUDUL_VAR').val()
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateStrukturVar", "Manage")',
+                data: data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+        function deleteOptLevel(recnum, recnumVariantOpt) {
+            var data = {
+                recNum: recnum,
+                recNumVariantOpt: recnumVariantOpt
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("deleteVariantOptLevel", "Manage")',
+                data: data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+        function simpanOptLevel(level) {
+            if (!validasiTambahan()) return false;
+
+            var post_data =
+            {
+                JUDUL_VAR: $('#Variant_Level_' + level + '_VALUE_JUDUL_VAR').val(),
+                data:
+                {
+                    LEVEL_VAR: level,
+                    KODE_VAR: $('#VariantOpt_Level_' + level + '_KODE_VAR').val(),
+                    KET_VAR: $('#VariantOpt_Level_' + level + '_KET_VAR').val(),
+                    CATEGORY_MO: $('#txtKodeKategori').val()
+                }
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveVariantOptLevel", "Manage")',
+                data: post_data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
                 }
             });
         }

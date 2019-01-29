@@ -473,6 +473,10 @@
             });
 
             Initialize();
+            
+            $(function () {
+                $('#setting-detail-market-tabs a:first').tab('show');
+            });
         });
 
         function refreshTableBarang() {
@@ -604,6 +608,21 @@
         }
 
         function Initialize() {
+            $('.cbxtype').each(function () {
+                var $this = $(this);
+                $this.click(function () {
+                    var $cbxTarget = $('.cbxTarget[data-cbx="cbx-type"]');
+                    if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                        $cbxTarget.val('4');
+                        GetStrukturVariant();
+                    } else {
+                        $cbxTarget.val('3');
+                        $('#var-structure-partial').html('');
+                        $('#var-detail-variant-partial').html('');
+                    }
+                });
+            });
+
             $('.cbx').each(function () {
                 var $this = $(this);
                 $this.click(function () {
@@ -2086,8 +2105,12 @@
                 getKategoriSelanjutnyaShopee(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
             }
             else if (values[1] == "1") {
-                $(fieldCategoryCode).val(values[0]);
-                $(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text());
+                //change by calvin 25 januari 2019
+                //$(fieldCategoryCode).val(values[0]);
+                //$(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text());
+                $(fieldCategoryCode).val(values[0]).trigger("change");
+                $(fieldCategoryName).val($('#' + selectCategoryShopeeID + " option:selected").text()).trigger("change");
+                //end change by calvin 25 januari 2019
                 getAttributeShopee(values[0],listMarketRecNum,fieldCategoryCode,null);
             }
         }
@@ -2333,6 +2356,7 @@
                         onChange: function (value) {
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            GetStrukturVariant();
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -2344,7 +2368,30 @@
                 }
             });
         }
+        function GetStrukturVariant(){
+            if ($('#KATEGORI').val() != undefined) {
+                if ($('#Stf02_TYPE').val() == "4" && $('#KATEGORI').val() != null && $('#KATEGORI').val() != "") {
+                    $('#var-structure-partial').html('');
+                    $('#var-detail-variant-partial').html('');
 
+                    var post_data = {
+                        kode : $('#KATEGORI').val(),
+                        brg : $('#Stf02_BRG').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetStrukturVar", "Manage")',
+                        data : post_data,
+                        success: function (response) {
+                            $('#var-structure-partial').html(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            }
+        }
         function GetCategoryBlibli(){
             $.ajax({
                 type: "GET",
