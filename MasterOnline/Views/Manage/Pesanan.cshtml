@@ -776,7 +776,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -834,7 +834,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -889,7 +889,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -918,7 +918,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -947,7 +947,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1002,7 +1002,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1442,6 +1442,17 @@
                     </div>
                 </div>
                 @* add by Tri, pilih shipment provider *@
+                @*<div class="row" id="divType">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <select class="form-control" id="TypePengiriman" name="TypePengiriman">
+                                <option value="0" selected="selected">Dropship</option>
+                                <option value="1">Pick Up</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>*@
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
@@ -1943,9 +1954,15 @@
         }
         $(document).ready(function() {
             refreshTablePesanan();
-
+            $('#btn_refresh_pesanan').click(function() {
+                refreshTablePesanan();
+            });
             $('#pesanan-tab').click(function() {
                 refreshTablePesanan();
+            });
+
+            $('#btn_refresh_pesanan_dibayar').click(function() {
+                RefreshPesananDibayarMarketplace();
             });
 
             $('#nunggu-tab').click(function() {
@@ -3740,7 +3757,38 @@
                 }
             });
         }
+        
+        function RefreshPesananDibayarMarketplace() {
+            var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#datatable_nunggu').hide();
+                    $('#loading_sudah_dibayar_tab').show();
+                },
+                success: function(response) {
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+                    var table = $('#datatable_nunggu').DataTable({
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
+                    $('#search_nunggu').keyup(function() {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_sudah_dibayar_tab').hide();
+                    $('#datatable_nunggu').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_nunggu').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableSudahDibayar() {
             var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
 
@@ -4225,6 +4273,7 @@
             $('#txtShipmentBL').remove();
             $('#btnShipment').remove();
             $('#print_label').hide();
+            //$('#divType').hide();
             if (NamaMarket.toUpperCase() == "LAZADA") {
                 $('#print_label').show();
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
@@ -4236,6 +4285,7 @@
                         '<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada(\'' +
                         cust +
                         '\')"><span class="glyphicon glyphicon-option-horizontal"></span></button>');
+                //$('#divType').show();
             } else if (NamaMarket.toUpperCase() == "BUKALAPAK") {
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip').append('<input id="txtShipmentBL" class="form-control"></input>');
@@ -4359,7 +4409,7 @@
                                     contentType: 'application/json',
                                     cache: false,
                                     success: function (data) {
-                                        
+
                                         //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
                                     },
                                     error: function (xhr) {
@@ -4408,7 +4458,7 @@
                                             searchField: 'text',
                                             options: listAddress,
                                             onChange: function (value) {
-                                                
+
                                             }
                                         });
 
@@ -4586,7 +4636,7 @@
             if (cekValidasi()) {
                 //var link = '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi"}))';
                 var link =
-                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv"}))';
+                    '@Html.Raw(Url.Action("SaveResi", "Manage", new {recNum = "replaceRecNum", noResi = "replaceResi", deliveryProv = "replaceDeliveryProv" }))';
                 link = link.replace("replaceRecNum", this.$recResi);
                 link = link.replace("replaceResi", $('#Pesanan_TRACKING_SHIPMENT').val());
                 if (document.getElementById("txtShipment") != null) {
@@ -4597,6 +4647,8 @@
                         $('#txtShipmentBL').val() == undefined ? '' : $('#txtShipmentBL').val());
 
                 }
+                //link = link.replace("replaceTypeDelivery", $('#TypePengiriman').val());
+
                 $.ajax({
                     type: "GET",
                     url: link,

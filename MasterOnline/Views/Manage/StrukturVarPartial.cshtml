@@ -1,0 +1,248 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model MasterOnline.ViewModels.MasterStrukturVarViewModel
+@{
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+    var username = "";
+    var context = new MoDbContext();
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        username = context.Account.Single(a => a.AccountId == accId).Username;
+    }
+    else
+    {
+        username = dataSession?.Account.Username;
+    }
+}
+@Html.AntiForgeryToken()
+<script type="text/javascript">
+    $('.collapse-link').off('click').on('click', function () {
+        var $BOX_PANEL = $(this).closest('.x_panel'),
+            $ICON = $(this).find('i'),
+            $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+
+        // fix for some div with hardcoded fix class
+        if ($BOX_PANEL.attr('style')) {
+            $BOX_CONTENT.slideToggle(200, function () {
+                $BOX_PANEL.removeAttr('style');
+            });
+        } else {
+            $BOX_CONTENT.slideToggle(200);
+            $BOX_PANEL.css('height', 'auto');
+        }
+
+        $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+    });
+
+</script>
+<div class="form-horizontal">
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel" id="struktur-section">
+                <div class="x_title">
+                    <h2 style="font-size: 16px">Judul dan Opsi Variasi</h2>
+                    <ul class="nav navbar-right panel_toolbox">
+                        <li>
+                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <div class="form-group">
+                        @Html.Label("lblKodeKategori", "Kode Kategori", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBox("txtKodeKategori", Model.Kategori.KODE, new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("lblNamaKategori", "Nama Kategori", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.TextBox("txtNamaKategori", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Variasi Level 1")
+                        </label>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_1.VALUE_JUDUL_VAR))
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_1.VALUE_JUDUL_VAR, new { @class = "form-control", Value = Model.Variant_Level_1.VALUE_JUDUL_VAR, placeholder = "Nama Variasi " })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_1.VALUE_JUDUL_VAR, new { @class = "form-control", Value = "", placeholder = "Nama Variasi " })
+                            }
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Opsi Variasi Level 1")
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table id="table_tambah_opt_level_1" class="table table-bordered" role="grid">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">Kode Opsi</th>
+                                        <th width="50%">Nama Opsi</th>
+                                        <th width="20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(1)).ToList())
+                                    {
+                                        <tr data-barang-id="opt-@item.RECNUM">
+                                            <td>@item.KODE_VAR</td>
+                                            <td>@item.KET_VAR</td>
+                                            <td class="edit-hapus-col">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="kode-opt-var-level1">
+                                            @Html.TextBoxFor(m=>m.VariantOpt_Level_1.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level1">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_1.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
+                                        </td>
+                                        <td class="edit-hapus-col">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(1)">
+                                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Variasi Level 2")
+                        </label>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_2.VALUE_JUDUL_VAR))
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_2.VALUE_JUDUL_VAR, new { @class = "form-control", Value = Model.Variant_Level_2.VALUE_JUDUL_VAR, placeholder = "Nama Variasi " })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_2.VALUE_JUDUL_VAR, new { @class = "form-control", Value = "", placeholder = "Nama Variasi " })
+                            }
+                        </div>
+                        <div class="col-md-5 col-sm-5 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Opsi Variasi Level 2")
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table id="table_tambah_opt_level_2" class="table table-bordered" role="grid">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">Kode Opsi</th>
+                                        <th width="50%">Nama Opsi</th>
+                                        <th width="20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(2)).ToList())
+                                    {
+                                        <tr data-barang-id="opt-@item.RECNUM">
+                                            <td>@item.KODE_VAR</td>
+                                            <td>@item.KET_VAR</td>
+                                            <td class="edit-hapus-col">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="kode-opt-var-level2">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level2">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="edit-hapus-col">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(2)">
+                                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Variasi Level 3")
+                        </label>
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                            @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_3.VALUE_JUDUL_VAR))
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = Model.Variant_Level_3.VALUE_JUDUL_VAR, placeholder = "Nama Variasi " })
+                            }
+                            else
+                            {
+                                @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", Value = "", placeholder = "Nama Variasi " })
+                            }
+                        </div>
+                        <div class="col-md-5 col-sm-5 col-xs-12">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-md-3 col-sm-3 col-xs-12">
+                            @($"Opsi Variasi Level 3")
+                        </label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <table id="table_tambah_opt_level_3" class="table table-bordered" role="grid">
+                                <thead>
+                                    <tr>
+                                        <th width="30%">Kode Opsi</th>
+                                        <th width="50%">Nama Opsi</th>
+                                        <th width="20%">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(3)).ToList())
+                                    {
+                                        <tr data-barang-id="opt-@item.RECNUM">
+                                            <td>@item.KODE_VAR</td>
+                                            <td>@item.KET_VAR</td>
+                                            <td class="edit-hapus-col">
+                                                <button class="btn btn-danger" type="button" onclick="deleteOptLevel('@Model.Kategori.RecNum','@item.RECNUM')">
+                                                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td class="kode-opt-var-level3">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="nama-opt-var-level3">
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                        </td>
+                                        <td class="edit-hapus-col">
+                                            <button type="button" class="btn btn-primary" onclick="simpanOptLevel(3)">
+                                                <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanStrukturVar('@Model.Kategori.RecNum')" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

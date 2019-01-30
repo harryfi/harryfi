@@ -941,6 +941,10 @@
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
     <Compile Include="Models\QOH_PER_GD.cs" />
+    <Compile Include="Models\STF02I.cs" />
+    <Compile Include="Models\STF20B.cs" />
+    <Compile Include="Models\STF20.cs" />
+    <Compile Include="Models\TEMP_BRG_MP_EXCEL.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS_ITEM.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS.cs" />
     <Compile Include="Models\TEMP_TOKPED_ORDERS.cs" />
@@ -1232,6 +1236,7 @@
     <Compile Include="ViewModels\KategoriBarangViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
+    <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
     <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
@@ -5918,6 +5923,9 @@
     <Content Include="Views\Manage\BarangFixNotFoundPartial.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
     <Content Include="Views\Manage\BarangShopeeLogisticInfo.cshtml" />
+    <Content Include="Views\Manage\StrukturVarPartial.cshtml" />
+    <Content Include="Views\Manage\BarangVarPartial.cshtml" />
+    <Content Include="Views\Manage\BarangDetailVarPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
