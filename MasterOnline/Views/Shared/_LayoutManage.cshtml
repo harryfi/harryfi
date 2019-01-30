@@ -499,6 +499,9 @@
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="~/Content/timeout-dialog.js"></script>
     <script type="text/javascript">
+        //add by nurul 17/1/2019
+        var SessionTimeout = false;
+        //end add 
         var inactivityTime = function () {
             var t;
             window.onload = resetTimer;
@@ -507,16 +510,22 @@
             document.onkeypress = resetTimer;
 
             function reloginSession() {
-                $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
+                
+                    $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
+                
             }
 
             function logout() {
                 reloginSession();
             }
 
-            function resetTimer() {
+        function resetTimer() {
+            //change by nurul 17/1/2019
+            //if (SessionTimeout == false) {
                 clearTimeout(t);
                 t = setTimeout(logout, 600000);
+            //}
+            //end change
             }
         };
 

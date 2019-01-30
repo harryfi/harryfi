@@ -24,6 +24,21 @@
         {
             var buyer = Model.ListPembeli.FirstOrDefault(m => m.BUYER_CODE == faktur.PEMESAN);
             var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
+
+            var buyerNama = "";
+            var buyerPerso = "";
+            if (buyer != null)
+            {
+                buyerNama = buyer.NAMA;
+                buyerPerso = buyer.PERSO;
+            }
+
+            var perso = "";
+            if (pelanggan != null)
+            {
+                perso = pelanggan.PERSO;
+            }
+
             var idMarket = 0;
             if (pelanggan != null)
             {
@@ -47,7 +62,8 @@
             @*end add by nurul*@
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                @((buyer == null ? "" : buyer.NAMA) + " (" + pelanggan.PERSO + ")")
+                @*@((buyer == null ? "" : buyer.NAMA) + " (" + pelanggan.PERSO + ")")*@
+                @(buyerNama + " (" + perso + ")")
             </td>
             <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
             @if (Convert.ToString(faktur.ST_POSTING) == "Y")
