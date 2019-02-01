@@ -18,6 +18,19 @@
 @Html.AntiForgeryToken()
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('.cbxtype').each(function () {
+            var $this = $(this);
+            var $cbxTarget = $('.cbxTarget[data-cbx="cbx-type"]');
+            if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                $('#simpan_btn').show();
+                $('#next_btn').hide();
+            } else {
+                $('#simpan_btn').hide();
+                $('#next_btn').show();
+            }
+        });
+
         getOptSelectMultiple(1);
         getOptSelectMultiple(2);
         getOptSelectMultiple(3);
@@ -227,11 +240,12 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    //$('#var-detail-variant-partial').html(response);
+                    $('#var-detail-variant-partial').html(response);
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr) {
                     console.log(xhr);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -565,7 +579,7 @@
                             if (VariantPerMpShopeeLv2.Count() > 0)
                             {
                                 var textJudulVar2 = "";
-                                var judulVar2 = VariantPerMpShopeeLv1.FirstOrDefault();
+                                var judulVar2 = VariantPerMpShopeeLv2.FirstOrDefault();
                                 if (judulVar2 != null)
                                 {
                                     textJudulVar2 = judulVar2.MP_JUDUL_VAR;

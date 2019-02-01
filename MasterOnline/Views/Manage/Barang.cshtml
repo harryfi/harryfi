@@ -473,7 +473,7 @@
             });
 
             Initialize();
-            
+
             $(function () {
                 $('#setting-detail-market-tabs a:first').tab('show');
             });
@@ -610,15 +610,19 @@
         function Initialize() {
             $('.cbxtype').each(function () {
                 var $this = $(this);
+
                 $this.click(function () {
                     var $cbxTarget = $('.cbxTarget[data-cbx="cbx-type"]');
                     if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
                         $cbxTarget.val('4');
-                        GetStrukturVariant();
+                        $('#simpan_btn').hide();
+                        $('#next_btn').show();
                     } else {
                         $cbxTarget.val('3');
                         $('#var-structure-partial').html('');
                         $('#var-detail-variant-partial').html('');
+                        $('#simpan_btn').show();
+                        $('#next_btn').hide();
                     }
                 });
             });
@@ -2356,7 +2360,9 @@
                         onChange: function (value) {
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+
                             GetStrukturVariant();
+                            GetDetailBarangVariant();
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -2384,6 +2390,30 @@
                         data : post_data,
                         success: function (response) {
                             $('#var-structure-partial').html(response);
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            }
+        }
+        function GetDetailBarangVariant(){
+            if ($('#KATEGORI').val() != undefined) {
+                if ($('#Stf02_TYPE').val() == "4" && $('#KATEGORI').val() != null && $('#KATEGORI').val() != "") {
+                    $('#var-structure-partial').html('');
+                    $('#var-detail-variant-partial').html('');
+
+                    var post_data = {
+                        kode : $('#KATEGORI').val(),
+                        brg : $('#Stf02_BRG').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("GetDetailBarangVar", "Manage")',
+                        data : post_data,
+                        success: function (response) {
+                            $('#var-detail-variant-partial').html(response);
                         },
                         error: function (xhr, status, error) {
                             console.log(error);
@@ -2638,6 +2668,71 @@
 
             return false;
         }
+
+        function simpanBarangInduk(btnClicked) {
+
+            var valid = validateForm();
+            var valid2 = cekValidasi();
+
+            if (!valid || !valid2) return false;
+            if (!valid || !valid2) return false;
+
+            var input = $("#Stf02_HJUAL").val();
+            var angka = convertToAngka(input);
+            $("#Stf02_HJUAL").val(angka);
+            $('#Stf02_STN').val($('#Stf02_STN2').val());
+
+            $.each($("#hjualmarket-section input.form-control"),
+                function () {
+                    var inputJual = $(this).val();
+                    var angkaJual = convertToAngka(inputJual);
+                    $(this).val(angkaJual);
+                });
+
+            var $form = $(btnClicked).parents('form');
+            var $formData = new FormData($('form')[0]);
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveBarangInduk", "Manage")',
+                data: $formData,
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html('');
+                        $('#var-detail-variant-partial').html('');
+
+                        $('#var-structure-partial').html(response);
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                        $('#loading_spinner').hide();
+                        $('#barangTab a:last').tab('show');
+                        $('#Stf02_BRG').attr('disabled', 'disabled');
+                        //Initialize();
+                        //initRequired();
+                    } else {
+                        if (response.errorHargaPerMP == null) {
+                            console.log(response.Errors);
+                        } else {
+                            response.Errors.forEach(setErrorfield);
+                        }
+
+                        alert('Ada data yang tidak valid!');
+                        $('#loading_spinner').hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_spinner').hide();
+                }
+            });
+
+            return false;
+        }
+
         function setErrorfield(item, index) {
             var error = item.split("_errortext_");
             addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);

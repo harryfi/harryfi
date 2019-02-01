@@ -52,6 +52,12 @@
         var model_listhargajualpermarketview = Model.ListHargaJualPermarketView;
     }
     var model_listhargajualpermarketview = @Html.Raw(Json.Encode(model_listhargajualpermarketview));
+
+    $(document).ready(function () {
+        $(function () {
+            $('#setting-detail-market-tabs a:first').tab('show');
+        });
+    });
 </script>
 <div class="form-horizontal">
     <div class="row">
@@ -84,7 +90,7 @@
                         <div class="col-md-3 col-sm-3 col-xs-12"></div>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @*change by nurul req mas calvin 17/1/2019 -- @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", maxlength = 30 })*@
-                            @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max = 40 })
+                            @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", type = "text", @maxlength = 40, @data_val_length_max=40 })
                         </div>
                     </div>
                     <div class="form-group">
@@ -135,18 +141,18 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @if (Model?.Stf02?.TYPE == "4")
                             {
-                                //memiliki varian
-                                <label class="checkbox-container">
-                                    <input type="checkbox" class="cbxtype" name="@($"cbx-sf02-type")" checked />
-                                    <span class="checkmark"></span>
-                                </label>
+                            //memiliki varian
+                            <label class="checkbox-container">
+                                <input type="checkbox" class="cbxtype" name="@($" cbx-sf02-type")" checked />
+                                <span class="checkmark"></span>
+                            </label>
                             }
                             else
                             {
-                                <label class="checkbox-container">
-                                    <input type="checkbox" class="cbxtype" name="@($"cbx-sf02-type")" />
-                                    <span class="checkmark"></span>
-                                </label>
+                            <label class="checkbox-container">
+                                <input type="checkbox" class="cbxtype" name="@($" cbx-sf02-type")" />
+                                <span class="checkmark"></span>
+                            </label>
                             }
                         </div>
                     </div>
