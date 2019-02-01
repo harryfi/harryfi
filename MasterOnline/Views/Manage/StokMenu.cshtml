@@ -292,7 +292,7 @@
             }
 
             $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
-
+            widthBrg();
             getDataBarang();
             getGudang();
             var $flagPerubahan = 0;
@@ -381,8 +381,12 @@
                     }
                 });
             });
-
-            //add by nurul 19/12/2018 ngatur width barang
+            
+            
+        }
+        //add by nurul 19/12/2018 ngatur width barang
+        function widthBrg() {
+            
             $(window).on('resize', function () {
                 //var win = $(this); //this = window
                 var style = $('.selectivity-dropdown').attr('style');
@@ -402,10 +406,14 @@
             $('#BRG').click(function () {
                 cekDropDown = true;
                 var checkExist = setInterval(function () {
-                    if ($('.selectivity-dropdown').length) {
-                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
                         clearInterval(checkExist);
                     }
+
                 }, 100);
             });
             function checkDropDown() {
@@ -425,8 +433,9 @@
             $('body').click(function () {
                 $('#BRG').css('max-width', '105px').attr('style', 'width: 105px !important');
             });
-            //end add
+            
         }
+        //end add by nurul 
 
         function modeEditTd() {
             //$('.qty-barang').addClass('editable');
@@ -528,6 +537,9 @@
                         allowClear: true,
                         items: listKodeBarang,
                         placeholder: 'Harap pilih'
+                        //Dropdown: function () {
+                        //    $(".selectivity-dropdown").css('max-width', '400px').attr('style', style.replace('width: 150px', 'width: 400px; min-width: 400px !important'));
+                        //}
                     }).change(function () {
                         var val = $(this).selectivity('value');
                         var $trId = $(this).closest('tr').attr('data-stok-id');
@@ -781,6 +793,7 @@
                     if (response.Errors == null) {
                         refreshNettoBarang();
                         $('#form-partial').html(response);
+                        widthBrg();
                         getDataBarang();
                         getGudang();
                     } else {
@@ -889,6 +902,7 @@
                             if (response.Errors == null) {
                                 $modeEdit == 0
                                 $('#form-partial').html(response);
+                                widthBrg()
                                 getDataBarang();
                                 getGudang();
                                 getTanggal();
@@ -957,6 +971,10 @@
                     $flagPerubahan++;
                 });
             }
+        }
+
+        function Select() {
+            $('#BRG').style.width = "400px";
         }
     </script>
     <script>

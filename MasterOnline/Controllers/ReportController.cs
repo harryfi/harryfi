@@ -589,7 +589,8 @@ namespace MasterOnline.Controllers
         }
         public ActionResult PromptBarang()
         {
-            var listBrg = ErasoftDbContext.STF02.ToList();
+            //change by nurul 18/1/2019var listBrg = ErasoftDbContext.STF02.ToList();
+            var listBrg = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
 
             return View("PromptBarang", listBrg);
         }

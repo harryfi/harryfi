@@ -502,7 +502,7 @@
             }
 
             $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
-
+            widthBrg();
             getDataBarang();
             getGudang();
             getGudangForBarang();
@@ -585,7 +585,11 @@
                 });
             });
 
-            //add by nurul 19/12/2018 ngatur width barang
+            
+        }
+
+        //add by nurul 19/12/2018 ngatur width barang
+        function widthBrg() {
             $(window).on('resize', function () {
                 //var win = $(this); //this = window
                 var style = $('.selectivity-dropdown').attr('style');
@@ -604,8 +608,15 @@
 
             $('#BRG').click(function () {
                 var checkExist = setInterval(function () {
-                    if ($('.selectivity-dropdown').length) {
-                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //if ($('.selectivity-dropdown').length) {
+                    //    $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //    clearInterval(checkExist);
+                    //}
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
                         clearInterval(checkExist);
                     }
                 }, 100);
@@ -614,8 +625,8 @@
             $('body').click(function () {
                 $('#BRG').css('max-width', '150px').attr('style', 'width: 150px !important');
             });
-            //end add
         }
+            //end add by nurul 
 
         function offTab() {
             $(document).keydown(function (objEvent) {
@@ -1070,6 +1081,7 @@
                     if (response.Errors == null) {
                         refreshNettoBarang();
                         $('#form-partial').html(response);
+                        widthBrg();
                         getDataBarang();
                         getGudang();
                         getGudangForBarang();
@@ -1106,6 +1118,7 @@
                         success: function (response) {
                             if (response.Errors == null) {
                                 $('#form-partial').html(response);
+                                widthBrg();
                                 getDataBarang();
                                 getGudang();
                                 getGudangForBarang();

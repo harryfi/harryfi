@@ -28,5 +28,10 @@ namespace MasterOnline.ViewModels
         public string AlamatToko { get; set; }
         public string TlpToko { get; set; }
         public string noRef { get; set; }
+        //add by nurul 28/1/2019
+        public string Kurir { get; set; }
+        public string Marketplace { get; set; }
+        public string LogoKurir { get; set; }
+        public string NoResi { get; set; }
     }
 }

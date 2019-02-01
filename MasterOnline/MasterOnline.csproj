@@ -67,6 +67,9 @@
     <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
       <HintPath>..\packages\AWSSDK.S3.3.3.26.10\lib\net45\AWSSDK.S3.dll</HintPath>
     </Reference>
+    <Reference Include="BarcodeLib">
+      <HintPath>..\..\Barcode\BarcodeLib.dll</HintPath>
+    </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Users\user\Desktop\Era Controls Dev\EAF.dll</HintPath>
@@ -631,6 +634,7 @@
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
+    <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />

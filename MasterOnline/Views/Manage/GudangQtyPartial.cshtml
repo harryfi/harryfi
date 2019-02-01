@@ -87,7 +87,8 @@
     @foreach (var barang in Model.ListPesananDetail)
     {
         var barangValid = listBarang.SingleOrDefault(b => b.BRG == barang.BRG);
-        var namaBarang = barangValid == null ? "" : barangValid.NAMA;
+        //var namaBarang = barangValid == null ? "" : barangValid.NAMA;
+        var namaBarang = barangValid == null ? "" : barangValid.NAMA + ' ' + barangValid.NAMA2;
 
         <div class="row">
             @Html.Hidden("RecNum", new { Value = barang.NO_URUT })
