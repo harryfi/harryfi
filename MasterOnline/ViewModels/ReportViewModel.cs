@@ -226,6 +226,8 @@ namespace MasterOnline.ViewModels
             string _ToBrg = "";
             //add by nurul 11/1/2019
             string _Order = "";
+            //string _FromBuyer = "";
+            //string _ToBuyer = "";
             //end add
 
             public string UserId { get; set; }
@@ -290,6 +292,30 @@ namespace MasterOnline.ViewModels
                     _Order = string.IsNullOrEmpty(value) ? "" : value;
                 }
             }
+
+            //public string FromBuyer
+            //{
+            //    get
+            //    {
+            //        return _FromBuyer;
+            //    }
+            //    set
+            //    {
+            //        _FromBuyer = string.IsNullOrEmpty(value) ? "" : value;
+            //    }
+            //}
+
+            //public string ToBuyer
+            //{
+            //    get
+            //    {
+            //        return _ToBuyer;
+            //    }
+            //    set
+            //    {
+            //        _ToBuyer = string.IsNullOrEmpty(value) ? "" : value;
+            //    }
+            //}
             //end add
 
             public string DrTanggal { get; set; }

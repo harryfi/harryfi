@@ -64,7 +64,7 @@
             self.window.close();
             window.onunload = refreshTextBox;
             function refreshTextBox() {
-                window.opener.afterPromptDelTempBrg($value);
+                window.opener.afterPromptDelTempBrg($value, @Model.typeBrg);
             }
         }
         table.search($('#search_barang').val()).draw();

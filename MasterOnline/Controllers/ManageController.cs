@@ -1997,6 +1997,7 @@ namespace MasterOnline.Controllers
                     foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                     {
                         var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
+
                         if (kdMarket == kdLazada.IdMarket.ToString())
                         {
                             if (hargaPerMarket.HJUAL < 3000)
@@ -2156,6 +2157,45 @@ namespace MasterOnline.Controllers
                         {
                             //add validasi harga per marketplace
                             var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
+                            //add by nurul 31/1/2019
+                            //var getpromosi1 = ErasoftDbContext.Database.SqlQuery<>("SELECT * FROM API_LOG_MARKETPLACE_PER_ITEM WHERE REQUEST_ATTRIBUTE_1 = '" + barangId + "' AND REQUEST_ACTION IN ('Create Product','create brg','create Produk')").ToList()
+                            var getpromo1 = (from a in ErasoftDbContext.PROMOSI
+                                             join b in ErasoftDbContext.DETAILPROMOSI on a.RecNum equals b.RecNumPromosi
+                                             join c in ErasoftDbContext.ARF01 on a.NAMA_MARKET equals c.CUST
+                                             select new { brg = b.KODE_BRG, mulai = a.TGL_MULAI, akhir = a.TGL_AKHIR, nama = c.NAMA }).ToList();
+                            var getpromo2 = (from d in MoDbContext.Marketplaces
+                                             select new { market = d.IdMarket }).ToList();
+                            var getpromosi = (from a in getpromo1
+                                              join d in getpromo2 on a.nama equals Convert.ToString(d.market)
+                                              where a.brg == barangInDb.BRG && Convert.ToString(d.market) == kdMarket
+                                              select new BarangViewModel { BRG = a.brg, MULAI = Convert.ToString(a.mulai), AKHIR = Convert.ToString(a.akhir), MARKET = Convert.ToInt32(d.market) }).ToList();
+                            var drtanggal = "";
+                            var sdtanggal = "";
+                            if (getpromosi.Count() > 0) {
+                                string tgl1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 3]);
+                                string bln1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 2]);
+                                string thn10 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 1]);
+                                string thn1 = (thn10.Split(' ')[thn10.Split(' ').Length - 3]);
+                                drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+                            }
+                            else
+                            {
+                                drtanggal = "01/01/1000";
+                            }
+                            if (getpromosi.Count() > 0) {
+                                string tgl2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 3]);
+                                string bln2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 2]);
+                                string thn20 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 1]);
+                                string thn2 = (thn20.Split(' ')[thn20.Split(' ').Length - 3]);
+                                sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+                            }
+                            else
+                            {
+                                sdtanggal = "01/01/1000";
+                            }
+                            var tglmulai = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                            var tglakhir = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                            //end add by nurul 31/1/2019
                             if (kdMarket == kdLazada.IdMarket.ToString())
                             {
                                 if (dataBaru.HJUAL < 3000)
@@ -2169,6 +2209,13 @@ namespace MasterOnline.Controllers
                                     listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
                                 }
+                                //add by nurul 31/1/2019
+                                if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                }
+                                //end add by nurul 31/1/2019
                             }
                             else if (kdMarket == kdBlibli.IdMarket.ToString())
                             {
@@ -2177,6 +2224,13 @@ namespace MasterOnline.Controllers
                                     validPrice = false;
                                     listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
                                 }
+                                //add by nurul 31/1/2019
+                                if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                }
+                                //end add by nurul 31/1/2019
                             }
                             else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
                             {
@@ -2191,6 +2245,13 @@ namespace MasterOnline.Controllers
                                     listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
 
                                 }
+                                //add by nurul 31/1/2019
+                                if (DateTime.Now >= tglmulai && DateTime.Now <= tglakhir)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga barang tidak dapat di update, karena sedang dalam masa promosi !");
+                                }
+                                //end add by nurul 31/1/2019
                             }
                             i++;
                             //end add validasi harga per marketplace
@@ -7891,33 +7952,33 @@ namespace MasterOnline.Controllers
                     }
                     else if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
                     {
-                        if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT) && !string.IsNullOrEmpty(pesanan.SHIPMENT))
+                        //if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT) && !string.IsNullOrEmpty(pesanan.SHIPMENT))
+                        //{
+                        if (lazadaPickup)
                         {
-                            if (lazadaPickup)
+                            var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
+                            if (pesananChild.Count > 0)
                             {
-                                var pesananChild = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == nobuk).ToList();
-                                if (pesananChild.Count > 0)
+                                List<string> ordItemId = new List<string>();
+                                foreach (SOT01B item in pesananChild)
                                 {
-                                    List<string> ordItemId = new List<string>();
-                                    foreach (SOT01B item in pesananChild)
-                                    {
-                                        ordItemId.Add(item.ORDER_ITEM_ID);
-                                    }
-                                    //if(typeDelivery == "0")//dropship
-                                    //{
-                                    //    lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
-                                    //}
-                                    //else//pick up
-                                    //{
-                                    //    lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
-                                    //}
-                                    lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
-                                    lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+                                    ordItemId.Add(item.ORDER_ITEM_ID);
                                 }
-
-
+                                //if(typeDelivery == "0")//dropship
+                                //{
+                                //    lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+                                //}
+                                //else//pick up
+                                //{
+                                //    lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
+                                //}
+                                //lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
+                                lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
                             }
+
+
                         }
+                        //}
                     }
                     else if (mp.NamaMarket.ToUpper().Contains("ELEVENIA"))
                     {
@@ -8018,7 +8079,48 @@ namespace MasterOnline.Controllers
                     return JsonErrorMessage("Detail Order not found.");
                 }
             }
-            return JsonErrorMessage("Lazada only");
+            return JsonErrorMessage("This Function is for Lazada only");
+        }
+
+        public ActionResult LazadaGetResi(int recnum, string DeliveryProvider)
+        {
+            var pesanan = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recnum);
+            var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesanan.CUST);
+            var mp = MoDbContext.Marketplaces.Single(p => p.IdMarket.ToString() == marketPlace.NAMA);
+            if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
+            {
+                var lzdApi = new LazadaController();
+                List<string> orderItemIds = new List<string>();
+                var sot01b = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
+                if (sot01b.Count > 0)
+                {
+                    List<string> ordItemId = new List<string>();
+                    foreach (SOT01B item in sot01b)
+                    {
+                        ordItemId.Add(item.ORDER_ITEM_ID);
+                    }
+
+                    var retApi = lzdApi.GetToPacked(ordItemId, DeliveryProvider, marketPlace.TOKEN);
+                    if (retApi.code == "0")
+                    {
+                        var ret = new LazadaGetResiObj
+                        {
+                            NoResi = retApi.data.OrderItems[0].TrackingNumber
+                        };
+                        return Json(ret, JsonRequestBehavior.AllowGet);
+                    }
+                    else
+                    {
+                        return JsonErrorMessage(retApi.message);
+                    }
+
+                }
+                else
+                {
+                    return JsonErrorMessage("Detail Order not found.");
+                }
+            }
+            return JsonErrorMessage("This Function is for Lazada only");
         }
 
         public ActionResult LihatPesanan(int? orderId)
@@ -13698,6 +13800,7 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableUploadBarangPartial", barangVm);
         }
+
         public ActionResult UploadSatuBarang(UploadBarangViewModel data)
         {
             if (!ModelState.IsValid)
@@ -13762,28 +13865,271 @@ namespace MasterOnline.Controllers
             #endregion
             if (data != null)
             {
-                data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
-                if (data.Stf02 != null)
+                string username = "";
+                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                if (sessionData?.Account != null)
                 {
-                    var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
-                    if (barangInDB != null)
+                    username = sessionData.Account.Username;
+
+                }
+                else
+                {
+                    if (sessionData?.User != null)
                     {
-                        var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper()) && b.IDMARKET == data.TempBrg.IDMARKET).FirstOrDefault();
-                        if (brgMp != null)
+                        username = sessionData.User.Username;
+                    }
+                }
+
+                var tempBrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == data.TempBrg.BRG_MP).FirstOrDefault();
+                var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
+                if (tempBrginDB != null)
+                {
+                    if (data.Stf02 != null)
+                    {
+                        data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
+                        if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
-                            if (!string.IsNullOrEmpty(brgMp.BRG_MP))
+                            bool createSTF02Induk = true;
+                            var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == data.TempBrg.KODE_BRG_INDUK).FirstOrDefault();
+                            var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrginDB.KODE_BRG_INDUK).FirstOrDefault();
+                            if (brgInduk != null)
                             {
-                                return JsonErrorMessage("Barang ini sudah link dengan barang lain di marketplace");
+                                var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                if (stf02h_induk == null)
+                                {
+                                    createSTF02Induk = false;
+                                    if (tempBrgInduk != null)
+                                    {
+                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        if (ret1.status == 0)
+                                            return JsonErrorMessage(ret1.message);
+                                    }
+                                    else
+                                    {
+                                        return JsonErrorMessage("Barang Induk tidak ditemukan.");
+                                    }
+
+                                }
                             }
                             else
                             {
+                                if (tempBrginDB != null)
+                                {
+                                    //sinkron brg induk terlebih dahulu
+                                    var ret2 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                    if (ret2.status == 0)
+                                        return JsonErrorMessage(ret2.message);
+                                }
+                                else
+                                {
+                                    return JsonErrorMessage("Barang ini sudah diproses.");
+                                }
+                            }
+                            //if (brgInduk == null)
+                            //{
+                            //    //user input kode brg induk baru, cari brg induk di temp
+
+                            //}
+                            //else 
+                            //if(stf02h_induk == null)
+                            //{
+                            //    // brg induk sudah ada di stf02 tp blm ada di stf02h -> create stf02h saja
+
+                            //}
+
+                        }
+
+                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
+                        if (barangInDB != null)
+                        {
+                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper()) && b.IDMARKET == data.TempBrg.IDMARKET).FirstOrDefault();
+                            if (brgMp != null)
+                            {
+                                if (!string.IsNullOrEmpty(brgMp.BRG_MP))
+                                {
+                                    return JsonErrorMessage("Barang ini sudah link dengan barang lain di marketplace");
+                                }
+                                else
+                                {
+                                    brgMp.HJUAL = data.Stf02.HJUAL;
+                                    brgMp.DISPLAY = data.TempBrg.DISPLAY;
+                                    brgMp.BRG_MP = data.TempBrg.BRG_MP;
+                                    brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
+                                    brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
+                                    brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
+                                    brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
+                                    #region attribute mp
+                                    brgMp.ACODE_1 = data.TempBrg.ACODE_1;
+                                    brgMp.ANAME_1 = data.TempBrg.ANAME_1;
+                                    brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
+                                    brgMp.ACODE_2 = data.TempBrg.ACODE_2;
+                                    brgMp.ANAME_2 = data.TempBrg.ANAME_2;
+                                    brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
+                                    brgMp.ACODE_3 = data.TempBrg.ACODE_3;
+                                    brgMp.ANAME_3 = data.TempBrg.ANAME_3;
+                                    brgMp.AVALUE_3 = data.TempBrg.AVALUE_3;
+                                    brgMp.ACODE_4 = data.TempBrg.ACODE_4;
+                                    brgMp.ANAME_4 = data.TempBrg.ANAME_4;
+                                    brgMp.AVALUE_4 = data.TempBrg.AVALUE_4;
+                                    brgMp.ACODE_5 = data.TempBrg.ACODE_5;
+                                    brgMp.ANAME_5 = data.TempBrg.ANAME_5;
+                                    brgMp.AVALUE_5 = data.TempBrg.AVALUE_5;
+                                    brgMp.ACODE_6 = data.TempBrg.ACODE_6;
+                                    brgMp.ANAME_6 = data.TempBrg.ANAME_6;
+                                    brgMp.AVALUE_6 = data.TempBrg.AVALUE_6;
+                                    brgMp.ACODE_7 = data.TempBrg.ACODE_7;
+                                    brgMp.ANAME_7 = data.TempBrg.ANAME_7;
+                                    brgMp.AVALUE_7 = data.TempBrg.AVALUE_7;
+                                    brgMp.ACODE_8 = data.TempBrg.ACODE_8;
+                                    brgMp.ANAME_8 = data.TempBrg.ANAME_8;
+                                    brgMp.AVALUE_8 = data.TempBrg.AVALUE_8;
+                                    brgMp.ACODE_9 = data.TempBrg.ACODE_9;
+                                    brgMp.ANAME_9 = data.TempBrg.ANAME_9;
+                                    brgMp.AVALUE_9 = data.TempBrg.AVALUE_9;
+                                    brgMp.ACODE_10 = data.TempBrg.ACODE_10;
+                                    brgMp.ANAME_10 = data.TempBrg.ANAME_10;
+                                    brgMp.AVALUE_10 = data.TempBrg.AVALUE_10;
+                                    brgMp.ACODE_11 = data.TempBrg.ACODE_11;
+                                    brgMp.ANAME_11 = data.TempBrg.ANAME_11;
+                                    brgMp.AVALUE_11 = data.TempBrg.AVALUE_11;
+                                    brgMp.ACODE_12 = data.TempBrg.ACODE_12;
+                                    brgMp.ANAME_12 = data.TempBrg.ANAME_12;
+                                    brgMp.AVALUE_12 = data.TempBrg.AVALUE_12;
+                                    brgMp.ACODE_13 = data.TempBrg.ACODE_13;
+                                    brgMp.ANAME_13 = data.TempBrg.ANAME_13;
+                                    brgMp.AVALUE_13 = data.TempBrg.AVALUE_13;
+                                    brgMp.ACODE_14 = data.TempBrg.ACODE_14;
+                                    brgMp.ANAME_14 = data.TempBrg.ANAME_14;
+                                    brgMp.AVALUE_14 = data.TempBrg.AVALUE_14;
+                                    brgMp.ACODE_15 = data.TempBrg.ACODE_15;
+                                    brgMp.ANAME_15 = data.TempBrg.ANAME_15;
+                                    brgMp.AVALUE_15 = data.TempBrg.AVALUE_15;
+                                    brgMp.ACODE_16 = data.TempBrg.ACODE_16;
+                                    brgMp.ANAME_16 = data.TempBrg.ANAME_16;
+                                    brgMp.AVALUE_16 = data.TempBrg.AVALUE_16;
+                                    brgMp.ACODE_17 = data.TempBrg.ACODE_17;
+                                    brgMp.ANAME_17 = data.TempBrg.ANAME_17;
+                                    brgMp.AVALUE_17 = data.TempBrg.AVALUE_17;
+                                    brgMp.ACODE_18 = data.TempBrg.ACODE_18;
+                                    brgMp.ANAME_18 = data.TempBrg.ANAME_18;
+                                    brgMp.AVALUE_18 = data.TempBrg.AVALUE_18;
+                                    brgMp.ACODE_19 = data.TempBrg.ACODE_19;
+                                    brgMp.ANAME_19 = data.TempBrg.ANAME_19;
+                                    brgMp.AVALUE_19 = data.TempBrg.AVALUE_19;
+                                    brgMp.ACODE_20 = data.TempBrg.ACODE_20;
+                                    brgMp.ANAME_20 = data.TempBrg.ANAME_20;
+                                    brgMp.AVALUE_20 = data.TempBrg.AVALUE_20;
+                                    brgMp.ACODE_21 = data.TempBrg.ACODE_21;
+                                    brgMp.ANAME_21 = data.TempBrg.ANAME_21;
+                                    brgMp.AVALUE_21 = data.TempBrg.AVALUE_21;
+                                    brgMp.ACODE_22 = data.TempBrg.ACODE_22;
+                                    brgMp.ANAME_22 = data.TempBrg.ANAME_22;
+                                    brgMp.AVALUE_22 = data.TempBrg.AVALUE_22;
+                                    brgMp.ACODE_23 = data.TempBrg.ACODE_23;
+                                    brgMp.ANAME_23 = data.TempBrg.ANAME_23;
+                                    brgMp.AVALUE_23 = data.TempBrg.AVALUE_23;
+                                    brgMp.ACODE_24 = data.TempBrg.ACODE_24;
+                                    brgMp.ANAME_24 = data.TempBrg.ANAME_24;
+                                    brgMp.AVALUE_24 = data.TempBrg.AVALUE_24;
+                                    brgMp.ACODE_25 = data.TempBrg.ACODE_25;
+                                    brgMp.ANAME_25 = data.TempBrg.ANAME_25;
+                                    brgMp.AVALUE_25 = data.TempBrg.AVALUE_25;
+                                    brgMp.ACODE_26 = data.TempBrg.ACODE_26;
+                                    brgMp.ANAME_26 = data.TempBrg.ANAME_26;
+                                    brgMp.AVALUE_26 = data.TempBrg.AVALUE_26;
+                                    brgMp.ACODE_27 = data.TempBrg.ACODE_27;
+                                    brgMp.ANAME_27 = data.TempBrg.ANAME_27;
+                                    brgMp.AVALUE_27 = data.TempBrg.AVALUE_27;
+                                    brgMp.ACODE_28 = data.TempBrg.ACODE_28;
+                                    brgMp.ANAME_28 = data.TempBrg.ANAME_28;
+                                    brgMp.AVALUE_28 = data.TempBrg.AVALUE_28;
+                                    brgMp.ACODE_29 = data.TempBrg.ACODE_29;
+                                    brgMp.ANAME_29 = data.TempBrg.ANAME_29;
+                                    brgMp.AVALUE_29 = data.TempBrg.AVALUE_29;
+                                    brgMp.ACODE_30 = data.TempBrg.ACODE_30;
+                                    brgMp.ANAME_30 = data.TempBrg.ANAME_30;
+                                    brgMp.AVALUE_30 = data.TempBrg.AVALUE_30;
+                                    brgMp.ACODE_31 = data.TempBrg.ACODE_31;
+                                    brgMp.ANAME_31 = data.TempBrg.ANAME_31;
+                                    brgMp.AVALUE_31 = data.TempBrg.AVALUE_31;
+                                    brgMp.ACODE_32 = data.TempBrg.ACODE_32;
+                                    brgMp.ANAME_32 = data.TempBrg.ANAME_32;
+                                    brgMp.AVALUE_32 = data.TempBrg.AVALUE_32;
+                                    brgMp.ACODE_33 = data.TempBrg.ACODE_33;
+                                    brgMp.ANAME_33 = data.TempBrg.ANAME_33;
+                                    brgMp.AVALUE_33 = data.TempBrg.AVALUE_33;
+                                    brgMp.ACODE_34 = data.TempBrg.ACODE_34;
+                                    brgMp.ANAME_34 = data.TempBrg.ANAME_34;
+                                    brgMp.AVALUE_34 = data.TempBrg.AVALUE_34;
+                                    brgMp.ACODE_35 = data.TempBrg.ACODE_35;
+                                    brgMp.ANAME_35 = data.TempBrg.ANAME_35;
+                                    brgMp.AVALUE_35 = data.TempBrg.AVALUE_35;
+                                    brgMp.ACODE_36 = data.TempBrg.ACODE_36;
+                                    brgMp.ANAME_36 = data.TempBrg.ANAME_36;
+                                    brgMp.AVALUE_36 = data.TempBrg.AVALUE_36;
+                                    brgMp.ACODE_37 = data.TempBrg.ACODE_37;
+                                    brgMp.ANAME_37 = data.TempBrg.ANAME_37;
+                                    brgMp.AVALUE_37 = data.TempBrg.AVALUE_37;
+                                    brgMp.ACODE_38 = data.TempBrg.ACODE_38;
+                                    brgMp.ANAME_38 = data.TempBrg.ANAME_38;
+                                    brgMp.AVALUE_38 = data.TempBrg.AVALUE_38;
+                                    brgMp.ACODE_39 = data.TempBrg.ACODE_39;
+                                    brgMp.ANAME_39 = data.TempBrg.ANAME_39;
+                                    brgMp.AVALUE_39 = data.TempBrg.AVALUE_39;
+                                    brgMp.ACODE_40 = data.TempBrg.ACODE_40;
+                                    brgMp.ANAME_40 = data.TempBrg.ANAME_40;
+                                    brgMp.AVALUE_40 = data.TempBrg.AVALUE_40;
+                                    brgMp.ACODE_41 = data.TempBrg.ACODE_41;
+                                    brgMp.ANAME_41 = data.TempBrg.ANAME_41;
+                                    brgMp.AVALUE_41 = data.TempBrg.AVALUE_41;
+                                    brgMp.ACODE_42 = data.TempBrg.ACODE_42;
+                                    brgMp.ANAME_42 = data.TempBrg.ANAME_42;
+                                    brgMp.AVALUE_42 = data.TempBrg.AVALUE_42;
+                                    brgMp.ACODE_43 = data.TempBrg.ACODE_43;
+                                    brgMp.ANAME_43 = data.TempBrg.ANAME_43;
+                                    brgMp.AVALUE_43 = data.TempBrg.AVALUE_43;
+                                    brgMp.ACODE_44 = data.TempBrg.ACODE_44;
+                                    brgMp.ANAME_44 = data.TempBrg.ANAME_44;
+                                    brgMp.AVALUE_44 = data.TempBrg.AVALUE_44;
+                                    brgMp.ACODE_45 = data.TempBrg.ACODE_45;
+                                    brgMp.ANAME_45 = data.TempBrg.ANAME_45;
+                                    brgMp.AVALUE_45 = data.TempBrg.AVALUE_45;
+                                    brgMp.ACODE_46 = data.TempBrg.ACODE_46;
+                                    brgMp.ANAME_46 = data.TempBrg.ANAME_46;
+                                    brgMp.AVALUE_46 = data.TempBrg.AVALUE_46;
+                                    brgMp.ACODE_47 = data.TempBrg.ACODE_47;
+                                    brgMp.ANAME_47 = data.TempBrg.ANAME_47;
+                                    brgMp.AVALUE_47 = data.TempBrg.AVALUE_47;
+                                    brgMp.ACODE_48 = data.TempBrg.ACODE_48;
+                                    brgMp.ANAME_48 = data.TempBrg.ANAME_48;
+                                    brgMp.AVALUE_48 = data.TempBrg.AVALUE_48;
+                                    brgMp.ACODE_49 = data.TempBrg.ACODE_49;
+                                    brgMp.ANAME_49 = data.TempBrg.ANAME_49;
+                                    brgMp.AVALUE_49 = data.TempBrg.AVALUE_49;
+                                    brgMp.ACODE_50 = data.TempBrg.ACODE_50;
+                                    brgMp.ANAME_50 = data.TempBrg.ANAME_50;
+                                    brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
+                                    #endregion
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+                            else
+                            {
+                                brgMp = new STF02H();
+                                brgMp.BRG = data.Stf02.BRG;
+                                brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                 brgMp.HJUAL = data.Stf02.HJUAL;
                                 brgMp.DISPLAY = data.TempBrg.DISPLAY;
-                                brgMp.BRG_MP = data.TempBrg.BRG_MP;
                                 brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
                                 brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
+                                brgMp.IDMARKET = data.TempBrg.IDMARKET;
                                 brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
                                 brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
+                                //var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
+                                if (customer != null)
+                                    brgMp.AKUNMARKET = customer.PERSO;
+                                //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
+                                brgMp.USERNAME = data.Stf02.USERNAME;
                                 #region attribute mp
                                 brgMp.ACODE_1 = data.TempBrg.ACODE_1;
                                 brgMp.ANAME_1 = data.TempBrg.ANAME_1;
@@ -13936,12 +14282,31 @@ namespace MasterOnline.Controllers
                                 brgMp.ANAME_50 = data.TempBrg.ANAME_50;
                                 brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
                                 #endregion
+                                ErasoftDbContext.STF02H.Add(brgMp);
                                 ErasoftDbContext.SaveChanges();
+
                             }
                         }
                         else
                         {
-                            brgMp = new STF02H();
+                            if (!string.IsNullOrEmpty(data.TempBrg.IMAGE))
+                            {
+                                data.Stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(data.TempBrg.IMAGE2))
+                            {
+                                data.Stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE2, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(data.TempBrg.IMAGE3))
+                            {
+                                data.Stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE3, "uploaded-image").data.link_l;
+                            }
+                            if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))
+                                data.Stf02.PART = data.TempBrg.KODE_BRG_INDUK;
+                            data.Stf02.TYPE = data.TempBrg.TYPE;
+                            ErasoftDbContext.STF02.Add(data.Stf02);
+
+                            var brgMp = new STF02H();
                             brgMp.BRG = data.Stf02.BRG;
                             brgMp.BRG_MP = data.TempBrg.BRG_MP;
                             brgMp.HJUAL = data.Stf02.HJUAL;
@@ -13951,7 +14316,7 @@ namespace MasterOnline.Controllers
                             brgMp.IDMARKET = data.TempBrg.IDMARKET;
                             brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
                             brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
-                            var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
+                            //var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
                             if (customer != null)
                                 brgMp.AKUNMARKET = customer.PERSO;
                             //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
@@ -14110,200 +14475,18 @@ namespace MasterOnline.Controllers
                             #endregion
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
-
                         }
                     }
                     else
                     {
-                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE))
-                        {
-                            data.Stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE, "uploaded-image").data.link_l;
-                        }
-                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE2))
-                        {
-                            data.Stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE2, "uploaded-image").data.link_l;
-                        }
-                        if (!string.IsNullOrEmpty(data.TempBrg.IMAGE3))
-                        {
-                            data.Stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(data.TempBrg.IMAGE3, "uploaded-image").data.link_l;
-                        }
-                        ErasoftDbContext.STF02.Add(data.Stf02);
-
-                        var brgMp = new STF02H();
-                        brgMp.BRG = data.Stf02.BRG;
-                        brgMp.BRG_MP = data.TempBrg.BRG_MP;
-                        brgMp.HJUAL = data.Stf02.HJUAL;
-                        brgMp.DISPLAY = data.TempBrg.DISPLAY;
-                        brgMp.CATEGORY_CODE = data.TempBrg.CATEGORY_CODE;
-                        brgMp.CATEGORY_NAME = data.TempBrg.CATEGORY_NAME;
-                        brgMp.IDMARKET = data.TempBrg.IDMARKET;
-                        brgMp.DeliveryTempElevenia = data.TempBrg.DeliveryTempElevenia;
-                        brgMp.PICKUP_POINT = data.TempBrg.PICKUP_POINT;
-                        var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
-                        if (customer != null)
-                            brgMp.AKUNMARKET = customer.PERSO;
-                        //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
-                        brgMp.USERNAME = data.Stf02.USERNAME;
-                        #region attribute mp
-                        brgMp.ACODE_1 = data.TempBrg.ACODE_1;
-                        brgMp.ANAME_1 = data.TempBrg.ANAME_1;
-                        brgMp.AVALUE_1 = data.TempBrg.AVALUE_1;
-                        brgMp.ACODE_2 = data.TempBrg.ACODE_2;
-                        brgMp.ANAME_2 = data.TempBrg.ANAME_2;
-                        brgMp.AVALUE_2 = data.TempBrg.AVALUE_2;
-                        brgMp.ACODE_3 = data.TempBrg.ACODE_3;
-                        brgMp.ANAME_3 = data.TempBrg.ANAME_3;
-                        brgMp.AVALUE_3 = data.TempBrg.AVALUE_3;
-                        brgMp.ACODE_4 = data.TempBrg.ACODE_4;
-                        brgMp.ANAME_4 = data.TempBrg.ANAME_4;
-                        brgMp.AVALUE_4 = data.TempBrg.AVALUE_4;
-                        brgMp.ACODE_5 = data.TempBrg.ACODE_5;
-                        brgMp.ANAME_5 = data.TempBrg.ANAME_5;
-                        brgMp.AVALUE_5 = data.TempBrg.AVALUE_5;
-                        brgMp.ACODE_6 = data.TempBrg.ACODE_6;
-                        brgMp.ANAME_6 = data.TempBrg.ANAME_6;
-                        brgMp.AVALUE_6 = data.TempBrg.AVALUE_6;
-                        brgMp.ACODE_7 = data.TempBrg.ACODE_7;
-                        brgMp.ANAME_7 = data.TempBrg.ANAME_7;
-                        brgMp.AVALUE_7 = data.TempBrg.AVALUE_7;
-                        brgMp.ACODE_8 = data.TempBrg.ACODE_8;
-                        brgMp.ANAME_8 = data.TempBrg.ANAME_8;
-                        brgMp.AVALUE_8 = data.TempBrg.AVALUE_8;
-                        brgMp.ACODE_9 = data.TempBrg.ACODE_9;
-                        brgMp.ANAME_9 = data.TempBrg.ANAME_9;
-                        brgMp.AVALUE_9 = data.TempBrg.AVALUE_9;
-                        brgMp.ACODE_10 = data.TempBrg.ACODE_10;
-                        brgMp.ANAME_10 = data.TempBrg.ANAME_10;
-                        brgMp.AVALUE_10 = data.TempBrg.AVALUE_10;
-                        brgMp.ACODE_11 = data.TempBrg.ACODE_11;
-                        brgMp.ANAME_11 = data.TempBrg.ANAME_11;
-                        brgMp.AVALUE_11 = data.TempBrg.AVALUE_11;
-                        brgMp.ACODE_12 = data.TempBrg.ACODE_12;
-                        brgMp.ANAME_12 = data.TempBrg.ANAME_12;
-                        brgMp.AVALUE_12 = data.TempBrg.AVALUE_12;
-                        brgMp.ACODE_13 = data.TempBrg.ACODE_13;
-                        brgMp.ANAME_13 = data.TempBrg.ANAME_13;
-                        brgMp.AVALUE_13 = data.TempBrg.AVALUE_13;
-                        brgMp.ACODE_14 = data.TempBrg.ACODE_14;
-                        brgMp.ANAME_14 = data.TempBrg.ANAME_14;
-                        brgMp.AVALUE_14 = data.TempBrg.AVALUE_14;
-                        brgMp.ACODE_15 = data.TempBrg.ACODE_15;
-                        brgMp.ANAME_15 = data.TempBrg.ANAME_15;
-                        brgMp.AVALUE_15 = data.TempBrg.AVALUE_15;
-                        brgMp.ACODE_16 = data.TempBrg.ACODE_16;
-                        brgMp.ANAME_16 = data.TempBrg.ANAME_16;
-                        brgMp.AVALUE_16 = data.TempBrg.AVALUE_16;
-                        brgMp.ACODE_17 = data.TempBrg.ACODE_17;
-                        brgMp.ANAME_17 = data.TempBrg.ANAME_17;
-                        brgMp.AVALUE_17 = data.TempBrg.AVALUE_17;
-                        brgMp.ACODE_18 = data.TempBrg.ACODE_18;
-                        brgMp.ANAME_18 = data.TempBrg.ANAME_18;
-                        brgMp.AVALUE_18 = data.TempBrg.AVALUE_18;
-                        brgMp.ACODE_19 = data.TempBrg.ACODE_19;
-                        brgMp.ANAME_19 = data.TempBrg.ANAME_19;
-                        brgMp.AVALUE_19 = data.TempBrg.AVALUE_19;
-                        brgMp.ACODE_20 = data.TempBrg.ACODE_20;
-                        brgMp.ANAME_20 = data.TempBrg.ANAME_20;
-                        brgMp.AVALUE_20 = data.TempBrg.AVALUE_20;
-                        brgMp.ACODE_21 = data.TempBrg.ACODE_21;
-                        brgMp.ANAME_21 = data.TempBrg.ANAME_21;
-                        brgMp.AVALUE_21 = data.TempBrg.AVALUE_21;
-                        brgMp.ACODE_22 = data.TempBrg.ACODE_22;
-                        brgMp.ANAME_22 = data.TempBrg.ANAME_22;
-                        brgMp.AVALUE_22 = data.TempBrg.AVALUE_22;
-                        brgMp.ACODE_23 = data.TempBrg.ACODE_23;
-                        brgMp.ANAME_23 = data.TempBrg.ANAME_23;
-                        brgMp.AVALUE_23 = data.TempBrg.AVALUE_23;
-                        brgMp.ACODE_24 = data.TempBrg.ACODE_24;
-                        brgMp.ANAME_24 = data.TempBrg.ANAME_24;
-                        brgMp.AVALUE_24 = data.TempBrg.AVALUE_24;
-                        brgMp.ACODE_25 = data.TempBrg.ACODE_25;
-                        brgMp.ANAME_25 = data.TempBrg.ANAME_25;
-                        brgMp.AVALUE_25 = data.TempBrg.AVALUE_25;
-                        brgMp.ACODE_26 = data.TempBrg.ACODE_26;
-                        brgMp.ANAME_26 = data.TempBrg.ANAME_26;
-                        brgMp.AVALUE_26 = data.TempBrg.AVALUE_26;
-                        brgMp.ACODE_27 = data.TempBrg.ACODE_27;
-                        brgMp.ANAME_27 = data.TempBrg.ANAME_27;
-                        brgMp.AVALUE_27 = data.TempBrg.AVALUE_27;
-                        brgMp.ACODE_28 = data.TempBrg.ACODE_28;
-                        brgMp.ANAME_28 = data.TempBrg.ANAME_28;
-                        brgMp.AVALUE_28 = data.TempBrg.AVALUE_28;
-                        brgMp.ACODE_29 = data.TempBrg.ACODE_29;
-                        brgMp.ANAME_29 = data.TempBrg.ANAME_29;
-                        brgMp.AVALUE_29 = data.TempBrg.AVALUE_29;
-                        brgMp.ACODE_30 = data.TempBrg.ACODE_30;
-                        brgMp.ANAME_30 = data.TempBrg.ANAME_30;
-                        brgMp.AVALUE_30 = data.TempBrg.AVALUE_30;
-                        brgMp.ACODE_31 = data.TempBrg.ACODE_31;
-                        brgMp.ANAME_31 = data.TempBrg.ANAME_31;
-                        brgMp.AVALUE_31 = data.TempBrg.AVALUE_31;
-                        brgMp.ACODE_32 = data.TempBrg.ACODE_32;
-                        brgMp.ANAME_32 = data.TempBrg.ANAME_32;
-                        brgMp.AVALUE_32 = data.TempBrg.AVALUE_32;
-                        brgMp.ACODE_33 = data.TempBrg.ACODE_33;
-                        brgMp.ANAME_33 = data.TempBrg.ANAME_33;
-                        brgMp.AVALUE_33 = data.TempBrg.AVALUE_33;
-                        brgMp.ACODE_34 = data.TempBrg.ACODE_34;
-                        brgMp.ANAME_34 = data.TempBrg.ANAME_34;
-                        brgMp.AVALUE_34 = data.TempBrg.AVALUE_34;
-                        brgMp.ACODE_35 = data.TempBrg.ACODE_35;
-                        brgMp.ANAME_35 = data.TempBrg.ANAME_35;
-                        brgMp.AVALUE_35 = data.TempBrg.AVALUE_35;
-                        brgMp.ACODE_36 = data.TempBrg.ACODE_36;
-                        brgMp.ANAME_36 = data.TempBrg.ANAME_36;
-                        brgMp.AVALUE_36 = data.TempBrg.AVALUE_36;
-                        brgMp.ACODE_37 = data.TempBrg.ACODE_37;
-                        brgMp.ANAME_37 = data.TempBrg.ANAME_37;
-                        brgMp.AVALUE_37 = data.TempBrg.AVALUE_37;
-                        brgMp.ACODE_38 = data.TempBrg.ACODE_38;
-                        brgMp.ANAME_38 = data.TempBrg.ANAME_38;
-                        brgMp.AVALUE_38 = data.TempBrg.AVALUE_38;
-                        brgMp.ACODE_39 = data.TempBrg.ACODE_39;
-                        brgMp.ANAME_39 = data.TempBrg.ANAME_39;
-                        brgMp.AVALUE_39 = data.TempBrg.AVALUE_39;
-                        brgMp.ACODE_40 = data.TempBrg.ACODE_40;
-                        brgMp.ANAME_40 = data.TempBrg.ANAME_40;
-                        brgMp.AVALUE_40 = data.TempBrg.AVALUE_40;
-                        brgMp.ACODE_41 = data.TempBrg.ACODE_41;
-                        brgMp.ANAME_41 = data.TempBrg.ANAME_41;
-                        brgMp.AVALUE_41 = data.TempBrg.AVALUE_41;
-                        brgMp.ACODE_42 = data.TempBrg.ACODE_42;
-                        brgMp.ANAME_42 = data.TempBrg.ANAME_42;
-                        brgMp.AVALUE_42 = data.TempBrg.AVALUE_42;
-                        brgMp.ACODE_43 = data.TempBrg.ACODE_43;
-                        brgMp.ANAME_43 = data.TempBrg.ANAME_43;
-                        brgMp.AVALUE_43 = data.TempBrg.AVALUE_43;
-                        brgMp.ACODE_44 = data.TempBrg.ACODE_44;
-                        brgMp.ANAME_44 = data.TempBrg.ANAME_44;
-                        brgMp.AVALUE_44 = data.TempBrg.AVALUE_44;
-                        brgMp.ACODE_45 = data.TempBrg.ACODE_45;
-                        brgMp.ANAME_45 = data.TempBrg.ANAME_45;
-                        brgMp.AVALUE_45 = data.TempBrg.AVALUE_45;
-                        brgMp.ACODE_46 = data.TempBrg.ACODE_46;
-                        brgMp.ANAME_46 = data.TempBrg.ANAME_46;
-                        brgMp.AVALUE_46 = data.TempBrg.AVALUE_46;
-                        brgMp.ACODE_47 = data.TempBrg.ACODE_47;
-                        brgMp.ANAME_47 = data.TempBrg.ANAME_47;
-                        brgMp.AVALUE_47 = data.TempBrg.AVALUE_47;
-                        brgMp.ACODE_48 = data.TempBrg.ACODE_48;
-                        brgMp.ANAME_48 = data.TempBrg.ANAME_48;
-                        brgMp.AVALUE_48 = data.TempBrg.AVALUE_48;
-                        brgMp.ACODE_49 = data.TempBrg.ACODE_49;
-                        brgMp.ANAME_49 = data.TempBrg.ANAME_49;
-                        brgMp.AVALUE_49 = data.TempBrg.AVALUE_49;
-                        brgMp.ACODE_50 = data.TempBrg.ACODE_50;
-                        brgMp.ANAME_50 = data.TempBrg.ANAME_50;
-                        brgMp.AVALUE_50 = data.TempBrg.AVALUE_50;
-                        #endregion
-                        ErasoftDbContext.STF02H.Add(brgMp);
-                        ErasoftDbContext.SaveChanges();
+                        return JsonErrorMessage("Barang tidak ditemukan");
                     }
                 }
                 else
                 {
                     return JsonErrorMessage("Barang tidak ditemukan");
                 }
+
             }
             else
             {
@@ -14315,6 +14498,288 @@ namespace MasterOnline.Controllers
 
             return Json("", JsonRequestBehavior.AllowGet);
 
+        }
+
+        public BindingBase AutoSyncBrgInduk(TEMP_BRG_MP tempBrg, string kdBrgMO, ARF01 customer, string username, bool createSTF02Induk)
+        {
+            var ret = new BindingBase()
+            {
+                status = 0
+            };
+
+            try
+            {
+                var defaultCategoryCode = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("1")).FirstOrDefault();
+                if (defaultCategoryCode == null)
+                {
+                    ret.message = "Kode Kategori tidak ditemukan";
+                    return ret;
+                }
+                var defaultBrand = ErasoftDbContext.STF02E.Where(c => c.LEVEL.Equals("2")).FirstOrDefault();
+                if (defaultBrand == null)
+                {
+                    ret.message = "Kode Merek tidak ditemukan";
+                    return ret;
+                }
+                if (createSTF02Induk)
+                {
+                    var stf02 = new STF02
+                    {
+                        HPP = 0,
+                        HBELI = 0,
+                        HBESAR = 0,
+                        HKECIL = 0,
+                        TYPE = "4",//type 4 = brg jasa
+                        KLINK = "1",
+                        HP_STD = 0,
+                        QPROD = 0,
+                        ISI3 = 3,
+                        ISI4 = 1,
+                        TOLERANSI = 0,
+                        H_STN_3 = 0,
+                        H_STN_4 = 0,
+                        SS = 0,
+                        METODA_HPP_PER_SN = false,
+                        HNA_PPN = 0,
+                        LABA = 0,
+                        DEFAULT_STN_HRG_JUAL = 0,
+                        DEFAULT_STN_JUAL = 0,
+                        ISI = 1,
+                        Metoda = "1",
+                        Tgl_Input = DateTime.Now,
+                        TGL_KLR = DateTime.Now,
+                        MAXI = 100,
+                        MINI = 1,
+                        QSALES = 0,
+                        DISPLAY_MARKET = false,
+                    };
+                    stf02.BRG = kdBrgMO;
+                    stf02.NAMA = tempBrg.NAMA;
+                    stf02.NAMA2 = tempBrg.NAMA2;
+                    stf02.NAMA3 = tempBrg.NAMA3;
+                    stf02.HJUAL = tempBrg.HJUAL;
+                    stf02.STN = "pcs";
+                    stf02.STN2 = "pcs";
+                    stf02.BERAT = tempBrg.BERAT;
+                    stf02.TINGGI = tempBrg.TINGGI;
+                    stf02.LEBAR = tempBrg.LEBAR;
+                    stf02.PANJANG = tempBrg.PANJANG;
+                    stf02.Sort1 = defaultCategoryCode.KODE;
+                    stf02.Sort2 = defaultBrand.KODE;
+                    stf02.KET_SORT1 = defaultCategoryCode.KET;
+                    stf02.KET_SORT2 = defaultBrand.KET;
+                    stf02.Deskripsi = (string.IsNullOrEmpty(tempBrg.Deskripsi) ? "-" : tempBrg.Deskripsi);
+
+                    if (!string.IsNullOrEmpty(tempBrg.IMAGE))
+                    {
+                        stf02.LINK_GAMBAR_1 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE, "uploaded-image").data.link_l;
+                    }
+                    if (!string.IsNullOrEmpty(tempBrg.IMAGE2))
+                    {
+                        stf02.LINK_GAMBAR_2 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE2, "uploaded-image").data.link_l;
+                    }
+                    if (!string.IsNullOrEmpty(tempBrg.IMAGE3))
+                    {
+                        stf02.LINK_GAMBAR_3 = UploadImageService.UploadSingleImageToImgurFromUrl(tempBrg.IMAGE3, "uploaded-image").data.link_l;
+                    }
+
+                    ErasoftDbContext.STF02.Add(stf02);
+
+                }
+                bool insertSTF02h = false;
+                var brgMp = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrgMO && p.IDMARKET == tempBrg.IDMARKET).FirstOrDefault();
+                if (brgMp == null)
+                {
+                    brgMp = new STF02H();
+                    insertSTF02h = true;
+                }
+
+                //brgMp.BRG = tempBrg.BRG_MP;
+                brgMp.BRG = kdBrgMO;
+                brgMp.BRG_MP = tempBrg.BRG_MP;
+                brgMp.HJUAL = tempBrg.HJUAL;
+                brgMp.DISPLAY = tempBrg.DISPLAY;
+                brgMp.CATEGORY_CODE = tempBrg.CATEGORY_CODE;
+                brgMp.CATEGORY_NAME = tempBrg.CATEGORY_NAME;
+                brgMp.IDMARKET = tempBrg.IDMARKET;
+                brgMp.DeliveryTempElevenia = tempBrg.DeliveryTempElevenia;
+                brgMp.PICKUP_POINT = tempBrg.PICKUP_POINT;
+                //var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.ToUpper().Equals(data.TempBrg.CUST.ToUpper())).FirstOrDefault();
+                //if (customer != null)
+                brgMp.AKUNMARKET = customer.PERSO;
+                //brgMp.USERNAME = "SYSTEM_UPLOAD_BRG";
+                brgMp.USERNAME = username;
+                #region attribute mp
+                brgMp.ACODE_1 = tempBrg.ACODE_1;
+                brgMp.ANAME_1 = tempBrg.ANAME_1;
+                brgMp.AVALUE_1 = tempBrg.AVALUE_1;
+                brgMp.ACODE_2 = tempBrg.ACODE_2;
+                brgMp.ANAME_2 = tempBrg.ANAME_2;
+                brgMp.AVALUE_2 = tempBrg.AVALUE_2;
+                brgMp.ACODE_3 = tempBrg.ACODE_3;
+                brgMp.ANAME_3 = tempBrg.ANAME_3;
+                brgMp.AVALUE_3 = tempBrg.AVALUE_3;
+                brgMp.ACODE_4 = tempBrg.ACODE_4;
+                brgMp.ANAME_4 = tempBrg.ANAME_4;
+                brgMp.AVALUE_4 = tempBrg.AVALUE_4;
+                brgMp.ACODE_5 = tempBrg.ACODE_5;
+                brgMp.ANAME_5 = tempBrg.ANAME_5;
+                brgMp.AVALUE_5 = tempBrg.AVALUE_5;
+                brgMp.ACODE_6 = tempBrg.ACODE_6;
+                brgMp.ANAME_6 = tempBrg.ANAME_6;
+                brgMp.AVALUE_6 = tempBrg.AVALUE_6;
+                brgMp.ACODE_7 = tempBrg.ACODE_7;
+                brgMp.ANAME_7 = tempBrg.ANAME_7;
+                brgMp.AVALUE_7 = tempBrg.AVALUE_7;
+                brgMp.ACODE_8 = tempBrg.ACODE_8;
+                brgMp.ANAME_8 = tempBrg.ANAME_8;
+                brgMp.AVALUE_8 = tempBrg.AVALUE_8;
+                brgMp.ACODE_9 = tempBrg.ACODE_9;
+                brgMp.ANAME_9 = tempBrg.ANAME_9;
+                brgMp.AVALUE_9 = tempBrg.AVALUE_9;
+                brgMp.ACODE_10 = tempBrg.ACODE_10;
+                brgMp.ANAME_10 = tempBrg.ANAME_10;
+                brgMp.AVALUE_10 = tempBrg.AVALUE_10;
+                brgMp.ACODE_11 = tempBrg.ACODE_11;
+                brgMp.ANAME_11 = tempBrg.ANAME_11;
+                brgMp.AVALUE_11 = tempBrg.AVALUE_11;
+                brgMp.ACODE_12 = tempBrg.ACODE_12;
+                brgMp.ANAME_12 = tempBrg.ANAME_12;
+                brgMp.AVALUE_12 = tempBrg.AVALUE_12;
+                brgMp.ACODE_13 = tempBrg.ACODE_13;
+                brgMp.ANAME_13 = tempBrg.ANAME_13;
+                brgMp.AVALUE_13 = tempBrg.AVALUE_13;
+                brgMp.ACODE_14 = tempBrg.ACODE_14;
+                brgMp.ANAME_14 = tempBrg.ANAME_14;
+                brgMp.AVALUE_14 = tempBrg.AVALUE_14;
+                brgMp.ACODE_15 = tempBrg.ACODE_15;
+                brgMp.ANAME_15 = tempBrg.ANAME_15;
+                brgMp.AVALUE_15 = tempBrg.AVALUE_15;
+                brgMp.ACODE_16 = tempBrg.ACODE_16;
+                brgMp.ANAME_16 = tempBrg.ANAME_16;
+                brgMp.AVALUE_16 = tempBrg.AVALUE_16;
+                brgMp.ACODE_17 = tempBrg.ACODE_17;
+                brgMp.ANAME_17 = tempBrg.ANAME_17;
+                brgMp.AVALUE_17 = tempBrg.AVALUE_17;
+                brgMp.ACODE_18 = tempBrg.ACODE_18;
+                brgMp.ANAME_18 = tempBrg.ANAME_18;
+                brgMp.AVALUE_18 = tempBrg.AVALUE_18;
+                brgMp.ACODE_19 = tempBrg.ACODE_19;
+                brgMp.ANAME_19 = tempBrg.ANAME_19;
+                brgMp.AVALUE_19 = tempBrg.AVALUE_19;
+                brgMp.ACODE_20 = tempBrg.ACODE_20;
+                brgMp.ANAME_20 = tempBrg.ANAME_20;
+                brgMp.AVALUE_20 = tempBrg.AVALUE_20;
+                brgMp.ACODE_21 = tempBrg.ACODE_21;
+                brgMp.ANAME_21 = tempBrg.ANAME_21;
+                brgMp.AVALUE_21 = tempBrg.AVALUE_21;
+                brgMp.ACODE_22 = tempBrg.ACODE_22;
+                brgMp.ANAME_22 = tempBrg.ANAME_22;
+                brgMp.AVALUE_22 = tempBrg.AVALUE_22;
+                brgMp.ACODE_23 = tempBrg.ACODE_23;
+                brgMp.ANAME_23 = tempBrg.ANAME_23;
+                brgMp.AVALUE_23 = tempBrg.AVALUE_23;
+                brgMp.ACODE_24 = tempBrg.ACODE_24;
+                brgMp.ANAME_24 = tempBrg.ANAME_24;
+                brgMp.AVALUE_24 = tempBrg.AVALUE_24;
+                brgMp.ACODE_25 = tempBrg.ACODE_25;
+                brgMp.ANAME_25 = tempBrg.ANAME_25;
+                brgMp.AVALUE_25 = tempBrg.AVALUE_25;
+                brgMp.ACODE_26 = tempBrg.ACODE_26;
+                brgMp.ANAME_26 = tempBrg.ANAME_26;
+                brgMp.AVALUE_26 = tempBrg.AVALUE_26;
+                brgMp.ACODE_27 = tempBrg.ACODE_27;
+                brgMp.ANAME_27 = tempBrg.ANAME_27;
+                brgMp.AVALUE_27 = tempBrg.AVALUE_27;
+                brgMp.ACODE_28 = tempBrg.ACODE_28;
+                brgMp.ANAME_28 = tempBrg.ANAME_28;
+                brgMp.AVALUE_28 = tempBrg.AVALUE_28;
+                brgMp.ACODE_29 = tempBrg.ACODE_29;
+                brgMp.ANAME_29 = tempBrg.ANAME_29;
+                brgMp.AVALUE_29 = tempBrg.AVALUE_29;
+                brgMp.ACODE_30 = tempBrg.ACODE_30;
+                brgMp.ANAME_30 = tempBrg.ANAME_30;
+                brgMp.AVALUE_30 = tempBrg.AVALUE_30;
+                brgMp.ACODE_31 = tempBrg.ACODE_31;
+                brgMp.ANAME_31 = tempBrg.ANAME_31;
+                brgMp.AVALUE_31 = tempBrg.AVALUE_31;
+                brgMp.ACODE_32 = tempBrg.ACODE_32;
+                brgMp.ANAME_32 = tempBrg.ANAME_32;
+                brgMp.AVALUE_32 = tempBrg.AVALUE_32;
+                brgMp.ACODE_33 = tempBrg.ACODE_33;
+                brgMp.ANAME_33 = tempBrg.ANAME_33;
+                brgMp.AVALUE_33 = tempBrg.AVALUE_33;
+                brgMp.ACODE_34 = tempBrg.ACODE_34;
+                brgMp.ANAME_34 = tempBrg.ANAME_34;
+                brgMp.AVALUE_34 = tempBrg.AVALUE_34;
+                brgMp.ACODE_35 = tempBrg.ACODE_35;
+                brgMp.ANAME_35 = tempBrg.ANAME_35;
+                brgMp.AVALUE_35 = tempBrg.AVALUE_35;
+                brgMp.ACODE_36 = tempBrg.ACODE_36;
+                brgMp.ANAME_36 = tempBrg.ANAME_36;
+                brgMp.AVALUE_36 = tempBrg.AVALUE_36;
+                brgMp.ACODE_37 = tempBrg.ACODE_37;
+                brgMp.ANAME_37 = tempBrg.ANAME_37;
+                brgMp.AVALUE_37 = tempBrg.AVALUE_37;
+                brgMp.ACODE_38 = tempBrg.ACODE_38;
+                brgMp.ANAME_38 = tempBrg.ANAME_38;
+                brgMp.AVALUE_38 = tempBrg.AVALUE_38;
+                brgMp.ACODE_39 = tempBrg.ACODE_39;
+                brgMp.ANAME_39 = tempBrg.ANAME_39;
+                brgMp.AVALUE_39 = tempBrg.AVALUE_39;
+                brgMp.ACODE_40 = tempBrg.ACODE_40;
+                brgMp.ANAME_40 = tempBrg.ANAME_40;
+                brgMp.AVALUE_40 = tempBrg.AVALUE_40;
+                brgMp.ACODE_41 = tempBrg.ACODE_41;
+                brgMp.ANAME_41 = tempBrg.ANAME_41;
+                brgMp.AVALUE_41 = tempBrg.AVALUE_41;
+                brgMp.ACODE_42 = tempBrg.ACODE_42;
+                brgMp.ANAME_42 = tempBrg.ANAME_42;
+                brgMp.AVALUE_42 = tempBrg.AVALUE_42;
+                brgMp.ACODE_43 = tempBrg.ACODE_43;
+                brgMp.ANAME_43 = tempBrg.ANAME_43;
+                brgMp.AVALUE_43 = tempBrg.AVALUE_43;
+                brgMp.ACODE_44 = tempBrg.ACODE_44;
+                brgMp.ANAME_44 = tempBrg.ANAME_44;
+                brgMp.AVALUE_44 = tempBrg.AVALUE_44;
+                brgMp.ACODE_45 = tempBrg.ACODE_45;
+                brgMp.ANAME_45 = tempBrg.ANAME_45;
+                brgMp.AVALUE_45 = tempBrg.AVALUE_45;
+                brgMp.ACODE_46 = tempBrg.ACODE_46;
+                brgMp.ANAME_46 = tempBrg.ANAME_46;
+                brgMp.AVALUE_46 = tempBrg.AVALUE_46;
+                brgMp.ACODE_47 = tempBrg.ACODE_47;
+                brgMp.ANAME_47 = tempBrg.ANAME_47;
+                brgMp.AVALUE_47 = tempBrg.AVALUE_47;
+                brgMp.ACODE_48 = tempBrg.ACODE_48;
+                brgMp.ANAME_48 = tempBrg.ANAME_48;
+                brgMp.AVALUE_48 = tempBrg.AVALUE_48;
+                brgMp.ACODE_49 = tempBrg.ACODE_49;
+                brgMp.ANAME_49 = tempBrg.ANAME_49;
+                brgMp.AVALUE_49 = tempBrg.AVALUE_49;
+                brgMp.ACODE_50 = tempBrg.ACODE_50;
+                brgMp.ANAME_50 = tempBrg.ANAME_50;
+                brgMp.AVALUE_50 = tempBrg.AVALUE_50;
+                #endregion
+                if (insertSTF02h)
+                    ErasoftDbContext.STF02H.Add(brgMp);
+                ErasoftDbContext.SaveChanges();
+
+                //delete brg induk di temp
+                ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
+                if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "'");
+                ErasoftDbContext.SaveChanges();
+
+                ret.status = 1;
+            }
+            catch (Exception ex)
+            {
+                ret.status = 0;
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+
+            return ret;
         }
 
         public ActionResult UploadItemByCust(string cust, string dataPerPage, int skipDataError)
@@ -14398,6 +14863,48 @@ namespace MasterOnline.Controllers
                         //}
 
                         //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
+                        #region handle brg induk untuk brg varian
+                        if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
+                        {
+                            bool createSTF02Induk = true;
+                            var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
+                            if (brgInduk != null)
+                            {
+                                var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                if (stf02h_induk == null)
+                                {
+                                    createSTF02Induk = false;
+                                    if (tempBrgInduk != null)
+                                    {
+                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        if(ret1.status == 0)
+                                            barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
+                                    }
+                                    else
+                                    {
+                                        barangVm.Errors.Add(item.SELLER_SKU + ";Barang Induk tidak ditemukan.");
+                                        //return JsonErrorMessage("Barang Induk tidak ditemukan.");
+                                    }
+
+                                }
+                            }
+                            else
+                            {
+                                //if (tempBrginDB != null)
+                                //{
+                                //sinkron brg induk terlebih dahulu
+                                var ret2 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                if (ret2.status == 0)
+                                    barangVm.Errors.Add(item.SELLER_SKU + ";" + ret2.message);
+                                //}
+                                //else
+                                //{
+                                //    return JsonErrorMessage("Barang ini sudah diproses");
+                                //}
+                            }
+                        }
+                        #endregion
                         var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
@@ -14759,7 +15266,7 @@ namespace MasterOnline.Controllers
                                 HBELI = 0,
                                 HBESAR = 0,
                                 HKECIL = 0,
-                                TYPE = "3",
+                                //TYPE = "3",
                                 KLINK = "1",
                                 HP_STD = 0,
                                 QPROD = 0,
@@ -14817,6 +15324,11 @@ namespace MasterOnline.Controllers
                             stf02.KET_SORT1 = defaultCategoryCode.KET;
                             stf02.KET_SORT2 = defaultBrand.KET;
                             stf02.Deskripsi = (string.IsNullOrEmpty(item.Deskripsi) ? "-" : item.Deskripsi);
+
+                            //add 25 Jan 2019, handle brg induk & varian
+                            stf02.TYPE = item.TYPE;
+                            stf02.PART = item.KODE_BRG_INDUK;
+                            //end 25 Jan 2019, handle brg induk & varian
 
                             if (!string.IsNullOrEmpty(item.IMAGE))
                             {
@@ -15117,23 +15629,56 @@ namespace MasterOnline.Controllers
         }
 
         [Route("manage/PromptBarang")]
-        public ActionResult PromptBarang(string cust, string nama)
+        public ActionResult PromptBarang(string cust, string nama, string typeBrg)
         {
             try
             {
                 var retObj = new PromptBrg();
                 retObj.NAMA_BRG = nama.Length > 10 ? nama.Substring(0, 10) : nama;
                 var PromptModel = new List<PromptBarangViewModel>();
+                //change 1 Feb 2019, prompt berdasarkan type barang tidak jd dipakai
+                //change by Tri 22-01-2019, prompt sesuai type barang
                 var listBarang = ErasoftDbContext.STF02.ToList();
+                //var listBarang = ErasoftDbContext.STF02.Where(b => b.TYPE == typeBrg).ToList();
+                //end change by Tri 22-01-2019, prompt sesuai type barang
+                //end change 1 Feb 2019, prompt berdasarkan type barang tidak jd dipakai
+
                 var customer = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault();
                 foreach (var barang in listBarang)
                 {
                     if (customer != null)
                     {
-                        var stf02h = ErasoftDbContext.STF02H.Where(b => b.BRG.Equals(barang.BRG) && b.IDMARKET == customer.RecNum).FirstOrDefault();
-                        if (stf02h != null)
+                        //remark 1 Feb 2019, tidak terpakai
+                        //if (typeBrg == "4")//ambil brg jasa untuk prompt brg induk
+                        //{
+                        //    PromptModel.Add(
+                        //           new PromptBarangViewModel
+                        //           {
+                        //               KODE = barang.BRG,
+                        //               NAMA = barang.NAMA + " " + barang.NAMA2,
+                        //               HARGA = barang.HJUAL
+                        //           }
+                        //           );
+                        //}
+                        //else
+                        //end remark 1 Feb 2019, tidak terpakai
                         {
-                            if (string.IsNullOrEmpty(stf02h.BRG_MP))//belum ada link dgn cust ini
+                            var stf02h = ErasoftDbContext.STF02H.Where(b => b.BRG.Equals(barang.BRG) && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                            if (stf02h != null)
+                            {
+                                if (string.IsNullOrEmpty(stf02h.BRG_MP))//belum ada link dgn cust ini
+                                {
+                                    PromptModel.Add(
+                                        new PromptBarangViewModel
+                                        {
+                                            KODE = barang.BRG,
+                                            NAMA = barang.NAMA + " " + barang.NAMA2,
+                                            HARGA = barang.HJUAL
+                                        }
+                                        );
+                                }
+                            }
+                            else
                             {
                                 PromptModel.Add(
                                     new PromptBarangViewModel
@@ -15142,24 +15687,15 @@ namespace MasterOnline.Controllers
                                         NAMA = barang.NAMA + " " + barang.NAMA2,
                                         HARGA = barang.HJUAL
                                     }
-                                    );
+                                );
                             }
                         }
-                        else
-                        {
-                            PromptModel.Add(
-                                new PromptBarangViewModel
-                                {
-                                    KODE = barang.BRG,
-                                    NAMA = barang.NAMA + " " + barang.NAMA2,
-                                    HARGA = barang.HJUAL
-                                }
-                            );
-                        }
+
                     }
 
                 }
                 retObj.data = PromptModel;
+                retObj.typeBrg = typeBrg;
                 return View("PromptBarang", retObj);
             }
             catch (Exception ex)
@@ -15172,103 +15708,113 @@ namespace MasterOnline.Controllers
         {
             if (!string.IsNullOrEmpty(cust))
             {
-                var arf01 = ErasoftDbContext.ARF01.Where(t => t.CUST.Equals(cust)).FirstOrDefault();
-                if (arf01 != null)
+                try
                 {
-                    var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
-                    if (marketplace != null)
+                    var arf01 = ErasoftDbContext.ARF01.Where(t => t.CUST.Equals(cust)).FirstOrDefault();
+                    if (arf01 != null)
                     {
-                        var retBarang = new SyncBarangViewModel
+                        var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(arf01.NAMA)).FirstOrDefault();
+                        if (marketplace != null)
                         {
-                            Recursive = false,
-                            Page = page + 1,
-                            RecordCount = recordCount,
-                            Stf02 = new STF02(),
-                            TempBrg = new TEMP_BRG_MP(),
-                            BLProductActive = statBL,
-                        };
-                        //int recordCount = 0;
-                        switch (marketplace.NamaMarket.ToUpper())
-                        {
-                            case "LAZADA":
-                                if (string.IsNullOrEmpty(arf01.TOKEN))
-                                {
-                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
-                                }
-                                else
-                                {
-                                    var lzdApi = new LazadaController();
-                                    var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount);
-                                    if (resultLzd.status == 1)
+                            var retBarang = new SyncBarangViewModel
+                            {
+                                Recursive = false,
+                                Page = page + 1,
+                                RecordCount = recordCount,
+                                Stf02 = new STF02(),
+                                TempBrg = new TEMP_BRG_MP(),
+                                BLProductActive = statBL,
+                            };
+                            //int recordCount = 0;
+                            switch (marketplace.NamaMarket.ToUpper())
+                            {
+                                case "LAZADA":
+                                    if (string.IsNullOrEmpty(arf01.TOKEN))
                                     {
-                                        if (!string.IsNullOrEmpty(resultLzd.message))
-                                        {
-                                            retBarang.RecordCount = resultLzd.recordCount;
-                                            retBarang.Recursive = true;
-                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                        }
-                                        else
-                                        {
-                                            retBarang.RecordCount = resultLzd.recordCount;
-                                            //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                            //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                            //return PartialView("TableUploadBarangPartial", retBarang);
-                                        }
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                     }
                                     else
                                     {
-                                        retBarang.RecordCount = resultLzd.recordCount;
-                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                        //return PartialView("TableUploadBarangPartial", retBarang);
-                                    }
-                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                    //var nextPageLzd = true;
-                                    //while (nextPageLzd)
-                                    //{
-                                    //    if (resultLzd.status == 1)
-                                    //    {
-                                    //        if (!string.IsNullOrEmpty(resultLzd.message))
-                                    //        {
-                                    //            recordCount += resultLzd.recordCount;
-                                    //            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message), recordCount);
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            nextPageLzd = false;
-                                    //        }
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        nextPageLzd = false;
-                                    //    }
-                                    //}
-                                }
-                            case "BUKALAPAK":
-                                var blApi = new BukaLapakController();
-                                if (string.IsNullOrEmpty(arf01.TOKEN))
-                                {
-                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
-                                }
-                                else
-                                {
-                                    var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount);
-                                    if (result.status == 1)
-                                    {
-                                        if (!string.IsNullOrEmpty(result.message))
+                                        var lzdApi = new LazadaController();
+                                        var resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, page, recordCount);
+                                        if (resultLzd.status == 1)
                                         {
-                                            if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
+                                            if (!string.IsNullOrEmpty(resultLzd.message))
                                             {
-                                                retBarang.BLProductActive = 0;
-                                                if (statBL == 1)
-                                                    retBarang.Page = 0;
+                                                retBarang.RecordCount = resultLzd.recordCount;
+                                                retBarang.Recursive = true;
+                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
                                             }
-                                            //else
-                                            //{
-                                            retBarang.RecordCount = result.recordCount;
-                                            //}
-                                            retBarang.Recursive = true;
-                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                            else
+                                            {
+                                                retBarang.RecordCount = resultLzd.recordCount;
+                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                                //return PartialView("TableUploadBarangPartial", retBarang);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultLzd.recordCount;
+                                            //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                            //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                            //return PartialView("TableUploadBarangPartial", retBarang);
+                                        }
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                        //var nextPageLzd = true;
+                                        //while (nextPageLzd)
+                                        //{
+                                        //    if (resultLzd.status == 1)
+                                        //    {
+                                        //        if (!string.IsNullOrEmpty(resultLzd.message))
+                                        //        {
+                                        //            recordCount += resultLzd.recordCount;
+                                        //            resultLzd = lzdApi.GetBrgLazada(cust, arf01.TOKEN, Convert.ToInt32(resultLzd.message), recordCount);
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            nextPageLzd = false;
+                                        //        }
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        nextPageLzd = false;
+                                        //    }
+                                        //}
+                                    }
+                                case "BUKALAPAK":
+                                    var blApi = new BukaLapakController();
+                                    if (string.IsNullOrEmpty(arf01.TOKEN))
+                                    {
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
+                                    {
+                                        var result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, page + 1, (statBL == 1 ? true : false), recordCount);
+                                        if (result.status == 1)
+                                        {
+                                            if (!string.IsNullOrEmpty(result.message))
+                                            {
+                                                if (result.message == "MOVE_TO_INACTIVE_PRODUCTS")//finish getting active product, move to inactive
+                                                {
+                                                    retBarang.BLProductActive = 0;
+                                                    if (statBL == 1)
+                                                        retBarang.Page = 0;
+                                                }
+                                                //else
+                                                //{
+                                                retBarang.RecordCount = result.recordCount;
+                                                //}
+                                                retBarang.Recursive = true;
+                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                            }
+                                            else
+                                            {
+                                                retBarang.RecordCount = result.recordCount;
+                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                                //return PartialView("TableUploadBarangPartial", retBarang);
+                                            }
                                         }
                                         else
                                         {
@@ -15277,82 +15823,82 @@ namespace MasterOnline.Controllers
                                             //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
                                             //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                        //var nextPage = true;
+                                        //while (nextPage)
+                                        //{
+                                        //    if (result.status == 1)
+                                        //    {
+                                        //        if (!string.IsNullOrEmpty(result.message))
+                                        //        {
+                                        //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            nextPage = false;
+                                        //        }
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        nextPage = false;
+                                        //    }
+                                        //}
+
+                                        //result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
+                                        //nextPage = true;
+                                        //while (nextPage)
+                                        //{
+                                        //    if (result.status == 1)
+                                        //    {
+                                        //        if (!string.IsNullOrEmpty(result.message))
+                                        //        {
+                                        //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            nextPage = false;
+                                        //        }
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        nextPage = false;
+                                        //    }
+                                        //}
+                                    }
+                                case "BLIBLI":
+                                    var BliApi = new BlibliController();
+                                    if (string.IsNullOrEmpty(arf01.TOKEN))
+                                    {
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
                                     }
                                     else
                                     {
-                                        retBarang.RecordCount = result.recordCount;
-                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                        //return PartialView("TableUploadBarangPartial", retBarang);
-                                    }
-                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                    //var nextPage = true;
-                                    //while (nextPage)
-                                    //{
-                                    //    if (result.status == 1)
-                                    //    {
-                                    //        if (!string.IsNullOrEmpty(result.message))
-                                    //        {
-                                    //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), true);
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            nextPage = false;
-                                    //        }
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        nextPage = false;
-                                    //    }
-                                    //}
-
-                                    //result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, 1, false);
-                                    //nextPage = true;
-                                    //while (nextPage)
-                                    //{
-                                    //    if (result.status == 1)
-                                    //    {
-                                    //        if (!string.IsNullOrEmpty(result.message))
-                                    //        {
-                                    //            result = blApi.getListProduct(cust, arf01.API_KEY, arf01.TOKEN, Convert.ToInt32(result.message), false);
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            nextPage = false;
-                                    //        }
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        nextPage = false;
-                                    //    }
-                                    //}
-                                }
-                            case "BLIBLI":
-                                var BliApi = new BlibliController();
-                                if (string.IsNullOrEmpty(arf01.TOKEN))
-                                {
-                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
-                                }
-                                else
-                                {
-                                    BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
-                                    {
-                                        API_client_username = arf01.API_CLIENT_U,
-                                        API_client_password = arf01.API_CLIENT_P,
-                                        API_secret_key = arf01.API_KEY,
-                                        mta_username_email_merchant = arf01.EMAIL,
-                                        mta_password_password_merchant = arf01.PASSWORD,
-                                        merchant_code = arf01.Sort1_Cust,
-                                        token = arf01.TOKEN
-                                    };
-                                    var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
-                                    if (resultBli.status == 1)
-                                    {
-                                        if (!string.IsNullOrEmpty(resultBli.message))
+                                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
                                         {
-                                            retBarang.RecordCount = resultBli.recordCount;
-                                            retBarang.Recursive = true;
-                                            //return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                            API_client_username = arf01.API_CLIENT_U,
+                                            API_client_password = arf01.API_CLIENT_P,
+                                            API_secret_key = arf01.API_KEY,
+                                            mta_username_email_merchant = arf01.EMAIL,
+                                            mta_password_password_merchant = arf01.PASSWORD,
+                                            merchant_code = arf01.Sort1_Cust,
+                                            token = arf01.TOKEN
+                                        };
+                                        var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
+                                        if (resultBli.status == 1)
+                                        {
+                                            if (!string.IsNullOrEmpty(resultBli.message))
+                                            {
+                                                retBarang.RecordCount = resultBli.recordCount;
+                                                retBarang.Recursive = true;
+                                                //return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                            }
+                                            else
+                                            {
+                                                retBarang.RecordCount = resultBli.recordCount;
+                                                //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                                                //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
+                                                //return PartialView("TableUploadBarangPartial", retBarang);
+                                            }
                                         }
                                         else
                                         {
@@ -15361,36 +15907,28 @@ namespace MasterOnline.Controllers
                                             //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
                                             //return PartialView("TableUploadBarangPartial", retBarang);
                                         }
-                                    }
-                                    else
-                                    {
-                                        retBarang.RecordCount = resultBli.recordCount;
-                                        //retBarang.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
-                                        //retBarang.ListMarket = ErasoftDbContext.ARF01.ToList();
-                                        //return PartialView("TableUploadBarangPartial", retBarang);
-                                    }
-                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
 
-                                    //var nextPageBli = true;
-                                    //while (nextPageBli)
-                                    //{
-                                    //    if (resultBli.status == 1)
-                                    //    {
-                                    //        if (!string.IsNullOrEmpty(resultBli.message))
-                                    //        {
-                                    //            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            nextPageBli = false;
-                                    //        }
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        nextPageBli = false;
-                                    //    }
-                                    //}
-                                }
+                                        //var nextPageBli = true;
+                                        //while (nextPageBli)
+                                        //{
+                                        //    if (resultBli.status == 1)
+                                        //    {
+                                        //        if (!string.IsNullOrEmpty(resultBli.message))
+                                        //        {
+                                        //            resultBli = BliApi.getProduct(data, "", Convert.ToInt32(resultBli.message), arf01.CUST);
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            nextPageBli = false;
+                                        //        }
+                                        //    }
+                                        //    else
+                                        //    {
+                                        //        nextPageBli = false;
+                                        //    }
+                                        //}
+                                    }
 
                             case "TOKOPEDIA":
                                 var TokoAPI = new TokopediaController();
@@ -15430,62 +15968,68 @@ namespace MasterOnline.Controllers
                                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                                 }
 
-                            case "SHOPEE":
-                                var ShopeeApi = new ShopeeController();
-                                if (string.IsNullOrEmpty(arf01.Sort1_Cust))
-                                {
-                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
-                                }
-                                else
-                                {
-                                    ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                case "SHOPEE":
+                                    var ShopeeApi = new ShopeeController();
+                                    if (string.IsNullOrEmpty(arf01.Sort1_Cust))
                                     {
-                                        merchant_code = arf01.Sort1_Cust,
-
-                                    };
-                                    var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
-                                    if (resultShopee.status == 1)
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
                                     {
-                                        if (!string.IsNullOrEmpty(resultShopee.message))
+                                        ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
                                         {
-                                            retBarang.RecordCount = resultShopee.recordCount;
-                                            retBarang.Recursive = true;
+                                            merchant_code = arf01.Sort1_Cust,
+
+                                        };
+                                        var resultShopee = await ShopeeApi.GetItemsList(data, arf01.RecNum.Value, page, recordCount);
+                                        if (resultShopee.status == 1)
+                                        {
+                                            if (!string.IsNullOrEmpty(resultShopee.message))
+                                            {
+                                                retBarang.RecordCount = resultShopee.recordCount;
+                                                retBarang.Recursive = true;
+                                            }
+                                            else
+                                            {
+                                                retBarang.RecordCount = resultShopee.recordCount;
+                                            }
                                         }
                                         else
                                         {
                                             retBarang.RecordCount = resultShopee.recordCount;
                                         }
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
-                                    else
-                                    {
-                                        retBarang.RecordCount = resultShopee.recordCount;
-                                    }
-                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                }
 
-                            default:
-                                return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
+                                default:
+                                    return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
+                            }
                         }
+                        else
+                        {
+                            return JsonErrorMessage("Toko tidak dapat ditemukan.");
+                        }
+
+                        //var barangVm = new UploadBarangViewModel()
+                        //{
+                        //    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
+                        //    ListMarket = ErasoftDbContext.ARF01.ToList(),
+                        //    Stf02 = new STF02(),
+                        //    TempBrg = new TEMP_BRG_MP(),
+                        //};
+
+                        //return PartialView("TableUploadBarangPartial", barangVm);
                     }
                     else
                     {
                         return JsonErrorMessage("Toko tidak dapat ditemukan.");
                     }
-
-                    //var barangVm = new UploadBarangViewModel()
-                    //{
-                    //    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList(),
-                    //    ListMarket = ErasoftDbContext.ARF01.ToList(),
-                    //    Stf02 = new STF02(),
-                    //    TempBrg = new TEMP_BRG_MP(),
-                    //};
-
-                    //return PartialView("TableUploadBarangPartial", barangVm);
                 }
-                else
+                catch(Exception ex)
                 {
-                    return JsonErrorMessage("Toko tidak dapat ditemukan.");
+                    return JsonErrorMessage(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                 }
+               
             }
             else
             {

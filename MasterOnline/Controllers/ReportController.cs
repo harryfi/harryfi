@@ -207,6 +207,7 @@ namespace MasterOnline.Controllers
                 Uri.EscapeDataString(data.Order));
 #else
             //change by nurul 11/1/2019 -- return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}",
+            //return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}&FromBuyer={8}&ToBuyer={9}",
             return string.Format("https://devreport.masteronline.co.id/Report/Form/frm_LAnalisaRLPenj_SP.aspx?UserID={0}&FromCust={1}&ToCust={2}&FromBrg={3}&ToBrg={4}&DrTanggal={5}&SdTanggal={6}&Order={7}",
                 Uri.EscapeDataString(data.UserId),
                 Uri.EscapeDataString(data.FromCust),
@@ -217,6 +218,8 @@ namespace MasterOnline.Controllers
                 Uri.EscapeDataString(data.SdTanggal),
                 //add by nurul 11/1/2019
                 Uri.EscapeDataString(data.Order));
+                //Uri.EscapeDataString(data.FromBuyer),
+                //Uri.EscapeDataString(data.ToBuyer));
                 //end add 
 #endif
         }
@@ -617,6 +620,14 @@ namespace MasterOnline.Controllers
             var listKodeRek = ErasoftDbContext.GLFREKs.Where(a => a.type.ToUpper() != "L").ToList();
 
             return View("PromptKodeRek", listKodeRek);
+        }
+
+        //add by nurul 31/1/2019
+        public ActionResult PromptBuyer()
+        {
+            var listBuyer = ErasoftDbContext.ARF01C.ToList();
+
+            return View("PromptBuyer", listBuyer);
         }
 
     }

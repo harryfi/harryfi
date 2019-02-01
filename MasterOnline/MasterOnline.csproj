@@ -5927,6 +5927,7 @@
     <Content Include="Views\Manage\StrukturVarPartial.cshtml" />
     <Content Include="Views\Manage\BarangVarPartial.cshtml" />
     <Content Include="Views\Manage\BarangDetailVarPartial.cshtml" />
+    <Content Include="Views\Report\PromptBuyer.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

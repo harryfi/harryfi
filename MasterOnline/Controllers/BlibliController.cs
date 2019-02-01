@@ -1869,6 +1869,16 @@ namespace MasterOnline.Controllers
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
@@ -1899,7 +1909,9 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                ret.message = ex.Message;
+                //ret.message = ex.Message;
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
             if (responseFromServer != null)
@@ -1907,6 +1919,7 @@ namespace MasterOnline.Controllers
                 var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
                 if (listBrg != null)
                 {
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                     if (string.IsNullOrEmpty(listBrg.errorCode))
                     {
                         if (listBrg.content != null)
@@ -1923,41 +1936,56 @@ namespace MasterOnline.Controllers
                                     var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        ret.recordCount += getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
+                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
+                                        if(retDet.status >= 1)
+                                        {
+                                            ret.recordCount += retDet.status;
+                                        }
                                     }
                                 }
                             }
                             else
                             {
                                 ret.message = "Gagal mendapatkan produk";
+                                currentLog.REQUEST_EXCEPTION = ret.message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                             }
                         }
                         else
                         {
                             ret.message = "Gagal mendapatkan produk";
+                            currentLog.REQUEST_EXCEPTION = ret.message;
+                            manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                         }
                     }
                     else
                     {
                         ret.message = listBrg.errorMessage;
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                     }
                 }
                 else
                 {
                     ret.message = "Gagal mendapatkan produk";
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 }
             }
             else
             {
                 ret.message = "Failed to get response from Blibli API";
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
             return ret;
         }
-        protected int getProductDetail(BlibliAPIData iden, string productCode, string cust, int display)
+        protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
-
+            var ret = new BindingBase();
+            ret.status = 0;
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
             string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
@@ -1988,7 +2016,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-
+                ret.message = ex.Message;
             }
 
             if (responseFromServer != null)
@@ -2005,12 +2033,12 @@ namespace MasterOnline.Controllers
                         //var c = HttpUtility.HtmlDecode(a);
                         string IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.ToString();
                         string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-                        sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3,";
+                        sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE,";
                         sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                         sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
                         sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30) VALUES ";
 
-                        string namaBrg = result.value.productName;
+                        string namaBrg = result.value.items[0].itemName;
                         string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
                         urlImage = "";
                         urlImage2 = "";
@@ -2056,12 +2084,49 @@ namespace MasterOnline.Controllers
                         //{
                         //    attr.Add(property.attributeCode.ToString(), property.values[0].ToString());
                         //}
+
+                        //add, check ada varian
+                        int numVarian = 0;
+                        bool insertParent = false;
+                        string kdBrgInduk = "";
+                        string sSQLInduk = ", ";
+                        foreach (var property in result.value.attributes)
+                        {
+                            if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            {
+                                numVarian++;
+                            }
+                        }
+                        if(numVarian > 1)
+                        {
+                            //remove bussiness partner code from productsku -> max length < 20
+                            string productSku = result.value.productSku;
+                            var splitSku = productSku.Split('-');
+
+                            kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
+                            //cek brg induk di db
+                            var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
+                            var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
+                            if (brgIndukinDB == null && tempBrgIndukinDB == null)
+                            {
+                                insertParent = true;
+                                sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3);
+                            }
+                        }
+                        //end add, check ada varian
+
+                        string desc = result.value.description;
                         string categoryCode = result.value.categoryCode.ToString();
                         string merchantSku = result.value.items[0].merchantSku.ToString();
+                        if (string.IsNullOrEmpty(merchantSku))
+                            merchantSku = result.value.items[0].skuCode;
                         sSQL += "('" + productCode + ";" + result.value.items[0].skuCode + "' , '" + merchantSku.Replace('\'', '`') + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                         sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
-                        sSQL += cust + "' , '" + result.value.description.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
+                        sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
                         sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+                        //add kode brg induk dan type brg
+                        sSQL += ", '" + kdBrgInduk + "' , '3'";
+                        //end add kode brg induk dan type brg
 
                         var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
                         #region set attribute
@@ -3061,16 +3126,1063 @@ namespace MasterOnline.Controllers
                             }
                         }
                         #endregion
+                        
+                        if (insertParent)
+                            sSQL += sSQLInduk;
 
-                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
-                        return 1;
+                        var retExec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        ret.status = retExec;
+                        //return ret;
                     }
                 }
 
             }
-            return 0;
+            return ret;
         }
+        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust,string IdMarket, int display, string urlImage, string urlImage2, string urlImage3)
+        {
+            string sSQL = "";
+            string namaBrg = result.value.productName;
+            string nama, nama2, nama3;
+            
+            if (namaBrg.Length > 30)
+            {
+                nama = namaBrg.Substring(0, 30);
+                if (namaBrg.Length > 285)
+                {
+                    //change by calvin 15 januari 2019
+                    //nama2 = namaBrg.Substring(30, 30);
+                    //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                    nama2 = namaBrg.Substring(30, 255);
+                    nama3 = "";
+                    //end change by calvin 15 januari 2019
+                }
+                else
+                {
+                    nama2 = namaBrg.Substring(30);
+                    nama3 = "";
+                }
+            }
+            else
+            {
+                nama = namaBrg;
+                nama2 = "";
+                nama3 = "";
+            }
 
+            string desc = result.value.description;
+            string categoryCode = result.value.categoryCode.ToString();
+            //string merchantSku = result.value.items[0].merchantSku.ToString();
+            sSQL += "('" + kdBrg + "' , '" + kdBrg + "' , '" + nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+            sSQL += Convert.ToDouble(result.value.items[0].weight) * 1000 + "," + result.value.items[0].length + "," + result.value.items[0].width + "," + result.value.items[0].height + ", '";
+            sSQL += cust + "' , '" + desc.Replace('\'', '`') + "' , " + IdMarket + " , " + result.value.items[0].prices[0].price + " , " + result.value.items[0].prices[0].price;
+            sSQL += " , " + display + " , '" + categoryCode + "' , '" + result.value.categoryName + "' , '" + result.value.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
+            //add kode brg induk dan type brg
+            sSQL += ", '' , '4'";
+            //end add kode brg induk dan type brg
+
+            var attributeBlibli = MoDbContext.AttributeBlibli.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            #region set attribute
+            if (attributeBlibli != null)
+            {
+                string attrVal = "";
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_1))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_1.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_1 + "' , '" + attributeBlibli.ANAME_1.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_2))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_2.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_2 + "' , '" + attributeBlibli.ANAME_2.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_3))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_3.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_3 + "' , '" + attributeBlibli.ANAME_3.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_4))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_4.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_4 + "' , '" + attributeBlibli.ANAME_4.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_5))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_5.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_5 + "' , '" + attributeBlibli.ANAME_5.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_6))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_6.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_6 + "' , '" + attributeBlibli.ANAME_6.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_7))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_7.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_7 + "' , '" + attributeBlibli.ANAME_7.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_8))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_8.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_8 + "' , '" + attributeBlibli.ANAME_8.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_9))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_9.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_9 + "' , '" + attributeBlibli.ANAME_9.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_10))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_10.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_10 + "' , '" + attributeBlibli.ANAME_10.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_11))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_11.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_11 + "' , '" + attributeBlibli.ANAME_11.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_12))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_12.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_12 + "' , '" + attributeBlibli.ANAME_12.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_13))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_13.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_13 + "' , '" + attributeBlibli.ANAME_13.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_14))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_14.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_14 + "' , '" + attributeBlibli.ANAME_14.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_15))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_15.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_15 + "' , '" + attributeBlibli.ANAME_15.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_16))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_16.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_16 + "' , '" + attributeBlibli.ANAME_16.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_17))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_17.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_17 + "' , '" + attributeBlibli.ANAME_17.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_18))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_18.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_18 + "' , '" + attributeBlibli.ANAME_18.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_19))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_19.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_19 + "' , '" + attributeBlibli.ANAME_19.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_20))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_20.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_20 + "' , '" + attributeBlibli.ANAME_20.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_21))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_21.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_21 + "' , '" + attributeBlibli.ANAME_21.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_22))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_22.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_22 + "' , '" + attributeBlibli.ANAME_22.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_23))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_23.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_23 + "' , '" + attributeBlibli.ANAME_23.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_24))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_24.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_24 + "' , '" + attributeBlibli.ANAME_24.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_25))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_25.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_25 + "' , '" + attributeBlibli.ANAME_25.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_26))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_26.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_26 + "' , '" + attributeBlibli.ANAME_26.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_27))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_27.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_27 + "' , '" + attributeBlibli.ANAME_27.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_28))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_28.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_28 + "' , '" + attributeBlibli.ANAME_28.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_29))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_29.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_29 + "' , '" + attributeBlibli.ANAME_29.Replace("\'", "\'\'") + "' , '" + attrVal + "'";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', ''";
+                }
+                if (!string.IsNullOrEmpty(attributeBlibli.ACODE_30))
+                {
+                    foreach (var property in result.value.attributes)
+                    {
+                        string tempCode = property.attributeCode.ToString();
+                        if (attributeBlibli.ACODE_30.ToUpper().Equals(tempCode.ToString()))
+                        {
+                            if (!string.IsNullOrEmpty(attrVal))
+                                attrVal += ";";
+                            attrVal += property.values[0].ToString();
+                            //if (!string.IsNullOrEmpty(property.itemSku.ToString()))
+                            //{
+                            //    if (property.itemSku.ToString() == productCode)
+                            //    {
+                            //        attrVal = property.values[0].ToString();
+                            //        break;
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    if (!string.IsNullOrEmpty(attrVal))
+                            //        attrVal += ";";
+                            //    attrVal += property.values[0].ToString();
+                            //}
+                        }
+                    }
+                    sSQL += ", '" + attributeBlibli.ACODE_30 + "' , '" + attributeBlibli.ANAME_30.Replace("\'", "\'\'") + "' , '" + attrVal + "')";
+                    attrVal = "";
+                }
+                else
+                {
+                    sSQL += ", '', '', '')";
+                }
+            }
+            #endregion
+
+
+            return sSQL;
+        }
 
         protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId, string log_request_id)
         {

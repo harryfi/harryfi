@@ -25,5 +25,6 @@ namespace MasterOnline.ViewModels
     {
         public string NAMA_BRG { get; set; }
         public List<PromptBarangViewModel> data { get; set; }
+        public string typeBrg { get; set; }
     }
 }

@@ -58,6 +58,7 @@
                 <option value="2">Barang</option>
                 <option value="3">Cust/Barang</option>
                 <option value="4">Barang/Cust</option>
+                @*<option value="5">Pembeli</option>*@
             </select>
         </div>
     </div>
@@ -145,6 +146,33 @@
 
     </div>
 </div>
+@*<div class="row" id="div_Buyer">
+    <div class="col-md-2">
+        @Html.Label("", "Dari Pembeli")
+        <div class="input-group text">
+            @Html.TextBox("FromBuyer", "", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-daribuyer" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-2">
+        @Html.Label("", "Sampai Pembeli")
+        <div class="input-group text">
+            @Html.TextBox("ToBuyer", "ZZZ", new { @class = "form-control", @MaxLength = "10" })
+            <span class="input-group-btn">
+                <button id="prompt-sdbuyer" class="btn btn-default" type="button" style="height: 34px;">
+                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+    <div class="col-md-8">
+
+    </div>
+</div>*@
 <br />
 <div class="row">
     <div class="col-md-12">
@@ -169,6 +197,7 @@
             $('#div_Cust').hide();
             $('#div_Brg').hide();
             $('#div_Cust2').hide();
+            //$('#div_Buyer').hide();
             //end add
 
             var d = new Date();
@@ -221,6 +250,7 @@
                 var $link = '@Url.Action("PromptBarang", "Report")';
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
+            
 
             $('#preview-report').click(function () {
                 previewing();
@@ -232,22 +262,32 @@
                     $('#div_Cust').show();
                     $('#div_Brg').hide();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 2) {
                     $('#div_Cust').hide();
                     $('#div_Brg').show();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 3) {
                     $('#div_Cust').show();
                     $('#div_Brg').show();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 4) {
                     $('#div_Cust').hide();
                     $('#div_Brg').show();
                     $('#div_Cust2').show();
+                    //$('#div_Buyer').hide();
+                //} else if ($('#Order').val() == 5) {
+                //    $('#div_Cust').hide();
+                //    $('#div_Brg').hide();
+                //    $('#div_Cust2').hide();
+                //    $('#div_Buyer').show();
                 } else {
                     $('#div_Supp').hide();
                     $('#div_Brg').hide();
                     $('#div_Supp2').hide();
+                    //$('#div_Buyer').hide();
                 }
             }); 
 
@@ -256,22 +296,32 @@
                     $('#div_Cust').show();
                     $('#div_Brg').hide();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 2) {
                     $('#div_Cust').hide();
                     $('#div_Brg').show();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 3) {
                     $('#div_Cust').show();
                     $('#div_Brg').show();
                     $('#div_Cust2').hide();
+                    //$('#div_Buyer').hide();
                 } else if ($('#Order').val() == 4) {
                     $('#div_Cust').hide();
                     $('#div_Brg').show();
                     $('#div_Cust2').show();
+                //    $('#div_Buyer').hide();
+                //} else if ($('#Order').val() == 5) {
+                //    $('#div_Cust').hide();
+                //    $('#div_Brg').hide();
+                //    $('#div_Cust2').hide();
+                //    $('#div_Buyer').show();
                 } else {
                     $('#div_Supp').hide();
                     $('#div_Brg').hide();
                     $('#div_Supp2').hide();
+                    //$('#div_Buyer').hide();
                 }
             }); 
 
@@ -285,6 +335,17 @@
                 var $link = '@Url.Action("PromptCustomer", "Report")';
                 window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
             });
+
+            @*$('#prompt-daribuyer').click(function () {
+                promptBuyer = "1";
+                var $link = '@Url.Action("PromptBuyer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });
+            $('#prompt-sdbuyer').click(function () {
+                promptBuyer = "2";
+                var $link = '@Url.Action("PromptBuyer", "Report")';
+                window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+            });*@
             //end add by nurul 11/1/2019
         });
 
@@ -344,6 +405,8 @@
                         //end change 
                         FromBrg: $('#FromBrg').val(),
                         ToBrg: $('#ToBrg').val(),
+                        //FromBuyer: $('#FromBuyer').val(),
+                        //ToBuyer: $('#ToBuyer').val(),
                         DrTanggal: formatDateToYYYYmmDD(1),
                         SdTanggal: formatDateToYYYYmmDD(2),
                         //add by nurul 
@@ -395,6 +458,15 @@
             }
             promptBrg = "";
         }
+        //function afterPromptBuyer(buyer) {
+        //    if (promptBuyer == "1") {
+        //        $('#FromBuyer').val(buyer);
+        //    }
+        //    else if (promptBuyer == "2") {
+        //        $('#ToBuyer').val(buyer);
+        //    }
+        //    promptBuyer = "";
+        //}
     </script>
 }
 
