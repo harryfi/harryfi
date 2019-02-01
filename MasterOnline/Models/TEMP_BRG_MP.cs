@@ -522,5 +522,11 @@ namespace MasterOnline.Models
 
         [StringLength(50)]
         public string SELLER_SKU { get; set; }
+
+        [StringLength(50)]
+        public string KODE_BRG_INDUK { get; set; }
+
+        [StringLength(1)]
+        public string TYPE { get; set; }
     }
 }

@@ -8,6 +8,11 @@ namespace MasterOnline.Models
     public class Lazada
     {
     }
+    public class LazadaGetResiObj
+    {
+        public string Errors { get; set; }
+        public string NoResi { get; set; }
+    }
     public class PromoLazadaObj
     {
         public string kdBrg { get; set; }
