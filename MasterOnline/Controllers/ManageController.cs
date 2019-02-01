@@ -4301,7 +4301,7 @@ namespace MasterOnline.Controllers
             saveBarangShopeeVariant(2, brg, false);
             var partialVm = new BarangViewModel()
             {
-                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
             };
 
