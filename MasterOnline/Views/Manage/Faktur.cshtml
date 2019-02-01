@@ -1635,8 +1635,15 @@
 
             $('#BRG').click(function () {
                 var checkExist = setInterval(function () {
-                    if ($('.selectivity-dropdown').length) {
-                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //if ($('.selectivity-dropdown').length) {
+                    //    $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //    clearInterval(checkExist);
+                    //}
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
                         clearInterval(checkExist);
                     }
                 }, 100);

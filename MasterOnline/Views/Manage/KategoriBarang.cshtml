@@ -75,7 +75,7 @@
             <div class="row">
                 <div id="table-kategori-partial" class="col-lg-12">
                     @{
-                        var currentPage = (int) ViewData["currentPage"];
+                        var currentPage = (int)ViewData["currentPage"];
                     }
 
                     @Html.Partial("TableKategoriPartial", Model.ListKategori.ToPagedList(currentPage, 10))
@@ -135,13 +135,29 @@
                                                     @Html.TextBoxFor(m => m.Kategori.KET, new { @class = "form-control", required = "required" })
                                                 </div>
                                             </div>
-                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanKategori(this)"/>
+                                            <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanKategori(this)" />
                                         }
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+        <div class="row kategori_var_structure_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Setting Struktur Variasi</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor-1" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    @using (Html.BeginForm("UpdateStrukturVariant", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-struktur-var" }))
+                    {
+                        <div id="var-structure-partial">
+                        </div>
+                    }
                 </div>
             </div>
         </div>
@@ -172,7 +188,7 @@
 {
     <script type="text/javascript">
         $recNumber = '';
-        
+
         $(document).on('ready', function () {
             $('#search_kategori_button').click(function () {
                 event.preventDefault();
@@ -185,7 +201,7 @@
             });
 
             $('#search_kategori_input').keypress(function (e) {
-                if(e.which == 13) {
+                if (e.which == 13) {
                     var url = $('#search_kategori_button').attr('href');
                     var searchQuery = $(this).val();
                     if (searchQuery != '') {
@@ -204,6 +220,12 @@
             $('#tambah_kategori').on('click', function () {
                 $('.kategori_table_section').hide();
                 $('.kategori_editor_section').show();
+            });
+
+            $('#close-editor-1').on('click', function () {
+                $('.kategori_table_section').show();
+                $('#var-structure-partial').html('');
+                $('.kategori_var_structure_editor_section').hide();
             });
 
             $('#close-editor').on('click', function () {
@@ -245,7 +267,7 @@
                     $("html, body").animate({ scrollTop: 0 }, "slow");
                     $('#loading_spinner').hide();
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.log(error);
                     $('#loading_spinner').hide();
                 }
@@ -253,7 +275,167 @@
 
             return false;
         }
+        function editStruktur(rec) {
+            var link = '@Url.Action("EditStrukturVar", "Manage", new { recNum = "replaceId" })';
+            link = link.replace("replaceId", rec);
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('.kategori_table_section').hide();
+                    $('#var-structure-partial').html(response);
+                    $('.kategori_var_structure_editor_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function validasiTambahan() {
+            var $isValid = true;
+            //var $Gd = $('#GUDANG');
+            //var $this = $('tr[data-faktur-id="0"] .qty-barang');
+            //if ($Gd.val() == "-" || $Gd.val() == "") {
+            //    if (!$Gd.closest('div').find('.text-danger').length) {
+            //        if ($Gd.closest('div').hasClass('input-group')) {
+            //            $('tr[data-faktur-id="0"] .gd-barang').parent().parent().append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+            //        } else {
+            //            $('tr[data-faktur-id="0"] .gd-barang').closest('div').append('<span class="text-danger">Gudang tidak boleh kosong!</span>');
+            //        }
+            //        $isValid = false;
+            //    }
+            //} else if ($this.text().trim() == "0" || $this.text().trim() == "") {
+            //    if (!$this.closest('div').find('.text-danger').length) {
+            //        if ($this.closest('div').hasClass('input-group')) {
+            //            $this.parent().parent().append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+            //        } else {
+            //            $this.closest('div').append('<span class="text-danger">Quantity tidak boleh 0!</span>');
+            //        }
+            //        $isValid = false;
+            //    }
+            //} else {
+            //    if ($Gd.closest('div').find('.text-danger').length) {
+            //        $Gd.closest('div').find('.text-danger').remove();
+            //    } else if ($this.closest('div').find('.text-danger').length) {
+            //        $this.closest('div').find('.text-danger').remove();
+            //    }
+            //}
+            return $isValid;
+        }
+        function simpanStrukturVar(recnum) {
+
+            var data = {
+                recNum: recnum,
+                JUDUL_VAR_1: $('#Variant_Level_1_VALUE_JUDUL_VAR').val(),
+                JUDUL_VAR_2: $('#Variant_Level_2_VALUE_JUDUL_VAR').val(),
+                JUDUL_VAR_3: $('#Variant_Level_3_VALUE_JUDUL_VAR').val()
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateStrukturVar", "Manage")',
+                data: data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+        function deleteOptLevel(recnum, recnumVariantOpt) {
+            var data = {
+                recNum: recnum,
+                recNumVariantOpt: recnumVariantOpt
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("deleteVariantOptLevel", "Manage")',
+                data: data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
+        function simpanOptLevel(level) {
+            if (!validasiTambahan()) return false;
+
+            var post_data =
+            {
+                JUDUL_VAR: $('#Variant_Level_' + level + '_VALUE_JUDUL_VAR').val(),
+                data:
+                {
+                    LEVEL_VAR: level,
+                    KODE_VAR: $('#VariantOpt_Level_' + level + '_KODE_VAR').val(),
+                    KET_VAR: $('#VariantOpt_Level_' + level + '_KET_VAR').val(),
+                    CATEGORY_MO: $('#txtKodeKategori').val()
+                }
+            };
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveVariantOptLevel", "Manage")',
+                data: post_data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#var-structure-partial').html(response);
+
+                    } else {
+                        if (response.Errors[0] != null) {
+                            alert(response.Errors[0]);
+                        } else {
+                            console.log(response.Errors);
+                            alert('Ada data yang tidak valid!');
+                        }
+                    }
+                    $('#loading_spinner').hide();
+                },
+                error: function (xhr) {
+                    alert('Ada data yang tidak valid!');
+                    $('#loading_spinner').hide();
+                    console.log(xhr);
+                }
+            });
+        }
         function editKategori(rec) {
             var link = '@Url.Action("EditKategori", "Manage", new { recNum = "replaceId" })';
             link = link.replace("replaceId", rec);

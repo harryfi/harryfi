@@ -747,10 +747,12 @@
                     <a href="#tab_content2" role="tab" id="nunggu-tab" data-toggle="tab" aria-expanded="false">Sudah Dibayar</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>
+                    @*<a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Siap Dikirim</a>*@
+                    <a href="#tab_content4" role="tab" id="sedangproses-tab" data-toggle="tab" aria-expanded="false">Packing</a>
                 </li>
                 <li role="presentation" class="">
-                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>
+                    @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
+                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Invoicing</a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
@@ -774,7 +776,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -832,7 +834,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -887,7 +889,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -916,7 +918,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -945,7 +947,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1000,7 +1002,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -1193,7 +1195,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dikirim?</h4>
+                    @*<h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dikirim?</h4>*@
+                    <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Invoicing?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1229,7 +1232,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dibayar?</h4>
+                    @*<h4>Apakah Anda yakin ingin mengubah status dari Siap Dikirim menjadi Sudah Dibayar?</h4>*@
+                    <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Sudah Dibayar?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1265,7 +1269,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Selesai?</h4>
+                    @*<h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Selesai?</h4>*@
+                    <h4>Apakah Anda yakin ingin mengubah status dari Invoicing menjadi Selesai?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1301,7 +1306,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Siap Dikirim?</h4>
+                    @*<h4>Apakah Anda yakin ingin mengubah status dari Sudah Dikirim menjadi Siap Dikirim?</h4>*@
+                    <h4>Apakah Anda yakin ingin mengubah status dari Invoicing menjadi Packing?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1337,7 +1343,8 @@
             </div>
             <div class="modal-body">
                 <div class="row text-center">
-                    <h4>Apakah Anda yakin ingin mengubah status dari Selesai menjadi Sudah Dikirim?</h4>
+                    @*<h4>Apakah Anda yakin ingin mengubah status dari Selesai menjadi Sudah Dikirim?</h4>*@
+                    <h4>Apakah Anda yakin ingin mengubah status dari Selesai menjadi Invoicing?</h4>
                 </div>
                 <div class="row info_pesanan">
                     <p>
@@ -1987,9 +1994,15 @@
         }
         $(document).ready(function() {
             refreshTablePesanan();
-
+            $('#btn_refresh_pesanan').click(function() {
+                refreshTablePesanan();
+            });
             $('#pesanan-tab').click(function() {
                 refreshTablePesanan();
+            });
+
+            $('#btn_refresh_pesanan_dibayar').click(function() {
+                RefreshPesananDibayarMarketplace();
             });
 
             $('#nunggu-tab').click(function() {
@@ -2158,6 +2171,11 @@
                 $(this).removeClass('disabled-tab');
             });
             //end add by nurul 6/11/2018
+            //add by nurul 23/1/2019
+            $('input, select, .btn-danger').each(function () {
+                $(this).removeAttr('disabled');
+            });
+            //end add by nurul 23/1/2019
             //add by nurul 1/11/2018
             $modeEdit = 0;
             //end add
@@ -2198,7 +2216,11 @@
                             $(this).attr('data-toggle', 'tab');
                             $(this).removeClass('disabled-tab');
                         });
-
+                        //add by nurul 23/1/2019
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        //end add by nurul 23/1/2019
                         refreshForm1();
                         refreshTablePesanan();
                         //add by nurul 1/11/2018
@@ -2328,7 +2350,8 @@
                                     $('#footer_info_pesananSudahBayar').hide();
                                     $('#SudahBayarKonfUbahStatusText').html("Ada kode barang yang belum terdaftar di Master Online, silahkan cek detail pesanan anda");
                                 }else {
-                                    $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
+                                    //$('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
+                                    $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?");
                                     $('#footer_info_pesananSudahBayar').show();
                                 }
                                 //end add by calvin 17 desember 2018
@@ -2537,8 +2560,15 @@
 
             $('#BRG').click(function () {
                 var checkExist = setInterval(function() {
-                    if ($('.selectivity-dropdown').length) {
-                        $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //if ($('.selectivity-dropdown').length) {
+                    //    $('html, body').animate({ scrollTop: '-=10px' }, 500);
+                    //    clearInterval(checkExist);
+                    //}
+                    if (window.pageYOffset == 0) {
+                        $('html, body').animate({ scrollTop: '+=1px' }, 500);
+                        clearInterval(checkExist);
+                    } else {
+                        $('html, body').animate({ scrollTop: '-=1px' }, 500);
                         clearInterval(checkExist);
                     }
                 }, 100);
@@ -3612,6 +3642,62 @@
             });
         }
 
+        //add by nurul 22/1/2019
+        function LihatPesanan1(idPesanan) {
+            var link = '@Url.Action("EditPesanan", "Manage", new {orderId = "replaceId"})';
+            link = link.replace("replaceId", idPesanan);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    //add by nurul 1/11/2018
+                    $modeEdit = 1;
+                    //end add
+                    $('#form-partial').html(response);
+                    $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
+                    refreshInputan();
+                    getTanggal();
+                    getBuyer();
+                    getDataBarang();
+                    getMarketplaceSOT01A();
+                    getExpedisi();
+                    
+                    $('#tambah_pesanan').click();
+                    $nettoSebelumnya += $bakalNetto;
+                    //$('#see_tgl_pesanan').removeAttr('style');
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#Pesanan_ALAMAT_KIRIM').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    //$('#tambah-pembeli').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#Pesanan_NAMAPEMESAN').css('width', '225px');
+                    $('#tambah-pembeli').hide();
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('tr[data-pesanan-id="0"]').remove();
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'pesanan-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+                    $('#loading_spinner').hide();
+                    $('#btn-simpan-perubahan-row').hide();
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 22/1/2019
+
         function pass(idPesanan, nobuk) {
             this.$idPesanan = idPesanan;
             this.$nobukPesanan = nobuk;
@@ -3711,7 +3797,38 @@
                 }
             });
         }
+        
+        function RefreshPesananDibayarMarketplace() {
+            var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function() {
+                    $('#datatable_nunggu').hide();
+                    $('#loading_sudah_dibayar_tab').show();
+                },
+                success: function(response) {
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+                    var table = $('#datatable_nunggu').DataTable({
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
+                    $('#search_nunggu').keyup(function() {
+                        table.search($(this).val()).draw();
+                    });
+                    $('#loading_sudah_dibayar_tab').hide();
+                    $('#datatable_nunggu').show();
+                    //add by calvin 23 nov 2018, setelah di close, search lg
+                    table.search($('#search_nunggu').val()).draw();
+                    //end add by calvin 23 nov 2018, setelah di close, search lg
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableSudahDibayar() {
             var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
 

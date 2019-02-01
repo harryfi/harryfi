@@ -67,6 +67,9 @@
     <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
       <HintPath>..\packages\AWSSDK.S3.3.3.26.10\lib\net45\AWSSDK.S3.dll</HintPath>
     </Reference>
+    <Reference Include="BarcodeLib">
+      <HintPath>..\..\Barcode\BarcodeLib.dll</HintPath>
+    </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Users\user\Desktop\Era Controls Dev\EAF.dll</HintPath>
@@ -631,6 +634,7 @@
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
+    <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
@@ -937,6 +941,10 @@
     <Compile Include="Models\Promosi.cs" />
     <Compile Include="Models\SIFSYS_TAMBAHAN.cs" />
     <Compile Include="Models\QOH_PER_GD.cs" />
+    <Compile Include="Models\STF02I.cs" />
+    <Compile Include="Models\STF20B.cs" />
+    <Compile Include="Models\STF20.cs" />
+    <Compile Include="Models\TEMP_BRG_MP_EXCEL.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS_ITEM.cs" />
     <Compile Include="Models\TEMP_SHOPEE_ORDERS.cs" />
     <Compile Include="Models\TEMP_TOKPED_ORDERS.cs" />
@@ -1228,6 +1236,7 @@
     <Compile Include="ViewModels\KategoriBarangViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
+    <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
     <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
@@ -5914,6 +5923,9 @@
     <Content Include="Views\Manage\BarangFixNotFoundPartial.cshtml" />
     <Content Include="Views\Home\FAQ.cshtml" />
     <Content Include="Views\Manage\BarangShopeeLogisticInfo.cshtml" />
+    <Content Include="Views\Manage\StrukturVarPartial.cshtml" />
+    <Content Include="Views\Manage\BarangVarPartial.cshtml" />
+    <Content Include="Views\Manage\BarangDetailVarPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

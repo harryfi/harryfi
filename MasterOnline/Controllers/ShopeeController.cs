@@ -1614,16 +1614,10 @@ namespace MasterOnline.Controllers
                             };
                             batchinsertItem.Add(newOrderItem);
                         }
-                        insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                        insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
-                        insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
-
                         batchinsert = (newOrder);
 
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS.Add(batchinsert);
                         ErasoftDbContext.TEMP_SHOPEE_ORDERS_ITEM.AddRange(batchinsertItem);
-                        insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
-                        EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
                         ErasoftDbContext.SaveChanges();
                         using (SqlCommand CommandSQL = new SqlCommand())
                         {
@@ -2505,6 +2499,7 @@ namespace MasterOnline.Controllers
                 stock = 1,//create product min stock = 1
                 images = new List<ShopeeImageClass>(),
                 attributes = new List<ShopeeAttributeClass>(),
+                variations = new List<ShopeeVariationClass>(),
                 logistics = logistics
             };
 
@@ -2544,6 +2539,22 @@ namespace MasterOnline.Controllers
 
             }
 
+            if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
+            {
+                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+                foreach (var item in ListVariant)
+                {
+                    var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
+                    ShopeeVariationClass adaVariant = new ShopeeVariationClass()
+                    {
+                        name = ((item.Ket_Sort8 == null ? "" : item.Ket_Sort8) + " " + (item.Ket_Sort9 == null ? "" : item.Ket_Sort9) + " " + (item.Ket_Sort10 == null ? "" : item.Ket_Sort10)).Trim(),
+                        price = stf02h != null ? stf02h.HJUAL : detailBrg.HJUAL,
+                        stock = 1,//create product min stock = 1
+                        variation_sku = item.BRG
+                    };
+                    HttpBody.variations.Add(adaVariant);
+                }
+            }
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -3558,7 +3569,14 @@ namespace MasterOnline.Controllers
                         {
                             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
                             dtDateTime = dtDateTime.AddSeconds(item.date).ToLocalTime();
-                            item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
+                            if (!string.IsNullOrWhiteSpace(item.time_text))
+                            {
+                                item.date_string = item.time_text;
+                            }
+                            else
+                            {
+                                item.date_string = dtDateTime.ToString("dd MMMM yyyy HH:mm:ss");
+                            }
                         }
                     }
                     else
@@ -4329,7 +4347,7 @@ namespace MasterOnline.Controllers
             public double price { get; set; }
             public int stock { get; set; }
             public string item_sku { get; set; }
-            //public object variations { get; set; }
+            public List<ShopeeVariationClass> variations { get; set; }
             public List<ShopeeImageClass> images { get; set; }
             public List<ShopeeAttributeClass> attributes { get; set; }
             public List<ShopeeLogisticsClass> logistics { get; set; }
@@ -4369,6 +4387,13 @@ namespace MasterOnline.Controllers
             //public string size_chart { get; set; }
             public string condition { get; set; }//NEW or USED
 
+        }
+        public class ShopeeVariationClass
+        {
+            public string name { get; set; }
+            public int stock { get; set; }
+            public double price { get; set; }
+            public string variation_sku { get; set; }
         }
         public class ShopeeImageClass
         {
