@@ -1443,16 +1443,16 @@
                 </div>
                 @* add by Tri, pilih shipment provider *@
                 @*<div class="row" id="divType">
-                    <div class="form-group" style="margin-top: 5px;">
-                        <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
-                        <div class="col-md-6 col-sm-6 col-xs-12">
-                            <select class="form-control" id="TypePengiriman" name="TypePengiriman">
-                                <option value="0" selected="selected">Dropship</option>
-                                <option value="1">Pick Up</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>*@
+            <div class="form-group" style="margin-top: 5px;">
+                <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <select class="form-control" id="TypePengiriman" name="TypePengiriman">
+                        <option value="0" selected="selected">Dropship</option>
+                        <option value="1">Pick Up</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
@@ -1476,18 +1476,32 @@
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
-                        <div id="print_label">
-                            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
-                        </div>
+                        @*<div id="print_label">
+            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
+        </div>*@
+                        
                     </div>
 
                 </div>
-                <div class="row" id="labelContainer"></div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <div class="col-md-4 col-sm-4 col-xs-12">
+                        </div>
+                        @*<div id="get_resi">
+                            <button name="btnLabel" type="button" class="btn btn-default" id="btnGetResi" onclick="LazadaGetResi()">Get No.Resi Pickup</button>
+                        </div>*@
+                        <div id="print_label">
+                            <button name="btnLabel" type="button" class="btn btn-default" id="btnGetResi" onclick="LazadaGetResi()">Get No.Resi Pickup</button>
+                            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="row" id="labelContainer"></div>
+                </div>
+                <div class="modal-footer">
+                    <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
-            </div>
-        </div>
     </div>
 </div>
 <div class="modal fade" id="modalIsiResiShopee" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelShopee">
@@ -1941,6 +1955,32 @@
                                     w.document.close();
                                 } else {
                                     alert(response.Errors[0]);
+                                }
+                            }
+                            //window.open(response, "_self");
+                            //window.location.href(response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function LazadaGetResi() {
+            var link = '@Url.Action("LazadaGetResi", "Manage", new { recnum = "replaceRecNum" })';
+            //link += '?code=' + kode + '&bulan=' + bln;
+            link = link.replace("replaceRecNum", this.$recResi);
+            link += '&DeliveryProvider=' + $('#txtShipment').val();
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function (response) {
+                            if (response != null) {
+                                if (response.Errors == null) {
+                                    $('#Pesanan_TRACKING_SHIPMENT').val(response.NoResi);                                    
+                                } else {
+                                    alert(response.Errors);
                                 }
                             }
                             //window.open(response, "_self");
