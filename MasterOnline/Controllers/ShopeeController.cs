@@ -2473,6 +2473,7 @@ namespace MasterOnline.Controllers
                 stock = 1,//create product min stock = 1
                 images = new List<ShopeeImageClass>(),
                 attributes = new List<ShopeeAttributeClass>(),
+                variations = new List<ShopeeVariationClass>(),
                 logistics = logistics
             };
 
@@ -2512,6 +2513,22 @@ namespace MasterOnline.Controllers
 
             }
 
+            if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
+            {
+                var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+                foreach (var item in ListVariant)
+                {
+                    var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
+                    ShopeeVariationClass adaVariant = new ShopeeVariationClass()
+                    {
+                        name = ((item.Ket_Sort8 == null ? "" : item.Ket_Sort8) + " " + (item.Ket_Sort9 == null ? "" : item.Ket_Sort9) + " " + (item.Ket_Sort10 == null ? "" : item.Ket_Sort10)).Trim(),
+                        price = stf02h != null ? stf02h.HJUAL : detailBrg.HJUAL,
+                        stock = 1,//create product min stock = 1
+                        variation_sku = item.BRG
+                    };
+                    HttpBody.variations.Add(adaVariant);
+                }
+            }
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -4304,7 +4321,7 @@ namespace MasterOnline.Controllers
             public double price { get; set; }
             public int stock { get; set; }
             public string item_sku { get; set; }
-            //public object variations { get; set; }
+            public List<ShopeeVariationClass> variations { get; set; }
             public List<ShopeeImageClass> images { get; set; }
             public List<ShopeeAttributeClass> attributes { get; set; }
             public List<ShopeeLogisticsClass> logistics { get; set; }
@@ -4344,6 +4361,13 @@ namespace MasterOnline.Controllers
             //public string size_chart { get; set; }
             public string condition { get; set; }//NEW or USED
 
+        }
+        public class ShopeeVariationClass
+        {
+            public string name { get; set; }
+            public int stock { get; set; }
+            public double price { get; set; }
+            public string variation_sku { get; set; }
         }
         public class ShopeeImageClass
         {

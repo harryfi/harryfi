@@ -488,7 +488,7 @@ namespace MasterOnline.Controllers
                         lzdApi.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, connectionID);
                 }
             }
-            ////end remark by calvin 13 desember 2018, testing
+            //end remark by calvin 13 desember 2018, testing
 
             var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
@@ -658,9 +658,9 @@ namespace MasterOnline.Controllers
             var barangVm = new BarangViewModel()
             {
                 //add filter 1 brg by calvin, agar saat development cepat
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => p.BRG == "08.OBBD00.00.3m").ToList(),
-
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => p.BRG == "CCTES2").ToList(),
                 ListStf02S = ErasoftDbContext.STF02.ToList(),
+
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -2247,7 +2247,7 @@ namespace MasterOnline.Controllers
                                     dataHarga.ACODE_37 = dataBaru.ACODE_37;
                                     dataHarga.ACODE_38 = dataBaru.ACODE_38;
                                     dataHarga.ACODE_39 = dataBaru.ACODE_39;
-                                    dataHarga.ACODE_30 = dataBaru.ACODE_40;
+                                    dataHarga.ACODE_40 = dataBaru.ACODE_40;
                                     dataHarga.ACODE_41 = dataBaru.ACODE_41;
                                     dataHarga.ACODE_42 = dataBaru.ACODE_42;
                                     dataHarga.ACODE_43 = dataBaru.ACODE_43;
@@ -2730,6 +2730,511 @@ namespace MasterOnline.Controllers
             return PartialView("TableBarang1Partial", partialVm);
         }
 
+        [HttpPost]
+        public ActionResult SaveBarangInduk(BarangViewModel dataBarang)
+        {
+            if (!ModelState.IsValid)
+            {
+                dataBarang.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
+                return Json(dataBarang, JsonRequestBehavior.AllowGet);
+            }
+
+            bool insert = false;//add by Tri
+            bool updateHarga = false;//add by Tri
+            bool updateDisplay = false;//add by Tri
+            bool updateGambar = false;//add by Tri
+
+            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var validPrice = true;
+
+            string[] imgPath = new string[Request.Files.Count];
+            if (dataBarang.Stf02.ID == null)
+            {
+                insert = true;
+
+                if (dataBarang.ListHargaJualPermarket?.Count > 0)
+                {
+                    List<string> listError = new List<string>();
+                    int i = 0;
+                    foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
+                    {
+                        var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == hargaPerMarket.IDMARKET).SingleOrDefault().NAMA;
+                        if (kdMarket == kdLazada.IdMarket.ToString())
+                        {
+                            if (hargaPerMarket.HJUAL < 3000)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                            }
+                            else if (hargaPerMarket.HJUAL % 100 != 0)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                            }
+                        }
+                        else if (kdMarket == kdBlibli.IdMarket.ToString())
+                        {
+                            if (hargaPerMarket.HJUAL < 1100)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                            }
+                        }
+                        else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                        {
+                            if (hargaPerMarket.HJUAL < 100)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                            }
+                            else if (hargaPerMarket.HJUAL % 100 != 0)
+                            {
+                                validPrice = false;
+                                listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                            }
+                        }
+                        i++;
+                    }
+                    if (validPrice)
+                    {
+                        foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
+                        {
+                            hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+                            ErasoftDbContext.STF02H.Add(hargaPerMarket);
+                        }
+                    }
+                    else
+                    {
+                        dataBarang.errorHargaPerMP = "1";
+                        dataBarang.Errors = listError;
+                        return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                    }
+
+                }
+
+                var listMarket = dataBarang.ListMarket.ToList();
+
+                //remark by Tri, moved to top
+                //add by tri
+                //string[] imgPath = new string[Request.Files.Count];
+                //end add by tri
+                //end remark by Tri, moved to top
+
+                if (Request.Files.Count > 0)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var file = Request.Files[i];
+
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-BRG{dataBarang.Stf02.BRG}-foto-{i + 1}";
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+
+                            //var fileExtension = Path.GetExtension(file.FileName);
+                            //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
+                            //try
+                            //{
+                            //    file.SaveAs(path);
+                            //}
+                            //catch (Exception ex)
+                            //{
+
+                            //}
+                            //add by tri
+
+                            imgPath[i] = image.data.link;
+
+                            switch (i)
+                            {
+                                case 0:
+                                    dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    break;
+                                case 1:
+                                    dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    break;
+                                case 2:
+                                    dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                for (int i = 0; i < Request.Files.Count; i++)
+                {
+                    switch (i)
+                    {
+                        case 0:
+                            imgPath[0] = dataBarang.Stf02.LINK_GAMBAR_1;
+                            break;
+                        case 1:
+                            imgPath[1] = dataBarang.Stf02.LINK_GAMBAR_2;
+                            break;
+                        case 2:
+                            imgPath[2] = dataBarang.Stf02.LINK_GAMBAR_3;
+                            break;
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(dataBarang.Stf02.TYPE))
+                {
+                    dataBarang.Stf02.TYPE = "3";
+                }
+                ErasoftDbContext.STF02.Add(dataBarang.Stf02);
+            }
+            else
+            {
+                var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID);
+
+                if (barangInDb != null)
+                {
+                    barangInDb.NAMA = dataBarang.Stf02.NAMA;
+                    barangInDb.NAMA2 = dataBarang.Stf02.NAMA2;
+                    barangInDb.MINI = dataBarang.Stf02.MINI;
+                    barangInDb.MAXI = dataBarang.Stf02.MAXI;
+                    barangInDb.Sort1 = dataBarang.Stf02.Sort1;
+                    barangInDb.Sort2 = dataBarang.Stf02.Sort2;
+                    barangInDb.KET_SORT1 = dataBarang.Stf02.KET_SORT1;
+                    barangInDb.KET_SORT2 = dataBarang.Stf02.KET_SORT2;
+                    barangInDb.STN = dataBarang.Stf02.STN;
+                    barangInDb.STN2 = dataBarang.Stf02.STN2;
+                    barangInDb.ISI = dataBarang.Stf02.ISI;
+                    barangInDb.Metoda = dataBarang.Stf02.Metoda;
+                    barangInDb.Deskripsi = dataBarang.Stf02.Deskripsi;
+                    barangInDb.BERAT = dataBarang.Stf02.BERAT;
+                    barangInDb.PANJANG = dataBarang.Stf02.PANJANG;
+                    barangInDb.LEBAR = dataBarang.Stf02.LEBAR;
+                    barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
+                    barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
+
+                    if (dataBarang.ListHargaJualPermarket?.Count > 0)
+                    {
+                        List<string> listError = new List<string>();
+                        int i = 0;
+                        foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
+                        {
+                            //add validasi harga per marketplace
+                            var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
+                            if (kdMarket == kdLazada.IdMarket.ToString())
+                            {
+                                if (dataBaru.HJUAL < 3000)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 3000.");
+                                }
+                                else if (dataBaru.HJUAL % 100 != 0)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                                }
+                            }
+                            else if (kdMarket == kdBlibli.IdMarket.ToString())
+                            {
+                                if (dataBaru.HJUAL < 1100)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga Jual minimal 1100.");
+                                }
+                            }
+                            else if (kdMarket == kdBL.IdMarket.ToString() || kdMarket == kdElevenia.IdMarket.ToString())
+                            {
+                                if (dataBaru.HJUAL < 100)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga Jual harus lebih dari 100.");
+                                }
+                                else if (dataBaru.HJUAL % 100 != 0)
+                                {
+                                    validPrice = false;
+                                    listError.Add(i + "_errortext_" + "Harga Jual harus kelipatan 100.");
+
+                                }
+                            }
+                            i++;
+                            //end add validasi harga per marketplace
+                        }
+                        if (validPrice)
+                        {
+                            foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
+                            {
+                                var dataHarga = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == dataBaru.RecNum);
+                                if (dataHarga == null)
+                                {
+                                    dataBaru.BRG = barangInDb.BRG;
+                                    ErasoftDbContext.STF02H.Add(dataBaru);
+                                }
+                                else
+                                {
+                                    //add by Tri update harga di marketplace
+                                    if (dataHarga.HJUAL != dataBaru.HJUAL)
+                                    {
+                                        updateHarga = true;
+                                    }
+                                    //end add by Tri update harga di marketplace
+                                    dataHarga.HJUAL = dataBaru.HJUAL;
+
+                                    if (dataHarga.DISPLAY != dataBaru.DISPLAY)
+                                    {
+                                        updateDisplay = true;
+                                    }
+                                    dataHarga.DISPLAY = dataBaru.DISPLAY;
+                                    #region Category && Attribute
+                                    dataHarga.CATEGORY_CODE = dataBaru.CATEGORY_CODE;
+                                    dataHarga.CATEGORY_NAME = dataBaru.CATEGORY_NAME;
+                                    dataHarga.DeliveryTempElevenia = dataBaru.DeliveryTempElevenia;
+                                    dataHarga.PICKUP_POINT = dataBaru.PICKUP_POINT;
+                                    dataHarga.ACODE_1 = dataBaru.ACODE_1;
+                                    dataHarga.ACODE_2 = dataBaru.ACODE_2;
+                                    dataHarga.ACODE_3 = dataBaru.ACODE_3;
+                                    dataHarga.ACODE_4 = dataBaru.ACODE_4;
+                                    dataHarga.ACODE_5 = dataBaru.ACODE_5;
+                                    dataHarga.ACODE_6 = dataBaru.ACODE_6;
+                                    dataHarga.ACODE_7 = dataBaru.ACODE_7;
+                                    dataHarga.ACODE_8 = dataBaru.ACODE_8;
+                                    dataHarga.ACODE_9 = dataBaru.ACODE_9;
+                                    dataHarga.ACODE_10 = dataBaru.ACODE_10;
+                                    dataHarga.ACODE_11 = dataBaru.ACODE_11;
+                                    dataHarga.ACODE_12 = dataBaru.ACODE_12;
+                                    dataHarga.ACODE_13 = dataBaru.ACODE_13;
+                                    dataHarga.ACODE_14 = dataBaru.ACODE_14;
+                                    dataHarga.ACODE_15 = dataBaru.ACODE_15;
+                                    dataHarga.ACODE_16 = dataBaru.ACODE_16;
+                                    dataHarga.ACODE_17 = dataBaru.ACODE_17;
+                                    dataHarga.ACODE_18 = dataBaru.ACODE_18;
+                                    dataHarga.ACODE_19 = dataBaru.ACODE_19;
+                                    dataHarga.ACODE_20 = dataBaru.ACODE_20;
+                                    dataHarga.ACODE_21 = dataBaru.ACODE_21;
+                                    dataHarga.ACODE_22 = dataBaru.ACODE_22;
+                                    dataHarga.ACODE_23 = dataBaru.ACODE_23;
+                                    dataHarga.ACODE_24 = dataBaru.ACODE_24;
+                                    dataHarga.ACODE_25 = dataBaru.ACODE_25;
+                                    dataHarga.ACODE_26 = dataBaru.ACODE_26;
+                                    dataHarga.ACODE_27 = dataBaru.ACODE_27;
+                                    dataHarga.ACODE_28 = dataBaru.ACODE_28;
+                                    dataHarga.ACODE_29 = dataBaru.ACODE_29;
+                                    dataHarga.ACODE_30 = dataBaru.ACODE_30;
+                                    dataHarga.ACODE_31 = dataBaru.ACODE_31;
+                                    dataHarga.ACODE_32 = dataBaru.ACODE_32;
+                                    dataHarga.ACODE_33 = dataBaru.ACODE_33;
+                                    dataHarga.ACODE_34 = dataBaru.ACODE_34;
+                                    dataHarga.ACODE_35 = dataBaru.ACODE_35;
+                                    dataHarga.ACODE_36 = dataBaru.ACODE_36;
+                                    dataHarga.ACODE_37 = dataBaru.ACODE_37;
+                                    dataHarga.ACODE_38 = dataBaru.ACODE_38;
+                                    dataHarga.ACODE_39 = dataBaru.ACODE_39;
+                                    dataHarga.ACODE_30 = dataBaru.ACODE_40;
+                                    dataHarga.ACODE_41 = dataBaru.ACODE_41;
+                                    dataHarga.ACODE_42 = dataBaru.ACODE_42;
+                                    dataHarga.ACODE_43 = dataBaru.ACODE_43;
+                                    dataHarga.ACODE_44 = dataBaru.ACODE_44;
+                                    dataHarga.ACODE_45 = dataBaru.ACODE_45;
+                                    dataHarga.ACODE_46 = dataBaru.ACODE_46;
+                                    dataHarga.ACODE_47 = dataBaru.ACODE_47;
+                                    dataHarga.ACODE_48 = dataBaru.ACODE_48;
+                                    dataHarga.ACODE_49 = dataBaru.ACODE_49;
+                                    dataHarga.ACODE_50 = dataBaru.ACODE_50;
+
+                                    dataHarga.ANAME_1 = dataBaru.ANAME_1;
+                                    dataHarga.ANAME_2 = dataBaru.ANAME_2;
+                                    dataHarga.ANAME_3 = dataBaru.ANAME_3;
+                                    dataHarga.ANAME_4 = dataBaru.ANAME_4;
+                                    dataHarga.ANAME_5 = dataBaru.ANAME_5;
+                                    dataHarga.ANAME_6 = dataBaru.ANAME_6;
+                                    dataHarga.ANAME_7 = dataBaru.ANAME_7;
+                                    dataHarga.ANAME_8 = dataBaru.ANAME_8;
+                                    dataHarga.ANAME_9 = dataBaru.ANAME_9;
+                                    dataHarga.ANAME_10 = dataBaru.ANAME_10;
+                                    dataHarga.ANAME_11 = dataBaru.ANAME_11;
+                                    dataHarga.ANAME_12 = dataBaru.ANAME_12;
+                                    dataHarga.ANAME_13 = dataBaru.ANAME_13;
+                                    dataHarga.ANAME_14 = dataBaru.ANAME_14;
+                                    dataHarga.ANAME_15 = dataBaru.ANAME_15;
+                                    dataHarga.ANAME_16 = dataBaru.ANAME_16;
+                                    dataHarga.ANAME_17 = dataBaru.ANAME_17;
+                                    dataHarga.ANAME_18 = dataBaru.ANAME_18;
+                                    dataHarga.ANAME_19 = dataBaru.ANAME_19;
+                                    dataHarga.ANAME_20 = dataBaru.ANAME_20;
+                                    dataHarga.ANAME_21 = dataBaru.ANAME_21;
+                                    dataHarga.ANAME_22 = dataBaru.ANAME_22;
+                                    dataHarga.ANAME_23 = dataBaru.ANAME_23;
+                                    dataHarga.ANAME_24 = dataBaru.ANAME_24;
+                                    dataHarga.ANAME_25 = dataBaru.ANAME_25;
+                                    dataHarga.ANAME_26 = dataBaru.ANAME_26;
+                                    dataHarga.ANAME_27 = dataBaru.ANAME_27;
+                                    dataHarga.ANAME_28 = dataBaru.ANAME_28;
+                                    dataHarga.ANAME_29 = dataBaru.ANAME_29;
+                                    dataHarga.ANAME_30 = dataBaru.ANAME_30;
+                                    dataHarga.ANAME_31 = dataBaru.ANAME_31;
+                                    dataHarga.ANAME_32 = dataBaru.ANAME_32;
+                                    dataHarga.ANAME_33 = dataBaru.ANAME_33;
+                                    dataHarga.ANAME_34 = dataBaru.ANAME_34;
+                                    dataHarga.ANAME_35 = dataBaru.ANAME_35;
+                                    dataHarga.ANAME_36 = dataBaru.ANAME_36;
+                                    dataHarga.ANAME_37 = dataBaru.ANAME_37;
+                                    dataHarga.ANAME_38 = dataBaru.ANAME_38;
+                                    dataHarga.ANAME_39 = dataBaru.ANAME_39;
+                                    dataHarga.ANAME_40 = dataBaru.ANAME_40;
+                                    dataHarga.ANAME_41 = dataBaru.ANAME_41;
+                                    dataHarga.ANAME_42 = dataBaru.ANAME_42;
+                                    dataHarga.ANAME_43 = dataBaru.ANAME_43;
+                                    dataHarga.ANAME_44 = dataBaru.ANAME_44;
+                                    dataHarga.ANAME_45 = dataBaru.ANAME_45;
+                                    dataHarga.ANAME_46 = dataBaru.ANAME_46;
+                                    dataHarga.ANAME_47 = dataBaru.ANAME_47;
+                                    dataHarga.ANAME_48 = dataBaru.ANAME_48;
+                                    dataHarga.ANAME_49 = dataBaru.ANAME_49;
+                                    dataHarga.ANAME_50 = dataBaru.ANAME_50;
+
+                                    dataHarga.AVALUE_1 = dataBaru.AVALUE_1;
+                                    dataHarga.AVALUE_2 = dataBaru.AVALUE_2;
+                                    dataHarga.AVALUE_3 = dataBaru.AVALUE_3;
+                                    dataHarga.AVALUE_4 = dataBaru.AVALUE_4;
+                                    dataHarga.AVALUE_5 = dataBaru.AVALUE_5;
+                                    dataHarga.AVALUE_6 = dataBaru.AVALUE_6;
+                                    dataHarga.AVALUE_7 = dataBaru.AVALUE_7;
+                                    dataHarga.AVALUE_8 = dataBaru.AVALUE_8;
+                                    dataHarga.AVALUE_9 = dataBaru.AVALUE_9;
+                                    dataHarga.AVALUE_10 = dataBaru.AVALUE_10;
+                                    dataHarga.AVALUE_11 = dataBaru.AVALUE_11;
+                                    dataHarga.AVALUE_12 = dataBaru.AVALUE_12;
+                                    dataHarga.AVALUE_13 = dataBaru.AVALUE_13;
+                                    dataHarga.AVALUE_14 = dataBaru.AVALUE_14;
+                                    dataHarga.AVALUE_15 = dataBaru.AVALUE_15;
+                                    dataHarga.AVALUE_16 = dataBaru.AVALUE_16;
+                                    dataHarga.AVALUE_17 = dataBaru.AVALUE_17;
+                                    dataHarga.AVALUE_18 = dataBaru.AVALUE_18;
+                                    dataHarga.AVALUE_19 = dataBaru.AVALUE_19;
+                                    dataHarga.AVALUE_20 = dataBaru.AVALUE_20;
+                                    dataHarga.AVALUE_21 = dataBaru.AVALUE_21;
+                                    dataHarga.AVALUE_22 = dataBaru.AVALUE_22;
+                                    dataHarga.AVALUE_23 = dataBaru.AVALUE_23;
+                                    dataHarga.AVALUE_24 = dataBaru.AVALUE_24;
+                                    dataHarga.AVALUE_25 = dataBaru.AVALUE_25;
+                                    dataHarga.AVALUE_26 = dataBaru.AVALUE_26;
+                                    dataHarga.AVALUE_27 = dataBaru.AVALUE_27;
+                                    dataHarga.AVALUE_28 = dataBaru.AVALUE_28;
+                                    dataHarga.AVALUE_29 = dataBaru.AVALUE_29;
+                                    dataHarga.AVALUE_30 = dataBaru.AVALUE_30;
+                                    dataHarga.AVALUE_31 = dataBaru.AVALUE_31;
+                                    dataHarga.AVALUE_32 = dataBaru.AVALUE_32;
+                                    dataHarga.AVALUE_33 = dataBaru.AVALUE_33;
+                                    dataHarga.AVALUE_34 = dataBaru.AVALUE_34;
+                                    dataHarga.AVALUE_35 = dataBaru.AVALUE_35;
+                                    dataHarga.AVALUE_36 = dataBaru.AVALUE_36;
+                                    dataHarga.AVALUE_37 = dataBaru.AVALUE_37;
+                                    dataHarga.AVALUE_38 = dataBaru.AVALUE_38;
+                                    dataHarga.AVALUE_39 = dataBaru.AVALUE_39;
+                                    dataHarga.AVALUE_40 = dataBaru.AVALUE_40;
+                                    dataHarga.AVALUE_41 = dataBaru.AVALUE_41;
+                                    dataHarga.AVALUE_42 = dataBaru.AVALUE_42;
+                                    dataHarga.AVALUE_43 = dataBaru.AVALUE_43;
+                                    dataHarga.AVALUE_44 = dataBaru.AVALUE_44;
+                                    dataHarga.AVALUE_45 = dataBaru.AVALUE_45;
+                                    dataHarga.AVALUE_46 = dataBaru.AVALUE_46;
+                                    dataHarga.AVALUE_47 = dataBaru.AVALUE_47;
+                                    dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
+                                    dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
+                                    dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
+                                    #endregion
+                                }
+                            }
+                        }
+                        else
+                        {
+                            dataBarang.errorHargaPerMP = "1";
+                            dataBarang.Errors = listError;
+                            return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+
+                    if (Request.Files.Count > 0)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            var file = Request.Files[i];
+
+                            if (file != null && file.ContentLength > 0)
+                            {
+                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+
+                                imgPath[i] = image.data.link;
+
+                                switch (i)
+                                {
+                                    case 0:
+                                        barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        break;
+                                    case 1:
+                                        barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        break;
+                                    case 2:
+                                        barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        break;
+                                }
+                            }
+                        }
+                    }
+                    //add by calvin 16 nov 2018, imgpath saat update
+                    for (int i = 0; i < Request.Files.Count; i++)
+                    {
+                        switch (i)
+                        {
+                            case 0:
+                                imgPath[0] = barangInDb.LINK_GAMBAR_1;
+                                break;
+                            case 1:
+                                imgPath[1] = barangInDb.LINK_GAMBAR_2;
+                                break;
+                            case 2:
+                                imgPath[2] = barangInDb.LINK_GAMBAR_3;
+                                break;
+                        }
+                    }
+                    //end add by calvin
+                }
+            }
+
+            ErasoftDbContext.SaveChanges();
+
+            ModelState.Clear();
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == dataBarang.Stf02.Sort1);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var vm = new BarangStrukturVarViewModel()
+            {
+                Kategori = kategori,
+                Variant_Level_1 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 1,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_2 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 2,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                Variant_Level_3 = new STF20()
+                {
+                    CATEGORY_MO = kategori.KODE,
+                    LEVEL_JUDUL_VAR = 3,
+                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
+                },
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == dataBarang.Stf02.BRG).ToList(),
+                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+            };
+            return PartialView("BarangVarPartial", vm);
+        }
+
         protected void createBarangLazada(BarangViewModel dataBarang, string[] imgPath, ARF01 tblCustomer)
         {
             //var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
@@ -2940,6 +3445,98 @@ namespace MasterOnline.Controllers
                                                     };
                                                     ShopeeController shoAPI = new ShopeeController();
                                                     Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        protected void saveBarangShopeeVariant(int mode, string dataBarang_Stf02_BRG, bool updateHarga)
+        {
+            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == dataBarang_Stf02_BRG);
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            if (barangInDb != null && kdShopee != null)
+            {
+                var listShopee = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+                if (listShopee.Count > 0)
+                {
+                    switch (mode)
+                    {
+                        #region Create Product lalu Hide Item
+                        case 1:
+                            {
+                                foreach (ARF01 tblCustomer in listShopee)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
+                                        if (display)
+                                        {
+                                            ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                            {
+                                                merchant_code = tblCustomer.Sort1_Cust,
+                                            };
+                                            ShopeeController shoAPI = new ShopeeController();
+                                            Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        #endregion
+                        case 2:
+                            {
+                                foreach (ARF01 tblCustomer in listShopee)
+                                {
+                                    if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                                    {
+                                        var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == barangInDb.BRG && p.IDMARKET == tblCustomer.RecNum).FirstOrDefault();
+                                        if (stf02h != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(stf02h.BRG_MP))
+                                            {
+                                                ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust,
+                                                };
+                                                ShopeeController shoAPI = new ShopeeController();
+
+                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                if (updateHarga)
+                                                {
+                                                    if (brg_mp.Count() == 2)
+                                                    {
+                                                        if (brg_mp[1] == "0")
+                                                        {
+                                                            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                        }
+                                                        else if (brg_mp[1] != "")
+                                                        {
+                                                            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (stf02h.DISPLAY)
+                                                {
+                                                    ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                                                    {
+                                                        merchant_code = tblCustomer.Sort1_Cust,
+                                                    };
+                                                    ShopeeController shoAPI = new ShopeeController();
+                                                    Task.Run(() => shoAPI.CreateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
                                                 }
                                             }
                                         }
@@ -3555,7 +4152,7 @@ namespace MasterOnline.Controllers
 
                 if (opt_selected_1 != null)
                 {
-                    var Histori_lv1 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).ToList();
+                    var Histori_lv1 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -3577,7 +4174,7 @@ namespace MasterOnline.Controllers
                 }
                 if (opt_selected_2 != null)
                 {
-                    var Histori_lv2 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).ToList();
+                    var Histori_lv2 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -3599,7 +4196,7 @@ namespace MasterOnline.Controllers
                 }
                 if (opt_selected_3 != null)
                 {
-                    var Histori_lv3 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).ToList();
+                    var Histori_lv3 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -3659,6 +4256,50 @@ namespace MasterOnline.Controllers
             };
             return PartialView("BarangVarPartial", vm);
         }
+        public class UpdateBatchHjualVariant
+        {
+            public int recnum { get; set; }
+            public int hjual { get; set; }
+        }
+        public ActionResult UpdateHjualVariantBarang(string brg, List<UpdateBatchHjualVariant> newhjual)
+        {
+            List<int> ids = new List<int>();
+            foreach (var item in newhjual)
+            {
+                ids.Add(item.recnum);
+            }
+            foreach (var record in ErasoftDbContext.STF02H.Where(x => ids.Contains(x.RecNum.HasValue ? x.RecNum.Value : 0)).ToList())
+            {
+                record.HJUAL = newhjual.Where(p => p.recnum == record.RecNum).SingleOrDefault().hjual;
+            }
+            ErasoftDbContext.SaveChanges();
+
+            ModelState.Clear();
+
+            saveBarangShopeeVariant(2, brg, false);
+            var partialVm = new BarangViewModel()
+            {
+                ListStf02S = ErasoftDbContext.STF02.ToList(),
+                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
+            };
+
+            return PartialView("TableBarang1Partial", partialVm);
+        }
+        public ActionResult GetDetailBarangVar(string kode, string brg)
+        {
+            var VariantMO = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+            var listBrgVariantMO = VariantMO.Select(p => p.BRG).ToList();
+            var VariantMO_H = ErasoftDbContext.STF02H.Where(p => listBrgVariantMO.Contains(p.BRG)).ToList();
+
+            var vm = new BarangDetailVarViewModel()
+            {
+                VariantMO = VariantMO,
+                VariantMO_H = VariantMO_H,
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList()
+            };
+
+            return PartialView("BarangDetailVarPartial", vm);
+        }
         public class StrukturVariantMp
         {
             public string code { get; set; }
@@ -3677,9 +4318,304 @@ namespace MasterOnline.Controllers
             public string[] lv_2 { get; set; }
             public string[] lv_3 { get; set; }
         }
+        protected STF02 CopyStf02(STF02 source)
+        {
+            STF02 newCopy = new STF02()
+            {
+                BRG = source.BRG,
+                ANTIBIOTIK = source.ANTIBIOTIK,
+                BERAT = source.BERAT,
+                BRG_NON_OS = source.BRG_NON_OS,
+                BSK = source.BSK,
+                DEFAULT_STN_HRG_JUAL = source.DEFAULT_STN_HRG_JUAL,
+                DEFAULT_STN_JUAL = source.DEFAULT_STN_JUAL,
+                Deskripsi = source.Deskripsi,
+                DISPLAY_MARKET = source.DISPLAY_MARKET,
+                FORMULARIUM = source.FORMULARIUM,
+                GENERIC = source.GENERIC,
+                HBELI = source.HBELI,
+                HBESAR = source.HBESAR,
+                HJUAL = source.HJUAL,
+                HKECIL = source.HKECIL,
+                HNA_PPN = source.HNA_PPN,
+                HPP = source.HPP,
+                HP_STD = source.HP_STD,
+                H_STN_3 = source.H_STN_3,
+                H_STN_4 = source.H_STN_4,
+                ISI = source.ISI,
+                ISI3 = source.ISI3,
+                ISI4 = source.ISI4,
+                JENIS = source.JENIS,
+                KET_SORT1 = source.KET_SORT1,
+                Ket_Sort10 = source.Ket_Sort10,
+                KET_SORT2 = source.KET_SORT2,
+                KET_SORT3 = source.KET_SORT3,
+                KET_SORT4 = source.KET_SORT4,
+                KET_SORT5 = source.KET_SORT5,
+                Ket_Sort6 = source.Ket_Sort6,
+                Ket_Sort7 = source.Ket_Sort7,
+                Ket_Sort8 = source.Ket_Sort8,
+                Ket_Sort9 = source.Ket_Sort9,
+                KET_STN = source.KET_STN,
+                KET_STN2 = source.KET_STN2,
+                KET_STN3 = source.KET_STN3,
+                KET_STN4 = source.KET_STN4,
+                KLINK = source.KLINK,
+                KUBILASI = source.KUBILASI,
+                LABA = source.LABA,
+                LEBAR = source.LEBAR,
+                LINK_GAMBAR_1 = source.LINK_GAMBAR_1,
+                LINK_GAMBAR_2 = source.LINK_GAMBAR_2,
+                LINK_GAMBAR_3 = source.LINK_GAMBAR_3,
+                LKS = source.LKS,
+                LT = source.LT,
+                MAXI = source.MAXI,
+                MEREK = source.MEREK,
+                Metoda = source.Metoda,
+                METODA_HPP_PER_SN = source.METODA_HPP_PER_SN,
+                MINI = source.MINI,
+                MVC = source.MVC,
+                NAMA = source.NAMA,
+                NAMA2 = source.NAMA2,
+                NAMA3 = source.NAMA3,
+                NARKOTIK = source.NARKOTIK,
+                OC = source.OC,
+                PANJANG = source.PANJANG,
+                PART = source.PART,
+                Photo = source.Photo,
+                PHOTO2 = source.PHOTO2,
+                PSIKOTROPIK = source.PSIKOTROPIK,
+                QPROD = source.QPROD,
+                QSALES = source.QSALES,
+                Qty_berat = source.Qty_berat,
+                Sort1 = source.Sort1,
+                Sort10 = source.Sort10,
+                Sort2 = source.Sort2,
+                Sort3 = source.Sort3,
+                Sort4 = source.Sort4,
+                Sort5 = source.Sort5,
+                Sort6 = source.Sort6,
+                Sort7 = source.Sort7,
+                Sort8 = source.Sort8,
+                Sort9 = source.Sort9,
+                SS = source.SS,
+                STN = source.STN,
+                STN2 = source.STN2,
+                STN3 = source.STN3,
+                STN4 = source.STN4,
+                Stn_berat = source.Stn_berat,
+                SUP = source.SUP,
+                Tgl_Input = source.Tgl_Input,
+                TGL_KLR = source.TGL_KLR,
+                TINGGI = source.TINGGI,
+                TOLERANSI = source.TOLERANSI,
+                TYPE = source.TYPE,
+                USERNAME = source.USERNAME,
+                WARNA = source.WARNA
+            };
+            return newCopy;
+        }
+        protected STF02H CopyStf02h(STF02H source)
+        {
+            STF02H newCopy = new STF02H()
+            {
+                BRG = source.BRG,
+                DISPLAY = source.DISPLAY,
+                AKUNMARKET = source.AKUNMARKET,
+                BRG_MP = source.BRG_MP,
+                HJUAL = source.HJUAL,
+                IDMARKET = source.IDMARKET,
+                USERNAME = source.USERNAME,
+                #region Category && Attribute
+                CATEGORY_CODE = source.CATEGORY_CODE,
+                CATEGORY_NAME = source.CATEGORY_NAME,
+                DeliveryTempElevenia = source.DeliveryTempElevenia,
+                PICKUP_POINT = source.PICKUP_POINT,
+                ACODE_1 = source.ACODE_1,
+                ACODE_2 = source.ACODE_2,
+                ACODE_3 = source.ACODE_3,
+                ACODE_4 = source.ACODE_4,
+                ACODE_5 = source.ACODE_5,
+                ACODE_6 = source.ACODE_6,
+                ACODE_7 = source.ACODE_7,
+                ACODE_8 = source.ACODE_8,
+                ACODE_9 = source.ACODE_9,
+                ACODE_10 = source.ACODE_10,
+                ACODE_11 = source.ACODE_11,
+                ACODE_12 = source.ACODE_12,
+                ACODE_13 = source.ACODE_13,
+                ACODE_14 = source.ACODE_14,
+                ACODE_15 = source.ACODE_15,
+                ACODE_16 = source.ACODE_16,
+                ACODE_17 = source.ACODE_17,
+                ACODE_18 = source.ACODE_18,
+                ACODE_19 = source.ACODE_19,
+                ACODE_20 = source.ACODE_20,
+                ACODE_21 = source.ACODE_21,
+                ACODE_22 = source.ACODE_22,
+                ACODE_23 = source.ACODE_23,
+                ACODE_24 = source.ACODE_24,
+                ACODE_25 = source.ACODE_25,
+                ACODE_26 = source.ACODE_26,
+                ACODE_27 = source.ACODE_27,
+                ACODE_28 = source.ACODE_28,
+                ACODE_29 = source.ACODE_29,
+                ACODE_30 = source.ACODE_30,
+                ACODE_31 = source.ACODE_31,
+                ACODE_32 = source.ACODE_32,
+                ACODE_33 = source.ACODE_33,
+                ACODE_34 = source.ACODE_34,
+                ACODE_35 = source.ACODE_35,
+                ACODE_36 = source.ACODE_36,
+                ACODE_37 = source.ACODE_37,
+                ACODE_38 = source.ACODE_38,
+                ACODE_39 = source.ACODE_39,
+                ACODE_40 = source.ACODE_40,
+                ACODE_41 = source.ACODE_41,
+                ACODE_42 = source.ACODE_42,
+                ACODE_43 = source.ACODE_43,
+                ACODE_44 = source.ACODE_44,
+                ACODE_45 = source.ACODE_45,
+                ACODE_46 = source.ACODE_46,
+                ACODE_47 = source.ACODE_47,
+                ACODE_48 = source.ACODE_48,
+                ACODE_49 = source.ACODE_49,
+                ACODE_50 = source.ACODE_50,
+
+                ANAME_1 = source.ANAME_1,
+                ANAME_2 = source.ANAME_2,
+                ANAME_3 = source.ANAME_3,
+                ANAME_4 = source.ANAME_4,
+                ANAME_5 = source.ANAME_5,
+                ANAME_6 = source.ANAME_6,
+                ANAME_7 = source.ANAME_7,
+                ANAME_8 = source.ANAME_8,
+                ANAME_9 = source.ANAME_9,
+                ANAME_10 = source.ANAME_10,
+                ANAME_11 = source.ANAME_11,
+                ANAME_12 = source.ANAME_12,
+                ANAME_13 = source.ANAME_13,
+                ANAME_14 = source.ANAME_14,
+                ANAME_15 = source.ANAME_15,
+                ANAME_16 = source.ANAME_16,
+                ANAME_17 = source.ANAME_17,
+                ANAME_18 = source.ANAME_18,
+                ANAME_19 = source.ANAME_19,
+                ANAME_20 = source.ANAME_20,
+                ANAME_21 = source.ANAME_21,
+                ANAME_22 = source.ANAME_22,
+                ANAME_23 = source.ANAME_23,
+                ANAME_24 = source.ANAME_24,
+                ANAME_25 = source.ANAME_25,
+                ANAME_26 = source.ANAME_26,
+                ANAME_27 = source.ANAME_27,
+                ANAME_28 = source.ANAME_28,
+                ANAME_29 = source.ANAME_29,
+                ANAME_30 = source.ANAME_30,
+                ANAME_31 = source.ANAME_31,
+                ANAME_32 = source.ANAME_32,
+                ANAME_33 = source.ANAME_33,
+                ANAME_34 = source.ANAME_34,
+                ANAME_35 = source.ANAME_35,
+                ANAME_36 = source.ANAME_36,
+                ANAME_37 = source.ANAME_37,
+                ANAME_38 = source.ANAME_38,
+                ANAME_39 = source.ANAME_39,
+                ANAME_40 = source.ANAME_40,
+                ANAME_41 = source.ANAME_41,
+                ANAME_42 = source.ANAME_42,
+                ANAME_43 = source.ANAME_43,
+                ANAME_44 = source.ANAME_44,
+                ANAME_45 = source.ANAME_45,
+                ANAME_46 = source.ANAME_46,
+                ANAME_47 = source.ANAME_47,
+                ANAME_48 = source.ANAME_48,
+                ANAME_49 = source.ANAME_49,
+                ANAME_50 = source.ANAME_50,
+
+                AVALUE_1 = source.AVALUE_1,
+                AVALUE_2 = source.AVALUE_2,
+                AVALUE_3 = source.AVALUE_3,
+                AVALUE_4 = source.AVALUE_4,
+                AVALUE_5 = source.AVALUE_5,
+                AVALUE_6 = source.AVALUE_6,
+                AVALUE_7 = source.AVALUE_7,
+                AVALUE_8 = source.AVALUE_8,
+                AVALUE_9 = source.AVALUE_9,
+                AVALUE_10 = source.AVALUE_10,
+                AVALUE_11 = source.AVALUE_11,
+                AVALUE_12 = source.AVALUE_12,
+                AVALUE_13 = source.AVALUE_13,
+                AVALUE_14 = source.AVALUE_14,
+                AVALUE_15 = source.AVALUE_15,
+                AVALUE_16 = source.AVALUE_16,
+                AVALUE_17 = source.AVALUE_17,
+                AVALUE_18 = source.AVALUE_18,
+                AVALUE_19 = source.AVALUE_19,
+                AVALUE_20 = source.AVALUE_20,
+                AVALUE_21 = source.AVALUE_21,
+                AVALUE_22 = source.AVALUE_22,
+                AVALUE_23 = source.AVALUE_23,
+                AVALUE_24 = source.AVALUE_24,
+                AVALUE_25 = source.AVALUE_25,
+                AVALUE_26 = source.AVALUE_26,
+                AVALUE_27 = source.AVALUE_27,
+                AVALUE_28 = source.AVALUE_28,
+                AVALUE_29 = source.AVALUE_29,
+                AVALUE_30 = source.AVALUE_30,
+                AVALUE_31 = source.AVALUE_31,
+                AVALUE_32 = source.AVALUE_32,
+                AVALUE_33 = source.AVALUE_33,
+                AVALUE_34 = source.AVALUE_34,
+                AVALUE_35 = source.AVALUE_35,
+                AVALUE_36 = source.AVALUE_36,
+                AVALUE_37 = source.AVALUE_37,
+                AVALUE_38 = source.AVALUE_38,
+                AVALUE_39 = source.AVALUE_39,
+                AVALUE_40 = source.AVALUE_40,
+                AVALUE_41 = source.AVALUE_41,
+                AVALUE_42 = source.AVALUE_42,
+                AVALUE_43 = source.AVALUE_43,
+                AVALUE_44 = source.AVALUE_44,
+                AVALUE_45 = source.AVALUE_45,
+                AVALUE_46 = source.AVALUE_46,
+                AVALUE_47 = source.AVALUE_47,
+                AVALUE_48 = source.AVALUE_48,
+                AVALUE_49 = source.AVALUE_49,
+                AVALUE_50 = source.AVALUE_50,
+                #endregion
+            };
+            return newCopy;
+        }
+        [HttpPost]
+        public ActionResult UpdateGambarVariantBarang()
+        {
+            foreach (var item in Request.Files.AllKeys)
+            {
+                int stf02_id = Convert.ToInt32(item);
+                var itemVar = ErasoftDbContext.STF02.Where(p => p.ID == stf02_id).SingleOrDefault();
+                if (itemVar != null)
+                {
+                    var file = Request.Files[item];
+
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+
+                        itemVar.LINK_GAMBAR_1 = image.data.link_l;
+                    }
+
+                    ErasoftDbContext.SaveChanges();
+                }
+            }
+            return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
+        }
+
         [HttpPost]
         public ActionResult AutoloadVariantBarang(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopee)
         {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             #region Create Ulang STF02I
             {
@@ -3788,69 +4724,179 @@ namespace MasterOnline.Controllers
             }
             #endregion
 
-            //Generate STF02
-            if (opt_selected_1 != null)
+            //Autoload (Overwrite) STF02
+            List<STF02> ListNewVariantData_Stf02 = new List<STF02>();
+            List<STF02H> ListNewVariantData_Stf02H = new List<STF02H>();
+            var STF02_Induk = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
+            var List_STF02H_Induk = ErasoftDbContext.STF02H.Where(p => p.BRG == brg).ToList();
+            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            if (STF02_Induk != null)
             {
-                var i = 0;
-                foreach (var item in opt_selected_1)
+                if (opt_selected_1 != null)
                 {
-                    if (item != "")
+                    foreach (var item in opt_selected_1.Where(p => p.Trim() != "").ToList())
                     {
-                        if (opt_selected_2.Count() > 0)
+                        if (opt_selected_2 != null) //jika tidak ada varian level 2 di STF20B, maka akan menjadi null
                         {
-                            foreach (var item2 in opt_selected_2)
+                            if (opt_selected_2.Where(p => p.Trim() != "").ToList().Count() > 0) // jika ada varian lv 2, tapi tidak dipakai, maka akan ada isi count 1 dengan nilai blank
                             {
-                                if (opt_selected_3.Count() > 0)
+                                foreach (var item2 in opt_selected_2.Where(p => p.Trim() != "").ToList())
                                 {
-                                    foreach (var item3 in opt_selected_3)
+                                    if (opt_selected_3 != null) //jika tidak ada varian level 3 di STF20B, maka akan menjadi null
                                     {
+                                        if (opt_selected_3.Where(p => p.Trim() != "").ToList().Count() > 0) // jika ada varian lv 3, tapi tidak dipakai, maka akan ada isi count 1 dengan nilai blank
+                                        {
+                                            foreach (var item3 in opt_selected_3.Where(p => p.Trim() != "").ToList())
+                                            {
+                                                STF02 newVariantData = new STF02();
+                                                newVariantData = CopyStf02(STF02_Induk);
+                                                newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2 + "." + item3;
+                                                string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                                string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                                string ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == item3).FirstOrDefault()?.KET_VAR;
+                                                newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2 + " " + ket_varlv3;
+                                                newVariantData.Ket_Sort8 = ket_varlv1;
+                                                newVariantData.Ket_Sort9 = ket_varlv2;
+                                                newVariantData.Ket_Sort10 = ket_varlv3;
+                                                newVariantData.PART = STF02_Induk.BRG;
+                                                newVariantData.TYPE = "3";
+                                                ListNewVariantData_Stf02.Add(newVariantData);
 
+                                                foreach (var stf02h_induk in List_STF02H_Induk)
+                                                {
+                                                    STF02H newVariantDataStf02H = new STF02H();
+                                                    newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                                    newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2 + "." + item3;
+                                                    ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            STF02 newVariantData = new STF02();
+                                            newVariantData = CopyStf02(STF02_Induk);
+                                            newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2;
+                                            string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                            string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                            newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2;
+                                            newVariantData.Ket_Sort8 = ket_varlv1;
+                                            newVariantData.Ket_Sort9 = ket_varlv2;
+                                            newVariantData.PART = STF02_Induk.BRG;
+                                            newVariantData.TYPE = "3";
+                                            ListNewVariantData_Stf02.Add(newVariantData);
+
+                                            foreach (var stf02h_induk in List_STF02H_Induk)
+                                            {
+                                                STF02H newVariantDataStf02H = new STF02H();
+                                                newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                                newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2;
+                                                ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        STF02 newVariantData = new STF02();
+                                        newVariantData = CopyStf02(STF02_Induk);
+                                        newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2;
+                                        string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                        string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                        newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2;
+                                        newVariantData.Ket_Sort8 = ket_varlv1;
+                                        newVariantData.Ket_Sort9 = ket_varlv2;
+                                        newVariantData.PART = STF02_Induk.BRG;
+                                        newVariantData.TYPE = "3";
+                                        ListNewVariantData_Stf02.Add(newVariantData);
+
+                                        foreach (var stf02h_induk in List_STF02H_Induk)
+                                        {
+                                            STF02H newVariantDataStf02H = new STF02H();
+                                            newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                            newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2;
+                                            ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                                        }
                                     }
                                 }
-                                else
-                                {
+                            }
+                            else
+                            {
+                                STF02 newVariantData = new STF02();
+                                newVariantData = CopyStf02(STF02_Induk);
+                                newVariantData.BRG = newVariantData.BRG + "." + item;
+                                string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                newVariantData.NAMA2 += " " + ket_varlv1;
+                                newVariantData.Ket_Sort8 = ket_varlv1;
+                                newVariantData.PART = STF02_Induk.BRG;
+                                newVariantData.TYPE = "3";
+                                ListNewVariantData_Stf02.Add(newVariantData);
 
+                                foreach (var stf02h_induk in List_STF02H_Induk)
+                                {
+                                    STF02H newVariantDataStf02H = new STF02H();
+                                    newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                    newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item;
+                                    ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
                                 }
                             }
                         }
                         else
                         {
+                            STF02 newVariantData = new STF02();
+                            newVariantData = CopyStf02(STF02_Induk);
+                            newVariantData.BRG = newVariantData.BRG + "." + item;
+                            string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                            newVariantData.NAMA2 += " " + ket_varlv1;
+                            newVariantData.Ket_Sort8 = ket_varlv1;
+                            newVariantData.PART = STF02_Induk.BRG;
+                            newVariantData.TYPE = "3";
+                            ListNewVariantData_Stf02.Add(newVariantData);
 
+                            foreach (var stf02h_induk in List_STF02H_Induk)
+                            {
+                                STF02H newVariantDataStf02H = new STF02H();
+                                newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item;
+                                ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                            }
                         }
                     }
-                    i++;
                 }
             }
-            //end Generate STF02
-
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
-            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
-            var vm = new BarangStrukturVarViewModel()
+            #region Save STF02 Variant
+            if (ListNewVariantData_Stf02.Count() > 0)
             {
-                Kategori = kategori,
-                Variant_Level_1 = new STF20()
+                var listStf02inDb = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+                if (listStf02inDb.Count() > 0)
                 {
-                    CATEGORY_MO = kategori.KODE,
-                    LEVEL_JUDUL_VAR = 1,
-                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR
-                },
-                Variant_Level_2 = new STF20()
-                {
-                    CATEGORY_MO = kategori.KODE,
-                    LEVEL_JUDUL_VAR = 2,
-                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR
-                },
-                Variant_Level_3 = new STF20()
-                {
-                    CATEGORY_MO = kategori.KODE,
-                    LEVEL_JUDUL_VAR = 3,
-                    VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
-                },
-                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList(),
-                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+                    var listBrgStf02inDb = listStf02inDb.Select(p => p.BRG).ToList();
+                    var listStf02HinDb = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDb.Contains(p.BRG)).ToList();
+                    if (listStf02HinDb.Count() > 0)
+                    {
+                        ErasoftDbContext.STF02H.RemoveRange(listStf02HinDb);
+                    }
+                    ErasoftDbContext.STF02.RemoveRange(listStf02inDb);
+                    ErasoftDbContext.SaveChanges();
+                }
+
+                ErasoftDbContext.STF02.AddRange(ListNewVariantData_Stf02);
+                ErasoftDbContext.STF02H.AddRange(ListNewVariantData_Stf02H);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+            //end Autoload (Overwrite) STF02
+
+            var VariantMO = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+            var listBrgVariantMO = VariantMO.Select(p => p.BRG).ToList();
+            var VariantMO_H = ErasoftDbContext.STF02H.Where(p => listBrgVariantMO.Contains(p.BRG)).ToList();
+
+            var vm = new BarangDetailVarViewModel()
+            {
+                VariantMO = VariantMO,
+                VariantMO_H = VariantMO_H,
+                ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList()
             };
-            return PartialView("BarangVarPartial", vm);
+
+            return PartialView("BarangDetailVarPartial", vm);
         }
 
         public ActionResult EditStrukturVar(int? recNum)

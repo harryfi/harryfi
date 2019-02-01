@@ -1,6 +1,6 @@
 ﻿@using System.Globalization
 @using MasterOnline.ViewModels
-@model MasterOnline.ViewModels.BarangStrukturVarViewModel
+@model MasterOnline.ViewModels.BarangDetailVarViewModel
 @{
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
     var username = "";
@@ -16,18 +16,238 @@
     }
 }
 @Html.AntiForgeryToken()
+<style>
+    .foto_produk_section {
+        padding: 5px;
+    }
+
+        .foto_produk_section > .box_upload_var {
+            width: 100px;
+            height: 100px;
+            border: dashed 1.5px #bbb;
+            border-radius: 10px;
+            background-color: #f7f7f7;
+            background-image: url('');
+            text-align: center;
+            display: table;
+            margin: 0 auto;
+            cursor: pointer;
+        }
+
+    .box_upload_var > .box_upload_placeholder {
+        color: #ccc;
+        font-size: 20px;
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    /*.btn_hapus_foto_produk_var {
+        position: absolute;
+        bottom: 15px;
+        left: 48px;
+    }*/
+</style>
 <script type="text/javascript">
+
+    var validImageVar = ["image/jpeg"];
+
     $(document).ready(function () {
-        
+        $(function () {
+            $('#variant-tabs-2 a:first').tab('show');
+        });
+
+        $("input[type=file]").off('click').on("click",
+            function (e) {
+                e.stopPropagation();
+            });
+
+        $('.btn_hapus_foto_produk_var').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            var data_barang_kode = $(item).attr("data-barang-kode");
+            $('#btn_hapus_var_' + data_barang_id).hide();
+            $('#btn_hapus_var_' + data_barang_id).off('click').on('click', function () {
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan" }))';
+                $link = $link.replace("replaceKode", data_barang_kode);
+                $link = $link.replace("replaceUrutan", 1);
+
+                $.ajax({
+                    url: $link,
+                    type: 'GET',
+                    success: function () {
+                        var str = $('#hidden_url_gambar_var_' + data_barang_id).val();
+                        var n = str.lastIndexOf('/');
+                        var keyNameFile = str.substring(n + 1);
+
+                        deleteObjectByFileName(keyNameFile);
+
+                        $('#foto_produk_var_' + data_barang_id).val(null);
+                        $('#box_upload_var_' + data_barang_id).css('background-image', '');
+                        $('#box_upload_var_' + data_barang_id + ' span').show();
+                        $('#btn_hapus_var_' + data_barang_id).hide();
+                    },
+                    error: function () {
+                    }
+                });
+
+                return;
+            });
+        });
+
+        $('.foto_produk_var').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#foto_produk_var_' + data_barang_id).hide();
+            $('#foto_produk_var_' + data_barang_id).off('change').on('change', function () {
+                var file = this.files[0];
+                var fileType = file["type"];
+                if ($.inArray(fileType, validImageVar) < 0) {
+                    alert('Hanya boleh file berformat .jpg!');
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onloadend = function () {
+                    $('#box_upload_var_' + data_barang_id).css('background-image', 'url("' + reader.result + '")')
+                        .css('background-size', 'cover');
+                    $('#box_upload_var_' + data_barang_id + ' span').hide();
+                    $('#btn_hapus_var_' + data_barang_id).show();
+                }
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
+        });
+
+        $('.box_upload_var').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $(item).off('click').on('click', function () {
+                $('#foto_produk_var_' + data_barang_id).click();
+            });
+        });
+
+        getFotoProdukVariant();
+
+        $('#variant-section input[data-jenis="hjual_var"]').off('focus').focus(function () {
+            $(this).val(convertToAngka($(this).val()));
+        });
+
+        $('#variant-section input[data-jenis="hjual_var"]').off('change').on('change', function () {
+            var input = $(this).val();
+            var rupiah = convertToRupiah(input);
+            $(this).val(rupiah);
+        });
+
+        $('#variant-section input[data-jenis="hjual_var"]').off('keydown').on('keydown',
+            function (e) {
+                if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                    // Allow: Ctrl+A, Command+A
+                    (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+                    // Allow: home, end, left, right, down, up
+                    (e.keyCode >= 35 && e.keyCode <= 40)) {
+                    // let it happen, don't do anything
+                    return;
+                }
+                // Ensure that it is a number and stop the keypress
+                if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                    e.preventDefault();
+                }
+            });
     });
+
+    function getFotoProdukVariant() {
+        $('.hidden_url_gambar_var').each(function (i, item) {
+            var data_barang_id = $(item).attr("data-barang-id");
+            $('#box_upload_var_' + data_barang_id).css({
+                'background-image': 'url("' + $(item).val() + '")',
+                'background-size': 'cover'
+            });
+            $('#box_upload_var_' + data_barang_id + ' span').hide();
+            $('#btn_hapus_var_' + data_barang_id).show();
+        });
+    }
+    var validasi_simpanBarangVariant = true;
+    function simpanBarangVariant() {
+        validasi_simpanBarangVariant = true;
+        message_validasi_simpanBarangVariant = "";
+
+        if (validasi_simpanBarangVariant) {
+            var listGambarVariant = new FormData();
+
+            $('.foto_produk_var').each(function (i, item) {
+                var data_barang_id = $(item).attr("data-barang-id");
+                listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+            });
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateGambarVariantBarang", "Manage")',
+                data: listGambarVariant,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: function (response) {
+
+                    var newHjual = [];
+                    $('#variant-section input[data-jenis="hjual_var"]').each(function (i, item) {
+                        console.log();
+                        newHjual[i] = {
+                            recnum: $(item).attr("data-hjual-recnum"),
+                            hjual: convertToAngka($(item).val())
+                        };
+                    });
+
+                    var post_data = {
+                        brg: $('#Stf02_BRG').val(),
+                        newhjual: newHjual
+                    }
+
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("UpdateHjualVariantBarang", "Manage")',
+                        data: post_data,
+                        beforeSend: function () {
+                            $('#loading_spinner').show();
+                        },
+                        success: function (response) {
+                            if (response.Errors == null) {
+                                $('#table-barang-1-partial').html(response);
+                                Initialize();
+                                refreshTableBarang();
+                                $('#close-editor-1').click();
+                                $("html, body").animate({ scrollTop: 0 }, "slow");
+                                $('#loading_spinner').hide();
+                            } else {
+                                if (response.errorHargaPerMP == null) {
+                                    console.log(response.Errors);
+                                } else {
+                                    response.Errors.forEach(setErrorfield);
+                                }
+                            }
+                            $('#loading_spinner').hide();
+                        },
+                        error: function (xhr) {
+                            console.log(xhr);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        else {
+            if (message_validasi_autoloadStf02Variant != "") {
+                alert(message_validasi_autoloadStf02Variant);
+            }
+        }
+    }
+
 </script>
 <div class="form-horizontal">
     <div id="variant-section">
         <table style="width:100%">
             <tr>
-                <td style="width:90%">
-                    <ul id="variant-tabs" class="nav nav-tabs">
-                        <li><a data-toggle="tab" href="#masteronline_detail_tab_variant">Master Online</a></li>
+                <td style="width:100%">
+                    <ul id="variant-tabs-2" class="nav nav-tabs">
+                        <li><a data-toggle="tab" href="#masteronline_detail_tab_variant_2">Master Online</a></li>
                         @{
                             var listMarket = Model.ListMarket;
                             var adaElevenia_variant = 0;
@@ -62,519 +282,114 @@
             }
                         @if (adaElevenia_variant == 1)
             {
-                        <li><a data-toggle="tab" href="#elevenia_detail_tab_variant">Elevenia</a></li>
+                            <li><a data-toggle="tab" href="#elevenia_detail_tab_variant_2">Elevenia</a></li>
                         }
                         @if (adaBlibli_variant == 1)
             {
-                        <li><a data-toggle="tab" href="#blibli_detail_tab_variant">Blibli</a></li>
+                            <li><a data-toggle="tab" href="#blibli_detail_tab_variant_2">Blibli</a></li>
                         }
                         @if (adaLazada_variant == 1)
             {
-                        <li><a data-toggle="tab" href="#lazada_detail_tab_variant">Lazada</a></li>
+                            <li><a data-toggle="tab" href="#lazada_detail_tab_variant_2">Lazada</a></li>
                         }
                         @if (adaShopee_variant == 1)
             {
-                        <li><a data-toggle="tab" href="#shopee_detail_tab_variant">Shopee</a></li>
+                            <li><a data-toggle="tab" href="#shopee_detail_tab_variant_2">Shopee</a></li>
                         }
                     </ul>
                 </td>
-                <td style="width:10%">
-                    <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" value="Proses" onclick="prosesBarangVarPartial()" />
-                </td>
             </tr>
         </table>
-
         <div class="tab-content">
-            <div id="masteronline_detail_tab_variant" class="tab-pane fade in active">
+            <div id="masteronline_detail_tab_variant_2" class="tab-pane fade in active">
                 <div class="row" style="padding-top:10px">
                     <div class="col-md-12 col-sm-12 col-xs-12">
-                        @{
-                            var shopeeCategoryCodeFound = -1;
-                        }
-                        @for (var i = 0; i < listMarket.ToList().Count; i++)
-                        {
-                            if (shopeeCategoryCodeFound == -1)
-                            {
-                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                        <table id="datatable_detail_var_mo" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                            <thead>
+                                <tr role="row">
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode</th>
+                                    <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 30%;">Nama</th>
+                                    <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 50%;">Gambar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var barang in Model.VariantMO)
                                 {
-                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
-                                    {
-                                        shopeeCategoryCodeFound = i;
-                                        @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
-                                    }
+                                    <tr>
+                                        <td>@barang.BRG</td>
+                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                        <td class="text-center">
+                                            <div class="foto_produk_section">
+                                                <div class="box_upload_var" data-barang-id="@barang.ID" id="box_upload_var_@barang.ID">
+                                                    <span class="box_upload_placeholder">Tambah Gambar</span>
+                                                    <input type='file' id='foto_produk_var_@barang.ID' data-barang-id="@barang.ID" class="foto_produk_var" accept=".jpg" />
+                                                    <input type="hidden" id="hidden_url_gambar_var_@barang.ID" data-barang-id="@barang.ID" class="hidden_url_gambar_var" value="@(barang.LINK_GAMBAR_1)" />
+                                                </div>
+                                                <button type="button" class="btn btn-danger btn-small btn_hapus_foto_produk_var" style="margin:0px" data-barang-kode="@barang.BRG" data-barang-id="@barang.ID" id="btn_hapus_var_@barang.ID">Hapus</button>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 }
-                            }
-                        }
-                        <div class="form-group" style="display:none">
-                            @Html.Label("lblKodeKategori", "Kode Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                @Html.TextBox("txtKodeKategori", Model.Kategori.KODE, new { @class = "form-control", disabled = "disabled" })
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            @Html.Label("lblNamaKategori", "Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                @Html.TextBox("txtNamaKategori", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
-                            </div>
-                        </div>
-                        @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_1.VALUE_JUDUL_VAR))
-                        {
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Variasi Level 1")
-                                </label>
-                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                    @Html.TextBoxFor(m => m.Variant_Level_1.VALUE_JUDUL_VAR, new { @class = "form-control", disabled = "disabled", Value = Model.Variant_Level_1.VALUE_JUDUL_VAR, placeholder = "" })
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Opsi Tersedia")
-                                </label>
-                                <div class="col-md-4"><select id="select_opt_level_1" placeholder="Harap pilih"></select></div>
-                            </div>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_2.VALUE_JUDUL_VAR))
-                        {
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Variasi Level 2")
-                                </label>
-                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                    @Html.TextBoxFor(m => m.Variant_Level_2.VALUE_JUDUL_VAR, new { @class = "form-control", disabled = "disabled", Value = Model.Variant_Level_2.VALUE_JUDUL_VAR, placeholder = "" })
-                                </div>
-                                <div class="col-md-5 col-sm-5 col-xs-12">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Opsi Tersedia")
-                                </label>
-                                <div class="col-md-4"><select id="select_opt_level_2" placeholder="Harap pilih"></select></div>
-                            </div>
-                        }
-                        @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_3.VALUE_JUDUL_VAR))
-                        {
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Variasi Level 3")
-                                </label>
-                                <div class="col-md-4 col-sm-4 col-xs-12">
-                                    @Html.TextBoxFor(m => m.Variant_Level_3.VALUE_JUDUL_VAR, new { @class = "form-control", disabled = "disabled", Value = Model.Variant_Level_3.VALUE_JUDUL_VAR, placeholder = "" })
-                                </div>
-                                <div class="col-md-5 col-sm-5 col-xs-12">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="control-label col-md-2 col-sm-2 col-xs-12">
-                                    @($"Opsi Tersedia")
-                                </label>
-                                <div class="col-md-4"><select id="select_opt_level_3" placeholder="Harap pilih"></select></div>
-                            </div>
-                        }
-                        <div class="form-group">
-                            <div class="col-md-4">
-                                <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" value="Simpan" onclick="prosesBarangVarPartial()" />
-                            </div>
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
-            <div id="elevenia_detail_tab_variant" class="tab-pane fade in">
+            <div id="elevenia_detail_tab_variant_2" class="tab-pane fade in">
             </div>
-            <div id="blibli_detail_tab_variant" class="tab-pane fade in">
+            <div id="blibli_detail_tab_variant_2" class="tab-pane fade in">
             </div>
-            <div id="lazada_detail_tab_variant" class="tab-pane fade in">
+            <div id="lazada_detail_tab_variant_2" class="tab-pane fade in">
             </div>
-            <div id="shopee_detail_tab_variant" class="tab-pane fade in">
-                <div class="row" style="padding-top:10px">
-                    <div class="col-md-12 col-sm-12 col-xs-12">
-                        <div class="form-group" style="display:none">
-                            @Html.Label("lblKodeKategoriShopee", "Kode Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                @Html.TextBox("txtKodeKategoriShopee", "", new { @class = "form-control", disabled = "disabled" })
+            <div id="shopee_detail_tab_variant_2" class="tab-pane fade in">
+                @for (var i = 0; i < listMarket.ToList().Count; i++)
+                {
+                    var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                    var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                    {
+                        <div>
+                            <h2 style="font-size: 14px">
+                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                            </h2>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                @if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                {
+                                    <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                }
+                                else
+                                {
+                                    <table id="datatable_detail_var_shopee" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                        <thead>
+                                            <tr role="row">
+                                                <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode</th>
+                                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 30%;">Nama</th>
+                                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 25%;">Harga</th>
+                                                <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 25%;">SKU Marketplace</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var barang in Model.VariantMO)
+                                            {
+                                                var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@barang.NAMA @barang.NAMA2</td>
+                                                    <td>
+                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                    </td>
+                                                    <td>@VarStf02H.BRG_MP</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                }
                             </div>
                         </div>
-                        <div class="form-group">
-                            @Html.Label("lblNamaKategoriShopee", "Kategori MO", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                @Html.TextBox("txtNamaKategoriMOShopee", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
-                            </div>
-                            @Html.Label("lblNamaKategoriShopee", "Kategori Shopee", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
-                            <div class="col-md-4 col-sm-4 col-xs-12">
-                                @Html.TextBox("txtNamaKategoriShopee", "", new { @class = "form-control", disabled = "disabled" })
-                            </div>
-                        </div>
-                        @{
-                            var code_kategori1 = Model.Kategori.KODE;
-                            var VariantOptMasterLv1 = Model.VariantOptMaster.Where(p => p.LEVEL_VAR == 1 && p.CATEGORY_MO == code_kategori1).ToList();
-                            var VariantPerMpShopeeLv1 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 1 && p.CATEGORY_MO == code_kategori1 && p.MARKET == "SHOPEE").OrderBy(p => p.RECNUM).ToList();
-                            if (VariantPerMpShopeeLv1.Count() > 0)
-                            {
-                                var textJudulVar1 = "";
-                                var judulVar1 = VariantPerMpShopeeLv1.FirstOrDefault();
-                                if (judulVar1 != null)
-                                {
-                                    textJudulVar1 = judulVar1.MP_JUDUL_VAR;
-                                }
-                                <div class="form-group">
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulMOShopeeLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv1.Count(); i++)
-                                                            {
-                                                                var textKetVar1 = "";
-                                                                var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpShopeeLv1[i].KODE_VAR).FirstOrDefault();
-                                                                if (KetVar1 != null)
-                                                                {
-                                                                    textKetVar1 = KetVar1.KET_VAR;
-                                                                }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOShopeeLv1", textKetVar1, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulVariantShopeeLv1", textJudulVar1, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   placeholder = "Nama Variasi untuk Shopee"
-                                                               })
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv1.Count(); i++)
-                                                            {
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtVariantShopeeLv1_" + VariantPerMpShopeeLv1[i].RECNUM, VariantPerMpShopeeLv1[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariantShopeeLv1_",
-                                                                       placeholder = "Nama Opsi untuk Shopee"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            }
-
-                            var code_kategori2 = Model.Kategori.KODE;
-                            var VariantOptMasterLv2 = Model.VariantOptMaster.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori2).ToList();
-                            var VariantPerMpShopeeLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori2 && p.MARKET == "SHOPEE").OrderBy(p => p.RECNUM).ToList();
-                            if (VariantPerMpShopeeLv2.Count() > 0)
-                            {
-                                var textJudulVar2 = "";
-                                var judulVar2 = VariantPerMpShopeeLv1.FirstOrDefault();
-                                if (judulVar2 != null)
-                                {
-                                    textJudulVar2 = judulVar2.MP_JUDUL_VAR;
-                                }
-                                <div class="form-group">
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulMOShopeeLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv2.Count(); i++)
-                                                            {
-                                                                var textKetVar2 = "";
-                                                                var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpShopeeLv2[i].KODE_VAR).FirstOrDefault();
-                                                                if (KetVar2 != null)
-                                                                {
-                                                                    textKetVar2 = KetVar2.KET_VAR;
-                                                                }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOShopeeLv2", textKetVar2, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulVariantShopeeLv2", textJudulVar2, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   placeholder = "Nama Variasi untuk Shopee"
-                                                               })
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv2.Count(); i++)
-                                                            {
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtVariantShopeeLv2_" + VariantPerMpShopeeLv2[i].RECNUM, VariantPerMpShopeeLv2[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariantShopeeLv2_",
-                                                                       placeholder = "Nama Opsi untuk Shopee"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            }
-
-                            var code_kategori3 = Model.Kategori.KODE;
-                            var VariantOptMasterLv3 = Model.VariantOptMaster.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori3).ToList();
-                            var VariantPerMpShopeeLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori3 && p.MARKET == "SHOPEE").OrderBy(p => p.RECNUM).ToList();
-                            if (VariantPerMpShopeeLv3.Count() > 0)
-                            {
-                                var textJudulVar3 = "";
-                                var judulVar3 = VariantPerMpShopeeLv3.FirstOrDefault();
-                                if (judulVar3 != null)
-                                {
-                                    textJudulVar3 = judulVar3.MP_JUDUL_VAR;
-                                }
-                                <div class="form-group">
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulMOShopeeLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
-                                                                </td>
-
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Master Online</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv3.Count(); i++)
-                                                            {
-                                                                var textKetVar3 = "";
-                                                                var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpShopeeLv3[i].KODE_VAR).FirstOrDefault();
-                                                                if (KetVar3 != null)
-                                                                {
-                                                                    textKetVar3 = KetVar3.KET_VAR;
-                                                                }
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtOpsiMOShopeeLv3", textKetVar3, new
-                                                                   {
-                                                                       @class = "form-control",
-                                                                       disabled = "disabled",
-                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                        <table style="width:100%">
-                                            <tr>
-                                                <td style="vertical-align:top !important;">
-                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%" style="border-right:none">Judul Variasi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtJudulVariantShopeeLv3", textJudulVar3, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   placeholder = "Nama Variasi untuk Shopee"
-                                                               })
-                                                                </td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                                <td style="vertical-align:top !important">
-                                                    <table class="table table-bordered" style="width:100%" role="grid">
-                                                        <thead>
-                                                            <tr>
-                                                                <th width="100%">Nama Opsi Shopee</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            @for (int i = 0; i < VariantPerMpShopeeLv3.Count(); i++)
-                                                            {
-                                                                <tr>
-                                                                    <td>
-                                                                        @Html.TextBox("txtVariantShopeeLv3_" + VariantPerMpShopeeLv3[i].RECNUM, VariantPerMpShopeeLv3[i].MP_VALUE_VAR, new
-                                                                   {
-                                                                       @class = "form-control txtVariantShopeeLv3_",
-                                                                       placeholder = "Nama Opsi untuk Shopee"
-                                                                   })
-                                                                    </td>
-                                                                </tr>
-                                                            }
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
-                </div>
+                    }
+                }
             </div>
         </div>
     </div>

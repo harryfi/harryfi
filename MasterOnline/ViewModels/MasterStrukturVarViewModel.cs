@@ -27,4 +27,10 @@ namespace MasterOnline.ViewModels
         public IList<ARF01> ListMarket { get; set; } = new List<ARF01>();
         public IList<STF20B> VariantOptMaster { get; set; } = new List<STF20B>();
     }
+    public class BarangDetailVarViewModel
+    {
+        public IList<STF02> VariantMO { get; set; }
+        public IList<STF02H> VariantMO_H { get; set; }
+        public IList<ARF01> ListMarket { get; set; } = new List<ARF01>();
+    }
 }
