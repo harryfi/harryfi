@@ -21,6 +21,11 @@ namespace MasterOnline.ViewModels
         public List<API_LOG_MARKETPLACE_PER_ITEM> StatusLog { get; set; }
         public List<QOH_QOO_ALL_ITEM> Stok { get; set; }
         public string errorHargaPerMP { get; set; }
+        //add by nurul 31/1/2019
+        public string BRG { get; set; }
+        public string MULAI { get; set; }
+        public string AKHIR { get; set; }
+        public int MARKET { get; set; }
     }
     
 }
