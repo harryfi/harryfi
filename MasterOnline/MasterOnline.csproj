@@ -68,7 +68,7 @@
       <HintPath>..\packages\AWSSDK.S3.3.3.26.10\lib\net45\AWSSDK.S3.dll</HintPath>
     </Reference>
     <Reference Include="BarcodeLib">
-      <HintPath>..\..\Barcode\BarcodeLib.dll</HintPath>
+      <HintPath>bin\BarcodeLib.dll</HintPath>
     </Reference>
     <Reference Include="EAF, Version=18.3.319.411, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
