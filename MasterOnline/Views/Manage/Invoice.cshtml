@@ -14,7 +14,7 @@
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
-        context.Dispose();
+        //context.Dispose(); 'remark by nurul 4/2/2019
     }
     else
     {
@@ -1082,7 +1082,17 @@
                     break;
             }
             @{
-                var accountId = dataSession.Account.AccountId;
+                //var accountId = dataSession?.Account?.AccountId; 'change by nurul 4/2/2019
+                var accountId = new long();
+                if (dataSession?.Account != null)
+                {
+                    accountId = dataSession.Account.AccountId;
+                }
+                else if (dataSession?.User != null)
+                {
+                    accountId = context.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                }
+                //end change by nurul 4/2/2019
                 var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
             }
             moment.locale('id');

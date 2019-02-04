@@ -13,7 +13,7 @@
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         kodeSubs = context.Account.Single(a => a.AccountId == accId).KODE_SUBSCRIPTION;
         tglBerakhir = context.Account.Single(a => a.AccountId == accId).TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
-        context.Dispose();
+        //context.Dispose(); 'remark by nurul 4/2/2019
     }
     else
     {
