@@ -394,106 +394,106 @@ namespace MasterOnline.Controllers
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ItemListResult)) as ItemListResult;
                 bool adaError = false;
-                foreach (var item in result.data)
-                {
-                    if (item.stock > 0)
-                    {
-                        adaError = adaError;
-                    }
-                    else
-                    {
-                        adaError = adaError;
+                //foreach (var item in result.data)
+                //{
+                //    if (item.stock > 0)
+                //    {
+                //        adaError = adaError;
+                //    }
+                //    else
+                //    {
+                //        adaError = adaError;
 
+                //    }
+                //}
+                if (result.error_message != null)
+                {
+                    if (result.error_message.Count() > 0)
+                    {
+                        adaError = true;
                     }
                 }
-                //if (result.error_message != null)
-                //{
-                //    if (result.error_message.Count() > 0)
-                //    {
-                //        adaError = true;
-                //    }
-                //}
-                //if (!adaError)
-                //{
-                //    ret.message = (page + 1).ToString();
-                //    if (result.data.Count() < 100)
-                //    {
-                //        ret.message = "";
-                //    }
-                //    ret.status = 1;
-                //    ret.recordCount = recordCount;
-                //    List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
-                //    var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
-                //    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
-                //    string brgMp = "";
-                //    foreach (var item in result.data)
-                //    {
-                //        brgMp = Convert.ToString(item.product_id);
-                //        var CektempbrginDB = tempbrginDB.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
-                //        var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
-                //        if (CektempbrginDB == null && CekbrgInDB == null)
-                //        {
-                //            string namaBrg = item.name;
-                //            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                //            urlImage = "";
-                //            urlImage2 = "";
-                //            urlImage3 = "";
-                //            if (namaBrg.Length > 30)
-                //            {
-                //                nama = namaBrg.Substring(0, 30);
-                //                //change by calvin 15 januari 2019
-                //                //if (namaBrg.Length > 60)
-                //                //{
-                //                //    nama2 = namaBrg.Substring(30, 30);
-                //                //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                //                //}
-                //                if (namaBrg.Length > 285)
-                //                {
-                //                    nama2 = namaBrg.Substring(30, 255);
-                //                    nama3 = "";
-                //                }
-                //                //end change by calvin 15 januari 2019
-                //                else
-                //                {
-                //                    nama2 = namaBrg.Substring(30);
-                //                    nama3 = "";
-                //                }
-                //            }
-                //            else
-                //            {
-                //                nama = namaBrg;
-                //                nama2 = "";
-                //                nama3 = "";
-                //            }
+                if (!adaError)
+                {
+                    ret.message = (page + 1).ToString();
+                    if (result.data.Count() < 100)
+                    {
+                        ret.message = "";
+                    }
+                    ret.status = 1;
+                    ret.recordCount = recordCount;
+                    List<TEMP_BRG_MP> listNewRecord = new List<TEMP_BRG_MP>();
+                    var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.CUST, t.BRG_MP }).ToList();
+                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == recnumArf01).Select(t => new { t.RecNum, t.BRG_MP }).ToList();
+                    string brgMp = "";
+                    foreach (var item in result.data)
+                    {
+                        brgMp = Convert.ToString(item.product_id);
+                        var CektempbrginDB = tempbrginDB.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                        var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
+                        if (CektempbrginDB == null && CekbrgInDB == null)
+                        {
+                            string namaBrg = item.name;
+                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                            urlImage = "";
+                            urlImage2 = "";
+                            urlImage3 = "";
+                            if (namaBrg.Length > 30)
+                            {
+                                nama = namaBrg.Substring(0, 30);
+                                //change by calvin 15 januari 2019
+                                //if (namaBrg.Length > 60)
+                                //{
+                                //    nama2 = namaBrg.Substring(30, 30);
+                                //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                //}
+                                if (namaBrg.Length > 285)
+                                {
+                                    nama2 = namaBrg.Substring(30, 255);
+                                    nama3 = "";
+                                }
+                                //end change by calvin 15 januari 2019
+                                else
+                                {
+                                    nama2 = namaBrg.Substring(30);
+                                    nama3 = "";
+                                }
+                            }
+                            else
+                            {
+                                nama = namaBrg;
+                                nama2 = "";
+                                nama3 = "";
+                            }
 
-                //            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                //            {
-                //                SELLER_SKU = "",
-                //                BRG_MP = Convert.ToString(item.product_id),
-                //                NAMA = nama,
-                //                NAMA2 = nama2,
-                //                NAMA3 = nama3,
-                //                CATEGORY_CODE = Convert.ToString(item.category_id),
-                //                CATEGORY_NAME = "",
-                //                IDMARKET = recnumArf01,
-                //                IMAGE = "",
-                //                DISPLAY = true,
-                //                HJUAL = item.price,
-                //                HJUAL_MP = item.price,
-                //                Deskripsi = item.desc,
-                //                MEREK = "OEM",
-                //                CUST = CUST
-                //            };
-                //            listNewRecord.Add(newrecord);
-                //            ret.recordCount = ret.recordCount + 1;
-                //        }
-                //    }
-                //    if (listNewRecord.Count() > 0)
-                //    {
-                //        ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
-                //        ErasoftDbContext.SaveChanges();
-                //    }
-                //}
+                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                            {
+                                SELLER_SKU = "",
+                                BRG_MP = Convert.ToString(item.product_id),
+                                NAMA = nama,
+                                NAMA2 = nama2,
+                                NAMA3 = nama3,
+                                CATEGORY_CODE = Convert.ToString(item.category_id),
+                                CATEGORY_NAME = "",
+                                IDMARKET = recnumArf01,
+                                IMAGE = "",
+                                DISPLAY = true,
+                                HJUAL = item.price,
+                                HJUAL_MP = item.price,
+                                Deskripsi = item.desc,
+                                MEREK = "OEM",
+                                CUST = CUST
+                            };
+                            listNewRecord.Add(newrecord);
+                            ret.recordCount = ret.recordCount + 1;
+                        }
+                    }
+                    if (listNewRecord.Count() > 0)
+                    {
+                        ErasoftDbContext.TEMP_BRG_MP.AddRange(listNewRecord);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                }
             }
 
             return ret;
