@@ -4,6 +4,18 @@
     ViewBag.Title = "SecUserMenu";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    //add by nurul 8/2/2019
+    var context = new MoDbContext();
+    var accountId = new long();
+    if (dataSession?.Account != null)
+    {
+        accountId = dataSession.Account.AccountId;
+    }
+    else if (dataSession?.User != null)
+    {
+        accountId = context.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+    }
+    //end add
 }
 
 @section styles
@@ -52,7 +64,8 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account?.AccountId).ToList())
+                @*@foreach (var user in Model.ListUser.Where(u => u.AccountId == dataSession?.Account?.AccountId).ToList()) //change by nurul 8/2/2019*@
+                @foreach (var user in Model.ListUser.Where(u => u.AccountId == accountId).ToList())
                 {
                     <tr>
                         <td>@user.Username</td>
