@@ -2,9 +2,25 @@
 @model MasterOnline.ViewModels.AccountUserViewModel
 @{
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+    //add by nurul 8/2/2019
+    var context = new MoDbContext();
+    var accountId = new long();
+    if (dataSession?.Account != null)
+    {
+        accountId = dataSession.Account.AccountId;
+    }
+    else if (dataSession?.User != null)
+    {
+        accountId = context.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+    }
+    //end add
 }
 
-@Html.HiddenFor(m => m.User.AccountId, new { Value = dataSession?.Account.AccountId })
+@*//change by nurul 8/2/2019*@
+@*@Html.HiddenFor(m => m.User.AccountId, new { Value = dataSession?.Account.AccountId })*@
+@Html.HiddenFor(m => m.User.AccountId, new { Value = accountId })
+@*//end change by nurul 8/2/2019*@
+
 @Html.HiddenFor(m => m.User.UserId)
 <div class="form-group">
     @Html.LabelFor(m => m.User.Email, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })

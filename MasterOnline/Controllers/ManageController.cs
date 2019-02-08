@@ -5702,13 +5702,28 @@ namespace MasterOnline.Controllers
         public ActionResult Akun()
         {
             var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-
-            if (dataSession?.User != null)
-                return View("NoPermission");
+            //change by nurul 8/2/2019
+            //if (dataSession?.User != null)
+            //    return View("NoPermission");
+            var userAc = new List<User>();
+            var accountId = new long();
+            if(dataSession?.User != null)
+            {
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }else if(dataSession?.Account != null)
+            {
+                accountId = dataSession.Account.AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
             {
-                ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                //change by nurul 8/2/2019
+                //ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                ListUser = userAc,
+                //end change by nurul 8/2/2019
                 ListSec = MoDbContext.SecUser.ToList()
             };
 
@@ -5719,12 +5734,29 @@ namespace MasterOnline.Controllers
         {
             var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
+            //change by nurul 8/2/2019
+            //if (dataSession?.User != null)
+            //    return View("NoPermission");
+            var userAc = new List<User>();
+            var accountId = new long();
             if (dataSession?.User != null)
-                return View("NoPermission");
+            {
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            else if (dataSession?.Account != null)
+            {
+                accountId = dataSession.Account.AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
             {
-                ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                //change by nurul 8/2/2019
+                //ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                ListUser = userAc,
+                //end change by nurul 8/2/2019
                 ListSec = MoDbContext.SecUser.ToList()
             };
 
@@ -5807,12 +5839,29 @@ namespace MasterOnline.Controllers
 
             var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
+            //change by nurul 8/2/2019
+            //if (dataSession?.User != null)
+            //    return View("NoPermission");
+            var userAc = new List<User>();
+            var accountId = new long();
             if (dataSession?.User != null)
-                return View("NoPermission");
+            {
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            else if (dataSession?.Account != null)
+            {
+                accountId = dataSession.Account.AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
             {
-                ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                //change by nurul 8/2/2019
+                //ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                ListUser = userAc,
+                //end change by nurul 8/2/2019
                 ListSec = MoDbContext.SecUser.ToList()
             };
 
@@ -5845,12 +5894,29 @@ namespace MasterOnline.Controllers
 
             var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
+            //change by nurul 8/2/2019
+            //if (dataSession?.User != null)
+            //    return View("NoPermission");
+            var userAc = new List<User>();
+            var accountId = new long();
             if (dataSession?.User != null)
-                return View("NoPermission");
+            {
+                accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            else if (dataSession?.Account != null)
+            {
+                accountId = dataSession.Account.AccountId;
+                userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
+            }
+            //end change by nurul 8/2/2019
 
             var vm = new AccountUserViewModel()
             {
-                ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                //change by nurul 8/2/2019
+                //ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
+                ListUser = userAc,
+                //end change by nurul 8/2/2019
                 ListSec = MoDbContext.SecUser.ToList()
             };
 
