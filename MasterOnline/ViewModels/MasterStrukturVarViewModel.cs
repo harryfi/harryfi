@@ -19,6 +19,7 @@ namespace MasterOnline.ViewModels
     }
     public class BarangStrukturVarViewModel
     {
+        public STF02 Barang { get; set; }
         public STF02E Kategori { get; set; }
         public STF20 Variant_Level_1 { get; set; }
         public STF20 Variant_Level_2 { get; set; }

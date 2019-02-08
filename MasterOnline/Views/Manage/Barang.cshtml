@@ -14,6 +14,19 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
+        
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
         [data-tip] {
             position: relative;
         }
@@ -608,22 +621,36 @@
         }
 
         function Initialize() {
+            
+            $('#barangTab a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr("href");
+                if ((target == '#tab_content_variant')) {
+                    $('#txtInfoKodeBarang').val($('#Stf02_BRG').val());
+                    $('#txtInfoNamaBarang').val($('#Stf02_NAMA').val() + ' ' + $('#Stf02_NAMA2').val());
+                }
+            });
+
             $('.cbxtype').each(function () {
                 var $this = $(this);
 
                 $this.click(function () {
                     var $cbxTarget = $('.cbxTarget[data-cbx="cbx-type"]');
+
                     if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
                         $cbxTarget.val('4');
                         $('#simpan_btn').hide();
                         $('#next_btn').show();
+                        $('#div_info_harga_variant').show();
                     } else {
                         $cbxTarget.val('3');
                         $('#var-structure-partial').html('');
                         $('#var-detail-variant-partial').html('');
                         $('#simpan_btn').show();
                         $('#next_btn').hide();
+                        $('#div_info_harga_variant').hide();
                     }
+
+                    CekTabVariant();
                 });
             });
 
@@ -675,6 +702,8 @@
                 $('.barang_table_section').hide();
                 $('.barang_editor_section').show();
                 $('#close-editor-1')[0].disabled = false;
+                $('#variant-induk-tab').removeAttr('data-toggle');
+                $('#variant-induk-tab').addClass('disabled-tab');
 
                 if ($('#Stf02_BRG').val() == '') {
                     $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
@@ -721,6 +750,7 @@
             getKategoriPertamaBlibli(-1);
             getKategoriPertamaElevenia(-1);
             getKategoriPertamaShopee(-1);
+            getKategoriPertamaTokped(-1);
             getKategori();
             getMerk();
 
@@ -2336,6 +2366,190 @@
             });
         }
         //END ADD BY CALVIN 18 DESEMBER 2018
+        //ADD BY CALVIN 6 FEBRUARI 2019
+        function ClearCategoryTokped(divIDpertama,divIDselanjutnya,divIDattribute,i,undoing){
+            var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
+            var msg = "Kosongkan Kategori & Attribute ?";
+            if (undoing) {
+                msg = "Kembalikan Seperti Semula ?";
+            }
+            if (confirm(msg)) {
+                $('#' + divIDpertama).html('');
+                $('#' + divIDselanjutnya).html('');
+                //$('#' + divIDattribute).html('');
+                if (!undoing) {
+                    $(fieldCategoryCode).val('');
+                    $(fieldCategoryName).val('');
+                }
+                else {
+                    $(fieldCategoryCode).val('undo');
+                }
+                getKategoriPertamaTokped(i);
+            }
+        }
+        function getKategoriPertamaTokped(spec) {
+            var idMarketTokped = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("TOKOPEDIA")).IdMarket));
+            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+            for (var i = 0; i < listMarket.length; i++) {
+                if (listMarket[i].NAMA == idMarketTokped.toString() && (spec < 0 || spec == i)) {
+                    var selectCategoryTokpedID = 'Category_Tokped_' + listMarket[i].RecNum;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
+                    var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
+                    var nextselectID = "Category_Tokped_2_" + listMarket[i].RecNum;
+                    var categoryTokpedSelanjutnya =  '#category_tokped_selanjutnya_' + listMarket[i].RecNum;
+                    var listMarketRecNum = listMarket[i].RecNum;
+
+                    if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
+                        //edit
+                        var ListHargaJualPermarketView = model_listhargajualpermarketview;
+                        ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
+                            return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
+                        });
+
+                        if (ListHargaJualPermarketView[0] != undefined) {
+
+                            $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
+
+                            var fieldCategoryCodeValue = $(fieldCategoryCode).val();
+                            FuncGetKategoriTokpedByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
+                        }
+
+                    }
+                    else {
+                        //new
+                        FuncGetKategoriTokpedByCode(selectCategoryTokpedID,listMarket[i].Kode,listMarket[i].RecNum,nextselectID,categoryTokpedSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum)
+                    }
+                }
+            }
+        }
+        function FuncGetKategoriTokpedByChildCode(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
+            var link = '@Url.Action("GetKategoriTokpedByChildCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", fieldCategoryCodeValue);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    //generate category
+                    $.each(data,
+                        function (i, item) {
+                            if (i == 0) {
+                                var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
+                                $('#category_tokped_pertama_' + listMarketRecNum).append(textbox);
+                            }
+                            else {
+                                var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
+                                $('#category_tokped_selanjutnya_' + listMarketRecNum).append(textbox);
+                            }
+                        });
+
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function FuncGetKategoriTokpedByCode(selectCategoryTokpedID,listMarket_i_Kode,listMarket_i_RecNum,nextselectID,categoryTokpedSelanjutnya,fieldCategoryCode,fieldCategoryName,listMarketRecNum){
+            var link = '@Url.Action("GetKategoriTokpedByCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", listMarket_i_Kode);
+
+            //buat select pertama
+            var nextselect = '<select id="'+ selectCategoryTokpedID +'" placeholder="Harap pilih" required="required"></select>';
+            $('#category_tokped_pertama_' + listMarket_i_RecNum).append(nextselect);
+            //end buat select pertama
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryTokpedID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriTokpedOnChange(value,nextselectID,selectCategoryTokpedID,categoryTokpedSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function KategoriTokpedOnChange(value,nextselectID,selectCategoryTokpedID,categoryTokpedSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,s){
+            s.disable();
+            var values = value.split('|;|');
+            $('#' + nextselectID).remove();
+            if (values[1] == "0") {
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                $(categoryTokpedSelanjutnya).append(nextselect);
+                getKategoriSelanjutnyaTokped(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
+            }
+            else if (values[1] == "1") {
+                //change by calvin 25 januari 2019
+                //$(fieldCategoryCode).val(values[0]);
+                //$(fieldCategoryName).val($('#' + selectCategoryTokpedID + " option:selected").text());
+                $(fieldCategoryCode).val(values[0]).trigger("change");
+                $(fieldCategoryName).val($('#' + selectCategoryTokpedID + " option:selected").text()).trigger("change");
+                //end change by calvin 25 januari 2019
+            }
+        }
+        function getKategoriSelanjutnyaTokped(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
+            var link = '@Url.Action("GetKategoriTokpedByParentCode", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode);
+
+            var nextselectID = "Category_Tokped_"+ next +"_" + listMarketRecNum;
+            var categoryTokpedSelanjutnya =  '#category_tokped_selanjutnya_' + listMarketRecNum;
+            var selectCategoryTokpedID = SelectID;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var listKategori = [];
+
+                    $.each(data,
+                        function (i, item) {
+                            listKategori[i] = {
+                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
+                                text: item.CATEGORY_NAME
+                            };
+                        });
+
+                    var kategoriSelect = $('#' + selectCategoryTokpedID).selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: listKategori,
+                        onChange: function (value) {
+                            KategoriTokpedOnChange(value,nextselectID,selectCategoryTokpedID,categoryTokpedSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
+                        }
+                    });
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        //END ADD BY CALVIN 6 FEBRUARI 2019
         function getKategori() {
             $.ajax({
                 type: "GET",
@@ -2360,9 +2574,6 @@
                         onChange: function (value) {
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
-
-                            GetStrukturVariant();
-                            GetDetailBarangVariant();
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -2375,20 +2586,25 @@
             });
         }
         function GetStrukturVariant(){
-            if ($('#KATEGORI').val() != undefined) {
-                if ($('#Stf02_TYPE').val() == "4" && $('#KATEGORI').val() != null && $('#KATEGORI').val() != "") {
+            if ($('#Stf02_Sort1').val() != undefined) {
+                if ($('#Stf02_TYPE').val() == "4" && $('#Stf02_Sort1').val() != null && $('#Stf02_Sort1').val() != "") {
+
                     $('#var-structure-partial').html('');
                     $('#var-detail-variant-partial').html('');
 
                     var post_data = {
-                        kode : $('#KATEGORI').val(),
+                        kode : $('#Stf02_Sort1').val(),
                         brg : $('#Stf02_BRG').val()
                     };
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("GetStrukturVar", "Manage")',
                         data : post_data,
+                        beforeSend: function () {
+                            $('#loading_structure_partial').show();
+                        },
                         success: function (response) {
+                            $('#loading_structure_partial').hide();
                             $('#var-structure-partial').html(response);
                         },
                         error: function (xhr, status, error) {
@@ -2399,20 +2615,24 @@
             }
         }
         function GetDetailBarangVariant(){
-            if ($('#KATEGORI').val() != undefined) {
-                if ($('#Stf02_TYPE').val() == "4" && $('#KATEGORI').val() != null && $('#KATEGORI').val() != "") {
+            if ($('#Stf02_Sort1').val() != undefined) {
+                if ($('#Stf02_TYPE').val() == "4" && $('#Stf02_Sort1').val() != null && $('#Stf02_Sort1').val() != "") {
                     $('#var-structure-partial').html('');
                     $('#var-detail-variant-partial').html('');
 
                     var post_data = {
-                        kode : $('#KATEGORI').val(),
+                        kode : $('#Stf02_Sort1').val(),
                         brg : $('#Stf02_BRG').val()
                     };
                     $.ajax({
                         type: "POST",
                         url: '@Url.Action("GetDetailBarangVar", "Manage")',
                         data : post_data,
+                        beforeSend: function () {
+                            $('#loading_detail_variant_partial').show();
+                        },
                         success: function (response) {
+                            $('#loading_detail_variant_partial').hide();
                             $('#var-detail-variant-partial').html(response);
                         },
                         error: function (xhr, status, error) {
@@ -2705,12 +2925,14 @@
                     if (response.Errors == null) {
                         $('#var-structure-partial').html('');
                         $('#var-detail-variant-partial').html('');
-
+                        
+                        $('#loading_structure_partial').hide();
+                        $('#loading_detail_variant_partial').hide();
                         $('#var-structure-partial').html(response);
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
-                        $('#barangTab a:last').tab('show');
                         $('#Stf02_BRG').attr('disabled', 'disabled');
+                        $('#barangTab a:last').tab('show');
                         //Initialize();
                         //initRequired();
                     } else {
@@ -2732,7 +2954,7 @@
 
             return false;
         }
-
+        
         function setErrorfield(item, index) {
             var error = item.split("_errortext_");
             addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);
@@ -2798,13 +3020,101 @@
                     initRequired();
                     $('#tambah_barang').click();
                     $('#loading_spinner').hide();
+                    CekTabVariant();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
             });
         }
+        function CekTabVariant(){
+            if ($('#Stf02_ID').val() == "") { // tambah barang
+                //disable Tab Variant
+                $('#variant-induk-tab').removeAttr('data-toggle');
+                $('#variant-induk-tab').addClass('disabled-tab');
 
+                if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
+                    enableFotoProdukSection();
+                } else {
+                    disableFotoProdukSection();
+                }
+            }
+            else {
+                //edit barang
+                if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
+                    //disable Tab Variant
+                    $('#variant-induk-tab').removeAttr('data-toggle');
+                    $('#variant-induk-tab').addClass('disabled-tab');
+                    enableFotoProdukSection();
+                } else {
+                    //ada Variant
+                    //enable Tab Variant
+                    $('#variant-induk-tab').attr('data-toggle', 'tab');
+                    $('#variant-induk-tab').removeClass('disabled-tab');
+                    disableFotoProdukSection();
+                    GetStrukturVariant();
+                    GetDetailBarangVariant();
+                }
+            }
+        }
+        function disableFotoProdukSection(){
+            var $BOX_PANEL = $('#upload-foto-section'),
+                $ICON = $('#upload-foto-section').find('i'),
+                $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+
+            // fix for some div with hardcoded fix class
+            if ($BOX_PANEL.attr('style')) {
+                $BOX_CONTENT.slideUp(200, function () {
+                    $BOX_PANEL.removeAttr('style');
+                });
+            } else {
+                $BOX_CONTENT.slideUp(200);
+                $BOX_PANEL.removeAttr('style');
+                //$BOX_PANEL.css('height', 'auto');
+            }
+            $ICON.removeClass('fa-chevron-up');
+            $ICON.addClass('fa-chevron-down');
+
+            
+            $('#collapse-link-upload-foto-section').off('click').on('click', function () {
+                
+            });
+        }
+        function enableFotoProdukSection(){
+            var $BOX_PANEL = $('#upload-foto-section'),
+                $ICON = $('#upload-foto-section').find('i'),
+                $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+
+            // fix for some div with hardcoded fix class
+            if ($BOX_PANEL.attr('style')) {
+                $BOX_CONTENT.slideDown(200, function () {
+                    $BOX_PANEL.css('height', 'auto');
+                });
+            } else {
+                $BOX_CONTENT.slideDown(200);
+                $BOX_PANEL.css('height', 'auto');
+            }
+            $ICON.removeClass('fa-chevron-down');
+            $ICON.addClass('fa-chevron-up');
+
+            $('#collapse-link-upload-foto-section').off('click').on('click', function () {
+                var $BOX_PANEL = $(this).closest('.x_panel'),
+                    $ICON = $(this).find('i'),
+                    $BOX_CONTENT = $BOX_PANEL.find('.x_content');
+
+                // fix for some div with hardcoded fix class
+                if ($BOX_PANEL.attr('style')) {
+                    $BOX_CONTENT.slideToggle(200, function () {
+                        $BOX_PANEL.removeAttr('style');
+                    });
+                } else {
+                    $BOX_CONTENT.slideToggle(200);
+                    $BOX_PANEL.css('height', 'auto');
+                }
+
+                $ICON.toggleClass('fa-chevron-up fa-chevron-down');
+            });
+        }
         function pass(idBarang, namaBarang) {
             this.$idBarang = idBarang;
             $('#hapus_label').text(namaBarang);
