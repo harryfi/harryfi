@@ -671,7 +671,7 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "CCTESVAR").ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -3372,7 +3372,7 @@ namespace MasterOnline.Controllers
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new BarangStrukturVarViewModel()
             {
-                Barang = ErasoftDbContext.STF02.Where(p => p.BRG == dataBarang.Stf02.BRG).FirstOrDefault(),
+                Barang = ErasoftDbContext.STF02.Where(p => p.BRG == KodeBarang).FirstOrDefault(),
                 Kategori = kategori,
                 Variant_Level_1 = new STF20()
                 {
@@ -3393,7 +3393,7 @@ namespace MasterOnline.Controllers
                     VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
                 },
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == dataBarang.Stf02.BRG).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == KodeBarang).ToList(),
                 VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
             };
             return PartialView("BarangVarPartial", vm);
