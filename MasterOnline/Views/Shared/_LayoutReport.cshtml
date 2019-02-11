@@ -108,50 +108,53 @@
 
     <style>
         [data-tip] {
-	        position:relative;
+            position: relative;
         }
-        [data-tip]:before {
-	        content:'';
-	        /* hides the tooltip when not hovered */
-	        display:none;
-	        content:'';
-	        border-left: 5px solid transparent;
-	        border-right: 5px solid transparent;
-	        border-bottom: 5px solid #1a1a1a;	
-	        position:absolute;
-	        top:30px;
-	        left:35px;
-	        z-index:8;
-	        font-size:0;
-	        line-height:0;
-	        width:0;
-	        height:0;
-        }
-        [data-tip]:after {
-	        display:none;
-	        content:attr(data-tip);
-	        position:absolute;
-	        top:35px;
-	        left:0px;
-	        padding:2px 5px;
-	        background:#1a1a1a;
-	        color:#fff;
-	        z-index:9;
-	        font-size: 0.85em;
-	        height:auto;
-            line-break:normal;
-            max-width:200px;
-	        line-height:18px;
-	        -webkit-border-radius: 3px;
-	        -moz-border-radius: 3px;
-	        border-radius: 3px;
-	        white-space:normal;
-	        word-wrap:normal;
-        }
-        [data-tip]:hover:before,
-        [data-tip]:hover:after {
-	        display:block;
-        }
+
+            [data-tip]:before {
+                content: '';
+                /* hides the tooltip when not hovered */
+                display: none;
+                content: '';
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-bottom: 5px solid #1a1a1a;
+                position: absolute;
+                top: 30px;
+                left: 35px;
+                z-index: 8;
+                font-size: 0;
+                line-height: 0;
+                width: 0;
+                height: 0;
+            }
+
+            [data-tip]:after {
+                display: none;
+                content: attr(data-tip);
+                position: absolute;
+                top: 35px;
+                left: 0px;
+                padding: 2px 5px;
+                background: #1a1a1a;
+                color: #fff;
+                z-index: 9;
+                font-size: 0.85em;
+                height: auto;
+                line-break: normal;
+                max-width: 200px;
+                line-height: 18px;
+                -webkit-border-radius: 3px;
+                -moz-border-radius: 3px;
+                border-radius: 3px;
+                white-space: normal;
+                word-wrap: normal;
+            }
+
+            [data-tip]:hover:before,
+            [data-tip]:hover:after {
+                display: block;
+            }
 
         .page-editor {
             overflow: inherit !important;
@@ -262,6 +265,21 @@
         }
     </style>
 
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-130203101-1');
+        gtag('config', 'AW-778375246');
+    </script>
+
+    <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+    <script>
+        function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
+    </script>
 </head>
 <body class="nav-md">
     <div class="container body">
