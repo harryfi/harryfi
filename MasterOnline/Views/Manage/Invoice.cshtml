@@ -943,6 +943,7 @@
         var $TabAktif = 0;// 0 Faktur, 1 Invoice Sudah Lunas, 2 Invoice Jatuh Tempo
         //add by nurul 6/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
+        var $jumlahPesanan = true;
         //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
@@ -2198,9 +2199,15 @@
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_invoice">Tambah Baru</button>');
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricingExpired" id="tambah_invoice">Tambah Baru</button>');
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_invoice">Tambah Baru</button>');
                         $('#tambah_invoice').on('click', function () {
@@ -2221,6 +2228,9 @@
                             });
                             //end add
                         });
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = true;
+                        //end add by nurul 11/2/2019
                     }
                 },
                 error: function (xhr, status, error) {
@@ -2453,10 +2463,15 @@
                     getGudang();
                     refreshNetto();
                     $('#tambah_invoice').click();
-
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
+                    if ($jumlahPesanan == true) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                    } else if ($jumlahPesanan == false) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                    }
                     $('tr[data-invoice-id="0"]').remove();
 
                     $('#loading_spinner').hide();
