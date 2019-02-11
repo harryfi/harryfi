@@ -1830,6 +1830,7 @@
         //add by nurul 1/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
         var promptPembeli = "";
+        var $jumlahPesanan = true;
         //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
@@ -2401,10 +2402,18 @@
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_pesanan">Tambah Baru</button>');
+
+                            //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricingExpired" id="tambah_pesanan">Tambah Baru</button>');
+
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else {
                         $('#tambah_baru_tombol_section')
                             .append(
@@ -2422,6 +2431,7 @@
                                     $(this).addClass('disabled-tab');
                                 });
                             });
+                        $jumlahPesanan = true;
                     }
                 },
                 error: function(xhr, status, error) {
@@ -3626,6 +3636,12 @@
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
+                    //add by nurul 11/2/2019
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                        //end add by nurul 11/2/2019
                     getTanggal();
                     getBuyer();
                     getDataBarang();
@@ -3660,6 +3676,7 @@
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
+                    
                     getTanggal();
                     getBuyer();
                     getDataBarang();
@@ -3677,17 +3694,30 @@
                     //    .css('cursor', 'not-allowed');
                     $('#Pesanan_NAMAPEMESAN').css('width', '225px');
                     $('#tambah-pembeli').hide();
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
-                    $('tr[data-pesanan-id="0"]').remove();
-                    $('#myTab li a').each(function () {
-                        $(this).removeAttr('data-toggle');
+                    if ($jumlahPesanan == true) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('tr[data-pesanan-id="0"]').remove();
+                        $('#myTab li a').each(function () {
+                            $(this).removeAttr('data-toggle');
 
-                        if ($(this).attr('id') === 'pesanan-tab') return;
+                            if ($(this).attr('id') === 'pesanan-tab') return;
 
-                        $(this).addClass('disabled-tab');
-                    });
+                            $(this).addClass('disabled-tab');
+                        });
+                    }
+                    else if ($jumlahPesanan == false) {
+                        //add by nurul 11/2/2019
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 11/2/2019
+                    }
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
                 },

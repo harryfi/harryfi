@@ -999,6 +999,9 @@
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
     <script type="text/javascript">
+        //add by nurul 11/2/2019
+        var $jumlahPesanan = true;
+        //end add by nurul 11/2/2019
         var $TabAktif = 0;// 0 Faktur, 1 Faktur Sudah Lunas, 2 Faktur Jatuh Tempo
         var $modeEdit = 0; // 0 new, 1 edit
         var $bakalNetto = 0;
@@ -1323,9 +1326,15 @@
                         $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricingExpired" id="tambah_faktur">Tambah Baru</button>');
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else {
                         $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>');
@@ -1349,6 +1358,9 @@
                             });
                             //end add
                         });
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = true;
+                        //end add by nurul 11/2/2019
                     }
                 },
                 error: function (xhr, status, error) {
@@ -1603,9 +1615,15 @@
                     $('#tambah_faktur').click();
 
                     $nettoSebelumnya += $bakalNetto;
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).attr('disabled', 'disabled');
-                    });
+                    if ($jumlahPesanan == true) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                    } else if ($jumlahPesanan == false) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                    }
                     $('tr[data-faktur-id="0"]').remove();
                     $('#loading_spinner').hide();
                 },
