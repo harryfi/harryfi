@@ -678,7 +678,7 @@
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
         <div class="modal-content">
-            @Html.Partial("MarketplacePricingPartialView")
+            @Html.Partial("PricingPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
@@ -1373,10 +1373,10 @@
                     getKabKot();
                     resetKabKot();
                     @{
-                                                                        <text>
-                    $('#Customers_TGL_INPUT').val(@(Model?.Customers?.TGL_INPUT));
-                    </text>
-                                                                    }
+                        <text>
+                            $('#Customers_TGL_INPUT').val(@(Model?.Customers?.TGL_INPUT));
+                        </text>
+                    }
                     $('#Customers_USERNAME').val(response.Customers.USERNAME);
                     $('#Customers_PASSWORD').val(response.Customers.PASSWORD);
                     $('#Customers_RecNum').val(response.Customers.RecNum);

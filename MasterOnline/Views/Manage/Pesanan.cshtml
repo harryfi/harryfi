@@ -1672,14 +1672,14 @@
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
         <div class="modal-content">
-            @Html.Partial("PricingPartialView")
+            @Html.Partial("PricingPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
 <div class="modal fade" id="modalPricingExpired" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing-expired" role="document">
         <div class="modal-content">
-            @Html.Partial("PricingExpiredPartialView")
+            @Html.Partial("PricingExpiredPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
