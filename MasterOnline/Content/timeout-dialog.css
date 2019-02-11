@@ -10,16 +10,16 @@ button {
   border: 1px solid #cccccc;
   border-width: 1px;
   border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  -webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  /*-webkit-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(0, 0, 0, 0.1);
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 1px 1px rgba(0, 0, 0, 0.1);*/
   cursor: pointer;
   color: #333333;
   display: inline-block;
   font-size: 14px;
   line-height: normal;
   padding: 5px 10px;
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+  /*text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);*/
 }
 
 .button:hover, button:hover {
