@@ -51,6 +51,16 @@
                 </div>
                 <div class="x_content">
                     <div class="form-group">
+                        <div class="col-md-2 col-sm-2 col-xs-12"></div>
+                        <label class="col-md-10 col-sm-10 col-xs-12">
+                            @($"Keterangan : Variasi digunakan untuk produk-produk yang mempunyai variasi.")
+                        </label>
+                        <div class="col-md-2 col-sm-2 col-xs-12"></div>
+                        <label class="col-md-10 col-sm-10 col-xs-12">
+                            @($"Contoh : Warna, Ukuran")
+                        </label>
+                    </div>
+                    <div class="form-group">
                         @Html.Label("lblKodeKategori", "Kode Kategori", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.TextBox("txtKodeKategori", Model.Kategori.KODE, new { @class = "form-control", disabled = "disabled" })
@@ -64,7 +74,7 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Variasi Level 1")
+                            @($"Variasi 1")
                         </label>
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_1.VALUE_JUDUL_VAR))
@@ -79,19 +89,19 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Opsi Variasi Level 1")
+                            @($"Opsi Variasi 1")
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table id="table_tambah_opt_level_1" class="table table-bordered" role="grid">
                                 <thead>
                                     <tr>
                                         <th width="30%">Kode Opsi</th>
-                                        <th width="50%">Nama Opsi</th>
-                                        <th width="20%">Action</th>
+                                        <th width="50%">Keterangan</th>
+                                        <th width="20%">Simpan/Hapus</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(1)).ToList())
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(1)).ToList().OrderBy(p => p.KODE_VAR))
                                     {
                                         <tr data-barang-id="opt-@item.RECNUM">
                                             <td>@item.KODE_VAR</td>
@@ -105,7 +115,7 @@
                                     }
                                     <tr>
                                         <td class="kode-opt-var-level1">
-                                            @Html.TextBoxFor(m=>m.VariantOpt_Level_1.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m=>m.VariantOpt_Level_1.KODE_VAR, new { @class = "form-control", Value = "", @maxlength = 2, @data_val_length_max = 2, placeholder = "Ex: 01" })
                                         </td>
                                         <td class="nama-opt-var-level1">
                                             @Html.TextBoxFor(m => m.VariantOpt_Level_1.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
@@ -122,7 +132,7 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Variasi Level 2")
+                            @($"Variasi 2")
                         </label>
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_2.VALUE_JUDUL_VAR))
@@ -139,19 +149,19 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Opsi Variasi Level 2")
+                            @($"Opsi Variasi 2")
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table id="table_tambah_opt_level_2" class="table table-bordered" role="grid">
                                 <thead>
                                     <tr>
                                         <th width="30%">Kode Opsi</th>
-                                        <th width="50%">Nama Opsi</th>
-                                        <th width="20%">Action</th>
+                                        <th width="50%">Keterangan</th>
+                                        <th width="20%">Simpan/Hapus</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(2)).ToList())
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(2)).ToList().OrderBy(p => p.KODE_VAR))
                                     {
                                         <tr data-barang-id="opt-@item.RECNUM">
                                             <td>@item.KODE_VAR</td>
@@ -165,10 +175,10 @@
                                     }
                                     <tr>
                                         <td class="kode-opt-var-level2">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KODE_VAR, new { @class = "form-control", Value = "", @maxlength = 2, @data_val_length_max = 2, placeholder = "Ex: 01" })
                                         </td>
                                         <td class="nama-opt-var-level2">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_2.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
                                         </td>
                                         <td class="edit-hapus-col">
                                             <button type="button" class="btn btn-primary" onclick="simpanOptLevel(2)">
@@ -182,7 +192,7 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Variasi Level 3")
+                            @($"Variasi 3")
                         </label>
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @if (!string.IsNullOrWhiteSpace(Model.Variant_Level_3.VALUE_JUDUL_VAR))
@@ -199,19 +209,19 @@
                     </div>
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">
-                            @($"Opsi Variasi Level 3")
+                            @($"Opsi Variasi 3")
                         </label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table id="table_tambah_opt_level_3" class="table table-bordered" role="grid">
                                 <thead>
                                     <tr>
                                         <th width="30%">Kode Opsi</th>
-                                        <th width="50%">Nama Opsi</th>
-                                        <th width="20%">Action</th>
+                                        <th width="50%">Keterangan</th>
+                                        <th width="20%">Simpan/Hapus</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(3)).ToList())
+                                    @foreach (var item in Model.VariantOptInDb.Where(m => m.LEVEL_VAR.Equals(3)).ToList().OrderBy(p=>p.KODE_VAR))
                                     {
                                         <tr data-barang-id="opt-@item.RECNUM">
                                             <td>@item.KODE_VAR</td>
@@ -225,10 +235,10 @@
                                     }
                                     <tr>
                                         <td class="kode-opt-var-level3">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KODE_VAR, new { @class = "form-control", Value = "", @maxlength = 2, @data_val_length_max = 2, placeholder = "Ex: 01" })
                                         </td>
                                         <td class="nama-opt-var-level3">
-                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: 01" })
+                                            @Html.TextBoxFor(m => m.VariantOpt_Level_3.KET_VAR, new { @class = "form-control", Value = "", placeholder = "Ex: Hijau / S / M / L" })
                                         </td>
                                         <td class="edit-hapus-col">
                                             <button type="button" class="btn btn-primary" onclick="simpanOptLevel(3)">
@@ -239,6 +249,14 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-12 col-sm-12 col-xs-12">
+                            @($"Catatan : Kode Opsi digunakan untuk kode barang variasi.")
+                        </label>
+                        <label class="col-md-12 col-sm-12 col-xs-12">
+                            @($"Contoh : Kode Opsi Warna Hijau adalah 01, dan Kode Opsi Ukuran Small adalah S, maka kode barang [CONTOH_KODE] untuk variasi warna hijau ukuran small akan menjadi [CONTOH_KODE.01.S].")
+                        </label>
                     </div>
                     <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanStrukturVar('@Model.Kategori.RecNum')" />
                 </div>

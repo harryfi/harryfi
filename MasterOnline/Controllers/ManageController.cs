@@ -1918,6 +1918,87 @@ namespace MasterOnline.Controllers
         #endregion
         //end add by calvin 18 desember 2018
 
+        //add by calvin 6 februari 2019
+        #region Kategori Tokped
+        [HttpGet]
+        public ActionResult GetKategoriTokpedByCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriTokped = MoDbContext.CategoryTokped.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriTokpedByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriTokped = MoDbContext.CategoryTokped.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriTokpedByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_TOKPED> listKategoriTokped = new List<CATEGORY_TOKPED>();
+            if (!string.IsNullOrEmpty(code))
+            {
+                var category = MoDbContext.CategoryTokped.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+                listKategoriTokped.Add(category);
+
+                if (category.PARENT_CODE != "")
+                {
+                    bool TopParent = false;
+                    while (!TopParent)
+                    {
+                        category = MoDbContext.CategoryTokped.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                        listKategoriTokped.Add(category);
+                        if (string.IsNullOrEmpty(category.PARENT_CODE))
+                        {
+                            TopParent = true;
+                        }
+                    }
+                }
+            }
+            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+        }
+        public class GetAttributeTokpedReturn
+        {
+            public List<ATTRIBUTE_TOKPED> attribute { get; set; }
+            public List<ATTRIBUTE_UNIT_TOKPED> attribute_unit { get; set; }
+        }
+        [HttpGet]
+        public ActionResult GetAttributeTokped(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeTokped = MoDbContext.AttributeTokped.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            var listAttributeUnitTokped = MoDbContext.AttributeUnitTokped.ToList();
+            var returnList = new GetAttributeTokpedReturn()
+            {
+                attribute = listAttributeTokped,
+                attribute_unit = listAttributeUnitTokped
+            };
+            return Json(returnList, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptTokped(string code)
+        {
+            string[] codelist = code.Split(';');
+            try
+            {
+                int VariantID = Convert.ToInt32(codelist[0]);
+                int UnitID = Convert.ToInt32(codelist[1]);
+                var listAttributeOptTokped = MoDbContext.AttributeOptTokped.Where(p => p.VARIANT_ID == VariantID && p.UNIT_ID == UnitID).ToList();
+                return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                var listAttributeOptTokped = MoDbContext.AttributeOptTokped.Where(p => 0 == 1).ToList();
+                return Json(listAttributeOptTokped, JsonRequestBehavior.AllowGet);
+            }
+        }
+        #endregion
+        //end add by calvin 6 februari 2019
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -2171,7 +2252,8 @@ namespace MasterOnline.Controllers
                                               select new BarangViewModel { BRG = a.brg, MULAI = Convert.ToString(a.mulai), AKHIR = Convert.ToString(a.akhir), MARKET = Convert.ToInt32(d.market) }).ToList();
                             var drtanggal = "";
                             var sdtanggal = "";
-                            if (getpromosi.Count() > 0) {
+                            if (getpromosi.Count() > 0)
+                            {
                                 string tgl1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 3]);
                                 string bln1 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 2]);
                                 string thn10 = (getpromosi.FirstOrDefault().MULAI.Split('-')[getpromosi.FirstOrDefault().MULAI.Split('-').Length - 1]);
@@ -2182,7 +2264,8 @@ namespace MasterOnline.Controllers
                             {
                                 drtanggal = "01/01/1000";
                             }
-                            if (getpromosi.Count() > 0) {
+                            if (getpromosi.Count() > 0)
+                            {
                                 string tgl2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 3]);
                                 string bln2 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 2]);
                                 string thn20 = (getpromosi.FirstOrDefault().AKHIR.Split('-')[getpromosi.FirstOrDefault().AKHIR.Split('-').Length - 1]);
@@ -2817,7 +2900,7 @@ namespace MasterOnline.Controllers
                 dataBarang.Errors = ModelState.Values.SelectMany(x => x.Errors).Select(x => x.ErrorMessage).ToList();
                 return Json(dataBarang, JsonRequestBehavior.AllowGet);
             }
-
+            string KodeBarang = "";
             bool insert = false;//add by Tri
             bool updateHarga = false;//add by Tri
             bool updateDisplay = false;//add by Tri
@@ -2833,7 +2916,7 @@ namespace MasterOnline.Controllers
             if (dataBarang.Stf02.ID == null)
             {
                 insert = true;
-
+                KodeBarang = dataBarang.Stf02.BRG;
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
                     List<string> listError = new List<string>();
@@ -2973,6 +3056,7 @@ namespace MasterOnline.Controllers
 
                 if (barangInDb != null)
                 {
+                    KodeBarang = barangInDb.BRG;
                     barangInDb.NAMA = dataBarang.Stf02.NAMA;
                     barangInDb.NAMA2 = dataBarang.Stf02.NAMA2;
                     barangInDb.MINI = dataBarang.Stf02.MINI;
@@ -3288,6 +3372,7 @@ namespace MasterOnline.Controllers
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new BarangStrukturVarViewModel()
             {
+                Barang = ErasoftDbContext.STF02.Where(p => p.BRG == KodeBarang).FirstOrDefault(),
                 Kategori = kategori,
                 Variant_Level_1 = new STF20()
                 {
@@ -3308,7 +3393,7 @@ namespace MasterOnline.Controllers
                     VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
                 },
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == dataBarang.Stf02.BRG).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == KodeBarang).ToList(),
                 VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
             };
             return PartialView("BarangVarPartial", vm);
@@ -4183,6 +4268,7 @@ namespace MasterOnline.Controllers
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new BarangStrukturVarViewModel()
             {
+                Barang = ErasoftDbContext.STF02.Where(p => p.BRG == brg).FirstOrDefault(),
                 Kategori = kategori,
                 Variant_Level_1 = new STF20()
                 {
@@ -4226,20 +4312,53 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            var VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList();
             List<STF02I> listNewData = new List<STF02I>();
             {
-                //Shopee
                 var Histori_Shopee_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPEE" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopee_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_Tokped_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "TOKPED" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
-                    var Histori_lv1 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
                         {
+                            string JudulShopee = "";
+                            var FoundHistoriJudulShopee = Histori_Shopee.FirstOrDefault();
+                            if (FoundHistoriJudulShopee != null)
+                            {
+                                JudulShopee = FoundHistoriJudulShopee.MP_JUDUL_VAR;
+                                if (string.IsNullOrWhiteSpace(JudulShopee))
+                                {
+                                    JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                                }
+                            }
+                            else
+                            {
+                                JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(1)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                            }
+                            string ValueShopee = "";
+                            var FoundHistoriValueShopee = Histori_Shopee.FirstOrDefault(p => p.KODE_VAR == item);
+                            if (FoundHistoriValueShopee != null)
+                            {
+                                ValueShopee = FoundHistoriValueShopee.MP_VALUE_VAR;
+                                if (string.IsNullOrWhiteSpace(ValueShopee))
+                                {
+                                    ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(1) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                }
+                            }
+                            else
+                            {
+                                ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(1) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                            }
+
                             STF02I newdata = new STF02I()
                             {
                                 MARKET = "SHOPEE",
@@ -4247,21 +4366,64 @@ namespace MasterOnline.Controllers
                                 CATEGORY_MO = code,
                                 KODE_VAR = item,
                                 LEVEL_VAR = 1,
-                                MP_JUDUL_VAR = Histori_lv1.FirstOrDefault()?.MP_JUDUL_VAR,
-                                MP_VALUE_VAR = Histori_lv1.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_JUDUL_VAR = JudulShopee,
+                                MP_VALUE_VAR = ValueShopee,
                                 MP_CATEGORY_CODE = shopee_code
                             };
                             listNewData.Add(newdata);
+
+                            STF02I newdataTokped = new STF02I()
+                            {
+                                MARKET = "TOKPED",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdataTokped);
                         }
                     }
                 }
                 if (opt_selected_2 != null)
                 {
-                    var Histori_lv2 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
                         {
+                            string JudulShopee = "";
+                            var FoundHistoriJudulShopee = Histori_Shopee.FirstOrDefault();
+                            if (FoundHistoriJudulShopee != null)
+                            {
+                                JudulShopee = FoundHistoriJudulShopee.MP_JUDUL_VAR;
+                                if (string.IsNullOrWhiteSpace(JudulShopee))
+                                {
+                                    JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                                }
+                            }
+                            else
+                            {
+                                JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(2)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                            }
+                            string ValueShopee = "";
+                            var FoundHistoriValueShopee = Histori_Shopee.FirstOrDefault(p => p.KODE_VAR == item);
+                            if (FoundHistoriValueShopee != null)
+                            {
+                                ValueShopee = FoundHistoriValueShopee.MP_VALUE_VAR;
+                                if (string.IsNullOrWhiteSpace(ValueShopee))
+                                {
+                                    ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(2) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                }
+                            }
+                            else
+                            {
+                                ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(2) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                            }
+
                             STF02I newdata = new STF02I()
                             {
                                 MARKET = "SHOPEE",
@@ -4269,21 +4431,64 @@ namespace MasterOnline.Controllers
                                 CATEGORY_MO = code,
                                 KODE_VAR = item,
                                 LEVEL_VAR = 2,
-                                MP_JUDUL_VAR = Histori_lv2.FirstOrDefault()?.MP_JUDUL_VAR,
-                                MP_VALUE_VAR = Histori_lv2.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_JUDUL_VAR = JudulShopee,
+                                MP_VALUE_VAR = ValueShopee,
                                 MP_CATEGORY_CODE = shopee_code
                             };
                             listNewData.Add(newdata);
+
+                            STF02I newdataTokped = new STF02I()
+                            {
+                                MARKET = "TOKPED",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdataTokped);
                         }
                     }
                 }
                 if (opt_selected_3 != null)
                 {
-                    var Histori_lv3 = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
                         {
+                            string JudulShopee = "";
+                            var FoundHistoriJudulShopee = Histori_Shopee.FirstOrDefault();
+                            if (FoundHistoriJudulShopee != null)
+                            {
+                                JudulShopee = FoundHistoriJudulShopee.MP_JUDUL_VAR;
+                                if (string.IsNullOrWhiteSpace(JudulShopee))
+                                {
+                                    JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                                }
+                            }
+                            else
+                            {
+                                JudulShopee = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR;
+                            }
+                            string ValueShopee = "";
+                            var FoundHistoriValueShopee = Histori_Shopee.FirstOrDefault(p => p.KODE_VAR == item);
+                            if (FoundHistoriValueShopee != null)
+                            {
+                                ValueShopee = FoundHistoriValueShopee.MP_VALUE_VAR;
+                                if (string.IsNullOrWhiteSpace(ValueShopee))
+                                {
+                                    ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(3) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                }
+                            }
+                            else
+                            {
+                                ValueShopee = VariantOptMaster.Where(m => m.LEVEL_VAR.Equals(3) && m.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                            }
+
                             STF02I newdata = new STF02I()
                             {
                                 MARKET = "SHOPEE",
@@ -4291,11 +4496,24 @@ namespace MasterOnline.Controllers
                                 CATEGORY_MO = code,
                                 KODE_VAR = item,
                                 LEVEL_VAR = 3,
-                                MP_JUDUL_VAR = Histori_lv3.FirstOrDefault()?.MP_JUDUL_VAR,
-                                MP_VALUE_VAR = Histori_lv3.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_JUDUL_VAR = JudulShopee,
+                                MP_VALUE_VAR = ValueShopee,
                                 MP_CATEGORY_CODE = shopee_code
                             };
                             listNewData.Add(newdata);
+
+                            STF02I newdataTokped = new STF02I()
+                            {
+                                MARKET = "TOKPED",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = shopee_code
+                            };
+                            listNewData.Add(newdataTokped);
                         }
                     }
                 }
@@ -4310,10 +4528,9 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.SaveChanges();
             }
 
-            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
-            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             var vm = new BarangStrukturVarViewModel()
             {
+                Barang = ErasoftDbContext.STF02.Where(p => p.BRG == brg).FirstOrDefault(),
                 Kategori = kategori,
                 Variant_Level_1 = new STF20()
                 {
@@ -4335,7 +4552,7 @@ namespace MasterOnline.Controllers
                 },
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList(),
-                VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
+                VariantOptMaster = VariantOptMaster
             };
             return PartialView("BarangVarPartial", vm);
         }
@@ -4695,117 +4912,10 @@ namespace MasterOnline.Controllers
         }
 
         [HttpPost]
-        public ActionResult AutoloadVariantBarang(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopee)
+        public ActionResult AutoloadVariantBarang(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
-            List<STF02I> listNewData = new List<STF02I>();
-            #region Create Ulang STF02I
-            {
-                if (opt_selected_1 != null)
-                {
-                    var i = 0;
-                    foreach (var item in opt_selected_1)
-                    {
-                        if (item != "")
-                        {
-                            try
-                            {
-                                STF02I newdata = new STF02I()
-                                {
-                                    MARKET = "SHOPEE",
-                                    BRG = brg,
-                                    CATEGORY_MO = code,
-                                    KODE_VAR = item,
-                                    LEVEL_VAR = 1,
-                                    MP_JUDUL_VAR = shopee.var_judul.lv_1,
-                                    MP_VALUE_VAR = shopee.var_detail.lv_1[i],
-                                    MP_CATEGORY_CODE = shopee.code
-                                };
-                                listNewData.Add(newdata);
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        i++;
-                    }
-                }
-                if (opt_selected_2 != null)
-                {
-                    var i = 0;
-                    foreach (var item in opt_selected_2)
-                    {
-                        if (item != "")
-                        {
-                            try
-                            {
-                                STF02I newdata = new STF02I()
-                                {
-                                    MARKET = "SHOPEE",
-                                    BRG = brg,
-                                    CATEGORY_MO = code,
-                                    KODE_VAR = item,
-                                    LEVEL_VAR = 2,
-                                    MP_JUDUL_VAR = shopee.var_judul.lv_2,
-                                    MP_VALUE_VAR = shopee.var_detail.lv_2[i],
-                                    MP_CATEGORY_CODE = shopee.code
-                                };
-                                listNewData.Add(newdata);
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        i++;
-                    }
-                }
-                if (opt_selected_3 != null)
-                {
-                    var i = 0;
-                    foreach (var item in opt_selected_3)
-                    {
-                        if (item != "")
-                        {
-                            try
-                            {
-                                STF02I newdata = new STF02I()
-                                {
-                                    MARKET = "SHOPEE",
-                                    BRG = brg,
-                                    CATEGORY_MO = code,
-                                    KODE_VAR = item,
-                                    LEVEL_VAR = 3,
-                                    MP_JUDUL_VAR = shopee.var_judul.lv_3,
-                                    MP_VALUE_VAR = shopee.var_detail.lv_3[i],
-                                    MP_CATEGORY_CODE = shopee.code
-                                };
-                                listNewData.Add(newdata);
-                            }
-                            catch (Exception ex)
-                            {
-
-                            }
-                        }
-                        i++;
-                    }
-                }
-            }
-            #endregion
-
-            #region Save STF02I
-            if (listNewData.Count() > 0)
-            {
-                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
-                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
-                ErasoftDbContext.SaveChanges();
-
-                ErasoftDbContext.STF02I.AddRange(listNewData);
-                ErasoftDbContext.SaveChanges();
-            }
-            #endregion
 
             //Autoload (Overwrite) STF02
             List<STF02> ListNewVariantData_Stf02 = new List<STF02>();
@@ -4980,6 +5090,244 @@ namespace MasterOnline.Controllers
             };
 
             return PartialView("BarangDetailVarPartial", vm);
+        }
+        public ActionResult SaveMappingVarShopee(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp shopee)
+        {
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_1,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_2,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdata = new STF02I()
+                                {
+                                    MARKET = "SHOPEE",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = shopee.var_judul.lv_3,
+                                    MP_VALUE_VAR = shopee.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = shopee.code
+                                };
+                                listNewData.Add(newdata);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "SHOPEE").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SaveMappingVarTokped(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp tokped)
+        {
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataTokped = new STF02I()
+                                {
+                                    MARKET = "TOKPED",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = tokped.var_judul.lv_1,
+                                    MP_VALUE_VAR = tokped.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = tokped.code
+                                };
+                                listNewData.Add(newdataTokped);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataTokped = new STF02I()
+                                {
+                                    MARKET = "TOKPED",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = tokped.var_judul.lv_2,
+                                    MP_VALUE_VAR = tokped.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = tokped.code
+                                };
+                                listNewData.Add(newdataTokped);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataTokped = new STF02I()
+                                {
+                                    MARKET = "TOKPED",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = tokped.var_judul.lv_3,
+                                    MP_VALUE_VAR = tokped.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = tokped.code
+                                };
+                                listNewData.Add(newdataTokped);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult EditStrukturVar(int? recNum)
@@ -14947,7 +15295,7 @@ namespace MasterOnline.Controllers
                                     if (tempBrgInduk != null)
                                     {
                                         var ret1 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
-                                        if(ret1.status == 0)
+                                        if (ret1.status == 0)
                                             barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
                                     }
                                     else
@@ -15999,43 +16347,43 @@ namespace MasterOnline.Controllers
                                         //}
                                     }
 
-                            case "TOKOPEDIA":
-                                var TokoAPI = new TokopediaController();
-                                if (string.IsNullOrEmpty(arf01.Sort1_Cust))
-                                {
-                                    return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
-                                }
-                                else
-                                {
-                                    TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                                case "TOKOPEDIA":
+                                    var TokoAPI = new TokopediaController();
+                                    if (string.IsNullOrEmpty(arf01.Sort1_Cust))
                                     {
-                                        merchant_code = arf01.Sort1_Cust, //FSID
-                                        API_client_password = arf01.API_CLIENT_P, //Client ID
-                                        API_client_username = arf01.API_CLIENT_U, //Client Secret
-                                        API_secret_key = arf01.API_KEY, //Shop ID 
-                                        token = arf01.TOKEN
-                                    };
-                                    //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-                                    var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
-
-                                    if (resultShopee.status == 1)
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
                                     {
-                                        if (!string.IsNullOrEmpty(resultShopee.message))
+                                        TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
                                         {
-                                            retBarang.RecordCount = resultShopee.recordCount;
-                                            retBarang.Recursive = true;
+                                            merchant_code = arf01.Sort1_Cust, //FSID
+                                            API_client_password = arf01.API_CLIENT_P, //Client ID
+                                            API_client_username = arf01.API_CLIENT_U, //Client Secret
+                                            API_secret_key = arf01.API_KEY, //Shop ID 
+                                            token = arf01.TOKEN
+                                        };
+                                        //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+                                        var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
+
+                                        if (resultShopee.status == 1)
+                                        {
+                                            if (!string.IsNullOrEmpty(resultShopee.message))
+                                            {
+                                                retBarang.RecordCount = resultShopee.recordCount;
+                                                retBarang.Recursive = true;
+                                            }
+                                            else
+                                            {
+                                                retBarang.RecordCount = resultShopee.recordCount;
+                                            }
                                         }
                                         else
                                         {
                                             retBarang.RecordCount = resultShopee.recordCount;
                                         }
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
-                                    else
-                                    {
-                                        retBarang.RecordCount = resultShopee.recordCount;
-                                    }
-                                    return Json(retBarang, JsonRequestBehavior.AllowGet);
-                                }
 
                                 case "SHOPEE":
                                     var ShopeeApi = new ShopeeController();
@@ -16094,11 +16442,11 @@ namespace MasterOnline.Controllers
                         return JsonErrorMessage("Toko tidak dapat ditemukan.");
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return JsonErrorMessage(ex.InnerException == null ? ex.Message : ex.InnerException.Message);
                 }
-               
+
             }
             else
             {

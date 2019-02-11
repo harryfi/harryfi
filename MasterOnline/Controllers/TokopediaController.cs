@@ -1075,250 +1075,169 @@ namespace MasterOnline.Controllers
         }
 
 
-        //        public async Task<string> GetAttribute(TokopediaAPIData data, string catid)
-        //        {
-        //            string ret = "";
+        public async Task<string> GetAttribute(TokopediaAPIData data)
+        {
+            string ret = "";
+            List<CATEGORY_TOKPED> categories = MoDbContext.Database.SqlQuery<CATEGORY_TOKPED>("SELECT * FROM CATEGORY_TOKPED WHERE IS_LAST_NODE = '1'").ToList();
+            foreach (var category in categories)
+            {
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-        //            long milis = CurrentTimeMillis();
-        //            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+                string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(category.CATEGORY_CODE);
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+                myReq.Accept = "application/x-www-form-urlencoded";
+                myReq.ContentType = "application/json";
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
 
-        //            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(catid);
+                }
 
-        //            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-        //            myReq.Method = "GET";
-        //            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
-        //            myReq.Accept = "application/x-www-form-urlencoded";
-        //            myReq.ContentType = "application/json";
-        //            string responseFromServer = "";
-        //            try
-        //            {
-        //                using (WebResponse response = await myReq.GetResponseAsync())
-        //                {
-        //                    using (Stream stream = response.GetResponseStream())
-        //                    {
-        //                        StreamReader reader = new StreamReader(stream);
-        //                        responseFromServer = reader.ReadToEnd();
-        //                    }
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
+                if (responseFromServer != null)
+                {
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
+                    if (string.IsNullOrEmpty(result.header.reason))
+                    {
+                        try
+                        {
+#if AWS
+                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                //{
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+                                    var AttributeInDb = MoDbContext.AttributeTokped.ToList();
+                                    //cek jika belum ada di database, insert
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
+                                    if (cari.Count() == 0)
+                                    {
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
 
-        //            }
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        int i = 0;
+                                        foreach (var attribs in result.data)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            sSQL += "[VARIANT_ID_" + a + "],[HAS_UNIT_" + a + "],[ANAME_" + a + "],[STATUS_" + a + "],";
+                                            sSQLValue += "@VARIANT_ID_" + a + ",@HAS_UNIT_" + a + ",@ANAME_" + a + ",@STATUS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@VARIANT_ID_" + a, SqlDbType.Int));
+                                            oCommand.Parameters.Add(new SqlParameter("@HAS_UNIT_" + a, SqlDbType.Int));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@STATUS_" + a, SqlDbType.NVarChar, 1));
 
-        //            if (responseFromServer != null)
-        //            {
-        //                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(categoryAPIResult)) as categoryAPIResult;
-        //                if (string.IsNullOrEmpty(result.header.reason))
-        //                {
-        //                    if (result.data.categories.Count() > 0)
-        //                    {178
-        //#if AWS
-        //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#elif Debug_AWS
-        //                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#else
-        //                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#endif
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
 
-        //                        using (SqlConnection oConnection = new SqlConnection(con))
-        //                        {
-        //                            oConnection.Open();
-        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-        //                            //{
-        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
-        //                            {
-        //                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-        //                                //oCommand.ExecuteNonQuery();
-        //                                //oCommand.Transaction = oTransaction;
-        //                                oCommand.CommandType = CommandType.Text;
-        //                                oCommand.CommandText = "INSERT INTO [CATEGORY_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME], [PARENT_CODE], [IS_LAST_NODE], [MASTER_CATEGORY_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @PARENT_CODE, @IS_LAST_NODE, @MASTER_CATEGORY_CODE)";
-        //                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-        //                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-        //                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-        //                                oCommand.Parameters.Add(new SqlParameter("@IS_LAST_NODE", SqlDbType.NVarChar, 1));
-        //                                oCommand.Parameters.Add(new SqlParameter("@MASTER_CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters[(i * 4) + 2].Value = attribs.variant_id;
+                                            oCommand.Parameters[(i * 4) + 3].Value = attribs.has_unit;
+                                            oCommand.Parameters[(i * 4) + 4].Value = attribs.name;
+                                            oCommand.Parameters[(i * 4) + 5].Value = attribs.status;
 
-        //                                try
-        //                                {
-        //                                    //oCommand.Parameters[0].Value = data.merchant_code;
-        //                                    foreach (var item in result.data.categories) //foreach parent level top
-        //                                    {
-        //                                        oCommand.Parameters[0].Value = item.id;
-        //                                        oCommand.Parameters[1].Value = item.name;
-        //                                        oCommand.Parameters[2].Value = "";
-        //                                        oCommand.Parameters[3].Value = item.child == null ? "1" : item.child.Count() == 0 ? "1" : "0";
-        //                                        oCommand.Parameters[4].Value = "";
-        //                                        if (oCommand.ExecuteNonQuery() == 1)
-        //                                        {
-        //                                            if ((item.child == null ? 0 : item.child.Count()) > 0)
-        //                                            {
-        //                                                RecursiveInsertCategory(oCommand, item.child, item.id, item.id, data);
-        //                                            }
-        //                                            //throw new InvalidProgramException();
-        //                                        }
-        //                                    }
-        //                                    //oTransaction.Commit();
-        //                                }
-        //                                catch (Exception ex)
-        //                                {
-        //                                    //oTransaction.Rollback();
-        //                                }
-        //                            }
-        //                            //}
-        //                        }
-        //                        //await GetAttributeList(data);
-        //                    }
-        //                }
-        //            }
+                                            if (attribs.units.Count() > 0)
+                                            {
+                                                var AttributeUnitInDb = MoDbContext.AttributeUnitTokped.AsNoTracking().ToList();
+                                                foreach (var unit in attribs.units)
+                                                {
+                                                    var cariUnit = AttributeUnitInDb.Where(p => p.UNIT_ID == unit.unit_id);
+                                                    if (cariUnit.Count() == 0)
+                                                    {
+                                                        using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                                        {
+                                                            oCommand2.CommandType = CommandType.Text;
+                                                            oCommand2.CommandText = "INSERT INTO ATTRIBUTE_UNIT_TOKPED ([VARIANT_ID], [UNIT_ID], [UNIT_NAME], [UNIT_SHORT_NAME]) VALUES (@VARIANT_ID, @UNIT_ID, @UNIT_NAME, @UNIT_SHORT_NAME)";
+                                                            oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@UNIT_NAME", SqlDbType.NVarChar, 100));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@UNIT_SHORT_NAME", SqlDbType.NVarChar, 75));
+                                                            oCommand2.Parameters[0].Value = attribs.variant_id;
+                                                            oCommand2.Parameters[1].Value = unit.unit_id;
+                                                            oCommand2.Parameters[2].Value = unit.name;
+                                                            oCommand2.Parameters[3].Value = unit.short_name;
+                                                            oCommand2.ExecuteNonQuery();
+                                                        }
+                                                    }
+                                                }
 
-        //            return ret;
-        //            var categories = MoDbContext.CategoryShopee.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
-        //            foreach (var category in categories)
-        //            {
-        //                long seconds = CurrentTimeSecond();
-        //                DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+                                                var AttributeOptInDb = MoDbContext.AttributeOptTokped.AsNoTracking().ToList();
+                                                foreach (var unit in attribs.units)
+                                                {
+                                                    foreach (var opt in unit.values)
+                                                    {
+                                                        var cariOpt = AttributeOptInDb.Where(p => p.VARIANT_ID == attribs.variant_id && p.UNIT_ID == unit.unit_id && p.VALUE_ID == opt.value_id);
+                                                        if (cariOpt.Count() == 0)
+                                                        {
+                                                            using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                                            {
+                                                                oCommand2.CommandType = CommandType.Text;
+                                                                oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_TOKPED ([VALUE_ID], [UNIT_ID], [VALUE], [HEX_CODE], [ICON], [VARIANT_ID]) VALUES (@VALUE_ID, @UNIT_ID, @VALUE, @HEX_CODE, @ICON, @VARIANT_ID)";
+                                                                oCommand2.Parameters.Add(new SqlParameter("@VALUE_ID", SqlDbType.Int));
+                                                                oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
+                                                                oCommand2.Parameters.Add(new SqlParameter("@VALUE", SqlDbType.NVarChar, 50));
+                                                                oCommand2.Parameters.Add(new SqlParameter("@HEX_CODE", SqlDbType.NVarChar, 50));
+                                                                oCommand2.Parameters.Add(new SqlParameter("@ICON", SqlDbType.NVarChar, 200));
+                                                                oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
+                                                                oCommand2.Parameters[0].Value = opt.value_id;
+                                                                oCommand2.Parameters[1].Value = unit.unit_id;
+                                                                oCommand2.Parameters[2].Value = opt.value;
+                                                                oCommand2.Parameters[3].Value = opt.hex_code;
+                                                                oCommand2.Parameters[4].Value = opt.icon;
+                                                                oCommand2.Parameters[5].Value = attribs.variant_id;
+                                                                oCommand2.ExecuteNonQuery();
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            i = i + 1;
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = category.CATEGORY_CODE;
+                                        oCommand.Parameters[1].Value = "";
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                        catch (Exception ex2)
+                        {
 
-        //                //ganti
-        //                string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+                        }
+                    }
+                }
+            }
 
-        //                //ganti
-        //                ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
-        //                {
-        //                    partner_id = MOPartnerID,
-        //                    shopid = Convert.ToInt32(iden.merchant_code),
-        //                    timestamp = seconds,
-        //                    language = "id",
-        //                    category_id = Convert.ToInt32(category.CATEGORY_CODE)
-        //                };
-
-        //                string myData = JsonConvert.SerializeObject(HttpBody);
-
-        //                string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-        //                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-        //                myReq.Method = "POST";
-        //                myReq.Headers.Add("Authorization", signature);
-        //                myReq.Accept = "application/json";
-        //                myReq.ContentType = "application/json";
-        //                string responseFromServer = "";
-        //                try
-        //                {
-        //                    myReq.ContentLength = myData.Length;
-        //                    using (var dataStream = myReq.GetRequestStream())
-        //                    {
-        //                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-        //                    }
-        //                    using (WebResponse response = await myReq.GetResponseAsync())
-        //                    {
-        //                        using (Stream stream = response.GetResponseStream())
-        //                        {
-        //                            StreamReader reader = new StreamReader(stream);
-        //                            responseFromServer = reader.ReadToEnd();
-        //                        }
-        //                    }
-        //                }
-        //                catch (Exception ex)
-        //                {
-        //                }
-
-        //                if (responseFromServer != null)
-        //                {
-        //                    try
-        //                    {
-        //                        var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
-        //#if AWS
-        //                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#elif Debug_AWS
-        //                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#else
-        //                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
-        //#endif
-        //                        using (SqlConnection oConnection = new SqlConnection(con))
-        //                        {
-        //                            oConnection.Open();
-        //                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-        //                            //{
-        //                            using (SqlCommand oCommand = oConnection.CreateCommand())
-        //                            {
-        //                                var AttributeInDb = MoDbContext.AttributeShopee.ToList();
-        //                                //cek jika belum ada di database, insert
-        //                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
-        //                                if (cari.Count() == 0)
-        //                                {
-        //                                    oCommand.CommandType = CommandType.Text;
-        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-        //                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-
-        //                                    string sSQL = "INSERT INTO [ATTRIBUTE_SHOPEE] ([CATEGORY_CODE], [CATEGORY_NAME],";
-        //                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
-        //                                    string a = "";
-        //                                    int i = 0;
-        //                                    foreach (var attribs in result.attributes)
-        //                                    {
-        //                                        a = Convert.ToString(i + 1);
-        //                                        sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],[AMANDATORY_" + a + "],";
-        //                                        sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",@AMANDATORY_" + a + ",";
-        //                                        oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
-        //                                        oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
-        //                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
-        //                                        oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
-        //                                        oCommand.Parameters.Add(new SqlParameter("@AMANDATORY_" + a, SqlDbType.NVarChar, 1));
-
-        //                                        a = Convert.ToString(i * 5 + 2);
-        //                                        oCommand.Parameters[(i * 5) + 2].Value = "";
-        //                                        oCommand.Parameters[(i * 5) + 3].Value = "";
-        //                                        oCommand.Parameters[(i * 5) + 4].Value = "";
-        //                                        oCommand.Parameters[(i * 5) + 5].Value = "";
-        //                                        oCommand.Parameters[(i * 5) + 6].Value = "";
-
-        //                                        oCommand.Parameters[(i * 5) + 2].Value = attribs.attribute_id;
-        //                                        oCommand.Parameters[(i * 5) + 3].Value = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
-        //                                        oCommand.Parameters[(i * 5) + 4].Value = attribs.attribute_name;
-        //                                        oCommand.Parameters[(i * 5) + 5].Value = attribs.options.Count() > 0 ? "1" : "0";
-        //                                        oCommand.Parameters[(i * 5) + 6].Value = attribs.is_mandatory ? "1" : "0";
-
-        //                                        if (attribs.options.Count() > 0)
-        //                                        {
-        //                                            var AttributeOptInDb = MoDbContext.AttributeOptShopee.AsNoTracking().ToList();
-        //                                            foreach (var option in attribs.options)
-        //                                            {
-        //                                                var cariOpt = AttributeOptInDb.Where(p => p.ACODE == Convert.ToString(attribs.attribute_id) && p.OPTION_VALUE == option);
-        //                                                if (cariOpt.Count() == 0)
-        //                                                {
-        //                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
-        //                                                    {
-        //                                                        oCommand2.CommandType = CommandType.Text;
-        //                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_SHOPEE ([ACODE], [OPTION_VALUE]) VALUES (@ACODE, @OPTION_VALUE)";
-        //                                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
-        //                                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
-        //                                                        oCommand2.Parameters[0].Value = attribs.attribute_id;
-        //                                                        oCommand2.Parameters[1].Value = option;
-        //                                                        oCommand2.ExecuteNonQuery();
-        //                                                    }
-        //                                                }
-        //                                            }
-        //                                        }
-        //                                        i = i + 1;
-        //                                    }
-        //                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
-        //                                    oCommand.CommandText = sSQL;
-        //                                    oCommand.Parameters[0].Value = category.CATEGORY_CODE;
-        //                                    oCommand.Parameters[1].Value = "";
-        //                                    oCommand.ExecuteNonQuery();
-        //                                }
-        //                            }
-        //                        }
-        //                    }
-        //                    catch (Exception ex2)
-        //                    {
-
-        //                    }
-        //                }
-        //            }
-        //            return ret;
-        //        }
+            return ret;
+        }
 
         protected void RecursiveInsertCategory(SqlCommand oCommand, CategoryChild[] item_children, string parent, string master_category_code, TokopediaAPIData data)
         {
@@ -1515,7 +1434,7 @@ namespace MasterOnline.Controllers
             public int order_id { get; set; }
             public bool accept_partial { get; set; }
             public string invoice_ref_num { get; set; }
-            public Product[] products { get; set; }
+            public Products[] products { get; set; }
             public Products_Fulfilled[] products_fulfilled { get; set; }
             public string device_type { get; set; }
             public Buyer buyer { get; set; }
@@ -1594,7 +1513,7 @@ namespace MasterOnline.Controllers
             public string awb { get; set; }
         }
 
-        public class Product
+        public class Products
         {
             public int id { get; set; }
             public string name { get; set; }
@@ -1842,6 +1761,147 @@ namespace MasterOnline.Controllers
             public int product_id { get; set; }
             public int new_stock { get; set; }
 
+        }
+
+
+        public class Product
+        {
+            public ProductList[] products { get; set; }
+        }
+
+        public class ProductList
+        {
+            public string name { get; set; }
+            public int category_id { get; set; }
+            public int price { get; set; }
+            public int status { get; set; }
+            public int minimum_order { get; set; }
+            public int weight { get; set; }
+            public int weight_unit { get; set; }
+            public int condition { get; set; }
+            public string description { get; set; }
+            public bool must_insurance { get; set; }
+            public bool returnable { get; set; }
+            public string sku { get; set; }
+            public int stock { get; set; }
+            public Product_Etalase etalase { get; set; }
+            public Product_Wholesale_Price[] product_wholesale_price { get; set; }
+            public Product_Preorder product_preorder { get; set; }
+            public Product_Image[] images { get; set; }
+            public Product_Video[] product_video { get; set; }
+            public Product_Variant product_variant { get; set; }
+        }
+
+        public class Product_Etalase
+        {
+            public int etalase_id { get; set; }
+            public string etalase_name { get; set; }
+        }
+
+        public class Product_Preorder
+        {
+            public int preorder_process_time { get; set; }
+            public int preorder_time_unit { get; set; }
+            public int preorder_status { get; set; }
+        }
+
+        public class Product_Variant
+        {
+            public Variant[] variant { get; set; }
+            public Variant_Product[] product_variant { get; set; }
+        }
+
+        public class Variant
+        {
+            public int v { get; set; }
+            public int vu { get; set; }
+            public int pos { get; set; }
+            public Variant_Opt[] opt { get; set; }
+        }
+
+        public class Variant_Opt
+        {
+            public int vuv { get; set; }
+            public int t_id { get; set; }
+            public string cstm { get; set; }
+            public Variant_Opt_Image[] image { get; set; }
+        }
+
+        public class Variant_Opt_Image
+        {
+            public string file_path { get; set; }
+            public string file_name { get; set; }
+            public int x { get; set; }
+            public int y { get; set; }
+        }
+
+        public class Variant_Product
+        {
+            public int st { get; set; }
+            public int stock { get; set; }
+            public float price_var { get; set; }
+            public string sku { get; set; }
+            public int[] opt { get; set; }
+        }
+
+        public class Product_Wholesale_Price
+        {
+            public int qty_min { get; set; }
+            public int qty_max { get; set; }
+            public int prd_prc { get; set; }
+        }
+
+        public class Product_Image
+        {
+            public string image_description { get; set; }
+            public string image_file_path { get; set; }
+            public string image_file_name { get; set; }
+        }
+
+        public class Product_Video
+        {
+            public string url { get; set; }
+            public string type { get; set; }
+        }
+
+        public class GetVariantResult
+        {
+            public GetVariantResultHeader header { get; set; }
+            public GetVariantResultData[] data { get; set; }
+        }
+
+        public class GetVariantResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class GetVariantResultData
+        {
+            public int variant_id { get; set; }
+            public string name { get; set; }
+            public string identifier { get; set; }
+            public int status { get; set; }
+            public int has_unit { get; set; }
+            public GetVariantResultHeaderDataUnit[] units { get; set; }
+        }
+
+        public class GetVariantResultHeaderDataUnit
+        {
+            public int unit_id { get; set; }
+            public string name { get; set; }
+            public string short_name { get; set; }
+            public GetVariantResultHeaderDataUnitValue[] values { get; set; }
+        }
+
+        public class GetVariantResultHeaderDataUnitValue
+        {
+            public int value_id { get; set; }
+            public string value { get; set; }
+            public string hex_code { get; set; }
+            public string icon { get; set; }
         }
     }
 }

@@ -428,7 +428,7 @@ namespace MasterOnline.Controllers
                                         using (SqlCommand oCommand = oConnection.CreateCommand())
                                         {
                                             oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" & item.orderNo.Value & "' AND STATUS_TRANSAKSI='03'";
+                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
                                             oCommand.ExecuteNonQuery();
                                         }
                                     }
