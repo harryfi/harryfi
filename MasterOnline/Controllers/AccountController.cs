@@ -386,11 +386,13 @@ namespace MasterOnline.Controllers
                             //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                             //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                             //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            //    token = tblCustomer.TOKEN
+                            //    token = "Zc3jFQesQCizrxgOvEdZqQ"
                             //};
-                            //var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
-                            //Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
-                            //Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
+                            ////var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
+                            ////Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
+                            ////Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
+                            //Task.Run(() => tokopediaApi.GetAttribute(data)).Wait();
+
                         }
                     }
                 }

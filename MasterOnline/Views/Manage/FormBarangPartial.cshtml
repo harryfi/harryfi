@@ -68,7 +68,7 @@
                         <a href="#tab_content_induk" id="induk-tab" role="tab" data-toggle="tab" aria-expanded="true">Barang</a>
                     </li>
                     <li role="presentation" class="">
-                        <a href="#tab_content_variant" role="tab" id="variant-induk-tab" data-toggle="tab" aria-expanded="false">Variant</a>
+                        <a href="#tab_content_variant" role="tab" id="variant-induk-tab" data-toggle="tab" aria-expanded="false">Variasi</a>
                     </li>
                 </ul>
                 <div id="barangTabContent" class="tab-content">
@@ -90,7 +90,7 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.BRG, "Kode Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-6 col-sm-6 col-xs-12">
-                                                @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 20, required = "required" })
+                                                @Html.TextBoxFor(m => m.Stf02.BRG, new { @class = "form-control", maxlength = 11, @data_val_length_max = 11, required = "required" })
                                             </div>
                                         </div>
                                         <div class="form-group">
@@ -191,7 +191,7 @@
                                         <h2 style="font-size: 16px">Foto Produk</h2>
                                         <ul class="nav navbar-right panel_toolbox">
                                             <li>
-                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                <a class="collapse-link" id="collapse-link-upload-foto-section"><i class="fa fa-chevron-up"></i></a>
                                             </li>
                                         </ul>
                                         <div class="clearfix"></div>
@@ -342,6 +342,11 @@
                                                 @Html.Label("Status Update ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @style = "text-align:left" })
                                             </div>
                                             @*<hr />*@
+                                            <div class="row">
+                                                <div class="col-md-12" id="div_info_harga_variant" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                                    Harga ini akan menjadi default untuk seluruh Marketplace dan Variasi, anda dapat mengubah harga per variasi di Tab Variasi
+                                                </div>
+                                            </div>
                                             <div id="hjualmarket-section">
                                                 @for (var i = 0; i < listMarket.ToList().Count; i++)
                                                 {
@@ -446,6 +451,7 @@
                                             var adaBukalapak = 0;
                                             var adaLazada = 0;
                                             var adaShopee = 0;
+                                            var adaTokped = 0;
                                             var adaActive = 0;
                                             <div id="lain-section">
                                                 <ul id="setting-detail-market-tabs" class="nav nav-tabs">
@@ -472,22 +478,30 @@
                                                         {
                                                             adaShopee = 1;
                                                         }
+                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                                                        {
+                                                            adaTokped = 1;
+                                                        }
                                                     }
-                                                    @if (adaElevenia == 1)
+                                                    @if (adaShopee == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#elevenia_detail_tab">Elevenia</a></li>
+                                                        <li><a data-toggle="tab" href="#shopee_detail_tab">Shopee</a></li>
                                                     }
-                                                    @if (adaBlibli == 1)
+                                                    @if (adaTokped == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#blibli_detail_tab">Blibli</a></li>
+                                                        <li><a data-toggle="tab" href="#tokped_detail_tab">Tokopedia</a></li>
                                                     }
                                                     @if (adaLazada == 1)
                                                     {
                                                         <li><a data-toggle="tab" href="#lazada_detail_tab">Lazada</a></li>
                                                     }
-                                                    @if (adaShopee == 1)
+                                                    @if (adaBlibli == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#shopee_detail_tab">Shopee</a></li>
+                                                        <li><a data-toggle="tab" href="#blibli_detail_tab">Blibli</a></li>
+                                                    }
+                                                    @if (adaElevenia == 1)
+                                                    {
+                                                        <li><a data-toggle="tab" href="#elevenia_detail_tab">Elevenia</a></li>
                                                     }
                                                 </ul>
                                                 <div class="tab-content">
@@ -731,6 +745,50 @@
                                                             }
                                                         }
                                                     </div>
+                                                    <div id="tokped_detail_tab" class="tab-pane fade in">
+                                                        @for (var i = 0; i < listMarket.ToList().Count; i++)
+                                                        {
+                                                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                                            var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                                            if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                                                            {
+                                                                <div>
+                                                                    <h2 style="font-size: 14px">
+                                                                        @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                    </h2>
+                                                                </div>
+                                                                <div class="form-group">
+                                                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                                                        @if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                                                        {
+                                                                            <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_CODE, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_CODE })
+                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].CATEGORY_NAME, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.CATEGORY_NAME })
+                                                                            <div class="row">
+                                                                                <div class="col-md-1 col-sm-1 col-xs-12">
+                                                                                    <label>Category</label>
+                                                                                </div>
+                                                                                <div id="category_tokped_pertama_@Convert.ToString(recnumArf01)" class="col-md-3 col-sm-3 col-xs-12">
+                                                                                </div>
+                                                                                <div id="category_tokped_selanjutnya_@Convert.ToString(recnumArf01)" class="col-md-6 col-sm-6 col-xs-12">
+                                                                                </div>
+                                                                                <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                    @if (Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model.Stf02 != null ? Model.Stf02.BRG : ""))?.CATEGORY_CODE != null)
+                                                                                    {
+                                                                                        <button type="button" onclick="ClearCategoryTokped('category_tokped_pertama_' + @recnumArf01, 'category_tokped_selanjutnya_' + @recnumArf01, 'attribute_tokped_' + @recnumArf01, @i, true);">Undo</button>
+                                                                                    }
+                                                                                    <button type="button" onclick="ClearCategoryTokped('category_tokped_pertama_' + @recnumArf01, 'category_tokped_selanjutnya_' + @recnumArf01, 'attribute_tokped_' + @recnumArf01, @i, false);">Clear</button>
+                                                                                </div>
+                                                                            </div>
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                         }
@@ -748,14 +806,26 @@
                         <hr />
                         @Html.HiddenFor(m => m.Username, new { Value = username })
                         <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanBarang1(this)" />
-                        <input type="button" style="display:none" class="btn btn-primary pull-right" id="next_btn" value="Simpan" onclick="simpanBarangInduk(this)" />
+                        <input type="button" style="display:none" class="btn btn-primary pull-right" id="next_btn" value="Lanjut Ke Tab Variasi" onclick="simpanBarangInduk(this)" />
                     </div>
                     <div role="tabpanel" class="tab-pane fade in" id="tab_content_variant" aria-labelledby="variant-induk-tab">
+                        <div class="row" style="padding-bottom:10px">
+                            @Html.Label("labelInfoKodeBarang", "Kode Barang", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-7 col-sm-7 col-xs-12">
+                                @Html.TextBox("txtInfoKodeBarang", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="row" style="padding-bottom:10px">
+                            @Html.Label("labelInfoNamaBarang","Nama Barang", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                            <div class="col-md-7 col-sm-7 col-xs-12">
+                                @Html.TextBox("txtInfoNamaBarang", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="x_panel" id="laintitle-section">
                                     <div class="x_title">
-                                        <h2 style="font-size: 16px">Setting Variant</h2>
+                                        <h2 style="font-size: 16px">Setting Barang Variasi</h2>
                                         <ul class="nav navbar-right panel_toolbox">
                                             <li>
                                                 <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
@@ -764,6 +834,9 @@
                                         <div class="clearfix"></div>
                                     </div>
                                     <div class="x_content">
+                                        <div id="loading_structure_partial" class="text-center">
+                                            <img src="~/Content/Images/spinner.gif" width="100" />
+                                        </div>
                                         <div id="var-structure-partial">
                                         </div>
                                     </div>
@@ -774,7 +847,7 @@
                             <div class="col-md-12 col-sm-12 col-xs-12">
                                 <div class="x_panel" id="laintitle-section">
                                     <div class="x_title">
-                                        <h2 style="font-size: 16px">Detail Variant</h2>
+                                        <h2 style="font-size: 16px">Detail Barang Variasi</h2>
                                         <ul class="nav navbar-right panel_toolbox">
                                             <li>
                                                 <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
@@ -783,6 +856,9 @@
                                         <div class="clearfix"></div>
                                     </div>
                                     <div class="x_content">
+                                        <div id="loading_detail_variant_partial" class="text-center">
+                                            <img src="~/Content/Images/spinner.gif" width="100" />
+                                        </div>
                                         <div id="var-detail-variant-partial">
                                         </div>
                                     </div>

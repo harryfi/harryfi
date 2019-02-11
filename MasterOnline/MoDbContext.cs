@@ -36,6 +36,10 @@ namespace MasterOnline
         public DbSet<CATEGORY_SHOPEE> CategoryShopee { get; set; }
         public DbSet<ATTRIBUTE_SHOPEE> AttributeShopee { get; set; }
         public DbSet<ATTRIBUTE_OPT_SHOPEE> AttributeOptShopee { get; set; }
+        public DbSet<CATEGORY_TOKPED> CategoryTokped { get; set; }
+        public DbSet<ATTRIBUTE_TOKPED> AttributeTokped { get; set; }
+        public DbSet<ATTRIBUTE_OPT_TOKPED> AttributeOptTokped { get; set; }
+        public DbSet<ATTRIBUTE_UNIT_TOKPED> AttributeUnitTokped { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
