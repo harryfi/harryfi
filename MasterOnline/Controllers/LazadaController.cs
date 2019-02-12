@@ -25,6 +25,11 @@ namespace MasterOnline.Controllers
         string eraAppKey = "101775";
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
+#elif Debug_AWS
+                        
+        string eraAppKey = "101775";
+        string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+        string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
 #else
 
         string eraAppKey = "101775";

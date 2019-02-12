@@ -621,7 +621,7 @@
         }
 
         function Initialize() {
-            
+
             $('#barangTab a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var target = $(e.target).attr("href");
                 if ((target == '#tab_content_variant')) {
@@ -634,7 +634,7 @@
                 var $this = $(this);
 
                 $this.click(function () {
-                    var $cbxTarget = $('.cbxTarget[data-cbx="cbx-type"]');
+                    var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
 
                     if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
                         $cbxTarget.val('4');
@@ -1121,7 +1121,7 @@
             //link = link.replace("replaceCode", listMarket[i].Kode);
 
             //buat select pertama
-            var nextselect = '<select id="' + selectCategoryLazadaID +'" placeholder="Harap pilih" required="required"></select>';
+            var nextselect = '<select id="' + selectCategoryLazadaID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             $('#category_lazada_pertama_' + listMarket_i_RecNum).append(nextselect);
             //end buat select pertama
 
@@ -1160,7 +1160,7 @@
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "false") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" required="required"></select></div>';
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="' + nextselectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryLazadaSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyaLazada(values[0], listMarketRecNum, nextselectID, next + 1, fieldCategoryCode, fieldCategoryName);
             }
@@ -1263,14 +1263,14 @@
                                             //select
                                             var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
                                             SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" required="required"></select></div>';
+                                            fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
 
                                             //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                         }
                                         else {
                                             //textbox
                                             if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-valid-toggle-required="1" required="required" data-val-required="This field is required."  class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             } else {
                                                 fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" data-val-length-max="250"  class="form-control" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             }
@@ -1473,7 +1473,7 @@
             link = link.replace("replaceCode", listMarket_i_Kode);
 
             //buat select pertama
-            var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" required="required"></select>';
+            var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             $('#category_blibli_pertama_' + listMarket_i_RecNum).append(nextselect);
             //end buat select pertama
 
@@ -1512,7 +1512,7 @@
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryBlibliSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyaBlibli(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
             }
@@ -1609,12 +1609,12 @@
                                             //select
                                             var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         }
                                         else
                                         {
                                             //textbox
-                                            fieldAVALUE += '<div class="col-md-4"><input type="text" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                            fieldAVALUE += '<div class="col-md-4"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                         }
 
 
@@ -1815,7 +1815,7 @@
             link = link.replace("replaceCode", listMarket_i_Kode);
 
             //buat select pertama
-            var nextselect = '<select id="'+ selectCategoryEleveniaID +'" placeholder="Harap pilih" required="required"></select>';
+            var nextselect = '<select id="'+ selectCategoryEleveniaID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             $('#category_elevenia_pertama_' + listMarket_i_RecNum).append(nextselect);
             //end buat select pertama
 
@@ -1854,7 +1854,7 @@
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                 $(categoryEleveniaSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyaElevenia(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
             }
@@ -1958,7 +1958,7 @@
                                         //else
                                         //{
                                         //textbox
-                                        fieldAVALUE += '<div class="col-md-4"><input type="text" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                        fieldAVALUE += '<div class="col-md-4"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                         //}
 
 
@@ -2095,7 +2095,7 @@
             link = link.replace("replaceCode", listMarket_i_Kode);
 
             //buat select pertama
-            var nextselect = '<select id="'+ selectCategoryShopeeID +'" placeholder="Harap pilih" required="required"></select>';
+            var nextselect = '<select id="'+ selectCategoryShopeeID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             $('#category_shopee_pertama_' + listMarket_i_RecNum).append(nextselect);
             //end buat select pertama
 
@@ -2134,7 +2134,7 @@
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" data-valid-toggle-required="1" placeholder="Harap pilih" required="required"></select></div>';
                 $(categoryShopeeSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyaShopee(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
             }
@@ -2240,13 +2240,13 @@
                                             //select
                                             var selectID = 'attribute_select_shopee_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
                                         }
                                         else
                                         {
                                             //textbox
                                             if (AMANDATORY == "1") {
-                                                fieldAVALUE += '<div class="col-md-4"><input type="text" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
+                                                fieldAVALUE += '<div class="col-md-4"><input type="text" data-valid-toggle-required="1" required="required" data-val-required="This field is required." data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
                                             }
                                             else {
                                                 fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
@@ -2459,7 +2459,7 @@
             link = link.replace("replaceCode", listMarket_i_Kode);
 
             //buat select pertama
-            var nextselect = '<select id="'+ selectCategoryTokpedID +'" placeholder="Harap pilih" required="required"></select>';
+            var nextselect = '<select id="'+ selectCategoryTokpedID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select>';
             $('#category_tokped_pertama_' + listMarket_i_RecNum).append(nextselect);
             //end buat select pertama
 
@@ -2498,7 +2498,7 @@
             var values = value.split('|;|');
             $('#' + nextselectID).remove();
             if (values[1] == "0") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
+                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" data-valid-toggle-required="1" placeholder="Harap pilih" required="required"></select></div>';
                 $(categoryTokpedSelanjutnya).append(nextselect);
                 getKategoriSelanjutnyaTokped(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
             }
@@ -2574,6 +2574,7 @@
                         onChange: function (value) {
                             $('#Stf02_Sort1').val(value);
                             $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
+                            CekStrukturVariant();
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
@@ -2584,6 +2585,50 @@
                     console.log(xhr);
                 }
             });
+        }
+        function CekStrukturVariant(){
+            //untuk saat ganti kategori
+            if ($('#Stf02_Sort1').val() != undefined) {
+                if ($('#Stf02_Sort1').val() != null && $('#Stf02_Sort1').val() != "") {
+
+                    var post_data = {
+                        kode : $('#Stf02_Sort1').val()
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("CekStrukturVar", "Manage")',
+                        data : post_data,
+                        beforeSend: function () {
+
+                        },
+                        success: function (response) {
+                            if (response.adaVariasi == 1) {
+                                $('#cbxStf02Type').removeAttr('disabled');
+                                //jika type = 3, click dlu ( karena default adalah variasi tercentang )
+                                var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                    $('#cbxStf02Type').click();
+                                }
+                            }
+                            else {
+                                //disable dan type = 3 jika tidak ada variasinya
+                                var $cbxTarget = $('.cbxtype[data-cbx="cbx-type"]');
+                                if ($cbxTarget.val() == null || $cbxTarget.val() == '' || $cbxTarget.val() == '3') {
+                                    $('#cbxStf02Type').attr('disabled', 'disabled');
+                                }
+                                else {
+                                    //jika type = 4, click dlu ( agar jadi 3 ), lalu disabled
+                                    $('#cbxStf02Type').click();
+                                    $('#cbxStf02Type').attr('disabled', 'disabled');
+                                }
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                }
+            }
         }
         function GetStrukturVariant(){
             if ($('#Stf02_Sort1').val() != undefined) {
@@ -2807,15 +2852,30 @@
                 $this.closest('div').append('<span class="text-danger">'+msg+'</span>');
             }
         }
+        function toggleRequiredDetailPerMarketplace(){
+            //data-valid-toggle-required
+            //cbxtype
+            $('.cbxTarget').each(function () {
+                var $this = $(this);
+
+                if($this.val() == "False"){
+                    var data_ar_recnum = $this.attr("data-ar-recnum");
+                    $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').removeAttr('required');
+                }
+                else {
+                    var data_ar_recnum = $this.attr("data-ar-recnum");
+                    $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').attr('required', 'required');
+                }
+            });
+        }
         function simpanBarang1(btnClicked) {
+            toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
             var valid2 = cekValidasi();
 
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
-
-
             //$('form .selectized[required="required"]').each(function () {
             //    var $this = $(this);
             //    var $inputSelectize = $this.parent().find('.item');
@@ -2890,13 +2950,14 @@
         }
 
         function simpanBarangInduk(btnClicked) {
+            toggleRequiredDetailPerMarketplace();
 
             var valid = validateForm();
             var valid2 = cekValidasi();
 
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
-            
+
             var input = $("#Stf02_HJUAL").val();
             var angka = convertToAngka(input);
             $("#Stf02_HJUAL").val(angka);
@@ -2925,7 +2986,7 @@
                     if (response.Errors == null) {
                         $('#var-structure-partial').html('');
                         $('#var-detail-variant-partial').html('');
-                        
+
                         $('#loading_structure_partial').hide();
                         $('#loading_detail_variant_partial').hide();
                         $('#var-structure-partial').html(response);
@@ -2954,7 +3015,7 @@
 
             return false;
         }
-        
+
         function setErrorfield(item, index) {
             var error = item.split("_errortext_");
             addError($("#ListHargaJualPermarket_" + error[0] + "__HJUAL"), error[1]);
@@ -3075,9 +3136,9 @@
             $ICON.removeClass('fa-chevron-up');
             $ICON.addClass('fa-chevron-down');
 
-            
+
             $('#collapse-link-upload-foto-section').off('click').on('click', function () {
-                
+
             });
         }
         function enableFotoProdukSection(){
