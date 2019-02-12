@@ -54,6 +54,32 @@ namespace MasterOnline.Controllers
             return View();
         }
 
+        [System.Web.Mvc.Route("loginSubs")]
+        public ActionResult LoginSubs(string Ref, string kode, string bln)
+        {
+            var partnerInDb = MoDbContext.Partner.FirstOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (!string.IsNullOrEmpty(Ref) && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
+            var vm = new Account
+            {
+                DatabasePathMo = bln,
+                KODE_SUBSCRIPTION = kode
+            };
+            return View("Register", vm);
+        }
+
         // Proses Logging In dari Acc / User
         [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
@@ -386,13 +412,11 @@ namespace MasterOnline.Controllers
                             //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                             //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                             //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            //    token = "Zc3jFQesQCizrxgOvEdZqQ"
+                            //    token = tblCustomer.TOKEN
                             //};
-                            ////var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
-                            ////Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
-                            ////Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
-                            //Task.Run(() => tokopediaApi.GetAttribute(data)).Wait();
-
+                            //var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
+                            //Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
+                            //Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
                         }
                     }
                 }
@@ -502,9 +526,19 @@ namespace MasterOnline.Controllers
             var email = new MailAddress(account.Email);
             account.UserId = email.User + "_" + email.Host.Replace(".", "_");
             account.Status = false; //User tidak aktif untuk pertama kali
-
-            account.KODE_SUBSCRIPTION = "01"; //Free account
-            account.TGL_SUBSCRIPTION = DateTime.Today.Date; //First time subs
+            //change by Tri, 7 Feb 2019 handle user pilih subscription sebelum register
+            //account.KODE_SUBSCRIPTION = "01"; //Free account
+            //account.TGL_SUBSCRIPTION = DateTime.Today.Date; //First time subs
+            if (string.IsNullOrEmpty(account.KODE_SUBSCRIPTION))
+            {
+                account.KODE_SUBSCRIPTION = "01";
+                account.TGL_SUBSCRIPTION = DateTime.Today.Date;
+            }
+            else
+            {
+                account.TGL_SUBSCRIPTION = DateTime.Today.Date.AddDays(-1); //user buy subscription while register, set subscription to expire
+            }
+            //end change by Tri, 7 Feb 2019 handle user pilih subscription sebeelum register
             account.Password = password;
             account.ConfirmPassword = password;
             account.VCode = keyNew;
@@ -576,7 +610,99 @@ namespace MasterOnline.Controllers
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
             ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
 
+            if (account.KODE_SUBSCRIPTION != "01")
+            {
+                var ret = ChangeStatusAcc(Convert.ToInt32(account.AccountId));
+                if (ret.status == 1)
+                {
+                    var midtrans = new MidtransController();
+                    return await midtrans.PaymentMidtrans(account.KODE_SUBSCRIPTION, account.DatabasePathMo, Convert.ToInt32(account.AccountId));
+                }
+                else
+                {
+                    var errorRet = new bindMidtrans();
+                    errorRet.error = ret.message;
+                    return Json(errorRet, JsonRequestBehavior.AllowGet);
+                }
+            }
+
             return View("Register");
+
+        }
+        //function activate account
+        public BindingBase ChangeStatusAcc(int? accId)
+        {
+            var ret = new BindingBase
+            {
+                status = 0
+            };
+            try
+            {
+                var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+                accInDb.Status = !accInDb.Status;
+                string sql = "";
+                var userId = Convert.ToString(accInDb.AccountId);
+
+                accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+
+                var path = Server.MapPath("~/Content/admin/");
+                sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+#if AWS
+            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                                "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
+#else
+            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                  "user id=masteronline;password=M@ster123;");
+#endif
+                SqlCommand command = new SqlCommand(sql, con);
+
+                con.Open();
+                command.ExecuteNonQuery();
+                con.Close();
+                con.Dispose();
+
+
+                //add by Tri 20-09-2018, save nama toko ke SIFSYS
+                //change by calvin 3 oktober 2018
+                //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                //end change by calvin 3 oktober 2018
+                var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
+                {
+                    dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                    ErasoftDbContext.SaveChanges();
+                }
+                //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
+                if (accInDb.Status == false)
+                {
+                    var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
+                    foreach (var user in listUserPerAcc)
+                    {
+                        user.Status = false;
+                    }
+                }
+
+                //ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
+                MoDbContext.SaveChanges();
+
+                //var listAcc = MoDbContext.Account.ToList();
+
+                //return View("AccountMenu", listAcc);
+                ret.status = 1;
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+
+            return ret;
         }
 
         // Proses Logging Out + Hapus Session
@@ -796,6 +922,33 @@ namespace MasterOnline.Controllers
             }
 
             return Json(res, JsonRequestBehavior.AllowGet);
+        }
+
+        [System.Web.Mvc.Route("HomePricing")]
+        public ActionResult HomePricing(string Ref)
+        {
+            var partnerInDb = MoDbContext.Partner.SingleOrDefault(p => p.KodeRefPilihan == Ref);
+
+            if (Ref != null && partnerInDb == null)
+            {
+                return View("Error");
+            }
+
+            if (partnerInDb != null)
+            {
+                if (!partnerInDb.Status || !partnerInDb.StatusSetuju)
+                {
+                    return View("Error");
+                }
+            }
+
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList(),
+                loggedin = true
+            };
+
+            return View(vm);
         }
     }
 }

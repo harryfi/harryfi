@@ -560,6 +560,546 @@
             cursor: pointer;
         }
     </style>
+
+    <style type="text/css">
+
+        .bar {
+            font-size: 30px;
+            color: #ed1338;
+        }
+
+        .nav-row {
+            padding: 30px;
+        }
+
+            .nav-row > div > a {
+                padding: 7px;
+            }
+
+        #loading_spinner {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0,0,0,.5);
+        }
+
+        #loading_spinner_image {
+            width: 20px;
+            height: 20px;
+            margin-top: -90px;
+            margin-left: -90px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        #loading_spinner_btn {
+            display: none;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        #loading_spinner_image_btn {
+            width: 20px;
+            height: 40px;
+            border-width: 30px;
+            border-radius: 50%;
+        }
+
+        #soc-med-btn-nav {
+            float: right;
+            margin-right: 80px;
+            margin-bottom: 15px;
+        }
+
+
+        .subs_body {
+            background: white;
+            letter-spacing: 0.4px;
+            font-family: 'RoundedElegance';
+            color: black;
+        }
+
+        @@font-face {
+            font-family: 'RoundedElegance'; /*src: url("~/fonts/rounded_elegance.svg");
+                src: url("~/fonts/rounded_elegance.ttf") format('truetype');*/
+            src: url("../../fonts/rounded_elegance.svg");
+            src: url("../../fonts/rounded_elegance.ttf") format('truetype');
+            font-weight: bold;
+        }
+
+        /*.modal-content {
+            margin-top: 225px !important;
+        }*/
+
+        .modal-dialog {
+            height: auto !important;
+        }
+
+        .title-features-mobile {
+            font-size: 10px !important;
+        }
+
+        .sub-title-features-mobile {
+            font-size: 9px !important;
+        }
+
+        .feature-mobile-row {
+            margin-bottom: 25px !important;
+        }
+
+
+        h2.mobile-title {
+            font-size: 16px !important;
+        }
+
+        #cover p {
+            font-size: 14px !important;
+        }
+
+        #mobile-app-section {
+            margin-top: 25px !important;
+        }
+
+
+        body {
+            overflow-x: hidden;
+        }
+
+        .row {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        html {
+            /*-webkit-text-stroke-width: 0.5pt;*/
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+
+        #cover {
+            margin-top: 175px;
+            margin-bottom: 18px;
+            background-size: cover;
+            min-height: 350px;
+        }
+
+        h2.pc-title {
+            color: #891539;
+            font-size: 45px;
+            line-height: 60px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        h2.mobile-title {
+            color: #891539;
+            font-size: 30px;
+            line-height: 58px;
+            letter-spacing: 3px;
+            font-weight: 700;
+        }
+
+        #cover h3 {
+            font-size: 58px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-family: 'RoundedElegance';
+        }
+
+            #cover h3 span {
+                color: #ed5565;
+            }
+
+        #cover span {
+            font-size: 53px;
+        }
+
+        #cover p {
+            font-size: 18px;
+            letter-spacing: .5px;
+        }
+
+        #cover .btn {
+            background-color: #891539;
+            color: #fff;
+        }
+
+            #cover .btn:hover {
+                background-color: #f37100 !important;
+            }
+
+        .focus-text {
+            text-transform: uppercase;
+            color: #f37100;
+        }
+
+        #btn-daftar-pc {
+            width: 50%;
+            float: right;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #mobile-app-section {
+            margin-top: 60px;
+        }
+
+        #btn-daftar-mobile {
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-pc {
+            width: 50%;
+            float: left;
+            background-color: #5db836 !important;
+            margin: 0 auto;
+            border-radius: 10px !important;
+            margin-top: 40px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #btn-video-mobile {
+            background-color: #5db836 !important;
+            border-radius: 10px !important;
+            width: 100%;
+            margin-top: 25px;
+            box-shadow: 0px 7px 5px rgb(136, 136, 136);
+        }
+
+        #gradient-mo {
+            background: rgba(255,23,23,1);
+            background: -moz-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(255,23,23,1)), color-stop(50%, rgba(137,21,57,1)), color-stop(100%, rgba(137,21,57,1)));
+            background: -webkit-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -o-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: -ms-linear-gradient(left, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            background: linear-gradient(to right, rgba(255,23,23,1) 0%, rgba(137,21,57,1) 50%, rgba(137,21,57,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ff1717', endColorstr='#891539', GradientType=1 );
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .videoWrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            padding-top: 25px;
+            height: 0;
+        }
+
+            .videoWrapper iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+        .modal-dialog {
+            width: 75%;
+            height: 75%;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .modal-content {
+            margin-top: 35px;
+            height: auto;
+            min-height: 100%;
+            border-radius: 0;
+        }
+
+        .videoBox {
+            position: relative;
+            padding-bottom: 30.25%; /* 16:9 */
+            height: 0;
+        }
+
+            .videoBox iframe {
+                position: absolute;
+                top: 0;
+                left: 25%;
+                width: 50%;
+                height: 100%;
+            }
+
+        #marketplace .logo-container {
+            padding: 40px 0;
+        }
+
+        .grayish-white {
+            background-color: #F5F5F5;
+        }
+
+        .grayish-white-f6 {
+            background-color: #f6f6f6;
+        }
+
+        #marketplace .title-box-red,
+        .carakerja .title-box-red {
+            padding: 10px 7px;
+        }
+
+            #marketplace .title-box-red h3,
+            .carakerja .title-box-red h3 {
+                font-size: 20px;
+                color: #fff;
+                font-weight: 400;
+                margin: 0px;
+                text-align: left !important;
+            }
+
+        #marketplace .mp-logo:first-child {
+            margin-left: 60px;
+        }
+
+        #marketplace .mp-logo {
+            margin-right: 15px;
+        }
+
+        .titleSection {
+            color: #ed5565;
+            font-size: 35px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .carakerja {
+            padding: 0 0 40px 0;
+            background-color: #fff;
+        }
+
+            .carakerja h3, .carakerja p {
+                font-weight: 300;
+                text-align: center;
+            }
+
+            .carakerja h3 {
+                font-size: 22px;
+            }
+
+            .carakerja p {
+                font-size: 17px;
+                line-height: 24px;
+                color: #777;
+            }
+
+            .carakerja strong {
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                display: block;
+            }
+
+            .carakerja img {
+                margin-top: 25px;
+            }
+
+        #banner {
+            background: url(../../Content/Images/shattered.png) 0 50%;
+            min-height: 200px;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+            #banner h2 {
+                color: #999;
+                font-size: 25px;
+                font-weight: 400;
+                margin: 30px 0 28px 0;
+            }
+
+        /*footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }*/
+
+        .title-box-red {
+            background: rgba(137,21,57,1);
+            background: -moz-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -webkit-gradient(left top, right top, color-stop(0%, rgba(137,21,57,1)), color-stop(70%, rgba(137,21,57,1)), color-stop(100%, rgba(255,23,23,1)));
+            background: -webkit-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -o-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: -ms-linear-gradient(left, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            background: linear-gradient(to right, rgba(137,21,57,1) 0%, rgba(137,21,57,1) 70%, rgba(255,23,23,1) 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#891539', endColorstr='#ff1717', GradientType=1 );
+        }
+
+        .carakerja .content-feature {
+            background-color: #f6f6f6;
+            padding-bottom: 10px;
+        }
+
+        #promo_pulsa {
+            display: none; /* Sementara */
+            position: absolute;
+            width: 20%;
+            right: 15px;
+            top: 175px;
+            z-index: 100;
+        }
+
+        .no-padding {
+            padding: 0 !important;
+        }
+
+        .title-features {
+            font-size: 15px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features {
+            font-size: 14px;
+            position: absolute;
+            top: 30px;
+            left: 0;
+        }
+
+        .title-features-mobile {
+            font-size: 12px;
+            font-weight: bold;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .sub-title-features-mobile {
+            font-size: 11px;
+            position: absolute;
+            top: 25px;
+            left: 0;
+        }
+
+        .feature-mobile-row {
+            margin-bottom: 30px;
+        }
+
+        .btn-basicfree:hover {
+            color: #F5F5F5;
+            background-color: #891539;
+        }
+
+        .btn-basicfree {
+            color: #891539;
+            background-color: white;
+            text-align: center;
+            border-radius: 10 1 1 1;
+            border: 1px solid #891539;
+        }
+
+        .btn-silver:hover {
+            color: #F5F5F5;
+            background-color: #891539;
+        }
+
+        .btn-silver {
+            color: #891539;
+            background-color: white;
+            text-align: center;
+            border-radius: 10 1 1 1;
+            border: 1px solid #891539;
+        }
+
+
+        .panel-default-noborder {
+            border: 1px;
+        }
+
+        hr {
+            border: 1px solid #891539;
+        }
+
+        .table thead > tr > th,
+        .table tbody > tr > th,
+        .table tfoot > tr > th,
+        .table thead > tr > td,
+        .table tbody > tr > td,
+        .table tfoot > tr > td {
+            padding: 8px;
+            line-height: 1.428571429;
+            vertical-align: top;
+            border-top: 0px;
+        }
+
+        .table thead > tr > th {
+            padding: 8px;
+            line-height: 1.428571429;
+            vertical-align: top;
+            border-top: 0px solid #dddddd;
+            border-bottom: 2px solid #891539;
+        }
+
+
+
+        .glyphicon-ok {
+            color: #21b716;
+        }
+
+        .glyphicon-remove {
+            color: #891539;
+        }
+
+
+        .enterpriseColumn {
+            padding: 8px;
+            line-height: 1.428571429;
+            vertical-align: middle;
+            border: 2px solid #891539 !important;
+            color: #891539;
+        }
+    </style>
 }
 
 <div class="row">
@@ -894,7 +1434,8 @@
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
         <div class="modal-content">
-            @Html.Partial("PricingPartialView", Model?.ListSubs)
+            @*@Html.Partial("PricingPartialView", Model?.ListSubs)*@
+            @Html.Partial("PricingNewPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
@@ -961,6 +1502,19 @@
 
         var table = $('#datatable').DataTable({ "order": [[0,1, "desc"]], "columnDefs": [{ "targets": 1, "type": "date-eu" }], });
 
+        function showSubsMenu(type) {
+            $('#divSubs').hide();
+            if (type == 1) {
+                $('#divSubsExpand').show();
+                $('#divSubExpired').hide();
+            }
+            else if (type == 2) {
+                $('#divSubsExpand').hide();
+                $('#divSubExpired').show();
+            }
+
+        }
+
         $(document).ready(function () {
             //add by nurul 10/1/2019
             $('#div_tgl_Tempo').hide();
@@ -981,7 +1535,7 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
-            
+
 
             $('#invoice-tab').click(function () {
                 $TabAktif = 0;
@@ -989,7 +1543,7 @@
                 $('#div_tgl_Tempo').hide();
                     //end add
                 refreshTableInvoice1();
-                
+
                 $('#refresh_invoice').show();
                 $('#tambah_invoice').show();
             });
@@ -1000,7 +1554,7 @@
                 $('#div_tgl_Tempo').hide();
                     //end add
                 refreshTableInvoiceLunas();
-                
+
                 $('#refresh_invoice').hide();
                 $('#tambah_invoice').hide();
             });
@@ -1020,7 +1574,7 @@
                         $('#Tanggal').val($(this).val());
                         $(this).datepicker('hide');
                     });
-                    //end add by nurul 
+                    //end add by nurul
                     refreshTableInvoiceTempo();
                     $('#refresh_invoice').hide();
                     $('#tambah_invoice').hide();
@@ -1070,18 +1624,19 @@
             }
         }
 
-        function clickSub(kode) {
-            var bln = 0;
-            switch (kode) {
-                case "01":
-                    break;
-                case "02":
-                    bln = txtBln_02.value;
-                    break;
-                case "03":
-                    bln = txtBln_03.value;
-                    break;
-            }
+        function clickSub(kode, bln) {
+            if ($('#ckBox')[0].checked) {
+                //var bln = 0;
+                //switch (kode) {
+                //    case "01":
+                //        break;
+                //    case "02":
+                //        bln = txtBln_02.value;
+                //        break;
+                //    case "03":
+                //        bln = txtBln_03.value;
+                //        break;
+                //}
             @{
                 //var accountId = dataSession?.Account?.AccountId; 'change by nurul 4/2/2019
                 var accountId = new long();
@@ -1096,7 +1651,7 @@
                 //end change by nurul 4/2/2019
                 var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
             }
-            moment.locale('id');
+            //moment.locale('id');
             var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
             var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
             var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
@@ -1114,7 +1669,7 @@
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
                     var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                    link += '?code=' + kode + '&bulan=' + bln;
+                    link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
                         type: "GET",
@@ -1123,9 +1678,9 @@
                             if (response != null) {
                                 //window.location = response.urlView;
                                 if (response.error == null) {
-                                    snap.pay(response, { skipOrderSummary: true });
+                                    snap.pay(response.token, { skipOrderSummary: true });
                                 } else {
-                                    alert(response);
+                                    alert(response.error);
                                 }
                             }
                             //window.open(response, "_self");
@@ -1141,7 +1696,7 @@
             else
             {
                 var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                link += '?code=' + kode + '&bulan=' + bln;
+                link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                 $.ajax({
                     type: "GET",
@@ -1150,9 +1705,9 @@
                         if (response != null) {
                             //window.location = response.urlView;
                             if (response.error == null) {
-                                snap.pay(response, { skipOrderSummary: true });
+                                snap.pay(response.token, { skipOrderSummary: true });
                             } else {
-                                alert(response);
+                                alert(response.error);
                             }
                         }
                         //window.open(response, "_self");
@@ -1164,6 +1719,11 @@
                     }
                 });
             }
+            }
+            else {
+            alert('Anda harus menyetujui Syarat & Ketentuan');
+            }
+
         }
         //end add by Tri, call midtrans api get token
 
@@ -1259,18 +1819,18 @@
                     $('#div_tgl_Tempo').hide();
                     //end add
                     refreshTableInvoice1();
-                    
+
                 }
                 else if ($TabAktif == 1) {
                     //add by nurul 10/1/2019
                     $('#div_tgl_Tempo').hide();
                     //end add
                     refreshTableInvoiceLunas();
-                    
+
                 }
                 else if ($TabAktif == 2) {
                     //add by nurul 10/1/2019
-                    
+
                     $('#div_tgl_Tempo').show();
 
                     $('#Tanggal').datepicker({
@@ -1282,8 +1842,8 @@
                         });
                     //end add by nurul
                     refreshTableInvoiceTempo();
-                     
-                    
+
+
                 }
             });
 
@@ -1704,13 +2264,13 @@
                         $('#Tanggal').val($(this).val());
                         $(this).datepicker('hide');
                     });
-                    //end add by nurul 
+                    //end add by nurul
                     refreshTableInvoiceTempo();
                     $('#refresh_invoice').hide();
                     $('#tambah_invoice').hide();
                 }
             });
-            //end add by nurul 
+            //end add by nurul
         }
 
         function refreshNettoBarang($trId) {
@@ -1741,7 +2301,7 @@
             $bakalNetto += $nPpn;
             //add by nurul 10/12/2018
             $bakalNetto += convertToAngka($('#Invoice_BIAYA_LAIN').val());
-            //end add 
+            //end add
 
             $('#Invoice_NETTO').val(convertToRupiah($bakalNetto));
         }
@@ -2199,12 +2759,18 @@
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_invoice">Tambah Baru</button>');
+                        showSubsMenu(1);
                         //add by nurul 11/2/2019
                         $jumlahPesanan = false;
                         //end add by nurul 11/2/2019
                     } else if (res.SudahSampaiBatasTanggal) {
+                        //change by Tri 12 Feb 2019, 1 view subscribe
+                        //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                        //    'data-target="#modalPricingExpired" id="tambah_faktur">Tambah Baru</button>');
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                            'data-target="#modalPricingExpired" id="tambah_invoice">Tambah Baru</button>');
+                            'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
+                        showSubsMenu(2);
+                        //end change by Tri 12 Feb 2019
                         //add by nurul 11/2/2019
                         $jumlahPesanan = false;
                         //end add by nurul 11/2/2019
@@ -2288,7 +2854,7 @@
 
                     $.each(data,
                         function (i, item) {
-                            
+
                             //add by calvin 4 desember 2018
                             var nama2 = "";
                             if (item.NAMA2 != null && item.NAMA2 != "null") {
@@ -2609,7 +3175,7 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
-                    
+
                     var table = $('#datatable').DataTable({
                         "order": [[0,1, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
@@ -2635,7 +3201,7 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
-                    
+
                     var table = $('#datatable').DataTable({
                         "order": [[0,2, "asc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
@@ -2663,7 +3229,7 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
-                    
+
                     var table = $('#datatable').DataTable({
                         "order": [[0,2, "asc"]], //or asc
                         "columnDefs": [{ "targets": 2, "type": "date-eu" }],
@@ -2767,7 +3333,7 @@
                     $("#Invoice_NPPN").val(convertToAngka($("#Invoice_NPPN").val()));
                     //add by nurul 7/12/2018
                     $("#Invoice_BIAYA_LAIN").val(convertToAngka($("#Invoice_BIAYA_LAIN").val()));
-                    //end add 
+                    //end add
                     $("#Invoice_NETTO").val($bakalNetto);
 
                     $totalAwal = 0;

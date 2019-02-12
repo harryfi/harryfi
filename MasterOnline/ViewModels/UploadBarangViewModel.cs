@@ -19,6 +19,7 @@ namespace MasterOnline.ViewModels
 
         public int failedRecord { get; set; }
         public string contRecursive { get; set; }
+        public int haveVarian { get; set; }
     }
 
     public class SyncBarangViewModel : UploadBarangViewModel
