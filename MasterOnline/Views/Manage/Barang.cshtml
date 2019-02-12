@@ -14,7 +14,6 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
-        
         .disabled-tab {
             cursor: not-allowed;
             background-color: #999 !important;
@@ -1144,6 +1143,7 @@
                     var kategoriSelect = $('#' + selectCategoryLazadaID).selectize({
                         valueField: 'id',
                         searchField: 'text',
+                        dataAttr: 'data-extra',
                         options: listKategori,
                         onChange: function (value) {
                             KategoriLazadaOnChange(value, nextselectID, selectCategoryLazadaID, categoryLazadaSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
@@ -1346,7 +1346,7 @@
                             }
                         });
 
-                        if (adaValue != ""){
+                        if (adaValue != "" && adaValue != null){
                             var adaValues = adaValue.split(',');
                             AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                         }
@@ -1361,7 +1361,7 @@
                             }
                         });
 
-                        if (adaValue != "") {
+                        if (adaValue != "" && adaValue != null) {
                             AttributeOptSelect[0].selectize.setValue(adaValue, true);
                         }
                     }
@@ -1582,7 +1582,7 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
-                                if (ACODE != null) {
+                                if (ACODE != null && ATYPE != null && ATYPE != "DEFINING_ATTRIBUTE") {
                                     if (ACODE != "") {
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
@@ -1675,21 +1675,22 @@
                         });
 
                     if (ATYPE == "DEFINING_ATTRIBUTE") {
+                        //remark by calvin 12 februari 2019, dipindah ke tab variasi
+                        //var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                        //    maxItems : 7,
+                        //    valueField: 'id',
+                        //    searchField: 'text',
+                        //    options: listAttributeOpt,
+                        //    onChange: function (value) {
+                        //        $('#' + fieldAVALUE_ID).val(value);
+                        //    }
+                        //});
 
-                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                            maxItems : 7,
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
-
-                        if (adaValue != ""){
-                            var adaValues = adaValue.split(',');
-                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                        }
+                        //if (adaValue != ""){
+                        //    var adaValues = adaValue.split(',');
+                        //    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                        //}
+                        //end remark by calvin 12 februari 2019, dipindah ke tab variasi
                     }
                     else {
                         var AttributeOptSelect = $('#' + selectID).selectize({
@@ -1701,11 +1702,10 @@
                             }
                         });
 
-                        if (adaValue != "") {
+                        if (adaValue != "" && adaValue != null) {
                             AttributeOptSelect[0].selectize.setValue(adaValue, true);
                         }
                     }
-
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -2339,7 +2339,7 @@
                             }
                         });
 
-                        if (adaValue != ""){
+                        if (adaValue != "" && adaValue != null){
                             var adaValues = adaValue.split(',');
                             AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                         }
@@ -2354,7 +2354,7 @@
                             }
                         });
 
-                        if (adaValue != "") {
+                        if (adaValue != "" && adaValue != null) {
                             AttributeOptSelect[0].selectize.setValue(adaValue, true);
                         }
                     }
@@ -2853,8 +2853,6 @@
             }
         }
         function toggleRequiredDetailPerMarketplace(){
-            //data-valid-toggle-required
-            //cbxtype
             $('.cbxTarget').each(function () {
                 var $this = $(this);
 
