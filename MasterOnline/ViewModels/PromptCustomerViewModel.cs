@@ -10,7 +10,7 @@ namespace MasterOnline.ViewModels
         public string KODE { get; set; }
         public string NAMA { get; set; }
         public string MARKETPLACE { get; set; }
-
+        public string IDMARKET { get; set; }
     }
 
     public class PromptBarangViewModel

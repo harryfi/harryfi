@@ -5707,11 +5707,12 @@ namespace MasterOnline.Controllers
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if(dataSession?.User != null)
+            if (dataSession?.User != null)
             {
                 accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
-            }else if(dataSession?.Account != null)
+            }
+            else if (dataSession?.Account != null)
             {
                 accountId = dataSession.Account.AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
@@ -14134,7 +14135,8 @@ namespace MasterOnline.Controllers
         {
             var vm = new SubsViewModel()
             {
-                ListSubs = MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                loggedin = true
             };
 
             return View(vm);
@@ -14317,7 +14319,7 @@ namespace MasterOnline.Controllers
                                     createSTF02Induk = false;
                                     if (tempBrgInduk != null)
                                     {
-                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        var ret1 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                         if (ret1.status == 0)
                                             return JsonErrorMessage(ret1.message);
                                     }
@@ -14333,7 +14335,7 @@ namespace MasterOnline.Controllers
                                 if (tempBrginDB != null)
                                 {
                                     //sinkron brg induk terlebih dahulu
-                                    var ret2 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                    var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                     if (ret2.status == 0)
                                         return JsonErrorMessage(ret2.message);
                                 }
@@ -14703,6 +14705,11 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
 
                             }
+                            if(barangInDB.TYPE == "4")
+                            {
+                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                            }
                         }
                         else
                         {
@@ -14720,7 +14727,24 @@ namespace MasterOnline.Controllers
                             }
                             if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))
                                 data.Stf02.PART = data.TempBrg.KODE_BRG_INDUK;
-                            data.Stf02.TYPE = data.TempBrg.TYPE;
+                            //change by Tri 11 Feb 2019, handle brg tokped
+                            //data.Stf02.TYPE = data.TempBrg.TYPE;
+                            if (data.haveVarian == 0)// barang tanpa varian
+                            {
+                                data.Stf02.TYPE = "3";
+                            }
+                            else if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))// barang varian
+                            {
+                                data.Stf02.TYPE = "3";
+                            }
+                            else//barang induk
+                            {
+                                data.Stf02.TYPE = "4";
+                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                            }
+                            //end change by Tri 11 Feb 2019, handle brg tokped
+
                             ErasoftDbContext.STF02.Add(data.Stf02);
 
                             var brgMp = new STF02H();
@@ -14917,7 +14941,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        public BindingBase AutoSyncBrgInduk(TEMP_BRG_MP tempBrg, string kdBrgMO, ARF01 customer, string username, bool createSTF02Induk)
+        public BindingBase AutoSyncBrgInduk(STF02 data, TEMP_BRG_MP tempBrg, string kdBrgMO, ARF01 customer, string username, bool createSTF02Induk)
         {
             var ret = new BindingBase()
             {
@@ -14981,10 +15005,10 @@ namespace MasterOnline.Controllers
                     stf02.TINGGI = tempBrg.TINGGI;
                     stf02.LEBAR = tempBrg.LEBAR;
                     stf02.PANJANG = tempBrg.PANJANG;
-                    stf02.Sort1 = defaultCategoryCode.KODE;
-                    stf02.Sort2 = defaultBrand.KODE;
-                    stf02.KET_SORT1 = defaultCategoryCode.KET;
-                    stf02.KET_SORT2 = defaultBrand.KET;
+                    stf02.Sort1 = string.IsNullOrEmpty(data.Sort1) ? defaultCategoryCode.KODE : data.Sort1;
+                    stf02.Sort2 = string.IsNullOrEmpty(data.Sort2) ? defaultBrand.KODE : data.Sort2;
+                    stf02.KET_SORT1 = string.IsNullOrEmpty(data.KET_SORT1) ? defaultCategoryCode.KET : data.KET_SORT1;
+                    stf02.KET_SORT2 = string.IsNullOrEmpty(data.KET_SORT2) ? defaultBrand.KET : data.KET_SORT2;
                     stf02.Deskripsi = (string.IsNullOrEmpty(tempBrg.Deskripsi) ? "-" : tempBrg.Deskripsi);
 
                     if (!string.IsNullOrEmpty(tempBrg.IMAGE))
@@ -15185,7 +15209,7 @@ namespace MasterOnline.Controllers
                 //delete brg induk di temp
                 ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
                 if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "'");
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "' AND CUST = '" + tempBrg.CUST + "'");
                 ErasoftDbContext.SaveChanges();
 
                 ret.status = 1;
@@ -15294,7 +15318,7 @@ namespace MasterOnline.Controllers
                                     createSTF02Induk = false;
                                     if (tempBrgInduk != null)
                                     {
-                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        var ret1 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                         if (ret1.status == 0)
                                             barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
                                     }
@@ -15311,7 +15335,7 @@ namespace MasterOnline.Controllers
                                 //if (tempBrginDB != null)
                                 //{
                                 //sinkron brg induk terlebih dahulu
-                                var ret2 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                var ret2 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                 if (ret2.status == 0)
                                     barangVm.Errors.Add(item.SELLER_SKU + ";" + ret2.message);
                                 //}
@@ -16033,7 +16057,8 @@ namespace MasterOnline.Controllers
                         {
                             KODE = customer.CUST,
                             NAMA = customer.PERSO,
-                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket
+                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket,
+                            IDMARKET = customer.NAMA
                         }
                         );
                 }
@@ -17108,6 +17133,17 @@ namespace MasterOnline.Controllers
                 retBarang = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(brg.ToUpper())).FirstOrDefault();
                 if (retBarang != null)
                 {
+                    if (!string.IsNullOrEmpty(retBarang.PART))
+                    {
+                        var brg_induk = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(retBarang.PART.ToUpper())).FirstOrDefault();
+                        if (brg_induk != null)
+                        {
+                            retBarang.Sort1 = brg_induk.Sort1;
+                            retBarang.Sort2 = brg_induk.Sort2;
+                            retBarang.KET_SORT1 = brg_induk.KET_SORT1;
+                            retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                        }
+                    }
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                     //barangVm.Stf02 = retBarang;
                     //return PartialView("FormBarangUploadsPartial", barangVm);
@@ -17135,6 +17171,19 @@ namespace MasterOnline.Controllers
                         retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
                         retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                         retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+
+                        if (!string.IsNullOrEmpty(tempBrg.KODE_BRG_INDUK))
+                        {
+                            var brg_induk = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(tempBrg.KODE_BRG_INDUK.ToUpper())).FirstOrDefault();
+                            if (brg_induk != null)
+                            {
+                                retBarang.Sort1 = brg_induk.Sort1;
+                                retBarang.Sort2 = brg_induk.Sort2;
+                                retBarang.KET_SORT1 = brg_induk.KET_SORT1;
+                                retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                            }
+                        }
+
                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                         //barangVm.Stf02 = retBarang;
                         //return PartialView("FormBarangUploadsPartial", barangVm);
@@ -17191,6 +17240,19 @@ namespace MasterOnline.Controllers
             var ret = new SimpleJsonObject();
             if (!string.IsNullOrEmpty(cust))
             {
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                if (customer != null)
+                {
+                    var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                    if (tokped != null)
+                    {
+                        if (customer.NAMA == tokped.IdMarket.ToString())
+                        {
+                            ret.Errors = "Silahkan edit per barang untuk sikronisasi barang dari marketplace Tokopedia.";
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
                 var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
                 if (listTempBrg != null)
                 {
