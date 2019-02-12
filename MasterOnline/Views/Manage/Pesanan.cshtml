@@ -30,6 +30,8 @@
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/responsive/2.2.2/css/responsive.dataTables.min.css"></script>
+
     <style>
         [data-tip] {
             position: relative;
@@ -1443,16 +1445,16 @@
                 </div>
                 @* add by Tri, pilih shipment provider *@
                 @*<div class="row" id="divType">
-            <div class="form-group" style="margin-top: 5px;">
-                <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <select class="form-control" id="TypePengiriman" name="TypePengiriman">
-                        <option value="0" selected="selected">Dropship</option>
-                        <option value="1">Pick Up</option>
-                    </select>
-                </div>
-            </div>
-        </div>*@
+                        <div class="form-group" style="margin-top: 5px;">
+                            <div class="col-md-4 col-sm-4 col-xs-12"><label>Tipe Pengiriman</label></div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <select class="form-control" id="TypePengiriman" name="TypePengiriman">
+                                    <option value="0" selected="selected">Dropship</option>
+                                    <option value="1">Pick Up</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>*@
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
@@ -1477,9 +1479,9 @@
                             @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
                         </div>
                         @*<div id="print_label">
-            <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
-        </div>*@
-                        
+                                <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
+                            </div>*@
+
                     </div>
 
                 </div>
@@ -1488,20 +1490,20 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                         </div>
                         @*<div id="get_resi">
-                            <button name="btnLabel" type="button" class="btn btn-default" id="btnGetResi" onclick="LazadaGetResi()">Get No.Resi Pickup</button>
-                        </div>*@
+                                <button name="btnLabel" type="button" class="btn btn-default" id="btnGetResi" onclick="LazadaGetResi()">Get No.Resi Pickup</button>
+                            </div>*@
                         <div id="print_label">
                             <button name="btnLabel" type="button" class="btn btn-default" id="btnGetResi" onclick="LazadaGetResi()">Get No.Resi Pickup</button>
                             <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
                         </div>
                     </div>
-                    </div>
-                    <div class="row" id="labelContainer"></div>
                 </div>
-                <div class="modal-footer">
-                    <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
-                </div>
+                <div class="row" id="labelContainer"></div>
             </div>
+            <div class="modal-footer">
+                <button onclick="saveResi();" type="button" class="btn btn-success">Simpan Resi</button>
+            </div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="modalIsiResiShopee" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelShopee">
@@ -1670,14 +1672,14 @@
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
         <div class="modal-content">
-            @Html.Partial("PricingPartialView")
+            @Html.Partial("PricingPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
 <div class="modal fade" id="modalPricingExpired" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing-expired" role="document">
         <div class="modal-content">
-            @Html.Partial("PricingExpiredPartialView")
+            @Html.Partial("PricingExpiredPartialView", Model?.ListSubs)
         </div>
     </div>
 </div>
@@ -1824,12 +1826,15 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js"></script>
+
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
     <script type="text/javascript">
         //add by nurul 1/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
         var promptPembeli = "";
+        var $jumlahPesanan = true;
         //end add
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
@@ -1978,7 +1983,7 @@
                         success: function (response) {
                             if (response != null) {
                                 if (response.Errors == null) {
-                                    $('#Pesanan_TRACKING_SHIPMENT').val(response.NoResi);                                    
+                                    $('#Pesanan_TRACKING_SHIPMENT').val(response.NoResi);
                                 } else {
                                     alert(response.Errors);
                                 }
@@ -2401,10 +2406,18 @@
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_pesanan">Tambah Baru</button>');
+
+                            //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricingExpired" id="tambah_pesanan">Tambah Baru</button>');
+
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                     } else {
                         $('#tambah_baru_tombol_section')
                             .append(
@@ -2422,6 +2435,7 @@
                                     $(this).addClass('disabled-tab');
                                 });
                             });
+                        $jumlahPesanan = true;
                     }
                 },
                 error: function(xhr, status, error) {
@@ -3626,6 +3640,12 @@
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
+                    //add by nurul 11/2/2019
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                        //end add by nurul 11/2/2019
                     getTanggal();
                     getBuyer();
                     getDataBarang();
@@ -3660,12 +3680,13 @@
                     $('#form-partial').html(response);
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
+                    
                     getTanggal();
                     getBuyer();
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
-                    
+
                     $('#tambah_pesanan').click();
                     $nettoSebelumnya += $bakalNetto;
                     //$('#see_tgl_pesanan').removeAttr('style');
@@ -3677,17 +3698,30 @@
                     //    .css('cursor', 'not-allowed');
                     $('#Pesanan_NAMAPEMESAN').css('width', '225px');
                     $('#tambah-pembeli').hide();
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).attr('disabled', 'disabled');
-                    });
-                    $('tr[data-pesanan-id="0"]').remove();
-                    $('#myTab li a').each(function () {
-                        $(this).removeAttr('data-toggle');
+                    if ($jumlahPesanan == true) {
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('tr[data-pesanan-id="0"]').remove();
+                        $('#myTab li a').each(function () {
+                            $(this).removeAttr('data-toggle');
 
-                        if ($(this).attr('id') === 'pesanan-tab') return;
+                            if ($(this).attr('id') === 'pesanan-tab') return;
 
-                        $(this).addClass('disabled-tab');
-                    });
+                            $(this).addClass('disabled-tab');
+                        });
+                    }
+                    else if ($jumlahPesanan == false) {
+                        //add by nurul 11/2/2019
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).removeAttr('disabled');
+                        });
+                        $('#myTab li a').each(function (index) {
+                            $(this).attr('data-toggle', 'tab');
+                            $(this).removeClass('disabled-tab');
+                        });
+                        //end add by nurul 11/2/2019
+                    }
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
                 },
@@ -3797,7 +3831,7 @@
                 }
             });
         }
-        
+
         function RefreshPesananDibayarMarketplace() {
             var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 

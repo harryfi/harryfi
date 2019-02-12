@@ -7908,7 +7908,10 @@ namespace MasterOnline.Controllers
             {
                 JumlahPesananBulanIni = jumlahPesananBulanIni,
                 JumlahPesananMax = accSubs?.JUMLAH_PESANAN,
-                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date && accInDb.KODE_SUBSCRIPTION != "01")
+                //change by nurul 8/2/2019
+                //SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date && accInDb.KODE_SUBSCRIPTION != "01")
+                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date)
+                //en change by nurul 8/2/2019
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);

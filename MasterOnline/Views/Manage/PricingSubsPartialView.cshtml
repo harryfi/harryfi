@@ -34,23 +34,24 @@
             JENIS LANGGANAN:
             <span style="color: #2ac52a;">
                 @*@{
-                        switch (kodeSubs)
-                        {
-                            case "01":
-                                @("BASIC")
-                                break;
-                            case "02":
-                                @("PREMIUM")
-                                break;
-                            case "03":
-                                @("ENTERPRISE")
-                                break;
-                        }
-                    }*@
+                    switch (kodeSubs)
+                    {
+                        case "01":
+                            @("BASIC")
+                            break;
+                        case "02":
+                            @("PREMIUM")
+                            break;
+                        case "03":
+                            @("ENTERPRISE")
+                            break;
+                    }
+                }*@
                 @context.Subscription.Where(m => m.KODE == kodeSubs).SingleOrDefault().KETERANGAN
             </span>
         </p>
-        <p>TANGGAL BERAKHIR: <span style="color: red;">@(kodeSubs == "01" ? "-" : tglBerakhir)</span></p>
+        @*<p>TANGGAL BERAKHIR: <span style="color: red;">@(kodeSubs == "01" ? "-" : tglBerakhir)</span></p> 'change by nurul 11/2/2019*@
+        <p>TANGGAL BERAKHIR: <span style="color: red;">@tglBerakhir</span></p>
         @if (kodeSubs != "01")
         {
             <button style="margin-bottom: 35px;" class="btn btn-danger" data-toggle="modal" data-target="#konfBerhentiBerlangganan" type="button" id="btn_unsubscribe">Berhenti Berlangganan</button>

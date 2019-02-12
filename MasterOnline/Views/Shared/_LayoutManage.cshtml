@@ -43,6 +43,7 @@
     <link href="~/Content/ManageSite.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/Content/timeout-dialog.css" type="text/css" media="screen, projection" />
     <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
@@ -52,6 +53,12 @@
         gtag('js', new Date());
 
         gtag('config', 'UA-130203101-1');
+        gtag('config', 'AW-778375246');
+    </script>
+
+    <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+    <script>
+        function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
 
     @RenderSection("styles", required: false)
