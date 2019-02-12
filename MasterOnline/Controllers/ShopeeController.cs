@@ -2553,6 +2553,13 @@ namespace MasterOnline.Controllers
                         variation_sku = item.BRG
                     };
                     HttpBody.variations.Add(adaVariant);
+
+                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
+                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_3 });
                 }
             }
 
@@ -2603,6 +2610,17 @@ namespace MasterOnline.Controllers
                             {
                                 item.BRG_MP = resServer.item_id.ToString() + ";0";
                                 ErasoftDbContext.SaveChanges();
+
+                                if (resServer.item.has_variation)
+                                {
+                                    foreach (var variasi in resServer.item.variations)
+                                    {
+                                        var var_item = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper() == variasi.variation_sku.ToUpper() && b.IDMARKET == marketplace.RecNum).SingleOrDefault();
+                                        var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                }
+
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
                             else
@@ -4449,7 +4467,7 @@ namespace MasterOnline.Controllers
             public string name { get; set; }
             public double rating_star { get; set; }
             public string item_sku { get; set; }
-            public object[] variations { get; set; }
+            public ItemVariation[] variations { get; set; }
             public string size_chart { get; set; }
             public bool has_variation { get; set; }
             public List<Attribute> attributes { get; set; }
@@ -4604,6 +4622,20 @@ namespace MasterOnline.Controllers
             public string msg { get; set; }
             public string request_id { get; set; }
             public string error { get; set; }
+        }
+
+        public class ItemVariation
+        {
+            public string status { get; set; }
+            public float original_price { get; set; }
+            public int update_time { get; set; }
+            public int create_time { get; set; }
+            public int discount_id { get; set; }
+            public string name { get; set; }
+            public float price { get; set; }
+            public string variation_sku { get; set; }
+            public long variation_id { get; set; }
+            public int stock { get; set; }
         }
 
     }
