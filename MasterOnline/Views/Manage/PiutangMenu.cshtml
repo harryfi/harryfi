@@ -141,10 +141,22 @@
 
     <script type="text/javascript">
         $piutangId = "";
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
 
         $(document).on('ready',
             function () {
+                //add by nurul 12/2/2019
+                $page = 0;
+            //end add by nurul 12/2/2019
                 Initialize();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
         function Initialize() {
@@ -180,6 +192,12 @@
                 });
                 refreshForm();
                 refreshTablePiutang();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             if ($('.message-error').text() !== '') {
@@ -199,6 +217,12 @@
                     validateInput($(this), 'ANGKA');
                 });
             //END ADD 
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function refreshInputan(value = '') {
@@ -247,6 +271,12 @@
 
             $('#Piutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
             @{
@@ -535,6 +565,12 @@
                         //add by nurul 26 nov 2018, setelah di close, search lg
                         table.search($('#search_piutang').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
+                        //add by nurul 12/2/2019
+                        $('#datatable').on('page.dt', function () {
+                            $page = $('#datatable').DataTable().page.info().page;
+                        });
+                        $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                     },
                     error: function (xhr, status, error) {
                         console.log(error);

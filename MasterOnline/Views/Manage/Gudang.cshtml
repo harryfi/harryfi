@@ -173,8 +173,14 @@
 {
     <script type="text/javascript">
         $gudangId = "";
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
 
         $(document).on('ready', function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             var table = $('#datatable').DataTable();
 
             $('#search_gudang').keyup(function () {
@@ -182,6 +188,12 @@
             });
 
             Initialize();
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         function Initialize() {
@@ -207,6 +219,12 @@
                 $('#Gudang_Kode_Gudang, #Gudang_Nama_Gudang, #Gudang_ID').val("");
                 $('#Gudang_Kode_Gudang').removeAttr('disabled');
                 resetError();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             if ($('.message-error').text() !== '') {
@@ -237,6 +255,12 @@
                     validateInput($(this), 'HURUFANGKA');
                 });
             //end add 
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function simpanGudang(btnClicked) {

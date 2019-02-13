@@ -547,6 +547,18 @@
         var counter = 0;
 
         $(document).ready(function () {
+            var autoRefreshSession = setInterval(function() {
+                $.ajax({
+                    type: "GET",
+                    url: '@Url.Action("KeepSessionAlive", "Manage")',
+                    success: function (response) {
+                        console.log(response);
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                    }
+                });
+            }, 120 * 1000); //2 menit
 
             @if (dataSession?.User != null)
             {

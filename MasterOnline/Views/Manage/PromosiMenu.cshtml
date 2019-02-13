@@ -181,8 +181,14 @@
 
     <script type="text/javascript">
         var $modeEdit = 0; // 0 new, 1 edit
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
 
         $(document).ready(function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             var tableSiapProses = $('#datatable_siapproses').DataTable({
                 columnDefs: [{
                     orderable: false,
@@ -206,6 +212,12 @@
             });
 
             Initialize();
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         function closeEditor() {
@@ -220,6 +232,12 @@
             $('.btn-danger').each(function () {
                 $(this).removeAttr('disabled');
             });
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -286,6 +304,12 @@
                     $('.btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 }
             });
 
@@ -301,6 +325,12 @@
             getMarketplace();
             getDataBarang();
             refreshInputan();
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function getTanggal() {
@@ -452,6 +482,12 @@
                     }
                 });
             });
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function modeEditTd() {
@@ -802,6 +838,12 @@
                     //add by nurul 26 nov 2018, setelah di close, search lg
                     table.search($('#search_promosi').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {

@@ -542,7 +542,9 @@ namespace MasterOnline.Controllers
             account.Password = password;
             account.ConfirmPassword = password;
             account.VCode = keyNew;
-
+            //add by Tri 13 Feb 2019, tambah tanggal daftar
+            account.TGL_DAFTAR = DateTime.Now;
+            //end add by Tri 13 Feb 2019, tambah tanggal daftar
             MoDbContext.Account.Add(account);
             MoDbContext.SaveChanges();
             ModelState.Clear();
