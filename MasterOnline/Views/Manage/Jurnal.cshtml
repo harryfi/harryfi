@@ -379,7 +379,13 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
 
     <script type="text/javascript">
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
         $(document).ready(function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             //add by nurul 31/10/2018
             //getTanggal();
             //$('#TGL').datepicker('setDate', '0');
@@ -401,6 +407,12 @@
             });
 
             Initialize();
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         var $saved = 0;
@@ -428,6 +440,12 @@
             refreshForm1();
             refreshTableJurnal1();
             $saved = 0;
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -500,6 +518,12 @@
                     refreshForm1();
                     refreshTableJurnal1();
                     $saved = 0;
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
                 }
             });
 
@@ -529,6 +553,17 @@
 
             //    return true;
             //});
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            //end add by nurul 12/2/2019
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
         }
 
         function getTanggal() {
@@ -662,6 +697,13 @@
             //        $(this).val(0);
             //});
             //end remark 
+
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+            //end add by nurul 12/2/2019
         }
 
         function getRekening() {
@@ -875,6 +917,12 @@
                     //add by nurul 26 nov 2018, setelah di close, search lg
                     table.search($('#search_jurnal').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

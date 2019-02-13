@@ -1076,7 +1076,10 @@ namespace MasterOnline.Controllers
             {
                 JumlahMarketplace = jumlahSemuaAkun,
                 JumlahMarketplaceMax = accSubs?.JUMLAH_MP,
-                ListNamaMarketTerpakai = namaMarketTerpakai
+                ListNamaMarketTerpakai = namaMarketTerpakai,
+                //add by nurul 12/2/2019
+                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date)
+                //end add by nurul 12/2/2019
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);

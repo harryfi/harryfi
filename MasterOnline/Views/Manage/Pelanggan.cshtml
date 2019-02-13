@@ -823,12 +823,13 @@
                     $jumlahMarketplaceMax = parseInt(res.JumlahMarketplaceMax);
                     $jumlahMarketplace = parseInt(res.JumlahMarketplace);
                     $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
+                    
 
-                    //if ($jumlahMarketplace >= $jumlahMarketplaceMax) {
-                    //    $('#tambah_market').remove();
-                    //    $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                    //        'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
-                    //} else {
+                    if (res.SudahSampaiBatasTanggal) {
+                        $('#tambah_market').remove();
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                            'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
+                    } else {
                     $('#tambah_market').remove();
                     $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
                     $('#tambah_market').on('click', function () {
@@ -841,7 +842,7 @@
                         Customers_KODEKABKOT.value = '3174';
                         Customers_KODEPROV.value = '31';
                     });
-                    //}
+                    }
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

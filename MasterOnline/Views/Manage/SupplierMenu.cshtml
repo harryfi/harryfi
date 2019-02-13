@@ -239,10 +239,22 @@
 
     <script type="text/javascript">
         $supplierId = "";
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
 
         $(document).on('ready',
             function () {
+                //add by nurul 12/2/2019
+                $page = 0;
+            //end add by nurul 12/2/2019
                 Initialize();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
         function Initialize() {
@@ -302,6 +314,12 @@
                 //add by nurul 31/10/2018
                 $('#KODEKABKOT').selectivity('value', null);
                 resetError();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             if ($('.message-error').text() !== '') {
@@ -376,6 +394,12 @@
             //add by nurul 26 nov 2018, setelah di close, search lg
             table.search($('#search_supplier').val()).draw();
             //end add by nurul 26 nov 2018, setelah di close, search lg
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         //remark by nurul 31/10/2018

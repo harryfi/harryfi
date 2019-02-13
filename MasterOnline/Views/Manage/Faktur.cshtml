@@ -1002,6 +1002,9 @@
         //add by nurul 11/2/2019
         var $jumlahPesanan = true;
         //end add by nurul 11/2/2019
+        //add by nurul 12/2/2019
+        var $page = window.text;
+        //end add by nurul 12/2/2019
         var $TabAktif = 0;// 0 Faktur, 1 Faktur Sudah Lunas, 2 Faktur Jatuh Tempo
         var $modeEdit = 0; // 0 new, 1 edit
         var $bakalNetto = 0;
@@ -1026,6 +1029,9 @@
         });
 
         $(document).ready(function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             //add by nurul 10/1/2019
             $('#div_tgl_Tempo').hide();
                     //end add
@@ -1078,6 +1084,13 @@
                 $('#tambah_faktur').show();
                 $('#refresh_faktur').show();
                 $('#btn-upload-faktur').show();
+                //add by nurul 12/2/2019
+                $page = 0;
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             $('#faktur-lunas-tab').click(function () {
@@ -1145,6 +1158,13 @@
                 $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
             });
             //end add 09-10-2018, function button di subscription
+
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         //add by Tri, call midtrans api get token
@@ -1396,6 +1416,7 @@
                 $(this).attr('data-toggle', 'tab');
                 $(this).removeClass('disabled-tab');
             });
+            
             //end add by nurul 6/11/2018
 
             $modeEdit = 0;
@@ -1406,6 +1427,12 @@
             $('.btn-danger').each(function () {
                 $(this).removeAttr('disabled');
             });
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -1425,7 +1452,13 @@
                     $('#div_tgl_Tempo').hide();
                     //end add
                     refreshTableFaktur1();
-                    
+                    //add by nurul 12/2/2019
+                    $page = 0;
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 }
                 else if ($TabAktif == 1) {
                     //add by nurul 10/1/2019
@@ -1463,6 +1496,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
+                    
                     //end add
 
                     //if ($TabAktif == 0) {
@@ -1490,6 +1524,12 @@
                     $('.btn-danger').each(function () {
                         $(this).removeAttr('disabled');
                     });
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 }
             });
 
@@ -1906,6 +1946,12 @@
                 $('#tambah_faktur').show();
                 $('#refresh_faktur').show();
                 $('#btn-upload-faktur').show();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             $('#faktur-lunas-tab').click(function () {
@@ -1919,9 +1965,13 @@
                 $('#refresh_faktur').hide();
                 $('#btn-upload-faktur').hide();
             });
-
-            
-            //end add by nurul 
+            //end add by nurul
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function refreshNettoBarang($trId) {
@@ -2874,6 +2924,12 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     table.search($('#search_faktur').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
