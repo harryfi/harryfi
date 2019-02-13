@@ -3,6 +3,7 @@
 @{
     ViewBag.Title = "Account";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var context_ = new MoDbContext();
 }
 
 @section styles
@@ -11,7 +12,7 @@
         .user-link {
             text-decoration: underline;
         }
-    
+
         #akun-section {
             margin-top: 60px;
             background: white;
@@ -78,69 +79,72 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @if (Model != null)
-                    {
-                        foreach (var user in Model)
+                        @if (Model != null)
                         {
-                            <tr>
-                                <td>
-                                    <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
-                                        @user.Username
-                                    </a>
-                                </td>
-                                <td>@user.Email</td>
-                                <td class="text-center">@user.NoHp</td>
-                                <td>@user.NamaTokoOnline</td>
-                                <td class="text-center">
-                                    @if (user.Status)
-                                    {
-                                        @("Aktif")
-                                    }
-                                    else
-                                    {
-                                        @("Tidak Aktif")
-                                    }
-                                </td>
-                                <td class="text-center">
-                                    @if (user.KODE_SUBSCRIPTION == "01")
-                                    {
-                                        @("FREE")
-                                    }
-                                    else if (user.KODE_SUBSCRIPTION == "02")
-                                    {
-                                        @("BASIC")
-                                    }
-                                    else if (user.KODE_SUBSCRIPTION == "03")
-                                    {
-                                        @("PREMIUM")
-                                    }
-                                </td>
-                                <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
-                                <td class="edit-hapus-col">
-                                    @{
-                                        var status = 0;
-
-                                        if (user.Status)
+                            foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
+                                            @user.Username
+                                        </a>
+                                    </td>
+                                    <td>@user.Email</td>
+                                    <td class="text-center">@user.NoHp</td>
+                                    <td>@user.NamaTokoOnline</td>
+                                    <td class="text-center">
+                                        @if (user.Status)
                                         {
-                                            status = 1;
+                                            @("Aktif")
                                         }
-                                    }
-                                    @if (user.UserId == "admin_manage")
-                                    {
-                                        <button class="btn btn-primary" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
-                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                        </button>
-                                    }
-                                    else
-                                    {
-                                        <button class="btn btn-primary" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
-                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                        </button>
-                                    }
-                                </td>
-                            </tr>
+                                        else
+                                        {
+                                            @("Tidak Aktif")
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @*change by Tri, 8 Feb 2019*@
+                                        @*@if (user.KODE_SUBSCRIPTION == "01")
+                                            {
+                                                @("FREE")
+                                            }
+                                            else if (user.KODE_SUBSCRIPTION == "02")
+                                            {
+                                                @("BASIC")
+                                            }
+                                            else if (user.KODE_SUBSCRIPTION == "03")
+                                            {
+                                                @("PREMIUM")
+                                            }*@
+                                        @context_.Subscription.Where(p => p.KODE == user.KODE_SUBSCRIPTION).FirstOrDefault().KETERANGAN
+                                        @*end change by Tri, 8 Feb 2019*@
+                                    </td>
+                                    <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
+                                    <td class="edit-hapus-col">
+                                        @{
+                                            var status = 0;
+
+                                            if (user.Status)
+                                            {
+                                                status = 1;
+                                            }
+                                        }
+                                        @if (user.UserId == "admin_manage")
+                                        {
+                                            <button class="btn btn-primary" disabled="disabled" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
+                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-primary" data-toggle="modal" data-target="#konfUbahStatus" onclick="passAcc(@user.AccountId, @status)">
+                                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
                         }
-                    }
                     </tbody>
                 </table>
             </div>

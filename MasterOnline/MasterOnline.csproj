@@ -5936,6 +5936,8 @@
     <Content Include="Views\Manage\BarangVarPartial.cshtml" />
     <Content Include="Views\Manage\BarangDetailVarPartial.cshtml" />
     <Content Include="Views\Report\PromptBuyer.cshtml" />
+    <Content Include="Views\Account\HomePricing.cshtml" />
+    <Content Include="Views\Manage\PricingNewPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

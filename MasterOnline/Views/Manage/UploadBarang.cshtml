@@ -4,7 +4,9 @@
 @{
     ViewBag.Title = "Upload Barang";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
     var context_ = new MoDbContext();
+
 }
 @section styles
 {
@@ -204,6 +206,7 @@
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-6">
                     <input value="" data-val="true" id="promptHiddenField" name="promptHiddenField" type="hidden" maxlength="10">
+                    <input value="" data-val="true" id="promptHiddenField2" name="promptHiddenField2" type="hidden" maxlength="10">
                     <div class="input-group text">
                         <table>
                             <tr>
@@ -713,8 +716,9 @@
             var $link = '@Url.Action("PromptCustomer", "Manage")';
             window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
         }
-        function afterPromptDelTempCust(val, val2) {
+        function afterPromptDelTempCust(val, val2, val3) {
             $('#promptHiddenField').val(val);
+            $('#promptHiddenField2').val(val3);
             $('#txtCustomer').val(val2);
             $('#txtCustomer2').val(val2);
             $('#txtCustomer3').val(val2);
@@ -727,7 +731,7 @@
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
             } else {
-                var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust"})';
+                var link = '@Url.Action("ImportDataMP", "Manage", new { cust = "replaceCust" })';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());
 
                 $.ajax({
@@ -822,7 +826,6 @@
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
             } else {
-
                 @*var link = '@Url.Action("UploadItemByCust", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
                 var link = '@Url.Action("UploadItemByCust", "Manage")';
@@ -918,88 +921,95 @@
             if ($('#promptHiddenField').val() == null || $('#promptHiddenField').val() == "" ) {
                 alert('Anda belum memilih Toko');
             } else {
-
+                @*@{
+                    var tokped = context_.Marketplaces?.SingleOrDefault(m => m.NamaMarket.ToUpper().Equals("TOKOPEDIA"))?.IdMarket.ToString();
+                }*@
                 @*var link = '@Url.Action("UploadItemByCust", "Manage", new { cust = "replaceCust"})';
                 link = link.replace("replaceCust", $('#promptHiddenField').val());*@
-                var link = '@Url.Action("UploadItemByCust", "Manage")';
-                link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
+                //if ('' != $('#promptHiddenField2').val()) {
+                    var link = '@Url.Action("UploadItemByCust", "Manage")';
+                    link += "?cust=" + $('#promptHiddenField').val() + /*"&page=" + currentPage +*/ "&dataPerPage=" + dataPerPage + "&skipDataError=" + failedToSync;
 
-                $.ajax({
-                    type: "GET",
-                    url: link,
-                    //beforeSend: function () {
-                    //    $('#loading_barang_tab').show();
-                    //},
-                    success: function (response) {
-                        if (response.Errors != null) {
-                                 if (response.Errors.length > 0) {
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        //beforeSend: function () {
+                        //    $('#loading_barang_tab').show();
+                        //},
+                        success: function (response) {
+                            if (response.Errors != null) {
+                                if (response.Errors.length > 0) {
                                     response.Errors.forEach(ErrorMessageDialog);
                                     //alert(listErrorMessage);
                                     document.getElementById('txtMessage').innerText = listErrorMessage;
-                                 }
-                                 //else
-                                 //{
-                                 //   var error = response.Errors[0].split(';');
-                                 //   if (error.length > 1) {
-                                 //       //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
-                                 //       document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
-                                 //   } else {
-                                 //       //alert(error);
-                                 //       document.getElementById('txtMessage').innerText += error +  '\n';
-                                 //   }
-                                 // }
-                        }
-                        if (response.contRecursive == "1") {
-                            $('.progress-bar').css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
-                            $('.progress-bar').html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
-                            if ((currentPage + 1) > maxPage) {
-                                alert('Sinkronisasi barang selesai');
+                                }
+                                //else
+                                //{
+                                //   var error = response.Errors[0].split(';');
+                                //   if (error.length > 1) {
+                                //       //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
+                                //       document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                                //   } else {
+                                //       //alert(error);
+                                //       document.getElementById('txtMessage').innerText += error +  '\n';
+                                //   }
+                                // }
+                            }
+                            if (response.contRecursive == "1") {
+                                $('.progress-bar').css('width', ((currentPage + 1) / (maxPage + 1) * 100) + '%').attr('aria-valuenow', (currentPage + 1) / (maxPage + 1) * 100);
+                                $('.progress-bar').html(((currentPage + 1) / (maxPage + 1) * 100) + '% Complete');
+                                if ((currentPage + 1) > maxPage) {
+                                    alert('Sinkronisasi barang selesai');
+                                    //$('#table-upload-barang-partial').show();
+                                    $('#btnSelesai').prop('disabled', false)
+
+                                    //$('#progressDiv').hide();
+                                    //$('#datatable').show();
+
+                                    //$('#table-upload-barang-partial').html(response);
+                                    //var table = $('#datatable').DataTable();
+                                    //$('#search_barang').keyup(function () {
+                                    //    table.search($(this).val()).draw();
+                                    //});
+                                } else {
+
+                                    UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
+                                }
+                            } else {
                                 //$('#table-upload-barang-partial').show();
                                 $('#btnSelesai').prop('disabled', false)
-
-                                //$('#progressDiv').hide();
-                                //$('#datatable').show();
-
-                                //$('#table-upload-barang-partial').html(response);
-                                //var table = $('#datatable').DataTable();
-                                //$('#search_barang').keyup(function () {
-                                //    table.search($(this).val()).draw();
-                                //});
-                            } else {
-
-                                UploadAllBrgWithProgressBar((currentPage + 1), maxPage, dataPerPage, response.failedRecord);
                             }
-                        } else {
+                            //else {
+                            //    if (response.Errors.length > 0) {
+                            //        response.Errors.forEach(ErrorMessageDialog);
+                            //        //alert(listErrorMessage);
+                            //        document.getElementById('txtMessage').innerText += ErrorMessageDialog + '\n';
+                            //    } else {
+                            //        var error = response.Errors[0].split(';');
+                            //        if (error.length > 1) {
+                            //            //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
+                            //            document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
+                            //        } else {
+                            //            //alert(error);
+                            //            document.getElementById('txtMessage').innerText += error +  '\n';
+                            //        }
+                            //    }
+                            //}
+                            //$('#loading_spinner').hide();
+
+                            //$('#loading_barang_tab').hide();
+                            //$('#datatable').show();
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
                             //$('#table-upload-barang-partial').show();
                             $('#btnSelesai').prop('disabled', false)
                         }
-                        //else {
-                        //    if (response.Errors.length > 0) {
-                        //        response.Errors.forEach(ErrorMessageDialog);
-                        //        //alert(listErrorMessage);
-                        //        document.getElementById('txtMessage').innerText += ErrorMessageDialog + '\n';
-                        //    } else {
-                        //        var error = response.Errors[0].split(';');
-                        //        if (error.length > 1) {
-                        //            //alert('\nKode Barang :' + error[0] + '\nError message :' + error[1]);
-                        //            document.getElementById('txtMessage').innerText += '\nKode Barang :' + error[0] + '\nError message :' + error[1] + '\n';
-                        //        } else {
-                        //            //alert(error);
-                        //            document.getElementById('txtMessage').innerText += error +  '\n';
-                        //        }
-                        //    }
-                        //}
-                        //$('#loading_spinner').hide();
+                    });
+                //} else {
+                //    alert("Silahkan edit per barang untuk sikronisasi barang dari marketplace Tokopedia.");
+                //}
 
-                        //$('#loading_barang_tab').hide();
-                        //$('#datatable').show();
-                    },
-                    error: function (xhr, status, error) {
-                        console.log(error);
-                        //$('#table-upload-barang-partial').show();
-                        $('#btnSelesai').prop('disabled', false)
-                    }
-                });
             }
         }
         var listErrorMessage = "";
@@ -1087,7 +1097,7 @@
                     $('#datatable').show();
                     table.search($('#search_barang').val()).draw();
                     //end change by calvin 14 januari 2019
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1150,6 +1160,9 @@
                                 alert('Tidak ada data barang untuk di update dari Akun ini.\nSilahkan lakukan Ambil data dari Marketplace terlebih dahulu.');
                                 $('#table-upload-barang-partial').show();
                             }
+                        } else {
+                            alert(response.Errors);
+                            $('#table-upload-barang-partial').show();
                         }
                         //$('#btnSelesai').prop('disabled', false)
                     },
@@ -1161,7 +1174,7 @@
                 //testProgressBar(0 , 4);
             }
         }
-        
+
         function Initialize() {
             $('input[name="select_all"]').off('click').on('click',
                 function () {
@@ -1297,6 +1310,11 @@
                 if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
                     $('#TempBrg_KODE_BRG_INDUK').val($('#txtBrgInduk').val());
                 }
+
+                $('#Stf02_BRG').val($('#txtBrg').val());
+
+                $('#haveVarian').val($('#cmbVar').val());
+
                 var $form = $(btnClicked).parents('form');
                 var $formData = new FormData($('form').get(0));
 
