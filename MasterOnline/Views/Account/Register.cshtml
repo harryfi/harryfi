@@ -16,7 +16,7 @@
     </style>
 }
 
-<div class="loginColumns">
+<div class="loginColumns" id="loginColumns">
     <div class="row m-t">
         <div class="col-md-6">
             <a href="@Url.Action("Index", "Home", new {@ref = referral})">
@@ -55,6 +55,9 @@
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
+                            <a onclick="return gtag_report_conversion('https://masteronline.co.id/login');" href="https://masteronline.co.id/login">
+                                Klik di sini untuk LOGIN!
+                            </a>
                         </div>
                     }
                     @if (referral == null && ViewData.ModelState.Any(x => x.Value.Errors.Any()))
@@ -73,7 +76,7 @@
                     @using (Html.BeginForm("SaveAccount", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
-                        if (referral != null)
+                        if (!string.IsNullOrEmpty(referral))
                         {
                             <div class="form-group">
                                 @Html.LabelFor(m => m.KODE_REFERRAL, "Kode Referral *", new { @class = "control-label control-label-bold" })
@@ -110,6 +113,10 @@
                         <div class="form-group">
                             @Html.LabelFor(m => m.NamaTokoOnline, "Nama Toko Online *", new { @class = "control-label control-label-bold" })
                             @Html.TextBoxFor(m => m.NamaTokoOnline, new { @class = "form-control", maxlength = 50, required = "required" })
+                        </div>
+                        <div class="form-group">
+                            @Html.HiddenFor(m => m.DatabasePathMo)
+                            @Html.HiddenFor(m => m.KODE_SUBSCRIPTION)
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -197,6 +204,9 @@
 
 @section scripts
 {
+    @*add by Tri snap js*@
+    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
+    @*SB-Mid-client-kNpQZUsTHkQzk9BZ*@
     <script>
         $(document).on('ready', function (event) {
             $("#alert-error-section").hide();
@@ -214,7 +224,37 @@
                     return;
                 }
 
-                $('form').submit();
+                //$('form').submit();
+
+                var $form = $('#btn-submit-daftar').parents('form');
+                var $formData = new FormData($('form')[0]);
+                $.ajax({
+                    type: "POST",
+                    url: $form.attr('action'),
+                    data: $formData,
+                    processData: false,  // tell jQuery not to process the data
+                    contentType: false,  // tell jQuery not to set contentType
+                    beforeSend: function () {
+                        //$('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.error == null) {
+                            if (response.token != null) {
+                                snap.pay(response, { skipOrderSummary: true });
+                            }
+                            else {
+                                //window.location.href = response;
+                                $('#loginColumns').html(response);
+                            }
+                        } else {
+                            alert(response.error);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(error);
+                        //$('#loading_spinner').hide();
+                    }
+                });
             });
 
             $('form').submit(function () {

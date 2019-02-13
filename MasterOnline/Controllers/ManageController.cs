@@ -671,6 +671,7 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "CCTESVAR3").ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -1802,6 +1803,20 @@ namespace MasterOnline.Controllers
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
             return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
         }
+        [HttpGet]
+        public ActionResult GetAttributeBlibliVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeBlibli = MoDbContext.AttributeBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptBlibliVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
+            return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+        }
         #endregion
         #region lzd
         [HttpGet]
@@ -1856,7 +1871,8 @@ namespace MasterOnline.Controllers
         public ActionResult GetAttributeOptLazada(string code, string kategoryCode)
         {
             string[] codelist = code.Split(';');
-            var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
+            //var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
+            var listAttributeOptLazada = MoDbContext.Database.SqlQuery<ATTRIBUTE_OPT_LAZADA>("SELECT * FROM ATTRIBUTE_OPT_LAZADA WHERE UPPER(CATEGORY_CODE)=UPPER('" + kategoryCode + "') AND A_NAME='" + codelist[0] + "'").ToList();
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -2913,6 +2929,8 @@ namespace MasterOnline.Controllers
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var kdTokped = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var validPrice = true;
 
             string[] imgPath = new string[Request.Files.Count];
@@ -3145,12 +3163,16 @@ namespace MasterOnline.Controllers
                                     }
                                     //end add by Tri update harga di marketplace
                                     dataHarga.HJUAL = dataBaru.HJUAL;
-
+                                    bool updateKategori = false;
                                     if (dataHarga.DISPLAY != dataBaru.DISPLAY)
                                     {
                                         updateDisplay = true;
                                     }
                                     dataHarga.DISPLAY = dataBaru.DISPLAY;
+                                    if (dataHarga.CATEGORY_CODE != dataBaru.CATEGORY_CODE)
+                                    {
+                                        updateKategori = true;
+                                    }
                                     #region Category && Attribute
                                     dataHarga.CATEGORY_CODE = dataBaru.CATEGORY_CODE;
                                     dataHarga.CATEGORY_NAME = dataBaru.CATEGORY_NAME;
@@ -3309,6 +3331,39 @@ namespace MasterOnline.Controllers
                                     dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
                                     dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
                                     #endregion
+                                    if (updateKategori)
+                                    {
+                                        var kdMarket = ErasoftDbContext.ARF01.Where(m => m.RecNum == dataBaru.IDMARKET).SingleOrDefault().NAMA;
+                                        string namaMarket = "";
+                                        if (kdMarket == kdTokped.IdMarket.ToString())
+                                        {
+                                            namaMarket = "TOKPED";
+                                        }
+                                        else if (kdMarket == kdShopee.IdMarket.ToString())
+                                        {
+                                            namaMarket = "SHOPEE";
+                                        }
+                                        else if (kdMarket == kdBlibli.IdMarket.ToString())
+                                        {
+                                            namaMarket = "BLIBLI";
+                                        }
+                                        if (kdMarket == kdLazada.IdMarket.ToString())
+                                        {
+                                            namaMarket = "LAZADA";
+                                        }
+                                        else if (kdMarket == kdBL.IdMarket.ToString())
+                                        {
+                                            namaMarket = "BUKALAPAK";
+                                        }
+                                        else if (kdMarket == kdElevenia.IdMarket.ToString())
+                                        {
+                                            namaMarket = "ELEVENIA";
+                                        }
+                                        if (namaMarket != "")
+                                        {
+                                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE STF02I SET CATEGORY_MO = '" + barangInDb.Sort1 + "', MP_CATEGORY_CODE='" + dataHarga.CATEGORY_CODE + "' WHERE BRG = '" + barangInDb.BRG + "' AND MARKET='" + namaMarket + "' ");
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -3396,7 +3451,7 @@ namespace MasterOnline.Controllers
                     VALUE_JUDUL_VAR = stf20.Where(m => m.LEVEL_JUDUL_VAR.Equals(3)).FirstOrDefault()?.VALUE_JUDUL_VAR
                 },
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
-                VariantPerMP = ErasoftDbContext.STF02I.Where(p => p.BRG == KodeBarang).ToList(),
+                VariantPerMP = ErasoftDbContext.STF02I.AsNoTracking().Where(p => p.BRG == KodeBarang).ToList(),
                 VariantOptMaster = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kategori.KODE).ToList()
             };
             return PartialView("BarangVarPartial", vm);
@@ -4263,7 +4318,22 @@ namespace MasterOnline.Controllers
 
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpPost]
+        public ActionResult CekStrukturVar(string kode)
+        {
+            int validd = 0;
+            var cekVariasi = ErasoftDbContext.STF20.Where(p => p.CATEGORY_MO == kode).FirstOrDefault();
+            var cekOpsiVariasi = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == kode).FirstOrDefault();
+            if (cekVariasi != null && cekOpsiVariasi != null)
+            {
+                validd = 1;
+            }
+            var data = new
+            {
+                adaVariasi = validd
+            };
+            return Json(data, JsonRequestBehavior.AllowGet);
+        }
         [HttpPost]
         public ActionResult GetStrukturVar(string kode, string brg)
         {
@@ -4315,7 +4385,7 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -4324,11 +4394,13 @@ namespace MasterOnline.Controllers
             {
                 var Histori_Shopee_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPEE" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopee_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_Tokped_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "TOKPED" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_Blibli_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "BLIBLI" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -4384,9 +4456,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 1,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -4394,6 +4479,7 @@ namespace MasterOnline.Controllers
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -4449,9 +4535,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 2,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -4459,6 +4558,7 @@ namespace MasterOnline.Controllers
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -4514,9 +4614,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 3,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -4925,6 +5038,14 @@ namespace MasterOnline.Controllers
             List<STF02H> ListNewVariantData_Stf02H = new List<STF02H>();
             var STF02_Induk = ErasoftDbContext.STF02.Where(p => p.BRG == brg).SingleOrDefault();
             var List_STF02H_Induk = ErasoftDbContext.STF02H.Where(p => p.BRG == brg).ToList();
+
+            //cek stf02h yg sudah berhasil link ke marketplace
+            var listStf02inDbCek = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+            var listBrgStf02inDbCek = listStf02inDbCek.Select(p => p.BRG).ToList();
+            var listStf02HinDbCekDuplikat = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDbCek.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) != "")).ToList();
+            var listBrgStf02hinDbCekDuplikat = listStf02HinDbCekDuplikat.Select(p => p.BRG).ToList();
+            //cek stf02h yg sudah berhasil link ke marketplace
+
             var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
             if (STF02_Induk != null)
             {
@@ -4944,16 +5065,44 @@ namespace MasterOnline.Controllers
                                         {
                                             foreach (var item3 in opt_selected_3.Where(p => p.Trim() != "").ToList())
                                             {
+                                                if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2 + "." + item3))
+                                                {
+                                                    STF02 newVariantData = new STF02();
+                                                    newVariantData = CopyStf02(STF02_Induk);
+                                                    newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2 + "." + item3;
+                                                    string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                                    string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                                    string ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == item3).FirstOrDefault()?.KET_VAR;
+                                                    newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2 + " " + ket_varlv3;
+                                                    newVariantData.Ket_Sort8 = ket_varlv1;
+                                                    newVariantData.Ket_Sort9 = ket_varlv2;
+                                                    newVariantData.Ket_Sort10 = ket_varlv3;
+                                                    newVariantData.PART = STF02_Induk.BRG;
+                                                    newVariantData.TYPE = "3";
+                                                    ListNewVariantData_Stf02.Add(newVariantData);
+
+                                                    foreach (var stf02h_induk in List_STF02H_Induk)
+                                                    {
+                                                        STF02H newVariantDataStf02H = new STF02H();
+                                                        newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                                        newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2 + "." + item3;
+                                                        ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2))
+                                            {
                                                 STF02 newVariantData = new STF02();
                                                 newVariantData = CopyStf02(STF02_Induk);
-                                                newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2 + "." + item3;
+                                                newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2;
                                                 string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
                                                 string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
-                                                string ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == item3).FirstOrDefault()?.KET_VAR;
-                                                newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2 + " " + ket_varlv3;
+                                                newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2;
                                                 newVariantData.Ket_Sort8 = ket_varlv1;
                                                 newVariantData.Ket_Sort9 = ket_varlv2;
-                                                newVariantData.Ket_Sort10 = ket_varlv3;
                                                 newVariantData.PART = STF02_Induk.BRG;
                                                 newVariantData.TYPE = "3";
                                                 ListNewVariantData_Stf02.Add(newVariantData);
@@ -4962,12 +5111,15 @@ namespace MasterOnline.Controllers
                                                 {
                                                     STF02H newVariantDataStf02H = new STF02H();
                                                     newVariantDataStf02H = CopyStf02h(stf02h_induk);
-                                                    newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2 + "." + item3;
+                                                    newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2;
                                                     ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
                                                 }
                                             }
                                         }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2))
                                         {
                                             STF02 newVariantData = new STF02();
                                             newVariantData = CopyStf02(STF02_Induk);
@@ -4990,31 +5142,35 @@ namespace MasterOnline.Controllers
                                             }
                                         }
                                     }
-                                    else
-                                    {
-                                        STF02 newVariantData = new STF02();
-                                        newVariantData = CopyStf02(STF02_Induk);
-                                        newVariantData.BRG = newVariantData.BRG + "." + item + "." + item2;
-                                        string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
-                                        string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
-                                        newVariantData.NAMA2 += " " + ket_varlv1 + " " + ket_varlv2;
-                                        newVariantData.Ket_Sort8 = ket_varlv1;
-                                        newVariantData.Ket_Sort9 = ket_varlv2;
-                                        newVariantData.PART = STF02_Induk.BRG;
-                                        newVariantData.TYPE = "3";
-                                        ListNewVariantData_Stf02.Add(newVariantData);
-
-                                        foreach (var stf02h_induk in List_STF02H_Induk)
-                                        {
-                                            STF02H newVariantDataStf02H = new STF02H();
-                                            newVariantDataStf02H = CopyStf02h(stf02h_induk);
-                                            newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item + "." + item2;
-                                            ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
-                                        }
-                                    }
                                 }
                             }
                             else
+                            {
+                                if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item))
+                                {
+                                    STF02 newVariantData = new STF02();
+                                    newVariantData = CopyStf02(STF02_Induk);
+                                    newVariantData.BRG = newVariantData.BRG + "." + item;
+                                    string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                    newVariantData.NAMA2 += " " + ket_varlv1;
+                                    newVariantData.Ket_Sort8 = ket_varlv1;
+                                    newVariantData.PART = STF02_Induk.BRG;
+                                    newVariantData.TYPE = "3";
+                                    ListNewVariantData_Stf02.Add(newVariantData);
+
+                                    foreach (var stf02h_induk in List_STF02H_Induk)
+                                    {
+                                        STF02H newVariantDataStf02H = new STF02H();
+                                        newVariantDataStf02H = CopyStf02h(stf02h_induk);
+                                        newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item;
+                                        ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item))
                             {
                                 STF02 newVariantData = new STF02();
                                 newVariantData = CopyStf02(STF02_Induk);
@@ -5035,26 +5191,6 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        else
-                        {
-                            STF02 newVariantData = new STF02();
-                            newVariantData = CopyStf02(STF02_Induk);
-                            newVariantData.BRG = newVariantData.BRG + "." + item;
-                            string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
-                            newVariantData.NAMA2 += " " + ket_varlv1;
-                            newVariantData.Ket_Sort8 = ket_varlv1;
-                            newVariantData.PART = STF02_Induk.BRG;
-                            newVariantData.TYPE = "3";
-                            ListNewVariantData_Stf02.Add(newVariantData);
-
-                            foreach (var stf02h_induk in List_STF02H_Induk)
-                            {
-                                STF02H newVariantDataStf02H = new STF02H();
-                                newVariantDataStf02H = CopyStf02h(stf02h_induk);
-                                newVariantDataStf02H.BRG = newVariantDataStf02H.BRG + "." + item;
-                                ListNewVariantData_Stf02H.Add(newVariantDataStf02H);
-                            }
-                        }
                     }
                 }
             }
@@ -5065,12 +5201,14 @@ namespace MasterOnline.Controllers
                 if (listStf02inDb.Count() > 0)
                 {
                     var listBrgStf02inDb = listStf02inDb.Select(p => p.BRG).ToList();
-                    var listStf02HinDb = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDb.Contains(p.BRG)).ToList();
+                    var listStf02HinDb = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDb.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) == "")).ToList();
+                    var listStf02HinDbDelete = listStf02HinDb.Select(p => p.BRG).ToList();
                     if (listStf02HinDb.Count() > 0)
                     {
                         ErasoftDbContext.STF02H.RemoveRange(listStf02HinDb);
                     }
-                    ErasoftDbContext.STF02.RemoveRange(listStf02inDb);
+                    var listStf02inDbDelete = listStf02inDb.Where(p => listStf02HinDbDelete.Contains(p.BRG)).ToList();
+                    ErasoftDbContext.STF02.RemoveRange(listStf02inDbDelete);
                     ErasoftDbContext.SaveChanges();
                 }
 
@@ -5333,6 +5471,126 @@ namespace MasterOnline.Controllers
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult SaveMappingVarBlibli(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp blibli)
+        {
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_1,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_2,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_3,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "BLIBLI").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult EditStrukturVar(int? recNum)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
@@ -5710,11 +5968,12 @@ namespace MasterOnline.Controllers
             //    return View("NoPermission");
             var userAc = new List<User>();
             var accountId = new long();
-            if(dataSession?.User != null)
+            if (dataSession?.User != null)
             {
                 accountId = MoDbContext.Account.SingleOrDefault(a => a.AccountId == dataSession.User.AccountId).AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
-            }else if(dataSession?.Account != null)
+            }
+            else if (dataSession?.Account != null)
             {
                 accountId = dataSession.Account.AccountId;
                 userAc = MoDbContext.User.Where(a => a.AccountId == accountId).ToList();
@@ -14137,7 +14396,8 @@ namespace MasterOnline.Controllers
         {
             var vm = new SubsViewModel()
             {
-                ListSubs = MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                loggedin = true
             };
 
             return View(vm);
@@ -14320,7 +14580,7 @@ namespace MasterOnline.Controllers
                                     createSTF02Induk = false;
                                     if (tempBrgInduk != null)
                                     {
-                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        var ret1 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                         if (ret1.status == 0)
                                             return JsonErrorMessage(ret1.message);
                                     }
@@ -14336,7 +14596,7 @@ namespace MasterOnline.Controllers
                                 if (tempBrginDB != null)
                                 {
                                     //sinkron brg induk terlebih dahulu
-                                    var ret2 = AutoSyncBrgInduk(tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                    var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                     if (ret2.status == 0)
                                         return JsonErrorMessage(ret2.message);
                                 }
@@ -14706,6 +14966,11 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
 
                             }
+                            if(barangInDB.TYPE == "4")
+                            {
+                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                            }
                         }
                         else
                         {
@@ -14723,7 +14988,24 @@ namespace MasterOnline.Controllers
                             }
                             if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))
                                 data.Stf02.PART = data.TempBrg.KODE_BRG_INDUK;
-                            data.Stf02.TYPE = data.TempBrg.TYPE;
+                            //change by Tri 11 Feb 2019, handle brg tokped
+                            //data.Stf02.TYPE = data.TempBrg.TYPE;
+                            if (data.haveVarian == 0)// barang tanpa varian
+                            {
+                                data.Stf02.TYPE = "3";
+                            }
+                            else if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))// barang varian
+                            {
+                                data.Stf02.TYPE = "3";
+                            }
+                            else//barang induk
+                            {
+                                data.Stf02.TYPE = "4";
+                                if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                            }
+                            //end change by Tri 11 Feb 2019, handle brg tokped
+
                             ErasoftDbContext.STF02.Add(data.Stf02);
 
                             var brgMp = new STF02H();
@@ -14920,7 +15202,7 @@ namespace MasterOnline.Controllers
 
         }
 
-        public BindingBase AutoSyncBrgInduk(TEMP_BRG_MP tempBrg, string kdBrgMO, ARF01 customer, string username, bool createSTF02Induk)
+        public BindingBase AutoSyncBrgInduk(STF02 data, TEMP_BRG_MP tempBrg, string kdBrgMO, ARF01 customer, string username, bool createSTF02Induk)
         {
             var ret = new BindingBase()
             {
@@ -14984,10 +15266,10 @@ namespace MasterOnline.Controllers
                     stf02.TINGGI = tempBrg.TINGGI;
                     stf02.LEBAR = tempBrg.LEBAR;
                     stf02.PANJANG = tempBrg.PANJANG;
-                    stf02.Sort1 = defaultCategoryCode.KODE;
-                    stf02.Sort2 = defaultBrand.KODE;
-                    stf02.KET_SORT1 = defaultCategoryCode.KET;
-                    stf02.KET_SORT2 = defaultBrand.KET;
+                    stf02.Sort1 = string.IsNullOrEmpty(data.Sort1) ? defaultCategoryCode.KODE : data.Sort1;
+                    stf02.Sort2 = string.IsNullOrEmpty(data.Sort2) ? defaultBrand.KODE : data.Sort2;
+                    stf02.KET_SORT1 = string.IsNullOrEmpty(data.KET_SORT1) ? defaultCategoryCode.KET : data.KET_SORT1;
+                    stf02.KET_SORT2 = string.IsNullOrEmpty(data.KET_SORT2) ? defaultBrand.KET : data.KET_SORT2;
                     stf02.Deskripsi = (string.IsNullOrEmpty(tempBrg.Deskripsi) ? "-" : tempBrg.Deskripsi);
 
                     if (!string.IsNullOrEmpty(tempBrg.IMAGE))
@@ -15188,7 +15470,7 @@ namespace MasterOnline.Controllers
                 //delete brg induk di temp
                 ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrg.BRG_MP).Delete();
                 if (tempBrg.BRG_MP != kdBrgMO)//user input baru kode brg MO -> update kode brg induk pada brg varian
-                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "'");
+                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "' AND CUST = '" + tempBrg.CUST + "'");
                 ErasoftDbContext.SaveChanges();
 
                 ret.status = 1;
@@ -15297,7 +15579,7 @@ namespace MasterOnline.Controllers
                                     createSTF02Induk = false;
                                     if (tempBrgInduk != null)
                                     {
-                                        var ret1 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        var ret1 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                         if (ret1.status == 0)
                                             barangVm.Errors.Add(item.SELLER_SKU + ";" + ret1.message);
                                     }
@@ -15314,7 +15596,7 @@ namespace MasterOnline.Controllers
                                 //if (tempBrginDB != null)
                                 //{
                                 //sinkron brg induk terlebih dahulu
-                                var ret2 = AutoSyncBrgInduk(tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                var ret2 = AutoSyncBrgInduk(new STF02(), tempBrgInduk, item.KODE_BRG_INDUK, customer, username, createSTF02Induk);
                                 if (ret2.status == 0)
                                     barangVm.Errors.Add(item.SELLER_SKU + ";" + ret2.message);
                                 //}
@@ -16036,7 +16318,8 @@ namespace MasterOnline.Controllers
                         {
                             KODE = customer.CUST,
                             NAMA = customer.PERSO,
-                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket
+                            MARKETPLACE = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString() == customer.NAMA).FirstOrDefault().NamaMarket,
+                            IDMARKET = customer.NAMA
                         }
                         );
                 }
@@ -17111,6 +17394,17 @@ namespace MasterOnline.Controllers
                 retBarang = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(brg.ToUpper())).FirstOrDefault();
                 if (retBarang != null)
                 {
+                    if (!string.IsNullOrEmpty(retBarang.PART))
+                    {
+                        var brg_induk = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(retBarang.PART.ToUpper())).FirstOrDefault();
+                        if (brg_induk != null)
+                        {
+                            retBarang.Sort1 = brg_induk.Sort1;
+                            retBarang.Sort2 = brg_induk.Sort2;
+                            retBarang.KET_SORT1 = brg_induk.KET_SORT1;
+                            retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                        }
+                    }
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
                     //barangVm.Stf02 = retBarang;
                     //return PartialView("FormBarangUploadsPartial", barangVm);
@@ -17138,6 +17432,19 @@ namespace MasterOnline.Controllers
                         retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
                         retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                         retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+
+                        if (!string.IsNullOrEmpty(tempBrg.KODE_BRG_INDUK))
+                        {
+                            var brg_induk = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(tempBrg.KODE_BRG_INDUK.ToUpper())).FirstOrDefault();
+                            if (brg_induk != null)
+                            {
+                                retBarang.Sort1 = brg_induk.Sort1;
+                                retBarang.Sort2 = brg_induk.Sort2;
+                                retBarang.KET_SORT1 = brg_induk.KET_SORT1;
+                                retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                            }
+                        }
+
                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                         //barangVm.Stf02 = retBarang;
                         //return PartialView("FormBarangUploadsPartial", barangVm);
@@ -17194,6 +17501,19 @@ namespace MasterOnline.Controllers
             var ret = new SimpleJsonObject();
             if (!string.IsNullOrEmpty(cust))
             {
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                if (customer != null)
+                {
+                    var tokped = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault();
+                    if (tokped != null)
+                    {
+                        if (customer.NAMA == tokped.IdMarket.ToString())
+                        {
+                            ret.Errors = "Silahkan edit per barang untuk sikronisasi barang dari marketplace Tokopedia.";
+                            return Json(ret, JsonRequestBehavior.AllowGet);
+                        }
+                    }
+                }
                 var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
                 if (listTempBrg != null)
                 {

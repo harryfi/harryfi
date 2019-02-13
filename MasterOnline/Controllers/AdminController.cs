@@ -160,6 +160,15 @@ namespace MasterOnline.Controllers
                     user.Status = false;
                 }
             }
+            //add by Tri, set free trials 14 hari
+            if (accInDb.Status)
+            {
+                if (accInDb.KODE_SUBSCRIPTION == "01")
+                {
+                    accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                }
+            }
+            //end add by Tri, set free trials 14 hari
 
             ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
             MoDbContext.SaveChanges();

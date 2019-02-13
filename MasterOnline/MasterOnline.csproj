@@ -5870,7 +5870,6 @@
     <Content Include="Views\Manage\DashboardPartial.cshtml" />
     <Content Include="Views\Admin\Subscription.cshtml" />
     <Content Include="Views\Manage\PricingPartialView.cshtml" />
-    <Content Include="Views\Manage\MarketplacePricingPartialView.cshtml" />
     <Content Include="Views\Admin\Promo.cshtml" />
     <Content Include="Views\Home\Promo.cshtml" />
     <Content Include="Views\Manage\TableFakturLunasPartial.cshtml" />
@@ -5885,11 +5884,7 @@
     <Content Include="Views\Manage\HargaJualMenu.cshtml" />
     <Content Include="Views\Manage\TableHargaJualPartial.cshtml" />
     <Content Include="Views\Manage\PromptDeliveryTempElevenia.cshtml" />
-    <Content Include="Views\Manage\PricingPartialViewInvoice.cshtml" />
     <Content Include="Views\Manage\PricingExpiredPartialView.cshtml" />
-    <Content Include="Views\Manage\PricingExpiredPartialViewInvoice.cshtml" />
-    <Content Include="Views\Manage\PricingPartialViewFaktur.cshtml" />
-    <Content Include="Views\Manage\PricingExpiredPartialViewFaktur.cshtml" />
     <Content Include="Views\Admin\AktivitasSubscription.cshtml" />
     <Content Include="Views\Midtrans\PaymentMidtrans.cshtml" />
     <Content Include="Views\Manage\PromptPickupPointBlibli.cshtml" />
@@ -5941,6 +5936,8 @@
     <Content Include="Views\Manage\BarangVarPartial.cshtml" />
     <Content Include="Views\Manage\BarangDetailVarPartial.cshtml" />
     <Content Include="Views\Report\PromptBuyer.cshtml" />
+    <Content Include="Views\Account\HomePricing.cshtml" />
+    <Content Include="Views\Manage\PricingNewPartialView.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

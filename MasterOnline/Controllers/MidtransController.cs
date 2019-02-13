@@ -17,9 +17,10 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
-        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan)
+        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId)
         {
             MoDbContext = new MoDbContext();
+            var accInDB = new Account();
             var dtNow = DateTime.Now;
             var retError = new bindMidtrans();
             //PaymentMidtransViewModel dataClass = new PaymentMidtransViewModel();
@@ -81,7 +82,17 @@ namespace MasterOnline.Controllers
                     data.credit_card.save_token_id = true;
                     data.customer_details = new CustomerDetail();
 
-                    if (sessionData?.Account != null)
+                    if (accId > 0)
+                    {
+                        accInDB = MoDbContext.Account.Where(a => a.AccountId == accId).FirstOrDefault();
+                        if (accInDB != null)
+                        {
+                            data.customer_details.email = accInDB.Email;
+                            data.customer_details.phone = accInDB.NoHp;
+                            data.user_id = accId.ToString();
+                        }
+                    }
+                    else if (sessionData?.Account != null)
                     {
 
                         //EDB = new DatabaseSQL(sessionData.Account.UserId);
@@ -99,7 +110,7 @@ namespace MasterOnline.Controllers
                             data.user_id = sessionData.User.UserId.ToString();
                         }
                     }
-                    
+
                     string dataPost = Newtonsoft.Json.JsonConvert.SerializeObject(data);
                     Utils.HttpRequest req = new Utils.HttpRequest();
                     System.Net.Http.HttpContent content = new System.Net.Http.StringContent(dataPost);
@@ -109,14 +120,22 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(bindTransferCharge.token))
                         {
                             MoDbContext = new MoDbContext();
-                            
+
                             var dataTrans = new TransaksiMidtrans();
                             dataTrans.NO_TRANSAKSI = noTrans;
                             dataTrans.TGL_INPUT = dtNow;
                             dataTrans.TYPE = code;
                             dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
-                            dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
+                            //dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
+                            if (accId > 0)
+                            {
+                                dataTrans.ACCOUNT_ID = accId;
+                            }
+                            else
+                            {
+                                dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
+                            }
 
                             MoDbContext.TransaksiMidtrans.Add(dataTrans);
 
@@ -147,7 +166,8 @@ namespace MasterOnline.Controllers
                             //    }
                             //}
                             MoDbContext.SaveChanges();
-                            return Json(bindTransferCharge.token, JsonRequestBehavior.AllowGet);
+                            retError.token = bindTransferCharge.token;
+                            return Json(retError, JsonRequestBehavior.AllowGet);
                         }
                         else
                         {
@@ -224,7 +244,7 @@ namespace MasterOnline.Controllers
                         }
 
                         MoDbContext.SaveChanges();
-                    }                    
+                    }
                 }
             }
             catch (Exception ex)
@@ -300,6 +320,7 @@ namespace MasterOnline.Controllers
 
     public class bindMidtrans
     {
+        public string token { get; set; }
         public string error { get; set; }
     }
 }

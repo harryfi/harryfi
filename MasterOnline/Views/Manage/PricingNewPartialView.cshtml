@@ -1,0 +1,262 @@
+﻿@using System.Globalization
+@using MasterOnline.ViewModels
+@model List<MasterOnline.Models.Subscription>
+
+@{
+    /**/
+
+    var context = new MoDbContext();
+    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    var kodeSubs = "";
+    var tglBerakhir = "";
+    if (dataSession?.User != null)
+    {
+        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        kodeSubs = context.Account.Single(a => a.AccountId == accId).KODE_SUBSCRIPTION;
+        tglBerakhir = context.Account.Single(a => a.AccountId == accId).TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
+        //context.Dispose(); 'remark by nurul 4/2/2019
+    }
+    else
+    {
+        var account = context.Account.SingleOrDefault(a => a.AccountId == dataSession.Account.AccountId);
+        //kodeSubs = dataSession?.Account?.KODE_SUBSCRIPTION;
+        //tglBerakhir = dataSession?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
+        kodeSubs = account.KODE_SUBSCRIPTION;
+        tglBerakhir = account.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy");
+    }
+}
+
+<div>
+    <div style="font-size: 12px;">
+        <div id="divSubs">
+            <label>
+                Terima kasih Anda telah bergabung bersama MasterOnline. Silakan pilih paket langganan yang sesuai dengan bisnis Anda.
+            </label>
+            <p>
+                JENIS LANGGANAN:
+                <span style="color: #2ac52a;">
+                    @context.Subscription.Where(m => m.KODE == kodeSubs).SingleOrDefault().KETERANGAN
+                </span>
+            </p>
+            <p>TANGGAL BERAKHIR: <span style="color: red;">'@tglBerakhir'</span></p>
+            <div class="col-md-12 text-center">
+                <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">PRICING</h2>
+                <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">DAFTAR HARGA BERLANGGANAN</p>
+            </div>
+        </div>
+        <div id="divSubsExpand">
+            <div class="text-center">
+                <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
+                    Selamat bisnis Anda telah berkembang! Untuk tetap dapat menggunakan Master Online, silakan Anda meng-<i>update</i>
+                    status keanggotaan Anda sesuai dengan kebutuhan Anda!
+                </label>
+            </div>
+        </div>
+        <div id="divSubExpired">
+            <div class="text-center">
+                <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
+                    Paket langganan Anda sudah <i>expired</i> pada tanggal @tglBerakhir,<br />
+                    silakan perpanjang paket Anda!
+                </label>
+            </div>
+        </div>
+        @*@if (kodeSubs != "01")
+            {
+                <button style="margin-bottom: 35px;" class="btn btn-danger" data-toggle="modal" data-target="#konfBerhentiBerlangganan" type="button" id="btn_unsubscribe">Berhenti Berlangganan</button>
+            }*@
+    </div>
+</div>
+<div class="subs_body">
+    @*<div id="loading_structure_partial" class="text-center">
+        <img src="~/Content/Images/spinner.gif" width="100" />
+    </div>*@
+    <div class="container-fluid" @*style="margin-top:8%"*@>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-default-noborder">
+                    <div class="panel panel-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col" style="text-align:left;"></th>
+                                    @*<th scope="col" style="text-align:center;">BASIC</th>
+                                        <th scope="col" style="text-align:center;">SILVER</th>
+                                        <th scope="col" style="text-align:center;">GOLD</th>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        <th scope="col" style="text-align:center;">@subs.KETERANGAN</th>
+                                    }
+                                    <th scope="col" style="text-align:center;">PLATINUM</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th>
+                                    <td style="text-align:center;">Free<br>(Trial 14hari)</td>
+                                    @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
+                                        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        if (subs.KODE != "01")
+                                        {
+                                            <td style="text-align:center;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)<br>per bulan</td>
+                                        }
+                                    }
+                                    <td style="text-align:center;">CALL</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Pembayaran</th>
+                                    @*<td style="text-align:center; "><a class='btn btn-basicfree' role="button" title="Beli" href="#">DAFTAR</a></td>*@
+                                    <td style="text-align:center; "></td>
+                                    @*<td style="text-align:center;">
+                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                                                Rp 1,200,000 <br>per 3 bulan
+                                            </a>
+                                        </td>
+                                        <td style="text-align:center;">
+                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                                                Rp 2,700,000 <br>per 3 bulan
+                                            </a>
+                                        </td>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        if (subs.KODE != "01")
+                                        {
+                                            <td style="text-align:center;">
+                                                <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '3')">
+                                                    Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)) <br>per 3 bulan
+                                                </a>
+                                            </td>
+                                        }
+                                    }
+                                    <td style="text-align:center;">CALL</td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"></th>
+                                    <td style="text-align:center;"></td>
+                                    @*<td style="text-align:center;">
+                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                                                Rp 4,400,000 <br>per 12 bulan
+                                            </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                                        </td>
+                                        <td style="text-align:center;">
+                                            <a class='btn btn-basicfree' role="button" title="Beli" href="#">
+                                                Rp 9,900,000 <br>per 12 bulan
+                                            </a><br><p style="font-size:12px;color:#891539;">hemat 1 bulan</p>
+                                        </td>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        if (subs.KODE != "01")
+                                        {
+                                            <td style="text-align:center;">
+                                                <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '12')">
+                                                    Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)) <br>per 12 bulan
+                                                </a><br><p style="font-size:12px;color:#891539;">hemat 2 bulan</p>
+                                            </td>
+                                        }
+                                    }
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th>
+                                    @*<td style="text-align:center;">2</td>
+                                        <td style="text-align:center;">Unlimited</td>
+                                        <td style="text-align:center;">Unlimited</td>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
+                                    }
+                                    <td style="text-align:center;" rowspan="11" valign="top" class="enterpriseColumn"><h3>Enterprise <br><br>Resources <br><br>Planning <br><br>(ERP) <br><br>Features</h3></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Faktur per Bulan</th>
+                                    @*<td style="text-align:center;">100</td>
+                                        <td style="text-align:center;">300</td>
+                                        <td style="text-align:center;">Unlimited</td>*@
+                                    @foreach (var subs in Model)
+                                    {
+                                        <td style="text-align:center;">@(subs.JUMLAH_PESANAN >= 999 ? "Unlimited" : subs.JUMLAH_PESANAN.ToString())</td>
+                                    }
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Shipment Management</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Purchasing</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Inventory & Warehouse Management</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Receivable (AR)</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Account Payable (AP)</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;General Ledger (GL)</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
+                                    <td style="text-align:center;"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: white">
+    <div class="row"><input id="ckBox" type="checkbox" checked="checked">Saya setuju dengan <a href="/Content/Static/termsandconditions.html#terms"><u>Syarat & Ketentuan</u></a></div>
+    <br />
+    <img src="~/Content/Images/payment_logo.png" width="25%" />
+</div>

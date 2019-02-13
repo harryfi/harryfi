@@ -286,8 +286,8 @@
                 <div class="x_content">
                     <div class="form-group">
                         @*<div class="col-md-3 col-sm-3 col-xs-12">
-                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
-            </div>*@
+                                <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
+                            </div>*@
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang MO *</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>
@@ -310,66 +310,6 @@
                             </table>
                         </div>
                     </div>
-                    @*<div class="form-group">
-            <div class="col-md-3 col-sm-3 col-xs-12">
-                <label>Nama Barang *</label>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <input data-val="true" class="form-control" data-val-length-max="30" id="txtNama" name="txtNama" maxlength="30" required="required" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-3 col-sm-3 col-xs-12"></div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <input data-val="true" class="form-control" data-val-length-max="30" id="txtNama2" name="txtNama2" maxlength="30" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-3 col-sm-3 col-xs-12">
-                <label>Satuan *</label>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <input data-val="true" class="form-control" data-val-length-max="5" id="txtStn" name="txtStn" maxlength="5" required="required" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-3 col-sm-3 col-xs-12">
-                <label>Kategori Barang *</label>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <select id="KATEGORI" placeholder="Harap pilih" tabindex="-1" class="selectized" style="display: none;">
-                    <option value="" selected="selected"></option>
-                </select>
-                <div class="selectize-control single">
-                    <div class="selectize-input items required invalid not-full has-options">
-                        <input type="text" autocomplete="off" tabindex="" id="KATEGORI-selectized" placeholder="Harap pilih" required="" style="width: 66px;">
-                    </div>
-                    <div class="selectize-dropdown single" style="display: none; width: 457px; top: 36px; left: 0px;">
-                        <div class="selectize-dropdown-content"></div>
-                    </div>
-                    <input name="txtSort1" id="txtSort1" style="visibility:hidden" />
-                </div>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-3 col-sm-3 col-xs-12">
-                <label>Merek Barang *</label>
-            </div>
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                <select id="MEREK" placeholder="Harap pilih" tabindex="-1" class="selectized" style="display: none;">
-                    <option value="" selected="selected"></option>
-                </select>
-                <div class="selectize-control single">
-                    <div class="selectize-input items required invalid not-full has-options">
-                        <input type="text" autocomplete="off" tabindex="" id="MEREK-selectized" placeholder="Harap pilih" required="" style="width: 66px;">
-                    </div>
-                    <div class="selectize-dropdown single" style="display: none; width: 457px; top: 36px; left: 0px;">
-                        <div class="selectize-dropdown-content"></div>
-                    </div>
-                    <input name="txtSort2" id="txtSort2" style="visibility:hidden" />
-                </div>
-            </div>
-        </div>*@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.NAMA, "Nama Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -382,8 +322,18 @@
                             @Html.TextBoxFor(m => m.Stf02.NAMA2, new { @class = "form-control", maxlength = 30 })
                         </div>
                     </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.haveVarian, "Memiliki Varian *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            @Html.HiddenFor(m => m.haveVarian)
+                            <select id="cmbVar" style="height:30px" placeholder="Harap pilih" required="required">
+                                <option value="1">Ya</option>
+                                <option value="0">Tidak</option>
+                            </select>
+                        </div>
+                    </div>
                     @*@if (Model.TempBrg.TYPE == "3" && Model.TempBrg.KODE_BRG_INDUK != "")
-        {*@
+                        {*@
                     <div class="form-group">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Induk**</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
@@ -395,12 +345,12 @@
                                         <label>**Kode Barang Induk wajib diisi untuk barang varian</label>
                                     </td>
                                     @*<td>
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
-                                    <span class="glyphicon glyphicon-option-horizontal"></span>
-                                </button>
-                            </span>
-                        </td>*@
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptBarang('4');">
+                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                </button>
+                                            </span>
+                                        </td>*@
                                 </tr>
                             </table>
                         </div>

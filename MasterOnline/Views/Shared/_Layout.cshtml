@@ -9,15 +9,21 @@
     <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
+        function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
 
         gtag('config', 'UA-130203101-1');
+        gtag('config', 'AW-778375246');
+    </script>
+ 
+    <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
+    <script>
+        function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
 
     <style>
@@ -197,7 +203,7 @@
                     <a href="https://www.instagram.com/csmasteronline" style="margin: 0 10px;">
                         <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
                     </a>
-                    <a href="http://13.250.30.255/blog">
+                    <a href="http://blogmasteronline.wordpress.com/">
                         <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
                     </a>
                 </div>
@@ -222,6 +228,13 @@
                             <span>DAFTAR</span>
                         </a>
                     </div>
+                    @*add 6 Feb 2019, pricing*@
+                    <div class="col-md-2">
+                        <a href="@Url.Action("HomePricing", "Account", new {@ref = referral})">
+                            <span>PRICING</span>
+                        </a>
+                    </div>
+                    @*end add 6 Feb 2019, pricing*@
                     <div class="col-md-2">
                         <a href="@Url.Action("Partner", "Account", new {@ref = referral})">
                             <span>PARTNER</span>
@@ -270,8 +283,8 @@
                 event.preventDefault();
 
                 $('html, body').animate({
-                    scrollTop: $($.attr(this, 'href')).offset().top - 170
-                },
+                        scrollTop: $($.attr(this, 'href')).offset().top - 170
+                    },
                     500);
 
                 $('.btn-account').on('click',
