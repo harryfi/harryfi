@@ -41,6 +41,7 @@
         getOptSelectMultiple(3);
         InitSettingVariantShopee();
         InitSettingVariantTokped();
+        InitSettingVariantBlibli();
 
         $('#variant-tabs a:first').tab('show');
         $('#variant-tabs a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -281,7 +282,8 @@
                         options: SelectList,
                         onChange: function (value) {
                             $('#save_map_var_tokped').removeAttr('disabled');
-                            $('#txtVariantTokpedLv' + level + '_' + data_recnum).val(value);
+                            var input_data_recnum = $(this.$input).attr('data-recnum');
+                            $('#txtVariantTokpedLv' + level + '_' + input_data_recnum).val(value);
                         }
                     });
 
@@ -310,6 +312,204 @@
             }
         });
     }
+
+    function InitSettingVariantBlibli() {
+        if ($('#txtBlibliCategoryCodeFound').val() > -1) {
+            var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+            var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_NAME';
+            $(fieldCategoryCode).change(function () {
+                $('#txtKodeKategoriBlibli').val($(fieldCategoryCode).val());
+            });
+            $(fieldCategoryName).change(function () {
+                $('#txtNamaKategoriBlibli').val($(fieldCategoryName).val());
+            });
+
+            if ($('#selectJudulVariantBlibliLv1').length > 0) {
+                var link = '@Url.Action("GetAttributeBlibliVar", "Manage", new { code = "replaceCode" })';
+                link = link.replace("replaceCode", $(fieldCategoryCode).val());
+                $.ajax({
+                    type: "GET",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    success: function (data) {
+                        var SelectList = [];
+                        var counter = 0;
+                        $.each(data,
+                            function (i, item) {
+                                for (var a = 0; a < 30; a++) {
+                                    var ACODE = item["ACODE_" + (a + 1)];
+                                    var ATYPE = item["ATYPE_" + (a + 1)];
+                                    var ANAME = item["ANAME_" + (a + 1)];
+                                    var AOPTIONS = item["AOPTIONS_" + (a + 1)];
+                                    if (ATYPE == "DEFINING_ATTRIBUTE") {
+                                        if (ACODE != null && ACODE != "") {
+                                            SelectList[counter] = {
+                                                id: ACODE,
+                                                text: ANAME
+                                            };
+                                            counter = counter + 1;
+                                        }
+                                    }
+                                }
+                            });
+
+                        var len = SelectList.length;
+                        var attributeSelect = $('#selectJudulVariantBlibliLv1').selectize({
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: SelectList,
+                            onChange: function (value) {
+                                $('#txtJudulVariantBlibliLv1').val(value);
+                                SearchOptVariantBlibli(1, value);
+                            }
+                        });
+                        attributeSelect[0].selectize.clearOptions();
+                        attributeSelect[0].selectize.renderCache = {};
+                        attributeSelect[0].selectize.load(function (callback) {
+                            callback(SelectList);
+
+                            if ($('#txtJudulVariantBlibliLv1').val() != "") {
+                                var FoundValue = "";
+                                for (var d = 0; d < len; d++) {
+                                    if (FoundValue == "") {
+                                        var value = SelectList[d].id;
+                                        if ($('#txtJudulVariantBlibliLv1').val() == value) {
+                                            FoundValue = SelectList[d].id;
+                                            attributeSelect[0].selectize.setValue(FoundValue, false);
+                                        }
+                                    }
+                                }
+                            }
+                        });
+
+                        if ($('#selectJudulVariantBlibliLv2').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliLv2').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    $('#txtJudulVariantBlibliLv2').val(value);
+                                    SearchOptVariantBlibli(2, value);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariantBlibliLv2').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            if ($('#txtJudulVariantBlibliLv2').val() == value) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                        if ($('#selectJudulVariantBlibliLv3').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliLv3').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    $('#txtJudulVariantBlibliLv3').val(value);
+                                    SearchOptVariantBlibli(3, value);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariantBlibliLv2').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            if ($('#txtJudulVariantBlibliLv2').val() == value) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+        }
+    }
+    function SearchOptVariantBlibli(level, variant_id) {
+        var link = '@Url.Action("GetAttributeOptBlibliVar", "Manage", new { code = "replaceCode" })';
+        link = link.replace("replaceCode", variant_id);
+        $.ajax({
+            type: "GET",
+            url: link,
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
+                var SelectList = [];
+                $.each(data,
+                    function (i, item) {
+                        SelectList[i] = {
+                            id: item.OPTION_VALUE,
+                            text: item.OPTION_VALUE
+                        };
+                    });
+
+                $(".selectVariantBlibliLv" + level + "_").each(function (i, item) {
+                    var data_recnum = $(item).attr("data-recnum");
+                    var len = SelectList.length;
+
+                    var attributeOptSelect = $(item).selectize({
+                        maxItems: 1,
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: SelectList,
+                        onChange: function (value) {
+                            $('#save_map_var_blibli').removeAttr('disabled');
+                            var input_data_recnum = $(this.$input).attr('data-recnum');
+                            $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
+                        }
+                    });
+
+                    attributeOptSelect[0].selectize.clearOptions();
+                    attributeOptSelect[0].selectize.renderCache = {};
+                    attributeOptSelect[0].selectize.load(function (callback) {
+                        callback(SelectList);
+
+                        if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() != "") {
+                            var FoundValue = "";
+                            for (var d = 0; d < len; d++) {
+                                if (FoundValue == "") {
+                                    var value = SelectList[d].id;
+                                    if ($('#txtVariantBlibliLv' + level + '_' + data_recnum).val() == value) {
+                                        FoundValue = SelectList[d].id;
+                                        attributeOptSelect[0].selectize.setValue(FoundValue, true);//silent = true, agar tidak set button save_map_var_blibli enable
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+
     function getOptSelectMultiple(level) {
         if ($('#select_opt_level_' + level).length > 0) {
             var post_data = {
@@ -341,7 +541,7 @@
                         }
                     });
 
-                    if (adaValue != "") {
+                    if (adaValue != "" && adaValue != null) {
                         var adaValues = adaValue.split(',');
                         AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                     }
@@ -399,11 +599,25 @@
             }
             //END CEK TOKPED
 
+            //CEK BLIBLI
+            var blibli_code = "";
+            var ada_blibli = false;
+            if ($('#txtBlibliCategoryCodeFound').val() != undefined) {
+                if ($('#txtBlibliCategoryCodeFound').val() > -1) {
+                    ada_blibli = true;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+                    blibli_code = $(fieldCategoryCode).val();
+                    validasiProsesBarangVarPartialBlibli();
+                }
+            }
+            //END CEK BLIBLI
+
             if (validasi_prosesBarangVarPartial) {
                 var post_data = {
                     brg: $('#Stf02_BRG').val(),
                     shopee_code: shopee_code,
                     tokped_code: tokped_code,
+                    blibli_code: blibli_code,
                     code: $('#txtKodeKategori').val(),
                     opt_selected_1: $('#select_opt_level_1').val(),
                     opt_selected_2: $('#select_opt_level_2').val(),
@@ -454,6 +668,16 @@
         }
     }
 
+    function validasiProsesBarangVarPartialBlibli() {
+        var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+        if ($(fieldCategoryCode).val() != undefined) {
+            if ($(fieldCategoryCode).val() == null || $(fieldCategoryCode).val() == "") {
+                validasi_prosesBarangVarPartial = false;
+                message_validasi_prosesBarangVarPartial = "Category Blibli harus dipilih terlebih dahulu.";
+            }
+        }
+    }
+
     function autoloadStf02Variant() {
         if (confirm("Buat Detail Barang Variasi ?")) {
             validasi_autoloadStf02Variant = true;
@@ -491,6 +715,19 @@
                 }
             }
             //END TOKPED
+
+            //BLIBLI
+            var blibli_code = "";
+            var ada_blibli = false;
+            if ($('#txtBlibliCategoryCodeFound').val() != undefined) {
+                if ($('#txtBlibliCategoryCodeFound').val() > -1) {
+                    ada_blibli = true;
+                    var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+                    blibli_code = $(fieldCategoryCode).val();
+                    validasiAutoloadStf02VariantBlibli();
+                }
+            }
+            //END BLIBLI
 
             if (validasi_autoloadStf02Variant) {
                 var post_data = {
@@ -560,6 +797,25 @@
             }
         });
         message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Tokopedia.";
+    }
+
+    function validasiAutoloadStf02VariantBlibli() {
+        $(".txtVariantBlibliLv1_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariantBlibliLv2_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        $(".txtVariantBlibliLv3_").each(function (i, item) {
+            if ($(item).val() == "") {
+                validasi_autoloadStf02Variant = false;
+            }
+        });
+        message_validasi_autoloadStf02Variant = "Mohon isi semua Opsi Blibli.";
     }
 
     function SaveMapVarShopee() {
@@ -712,6 +968,82 @@
             }
         }
     }
+    function SaveMapVarBlibli() {
+        validasi_autoloadStf02Variant = true;
+        message_validasi_autoloadStf02Variant = "";
+
+        //BLIBLI
+        var blibli_code = "";
+        var ada_blibli = false;
+        if ($('#txtBlibliCategoryCodeFound').val() != undefined) {
+            if ($('#txtBlibliCategoryCodeFound').val() > -1) {
+                ada_blibli = true;
+                var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+                blibli_code = $(fieldCategoryCode).val();
+                validasiAutoloadStf02VariantBlibli();
+            }
+        }
+        //END BLIBLI
+
+        if (validasi_autoloadStf02Variant) {
+            var listVariantBlibliLv1 = [];
+            var listVariantBlibliLv2 = [];
+            var listVariantBlibliLv3 = [];
+
+            $(".txtVariantBlibliLv1_").each(function (i, item) {
+                listVariantBlibliLv1[i] = $(item).val();
+            });
+            $(".txtVariantBlibliLv2_").each(function (i, item) {
+                listVariantBlibliLv2[i] = $(item).val();
+            });
+            $(".txtVariantBlibliLv3_").each(function (i, item) {
+                listVariantBlibliLv3[i] = $(item).val();
+            });
+
+            var post_data = {
+                brg: $('#Stf02_BRG').val(),
+                code: $('#txtKodeKategori').val(),
+                opt_selected_1: $('#select_opt_level_1').val(),
+                opt_selected_2: $('#select_opt_level_2').val(),
+                opt_selected_3: $('#select_opt_level_3').val(),
+                blibli: {
+                    code: blibli_code,
+                    var_judul: {
+                        lv_1: $("#txtJudulVariantBlibliLv1").val(),
+                        lv_2: $("#txtJudulVariantBlibliLv2").val(),
+                        lv_3: $("#txtJudulVariantBlibliLv3").val()
+                    },
+                    var_detail: {
+                        lv_1: listVariantBlibliLv1,
+                        lv_2: listVariantBlibliLv2,
+                        lv_3: listVariantBlibliLv3
+                    }
+                }
+            }
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("SaveMappingVarBlibli", "Manage")',
+                data: post_data,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
+                success: function (response) {
+                    $('#save_map_var_blibli').attr('disabled', 'disabled');
+                    $('#loading_spinner').hide();
+                    $('#proses_detail_var_btn').removeAttr('disabled');
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                    $('#loading_spinner').hide();
+                }
+            });
+        }
+        else {
+            if (message_validasi_autoloadStf02Variant != "") {
+                alert(message_validasi_autoloadStf02Variant);
+            }
+        }
+    }
 </script>
 <div class="form-horizontal">
     <div id="variant-section">
@@ -789,6 +1121,7 @@
                         @{
                             var shopeeCategoryCodeFound = -1;
                             var tokpedCategoryCodeFound = -1;
+                            var blibliCategoryCodeFound = -1;
                             var STF02_ID = Model.Barang.ID;
                         }
                         @for (var i = 0; i < listMarket.ToList().Count; i++)
@@ -803,6 +1136,19 @@
                                     {
                                         shopeeCategoryCodeFound = i;
                                         @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                    }
+                                }
+                            }
+                            if (blibliCategoryCodeFound == -1)
+                            {
+                                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                                var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                {
+                                    if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    {
+                                        blibliCategoryCodeFound = i;
+                                        @Html.TextBox("txtBlibliCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
                                     }
                                 }
                             }
@@ -930,6 +1276,298 @@
             <div id="elevenia_detail_tab_variant" class="tab-pane fade in">
             </div>
             <div id="blibli_detail_tab_variant" class="tab-pane fade in">
+
+                <div class="row" style="padding-top:10px">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div class="form-group" style="display:none">
+                            @Html.Label("lblKodeKategoriBlibli", "Kode Kategori", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtKodeKategoriBlibli", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("lblNamaKategoriMOBlibli", "Kategori MO", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategoriMOBlibli", Model.Kategori.KET, new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                            @Html.Label("lblNamaKategoriBlibli", "Kategori Blibli", new { @class = "control-label col-md-2 col-sm-2 col-xs-12" })
+                            <div class="col-md-4 col-sm-4 col-xs-12">
+                                @Html.TextBox("txtNamaKategoriBlibli", "", new { @class = "form-control", disabled = "disabled" })
+                            </div>
+                        </div>
+                        @{
+                            var adaSettingBlibli = false;
+                            var VariantPerMpBlibliLv1 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 1 && p.CATEGORY_MO == code_kategori && p.MARKET == "BLIBLI").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpBlibliLv1.Count() > 0)
+                            {
+                                adaSettingBlibli = true;
+                                var textJudulVar1 = "";
+                                var judulVar1 = VariantPerMpBlibliLv1.FirstOrDefault();
+                                if (judulVar1 != null)
+                                {
+                                    textJudulVar1 = judulVar1.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv1.Count(); i++)
+                                                            {
+                                                                var textKetVar1 = "";
+                                                                var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpBlibliLv1[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar1 != null)
+                                                                {
+                                                                    textKetVar1 = KetVar1.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            var VariantPerMpBlibliLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "BLIBLI").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpBlibliLv2.Count() > 0)
+                            {
+                                adaSettingBlibli = true;
+                                var textJudulVar2 = "";
+                                var judulVar2 = VariantPerMpBlibliLv2.FirstOrDefault();
+                                if (judulVar2 != null)
+                                {
+                                    textJudulVar2 = judulVar2.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv2.Count(); i++)
+                                                            {
+                                                                var textKetVar2 = "";
+                                                                var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpBlibliLv2[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar2 != null)
+                                                                {
+                                                                    textKetVar2 = KetVar2.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+
+                            var VariantPerMpBlibliLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori && p.MARKET == "BLIBLI").OrderBy(p => p.RECNUM).ToList();
+                            if (VariantPerMpBlibliLv3.Count() > 0)
+                            {
+                                adaSettingBlibli = true;
+                                var textJudulVar3 = "";
+                                var judulVar3 = VariantPerMpBlibliLv3.FirstOrDefault();
+                                if (judulVar3 != null)
+                                {
+                                    textJudulVar3 = judulVar3.MP_JUDUL_VAR;
+                                }
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv3" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv3", textJudulVar3)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv3.Count(); i++)
+                                                            {
+                                                                var textKetVar3 = "";
+                                                                var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpBlibliLv3[i].KODE_VAR).FirstOrDefault();
+                                                                if (KetVar3 != null)
+                                                                {
+                                                                    textKetVar3 = KetVar3.KET_VAR;
+                                                                }
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv3", textKetVar3, new
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
+                                                                    </td>
+                                                                    <td>
+                                                                        <select id="selectVariantBlibliLv3_@(VariantPerMpBlibliLv3[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM" class="selectVariantBlibliLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                        @Html.Hidden("txtVariantBlibliLv3_" + VariantPerMpBlibliLv3[i].RECNUM, VariantPerMpBlibliLv3[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv3_" })
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            }
+                            if (adaSettingBlibli)
+                            {
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_blibli" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarBlibli()" />
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
             </div>
             <div id="lazada_detail_tab_variant" class="tab-pane fade in">
             </div>
@@ -1340,6 +1978,7 @@
                                                                     <td>
                                                                         <select id="selectVariantTokpedLv1_@(VariantPerMpTokpedLv1[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM" class="selectVariantTokpedLv1_" placeholder="Nama Variasi" required="required"></select>
                                                                         @Html.Hidden("txtVariantTokpedLv1_" + VariantPerMpTokpedLv1[i].RECNUM, VariantPerMpTokpedLv1[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv1_" })
+                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM"></div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -1427,6 +2066,7 @@
                                                                     <td>
                                                                         <select id="selectVariantTokpedLv2_@(VariantPerMpTokpedLv2[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM" class="selectVariantTokpedLv2_" placeholder="Nama Variasi" required="required"></select>
                                                                         @Html.Hidden("txtVariantTokpedLv2_" + VariantPerMpTokpedLv2[i].RECNUM, VariantPerMpTokpedLv2[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv2_" })
+                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM"></div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -1514,6 +2154,7 @@
                                                                     <td>
                                                                         <select id="selectVariantTokpedLv3_@(VariantPerMpTokpedLv3[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM" class="selectVariantTokpedLv3_" placeholder="Nama Variasi" required="required"></select>
                                                                         @Html.Hidden("txtVariantTokpedLv3_" + VariantPerMpTokpedLv3[i].RECNUM, VariantPerMpTokpedLv3[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv3_" })
+                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM"></div>
                                                                     </td>
                                                                 </tr>
                                                             }

@@ -1486,6 +1486,9 @@
         var $modeEdit = 0; // 0 new, 1 edit
         var $jumlahPesanan = true;
         //end add
+        //add by nurul 12/2/2019
+        var $page = window.text;
+        //end add by nurul 12/2/2019
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
         var $jumlahPesananBulanIni = 0;
@@ -1516,6 +1519,9 @@
         }
 
         $(document).ready(function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             //add by nurul 10/1/2019
             $('#div_tgl_Tempo').hide();
                     //end add
@@ -1546,6 +1552,13 @@
 
                 $('#refresh_invoice').show();
                 $('#tambah_invoice').show();
+                //add by nurul 12/2/2019
+                $page = 0;
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             $('#invoice-lunas-tab').click(function () {
@@ -1607,6 +1620,12 @@
                 $('#price-total-' + $kodeSubs).text(convertToRupiah($harga * $bulanPilihan));
             });
             //end add 09-10-2018, function button di subscription
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
 
@@ -1757,6 +1776,12 @@
             $bakalNetto = 0;
             $totalAwal = 0;
             $nettoSebelumnya = 0;
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -1819,7 +1844,14 @@
                     $('#div_tgl_Tempo').hide();
                     //end add
                     refreshTableInvoice1();
-
+                    //add by nurul 12/2/2019
+                    $page = 0;
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                    
                 }
                 else if ($TabAktif == 1) {
                     //add by nurul 10/1/2019
@@ -1882,6 +1914,12 @@
                     $bakalNetto = 0;
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 }
             });
 
@@ -2236,6 +2274,13 @@
 
                 $('#refresh_invoice').show();
                 $('#tambah_invoice').show();
+                //add by nurul 12/2/2019
+                $page = 0;
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             $('#invoice-lunas-tab').click(function () {
@@ -2270,7 +2315,13 @@
                     $('#tambah_invoice').hide();
                 }
             });
-            //end add by nurul
+            //end add by nurul 
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function refreshNettoBarang($trId) {
@@ -3186,6 +3237,12 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     table.search($('#search_invoice').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

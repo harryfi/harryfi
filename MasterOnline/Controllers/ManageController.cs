@@ -671,7 +671,7 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "CCTESVAR").ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "CCTESVAR3").ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -1077,7 +1077,10 @@ namespace MasterOnline.Controllers
             {
                 JumlahMarketplace = jumlahSemuaAkun,
                 JumlahMarketplaceMax = accSubs?.JUMLAH_MP,
-                ListNamaMarketTerpakai = namaMarketTerpakai
+                ListNamaMarketTerpakai = namaMarketTerpakai,
+                //add by nurul 12/2/2019
+                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date)
+                //end add by nurul 12/2/2019
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
@@ -1795,6 +1798,20 @@ namespace MasterOnline.Controllers
         }
         [HttpGet]
         public ActionResult GetAttributeOptBlibli(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
+            return Json(listAttributeOptBlibli, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeBlibliVar(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeBlibli = MoDbContext.AttributeBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptBlibliVar(string code)
         {
             string[] codelist = code.Split(';');
             var listAttributeOptBlibli = MoDbContext.AttributeOptBlibli.Where(k => codelist.Contains(k.ACODE)).ToList();
@@ -4368,7 +4385,7 @@ namespace MasterOnline.Controllers
             return Json(data, JsonRequestBehavior.AllowGet);
         }
         [HttpPost]
-        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
+        public ActionResult SaveOptVariantBarang(string brg, string shopee_code, string tokped_code, string blibli_code, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
             var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -4377,11 +4394,13 @@ namespace MasterOnline.Controllers
             {
                 var Histori_Shopee_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "SHOPEE" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == shopee_code).OrderByDescending(p => p.RECNUM).ToList();
                 var Histori_Tokped_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "TOKPED" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
+                var Histori_Blibli_stf02i = ErasoftDbContext.STF02I.Where(p => p.MARKET == "BLIBLI" && p.CATEGORY_MO == code && p.MP_CATEGORY_CODE == tokped_code).OrderByDescending(p => p.RECNUM).ToList();
 
                 if (opt_selected_1 != null)
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 1).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_1)
                     {
                         if (item != "")
@@ -4437,9 +4456,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 1,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 1,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -4447,6 +4479,7 @@ namespace MasterOnline.Controllers
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 2).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_2)
                     {
                         if (item != "")
@@ -4502,9 +4535,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 2,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 2,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -4512,6 +4558,7 @@ namespace MasterOnline.Controllers
                 {
                     var Histori_Shopee = Histori_Shopee_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     var Histori_Tokped = Histori_Tokped_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
+                    var Histori_Blibli = Histori_Blibli_stf02i.Where(p => p.LEVEL_VAR == 3).OrderByDescending(p => p.RECNUM).ToList();
                     foreach (var item in opt_selected_3)
                     {
                         if (item != "")
@@ -4567,9 +4614,22 @@ namespace MasterOnline.Controllers
                                 LEVEL_VAR = 3,
                                 MP_JUDUL_VAR = Histori_Tokped.FirstOrDefault()?.MP_JUDUL_VAR,
                                 MP_VALUE_VAR = Histori_Tokped.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
-                                MP_CATEGORY_CODE = shopee_code
+                                MP_CATEGORY_CODE = tokped_code
                             };
                             listNewData.Add(newdataTokped);
+
+                            STF02I newdataBlibli = new STF02I()
+                            {
+                                MARKET = "BLIBLI",
+                                BRG = brg,
+                                CATEGORY_MO = code,
+                                KODE_VAR = item,
+                                LEVEL_VAR = 3,
+                                MP_JUDUL_VAR = Histori_Blibli.FirstOrDefault()?.MP_JUDUL_VAR,
+                                MP_VALUE_VAR = Histori_Blibli.FirstOrDefault(p => p.KODE_VAR == item)?.MP_VALUE_VAR,
+                                MP_CATEGORY_CODE = blibli_code
+                            };
+                            listNewData.Add(newdataBlibli);
                         }
                     }
                 }
@@ -5411,6 +5471,126 @@ namespace MasterOnline.Controllers
             return Json(vm, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult SaveMappingVarBlibli(string brg, string code, string[] opt_selected_1, string[] opt_selected_2, string[] opt_selected_3, StrukturVariantMp blibli)
+        {
+
+            var kategori = ErasoftDbContext.STF02E.Single(k => k.KODE == code);
+            var stf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
+            List<STF02I> listNewData = new List<STF02I>();
+            #region Create Ulang STF02I
+            {
+                if (opt_selected_1 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_1)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 1,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_1,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_1[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_2 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_2)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 2,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_2,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_2[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+                if (opt_selected_3 != null)
+                {
+                    var i = 0;
+                    foreach (var item in opt_selected_3)
+                    {
+                        if (item != "")
+                        {
+                            try
+                            {
+                                STF02I newdataBlibli = new STF02I()
+                                {
+                                    MARKET = "BLIBLI",
+                                    BRG = brg,
+                                    CATEGORY_MO = code,
+                                    KODE_VAR = item,
+                                    LEVEL_VAR = 3,
+                                    MP_JUDUL_VAR = blibli.var_judul.lv_3,
+                                    MP_VALUE_VAR = blibli.var_detail.lv_3[i],
+                                    MP_CATEGORY_CODE = blibli.code
+                                };
+                                listNewData.Add(newdataBlibli);
+                            }
+                            catch (Exception ex)
+                            {
+
+                            }
+                        }
+                        i++;
+                    }
+                }
+            }
+            #endregion
+
+            #region Save STF02I
+            if (listNewData.Count() > 0)
+            {
+                var listStf02IinDb = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "BLIBLI").ToList();
+                ErasoftDbContext.STF02I.RemoveRange(listStf02IinDb);
+                ErasoftDbContext.SaveChanges();
+
+                ErasoftDbContext.STF02I.AddRange(listNewData);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+
+            var vm = new BarangDetailVarViewModel()
+            {
+
+            };
+
+            return Json(vm, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult EditStrukturVar(int? recNum)
         {
             var kategori = ErasoftDbContext.STF02E.Single(k => k.RecNum == recNum);
