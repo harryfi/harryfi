@@ -171,9 +171,15 @@
 @section scripts
 {
 <script type="text/javascript">
-        $merkId = "";
+    $merkId = "";
+    //add by nurul 12/2/2019
+    var $page = window.text;
+            //end add by nurul 12/2/2019
 
-        $(document).on('ready', function () {
+    $(document).on('ready', function () {
+        //add by nurul 12/2/2019
+        $page = 0;
+            //end add by nurul 12/2/2019
             $('#search_merk_button').click(function () {
                 event.preventDefault();
                 var url = $(this).attr('href');
@@ -197,7 +203,13 @@
 
             Initialize();
 
-            $('#search_merk_input').val(getUrlParameter('search'));
+        $('#search_merk_input').val(getUrlParameter('search'));
+        //add by nurul 12/2/2019
+        $('#datatable').on('page.dt', function () {
+            $page = $('#datatable').DataTable().page.info().page;
+        });
+        $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         function Initialize() {
@@ -212,6 +224,12 @@
                 $('#Merk_KODE, #Merk_KET, #Merk_RecNum').val("");
                 $('#Merk_KODE').removeAttr('disabled');
                 resetError();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             if ($('.message-error').text() !== '') {
@@ -232,6 +250,12 @@
                         cekMerk($('#Merk_KET'), $('#Merk_KODE'), 'CekKetMerk', 'Nama Merk ini sudah digunakan!');
                     }
                 });
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
 
     }
     function cekMerk($ket, $kodemerk, $urlAction, $msg) {

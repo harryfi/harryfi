@@ -120,11 +120,23 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
         $userId = 0;
 
         $(document).on('ready',
             function () {
+                //add by nurul 12/2/2019
+                $page = 0;
+            //end add by nurul 12/2/2019
                 Initialize();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
         function Initialize() {
@@ -144,11 +156,23 @@
                 $('.user_editor_section').hide();
                 refreshTableAkun();
                 refreshForm();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
             });
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_user').click();
             }
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         }
 
         function simpanAkun(btnClicked) {
@@ -199,6 +223,12 @@
                     //add by nurul 26 nov 2018, setelah di close, search lg
                     table.search($('#search_user').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
