@@ -75,5 +75,7 @@ namespace MasterOnline.Models
 
         [StringLength(100)]
         public string KODE_REFERRAL { get; set; }
+        
+        public DateTime? TGL_DAFTAR { get; set; }
     }
 }
