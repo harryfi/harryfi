@@ -671,7 +671,7 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "CCTESVAR3").ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && p.BRG == "WEDGES").ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -5016,6 +5016,8 @@ namespace MasterOnline.Controllers
                         ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
 
                         itemVar.LINK_GAMBAR_1 = image.data.link_l;
+                        //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                        itemVar.Sort5 = Convert.ToString(file.ContentLength);
                     }
 
                     ErasoftDbContext.SaveChanges();
@@ -14963,7 +14965,7 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
 
                             }
-                            if(barangInDB.TYPE == "4")
+                            if (barangInDB.TYPE == "4")
                             {
                                 if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.Stf02.BRG + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.SELLER_SKU + "' AND CUST = '" + data.TempBrg.CUST + "'");
