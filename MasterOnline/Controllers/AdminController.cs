@@ -498,9 +498,67 @@ namespace MasterOnline.Controllers
         [SessionAdminCheck]
         public ActionResult AccountMenu()
         {
-            var listAcc = MoDbContext.Account.ToList();
-            return View(listAcc);
+            //change by nurul 13/2/2019
+            //var listAcc = MoDbContext.Account.ToList();
+            //return View(listAcc);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return View(vm);
+            //end change by nurul 13/2/2019
         }
+
+        //add by nurul 13/2/2019
+        public ActionResult RefreshAccountMenu()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccount", vm);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AccountMenuWillExpired(string param)
+        {
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountWillExpired", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccountMenuExpired(string param)
+        {
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountExpired", vm);
+        }
+        //end add by nurul 13/2/2019
 
         [Route("admin/manage/user")]
         [SessionAdminCheck]

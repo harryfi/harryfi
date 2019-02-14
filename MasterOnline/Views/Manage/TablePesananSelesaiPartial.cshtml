@@ -30,27 +30,38 @@
                 NamaMarket = market.NamaMarket;
             }
             var faktur = Model.ListFaktur.SingleOrDefault(f => f.NO_SO == pesanan.NO_BUKTI);
-            <tr>
-                <td>@pesanan.NO_BUKTI</td>
-                <td>@(faktur != null ? faktur.NO_BUKTI : "-")</td>
-                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
-                <td>@NamaMarket</td>
-                <td>
-                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                    @(buyer == null ? "" : buyer.NAMA + " (" + pelanggan?.PERSO + ")")
-                </td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSelesai" onclick="passRecStatus(@pesanan.RecNum, '03-undo', '@pesanan.NO_BUKTI')">
-                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                    </button>
-                </td>
-                <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="lihatPesanan(@(pesanan.RecNum))">
-                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                    </button>
-                </td>
-            </tr>
+        <tr>
+            <td>@pesanan.NO_BUKTI</td>
+            <td>@(faktur != null ? faktur.NO_BUKTI : "-")</td>
+            <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+            @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+            <td>
+                @if (pelanggan?.PERSO != null)
+                {
+                    @(NamaMarket + " (" + pelanggan.PERSO + ")")
+                }
+                else
+                {
+                    @NamaMarket
+                }
+            </td>
+            <td>
+                @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan?.PERSO + ")")*@
+                @(buyer == null ? "" : buyer.NAMA)
+            </td>
+            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSelesai" onclick="passRecStatus(@pesanan.RecNum, '03-undo', '@pesanan.NO_BUKTI')">
+                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                </button>
+            </td>
+            <td class="edit-hapus-col">
+                <button class="btn btn-primary" onclick="lihatPesanan(@(pesanan.RecNum))">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
         }
     </tbody>
 </table>

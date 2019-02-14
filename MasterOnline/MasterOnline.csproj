@@ -640,6 +640,7 @@
     <Compile Include="Models\BarcodeResult.cs" />
     <Compile Include="Models\CATEGORY_TOKPED.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
+    <Compile Include="Models\MenuAccount.cs" />
     <Compile Include="Models\QOH_QOO_ALL_ITEM.cs" />
     <Compile Include="Models\CekMerk.cs" />
     <Compile Include="Models\DataForQuery.cs" />
@@ -1264,7 +1265,6 @@
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
-    <Compile Include="ViewModels\MenuAccountViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -5939,6 +5939,9 @@
     <Content Include="Views\Report\PromptBuyer.cshtml" />
     <Content Include="Views\Account\HomePricing.cshtml" />
     <Content Include="Views\Manage\PricingNewPartialView.cshtml" />
+    <Content Include="Views\Admin\TableAccount.cshtml" />
+    <Content Include="Views\Admin\TableAccountWillExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccountExpired.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
