@@ -526,19 +526,24 @@ namespace MasterOnline.Controllers
             var email = new MailAddress(account.Email);
             account.UserId = email.User + "_" + email.Host.Replace(".", "_");
             account.Status = false; //User tidak aktif untuk pertama kali
+            //change back to set user to free user
+            string userSubs = "01";
+            if (!string.IsNullOrEmpty(account.KODE_SUBSCRIPTION))
+                userSubs = account.KODE_SUBSCRIPTION;
             //change by Tri, 7 Feb 2019 handle user pilih subscription sebelum register
-            //account.KODE_SUBSCRIPTION = "01"; //Free account
-            //account.TGL_SUBSCRIPTION = DateTime.Today.Date; //First time subs
-            if (string.IsNullOrEmpty(account.KODE_SUBSCRIPTION))
-            {
-                account.KODE_SUBSCRIPTION = "01";
-                account.TGL_SUBSCRIPTION = DateTime.Today.Date;
-            }
-            else
-            {
-                account.TGL_SUBSCRIPTION = DateTime.Today.Date.AddDays(-1); //user buy subscription while register, set subscription to expire
-            }
+            account.KODE_SUBSCRIPTION = "01"; //Free account
+            account.TGL_SUBSCRIPTION = DateTime.Today.Date; //First time subs
+            //if (string.IsNullOrEmpty(account.KODE_SUBSCRIPTION))
+            //{
+            //    account.KODE_SUBSCRIPTION = "01";
+            //    account.TGL_SUBSCRIPTION = DateTime.Today.Date;
+            //}
+            //else
+            //{
+            //    account.TGL_SUBSCRIPTION = DateTime.Today.Date.AddDays(-1); //user buy subscription while register, set subscription to expire
+            //}
             //end change by Tri, 7 Feb 2019 handle user pilih subscription sebeelum register
+            //end change back to set user to free user
             account.Password = password;
             account.ConfirmPassword = password;
             account.VCode = keyNew;
@@ -612,20 +617,25 @@ namespace MasterOnline.Controllers
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
             ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
 
-            if (account.KODE_SUBSCRIPTION != "01")
+            //if (account.KODE_SUBSCRIPTION != "01")
+            //{
+            //    var ret = ChangeStatusAcc(Convert.ToInt32(account.AccountId));
+            //    if (ret.status == 1)
+            //    {
+            //        var midtrans = new MidtransController();
+            //        return await midtrans.PaymentMidtrans(account.KODE_SUBSCRIPTION, account.DatabasePathMo, Convert.ToInt32(account.AccountId));
+            //    }
+            //    else
+            //    {
+            //        var errorRet = new bindMidtrans();
+            //        errorRet.error = ret.message;
+            //        return Json(errorRet, JsonRequestBehavior.AllowGet);
+            //    }
+            //}
+            if (userSubs != "01")
             {
-                var ret = ChangeStatusAcc(Convert.ToInt32(account.AccountId));
-                if (ret.status == 1)
-                {
-                    var midtrans = new MidtransController();
-                    return await midtrans.PaymentMidtrans(account.KODE_SUBSCRIPTION, account.DatabasePathMo, Convert.ToInt32(account.AccountId));
-                }
-                else
-                {
-                    var errorRet = new bindMidtrans();
-                    errorRet.error = ret.message;
-                    return Json(errorRet, JsonRequestBehavior.AllowGet);
-                }
+                var midtrans = new MidtransController();
+                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId));
             }
 
             return View("Register");
@@ -784,6 +794,12 @@ namespace MasterOnline.Controllers
 
             partner.Status = false; //Partner tidak aktif untuk pertama kali
             partner.StatusSetuju = false; //Partner tidak setuju untuk pertama kali
+
+            //add by nurul 15/2/2019
+            partner.komisi_subscribe = 0;
+            partner.komisi_support = 0;
+            //end add by nurul 15/2/2019
+
             MoDbContext.Partner.Add(partner);
             MoDbContext.SaveChanges();
             ModelState.Clear();

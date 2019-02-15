@@ -240,7 +240,7 @@
                     success: function (response) {
                         if (response.error == null) {
                             if (response.token != null) {
-                                snap.pay(response, { skipOrderSummary: true });
+                                snap.pay(response.token, { skipOrderSummary: true });
                             }
                             else {
                                 //window.location.href = response;

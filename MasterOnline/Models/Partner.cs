@@ -51,5 +51,11 @@ namespace MasterOnline.Models
 
         [StringLength(50)]
         public string KodeRefPilihan { get; set; }
+
+        //add by nurul 15/2/2019
+        public double komisi_support { get; set; }
+
+        public double komisi_subscribe { get; set; }
+        //end add by nurul 15/2/2019
     }
 }
