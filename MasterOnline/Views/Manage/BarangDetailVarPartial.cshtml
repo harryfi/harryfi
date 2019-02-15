@@ -260,51 +260,51 @@
                             var adaTokped_variant = 0;
                         }
                         @for (var i = 0; i < listMarket.ToList().Count; i++)
-            {
-                var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
-                {
-                    adaElevenia_variant = 1;
-                }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
-                {
-                    adaBlibli_variant = 1;
-                }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
-                {
-                    adaBukalapak_variant = 1;
-                }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
-                {
-                    adaLazada_variant = 1;
-                }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
-                {
-                    adaShopee_variant = 1;
-                }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
-                {
-                    adaTokped_variant = 1;
-                }
-            }
+                        {
+                            var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                            {
+                                adaElevenia_variant = 1;
+                            }
+                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                            {
+                                adaBlibli_variant = 1;
+                            }
+                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
+                            {
+                                adaBukalapak_variant = 1;
+                            }
+                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                            {
+                                adaLazada_variant = 1;
+                            }
+                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                            {
+                                adaShopee_variant = 1;
+                            }
+                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                            {
+                                adaTokped_variant = 1;
+                            }
+                        }
                         @if (adaShopee_variant == 1)
-            {
+                        {
                             <li><a data-toggle="tab" href="#shopee_detail_tab_variant_2">Shopee</a></li>
                         }
                         @if (adaTokped_variant == 1)
-            {
+                        {
                             <li><a data-toggle="tab" href="#tokped_detail_tab_variant_2">Tokopedia</a></li>
                         }
                         @if (adaLazada_variant == 1)
-            {
+                        {
                             <li><a data-toggle="tab" href="#lazada_detail_tab_variant_2">Lazada</a></li>
                         }
                         @if (adaBlibli_variant == 1)
-            {
+                        {
                             <li><a data-toggle="tab" href="#blibli_detail_tab_variant_2">Blibli</a></li>
                         }
                         @if (adaElevenia_variant == 1)
-            {
+                        {
                             <li><a data-toggle="tab" href="#elevenia_detail_tab_variant_2">Elevenia</a></li>
                         }
                     </ul>
@@ -381,19 +381,22 @@
                                             @foreach (var barang in Model.VariantMO)
                                             {
                                                 var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
-                                                <tr>
-                                                    <td>@barang.BRG</td>
-                                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                                    <td>
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                    </td>
-                                                    <td>
-                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                        {
-                                                            <label>Sukses</label>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                                if (VarStf02H != null)
+                                                {
+                                                    <tr>
+                                                        <td>@barang.BRG</td>
+                                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                                        <td>
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                            {
+                                                                <label>Sukses</label>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>
@@ -438,19 +441,22 @@
                                             @foreach (var barang in Model.VariantMO)
                                             {
                                                 var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
-                                                <tr>
-                                                    <td>@barang.BRG</td>
-                                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                                    <td>
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                    </td>
-                                                    <td>
-                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                        {
-                                                            <label>Sukses</label>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                                if (VarStf02H != null)
+                                                {
+                                                    <tr>
+                                                        <td>@barang.BRG</td>
+                                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                                        <td>
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                            {
+                                                                <label>Sukses</label>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>
@@ -493,19 +499,22 @@
                                             @foreach (var barang in Model.VariantMO)
                                             {
                                                 var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
-                                                <tr>
-                                                    <td>@barang.BRG</td>
-                                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                                    <td>
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                    </td>
-                                                    <td>
-                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                        {
-                                                            <label>Sukses</label>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                                if (VarStf02H != null)
+                                                {
+                                                    <tr>
+                                                        <td>@barang.BRG</td>
+                                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                                        <td>
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                            {
+                                                                <label>Sukses</label>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>

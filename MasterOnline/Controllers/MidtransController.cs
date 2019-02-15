@@ -227,19 +227,49 @@ namespace MasterOnline.Controllers
                                 var insertTrans = new AktivitasSubscription();
 
                                 var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
-                                userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
-                                //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
-                                userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
-                                if (!string.IsNullOrEmpty(notification_data.saved_token_id))
-                                    userData.TOKEN_CC = notification_data.saved_token_id;
+                                if(userData != null)
+                                {
+                                    if(userData.KODE_SUBSCRIPTION == "01" && userData.Status == false)
+                                    {
+                                        //user baru daftar, langsung subscribe -> activate account
+                                        var accAPI = new AccountController();
+                                        var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
+                                        if(retActivate.status == 0)
+                                        {
+                                            string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                                            if (!System.IO.File.Exists(path))
+                                            {
+                                                var createFile = System.IO.File.Create(path);
+                                                createFile.Close();
+                                                TextWriter tw = new StreamWriter(path);
+                                                tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + retActivate.message);
+                                                tw.Close();
+                                            }
+                                            else if (System.IO.File.Exists(path))
+                                            {
+                                                TextWriter tw = new StreamWriter(path);
+                                                //tw.WriteLine("The next line!");
+                                                tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + retActivate.message);
+                                                tw.Close();
+                                            }
+                                        }
 
-                                insertTrans.Account = userData.Username;
-                                insertTrans.Email = userData.Email;
-                                insertTrans.Nilai = tranMidtrans.VALUE;
-                                insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
-                                insertTrans.TipeSubs = tranMidtrans.TYPE;
+                                    }
+                                    userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
+                                    //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
+                                    userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
+                                    if (!string.IsNullOrEmpty(notification_data.saved_token_id))
+                                        userData.TOKEN_CC = notification_data.saved_token_id;
 
-                                MoDbContext.AktivitasSubscription.Add(insertTrans);
+                                    insertTrans.Account = userData.Username;
+                                    insertTrans.Email = userData.Email;
+                                    insertTrans.Nilai = tranMidtrans.VALUE;
+                                    insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
+                                    insertTrans.TipeSubs = tranMidtrans.TYPE;
+
+                                    MoDbContext.AktivitasSubscription.Add(insertTrans);
+                                }
+                                
                             }
                         }
 

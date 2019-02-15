@@ -161,6 +161,10 @@ namespace MasterOnline.Controllers
                 {
                     var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemListResult)) as ShopeeGetItemListResult;
                     manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    //add 13 Feb 2019, tuning
+                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                    //end add 13 Feb 2019, tuning
                     ret.status = 1;
                     if (listBrg.items.Length == 10)
                         ret.message = (page + 1).ToString();
@@ -168,12 +172,17 @@ namespace MasterOnline.Controllers
                     {
                         string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
                         string brgMp = item.item_id.ToString() + ";0";
-                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        //change 13 Feb 2019, tuning
+                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                        //end change 13 Feb 2019, tuning
 
                         if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
                         {
-                            var getDetailResult = await GetItemDetail(iden, item.item_id);
+                            //var getDetailResult = await GetItemDetail(iden, item.item_id);
+                            var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
                             if (getDetailResult.status == 1)
                             {
                                 ret.recordCount += getDetailResult.recordCount;
@@ -196,7 +205,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, int item_id)
+        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, int item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
         {
             //    int MOPartnerID = 841371;
             //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -257,8 +266,8 @@ namespace MasterOnline.Controllers
                 {
                     var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemDetailResult)) as ShopeeGetItemDetailResult;
 
-                    string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
-                    string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().CUST.ToString();
+                    //string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
+                    string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
                     string categoryCode = detailBrg.item.category_id.ToString();
                     string categoryName = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault().CATEGORY_NAME;
                     ret.status = 1;
@@ -281,13 +290,19 @@ namespace MasterOnline.Controllers
                     {
                         //insert brg induk
                         string brgMpInduk = Convert.ToString(detailBrg.item.item_id) + ";";
-                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMpInduk.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMpInduk) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
+                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMpInduk.ToUpper()).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
                             //ret.recordCount++;
-                            var ret1 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1);
+                            var ret1 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "");
                             ret.recordCount += ret1.status;
+                        }
+                        else if(brgInDB != null)
+                        {
+                            brgMpInduk = brgInDB.BRG;
                         }
                         //end insert brg induk
 
@@ -299,12 +314,14 @@ namespace MasterOnline.Controllers
                                 sellerSku = item.variation_id.ToString();
                             }
                             string brgMp = Convert.ToString(detailBrg.item.item_id) + ";" + Convert.ToString(item.variation_id);
-                            tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
-                            brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                            brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
                             if (tempbrginDB == null && brgInDB == null)
                             {
                                 //ret.recordCount++;
-                                var ret2 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2);
+                                var ret2 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk);
                                 ret.recordCount += ret2.status;
                             }
                         }
@@ -313,7 +330,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         //ret.recordCount++;
-                        var ret0 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0);
+                        var ret0 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "");
                         ret.recordCount += ret0.status;
                     }
                 }
@@ -324,7 +341,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected BindingBase proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, string IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg)
+        protected BindingBase proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -384,10 +401,10 @@ namespace MasterOnline.Controllers
             sSQL += cust + "' , '" + detailBrg.item.description.Replace('\'', '`') + "' , " + IdMarket + " , " + barang_price + " , " + barang_price;
             sSQL += " , " + (barang_status.Contains("NORMAL") ? "1" : "0") + " , '" + categoryCode + "' , '" + categoryName + "' , '" + "REPLACE_MEREK" + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "'";
             //add kode brg induk dan type brg
-            sSQL += ", '" + (typeBrg == 2 ? detailBrg.item.item_id.ToString() + ";" : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+            sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             //end add kode brg induk dan type brg
 
-            var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
+            var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
             #region set attribute
             if (attributeShopee != null)
             {
@@ -1091,6 +1108,7 @@ namespace MasterOnline.Controllers
             ret.status = retRec;
             return ret;
         }
+
         public async Task<string> GetCategory(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
