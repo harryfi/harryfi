@@ -1872,7 +1872,9 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             //var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
-            var listAttributeOptLazada = MoDbContext.Database.SqlQuery<ATTRIBUTE_OPT_LAZADA>("SELECT * FROM ATTRIBUTE_OPT_LAZADA WHERE UPPER(CATEGORY_CODE)=UPPER('" + kategoryCode + "') AND A_NAME='" + codelist[0] + "'").ToList();
+            //var listAttributeOptLazada = MoDbContext.Database.SqlQuery<ATTRIBUTE_OPT_LAZADA>("SELECT * FROM ATTRIBUTE_OPT_LAZADA WHERE UPPER(CATEGORY_CODE)=UPPER('" + kategoryCode + "') AND A_NAME='" + codelist[0] + "'").ToList();
+            var lzdApi = new LazadaController();
+            var listAttributeOptLazada = lzdApi.getAttrLzd(kategoryCode, codelist[0]);
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -8784,10 +8786,11 @@ namespace MasterOnline.Controllers
                     var retApi = lzdApi.GetToPacked(ordItemId, DeliveryProvider, marketPlace.TOKEN);
                     if (retApi.code == "0")
                     {
-                        var ret = new LazadaGetResiObj
-                        {
-                            NoResi = retApi.data.OrderItems[0].TrackingNumber
-                        };
+                        var ret = new LazadaGetResiObj();
+                        //{
+                        if (retApi.data != null)
+                            ret.NoResi = retApi.data.order_items[0].tracking_number;
+                        //};
                         return Json(ret, JsonRequestBehavior.AllowGet);
                     }
                     else
@@ -9031,11 +9034,13 @@ namespace MasterOnline.Controllers
         public ActionResult SaveResi(int? recNum, string noResi, string deliveryProv/*, string typeDelivery*/)
         {
             var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == recNum);
+            //remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
             //add by Tri, check if user input new resi
-            bool changeStat = false;
-            if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
-                changeStat = true;
+            //bool changeStat = false;
+            //if (string.IsNullOrEmpty(pesananInDb.TRACKING_SHIPMENT))
+            //    changeStat = true;
             //end add by Tri, check if user input new resi
+            //end remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
 
             //add by Tri, delivery provider lazada
             if (!string.IsNullOrEmpty(deliveryProv))
@@ -9045,8 +9050,10 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
 
             //add by Tri, call mp api if user input new resi
-            if (changeStat)
-                ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/);
+            //remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
+            //if (changeStat)
+            //end remark 15-02-2019, agar user tidak perlu kosongkan nmr resi yg didapan langsung dr api
+            ChangeStatusPesanan(pesananInDb.NO_BUKTI, "03", true/*, typeDelivery*/);
             //end add by Tri, call mp api if user input new resi
 
             return new EmptyResult();
@@ -13963,7 +13970,7 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.PROMOSI.Remove(promosiInDb);
             ErasoftDbContext.SaveChanges();
-
+            
             //add by calvin 26 desember 2018
             //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
@@ -14009,7 +14016,7 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.DETAILPROMOSI.Remove(barangPromosiInDb);
                 ErasoftDbContext.SaveChanges();
-
+                
                 //add by calvin 26 desember 2018
                 //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
                 var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);

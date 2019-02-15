@@ -649,13 +649,14 @@ namespace MasterOnline.Controllers
                 ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
                 if (ret.code.Equals("0"))
                 {
-                    var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderItemId[0]).FirstOrDefault();
-                    if(orderDetail != null)
+                    var orderid = orderItemId[0];
+                    var orderDetail = ErasoftDbContext.SOT01B.Where(p => p.ORDER_ITEM_ID == orderid).FirstOrDefault();
+                    if (orderDetail != null)
                     {
                         var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == orderDetail.NO_BUKTI).FirstOrDefault();
-                        if(order != null)
+                        if (order != null)
                         {
-                            order.NO_REFERENSI = ret.data.OrderItems[0].TrackingNumber;
+                            order.NO_REFERENSI = ret.data.order_items[0].tracking_number;
                             ErasoftDbContext.SaveChanges();
                         }
                     }
@@ -1437,7 +1438,7 @@ namespace MasterOnline.Controllers
                                             if (retSQLInduk.status == 1)
                                                 sSQL_Value += retSQLInduk.message;
                                         }
-                                        else if(brgInDB != null)
+                                        else if (brgInDB != null)
                                         {
                                             kdBrgInduk = kodeBrg;
                                         }
@@ -2316,7 +2317,7 @@ namespace MasterOnline.Controllers
 
                                         //#endregion
                                         #endregion
-                                        if(!varian)
+                                        if (!varian)
                                         {
                                             BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
                                             if (retSQL.status == 1)
@@ -2375,7 +2376,7 @@ namespace MasterOnline.Controllers
                     sSQL_Value += " ( '" + brg.item_id + "' , '" + brg.item_id + "' , '";
                 }
                 string namaBrg = brg.attributes.name;
-                if(typeBrg == 2)
+                if (typeBrg == 2)
                 {
                     //tambah jenis varian
                     string namaVar = brg.skus[i]._compatible_variation_;
@@ -3250,6 +3251,40 @@ namespace MasterOnline.Controllers
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
             return ret;
+        }
+        public List<ATTRIBUTE_OPT_LAZADA> getAttrLzd(string code, string aCode)
+        {
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/category/attributes/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("primary_category_id", code);
+            LazopResponse response = client.Execute(request);
+            if (response != null)
+            {
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr.code == "0")
+                {
+                    var attrBrg = bindAttr.data.Where(m => m.name.ToUpper() == aCode.ToUpper()).SingleOrDefault();
+                    var ret = new List<ATTRIBUTE_OPT_LAZADA>();
+                    if(attrBrg != null)
+                    {
+                        foreach (var opt in attrBrg.options)
+                        {
+                            var optAttrBrg = new ATTRIBUTE_OPT_LAZADA
+                            {
+                                A_NAME = attrBrg.name,
+                                CATEGORY_CODE = code,
+                                O_NAME = opt.name,
+                            };
+                            ret.Add(optAttrBrg);
+                        }
+                    }
+                    
+                    return ret;
+                }
+            }
+            return new List<ATTRIBUTE_OPT_LAZADA>();
         }
         public BindingBase getMissingAttr(string code)
         {

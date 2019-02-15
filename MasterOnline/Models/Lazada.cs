@@ -131,19 +131,33 @@ namespace MasterOnline.Models
     {
         public OrdersPacked data { get; set; }
     }
+    //public class OrdersPacked
+    //{
+    //    public List<OrderPacked> OrderItems { get; set; }
+    //}
+    //public class OrderPacked
+    //{
+    //    public long OrderItemId { get; set; }
+    //    public long PurchaseOrderId { get; set; }
+    //    public string PurchaseOrderNumber { get; set; }
+    //    public string PackageId { get; set; }
+    //    public string ShipmentProvider { get; set; }
+    //    public string TrackingNumber { get; set; }
+    //}    
+
     public class OrdersPacked
     {
-        public List<OrderPacked> OrderItems { get; set; }
+        public List<OrderPacked> order_items { get; set; }
     }
+
     public class OrderPacked
     {
-        public long OrderItemId { get; set; }
-        public long PurchaseOrderId { get; set; }
-        public string PurchaseOrderNumber { get; set; }
-        public string PackageId { get; set; }
-        public string ShipmentProvider { get; set; }
-        public string TrackingNumber { get; set; }
+        public long order_item_id { get; set; }
+        public string tracking_number { get; set; }
+        public string shipment_provider { get; set; }
+        public string package_id { get; set; }
     }
+
     public class NewLzdOrders : LazadaCommonRes
     {
         public DataOrders data { get; set; }
