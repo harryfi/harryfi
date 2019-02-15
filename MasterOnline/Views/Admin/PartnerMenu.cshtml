@@ -1,7 +1,15 @@
-﻿@model MasterOnline.ViewModels.PartnerViewModel
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.PartnerViewModel
 @{
     ViewBag.Title = "Partner";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+
+    var editMode = 0;
+
+    if (ViewData["Editing"] != null)
+    {
+        editMode = (int)ViewData["Editing"];
+    }
 }
 
 @section styles
@@ -21,7 +29,8 @@
 
 <div class="row" id="akun-section">
     <div class="col-lg-12 col-md-12">
-        <div class="row user_table_section">
+        @*<div class="row user_table_section">*@
+        <div class="row partner_table_section">
             <div class="col-lg-4 col-sm-6">
                 <div class="input-group">
                     <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
@@ -40,7 +49,8 @@
                 </div>
             </div>
         </div>
-        <div class="row user_table_section">
+        @*<div class="row user_table_section">*@
+        <div class="row partner_table_section">
             <div class="col-sm-12">
                 @if (ViewData["SuccessMessage"] != null)
                 {
@@ -70,9 +80,18 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 50px;">Email</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">No. HP</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Tipe Partner</th>
+                            @*add by nurul 14/2/2019*@
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Kode Referral</th>
+                            @*end add by nurul 14/2/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Status Persetujuan</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Status Approval</th>
-                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Ubah</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Ubah Approval</th>
+                            @*add by nurul 14/2/2019*@
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Komisi Subscribe</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Komisi Support</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Ubah Komisi</th>
+                            @*end add by nurul 14/2/2019*@
+
                         </tr>
                     </thead>
                     <tbody>
@@ -80,52 +99,205 @@
                         {
                             foreach (var partner in Model?.ListPartner)
                             {
-                        <tr>
-                            <td class="text-center">@partner.Username</td>
-                            <td class="text-center">@partner.Email</td>
-                            <td class="text-center">@partner.NoHp</td>
-                            <td class="text-center">@partner.NamaTipe</td>
-                            <td class="text-center">
-                                @if (partner.StatusSetuju)
+                                var Koderef = "-";
+                                if (partner.KodeRefPilihan != null || partner.KodeRefPilihan != "")
                                 {
-                                    @("Setuju")
+                                    Koderef = partner.KodeRefPilihan;
                                 }
-                                else
-                                {
-                                    @("Tidak Setuju")
-                                }
-                            </td>
-                            <td class="text-center">
-                                @if (partner.Status)
-                                {
-                                    @("Aktif")
-                                }
-                                else
-                                {
-                                    @("Tidak Aktif")
-                                }
-                            </td>
-                            <td class="edit-hapus-col">
-                                @{
-                                    var status = 0;
+                                <tr>
+                                    <td class="text-center">@partner.Username</td>
+                                    <td class="text-center">@partner.Email</td>
+                                    <td class="text-center">@partner.NoHp</td>
+                                    <td class="text-center">@partner.NamaTipe</td>
+                                    @*add by nurul 14/2/2019*@
+                                    <td class="text-center">@Koderef</td>
+                                    @*end add by nurul 14/2/2019*@
+                                    <td class="text-center">
+                                        @if (partner.StatusSetuju)
+                                        {
+                                            @("Setuju")
+                                        }
+                                        else
+                                        {
+                                            @("Tidak Setuju")
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (partner.Status)
+                                        {
+                                            @("Aktif")
+                                        }
+                                        else
+                                        {
+                                            @("Tidak Aktif")
+                                        }
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        @{
+                                            var status = 0;
 
-                                    if (partner.Status)
-                                    {
-                                        status = 1;
-                                    }
-                                }
+                                            if (partner.Status)
+                                            {
+                                                status = 1;
+                                            }
+                                        }
 
-                                <button class="btn btn-primary" data-toggle="modal" data-target="#konfUbahStatus" onclick="passId(@partner.PartnerId, @status, '@partner.Username')">
-                                    <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                                </button>
-                            </td>
-                        </tr>
+                                        <button class="btn btn-primary" data-toggle="modal" data-target="#konfUbahStatus" onclick="passId(@partner.PartnerId, @status, '@partner.Username')">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    @*add by nurul 14/2/2019*@
+                                    <td class="text-center">
+                                        @partner.komisi_subscribe
+                                    </td>
+                                    <td class="text-center">
+                                        @partner.komisi_support
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        <button class="btn btn-primary" onclick="editKomisi(@partner.PartnerId)">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    @*end add by nurul 14/2/2019*@
+                                </tr>
                             }
                         }
                     </tbody>
                 </table>
             </div>
         </div>
+        @*add by nurul 15/2/2019*@
+        <div class="row partner_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Komisi Partner</h2>
+                    <span class="title-accent"></span>
+                    <button type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Komisi Partner</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveKomisi", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        {
+                                            @Html.AntiForgeryToken()
+                                            @Html.HiddenFor(m => m.partner.PartnerId)
+                                        <div id="hidden_partner">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.PartnerId, "PartnerID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.PartnerId, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.Status, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.TipePartner, "Tipe Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.TipePartner, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.NamaTipe, "Nama Tipe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.NamaTipe, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.StatusSetuju, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Ref", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                        </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.Email, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.Username, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.komisi_subscribe, "Komisi Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.komisi_subscribe, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.komisi_support, "Komisi Support", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.komisi_support, new { @class = "form-control limited_number_textbox", min = 0, type = "number" })
+                                                </div>
+                                            </div>
+                                            <hr />
+                                            <button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*end add by nurul 15/2/2019*@
     </div>
 </div>
 
@@ -162,6 +334,45 @@
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
                 });
+
+                //add by nurul 15/2/2019
+                $('button>.close-btn').on('click', function () {
+                    $('.partner_table_section').toggle('display');
+                    $('.partner_editor_section').toggle('display');
+                    $('#hidden_partner').hide()
+                });
+
+                if ($('.message-error').text() !== '' || @editMode === 1) {
+                    $('.partner_table_section').toggle('display');
+                    $('.partner_editor_section').toggle('display');
+                    $('#hidden_partner').hide()
+                }
+
+                $('.close-btn').click(function() {
+                    location.href = '@Url.Action("PartnerMenu")';
+                });
+
+                $('#partner_komisi_subscribe').change(function () {
+                    $(this).val(convertToRupiah($(this).val()));
+                });
+                
+                $('#partner_komisi_support').change(function () {
+                    $(this).val(convertToRupiah($(this).val()));
+                });
+
+                $('#simpan_btn').click(function () {
+                    var subs = $('#partner_komisi_subscribe').val();
+                    var supp = $('#partner_komisi_support').val();
+                    if (subs == "") {
+                        subs = "0";
+                    }
+                    if (supp == "") {
+                        supp = "0";
+                    }
+                    $('#partner_komisi_support').val(convertToAngka(supp));
+                    $('#partner_komisi_subscribe').val(convertToAngka(subs));
+                });
+                //end add by nurul 15/2/2019
             });
 
         function passId(partnerId, status, partnerName) {
@@ -183,5 +394,27 @@
 
             location.href = link;
         }
+
+        //add by nurul 15/2/2019
+
+        function editKomisi($Id) {
+            var link = '@Url.Action("EditKomisi", "Admin", new { partnerId = "replaceId" })';
+            link = link.replace("replaceId", $Id);
+
+            location.href = link;
+            
+        }
+        
+        function convertToRupiah(angka) {
+            var rupiah = '';
+            var angkarev = angka.toString().split('').reverse().join('');
+            for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            return rupiah.split('', rupiah.length - 1).reverse().join('');
+        }
+
+        function convertToAngka(rupiah) {
+            return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        }
+        //end add by nurul 15/2/2019
     </script>
 }
