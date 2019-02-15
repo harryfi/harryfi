@@ -381,19 +381,22 @@
                                             @foreach (var barang in Model.VariantMO)
                                             {
                                                 var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
-                                                <tr>
-                                                    <td>@barang.BRG</td>
-                                                    <td>@barang.NAMA @barang.NAMA2</td>
-                                                    <td>
-                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
-                                                    </td>
-                                                    <td>
-                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
-                                                        {
-                                                            <label>Sukses</label>
-                                                        }
-                                                    </td>
-                                                </tr>
+                                                if (VarStf02H != null)
+                                                {
+                                                    <tr>
+                                                        <td>@barang.BRG</td>
+                                                        <td>@barang.NAMA @barang.NAMA2</td>
+                                                        <td>
+                                                            @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                        </td>
+                                                        <td>
+                                                            @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                            {
+                                                                <label>Sukses</label>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
                                             }
                                         </tbody>
                                     </table>

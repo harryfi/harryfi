@@ -23,7 +23,7 @@
             //var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.NAMAPEMESAN);
             var buyer = Model.ListPembeli.FirstOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
             //end change by Tri, buyer_code = pemesan
-            
+
             var buyerNama = "";
             var buyerPerso = "";
             if (buyer != null)
@@ -34,9 +34,11 @@
 
             var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
             var idMarket = 0;
+            var Perso = pesanan.CUST;
             if (pelanggan != null)
             {
                 idMarket = Convert.ToInt32(pelanggan.NAMA);
+                Perso = Convert.ToString(pelanggan.PERSO);
             }
             var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
             var NamaMarket = "";
@@ -51,7 +53,7 @@
                 <td>
                     @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                     @*remark by nurul 24/9/2018 @(buyerNama + " (" + buyerPerso + ")")*@
-                    @(buyerNama + " (" + pelanggan.PERSO + ")")
+                    @(buyerNama + " (" + Perso + ")")
                 </td>
                 <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
                 <td class="edit-hapus-col">

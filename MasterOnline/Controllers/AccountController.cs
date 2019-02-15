@@ -300,10 +300,10 @@ namespace MasterOnline.Controllers
                             API_secret_key = tblCustomer.API_KEY,
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
+                            merchant_code = tblCustomer.Sort1_Cust,
+                            token = tblCustomer.TOKEN
                         };
                         BliApi.GetToken(data, true);
-                        BliApi.GetQueueFeedDetail(data, null);
-                        //BliApi.getProduct(data, "", 0, tblCustomer.CUST);
                     }
                 }
             }

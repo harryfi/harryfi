@@ -2615,7 +2615,10 @@
                         }
                     });
                     if (kategoriSelect[0] != undefined) {
-                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                        //change by calvin 15 februari 2019, saat pertama kali load form, dan mengisi nilai default, jangan trigger kategoriSelect.onchange
+                        //kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
+                        kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val(),true);
+                        //end change by calvin 15 februari 2019
                     }
                 },
                 error: function (xhr) {
