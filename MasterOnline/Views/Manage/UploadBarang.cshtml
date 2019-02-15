@@ -467,10 +467,15 @@
     <script src="~/Scripts/jquery.ajax-progress.js"></script>
     <script type="text/javascript">
         var table = $('#datatable').DataTable();
+
+        //add by nurul 12/2/2019
+        var $page = window.text;
+        //end add by nurul 12/2/2019
+
         $('#search_barang').keyup(function () {
             table.search($(this).val()).draw();
         });
-
+        
         @*function checkfile(s) {
             var validExts = new Array(".xlsx", ".xls");
             var fileExt = s.value;
@@ -637,6 +642,9 @@
         //var uniqueId = '<%= Guid.NewGuid().ToString() %>';
 
         $(document).ready(function () {
+            //add by nurul 12/2/2019
+            $page = 0;
+            //end add by nurul 12/2/2019
             $('#promptHiddenField').val('');
             $('#txtCustomer').val('');
             $('#txtCustomer2').val('');
@@ -660,6 +668,12 @@
             });*@
             //event.preventDefault;
             //startSyncAll();
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
         });
 
         function refreshTableBarangUpload() {
@@ -684,6 +698,12 @@
                     //add by nurul 3 des 2018, setelah di close, search lg
                     table.search($('#search_barang').val()).draw();
                     //end add by nurul 3 des 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1048,6 +1068,12 @@
                     //$('#tambah_barang').click();
                     $('#close-editor-1')[0].disabled = false;
                     $('#loading_spinner').hide();
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1097,6 +1123,12 @@
                     $('#datatable').show();
                     table.search($('#search_barang').val()).draw();
                     //end change by calvin 14 januari 2019
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
 
                 },
                 error: function (xhr, status, error) {

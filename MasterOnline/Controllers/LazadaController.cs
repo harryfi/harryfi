@@ -1400,6 +1400,11 @@ namespace MasterOnline.Controllers
 
                             string sSQL_Value = "";
                             bool varian = false;
+                            //add 13 Feb 2019, tuning
+                            var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                            var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                            //end add 13 Feb 2019, tuning
+
                             foreach (var brg in result.data.products)
                             {
                                 if (brg.skus.Count > 1)
@@ -1410,6 +1415,7 @@ namespace MasterOnline.Controllers
                                 {
                                     varian = false;
                                 }
+                                string kdBrgInduk = "";
                                 for (int i = 0; i < brg.skus.Count; i++)
                                 {
                                     var tempbrginDB = new TEMP_BRG_MP();
@@ -1418,19 +1424,30 @@ namespace MasterOnline.Controllers
                                     if (varian && i == 0)
                                     {
                                         kodeBrg = brg.item_id;
-                                        tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
-                                        brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        kdBrgInduk = kodeBrg;
+                                        //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
+                                        //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kodeBrg.ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kodeBrg.ToUpper()).FirstOrDefault();
+
                                         if (tempbrginDB == null && brgInDB == null)
                                         {
                                             //create brg induk
-                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1);
+                                            BindingBase retSQLInduk = insertTempBrgQry(brg, i, IdMarket, cust, 1, "");
                                             if (retSQLInduk.status == 1)
                                                 sSQL_Value += retSQLInduk.message;
                                         }
+                                        else if(brgInDB != null)
+                                        {
+                                            kdBrgInduk = kodeBrg;
+                                        }
                                     }
                                     kodeBrg = brg.skus[i].SellerSku;
-                                    tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
-                                    brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
+                                    //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kodeBrg.ToUpper()).FirstOrDefault();
+                                    brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kodeBrg.ToUpper()).FirstOrDefault();
+
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         #region remark 21-01-2019, handle brg induk dan varian
@@ -2301,13 +2318,13 @@ namespace MasterOnline.Controllers
                                         #endregion
                                         if(!varian)
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0);
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 0, "");
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
                                         else
                                         {
-                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2);
+                                            BindingBase retSQL = insertTempBrgQry(brg, i, IdMarket, cust, 2, kdBrgInduk);
                                             if (retSQL.status == 1)
                                                 sSQL_Value += retSQL.message;
                                         }
@@ -2341,7 +2358,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg)
+        public BindingBase insertTempBrgQry(dynamic brg, int i, int IdMarket, string cust, int typeBrg, string kodeBrgInduk)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -2440,7 +2457,7 @@ namespace MasterOnline.Controllers
                 sSQL_Value += string.IsNullOrEmpty(deskripsi) ? "" : brg.attributes.description.ToString().Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`');
                 sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
                 sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
-                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + (typeBrg == 2 ? brg.item_id : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
                 var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
                 //bool getAttr = true;
                 if (attributeLzd == null)

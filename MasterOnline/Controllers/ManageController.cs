@@ -14586,7 +14586,7 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        return JsonErrorMessage("Barang Induk tidak ditemukan.");
+                                        return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
                                     }
 
                                 }
@@ -14595,10 +14595,18 @@ namespace MasterOnline.Controllers
                             {
                                 if (tempBrginDB != null)
                                 {
-                                    //sinkron brg induk terlebih dahulu
-                                    var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
-                                    if (ret2.status == 0)
-                                        return JsonErrorMessage(ret2.message);
+                                    if(tempBrgInduk != null)
+                                    {
+                                        //sinkron brg induk terlebih dahulu
+                                        var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                        if (ret2.status == 0)
+                                            return JsonErrorMessage(ret2.message);
+                                    }
+                                    else
+                                    {
+                                        return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                    }
+
                                 }
                                 else
                                 {
@@ -14627,7 +14635,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(brgMp.BRG_MP))
                                 {
-                                    return JsonErrorMessage("Barang ini sudah link dengan barang lain di marketplace");
+                                    return JsonErrorMessage("Barang ini sudah link dengan barang lain di marketplace ini.");
                                 }
                                 else
                                 {

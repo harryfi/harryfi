@@ -1930,13 +1930,21 @@ namespace MasterOnline.Controllers
                                 int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
                                 if (listBrg.content.Count == 10)
                                     ret.message = (page + 1).ToString();
+
+                                //add 13 Feb 2019, tuning
+                                var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                                var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+                                //end add 13 Feb 2019, tuning
+
                                 foreach (var item in listBrg.content)
                                 {
-                                    var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
-                                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(item.gdnSku + ";" + item.productItemCode) && t.IDMARKET == IdMarket).FirstOrDefault();
+                                    var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
+                                    var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0));
+                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0), tempBrg_local, stf02h_local);
                                         if(retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
@@ -1980,7 +1988,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display)
+        protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2105,12 +2113,17 @@ namespace MasterOnline.Controllers
 
                             kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
                             //cek brg induk di db
-                            var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
-                            var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
+                            //var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
+                            //var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
+                            var tempBrgIndukinDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                            var brgIndukinDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                             if (brgIndukinDB == null && tempBrgIndukinDB == null)
                             {
                                 insertParent = true;
                                 sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3);
+                            }else if(brgIndukinDB != null)
+                            {
+                                kdBrgInduk = brgIndukinDB.BRG;
                             }
                         }
                         //end add, check ada varian
