@@ -165,77 +165,79 @@
     }
     var validasi_simpanBarangVariant = true;
     function simpanBarangVariant() {
-        validasi_simpanBarangVariant = true;
-        message_validasi_simpanBarangVariant = "";
+        if (confirm('Selesai setting gambar dan harga per variasi ?')) {
+            validasi_simpanBarangVariant = true;
+            message_validasi_simpanBarangVariant = "";
 
-        if (validasi_simpanBarangVariant) {
-            var listGambarVariant = new FormData();
+            if (validasi_simpanBarangVariant) {
+                var listGambarVariant = new FormData();
 
-            $('.foto_produk_var').each(function (i, item) {
-                var data_barang_id = $(item).attr("data-barang-id");
-                listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
-            });
+                $('.foto_produk_var').each(function (i, item) {
+                    var data_barang_id = $(item).attr("data-barang-id");
+                    listGambarVariant.append(data_barang_id, $(item)[0].files[0]);
+                });
 
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("UpdateGambarVariantBarang", "Manage")',
-                data: listGambarVariant,
-                dataType: 'json',
-                processData: false,
-                contentType: false,
-                success: function (response) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("UpdateGambarVariantBarang", "Manage")',
+                    data: listGambarVariant,
+                    dataType: 'json',
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
 
-                    var newHjual = [];
-                    $('#variant-section input[data-jenis="hjual_var"]').each(function (i, item) {
-                        console.log();
-                        newHjual[i] = {
-                            recnum: $(item).attr("data-hjual-recnum"),
-                            hjual: convertToAngka($(item).val())
-                        };
-                    });
+                        var newHjual = [];
+                        $('#variant-section input[data-jenis="hjual_var"]').each(function (i, item) {
+                            console.log();
+                            newHjual[i] = {
+                                recnum: $(item).attr("data-hjual-recnum"),
+                                hjual: convertToAngka($(item).val())
+                            };
+                        });
 
-                    var post_data = {
-                        brg: $('#Stf02_BRG').val(),
-                        newhjual: newHjual
-                    }
-
-                    $.ajax({
-                        type: "POST",
-                        url: '@Url.Action("UpdateHjualVariantBarang", "Manage")',
-                        data: post_data,
-                        beforeSend: function () {
-                            $('#loading_spinner').show();
-                        },
-                        success: function (response) {
-                            if (response.Errors == null) {
-                                $('#table-barang-1-partial').html(response);
-                                Initialize();
-                                refreshTableBarang();
-                                $('#close-editor-1').click();
-                                $("html, body").animate({ scrollTop: 0 }, "slow");
-                                $('#loading_spinner').hide();
-                            } else {
-                                if (response.errorHargaPerMP == null) {
-                                    console.log(response.Errors);
-                                } else {
-                                    response.Errors.forEach(setErrorfield);
-                                }
-                            }
-                            $('#loading_spinner').hide();
-                        },
-                        error: function (xhr) {
-                            console.log(xhr);
+                        var post_data = {
+                            brg: $('#Stf02_BRG').val(),
+                            newhjual: newHjual
                         }
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
+
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("UpdateHjualVariantBarang", "Manage")',
+                            data: post_data,
+                            beforeSend: function () {
+                                $('#loading_spinner').show();
+                            },
+                            success: function (response) {
+                                if (response.Errors == null) {
+                                    $('#table-barang-1-partial').html(response);
+                                    Initialize();
+                                    refreshTableBarang();
+                                    $('#close-editor-1').click();
+                                    $("html, body").animate({ scrollTop: 0 }, "slow");
+                                    $('#loading_spinner').hide();
+                                } else {
+                                    if (response.errorHargaPerMP == null) {
+                                        console.log(response.Errors);
+                                    } else {
+                                        response.Errors.forEach(setErrorfield);
+                                    }
+                                }
+                                $('#loading_spinner').hide();
+                            },
+                            error: function (xhr) {
+                                console.log(xhr);
+                            }
+                        });
+                    },
+                    error: function (xhr) {
+                        console.log(xhr);
+                    }
+                });
+            }
+            else {
+                if (message_validasi_autoloadStf02Variant != "") {
+                    alert(message_validasi_autoloadStf02Variant);
                 }
-            });
-        }
-        else {
-            if (message_validasi_autoloadStf02Variant != "") {
-                alert(message_validasi_autoloadStf02Variant);
             }
         }
     }

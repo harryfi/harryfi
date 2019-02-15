@@ -2560,8 +2560,20 @@ namespace MasterOnline.Controllers
             if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
             {
                 var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+                //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                List<string> byteGambarUploaded = new List<string>();
+                //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                 foreach (var item in ListVariant)
                 {
+                    //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+                    if (!byteGambarUploaded.Contains(item.Sort5))
+                    {
+                        byteGambarUploaded.Add(item.Sort5);
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                            HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
+                    }
+                    //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
+
                     var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
                     ShopeeVariationClass adaVariant = new ShopeeVariationClass()
                     {
@@ -2572,12 +2584,6 @@ namespace MasterOnline.Controllers
                     };
                     HttpBody.variations.Add(adaVariant);
 
-                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
-                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_1 });
-                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
-                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_2 });
-                    if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
-                        HttpBody.images.Add(new ShopeeImageClass { url = item.LINK_GAMBAR_3 });
                 }
             }
 
