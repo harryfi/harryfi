@@ -618,6 +618,56 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
+        //add by nurul 15/2/2019
+        // =============================================== Menu Partner
+        public ActionResult EditKomisi(int? partnerid)
+        {
+            var vm = new PartnerViewModel()
+            {
+                partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("PartnerMenu", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveKomisi(PartnerViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("PartnerMenu", vm);
+            }
+
+            if (vm.partner.PartnerId == 0)
+            {
+                var partInDb = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == vm.partner.PartnerId);
+
+                if (partInDb != null)
+                {
+                    ModelState.AddModelError("", @"Kode partner sudah terdaftar!");
+                    return View("PartnerMenu", vm);
+                }
+
+                MoDbContext.Partner.Add(vm.partner);
+            }
+            else
+            {
+                var partInDb = MoDbContext.Partner.Single(m => m.PartnerId == vm.partner.PartnerId);
+                partInDb.komisi_subscribe = vm.partner.komisi_subscribe;
+                partInDb.komisi_support = vm.partner.komisi_support;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("PartnerMenu");
+        }
+        // =============================================== Menu Partner (END)
+        //end add by nurul 15/2/2019
+
         // =============================================== Menu-menu pada halaman admin (END)
 
         public async Task<ActionResult> ChangeStatusPartner(string partnerid)

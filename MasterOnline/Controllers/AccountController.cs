@@ -794,6 +794,12 @@ namespace MasterOnline.Controllers
 
             partner.Status = false; //Partner tidak aktif untuk pertama kali
             partner.StatusSetuju = false; //Partner tidak setuju untuk pertama kali
+
+            //add by nurul 15/2/2019
+            partner.komisi_subscribe = 0;
+            partner.komisi_support = 0;
+            //end add by nurul 15/2/2019
+
             MoDbContext.Partner.Add(partner);
             MoDbContext.SaveChanges();
             ModelState.Clear();
