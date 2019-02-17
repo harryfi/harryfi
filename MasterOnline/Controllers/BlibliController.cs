@@ -413,54 +413,54 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
-                {
-                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    if (result.content.Count > 0)
-                    {
-                        if (stat == StatusOrder.Paid)
-                        {
-                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                //if (string.IsNullOrEmpty(result.errorCode.Value))
+                //{
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //    if (result.content.Count > 0)
+                //    {
+                //        if (stat == StatusOrder.Paid)
+                //        {
+                //            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
 
-                            foreach (var item in result.content)
-                            {
-                                if (!OrderNoInDb.Contains(item.orderNo.Value))
-                                {
-                                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (stat == StatusOrder.Completed)
-                            {
-                                foreach (var item in result.content)
-                                {
-                                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
-                                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                    {
-                                        oConnection.Open();
-                                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                                        //{
-                                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                                        {
-                                            oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
-                                            oCommand.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
-                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                }
+                //            foreach (var item in result.content)
+                //            {
+                //                if (!OrderNoInDb.Contains(item.orderNo.Value))
+                //                {
+                //                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //                }
+                //            }
+                //        }
+                //        else
+                //        {
+                //            if (stat == StatusOrder.Completed)
+                //            {
+                //                foreach (var item in result.content)
+                //                {
+                //                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
+                //                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                //                    {
+                //                        oConnection.Open();
+                //                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                //                        //{
+                //                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                //                        {
+                //                            oCommand.CommandType = CommandType.Text;
+                //                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
+                //                            oCommand.ExecuteNonQuery();
+                //                        }
+                //                    }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                //    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //}
             }
             return ret;
         }
