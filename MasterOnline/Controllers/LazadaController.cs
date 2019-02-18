@@ -138,6 +138,7 @@ namespace MasterOnline.Controllers
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                        GetShipment(cust, bindAuth.access_token);
                     }
                     else
                     {
@@ -574,9 +575,10 @@ namespace MasterOnline.Controllers
                     {
                         if (bindDelivery.data.shipment_providers.Count() > 0)
                         {
+                            var tempProvLzd = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST == cust).ToList();
                             foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
                             {
-                                if (ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                                if (tempProvLzd.Where(m => m.NAME == shipProv.name).ToList().Count == 0)
                                 {
                                     var newProvider = new DELIVERY_PROVIDER_LAZADA();
                                     newProvider.CUST = cust;
@@ -584,8 +586,8 @@ namespace MasterOnline.Controllers
                                     newProvider.COD = shipProv.cod;
 
                                     ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Add(newProvider);
+                                    ErasoftDbContext.SaveChanges();
                                 }
-                                ErasoftDbContext.SaveChanges();
 
                             }
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
@@ -3267,7 +3269,7 @@ namespace MasterOnline.Controllers
                 {
                     var attrBrg = bindAttr.data.Where(m => m.name.ToUpper() == aCode.ToUpper()).SingleOrDefault();
                     var ret = new List<ATTRIBUTE_OPT_LAZADA>();
-                    if(attrBrg != null)
+                    if (attrBrg != null)
                     {
                         foreach (var opt in attrBrg.options)
                         {
@@ -3280,7 +3282,7 @@ namespace MasterOnline.Controllers
                             ret.Add(optAttrBrg);
                         }
                     }
-                    
+
                     return ret;
                 }
             }

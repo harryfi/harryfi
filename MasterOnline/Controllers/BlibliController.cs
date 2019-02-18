@@ -1965,7 +1965,7 @@ namespace MasterOnline.Controllers
                                     var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == (item.gdnSku + ";" + item.productItemCode).ToUpper()).FirstOrDefault();
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
-                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0), tempBrg_local, stf02h_local);
+                                        var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0)/*, tempBrg_local, stf02h_local*/);
                                         if (retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
@@ -2009,7 +2009,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local)
+        protected BindingBase getProductDetail(BlibliAPIData iden, string productCode, string cust, int display/*, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local*/)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -2134,10 +2134,10 @@ namespace MasterOnline.Controllers
 
                             kdBrgInduk = splitSku[splitSku.Length - 1] + ";" + result.value.productCode;
                             //cek brg induk di db
-                            //var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
-                            //var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk).FirstOrDefault();
-                            var tempBrgIndukinDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
-                            var brgIndukinDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                            var brgIndukinDB = ErasoftDbContext.STF02H.Where(p => p.BRG_MP == kdBrgInduk && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            var tempBrgIndukinDB = ErasoftDbContext.TEMP_BRG_MP.Where(p => p.BRG_MP == kdBrgInduk && p.IDMARKET.ToString() == IdMarket).FirstOrDefault();
+                            //var tempBrgIndukinDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                            //var brgIndukinDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
                             if (brgIndukinDB == null && tempBrgIndukinDB == null)
                             {
                                 insertParent = true;
