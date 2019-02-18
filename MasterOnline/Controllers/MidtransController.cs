@@ -286,10 +286,10 @@ namespace MasterOnline.Controllers
 
                                     insertTrans.Account = userData.Username;
                                     insertTrans.Email = userData.Email;
-                                    insertTrans.Nilai = tranMidtrans.VALUE;
+                                    insertTrans.Nilai = tranMidtrans.VALUE * (tranMidtrans.BULAN > 0 ? tranMidtrans.BULAN : 1);
                                     insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
                                     insertTrans.TipeSubs = tranMidtrans.TYPE;
-                                    insertTrans.TipePembayaran = notification_data.payment_type + " " + notification_data.bank;
+                                    insertTrans.TipePembayaran = notification_data.payment_type + " " + newData.BANK;
                                     insertTrans.DrTGL = drTgl;
                                     insertTrans.SdTGL = sdTgl;
 
@@ -367,7 +367,7 @@ namespace MasterOnline.Controllers
         public static string Base64Encode()
         {
 
-            string plainText = "SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+            string plainText = "Mid-server-OB_-aJie9ELUo3pDnZSj0vYq";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }
