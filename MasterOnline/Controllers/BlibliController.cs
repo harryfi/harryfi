@@ -412,55 +412,55 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                //if (string.IsNullOrEmpty(result.errorCode.Value))
-                //{
-                //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                //    if (result.content.Count > 0)
-                //    {
-                //        if (stat == StatusOrder.Paid)
-                //        {
-                //            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrder)) as BlibliGetOrder;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                {
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    if (result.content.Count() > 0)
+                    {
+                        if (stat == StatusOrder.Paid)
+                        {
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
 
-                //            foreach (var item in result.content)
-                //            {
-                //                if (!OrderNoInDb.Contains(item.orderNo.Value))
-                //                {
-                //                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                //                }
-                //            }
-                //        }
-                //        else
-                //        {
-                //            if (stat == StatusOrder.Completed)
-                //            {
-                //                foreach (var item in result.content)
-                //                {
-                //                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
-                //                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                //                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                //                    {
-                //                        oConnection.Open();
-                //                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                //                        //{
-                //                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                //                        {
-                //                            oCommand.CommandType = CommandType.Text;
-                //                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
-                //                            oCommand.ExecuteNonQuery();
-                //                        }
-                //                    }
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    //currentLog.REQUEST_RESULT = result.errorCode.Value;
-                //    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                //    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                //}
+                            foreach (var item in result.content)
+                            {
+                                if (!OrderNoInDb.Contains(item.orderNo))
+                                {
+                                    await GetOrderDetail(iden, item.orderNo, item.orderItemNo, connId, CUST, NAMA_CUST);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (stat == StatusOrder.Completed)
+                            {
+                                foreach (var item in result.content)
+                                {
+                                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
+                                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                    {
+                                        oConnection.Open();
+                                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                        //{
+                                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                                        {
+                                            oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo + "' AND STATUS_TRANSAKSI='03'";
+                                            oCommand.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
             }
             return ret;
         }
@@ -522,8 +522,8 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrderDetail)) as BlibliGetOrderDetail;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
                     //INSERT TEMP ORDER
                     using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
@@ -636,65 +636,65 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters[1].Value = NAMA_CUST;
                                 oCommand.Parameters[2].Value = connId;
 
-                                oCommand.Parameters["@orderNo"].Value = result.value.orderNo.Value;
-                                oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo.Value;
-                                oCommand.Parameters["@qty"].Value = result.value.qty.Value;
-                                oCommand.Parameters["@orderDate"].Value = result.value.orderDate.Value != null ? DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate.Value).UtcDateTime.AddHours(7) : null;
-                                oCommand.Parameters["@autoCancelDate"].Value = result.value.autoCancelDate.Value != null ? DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate.Value).UtcDateTime.AddHours(7) : null; ;
+                                oCommand.Parameters["@orderNo"].Value = result.value.orderNo;
+                                oCommand.Parameters["@orderItemNo"].Value = result.value.orderItemNo;
+                                oCommand.Parameters["@qty"].Value = result.value.qty;
+                                oCommand.Parameters["@orderDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.orderDate).UtcDateTime.AddHours(7);
+                                oCommand.Parameters["@autoCancelDate"].Value = DateTimeOffset.FromUnixTimeMilliseconds(result.value.autoCancelDate).UtcDateTime.AddHours(7);
 
-                                oCommand.Parameters["@productName"].Value = result.value.productName.Value;
-                                oCommand.Parameters["@productItemName"].Value = result.value.productItemName.Value;
-                                oCommand.Parameters["@productPrice"].Value = result.value.productPrice.Value;
-                                oCommand.Parameters["@total"].Value = result.value.total.Value;
-                                oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg.Value;
+                                oCommand.Parameters["@productName"].Value = result.value.productName;
+                                oCommand.Parameters["@productItemName"].Value = result.value.productItemName;
+                                oCommand.Parameters["@productPrice"].Value = result.value.productPrice;
+                                oCommand.Parameters["@total"].Value = result.value.total;
+                                oCommand.Parameters["@itemWeightInKg"].Value = result.value.itemWeightInKg;
 
-                                oCommand.Parameters["@custName"].Value = result.value.custName.Value;
-                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus.Value != null ? result.value.orderStatus.Value : "";
-                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString.Value != null ? result.value.orderStatusString.Value : "";
-                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress.Value != null ? result.value.customerAddress.Value : "";
-                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail.Value != null ? result.value.customerEmail.Value : "";
+                                oCommand.Parameters["@custName"].Value = result.value.custName;
+                                oCommand.Parameters["@orderStatus"].Value = result.value.orderStatus != null ? result.value.orderStatus : "";
+                                oCommand.Parameters["@orderStatusString"].Value = result.value.orderStatusString != null ? result.value.orderStatusString : "";
+                                oCommand.Parameters["@customerAddress"].Value = result.value.customerAddress != null ? result.value.customerAddress : "";
+                                oCommand.Parameters["@customerEmail"].Value = result.value.customerEmail != null ? result.value.customerEmail : "";
 
-                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService.Value != null ? result.value.logisticsService.Value : "";
-                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService.Value != null ? result.value.currentLogisticService.Value : "";
-                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint.Value != null ? result.value.pickupPoint.Value : "";
-                                oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku.Value;
-                                oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku.Value;
+                                oCommand.Parameters["@logisticsService"].Value = result.value.logisticsService != null ? result.value.logisticsService : "";
+                                oCommand.Parameters["@currentLogisticService"].Value = result.value.currentLogisticService != null ? result.value.currentLogisticService : "";
+                                oCommand.Parameters["@pickupPoint"].Value = result.value.pickupPoint != null ? result.value.pickupPoint : "";
+                                oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku;
+                                oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku;
 
-                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku.Value;
-                                oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight.Value;
-                                oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType.Value;
-                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber.Value != null ? result.value.awbNumber.Value : "";
-                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus.Value != null ? result.value.awbStatus.Value : "";
+                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku;
+                                oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight;
+                                oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType;
+                                oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber != null ? result.value.awbNumber : "";
+                                oCommand.Parameters["@awbStatus"].Value = result.value.awbStatus != null ? result.value.awbStatus : "";
 
-                                oCommand.Parameters["@shippingStreetAddress"].Value = result.value.shippingStreetAddress.Value;
-                                oCommand.Parameters["@shippingCity"].Value = result.value.shippingCity.Value;
-                                oCommand.Parameters["@shippingSubDistrict"].Value = result.value.shippingSubDistrict.Value;
-                                oCommand.Parameters["@shippingDistrict"].Value = result.value.shippingSubDistrict.Value;
-                                oCommand.Parameters["@shippingProvince"].Value = result.value.shippingProvince.Value;
+                                oCommand.Parameters["@shippingStreetAddress"].Value = result.value.shippingStreetAddress;
+                                oCommand.Parameters["@shippingCity"].Value = result.value.shippingCity;
+                                oCommand.Parameters["@shippingSubDistrict"].Value = result.value.shippingSubDistrict;
+                                oCommand.Parameters["@shippingDistrict"].Value = result.value.shippingSubDistrict;
+                                oCommand.Parameters["@shippingProvince"].Value = result.value.shippingProvince;
 
-                                oCommand.Parameters["@shippingZipCode"].Value = result.value.shippingZipCode.Value;
-                                oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost.Value;
-                                oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile.Value;
-                                oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount.Value;
-                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime.Value != null ? result.value.startOperationalTime.Value : "";
+                                oCommand.Parameters["@shippingZipCode"].Value = result.value.shippingZipCode;
+                                oCommand.Parameters["@shippingCost"].Value = result.value.shippingCost;
+                                oCommand.Parameters["@shippingMobile"].Value = result.value.shippingMobile;
+                                oCommand.Parameters["@shippingInsuredAmount"].Value = result.value.shippingInsuredAmount;
+                                oCommand.Parameters["@startOperationalTime"].Value = result.value.startOperationalTime != null ? result.value.startOperationalTime : "";
 
-                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime.Value != null ? result.value.endOperationalTime.Value : "";
-                                oCommand.Parameters["@issuer"].Value = result.value.issuer.Value != null ? result.value.issuer.Value : "";
-                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution.Value != null ? result.value.refundResolution.Value : "";
-                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason.Value != null ? result.value.unFullFillReason.Value : "";
-                                oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity.Value != null ? result.value.unFullFillQuantity.Value : 0;
+                                oCommand.Parameters["@endOperationalTime"].Value = result.value.endOperationalTime != null ? result.value.endOperationalTime : "";
+                                oCommand.Parameters["@issuer"].Value = result.value.issuer != null ? result.value.issuer : "";
+                                oCommand.Parameters["@refundResolution"].Value = result.value.refundResolution != null ? result.value.refundResolution : "";
+                                oCommand.Parameters["@unFullFillReason"].Value = result.value.unFullFillReason != null ? result.value.unFullFillReason : "";
+                                oCommand.Parameters["@unFullFillQuantity"].Value = result.value.unFullFillQuantity != null ? result.value.unFullFillQuantity : 0;
 
-                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode.Value != null ? result.value.productTypeCode.Value : "";
-                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName.Value != null ? result.value.productTypeName.Value : "";
-                                oCommand.Parameters["@custNote"].Value = result.value.custNote.Value != null ? result.value.custNote.Value : "";
-                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName.Value != null ? result.value.shippingRecipientName.Value : "";
-                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode.Value != null ? result.value.logisticsProductCode.Value : "";
+                                oCommand.Parameters["@productTypeCode"].Value = result.value.productTypeCode != null ? result.value.productTypeCode : "";
+                                oCommand.Parameters["@productTypeName"].Value = result.value.productTypeName != null ? result.value.productTypeName : "";
+                                oCommand.Parameters["@custNote"].Value = result.value.custNote != null ? result.value.custNote : "";
+                                oCommand.Parameters["@shippingRecipientName"].Value = result.value.shippingRecipientName != null ? result.value.shippingRecipientName : "";
+                                oCommand.Parameters["@logisticsProductCode"].Value = result.value.logisticsProductCode != null ? result.value.logisticsProductCode : "";
 
-                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName.Value != null ? result.value.logisticsProductName.Value : "";
-                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode.Value != null ? result.value.logisticsOptionCode.Value : "";
-                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName.Value != null ? result.value.logisticsOptionName.Value : "";
-                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude.Value != null ? result.value.destinationLongitude.Value : "";
-                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude.Value != null ? result.value.destinationLatitude.Value : "";
+                                oCommand.Parameters["@logisticsProductName"].Value = result.value.logisticsProductName != null ? result.value.logisticsProductName : "";
+                                oCommand.Parameters["@logisticsOptionCode"].Value = result.value.logisticsOptionCode != null ? result.value.logisticsOptionCode : "";
+                                oCommand.Parameters["@logisticsOptionName"].Value = result.value.logisticsOptionName != null ? result.value.logisticsOptionName : "";
+                                oCommand.Parameters["@destinationLongitude"].Value = result.value.destinationLongitude;
+                                oCommand.Parameters["@destinationLatitude"].Value = result.value.destinationLatitude;
 
                                 if (oCommand.ExecuteNonQuery() == 1)
                                 {
@@ -706,9 +706,9 @@ namespace MasterOnline.Controllers
                                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
                                     insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
                                     insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
-                                    insertPembeli += "('" + result.value.custName.Value + "','" + result.value.shippingStreetAddress.Value + "','" + result.value.shippingMobile.Value + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
-                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress.Value + "', 0, 0, 0, 0, '1', 0, 0, ";
-                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode.Value + "', '" + result.value.customerEmail.Value + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
+                                    insertPembeli += "('" + result.value.custName + "','" + result.value.shippingStreetAddress + "','" + result.value.shippingMobile + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + result.value.shippingStreetAddress + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + result.value.shippingZipCode + "', '" + result.value.customerEmail + "', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "')";
                                     EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
 
                                     SqlCommand CommandSQL = new SqlCommand();
@@ -747,8 +747,8 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    currentLog.REQUEST_RESULT = result.errorCode.Value;
-                    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                    currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
+                    currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
@@ -1966,7 +1966,7 @@ namespace MasterOnline.Controllers
                                     if (tempbrginDB == null && brgInDB == null)
                                     {
                                         var retDet = getProductDetail(iden, item.gdnSku, cust, (item.displayable ? 1 : 0), tempBrg_local, stf02h_local);
-                                        if(retDet.status >= 1)
+                                        if (retDet.status >= 1)
                                         {
                                             ret.recordCount += retDet.status;
                                         }
@@ -2142,7 +2142,8 @@ namespace MasterOnline.Controllers
                             {
                                 insertParent = true;
                                 sSQLInduk += sqlValueBrgInduk(result, kdBrgInduk, cust, IdMarket, display, urlImage, urlImage2, urlImage3);
-                            }else if(brgIndukinDB != null)
+                            }
+                            else if (brgIndukinDB != null)
                             {
                                 kdBrgInduk = brgIndukinDB.BRG;
                             }
@@ -5464,6 +5465,166 @@ namespace MasterOnline.Controllers
             public string generatedItemName { get; set; }
             public string upcCode { get; set; }
             public string productItemCode { get; set; }
+        }
+
+
+        public class BlibliGetOrder
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public BlibliGetOrderContent[] content { get; set; }
+            public BlibliGetOrderPagemetadata pageMetaData { get; set; }
+        }
+
+        public class BlibliGetOrderPagemetadata
+        {
+            public int pageSize { get; set; }
+            public int pageNumber { get; set; }
+            public int totalRecords { get; set; }
+        }
+
+        public class BlibliGetOrderContent
+        {
+            public string orderNo { get; set; }
+            public string orderItemNo { get; set; }
+            public int qty { get; set; }
+            public long orderDate { get; set; }
+            public string orderStatus { get; set; }
+            public string orderStatusString { get; set; }
+            public string customerFullName { get; set; }
+            public string productName { get; set; }
+            public float productPrice { get; set; }
+            public string logisticService { get; set; }
+            public string logisticProviderCode { get; set; }
+            public long dueDate { get; set; }
+            public string merchantDeliveryType { get; set; }
+            public string logisticsOptionName { get; set; }
+            public string logisticsOptionCode { get; set; }
+            public string merchantSku { get; set; }
+            public string productTypeCode { get; set; }
+            public string productTypeName { get; set; }
+            public string logisticsProductName { get; set; }
+            public string pickupPointCode { get; set; }
+            public string pickupPointName { get; set; }
+            public string itemSku { get; set; }
+            public string awbNumber { get; set; }
+            public string awbStatus { get; set; }
+            public bool paid { get; set; }
+            public bool instantPickup { get; set; }
+            public bool settlementCodeExpired { get; set; }
+            public bool autoCancelWarning { get; set; }
+            public long readyToProcessDate { get; set; }
+            public string packageId { get; set; }
+            public bool packageCreated { get; set; }
+        }
+
+        public class BlibliGetOrderDetail
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public BlibliGetOrderDetailValue value { get; set; }
+        }
+
+        public class BlibliGetOrderDetailValue
+        {
+            public object id { get; set; }
+            public string storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public string orderNo { get; set; }
+            public string orderItemNo { get; set; }
+            public int qty { get; set; }
+            public long orderDate { get; set; }
+            public long autoCancelDate { get; set; }
+            public string productName { get; set; }
+            public string productItemName { get; set; }
+            public float productPrice { get; set; }
+            public string gdnSku { get; set; }
+            public string gdnItemSku { get; set; }
+            public float totalWeight { get; set; }
+            public string merchantSku { get; set; }
+            public float total { get; set; }
+            public string custName { get; set; }
+            public string orderStatus { get; set; }
+            public string orderStatusString { get; set; }
+            public string customerAddress { get; set; }
+            public string customerEmail { get; set; }
+            public string logisticsService { get; set; }
+            public string currentLogisticService { get; set; }
+            public string pickupPoint { get; set; }
+            public string pickupPointName { get; set; }
+            public string pickupPointAddress { get; set; }
+            public string pickupPointCity { get; set; }
+            public string pickupPointProvince { get; set; }
+            public string pickupPointCountry { get; set; }
+            public string pickupPointZipcode { get; set; }
+            public string merchantDeliveryType { get; set; }
+            public bool installationRequired { get; set; }
+            public object awbNumber { get; set; }
+            public string awbStatus { get; set; }
+            public string shippingStreetAddress { get; set; }
+            public string shippingCity { get; set; }
+            public string shippingSubDistrict { get; set; }
+            public string shippingDistrict { get; set; }
+            public string shippingProvince { get; set; }
+            public string shippingZipCode { get; set; }
+            public string shippingMobile { get; set; }
+            public float shippingCost { get; set; }
+            public float shippingInsuredAmount { get; set; }
+            public object startOperationalTime { get; set; }
+            public object endOperationalTime { get; set; }
+            public object issuer { get; set; }
+            public object refundResolution { get; set; }
+            public object unFullFillReason { get; set; }
+            public object unFullFillQuantity { get; set; }
+            public string productTypeCode { get; set; }
+            public string productTypeName { get; set; }
+            public string custNote { get; set; }
+            public string shippingRecipientName { get; set; }
+            public string logisticsProductCode { get; set; }
+            public string logisticsProductName { get; set; }
+            public string logisticsOptionCode { get; set; }
+            public float originLongitude { get; set; }
+            public float originLatitude { get; set; }
+            public float destinationLongitude { get; set; }
+            public float destinationLatitude { get; set; }
+            public float itemWeightInKg { get; set; }
+            public object fulfillmentInfo { get; set; }
+            public object settlementInfo { get; set; }
+            public object financeSettlementInfo { get; set; }
+            public bool instantPickup { get; set; }
+            public object instantPickupDeadline { get; set; }
+            public bool settlementCodeExpired { get; set; }
+            public string onlineBookingId { get; set; }
+            public string packageId { get; set; }
+            public bool packageCreated { get; set; }
+            public string logisticsOptionName { get; set; }
+            public BlibliGetOrderDetailOrderhistory[] orderHistory { get; set; }
+            public object manifestInfo { get; set; }
+            public object manifest { get; set; }
+        }
+
+        public class BlibliGetOrderDetailOrderhistory
+        {
+            public string id { get; set; }
+            public string storeId { get; set; }
+            public long createdDate { get; set; }
+            public string createdBy { get; set; }
+            public long updatedDate { get; set; }
+            public string updatedBy { get; set; }
+            public object version { get; set; }
+            public string orderStatus { get; set; }
+            public string orderStatusDesc { get; set; }
+            public long createdTimestamp { get; set; }
         }
 
     }
