@@ -301,7 +301,8 @@ namespace MasterOnline.Controllers
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             merchant_code = tblCustomer.Sort1_Cust,
-                            token = tblCustomer.TOKEN
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value
                         };
                         BliApi.GetToken(data, true);
                     }

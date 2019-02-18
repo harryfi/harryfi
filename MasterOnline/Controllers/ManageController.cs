@@ -675,8 +675,8 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "MOUSE" || p.BRG == "SNKR_A")).ToList(),
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "SEPATU2 " || p.BRG == "CCTesCup")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -4493,6 +4493,33 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
+
+        [Route("manage/promptetalasetokped")]
+        public ActionResult PromptEtalaseTokped(string recnum)
+        {
+            try
+            {
+                int recnum_int = Convert.ToInt32(recnum);
+                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.RecNum == recnum_int).FirstOrDefault();
+                var tokopediaApi = new TokopediaController();
+
+                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                {
+                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                    token = tblCustomer.TOKEN
+                };
+                var PromptModel = tokopediaApi.GetEtalase(iden);
+                return View("PromptEtalaseTokopedia", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        
 
         [Route("manage/PromptDeliveryProviderLazada")]
         public ActionResult PromptDeliveryProviderLazada(string cust)

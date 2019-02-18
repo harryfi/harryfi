@@ -506,9 +506,10 @@
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="~/Content/timeout-dialog.js"></script>
     <script type="text/javascript">
-        //add by nurul 17/1/2019
+        //remark by calvin 18 februari 2019, req by pak dani
+        @*//add by nurul 17/1/2019
         var SessionTimeout = false;
-        //end add 
+        //end add
         var inactivityTime = function () {
             var t;
             window.onload = resetTimer;
@@ -517,9 +518,9 @@
             document.onkeypress = resetTimer;
 
             function reloginSession() {
-                
+
                     $.timeoutDialog({ timeout: 1, countdown: 300000, logout_redirect_url: '@Url.Action("LoggingOut", "Account")', restart_on_yes: false });
-                
+
             }
 
             function logout() {
@@ -536,7 +537,8 @@
             }
         };
 
-        inactivityTime();
+        inactivityTime();*@
+        //end remark by calvin 18 februari 2019
     </script>   
 @* ReSharper disable once Mvc.ActionNotResolved *@
 <script type="text/javascript">

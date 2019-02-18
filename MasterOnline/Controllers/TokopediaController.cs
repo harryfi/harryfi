@@ -104,7 +104,7 @@ namespace MasterOnline.Controllers
                 {
                     var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
-                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList().OrderBy(p=>p.RECNUM);
+                    var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList().OrderBy(p => p.RECNUM);
                     var var_stf02_brg_list = var_stf02.Select(p => p.BRG).ToList();
                     var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_brg_list.Contains(p.BRG) && p.IDMARKET == iden.idmarket).ToList();
 
@@ -292,7 +292,7 @@ namespace MasterOnline.Controllers
                 var content = new StringContent(myData, Encoding.UTF8, "application/json");
                 content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
                 HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll,content);
+                    urll, content);
 
                 using (HttpContent responseContent = clientResponse.Content)
                 {
@@ -1353,7 +1353,41 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public List<GetEtalaseReturnEtalase> GetEtalase(TokopediaAPIData data)
+        {
+            List<GetEtalaseReturnEtalase> res = new List<GetEtalaseReturnEtalase>();
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/product/etalase?shop_id=" + Uri.EscapeDataString(data.API_secret_key);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            if (responseFromServer != "")
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetEtalaseReturn)) as GetEtalaseReturn;
+                res = result.data.etalase;
+            }
+            return res;
+        }
         public async Task<string> GetAttribute(TokopediaAPIData data)
         {
             string ret = "";
@@ -2283,6 +2317,41 @@ namespace MasterOnline.Controllers
         {
             public string url { get; set; }
             public string type { get; set; }
+        }
+
+        public class GetEtalaseReturn
+        {
+            public GetEtalaseReturnHeader header { get; set; }
+            public GetEtalaseReturnData data { get; set; }
+        }
+
+        public class GetEtalaseReturnHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class GetEtalaseReturnData
+        {
+            public GetEtalaseReturnShop shop { get; set; }
+            public List<GetEtalaseReturnEtalase> etalase { get; set; }
+        }
+
+        public class GetEtalaseReturnShop
+        {
+            public int id { get; set; }
+            public string name { get; set; }
+            public string uri { get; set; }
+            public string location { get; set; }
+        }
+
+        public class GetEtalaseReturnEtalase
+        {
+            public int etalase_id { get; set; }
+            public string etalase_name { get; set; }
+            public string url { get; set; }
         }
 
     }

@@ -963,7 +963,7 @@ namespace MasterOnline.Controllers
 
             return postDataStream;
         }
-        public void GetProdukInReviewList(BlibliAPIData iden, string requestID)
+        public void GetProdukInReviewList(BlibliAPIData iden, string requestID, string ProductCode, string gdnSku)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1003,12 +1003,89 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
+                //perlu tes item tanpa varian
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ProductInReviewListResult)) as ProductInReviewListResult;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
                     foreach (var item in result.content)
                     {
+                        if (item.productItems.Count() > 0)
+                        {
+                            bool successPerItem = false;
+                            foreach (var item_var in item.productItems)
+                            {
+                                if (item_var.upcCode != "-" && !string.IsNullOrWhiteSpace(item_var.upcCode))
+                                {
+                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                    {
+                                        oConnection.Open();
+                                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                                        {
+                                            try
+                                            {
+                                                oCommand.CommandType = CommandType.Text;
+                                                oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                                oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
+                                                oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
+                                                oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
+                                            
+                                                oCommand.Parameters[0].Value = item_var.upcCode; 
+                                                oCommand.Parameters[1].Value = iden.idmarket;
+                                                oCommand.Parameters[2].Value = item_var.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
 
+                                                if (oCommand.ExecuteNonQuery() == 1)
+                                                {
+                                                    successPerItem = true;
+                                                }
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                successPerItem = false;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            if (successPerItem)
+                            {
+                                string STF02_BRG = "";
+                                var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == requestID).SingleOrDefault();
+                                if (apiLogInDb != null)
+                                {
+                                    apiLogInDb.REQUEST_STATUS = "Success";
+                                    apiLogInDb.REQUEST_RESULT = "";
+                                    apiLogInDb.REQUEST_EXCEPTION = "";
+                                    STF02_BRG = apiLogInDb.REQUEST_ATTRIBUTE_1;
+                                    ErasoftDbContext.SaveChanges();
+                                }
+
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        try
+                                        {
+                                            oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
+                                            oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
+                                            oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
+                                            
+                                            oCommand.Parameters[0].Value = STF02_BRG; // BRG MO
+                                            oCommand.Parameters[1].Value = iden.idmarket;
+                                            oCommand.Parameters[2].Value = ProductCode; // STF02H.BRG_MP, seharusnya gdnSku + ProductCode, tidak ketemu darimana gdnSku nya
+                                            oCommand.ExecuteNonQuery();
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -4280,7 +4357,15 @@ namespace MasterOnline.Controllers
                                     {
                                         if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                         {
-                                            GetProdukInReviewList(data, requestId);
+                                            string ProductCode = "";
+                                            string gdnSku = "";
+                                            if (result.value.queueHistory.Count() > 0)
+                                            {
+                                                gdnSku = result.value.queueHistory[0].gdnSku;
+                                                ProductCode = result.value.queueHistory[0].value;
+                                            }
+                                                
+                                            GetProdukInReviewList(data, requestId, ProductCode, gdnSku);
                                         }
                                     }
                                 }
@@ -4816,6 +4901,7 @@ namespace MasterOnline.Controllers
             public string mta_username_email_merchant { get; set; }
             public string mta_password_password_merchant { get; set; }
             public string token { get; set; }
+            public int idmarket { get; set; }
         }
         public class BlibliQueueFeedData
         {
@@ -5141,9 +5227,11 @@ namespace MasterOnline.Controllers
             Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
             for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
             {
-                nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+                if (!nonDefiningAttributes.ContainsKey(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"])))
+                {
+                    nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+                }
             }
-
             newData.productNonDefiningAttributes = nonDefiningAttributes;
 
             Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
@@ -5158,7 +5246,10 @@ namespace MasterOnline.Controllers
                         dsVariasiValues.Add(v.MP_VALUE_VAR);
                     }
                 }
-                DefiningAttributes.Add(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]), dsVariasiValues.ToArray());
+                if (!DefiningAttributes.ContainsKey(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])))
+                {
+                    DefiningAttributes.Add(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]), dsVariasiValues.ToArray());
+                }
             }
             newData.productDefiningAttributes = DefiningAttributes;
 
@@ -5269,8 +5360,8 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductResult)) as CreateProductResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
                     //INSERT QUEUE FEED
                     using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
@@ -5292,7 +5383,7 @@ namespace MasterOnline.Controllers
 
                             try
                             {
-                                oCommand.Parameters[0].Value = result.queueFeedId.Value;
+                                oCommand.Parameters[0].Value = result.value.queueFeedId;
                                 oCommand.Parameters[1].Value = iden.merchant_code;
                                 oCommand.Parameters[2].Value = currentLog.REQUEST_ID;
 
@@ -5316,7 +5407,7 @@ namespace MasterOnline.Controllers
 
                                     BlibliQueueFeedData queueData = new BlibliQueueFeedData
                                     {
-                                        request_id = result.queueFeedId.Value,
+                                        request_id = result.value.queueFeedId,
                                         log_request_id = currentLog.REQUEST_ID
                                     };
                                     GetQueueFeedDetail(iden, queueData);
@@ -5333,7 +5424,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    currentLog.REQUEST_EXCEPTION = result.errorCode.Value;
+                    currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorCode);
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                 }
             }
@@ -5405,6 +5496,7 @@ namespace MasterOnline.Controllers
         public class Queuehistory
         {
             public string gdnSku { get; set; }
+            public string value { get; set; }
             public long timestamp { get; set; }
             public bool isSuccess { get; set; }
         }
@@ -5625,6 +5717,24 @@ namespace MasterOnline.Controllers
             public string orderStatus { get; set; }
             public string orderStatusDesc { get; set; }
             public long createdTimestamp { get; set; }
+        }
+
+        public class CreateProductResult
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public CreateProductResultValue value { get; set; }
+        }
+
+        public class CreateProductResultValue
+        {
+            public string queueFeedId { get; set; }
+            public string requestAction { get; set; }
+            public int total { get; set; }
+            public long timeStamp { get; set; }
         }
 
     }

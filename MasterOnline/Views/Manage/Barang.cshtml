@@ -3265,6 +3265,23 @@
             $('#ListHargaJualPermarket_' + PromptDeliveryTempEleveniaTextBox + '__DeliveryTempElevenia').val(val);
         }
 
+        var PromptEtalaseTokpedTextBox = "";
+        function PromptEtalaseTokped(i, r) {
+            PromptEtalaseTokpedTextBox = i;
+            showPromptEtalaseTokpedTextBoxWindow(r);
+        }
+
+        function showPromptEtalaseTokpedTextBoxWindow(val) {
+            var $link = '@Url.Action("PromptEtalaseTokped", "Manage",new { recnum = "replaceRecnum"})';
+            $link = $link.replace("replaceRecnum", val);
+            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
+        }
+        function afterPromptEtalaseTokped(val) {
+            $('#TOKPED_ETALASE' + PromptEtalaseTokpedTextBox + 'Box').val(val);
+            $('#ListHargaJualPermarket_' + PromptEtalaseTokpedTextBox + '__PICKUP_POINT').val(val);
+        }
+        //PromptEtalaseTokped
+
         var PromptPickupPointBlibliTextBox = "";
         function PromptPickupPointBlibli(i, r) {
             PromptPickupPointBlibliTextBox = i;
