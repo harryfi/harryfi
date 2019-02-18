@@ -295,6 +295,8 @@
 
         function validasiTambahan() {
             var $isValid = true;
+            
+
             //var $Gd = $('#GUDANG');
             //var $this = $('tr[data-faktur-id="0"] .qty-barang');
             //if ($Gd.val() == "-" || $Gd.val() == "") {
@@ -396,45 +398,60 @@
         function simpanOptLevel(level) {
             if (!validasiTambahan()) return false;
 
-            var post_data =
-            {
-                JUDUL_VAR: $('#Variant_Level_' + level + '_VALUE_JUDUL_VAR').val(),
-                data:
-                {
-                    LEVEL_VAR: level,
-                    KODE_VAR: $('#VariantOpt_Level_' + level + '_KODE_VAR').val(),
-                    KET_VAR: $('#VariantOpt_Level_' + level + '_KET_VAR').val(),
-                    CATEGORY_MO: $('#txtKodeKategori').val()
-                }
-            };
+            //add by nurul 18/2/2019
+            var $KODE_VAR = $('#VariantOpt_Level_' + level + '_KODE_VAR');
+            var $KET_VAR = $('#VariantOpt_Level_' + level + '_KET_VAR');
 
-            $.ajax({
-                type: "POST",
-                url: '@Url.Action("SaveVariantOptLevel", "Manage")',
-                data: post_data,
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
-                success: function (response) {
-                    if (response.Errors == null) {
-                        $('#var-structure-partial').html(response);
+            if ($KODE_VAR.val() != "" &&
+                $KET_VAR.val() != "") {
+                
+            //end add by nurul 18/2/2019
 
-                    } else {
-                        if (response.Errors[0] != null) {
-                            alert(response.Errors[0]);
+                var post_data =
+                    {
+                        JUDUL_VAR: $('#Variant_Level_' + level + '_VALUE_JUDUL_VAR').val(),
+                        data:
+                            {
+                                LEVEL_VAR: level,
+                                KODE_VAR: $('#VariantOpt_Level_' + level + '_KODE_VAR').val(),
+                                KET_VAR: $('#VariantOpt_Level_' + level + '_KET_VAR').val(),
+                                CATEGORY_MO: $('#txtKodeKategori').val()
+                            }
+                    };
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("SaveVariantOptLevel", "Manage")',
+                    data: post_data,
+                    beforeSend: function () {
+                        $('#loading_spinner').show();
+                    },
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#var-structure-partial').html(response);
+
                         } else {
-                            console.log(response.Errors);
-                            alert('Ada data yang tidak valid!');
+                            if (response.Errors[0] != null) {
+                                alert(response.Errors[0]);
+                            } else {
+                                console.log(response.Errors);
+                                alert('Ada data yang tidak valid!');
+                            }
                         }
+                        $('#loading_spinner').hide();
+                    },
+                    error: function (xhr) {
+                        alert('Ada data yang tidak valid!');
+                        $('#loading_spinner').hide();
+                        console.log(xhr);
                     }
-                    $('#loading_spinner').hide();
-                },
-                error: function (xhr) {
-                    alert('Ada data yang tidak valid!');
-                    $('#loading_spinner').hide();
-                    console.log(xhr);
-                }
-            });
+                });
+
+            //add by nurul 18/2/2019
+            } else {
+                alert('Mohon lengkapi Opsi Variasi ' + level + ' !');
+            }
+            //end add by nurul 18/2/2019
         }
         function editKategori(rec) {
             var link = '@Url.Action("EditKategori", "Manage", new { recNum = "replaceId" })';

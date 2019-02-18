@@ -27,5 +27,13 @@ namespace MasterOnline.Models
         public DateTime? TanggalBayar { get; set; }
 
         public double Nilai { get; set; }
+
+        [MaxLength(50)]
+        public string TipePembayaran { get; set; }
+        
+        public DateTime? DrTGL { get; set; }
+
+        public DateTime? SdTGL { get; set; }
+
     }
 }

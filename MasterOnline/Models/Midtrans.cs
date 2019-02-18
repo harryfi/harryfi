@@ -26,7 +26,14 @@ namespace MasterOnline.Models
         public string signature_key { get; set; }
         public string saved_token_id { get; set; }
         public string saved_token_id_expired_at { get; set; }
+        public BCAVA[] va_numbers { get; set; }
     }
+    public class BCAVA
+    {
+       public string bank { get; set; }
+       public string va_number { get; set; }
+    }
+    
     public class BindReqSnap
     {
         public TransactionDetail transaction_details { get; set; }
