@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using MasterOnline.ViewModels;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using System.IO;
 using Erasoft.Function;
 using System.Xml;
@@ -116,83 +117,100 @@ namespace MasterOnline.Controllers
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
             if (arf01inDB != null)
             {
-                //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
-                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
-                string userMTA = data.mta_username_email_merchant;//<-- email user merchant
-                string passMTA = data.mta_password_password_merchant;//<-- pass merchant
-                                                                     //apiId = "mta-api-sandbox:sandbox-secret-key";
-                                                                     //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
-                string urll = "https://api.blibli.com/v2/oauth/token";
-                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-                myReq.Method = "POST";
-                myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
-                myReq.ContentType = "application/x-www-form-urlencoded";
-                myReq.Accept = "application/json";
-                string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
-                //Stream dataStream = myReq.GetRequestStream();
-                //WebResponse response = myReq.GetResponse();
-                //dataStream = response.GetResponseStream();
-                //StreamReader reader = new StreamReader(dataStream);
-                string responseFromServer = "";
-                try
+                bool TokenExpired = true;
+                var currentTimeRequest = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                if (!string.IsNullOrWhiteSpace(arf01inDB.REFRESH_TOKEN))
                 {
-                    myReq.ContentLength = myData.Length;
-                    using (var dataStream = myReq.GetRequestStream())
+                    var splitRefreshToken = arf01inDB.REFRESH_TOKEN.Split(';');
+                    if (splitRefreshToken.Count() == 3)
                     {
-                        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                    }
-                    using (WebResponse response = myReq.GetResponse())
-                    {
-                        using (Stream stream = response.GetResponseStream())
+                        if ((Convert.ToInt64(splitRefreshToken[2]) + Convert.ToInt64(splitRefreshToken[1]) - 10000) >= currentTimeRequest)
                         {
-                            StreamReader reader = new StreamReader(stream);
-                            responseFromServer = reader.ReadToEnd();
+                            TokenExpired = false;
                         }
                     }
                 }
-                catch (Exception ex)
+                if (TokenExpired)
                 {
-
-                }
-                //dataStream.Close();
-                //response.Close();
-                // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
-                //cek refreshToken
-                if (responseFromServer != "")
-                {
-                    ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
-                    if (ret.error == null)
+                    //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+                    string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                    string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                    string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+                                                                         //apiId = "mta-api-sandbox:sandbox-secret-key";
+                                                                         //string urll = "https://apisandbox.blibli.com/v2/oauth/token?grant_type=client_credentials";
+                    string urll = "https://api.blibli.com/v2/oauth/token?channelId=MasterOnline";
+                    HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                    myReq.Method = "POST";
+                    myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(apiId))));
+                    myReq.ContentType = "application/x-www-form-urlencoded";
+                    myReq.Accept = "application/json";
+                    string myData = "grant_type=password&password=" + passMTA + "&username=" + userMTA + "";
+                    //Stream dataStream = myReq.GetRequestStream();
+                    //WebResponse response = myReq.GetResponse();
+                    //dataStream = response.GetResponseStream();
+                    //StreamReader reader = new StreamReader(dataStream);
+                    string responseFromServer = "";
+                    try
                     {
-                        //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
-                        //if (arf01inDB != null)
-                        //{
-                        arf01inDB.TOKEN = ret.access_token;
-                        arf01inDB.REFRESH_TOKEN = ret.refresh_token;
-
-                        //ADD BY TRI, SET STATUS_API
-                        arf01inDB.STATUS_API = "1";
-                        //END ADD BY TRI, SET STATUS_API
-
-                        ErasoftDbContext.SaveChanges();
-                        if (syncData)
+                        myReq.ContentLength = myData.Length;
+                        using (var dataStream = myReq.GetRequestStream())
                         {
-                            data.merchant_code = arf01inDB.Sort1_Cust;
-                            data.token = ret.access_token;
-                            //GetProdukInReviewList(data);
-                            GetPickupPoint(data); // untuk prompt pickup point saat insert barang
-                            GetCategoryPerUser(data); // untuk category code yg muncul saat insert barang
+                            dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                         }
-                        //}
+                        using (WebResponse response = myReq.GetResponse())
+                        {
+                            using (Stream stream = response.GetResponseStream())
+                            {
+                                StreamReader reader = new StreamReader(stream);
+                                responseFromServer = reader.ReadToEnd();
+                            }
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //ADD BY TRI, SET STATUS_API
-                        arf01inDB.STATUS_API = "0";
-                        //END ADD BY TRI, SET STATUS_API
 
-                        ErasoftDbContext.SaveChanges();
+                    }
+                    //dataStream.Close();
+                    //response.Close();
+                    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                    //cek refreshToken
+                    if (responseFromServer != "")
+                    {
+                        ret = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(BliBliToken)) as BliBliToken;
+                        if (ret.error == null)
+                        {
+                            //var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username)).SingleOrDefault();
+                            //if (arf01inDB != null)
+                            //{
+                            arf01inDB.TOKEN = ret.access_token;
+                            arf01inDB.REFRESH_TOKEN = ret.refresh_token + ";" + Convert.ToString(ret.expires_in) + ";" + Convert.ToString(currentTimeRequest);
+
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "1";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+                            if (syncData)
+                            {
+                                data.merchant_code = arf01inDB.Sort1_Cust;
+                                data.token = ret.access_token;
+                                //GetProdukInReviewList(data);
+                                GetPickupPoint(data); // untuk prompt pickup point saat insert barang
+                                GetCategoryPerUser(data); // untuk category code yg muncul saat insert barang
+                            }
+                            //}
+                        }
+                        else
+                        {
+                            //ADD BY TRI, SET STATUS_API
+                            arf01inDB.STATUS_API = "0";
+                            //END ADD BY TRI, SET STATUS_API
+
+                            ErasoftDbContext.SaveChanges();
+                        }
                     }
                 }
+                GetQueueFeedDetail(data, null);
             }
             return ret;
         }
@@ -395,54 +413,54 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
-                {
-                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-                    if (result.content.Count > 0)
-                    {
-                        if (stat == StatusOrder.Paid)
-                        {
-                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+                //if (string.IsNullOrEmpty(result.errorCode.Value))
+                //{
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //    if (result.content.Count > 0)
+                //    {
+                //        if (stat == StatusOrder.Paid)
+                //        {
+                //            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
 
-                            foreach (var item in result.content)
-                            {
-                                if (!OrderNoInDb.Contains(item.orderNo.Value))
-                                {
-                                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (stat == StatusOrder.Completed)
-                            {
-                                foreach (var item in result.content)
-                                {
-                                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
-                                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
-                                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                    {
-                                        oConnection.Open();
-                                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                                        //{
-                                        using (SqlCommand oCommand = oConnection.CreateCommand())
-                                        {
-                                            oCommand.CommandType = CommandType.Text;
-                                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
-                                            oCommand.ExecuteNonQuery();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //currentLog.REQUEST_RESULT = result.errorCode.Value;
-                    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
-                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
-                }
+                //            foreach (var item in result.content)
+                //            {
+                //                if (!OrderNoInDb.Contains(item.orderNo.Value))
+                //                {
+                //                    await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //                }
+                //            }
+                //        }
+                //        else
+                //        {
+                //            if (stat == StatusOrder.Completed)
+                //            {
+                //                foreach (var item in result.content)
+                //                {
+                //                    //remark by calvin 10 januari 2019, update saja, langsung ke sot01a, tidak usah getorderdetail lagi
+                //                    //await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                //                    {
+                //                        oConnection.Open();
+                //                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                //                        //{
+                //                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                //                        {
+                //                            oCommand.CommandType = CommandType.Text;
+                //                            oCommand.CommandText = "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + item.orderNo.Value + "' AND STATUS_TRANSAKSI='03'";
+                //                            oCommand.ExecuteNonQuery();
+                //                        }
+                //                    }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    //currentLog.REQUEST_RESULT = result.errorCode.Value;
+                //    //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                //    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //}
             }
             return ret;
         }
@@ -945,7 +963,7 @@ namespace MasterOnline.Controllers
 
             return postDataStream;
         }
-        public void GetProdukInReviewList(BlibliAPIData iden)
+        public void GetProdukInReviewList(BlibliAPIData iden, string requestID)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -955,7 +973,7 @@ namespace MasterOnline.Controllers
             string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
 
             string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/inProcessProduct", iden.API_secret_key);
-            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/inProcessProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
 
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "GET";
@@ -964,7 +982,7 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
             myReq.Accept = "application/json";
             myReq.ContentType = "application/json";
-            myReq.Headers.Add("requestId", milis.ToString());
+            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
             myReq.Headers.Add("sessionId", milis.ToString());
             myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
@@ -985,10 +1003,13 @@ namespace MasterOnline.Controllers
             }
             if (responseFromServer != null)
             {
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ProductInReviewListResult)) as ProductInReviewListResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
+                    foreach (var item in result.content)
+                    {
 
+                    }
                 }
             }
         }
@@ -1264,7 +1285,7 @@ namespace MasterOnline.Controllers
                             //oCommand.ExecuteNonQuery();
                             //oCommand.Transaction = oTransaction;
                             oCommand.CommandType = CommandType.Text;
-                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS],[LOG_REQUEST_ID]) VALUES (@REQUESTID,'createProduct',@MERCHANTCODE,'1',@LOG_REQUEST_ID)";
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS],[LOG_REQUEST_ID]) VALUES (@REQUESTID,'createProductV2',@MERCHANTCODE,'1',@LOG_REQUEST_ID)";
                             //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
                             oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
@@ -2059,7 +2080,7 @@ namespace MasterOnline.Controllers
                                 //change by calvin 15 januari 2019
                                 //nama2 = namaBrg.Substring(30, 30);
                                 //nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                nama2 = namaBrg.Substring(30,255);
+                                nama2 = namaBrg.Substring(30, 255);
                                 nama3 = "";
                                 //end change by calvin 15 januari 2019
                             }
@@ -2105,7 +2126,7 @@ namespace MasterOnline.Controllers
                                 numVarian++;
                             }
                         }
-                        if(numVarian > 1)
+                        if (numVarian > 1)
                         {
                             //remove bussiness partner code from productsku -> max length < 20
                             string productSku = result.value.productSku;
@@ -3139,7 +3160,7 @@ namespace MasterOnline.Controllers
                             }
                         }
                         #endregion
-                        
+
                         if (insertParent)
                             sSQL += sSQLInduk;
 
@@ -3152,12 +3173,12 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust,string IdMarket, int display, string urlImage, string urlImage2, string urlImage3)
+        public string sqlValueBrgInduk(dynamic result, string kdBrg, string cust, string IdMarket, int display, string urlImage, string urlImage2, string urlImage3)
         {
             string sSQL = "";
             string namaBrg = result.value.productName;
             string nama, nama2, nama3;
-            
+
             if (namaBrg.Length > 30)
             {
                 nama = namaBrg.Substring(0, 30);
@@ -4235,123 +4256,30 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != null && responseFromServer != "")
             {
                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
-                    REQUEST_ID = log_request_id
+                    REQUEST_ID = requestId
                 };
 
-                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
-                if (string.IsNullOrEmpty(result.errorCode.Value))
+                //dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                GetQueueFeedDetailResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetQueueFeedDetailResult)) as GetQueueFeedDetailResult;
+                if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                 {
                     if (result.value.queueHistory != null)
                     {
-                        if (result.value.queueHistory.Count > 0)
+                        if (result.value.queueHistory.Count() > 0)
                         {
                             foreach (var item in result.value.queueHistory)
                             {
                                 if (Convert.ToBoolean(item.isSuccess))
                                 {
-                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
-                                    dynamic values = null;
-                                    try
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
                                     {
-                                        values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        try
+                                        if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                         {
-                                            if (Convert.ToString(item.value.Value).Contains("postImage"))
-                                            {
-                                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                                {
-                                                    oConnection.Open();
-                                                    using (SqlCommand oCommand = oConnection.CreateCommand())
-                                                    {
-                                                        oCommand.CommandType = CommandType.Text;
-                                                        oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-                                                        oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
-                                                        oCommand.ExecuteNonQuery();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        catch (Exception ex2)
-                                        {
-
-                                        }
-                                    }
-                                    if (values != null)
-                                    {
-                                        if (Convert.ToString(values.type) == "createProduct")
-                                        {
-                                            //SET BRG_MP
-                                            using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
-                                            {
-                                                oConnection.Open();
-                                                using (SqlCommand oCommand = oConnection.CreateCommand())
-                                                {
-                                                    oCommand.CommandType = CommandType.Text;
-                                                    oCommand.CommandText = "UPDATE H SET BRG_MP=@BRG_MP FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
-                                                    oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
-                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                    oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 10));
-
-                                                    try
-                                                    {
-                                                        oCommand.Parameters[0].Value = Convert.ToString(values.gdnSku.Value) + ';' + Convert.ToString(values.productCode.Value);
-                                                        oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
-                                                        oCommand.Parameters[2].Value = Convert.ToString(data.merchant_code);
-                                                        oCommand.ExecuteNonQuery();
-
-                                                        {
-                                                            oCommand.CommandType = CommandType.Text;
-                                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = '0' WHERE [REQUESTID] = '" + requestId + "' AND [MERCHANT_CODE]=@MERCHANTCODE AND [STATUS] = '1'";
-                                                            oCommand.ExecuteNonQuery();
-                                                            string merchantSku = values.merchantSku.Value;
-                                                            {
-                                                                string[] imgPath = new string[3];
-                                                                var dataBarang = ErasoftDbContext.STF02.Where(p => p.BRG.Equals(merchantSku)).FirstOrDefault();
-                                                                for (int i = 0; i < 3; i++)
-                                                                {
-                                                                    switch (i)
-                                                                    {
-                                                                        case 0:
-                                                                            imgPath[0] = dataBarang.LINK_GAMBAR_1;
-                                                                            break;
-                                                                        case 1:
-                                                                            imgPath[1] = dataBarang.LINK_GAMBAR_2;
-                                                                            break;
-                                                                        case 2:
-                                                                            imgPath[2] = dataBarang.LINK_GAMBAR_3;
-                                                                            break;
-                                                                    }
-                                                                }
-                                                                //for (int i = 0; i < 3; i++)
-                                                                //{
-                                                                //    var namaFile = "FotoProduk-" + username + "-" + Convert.ToString(values.merchantSku.Value) + "-foto-" + Convert.ToString(i + 1) + ".jpg";
-                                                                //    //var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), namaFile);
-                                                                //    var path = Path.Combine(HttpRuntime.AppDomainAppPath, "Content\\Uploaded\\" + namaFile);
-                                                                //    if (System.IO.File.Exists(path))
-                                                                //    {
-                                                                //        imgPath[i] = path;
-                                                                //    }
-                                                                //}
-
-                                                                UploadImage(data, imgPath, Convert.ToString(values.productCode.Value), Convert.ToString(values.merchantSku.Value));
-                                                            }
-                                                        }
-                                                    }
-                                                    catch (Exception ex)
-                                                    {
-
-                                                    }
-                                                }
-                                            }
-
+                                            GetProdukInReviewList(data, requestId);
                                         }
                                     }
                                 }
@@ -4370,7 +4298,7 @@ namespace MasterOnline.Controllers
                                                 oCommand.Parameters[0].Value = Convert.ToString(data.merchant_code);
                                                 oCommand.ExecuteNonQuery();
 
-                                                currentLog.REQUEST_RESULT = item.errorMessage.Value;
+                                                currentLog.REQUEST_RESULT = Convert.ToString(result.errorMessage);
                                                 currentLog.REQUEST_EXCEPTION = "";
                                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                                             }
@@ -4379,18 +4307,17 @@ namespace MasterOnline.Controllers
 
                                             }
 
-                                            dynamic values = null;
                                             try
                                             {
-                                                values = Newtonsoft.Json.JsonConvert.DeserializeObject(item.value.Value);
-                                                if (values != null)
+                                                if (Convert.ToString(result.value.queueFeed.requestAction) == "createProductV2")
                                                 {
-                                                    if (Convert.ToString(values.type) == "createProduct")
+                                                    var getKodeItem = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == requestId).FirstOrDefault();
+                                                    if (getKodeItem != null)
                                                     {
                                                         oCommand.CommandType = CommandType.Text;
                                                         oCommand.CommandText = "UPDATE H SET BRG_MP='' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = 'PENDING'";
                                                         oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
-                                                        oCommand.Parameters[1].Value = Convert.ToString(values.merchantSku.Value);
+                                                        oCommand.Parameters[1].Value = Convert.ToString(getKodeItem.REQUEST_ATTRIBUTE_1);
                                                         oCommand.ExecuteNonQuery();
                                                     }
                                                 }
@@ -5149,6 +5076,394 @@ namespace MasterOnline.Controllers
             public bool mainImage { get; set; }
             public int sequence { get; set; }
             public string locationPath { get; set; }
+        }
+
+        public async Task<string> CreateProduct(BlibliAPIData iden, BlibliProductData data)
+        {
+            //if merchant code diisi. barulah upload produk
+            string ret = "";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+            //-productType / productHandlingType / productTypeCode
+            //It's a product handling type, it's determine on how it will be shipped:
+
+            //REGULAR: regular product, this type is handled by Blibli for specified merchantType. The shipping cost of Regular Product is covered by Blibli.
+            //The ID number for REGULAR type = 1.
+            //BIG_PRODUCT / HANDLING_BY_MERCHANT : shipped or handling by merchant, Blibli not covered the shipping cost for this product type.Ideally the big product category is like AC, refrigerator and other product that need instalment.Or maybe the electric voucher that sold by merchant by sending email or sms to customer can be included as this type.
+            //The ID number for BIG_PRODUCT type = 2.
+            //BOPIS : is (Buy Online Pickup In merchant Store).Customer that bought must came to merchant store to pick their product.
+            //The ID number for BOPIS type = 3.
+
+            CreateProductBlibliData newData = new CreateProductBlibliData()
+            {
+                name = data.nama,
+                brand = data.Brand,
+                url = "",
+                categoryCode = data.CategoryCode,
+                productType = 1,
+                pickupPointCode = data.PickupPoint,
+                length = Convert.ToInt32(data.Length),
+                width = Convert.ToInt32(data.Width),
+                height = Convert.ToInt32(data.Height),
+                weight = Convert.ToInt32(data.berat),
+                description = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                uniqueSellingPoint = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+                productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
+            };
+
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 30; i++)
+            {
+                sSQL += "SELECT B.ACODE_" + i.ToString() + " AS CATEGORY_CODE,B.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H (NOLOCK) A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI (NOLOCK) B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+                if (i < 30)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
+
+            DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
+            DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
+
+            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+            var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
+            var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
+            var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
+            var var_stf02i = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kode && p.MARKET == "BLIBLI").ToList().OrderBy(p => p.RECNUM);
+
+            Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
+            for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+            {
+                nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+            }
+
+            newData.productNonDefiningAttributes = nonDefiningAttributes;
+
+            Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
+            for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+            {
+                List<string> dsVariasiValues = new List<string>();
+                var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])).ToList().OrderBy(p => p.RECNUM);
+                foreach (var v in var_stf02i_distinct)
+                {
+                    if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                    {
+                        dsVariasiValues.Add(v.MP_VALUE_VAR);
+                    }
+                }
+                DefiningAttributes.Add(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]), dsVariasiValues.ToArray());
+            }
+            newData.productDefiningAttributes = DefiningAttributes;
+
+            Dictionary<string, string> images = new Dictionary<string, string>();
+            List<string> uploadedImageID = new List<string>();
+            List<Productitem> productItems = new List<Productitem>();
+            foreach (var var_item in var_stf02)
+            {
+                var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
+
+                List<string> images_pervar = new List<string>();
+                images_pervar.Add(var_item.Sort5); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                if (!uploadedImageID.Contains(var_item.Sort5))
+                {
+                    uploadedImageID.Add(var_item.Sort5);
+                    using (var client = new HttpClient())
+                    {
+                        var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                        images.Add(var_item.Sort5, Convert.ToBase64String(bytes));
+                    }
+                }
+
+                Dictionary<string, string> attributeMap = new Dictionary<string, string>();
+                if (!string.IsNullOrWhiteSpace(var_item.Sort8))
+                {
+                    var var_stf02i_judul_mp_var_1 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort8 && p.LEVEL_VAR == 1).FirstOrDefault();
+                    if (var_stf02i_judul_mp_var_1 != null)
+                    {
+                        attributeMap.Add(var_stf02i_judul_mp_var_1.MP_JUDUL_VAR, var_stf02i_judul_mp_var_1.MP_VALUE_VAR);
+                    }
+                    if (!string.IsNullOrWhiteSpace(var_item.Sort9))
+                    {
+                        var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
+                        if (var_stf02i_judul_mp_var_2 != null)
+                        {
+                            attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                        }
+                    }
+                }
+
+                Productitem newVarItem = new Productitem()
+                {
+                    upcCode = var_item.BRG,
+                    merchantSku = var_item.BRG,
+                    price = Convert.ToInt32(var_stf02h_item.HJUAL),
+                    salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
+                    minimumStock = Convert.ToInt32(var_item.MINI),
+                    stock = Convert.ToInt32(var_item.MINI),
+                    buyable = true,
+                    displayable = true,
+                    dangerousGoodsLevel = 0,
+                    images = images_pervar.ToArray(),
+                    attributesMap = attributeMap
+                };
+                productItems.Add(newVarItem);
+            }
+            newData.productItems = (productItems);
+            newData.imageMap = images;
+
+            string myData = JsonConvert.SerializeObject(newData);
+
+            //myData = myData.Replace("\\r\\n", "\\n").Replace("–", "-").Replace("\\\"\\\"", "").Replace("×", "x");
+            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v2/product/createProduct", iden.API_secret_key);
+            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v2/product/createProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&username=" + Uri.EscapeDataString(userMTA) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Create Product",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = data.kode,
+                REQUEST_ATTRIBUTE_2 = data.nama,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+            myReq.Headers.Add("sessionId", milis.ToString());
+            myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            if (responseFromServer != null)
+            {
+                dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                if (string.IsNullOrEmpty(result.errorCode.Value))
+                {
+                    //INSERT QUEUE FEED
+                    using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                    {
+                        oConnection.Open();
+                        //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                        //{
+                        using (SqlCommand oCommand = oConnection.CreateCommand())
+                        {
+                            //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                            //oCommand.ExecuteNonQuery();
+                            //oCommand.Transaction = oTransaction;
+                            oCommand.CommandType = CommandType.Text;
+                            oCommand.CommandText = "INSERT INTO [QUEUE_FEED_BLIBLI] ([REQUESTID],[REQUEST_ACTION],[MERCHANT_CODE],[STATUS],[LOG_REQUEST_ID]) VALUES (@REQUESTID,'createProductV2',@MERCHANTCODE,'1',@LOG_REQUEST_ID)";
+                            //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@MERCHANTCODE", SqlDbType.NVarChar, 50));
+                            oCommand.Parameters.Add(new SqlParameter("@LOG_REQUEST_ID", SqlDbType.NVarChar, 50));
+
+                            try
+                            {
+                                oCommand.Parameters[0].Value = result.queueFeedId.Value;
+                                oCommand.Parameters[1].Value = iden.merchant_code;
+                                oCommand.Parameters[2].Value = currentLog.REQUEST_ID;
+
+                                if (oCommand.ExecuteNonQuery() == 1)
+                                {
+                                    //ADD BY CALVIN 9 NOV 2018
+                                    try
+                                    {
+                                        //SET BRG_MP JADI PENDING, AGAR TIDAK DOUBLE UPLOAD
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "UPDATE H SET BRG_MP='PENDING' FROM STF02H H INNER JOIN ARF01 A ON H.IDMARKET = A.RECNUM WHERE H.BRG=@MERCHANTSKU AND A.SORT1_CUST=@MERCHANTCODE AND ISNULL(H.BRG_MP,'') = ''";
+                                        oCommand.Parameters.Add(new SqlParameter("@MERCHANTSKU", SqlDbType.NVarChar, 20));
+                                        oCommand.Parameters[3].Value = Convert.ToString(data.kode);
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ex)
+                                    {
+
+                                    }
+                                    //END ADD BY CALVIN 9 NOV 2018
+
+                                    BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                                    {
+                                        request_id = result.queueFeedId.Value,
+                                        log_request_id = currentLog.REQUEST_ID
+                                    };
+                                    GetQueueFeedDetail(iden, queueData);
+                                }
+                                //oTransaction.Commit();
+                            }
+                            catch (Exception ex)
+                            {
+                                //oTransaction.Rollback();
+                            }
+                        }
+                        //}
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = result.errorCode.Value;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+            }
+
+            return ret;
+        }
+
+        public class CreateProductBlibliData
+        {
+            public string name { get; set; }
+            public string brand { get; set; }
+            public string url { get; set; }
+            public string categoryCode { get; set; }
+            public int productType { get; set; }
+            public string pickupPointCode { get; set; }
+            public int length { get; set; }
+            public int width { get; set; }
+            public int height { get; set; }
+            public int weight { get; set; }
+            public string description { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string productStory { get; set; }
+            public Dictionary<string, string> productNonDefiningAttributes { get; set; }
+            public Dictionary<string, string[]> productDefiningAttributes { get; set; }
+            public List<Productitem> productItems { get; set; }
+            public Dictionary<string, string> imageMap { get; set; }
+        }
+
+        public class Productitem
+        {
+            public string upcCode { get; set; }
+            public string merchantSku { get; set; }
+            public int price { get; set; }
+            public int salePrice { get; set; }
+            public int stock { get; set; }
+            public int minimumStock { get; set; }
+            public bool displayable { get; set; }
+            public bool buyable { get; set; }
+            public string[] images { get; set; }
+            public int dangerousGoodsLevel { get; set; }
+            public Dictionary<string, string> attributesMap { get; set; }
+        }
+
+
+        public class GetQueueFeedDetailResult
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public GetQueueFeedDetailResultValue value { get; set; }
+        }
+
+        public class GetQueueFeedDetailResultValue
+        {
+            public Queuefeed queueFeed { get; set; }
+            public Queuehistory[] queueHistory { get; set; }
+        }
+
+        public class Queuefeed
+        {
+            public string requestId { get; set; }
+            public string requestAction { get; set; }
+            public int total { get; set; }
+            public long timeStamp { get; set; }
+        }
+
+        public class Queuehistory
+        {
+            public string gdnSku { get; set; }
+            public long timestamp { get; set; }
+            public bool isSuccess { get; set; }
+        }
+
+
+        public class ProductInReviewListResult
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public ProductInReviewListResult_Content[] content { get; set; }
+            public ProductInReviewListResult_Pagemetadata pageMetaData { get; set; }
+        }
+
+        public class ProductInReviewListResult_Pagemetadata
+        {
+            public int pageSize { get; set; }
+            public int pageNumber { get; set; }
+            public int totalRecords { get; set; }
+        }
+
+        public class ProductInReviewListResult_Content
+        {
+            public string productCode { get; set; }
+            public string productName { get; set; }
+            public string brand { get; set; }
+            public float length { get; set; }
+            public float width { get; set; }
+            public float weight { get; set; }
+            public float height { get; set; }
+            public float shippingWeight { get; set; }
+            public string url { get; set; }
+            public string description { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string productStory { get; set; }
+            public string specificationDetail { get; set; }
+            public ProductInReviewListResult_Productimage[] productImages { get; set; }
+            public string categoryCode { get; set; }
+            public string categoryName { get; set; }
+            public bool activated { get; set; }
+            public bool viewable { get; set; }
+            public ProductInReviewListResult_Productitem[] productItems { get; set; }
+        }
+
+        public class ProductInReviewListResult_Productimage
+        {
+            public string imagePath { get; set; }
+            public int sequence { get; set; }
+            public bool active { get; set; }
+            public bool mainImage { get; set; }
+            public bool uploaded { get; set; }
+        }
+
+        public class ProductInReviewListResult_Productitem
+        {
+            public string generatedItemName { get; set; }
+            public string upcCode { get; set; }
+            public string productItemCode { get; set; }
         }
 
     }
