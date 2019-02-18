@@ -326,7 +326,7 @@
                         @Html.LabelFor(m => m.haveVarian, "Memiliki Varian *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             @Html.HiddenFor(m => m.haveVarian)
-                            <select id="cmbVar" style="height:30px" placeholder="Harap pilih" required="required">
+                            <select id="cmbVar" style="height:30px" placeholder="Harap pilih" required="required" onchange="ChangeCmbVar($('#cmbVar').val());">
                                 <option value="1">Ya</option>
                                 <option value="0">Tidak</option>
                             </select>
@@ -334,7 +334,7 @@
                     </div>
                     @*@if (Model.TempBrg.TYPE == "3" && Model.TempBrg.KODE_BRG_INDUK != "")
                         {*@
-                    <div class="form-group">
+                    <div class="form-group" id="divBrgInduk">
                         <label class="control-label col-md-3 col-sm-3 col-xs-12">Kode Barang Induk**</label>
                         <div class="col-md-6 col-sm-6 col-xs-12">
                             <table>

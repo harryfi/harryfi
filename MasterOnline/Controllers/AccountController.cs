@@ -799,6 +799,7 @@ namespace MasterOnline.Controllers
             partner.komisi_subscribe = 0;
             partner.komisi_support = 0;
             //end add by nurul 15/2/2019
+            partner.TGL_DAFTAR = DateTime.Now;//add 18 Feb 2019, tambah tgl daftar partner
 
             MoDbContext.Partner.Add(partner);
             MoDbContext.SaveChanges();

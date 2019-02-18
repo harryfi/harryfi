@@ -1320,7 +1320,13 @@
                 $this.closest('div').append('<span class="text-danger">' + msg + '</span>');
             }
         }
-
+        function ChangeCmbVar(val) {
+            if (val == '1') {
+                $("#divBrgInduk").show();
+            } else {
+                $("#divBrgInduk").hide();
+            }
+        }
         function uploadBarang(btnClicked) {
             var valid = validateForm();
             var valid2 = DataIsValid();
