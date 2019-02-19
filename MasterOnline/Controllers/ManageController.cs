@@ -267,8 +267,10 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
+            var Marketplaces = MoDbContext.Marketplaces.ToList();
+
             //remark by calvin 13 desember 2018, testing
-            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var kdBli = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
             var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
             {
@@ -297,7 +299,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var kdEL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
@@ -312,7 +314,7 @@ namespace MasterOnline.Controllers
                     //end add by calvin 8 nov 2018
                 }
             }
-            var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
             var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             if (listBLShop.Count > 0)
             {
@@ -324,7 +326,7 @@ namespace MasterOnline.Controllers
 
             }
 
-            var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var kdLzd = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
             var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
             if (listLzdShop.Count > 0)
             {
@@ -336,7 +338,7 @@ namespace MasterOnline.Controllers
             }
             //end remark by calvin 13 desember 2018, testing
 
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var kdTokped = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
             if (listTokPed.Count > 0)
             {
@@ -372,7 +374,7 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var kdShopee = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
             var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
             if (listShopeeShop.Count > 0)
             {
@@ -404,7 +406,7 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                ListMarketplace = Marketplaces,
             };
 
             return PartialView("TablePesananSudahDibayarPartial", vm);
@@ -426,9 +428,11 @@ namespace MasterOnline.Controllers
             {
                 username = sessionData?.Account?.Username;
             }
+            var Marketplaces = MoDbContext.Marketplaces.ToList();
+            var List_ARF01 = ErasoftDbContext.ARF01.ToList();
             //remark by calvin 13 desember 2018, testing
-            var kdBli = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var listBliShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
+            var kdBli = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var listBliShop = List_ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBliShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listBliShop)
@@ -456,8 +460,8 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            var kdEL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var listELShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
+            var kdEL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var listELShop = List_ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listELShop)
@@ -471,8 +475,8 @@ namespace MasterOnline.Controllers
                     //end add by calvin 8 nov 2018
                 }
             }
-            var kdBL = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            var kdBL = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var listBLShop = List_ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
             if (listBLShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listBLShop)
@@ -484,8 +488,8 @@ namespace MasterOnline.Controllers
 
             }
 
-            var kdLzd = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var listLzdShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
+            var kdLzd = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var listLzdShop = List_ARF01.Where(m => m.NAMA == kdLzd.IdMarket.ToString()).ToList();
             if (listLzdShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLzdShop)
@@ -497,8 +501,8 @@ namespace MasterOnline.Controllers
             }
             //end remark by calvin 13 desember 2018, testing
 
-            var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
-            var listTokPed = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
+            var kdTokped = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var listTokPed = List_ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
             if (listTokPed.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listTokPed)
@@ -533,8 +537,8 @@ namespace MasterOnline.Controllers
                 }
             }
 
-            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            var listShopeeShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            var kdShopee = Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = List_ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
             if (listShopeeShop.Count > 0)
             {
                 var shopeeApi = new ShopeeController();
@@ -564,11 +568,11 @@ namespace MasterOnline.Controllers
                 //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                ListPelanggan = List_ARF01,
+                ListMarketplace = Marketplaces,
                 ListSubs = MoDbContext.Subscription.ToList(),
                 //add by nurul 26/9/2018
-                ListBarangMarket = ErasoftDbContext.STF02H.ToList()
+                //ListBarangMarket = ErasoftDbContext.STF02H.ToList()
                 //end add 
             };
 
@@ -671,8 +675,8 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "MOUSE" || p.BRG == "SNKR_A")).ToList(),
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "SEPATU2 " || p.BRG == "CCTesCup")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -1270,8 +1274,9 @@ namespace MasterOnline.Controllers
             }
 
             ErasoftDbContext.SaveChanges();
+            var Marketplaces = MoDbContext.Marketplaces.ToList();
             //add by Tri call bl/lzd api get access key
-            if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString()))
+            if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK").IdMarket.ToString()))
             {
                 var getKey = new BukaLapakController().GetAccessKey(kdCustomer, customer.Customers.EMAIL, customer.Customers.PASSWORD);
             }
@@ -1280,14 +1285,14 @@ namespace MasterOnline.Controllers
             //    var getToken = new LazadaController().GetToken(kdCustomer, customer.Customers.API_KEY);
             //}
             #region Elevenia get deliveryTemp
-            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString()))
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket.ToString()))
             {
                 var elApi = new EleveniaController();
                 elApi.GetDeliveryTemp(Convert.ToString(customer.Customers.RecNum), Convert.ToString(customer.Customers.API_KEY));
             }
             #endregion
             #region BLIBLI get category dan attribute
-            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString()))
             {
                 if (!string.IsNullOrEmpty(customer.Customers.API_CLIENT_P) && !string.IsNullOrEmpty(customer.Customers.API_CLIENT_U))
                 {
@@ -1314,12 +1319,12 @@ namespace MasterOnline.Controllers
                 ListCustomer = ErasoftDbContext.ARF01.AsNoTracking().ToList(),
                 kodeCust = kdCustomer
             };
-            if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
+            if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString()))
             {
                 partialVm.marketplace = "LAZADA";
                 return Json(partialVm, JsonRequestBehavior.AllowGet);
             }
-            else if (customer.Customers.NAMA.Equals(MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString()))
+            else if (customer.Customers.NAMA.Equals(Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString()))
             {
                 partialVm.marketplace = "SHOPEE";
                 return Json(partialVm, JsonRequestBehavior.AllowGet);
@@ -2080,11 +2085,11 @@ namespace MasterOnline.Controllers
             bool updateHarga = false;//add by Tri
             bool updateDisplay = false;//add by Tri
             bool updateGambar = false;//add by Tri
-
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var Marketplaces = MoDbContext.Marketplaces.ToList();
+            var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var kdBlibli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
             var validPrice = true;
 
             string[] imgPath = new string[Request.Files.Count];
@@ -2250,6 +2255,7 @@ namespace MasterOnline.Controllers
                     barangInDb.LEBAR = dataBarang.Stf02.LEBAR;
                     barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                     barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
+                    barangInDb.TYPE = "3";
 
                     if (dataBarang.ListHargaJualPermarket?.Count > 0)
                     {
@@ -2926,13 +2932,13 @@ namespace MasterOnline.Controllers
             bool updateHarga = false;//add by Tri
             bool updateDisplay = false;//add by Tri
             bool updateGambar = false;//add by Tri
-
-            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
-            var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
-            var kdElevenia = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
-            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
-            var kdTokped = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
+            var Marketplaces = MoDbContext.Marketplaces.ToList();
+            var kdBL = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var kdLazada = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
+            var kdBlibli = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
+            var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA");
+            var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var validPrice = true;
 
             string[] imgPath = new string[Request.Files.Count];
@@ -3069,7 +3075,7 @@ namespace MasterOnline.Controllers
 
                 if (string.IsNullOrWhiteSpace(dataBarang.Stf02.TYPE))
                 {
-                    dataBarang.Stf02.TYPE = "3";
+                    dataBarang.Stf02.TYPE = "4";
                 }
                 ErasoftDbContext.STF02.Add(dataBarang.Stf02);
             }
@@ -3098,7 +3104,7 @@ namespace MasterOnline.Controllers
                     barangInDb.LEBAR = dataBarang.Stf02.LEBAR;
                     barangInDb.TINGGI = dataBarang.Stf02.TINGGI;
                     barangInDb.HJUAL = dataBarang.Stf02.HJUAL;
-
+                    barangInDb.TYPE = "4";
                     if (dataBarang.ListHargaJualPermarket?.Count > 0)
                     {
                         List<string> listError = new List<string>();
@@ -4487,6 +4493,33 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
+
+        [Route("manage/promptetalasetokped")]
+        public ActionResult PromptEtalaseTokped(string recnum)
+        {
+            try
+            {
+                int recnum_int = Convert.ToInt32(recnum);
+                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.RecNum == recnum_int).FirstOrDefault();
+                var tokopediaApi = new TokopediaController();
+
+                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                {
+                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                    token = tblCustomer.TOKEN
+                };
+                var PromptModel = tokopediaApi.GetEtalase(iden);
+                return View("PromptEtalaseTokopedia", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        
 
         [Route("manage/PromptDeliveryProviderLazada")]
         public ActionResult PromptDeliveryProviderLazada(string cust)

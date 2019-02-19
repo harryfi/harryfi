@@ -206,6 +206,14 @@ namespace MasterOnline.Controllers
                     {
                         var newData = new MIDTRANS_DATA();
                         newData.BANK = notification_data.bank;
+                        if (string.IsNullOrEmpty(notification_data.bank))
+                            if (notification_data.va_numbers != null)
+                            {
+                                if (notification_data.va_numbers.Length > 0)
+                                {
+                                    newData.BANK = notification_data.va_numbers[0].bank;
+                                }
+                            }
                         newData.GROSS_AMOUNT = notification_data.gross_amount;
                         newData.ORDER_ID = notification_data.order_id;
                         newData.PAYMENT_TYPE = notification_data.payment_type;
@@ -227,14 +235,14 @@ namespace MasterOnline.Controllers
                                 var insertTrans = new AktivitasSubscription();
 
                                 var userData = MoDbContext.Account.SingleOrDefault(p => p.AccountId == tranMidtrans.ACCOUNT_ID);
-                                if(userData != null)
+                                if (userData != null)
                                 {
-                                    if(userData.KODE_SUBSCRIPTION == "01" && userData.Status == false)
+                                    if (userData.KODE_SUBSCRIPTION == "01" && userData.Status == false)
                                     {
                                         //user baru daftar, langsung subscribe -> activate account
                                         var accAPI = new AccountController();
                                         var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
-                                        if(retActivate.status == 0)
+                                        if (retActivate.status == 0)
                                         {
                                             string path = @"C:\MasterOnline\MidtransErrorLog.txt";
                                             if (!System.IO.File.Exists(path))
@@ -255,21 +263,39 @@ namespace MasterOnline.Controllers
                                         }
 
                                     }
+                                    //add 18 Feb 2019, penambahan field periode
+                                    DateTime? drTgl = DateTime.Today;
+                                    DateTime? sdTgl = DateTime.Today;
+
+                                    if (userData.TGL_SUBSCRIPTION > DateTime.Today)
+                                    {
+                                        drTgl = userData?.TGL_SUBSCRIPTION;
+                                    }
+                                    sdTgl = drTgl.Value.AddMonths(tranMidtrans.BULAN);
+                                    //end add 18 Feb 2019, penambahan field periode
+
                                     userData.KODE_SUBSCRIPTION = tranMidtrans.TYPE;
                                     //userData.TGL_SUBSCRIPTION = Convert.ToDateTime(notification_data.transaction_time);
-                                    userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
+                                    //change  18 Feb 2019
+                                    //userData.TGL_SUBSCRIPTION = userData.TGL_SUBSCRIPTION.Value.AddMonths(tranMidtrans.BULAN);
+                                    userData.TGL_SUBSCRIPTION = sdTgl;
+                                    //end change  18 Feb 2019
+
                                     if (!string.IsNullOrEmpty(notification_data.saved_token_id))
                                         userData.TOKEN_CC = notification_data.saved_token_id;
 
                                     insertTrans.Account = userData.Username;
                                     insertTrans.Email = userData.Email;
-                                    insertTrans.Nilai = tranMidtrans.VALUE;
+                                    insertTrans.Nilai = tranMidtrans.VALUE * (tranMidtrans.BULAN > 0 ? tranMidtrans.BULAN : 1);
                                     insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
                                     insertTrans.TipeSubs = tranMidtrans.TYPE;
+                                    insertTrans.TipePembayaran = notification_data.payment_type + " " + newData.BANK;
+                                    insertTrans.DrTGL = drTgl;
+                                    insertTrans.SdTGL = sdTgl;
 
                                     MoDbContext.AktivitasSubscription.Add(insertTrans);
                                 }
-                                
+
                             }
                         }
 
@@ -341,7 +367,7 @@ namespace MasterOnline.Controllers
         public static string Base64Encode()
         {
 
-            string plainText = "Mid-server-OB_-aJie9ELUo3pDnZSj0vYq";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0
+            string plainText = "Mid-server-OB_-aJie9ELUo3pDnZSj0vYq";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }

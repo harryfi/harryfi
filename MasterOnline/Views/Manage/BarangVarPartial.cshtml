@@ -58,6 +58,12 @@
                 $('#txtKodeKategoriTokped').val($(fieldCategoryCode).val());
                 $('#txtNamaKategoriTokped').val($(fieldCategoryName).val());
             }
+            if ((target == '#blibli_detail_tab_variant')) {
+                var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
+                var fieldCategoryName = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_NAME';
+                $('#txtKodeKategoriBlibli').val($(fieldCategoryCode).val());
+                $('#txtNamaKategoriBlibli').val($(fieldCategoryName).val());
+            }
         });
     });
     function InitSettingVariantShopee() {
@@ -635,6 +641,7 @@
                         $('#loading_spinner').hide();
                         $($('#variant-tabs a')[1]).tab('show');
                         $('#proses_detail_var_btn').removeAttr('disabled');
+                        $('#simpan_variant_btn').hide();
                     },
                     error: function (xhr) {
                         console.log(xhr);
