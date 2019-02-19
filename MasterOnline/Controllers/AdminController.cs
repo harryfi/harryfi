@@ -656,7 +656,12 @@ namespace MasterOnline.Controllers
             else
             {
                 var partInDb = MoDbContext.Partner.Single(m => m.PartnerId == vm.partner.PartnerId);
+                if (partInDb.Status != vm.partner.Status)
+                {
+                   Task<ActionResult> x = ChangeStatusPartner(Convert.ToString(vm.partner.PartnerId));
+                }
                 partInDb.komisi_subscribe = vm.partner.komisi_subscribe;
+                partInDb.komisi_subscribe_gold = vm.partner.komisi_subscribe_gold;
                 partInDb.komisi_support = vm.partner.komisi_support;
             }
 

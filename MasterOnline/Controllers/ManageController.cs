@@ -6057,6 +6057,20 @@ namespace MasterOnline.Controllers
 
         public ActionResult SaveVariantOptLevel(string JUDUL_VAR, STF20B data)
         {
+            //add by nurul 18/2/2019
+            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
+            var vmError = new MasterStrukturVarViewModel() { };
+            if(data.KODE_VAR == null || data.KODE_VAR == "" || data.KET_VAR == null || data.KET_VAR == "")
+            {
+                vmError.Errors.Add("Mohon lengkapi Opsi Variasi " + data.LEVEL_VAR + " !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (stf20b.KODE_VAR.ToUpper() == data.KODE_VAR.ToUpper())
+            {
+                vmError.Errors.Add("Kode Opsi Variasi " + data.LEVEL_VAR + " '" + data.KODE_VAR.ToUpper() + "' sudah ada !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add by nurul 18/2/2019
             var updateStf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_JUDUL_VAR == data.LEVEL_VAR).SingleOrDefault();
             if (updateStf20 != null)
             {
@@ -6074,7 +6088,7 @@ namespace MasterOnline.Controllers
             }
             ErasoftDbContext.SaveChanges();
 
-            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
+            //var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
             if (stf20b == null)
             {
                 ErasoftDbContext.STF20B.Add(data);
