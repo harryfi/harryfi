@@ -5565,6 +5565,7 @@
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Properties\PublishProfiles\MasterOnline Dev.pubxml" />
+    <None Include="Properties\PublishProfiles\MasterOnline Production.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

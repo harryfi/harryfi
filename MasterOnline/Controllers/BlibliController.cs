@@ -963,7 +963,7 @@ namespace MasterOnline.Controllers
 
             return postDataStream;
         }
-        public void GetProdukInReviewList(BlibliAPIData iden, string requestID, string ProductCode, string gdnSku)
+        public void GetProdukInReviewList(BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -1050,7 +1050,7 @@ namespace MasterOnline.Controllers
                             if (successPerItem)
                             {
                                 string STF02_BRG = "";
-                                var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == requestID).SingleOrDefault();
+                                var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == api_log_requestId).SingleOrDefault();
                                 if (apiLogInDb != null)
                                 {
                                     apiLogInDb.REQUEST_STATUS = "Success";
@@ -4365,7 +4365,7 @@ namespace MasterOnline.Controllers
                                                 ProductCode = result.value.queueHistory[0].value;
                                             }
                                                 
-                                            GetProdukInReviewList(data, requestId, ProductCode, gdnSku);
+                                            GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
                                         }
                                     }
                                 }
