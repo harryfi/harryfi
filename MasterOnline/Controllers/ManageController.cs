@@ -2052,12 +2052,15 @@ namespace MasterOnline.Controllers
                     {
                         case 1:
                             barangInDb.LINK_GAMBAR_1 = null;
+                            barangInDb.Sort5 = null;
                             break;
                         case 2:
                             barangInDb.LINK_GAMBAR_2 = null;
+                            barangInDb.Sort6 = null;
                             break;
                         case 3:
                             barangInDb.LINK_GAMBAR_3 = null;
+                            barangInDb.Sort7 = null;
                             break;
                     }
 
@@ -2197,12 +2200,15 @@ namespace MasterOnline.Controllers
                             {
                                 case 0:
                                     dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    dataBarang.Stf02.Sort5 = Convert.ToString(file.ContentLength);
                                     break;
                                 case 1:
                                     dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    dataBarang.Stf02.Sort6 = Convert.ToString(file.ContentLength);
                                     break;
                                 case 2:
                                     dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    dataBarang.Stf02.Sort7 = Convert.ToString(file.ContentLength);
                                     break;
                             }
                         }
@@ -2585,12 +2591,15 @@ namespace MasterOnline.Controllers
                                 {
                                     case 0:
                                         barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        barangInDb.Sort5 = Convert.ToString(file.ContentLength);
                                         break;
                                     case 1:
                                         barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        barangInDb.Sort6 = Convert.ToString(file.ContentLength);
                                         break;
                                     case 2:
                                         barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        barangInDb.Sort7 = Convert.ToString(file.ContentLength);
                                         break;
                                 }
                             }
@@ -3045,12 +3054,15 @@ namespace MasterOnline.Controllers
                             {
                                 case 0:
                                     dataBarang.Stf02.LINK_GAMBAR_1 = image.data.link_l;
+                                    dataBarang.Stf02.Sort5 = Convert.ToString(file.ContentLength);
                                     break;
                                 case 1:
                                     dataBarang.Stf02.LINK_GAMBAR_2 = image.data.link_l;
+                                    dataBarang.Stf02.Sort6 = Convert.ToString(file.ContentLength);
                                     break;
                                 case 2:
                                     dataBarang.Stf02.LINK_GAMBAR_3 = image.data.link_l;
+                                    dataBarang.Stf02.Sort7 = Convert.ToString(file.ContentLength);
                                     break;
                             }
                         }
@@ -3399,12 +3411,15 @@ namespace MasterOnline.Controllers
                                 {
                                     case 0:
                                         barangInDb.LINK_GAMBAR_1 = image.data.link_l;
+                                        barangInDb.Sort5 = Convert.ToString(file.ContentLength);
                                         break;
                                     case 1:
                                         barangInDb.LINK_GAMBAR_2 = image.data.link_l;
+                                        barangInDb.Sort6 = Convert.ToString(file.ContentLength);
                                         break;
                                     case 2:
                                         barangInDb.LINK_GAMBAR_3 = image.data.link_l;
+                                        barangInDb.Sort7 = Convert.ToString(file.ContentLength);
                                         break;
                                 }
                             }
@@ -3884,7 +3899,7 @@ namespace MasterOnline.Controllers
         }
         protected void saveBarangBlibli(int mode, BarangViewModel dataBarang)
         {
-            var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
+            var barangInDb = ErasoftDbContext.STF02.AsNoTracking().SingleOrDefault(b => b.ID == dataBarang.Stf02.ID || b.BRG == dataBarang.Stf02.BRG);
             var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI");
             if (barangInDb != null && kdBlibli != null)
             {
@@ -3931,8 +3946,11 @@ namespace MasterOnline.Controllers
                                                 IDMarket = tblCustomer.RecNum.ToString(),
                                                 Length = Convert.ToString(dataBarang.Stf02.PANJANG),
                                                 Width = Convert.ToString(dataBarang.Stf02.LEBAR),
-                                                Height = Convert.ToString(dataBarang.Stf02.TINGGI)
+                                                Height = Convert.ToString(dataBarang.Stf02.TINGGI),
+                                                type = Convert.ToString(dataBarang.Stf02.TYPE),
+                                                dataBarangInDb = barangInDb
                                             };
+
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
                                             data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
                                             data.MarketPrice = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
@@ -4023,7 +4041,9 @@ namespace MasterOnline.Controllers
                                                         IDMarket = tblCustomer.RecNum.ToString(),
                                                         Length = Convert.ToString(dataBarang.Stf02.PANJANG),
                                                         Width = Convert.ToString(dataBarang.Stf02.LEBAR),
-                                                        Height = Convert.ToString(dataBarang.Stf02.TINGGI)
+                                                        Height = Convert.ToString(dataBarang.Stf02.TINGGI),
+                                                        type = Convert.ToString(dataBarang.Stf02.TYPE),
+                                                        dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
                                                     data.Price = Convert.ToString(stf02h.HJUAL);
@@ -4519,7 +4539,7 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
-        
+
 
         [Route("manage/PromptDeliveryProviderLazada")]
         public ActionResult PromptDeliveryProviderLazada(string cust)
@@ -5313,6 +5333,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult UpdateGambarVariantBarang()
         {
+            bool first = true;
             foreach (var item in Request.Files.AllKeys)
             {
                 int stf02_id = Convert.ToInt32(item);
@@ -5328,10 +5349,23 @@ namespace MasterOnline.Controllers
                         itemVar.LINK_GAMBAR_1 = image.data.link_l;
                         //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                         itemVar.Sort5 = Convert.ToString(file.ContentLength);
-                    }
 
+                        if (first)
+                        {
+                            var itemInduk = ErasoftDbContext.STF02.Where(p => p.BRG == itemVar.PART).SingleOrDefault();
+                            if (itemInduk != null)
+                            {
+                                if (string.IsNullOrWhiteSpace(itemInduk.Sort5))
+                                {
+                                    itemInduk.Sort5 = Convert.ToString(file.ContentLength);
+                                    itemInduk.LINK_GAMBAR_1 = image.data.link_l;
+                                }
+                            }
+                        }
+                    }
                     ErasoftDbContext.SaveChanges();
                 }
+                first = false;
             }
             return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
         }
@@ -6060,7 +6094,7 @@ namespace MasterOnline.Controllers
             //add by nurul 18/2/2019
             var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
             var vmError = new MasterStrukturVarViewModel() { };
-            if(data.KODE_VAR == null || data.KODE_VAR == "" || data.KET_VAR == null || data.KET_VAR == "")
+            if (data.KODE_VAR == null || data.KODE_VAR == "" || data.KET_VAR == null || data.KET_VAR == "")
             {
                 vmError.Errors.Add("Mohon lengkapi Opsi Variasi " + data.LEVEL_VAR + " !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
@@ -14298,7 +14332,7 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.PROMOSI.Remove(promosiInDb);
             ErasoftDbContext.SaveChanges();
-            
+
             //add by calvin 26 desember 2018
             //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
             var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
@@ -14344,7 +14378,7 @@ namespace MasterOnline.Controllers
 
                 ErasoftDbContext.DETAILPROMOSI.Remove(barangPromosiInDb);
                 ErasoftDbContext.SaveChanges();
-                
+
                 //add by calvin 26 desember 2018
                 //var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == promosiInDb.NAMA_MARKET);
                 var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == promosiInDb.NAMA_MARKET);
@@ -14932,7 +14966,7 @@ namespace MasterOnline.Controllers
                             {
                                 if (tempBrginDB != null)
                                 {
-                                    if(tempBrgInduk != null)
+                                    if (tempBrgInduk != null)
                                     {
                                         //sinkron brg induk terlebih dahulu
                                         var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);

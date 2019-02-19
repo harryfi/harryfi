@@ -1029,8 +1029,8 @@ namespace MasterOnline.Controllers
                                                 oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                                 oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
                                                 oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
-                                            
-                                                oCommand.Parameters[0].Value = item_var.upcCode; 
+
+                                                oCommand.Parameters[0].Value = item_var.upcCode;
                                                 oCommand.Parameters[1].Value = iden.idmarket;
                                                 oCommand.Parameters[2].Value = item_var.productItemCode; // seharusnya gdnSku + item_var.productItemCode, tidak ketemu darimana gdnSku nya
 
@@ -1068,11 +1068,31 @@ namespace MasterOnline.Controllers
                                         try
                                         {
                                             oCommand.CommandType = CommandType.Text;
+                                            oCommand.CommandText = "UPDATE [QUEUE_FEED_BLIBLI] SET [STATUS] = 0 WHERE REQUESTID = @REQUESTID ";
+                                            oCommand.Parameters.Add(new SqlParameter("@REQUESTID", SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters[0].Value = requestID; // BRG MO
+                                            oCommand.ExecuteNonQuery();
+                                        }
+                                        catch (Exception ex)
+                                        {
+
+                                        }
+                                    }
+                                }
+
+                                using (SqlConnection oConnection = new SqlConnection(EDB.GetConnectionString("sConn")))
+                                {
+                                    oConnection.Open();
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
+                                    {
+                                        try
+                                        {
+                                            oCommand.CommandType = CommandType.Text;
                                             oCommand.CommandText = "UPDATE STF02H SET BRG_MP = @BRG_MP WHERE BRG = @BRG AND IDMARKET = @IDMARKET ";
                                             oCommand.Parameters.Add(new SqlParameter("@BRG", SqlDbType.NVarChar, 50));
                                             oCommand.Parameters.Add(new SqlParameter("@IDMARKET", SqlDbType.Int));
                                             oCommand.Parameters.Add(new SqlParameter("@BRG_MP", SqlDbType.NVarChar, 50));
-                                            
+
                                             oCommand.Parameters[0].Value = STF02_BRG; // BRG MO
                                             oCommand.Parameters[1].Value = iden.idmarket;
                                             oCommand.Parameters[2].Value = ProductCode; // STF02H.BRG_MP, seharusnya gdnSku + ProductCode, tidak ketemu darimana gdnSku nya
@@ -4364,7 +4384,7 @@ namespace MasterOnline.Controllers
                                                 gdnSku = result.value.queueHistory[0].gdnSku;
                                                 ProductCode = result.value.queueHistory[0].value;
                                             }
-                                                
+
                                             GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
                                         }
                                     }
@@ -4911,6 +4931,7 @@ namespace MasterOnline.Controllers
         }
         public class BlibliProductData
         {
+            public string type { get; set; }
             public string kode { get; set; }
             public string nama { get; set; }
             public string display { get; set; }
@@ -4932,6 +4953,7 @@ namespace MasterOnline.Controllers
             public string[] attribute { get; set; }
             public string feature { get; set; }
             public string PickupPoint { get; set; }
+            public STF02 dataBarangInDb { get; set; }
 
 
         }
@@ -5219,6 +5241,7 @@ namespace MasterOnline.Controllers
             DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
 
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.dataBarangInDb.BRG && p.IDMARKET == arf01.RecNum).FirstOrDefault();
             var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
             var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
             var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
@@ -5234,70 +5257,80 @@ namespace MasterOnline.Controllers
             }
             newData.productNonDefiningAttributes = nonDefiningAttributes;
 
-            Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
-            for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
-            {
-                List<string> dsVariasiValues = new List<string>();
-                var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])).ToList().OrderBy(p => p.RECNUM);
-                foreach (var v in var_stf02i_distinct)
-                {
-                    if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
-                    {
-                        dsVariasiValues.Add(v.MP_VALUE_VAR);
-                    }
-                }
-                if (!DefiningAttributes.ContainsKey(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])))
-                {
-                    DefiningAttributes.Add(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]), dsVariasiValues.ToArray());
-                }
-            }
-            newData.productDefiningAttributes = DefiningAttributes;
-
             Dictionary<string, string> images = new Dictionary<string, string>();
             List<string> uploadedImageID = new List<string>();
             List<Productitem> productItems = new List<Productitem>();
-            foreach (var var_item in var_stf02)
-            {
-                var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
 
+            if (data.type == "3") // bukan barang variasi
+            {
                 List<string> images_pervar = new List<string>();
-                images_pervar.Add(var_item.Sort5); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                if (!uploadedImageID.Contains(var_item.Sort5))
+                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort5))
                 {
-                    uploadedImageID.Add(var_item.Sort5);
-                    using (var client = new HttpClient())
+                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort5))
                     {
-                        var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
-                        images.Add(var_item.Sort5, Convert.ToBase64String(bytes));
+                        uploadedImageID.Add(data.dataBarangInDb.Sort5);
+                        using (var client = new HttpClient())
+                        {
+                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_1);
+                            images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            images_pervar.Add(data.dataBarangInDb.Sort5);
+                        }
                     }
                 }
-
-                Dictionary<string, string> attributeMap = new Dictionary<string, string>();
-                if (!string.IsNullOrWhiteSpace(var_item.Sort8))
+                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort6))
                 {
-                    var var_stf02i_judul_mp_var_1 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort8 && p.LEVEL_VAR == 1).FirstOrDefault();
-                    if (var_stf02i_judul_mp_var_1 != null)
+                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort6))
                     {
-                        attributeMap.Add(var_stf02i_judul_mp_var_1.MP_JUDUL_VAR, var_stf02i_judul_mp_var_1.MP_VALUE_VAR);
-                    }
-                    if (!string.IsNullOrWhiteSpace(var_item.Sort9))
-                    {
-                        var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
-                        if (var_stf02i_judul_mp_var_2 != null)
+                        uploadedImageID.Add(data.dataBarangInDb.Sort6);
+                        using (var client = new HttpClient())
                         {
-                            attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_2);
+                            images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            images_pervar.Add(data.dataBarangInDb.Sort6);
+                        }
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort7))
+                {
+                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort7))
+                    {
+                        uploadedImageID.Add(data.dataBarangInDb.Sort7);
+                        using (var client = new HttpClient())
+                        {
+                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_3);
+                            images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            images_pervar.Add(data.dataBarangInDb.Sort7);
                         }
                     }
                 }
 
+                Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
+                Dictionary<string, string> attributeMap = new Dictionary<string, string>();
+                for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                {
+                    List<string> dsVariasiValues = new List<string>();
+                    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
+                    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
+                    if (!dsVariasiValues.Contains(A_VALUE))
+                    {
+                        dsVariasiValues.Add(A_VALUE);
+                    }
+
+                    if (!DefiningAttributes.ContainsKey(A_CODE))
+                    {
+                        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                    }
+                    
+                    attributeMap.Add(A_CODE, A_VALUE);
+                }
                 Productitem newVarItem = new Productitem()
                 {
-                    upcCode = var_item.BRG,
-                    merchantSku = var_item.BRG,
-                    price = Convert.ToInt32(var_stf02h_item.HJUAL),
-                    salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
-                    minimumStock = Convert.ToInt32(var_item.MINI),
-                    stock = Convert.ToInt32(var_item.MINI),
+                    upcCode = data.dataBarangInDb.BRG,
+                    merchantSku = data.dataBarangInDb.BRG,
+                    price = Convert.ToInt32(stf02h.HJUAL),
+                    salePrice = Convert.ToInt32(stf02h.HJUAL),
+                    minimumStock = Convert.ToInt32(data.dataBarangInDb.MINI),
+                    stock = Convert.ToInt32(data.dataBarangInDb.MINI),
                     buyable = true,
                     displayable = true,
                     dangerousGoodsLevel = 0,
@@ -5305,6 +5338,79 @@ namespace MasterOnline.Controllers
                     attributesMap = attributeMap
                 };
                 productItems.Add(newVarItem);
+                newData.productDefiningAttributes = DefiningAttributes;
+            }
+            else
+            {
+                Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
+                for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                {
+                    List<string> dsVariasiValues = new List<string>();
+                    var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])).ToList().OrderBy(p => p.RECNUM);
+                    foreach (var v in var_stf02i_distinct)
+                    {
+                        if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                        {
+                            dsVariasiValues.Add(v.MP_VALUE_VAR);
+                        }
+                    }
+                    if (!DefiningAttributes.ContainsKey(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"])))
+                    {
+                        DefiningAttributes.Add(Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]), dsVariasiValues.ToArray());
+                    }
+                }
+                newData.productDefiningAttributes = DefiningAttributes;
+
+                foreach (var var_item in var_stf02)
+                {
+                    var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
+
+                    List<string> images_pervar = new List<string>();
+                    images_pervar.Add(var_item.Sort5); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                    if (!uploadedImageID.Contains(var_item.Sort5))
+                    {
+                        uploadedImageID.Add(var_item.Sort5);
+                        using (var client = new HttpClient())
+                        {
+                            var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                            images.Add(var_item.Sort5, Convert.ToBase64String(bytes));
+                        }
+                    }
+
+                    Dictionary<string, string> attributeMap = new Dictionary<string, string>();
+                    if (!string.IsNullOrWhiteSpace(var_item.Sort8))
+                    {
+                        var var_stf02i_judul_mp_var_1 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort8 && p.LEVEL_VAR == 1).FirstOrDefault();
+                        if (var_stf02i_judul_mp_var_1 != null)
+                        {
+                            attributeMap.Add(var_stf02i_judul_mp_var_1.MP_JUDUL_VAR, var_stf02i_judul_mp_var_1.MP_VALUE_VAR);
+                        }
+                        if (!string.IsNullOrWhiteSpace(var_item.Sort9))
+                        {
+                            var var_stf02i_judul_mp_var_2 = var_stf02i.Where(p => p.KODE_VAR == var_item.Sort9 && p.LEVEL_VAR == 2).FirstOrDefault();
+                            if (var_stf02i_judul_mp_var_2 != null)
+                            {
+                                attributeMap.Add(var_stf02i_judul_mp_var_2.MP_JUDUL_VAR, var_stf02i_judul_mp_var_2.MP_VALUE_VAR);
+                            }
+                        }
+                    }
+
+                    Productitem newVarItem = new Productitem()
+                    {
+                        upcCode = var_item.BRG,
+                        merchantSku = var_item.BRG,
+                        price = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        salePrice = Convert.ToInt32(var_stf02h_item.HJUAL),
+                        minimumStock = Convert.ToInt32(var_item.MINI),
+                        stock = Convert.ToInt32(var_item.MINI),
+                        buyable = true,
+                        displayable = true,
+                        dangerousGoodsLevel = 0,
+                        images = images_pervar.ToArray(),
+                        attributesMap = attributeMap
+                    };
+                    productItems.Add(newVarItem);
+                }
             }
             newData.productItems = (productItems);
             newData.imageMap = images;
