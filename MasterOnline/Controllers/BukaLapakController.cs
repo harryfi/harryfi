@@ -661,6 +661,26 @@ namespace MasterOnline.Controllers
                             {
                                 doInsert = false;
                             }
+                            //add 19 Feb 2019
+                            else if (order.state.ToString().ToLower() == "received" || order.state.ToString().ToLower() == "remitted")
+                            {
+                                if (OrderNoInDb.Contains(Convert.ToString(order.id)))
+                                {
+                                    //tidak ubah status menjadi selesai jika belum diisi faktur
+                                    var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.id + "'");
+                                    if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                    {
+                                        doInsert = false;
+                                    }
+                                }
+                                else
+                                {
+                                    //tidak diinput jika order sudah selesai sebelum masuk MO
+                                    doInsert = false;
+                                }
+                            }
+                            //end add 19 Feb 2019
+
                             if (doInsert)
                             {
                                 adaInsert = true;
