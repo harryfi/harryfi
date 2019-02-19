@@ -5564,6 +5564,8 @@
     <None Include="Properties\PublishProfiles\%28DEV_AWS%29 - Production.pubxml" />
     <None Include="Properties\PublishProfiles\Calvin.pubxml" />
     <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
+    <None Include="Properties\PublishProfiles\MasterOnline Dev.pubxml" />
+    <None Include="Properties\PublishProfiles\MasterOnline Production.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -5942,6 +5944,7 @@
     <Content Include="Views\Admin\TableAccount.cshtml" />
     <Content Include="Views\Admin\TableAccountWillExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountExpired.cshtml" />
+    <Content Include="Views\Manage\PromptEtalaseTokopedia.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

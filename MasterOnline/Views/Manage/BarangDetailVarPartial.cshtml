@@ -60,6 +60,12 @@
             function (e) {
                 e.stopPropagation();
             });
+        if ($('.foto_produk_var').length > 0) {
+            $('#simpan_variant_btn').show();
+        }
+        else {
+            $('#simpan_variant_btn').hide();
+        }
 
         $('.btn_hapus_foto_produk_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
@@ -362,12 +368,12 @@
                         </div>
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
-                                @if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                 {
                                     <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
                                 }
                                 else
-                                {
+                                {*@
                                     <table id="datatable_detail_var_blibli" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                         <thead>
                                             <tr role="row">
@@ -400,7 +406,7 @@
                                             }
                                         </tbody>
                                     </table>
-                                }
+                                @*}*@
                             </div>
                         </div>
                     }
@@ -422,12 +428,12 @@
                         </div>
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
-                                @if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                 {
                                     <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
                                 }
                                 else
-                                {
+                                {*@
                                     <table id="datatable_detail_var_shopee" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                         <thead>
                                             <tr role="row">
@@ -460,7 +466,7 @@
                                             }
                                         </tbody>
                                     </table>
-                                }
+                                @*}*@
                             </div>
                         </div>
                     }
@@ -480,12 +486,12 @@
                         </div>
                         <div class="row" style="padding-top:10px">
                             <div class="col-md-12 col-sm-12 col-xs-12">
-                                @if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                 {
                                     <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
                                 }
                                 else
-                                {
+                                {*@
                                     <table id="datatable_detail_var_tokped" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
                                         <thead>
                                             <tr role="row">
@@ -518,7 +524,7 @@
                                             }
                                         </tbody>
                                     </table>
-                                }
+                                @*}*@
                             </div>
                         </div>
                     }

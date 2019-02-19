@@ -301,7 +301,8 @@ namespace MasterOnline.Controllers
                             mta_username_email_merchant = tblCustomer.EMAIL,
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             merchant_code = tblCustomer.Sort1_Cust,
-                            token = tblCustomer.TOKEN
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value
                         };
                         BliApi.GetToken(data, true);
                     }
@@ -798,6 +799,7 @@ namespace MasterOnline.Controllers
             //add by nurul 15/2/2019
             partner.komisi_subscribe = 0;
             partner.komisi_support = 0;
+            partner.komisi_subscribe_gold = 0;
             //end add by nurul 15/2/2019
             partner.TGL_DAFTAR = DateTime.Now;//add 18 Feb 2019, tambah tgl daftar partner
 

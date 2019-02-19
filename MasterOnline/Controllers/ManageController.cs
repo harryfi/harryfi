@@ -675,7 +675,7 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "MOUSE" || p.BRG == "SNKR_A")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "V428-O " || p.BRG == "CCTesCup")).ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -3156,7 +3156,7 @@ namespace MasterOnline.Controllers
                         {
                             foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
                             {
-                                var dataHarga = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == dataBaru.RecNum);
+                                var dataHarga = ErasoftDbContext.STF02H.SingleOrDefault(h => h.BRG == barangInDb.BRG && h.IDMARKET == dataBaru.IDMARKET);
                                 if (dataHarga == null)
                                 {
                                     dataBaru.BRG = barangInDb.BRG;
@@ -4493,6 +4493,33 @@ namespace MasterOnline.Controllers
                 return JsonErrorMessage("Prompt gagal");
             }
         }
+
+        [Route("manage/promptetalasetokped")]
+        public ActionResult PromptEtalaseTokped(string recnum)
+        {
+            try
+            {
+                int recnum_int = Convert.ToInt32(recnum);
+                var tblCustomer = ErasoftDbContext.ARF01.Where(m => m.RecNum == recnum_int).FirstOrDefault();
+                var tokopediaApi = new TokopediaController();
+
+                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                {
+                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                    token = tblCustomer.TOKEN
+                };
+                var PromptModel = tokopediaApi.GetEtalase(iden);
+                return View("PromptEtalaseTokopedia", PromptModel);
+            }
+            catch (Exception ex)
+            {
+                return JsonErrorMessage("Prompt gagal");
+            }
+        }
+        
 
         [Route("manage/PromptDeliveryProviderLazada")]
         public ActionResult PromptDeliveryProviderLazada(string cust)
@@ -6030,6 +6057,20 @@ namespace MasterOnline.Controllers
 
         public ActionResult SaveVariantOptLevel(string JUDUL_VAR, STF20B data)
         {
+            //add by nurul 18/2/2019
+            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
+            var vmError = new MasterStrukturVarViewModel() { };
+            if(data.KODE_VAR == null || data.KODE_VAR == "" || data.KET_VAR == null || data.KET_VAR == "")
+            {
+                vmError.Errors.Add("Mohon lengkapi Opsi Variasi " + data.LEVEL_VAR + " !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            if (stf20b.KODE_VAR.ToUpper() == data.KODE_VAR.ToUpper())
+            {
+                vmError.Errors.Add("Kode Opsi Variasi " + data.LEVEL_VAR + " '" + data.KODE_VAR.ToUpper() + "' sudah ada !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //end add by nurul 18/2/2019
             var updateStf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_JUDUL_VAR == data.LEVEL_VAR).SingleOrDefault();
             if (updateStf20 != null)
             {
@@ -6047,7 +6088,7 @@ namespace MasterOnline.Controllers
             }
             ErasoftDbContext.SaveChanges();
 
-            var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
+            //var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_VAR == data.LEVEL_VAR && m.KODE_VAR == data.KODE_VAR).FirstOrDefault();
             if (stf20b == null)
             {
                 ErasoftDbContext.STF20B.Add(data);
