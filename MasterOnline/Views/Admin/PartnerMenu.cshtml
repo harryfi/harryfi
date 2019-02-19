@@ -114,7 +114,7 @@
                             <th style="border-bottom:unset"></th>
                             <th style="border-bottom:unset"></th>
                             <th style="border-bottom:unset"></th>
-                            @*<th style="border-bottom:unset"></th>*@
+                            <th style="border-bottom:unset"></th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="2" style="width: 50px; ">Komisi Sales</th>
                             
                             <th style="border-bottom:unset"></th>
@@ -124,6 +124,7 @@
                         <tr>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Nama Lengkap</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 50px;border-top:unset">Email</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;border-top:unset">Tgl. Daftar</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">No. HP</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Tipe Partner</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;border-top:unset">Kode Referral</th>
@@ -149,6 +150,7 @@
                         <tr>
                             <td class="text-center">@partner.Username</td>
                             <td class="text-center">@partner.Email</td>
+                            <td class="text-center">@(partner.TGL_DAFTAR?.ToString("dd/MM/yyyy"))</td>
                             <td class="text-center">@partner.NoHp</td>
                             <td class="text-center">@partner.NamaTipe</td>
                             @*add by nurul 14/2/2019*@
@@ -272,80 +274,11 @@
                                             {
                                                 setSetuju = "Tidak Setuju";
                                             }
-                                            <div id="hidden_partner">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.PartnerId, "PartnerID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.PartnerId, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @*@Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })*@
-                                                        @Html.DropDownListFor(m => m.partner.Status, new List<SelectListItem>()
-                                                    {
-                                                        new SelectListItem()
-                                                        {
-                                                            Text = @"Tidak Aktif",
-                                                            Value = "false",
-                                                        },
-                                                        new SelectListItem()
-                                                        {
-                                                            Text = @"Aktif",
-                                                            Value = "true"
-                                                        }
-                                                    }, new { @class = "form-control" })
-                                                    </div>
-                                                </div>
-                                                <div id="photo_base">
-                                                    <div class="form-group">
-                                                        @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                        <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
-                                                            @*@Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })*@
-                                                            <div class="box_upload" id="box_upload_logo">
-                                                                <span class="box_upload_placeholder"></span>
-                                                                <input type='file' id='PhotoKtpUrl' name="PhotoKtpUrl" accept=".jpg" />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            @Html.TextBoxFor(m => m.partner.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        @Html.LabelFor(m => m.partner.TipePartner, "Tipe Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                        <div class="col-md-6 col-sm-6 col-xs-12">
-                                                            @Html.TextBoxFor(m => m.partner.TipePartner, new { @class = "form-control", @ReadOnly = true })
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.NamaTipe, "Nama Tipe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.NamaTipe, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => setSetuju, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
-                                                    </div>
+                                        <div id="hidden_partner">
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.PartnerId, "PartnerID", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.PartnerId, new { @class = "form-control", @ReadOnly = true })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -360,6 +293,81 @@
                                                     @Html.TextBoxFor(m => m.partner.Username, new { @class = "form-control", @ReadOnly = true })
                                                 </div>
                                             </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.partner?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.NamaTipe, "Nama Tipe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.NamaTipe, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => setSetuju, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @*@Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })*@
+                                                    @Html.DropDownListFor(m => m.partner.Status, new List<SelectListItem>()
+                                                {
+                                                    new SelectListItem()
+                                                    {
+                                                        Text = @"Tidak Aktif",
+                                                        Value = "false",
+                                                    },
+                                                    new SelectListItem()
+                                                    {
+                                                        Text = @"Aktif",
+                                                        Value = "true"
+                                                    }
+                                                }, new { @class = "form-control" })
+                                                </div>
+                                            </div>
+                                            <div id="photo_base">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
+                                                        @*@Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })*@
+                                                        <div class="box_upload" id="box_upload_logo">
+                                                            <span class="box_upload_placeholder"></span>
+                                                            <input type='file' id='PhotoKtpUrl' name="PhotoKtpUrl" accept=".jpg" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.partner.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.partner.TipePartner, "Tipe Partner", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                                        @Html.TextBoxFor(m => m.partner.TipePartner, new { @class = "form-control", @ReadOnly = true })
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                        </div>
+                                            
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.partner.komisi_subscribe, "Komisi Subscribe Silver", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
