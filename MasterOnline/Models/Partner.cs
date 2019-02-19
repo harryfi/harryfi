@@ -56,6 +56,8 @@ namespace MasterOnline.Models
         public double komisi_support { get; set; }
 
         public double komisi_subscribe { get; set; }
+
+        public double komisi_subscribe_gold { get; set; }
         //end add by nurul 15/2/2019
     }
 }

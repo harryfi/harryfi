@@ -398,14 +398,14 @@
         function simpanOptLevel(level) {
             if (!validasiTambahan()) return false;
 
-            //add by nurul 18/2/2019
-            var $KODE_VAR = $('#VariantOpt_Level_' + level + '_KODE_VAR');
-            var $KET_VAR = $('#VariantOpt_Level_' + level + '_KET_VAR');
+            ////add by nurul 18/2/2019
+            //var $KODE_VAR = $('#VariantOpt_Level_' + level + '_KODE_VAR');
+            //var $KET_VAR = $('#VariantOpt_Level_' + level + '_KET_VAR');
 
-            if ($KODE_VAR.val() != "" &&
-                $KET_VAR.val() != "") {
+            //if ($KODE_VAR.val() != "" &&
+            //    $KET_VAR.val() != "") {
                 
-            //end add by nurul 18/2/2019
+            ////end add by nurul 18/2/2019
 
                 var post_data =
                     {
@@ -447,11 +447,11 @@
                     }
                 });
 
-            //add by nurul 18/2/2019
-            } else {
-                alert('Mohon lengkapi Opsi Variasi ' + level + ' !');
-            }
-            //end add by nurul 18/2/2019
+            ////add by nurul 18/2/2019
+            //} else {
+            //    alert('Mohon lengkapi Opsi Variasi ' + level + ' !');
+            //}
+            ////end add by nurul 18/2/2019
         }
         function editKategori(rec) {
             var link = '@Url.Action("EditKategori", "Manage", new { recNum = "replaceId" })';

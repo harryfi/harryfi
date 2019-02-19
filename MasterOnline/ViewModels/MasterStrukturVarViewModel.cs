@@ -16,6 +16,9 @@ namespace MasterOnline.ViewModels
         public STF20B VariantOpt_Level_2 { get; set; } 
         public STF20B VariantOpt_Level_3 { get; set; } 
         public List<STF20B> VariantOptInDb { get; set; } = new List<STF20B>();
+        //add by nurul 18/2/2019
+        public List<String> Errors { get; set; } = new List<string>();
+        //end add by nurul 18/2/2019
     }
     public class BarangStrukturVarViewModel
     {

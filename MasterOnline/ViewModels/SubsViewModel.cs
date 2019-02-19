@@ -12,5 +12,8 @@ namespace MasterOnline.ViewModels
         public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
         public List<AktivitasSubscription> ListAktivitasSubs { get; set; } = new List<AktivitasSubscription>();
         public bool loggedin { get; set; }
+        //add by nurul 18/2/2019
+        public List<Account> ListAccount { get; set; } = new List<Account>();
+        //end add by nurul 18/2/2019
     }
 }
