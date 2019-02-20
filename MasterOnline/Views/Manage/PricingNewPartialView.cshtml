@@ -93,10 +93,11 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;PLAN</th> 'change by nurul 19/2/2019*@
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th>
                                     <td style="text-align:center;">Free Trial<br>14hari</td>
                                     @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
-                                        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
+        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
                                     @foreach (var subs in Model)
                                     {
                                         if (subs.KODE != "01")
@@ -160,10 +161,11 @@
                                     <td style="text-align:center;"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th> 'change by nurul 19/2/2019*@
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
                                     @*<td style="text-align:center;">2</td>
-                                        <td style="text-align:center;">Unlimited</td>
-                                        <td style="text-align:center;">Unlimited</td>*@
+        <td style="text-align:center;">Unlimited</td>
+        <td style="text-align:center;">Unlimited</td>*@
                                     @foreach (var subs in Model)
                                     {
                                         <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
@@ -182,14 +184,16 @@
                                     <td style="text-align:center;"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Market Place Integration</b></th> 'change by nurul 19/2/2019*@
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;<b>Marketplace Integration</b></th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                     <td style="text-align:center;"></td>
                                 </tr>
                                 <tr>
-                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th>
+                                    @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sale Analysis</th> 'change by nurul 19/2/2019*@
+                                    <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Invoicing & Sales Analysis</th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>

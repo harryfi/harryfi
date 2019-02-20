@@ -2371,6 +2371,9 @@
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
     <script type="text/javascript">
+        //add by nurul 19/2/2019
+        var $TabAktif = 0;// 0 pesanan, 1 pesanan Sudah dibayar, 2 pesanan packing, 3 pesanan invoicing, 4 pesanan selesai, 5 pesanan batal
+        //end add by nurul 19/2/2019
         //add by nurul 1/11/2018
         var $modeEdit = 0; // 0 new, 1 edit
         var promptPembeli = "";
@@ -2567,7 +2570,8 @@
                 $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
             });
-            $('#pesanan-tab').click(function() {
+            $('#pesanan-tab').click(function () {
+                $TabAktif = 0;
                 refreshTablePesanan();
             });
 
@@ -2575,23 +2579,28 @@
                 RefreshPesananDibayarMarketplace();
             });
 
-            $('#nunggu-tab').click(function() {
+            $('#nunggu-tab').click(function () {
+                $TabAktif = 1;
                 refreshTableSudahDibayar();
             });
 
-            $('#sedangproses-tab').click(function() {
+            $('#sedangproses-tab').click(function () {
+                $TabAktif = 2;
                 refreshTableSiapKirim();
             });
 
-            $('#sudahkirim-tab').click(function() {
+            $('#sudahkirim-tab').click(function () {
+                $TabAktif = 3;
                 refreshTableSudahKirim();
             });
 
-            $('#selesai-tab').click(function() {
+            $('#selesai-tab').click(function () {
+                $TabAktif = 4;
                 refreshTableSelesai();
             });
 
-            $('#cancel-tab').click(function() {
+            $('#cancel-tab').click(function () {
+                $TabAktif = 5;
                 refreshTableCancel();
             });
 
@@ -2846,6 +2855,9 @@
                         $(this).removeClass('disabled-tab');
                     });
                     //end add
+                    //add by nurul 20/2/2019
+                    refreshTableSudahDibayar();
+                    //end add by nurul 20/2/2019
                 });
 
             if ($('.message-error').text() !== '') {
@@ -2919,7 +2931,32 @@
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('shown.bs.modal',
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .on('shown.bs.modal',
-                    function() {
+                function () {
+                        //add by nurul 19/2/2019
+                    //if ($TabAktif == 0 && $jumlahPesanan == false) {
+                    //    $('#konfUbahStatus').hide();
+                    //    $('#modalPricing').show();
+
+                    //}
+                    //if ($TabAktif == 1 && $jumlahPesanan == false) {
+                    //    $('#konfUbahStatusDibayar').hide();
+                    //    $('#modalPricing').show();
+
+                    //}
+                    if ($TabAktif == 0) {
+                        cekJumlahPesananBulanIni();
+                        if ($jumlahPesanan == false) {
+                            $('#konfUbahStatus').modal('hide');
+                            $('#tambah_pesanan').click();
+                        }
+                    } else if ($TabAktif == 1) {
+                        cekJumlahPesananBulanIni();
+                        if ($jumlahPesanan == false) {
+                            $('#konfUbahStatusDibayar').modal('hide');
+                                $('#tambah_pesanan').click();
+                            }
+                        }
+                        //end add by nurul 19/2/2019
                         //add by calvin 17 desember 2018
                         $('#footer_info_pesananSudahBayar').hide();
                         $('#SudahBayarKonfUbahStatusText').html("");
@@ -2996,14 +3033,18 @@
                     if ($('#tambah_baru_tombol_section #tambah_pesanan').length) return;
 
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
+                        //add by nurul 11/2/2019
+                        $jumlahPesanan = false;
+                        //end add by nurul 11/2/2019
                         $('#tambah_baru_tombol_section').append(
                             '<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                             'data-target="#modalPricing" id="tambah_pesanan">Tambah Baru</button>');
                         showSubsMenu(1);
-                            //add by nurul 11/2/2019
+                            
+                    } else if (res.SudahSampaiBatasTanggal) {
+                        //add by nurul 11/2/2019
                         $jumlahPesanan = false;
                         //end add by nurul 11/2/2019
-                    } else if (res.SudahSampaiBatasTanggal) {
                         //change by Tri 12 Feb 2019, 1 view subscribe
                         //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                         //    'data-target="#modalPricingExpired" id="tambah_pesanan">Tambah Baru</button>');
@@ -3012,9 +3053,7 @@
                         showSubsMenu(2);
                         //end change by Tri 12 Feb 2019
 
-                        //add by nurul 11/2/2019
-                        $jumlahPesanan = false;
-                        //end add by nurul 11/2/2019
+                        
                     } else {
                         $('#tambah_baru_tombol_section')
                             .append(
@@ -4230,6 +4269,7 @@
             var link = '@Url.Action("EditPesanan", "Manage", new {orderId = "replaceId"})';
             link = link.replace("replaceId", idPesanan);
 
+
             $.ajax({
                 type: "GET",
                 url: link,
@@ -4254,7 +4294,19 @@
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
-                    $('#tambah_pesanan').click();
+                    //change by nurul 19/2/2019
+                    //$('#tambah_pesanan').click();
+                    $('.pesanan_table_section').hide();
+                    $('.pesanan_editor_section').show();
+
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'pesanan-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+                    //end change by nurul 19/2/2019
                     $nettoSebelumnya += $bakalNetto;
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
@@ -4269,7 +4321,6 @@
         function LihatPesanan1(idPesanan) {
             var link = '@Url.Action("EditPesanan", "Manage", new {orderId = "replaceId"})';
             link = link.replace("replaceId", idPesanan);
-
             $.ajax({
                 type: "GET",
                 url: link,
@@ -4289,19 +4340,11 @@
                     getDataBarang();
                     getMarketplaceSOT01A();
                     getExpedisi();
+                    //change by nurul 19/2/2019
+                    //$('#tambah_pesanan').click();
+                    $('.pesanan_table_section').hide();
+                    $('.pesanan_editor_section').show();
 
-                    $('#tambah_pesanan').click();
-                    $nettoSebelumnya += $bakalNetto;
-                    //$('#see_tgl_pesanan').removeAttr('style');
-                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    $('#Pesanan_ALAMAT_KIRIM').attr('readonly', 'readonly').css('background-color', '#eee')
-                        .css('cursor', 'not-allowed');
-                    //$('#tambah-pembeli').attr('readonly', 'readonly').css('background-color', '#eee')
-                    //    .css('cursor', 'not-allowed');
-                    $('#Pesanan_NAMAPEMESAN').css('width', '225px');
-                    $('#tambah-pembeli').hide();
-                    if ($jumlahPesanan == true) {
                         $('input, select, .btn-danger').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
@@ -4313,18 +4356,41 @@
 
                             $(this).addClass('disabled-tab');
                         });
-                    }
-                    else if ($jumlahPesanan == false) {
-                        //add by nurul 11/2/2019
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).removeAttr('disabled');
-                        });
-                        $('#myTab li a').each(function (index) {
-                            $(this).attr('data-toggle', 'tab');
-                            $(this).removeClass('disabled-tab');
-                        });
-                        //end add by nurul 11/2/2019
-                    }
+                    //end change by nurul 19/2/2019
+                    $nettoSebelumnya += $bakalNetto;
+                    //$('#see_tgl_pesanan').removeAttr('style');
+                    $('#TGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    $('#Pesanan_ALAMAT_KIRIM').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
+                    //$('#tambah-pembeli').attr('readonly', 'readonly').css('background-color', '#eee')
+                    //    .css('cursor', 'not-allowed');
+                    $('#Pesanan_NAMAPEMESAN').css('width', '225px');
+                    $('#tambah-pembeli').hide();
+                    //if ($jumlahPesanan == true) {
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).attr('disabled', 'disabled');
+                    //    });
+                    //    $('tr[data-pesanan-id="0"]').remove();
+                    //    $('#myTab li a').each(function () {
+                    //        $(this).removeAttr('data-toggle');
+
+                    //        if ($(this).attr('id') === 'pesanan-tab') return;
+
+                    //        $(this).addClass('disabled-tab');
+                    //    });
+                    //}
+                    //else if ($jumlahPesanan == false) {
+                    //    //add by nurul 11/2/2019
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).removeAttr('disabled');
+                    //    });
+                    //    $('#myTab li a').each(function (index) {
+                    //        $(this).attr('data-toggle', 'tab');
+                    //        $(this).removeClass('disabled-tab');
+                    //    });
+                    //    //end add by nurul 11/2/2019
+                    //}
                     $('#loading_spinner').hide();
                     $('#btn-simpan-perubahan-row').hide();
                 },
@@ -4493,6 +4559,7 @@
                         table.search($(this).val()).draw();
                     });
                     $('#loading_sudah_dibayar_tab').hide();
+                    cekJumlahPesananBulanIni();
                     $('#datatable_nunggu').show();
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     table.search($('#search_nunggu').val()).draw();
@@ -5470,7 +5537,7 @@
             //    alert('Isi semua gudang / qty terlebih dahulu!');
             //    return;
             //}
-
+            
             if ($statusPesanan == '03-undo')
                 $statusPesanan = '03';
 
@@ -5688,7 +5755,6 @@
         function lihatPesananSudahDibayar(idPesanan) {
             var link = '@Url.Action("LihatPesanan", "Manage", new {orderId = "replaceId"})';
             link = link.replace("replaceId", idPesanan);
-
             $.ajax({
                 type: "GET",
                 url: link,

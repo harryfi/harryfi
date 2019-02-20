@@ -6099,10 +6099,13 @@ namespace MasterOnline.Controllers
                 vmError.Errors.Add("Mohon lengkapi Opsi Variasi " + data.LEVEL_VAR + " !");
                 return Json(vmError, JsonRequestBehavior.AllowGet);
             }
-            if (stf20b.KODE_VAR.ToUpper() == data.KODE_VAR.ToUpper())
+            if (stf20b != null)
             {
-                vmError.Errors.Add("Kode Opsi Variasi " + data.LEVEL_VAR + " '" + data.KODE_VAR.ToUpper() + "' sudah ada !");
-                return Json(vmError, JsonRequestBehavior.AllowGet);
+                if (stf20b.KODE_VAR.ToUpper() == data.KODE_VAR.ToUpper())
+                {
+                    vmError.Errors.Add("Kode Opsi Variasi " + data.LEVEL_VAR + " '" + data.KODE_VAR.ToUpper() + "' sudah ada !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
             }
             //end add by nurul 18/2/2019
             var updateStf20 = ErasoftDbContext.STF20.Where(m => m.CATEGORY_MO == data.CATEGORY_MO && m.LEVEL_JUDUL_VAR == data.LEVEL_VAR).SingleOrDefault();
@@ -9967,7 +9970,23 @@ namespace MasterOnline.Controllers
 
         public ActionResult LihatFakturBarcode(string resi)
         {
-            return new BarcodeResult(resi);
+            var cekCust = "";
+            var cekMP = "";
+            if (resi != "-")
+            {
+                cekCust = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.TRACKING_SHIPMENT == resi).CUST;
+                cekMP = ErasoftDbContext.ARF01.SingleOrDefault(a => a.CUST == cekCust).NAMA;
+            }
+            var resiBr = "";
+            if (cekMP == "17")
+            {
+                resiBr = (resi.Split(']')[resi.Split(']').Length - 1]);
+            }
+            else
+            {
+                resiBr = resi;
+            }
+            return new BarcodeResult(resiBr);
         }
 
         [HttpGet]
