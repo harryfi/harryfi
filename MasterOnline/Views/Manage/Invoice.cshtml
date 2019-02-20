@@ -3079,16 +3079,35 @@
                     getPesanan();
                     getGudang();
                     refreshNetto();
-                    $('#tambah_invoice').click();
-                    if ($jumlahPesanan == true) {
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
-                    } else if ($jumlahPesanan == false) {
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).removeAttr('disabled');
-                        });
-                    }
+                    //$('#tambah_invoice').click();
+                    $('.invoice_table_section').hide();
+                    $('.invoice_editor_section').show();
+
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'invoice-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+
+                    $('#invoice-tempo-tab').off('click').on('click', function () {
+                        $('#div_tgl_Tempo').hide();
+                    });
+                    //end change 
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+
+                    //if ($jumlahPesanan == true) {
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).attr('disabled', 'disabled');
+                    //    });
+                    //} else if ($jumlahPesanan == false) {
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).removeAttr('disabled');
+                    //    });
+                    //}
                     $('tr[data-invoice-id="0"]').remove();
 
                     $('#loading_spinner').hide();
@@ -3120,7 +3139,22 @@
                     getSupplier();
                     getPesanan();
                     getGudang();
-                    $('#tambah_invoice').click();
+                    //$('#tambah_invoice').click();
+                    $('.invoice_table_section').hide();
+                    $('.invoice_editor_section').show();
+
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'invoice-tab') return;
+
+                        $(this).addClass('disabled-tab');
+                    });
+
+                    $('#invoice-tempo-tab').off('click').on('click', function () {
+                        $('#div_tgl_Tempo').hide();
+                    });
+                    //end change 
                     $('#loading_spinner').hide();
                     $nettoSebelumnya += $bakalNetto;
                 },

@@ -300,6 +300,24 @@
                                                 </div>
                                             </div>
                                             <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
+                                                    @*@Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })*@
+                                                    @*<div class="box_upload" id="box_upload_logo">
+                    <span class="box_upload_placeholder"></span>
+                    <input type='file' id='PhotoKtpUrl' name="PhotoKtpUrl" accept=".jpg" />
+                </div>*@
+                                                    @if (!String.IsNullOrWhiteSpace(Model.partner.PhotoKtpUrl))
+                                                    {
+                                                        <img src="@Url.Content(Model.partner.PhotoKtpUrl)" width="65%" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <img src="~/Content/Images/no-img-market.jpg" />
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
                                                 @Html.LabelFor(m => m.partner.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => m.partner.NoHp, new { @class = "form-control", @ReadOnly = true })
@@ -315,6 +333,12 @@
                                                 @Html.LabelFor(m => m.partner.StatusSetuju, "Status Setuju", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @Html.TextBoxFor(m => setSetuju, new { @class = "form-control", @ReadOnly = true })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-6 col-sm-6 col-xs-12">
+                                                    @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -336,17 +360,9 @@
                                                 }, new { @class = "form-control" })
                                                 </div>
                                             </div>
+
+
                                             <div id="photo_base">
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.partner.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
-                                                        @*@Html.TextBoxFor(m => m.partner.PhotoKtpUrl, new { @class = "form-control", @ReadOnly = true })*@
-                                                        <div class="box_upload" id="box_upload_logo">
-                                                            <span class="box_upload_placeholder"></span>
-                                                            <input type='file' id='PhotoKtpUrl' name="PhotoKtpUrl" accept=".jpg" />
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <div class="form-group">
                                                     @Html.LabelFor(m => m.partner.PhotoKtpBase64, "Photo Base", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -360,12 +376,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                @Html.LabelFor(m => m.partner.KodeRefPilihan, "Kode Referral Pilihan", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.partner.KodeRefPilihan, new { @class = "form-control", @ReadOnly = true })
-                                                </div>
-                                            </div>
+
                                         </div>
                                             
                                             <div class="form-group">
