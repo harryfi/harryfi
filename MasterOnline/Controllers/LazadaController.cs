@@ -138,6 +138,7 @@ namespace MasterOnline.Controllers
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, "", currentLog);
+                        GetShipment(cust, bindAuth.access_token);
                     }
                     else
                     {
@@ -574,9 +575,10 @@ namespace MasterOnline.Controllers
                     {
                         if (bindDelivery.data.shipment_providers.Count() > 0)
                         {
+                            var tempProvLzd = ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST == cust).ToList();
                             foreach (Shipment_Providers shipProv in bindDelivery.data.shipment_providers)
                             {
-                                if (ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Where(m => m.CUST.Equals(cust) && m.NAME.Equals(shipProv.name)).ToList().Count == 0)
+                                if (tempProvLzd.Where(m => m.NAME == shipProv.name).ToList().Count == 0)
                                 {
                                     var newProvider = new DELIVERY_PROVIDER_LAZADA();
                                     newProvider.CUST = cust;
@@ -584,8 +586,8 @@ namespace MasterOnline.Controllers
                                     newProvider.COD = shipProv.cod;
 
                                     ErasoftDbContext.DELIVERY_PROVIDER_LAZADA.Add(newProvider);
+                                    ErasoftDbContext.SaveChanges();
                                 }
-                                ErasoftDbContext.SaveChanges();
 
                             }
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
@@ -656,7 +658,7 @@ namespace MasterOnline.Controllers
                         var order = ErasoftDbContext.SOT01A.Where(p => p.NO_BUKTI == orderDetail.NO_BUKTI).FirstOrDefault();
                         if (order != null)
                         {
-                            order.NO_REFERENSI = ret.data.order_items[0].tracking_number;
+                            order.TRACKING_SHIPMENT = ret.data.order_items[0].tracking_number;
                             ErasoftDbContext.SaveChanges();
                         }
                     }
@@ -933,6 +935,26 @@ namespace MasterOnline.Controllers
                                 {
                                     doInsert = false;
                                 }
+                                //add 19 Feb 2019
+                                else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
+                                {
+                                    if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                    {
+                                        //tidak ubah status menjadi selesai jika belum diisi faktur
+                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.order_id + "'");
+                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        {
+                                            doInsert = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //tidak diinput jika order sudah selesai sebelum masuk MO
+                                        doInsert = false;
+                                    }
+                                }
+                                //end add 19 Feb 2019
+
                                 if (doInsert)
                                 {
                                     adaInsert = true;
@@ -987,7 +1009,6 @@ namespace MasterOnline.Controllers
                                     }
                                     //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
                                     #endregion convert status
-
                                     insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
                                     insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
                                     insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.address2.Replace('\'', '`') + "','" + order.address_billing.address3.Replace('\'', '`') + "','" + order.address_billing.address4.Replace('\'', '`') + "','" + order.address_billing.address5.Replace('\'', '`');
@@ -3267,7 +3288,7 @@ namespace MasterOnline.Controllers
                 {
                     var attrBrg = bindAttr.data.Where(m => m.name.ToUpper() == aCode.ToUpper()).SingleOrDefault();
                     var ret = new List<ATTRIBUTE_OPT_LAZADA>();
-                    if(attrBrg != null)
+                    if (attrBrg != null)
                     {
                         foreach (var opt in attrBrg.options)
                         {
@@ -3280,7 +3301,7 @@ namespace MasterOnline.Controllers
                             ret.Add(optAttrBrg);
                         }
                     }
-                    
+
                     return ret;
                 }
             }

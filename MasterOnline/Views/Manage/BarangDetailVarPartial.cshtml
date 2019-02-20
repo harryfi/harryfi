@@ -60,11 +60,17 @@
             function (e) {
                 e.stopPropagation();
             });
+
         if ($('.foto_produk_var').length > 0) {
             $('#simpan_variant_btn').show();
+            //if (true) {
+
+            //}
+            //$('#proses_detail_var_btn').attr('disabled', 'disabled');
         }
         else {
             $('#simpan_variant_btn').hide();
+            //$('#proses_detail_var_btn').removeAttr('disabled');
         }
 
         $('.btn_hapus_foto_produk_var').each(function (i, item) {
