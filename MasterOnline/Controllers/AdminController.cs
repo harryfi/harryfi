@@ -85,7 +85,15 @@ namespace MasterOnline.Controllers
             if (accInDb == null)
                 return View("Error");
 
-            return View(accInDb);
+            //add by nurul 20/2/2019
+            var vm = new MenuAccount()
+            {
+                Account = accInDb
+            };
+            //end add by nurul 20/2/2019
+
+            //return View(accInDb);
+            return PartialView("AccountDetail",vm);
         }
 
         // Mengubah status user

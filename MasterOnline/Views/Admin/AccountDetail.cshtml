@@ -1,24 +1,75 @@
-﻿@model MasterOnline.Models.Account
+﻿@*@model MasterOnline.Models.Account
+    @{
+        ViewBag.Title = "Account Detail";
+        Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    }*@
+@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.Models.MenuAccount
+
 @{
-    ViewBag.Title = "Account Detail";
-    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var ktp = "~/Content/Images/no-img-market.jpg";
+    var email = "";
+    var hp = "";
+    var status = "";
+    var namaToko = "";
+    if (Model?.Account?.PhotoKtpUrl != null)
+    {
+        ktp = Model.Account.PhotoKtpUrl;
+    }
+    if (Model?.Account?.Email != null)
+    {
+        email = Model.Account.Email;
+    }
+    if (Model?.Account?.NoHp != null)
+    {
+        hp = Model.Account.NoHp;
+    }
+    if (Model?.Account?.Status != null)
+    {
+        status = Convert.ToString(Model.Account.Status);
+        if (status != "true")
+        {
+            status = "Tidak Aktif";
+        }
+        else
+        {
+            status = "Aktif";
+        }
+    }
+    if (Model?.Account?.NamaTokoOnline != null)
+    {
+        namaToko = Model.Account.NamaTokoOnline;
+    }
 }
 
+@*<h3>KTP:</h3>
+    @if (!String.IsNullOrWhiteSpace(Model?.Account?.PhotoKtpUrl))
+    {
+        <img src="@Url.Content(Model?.Account?.PhotoKtpUrl)" width="65%" />
+    }
+    else
+    {
+        <img src="~/Content/Images/no-img-market.jpg" />
+    }
+    <hr />
+    <h3>Email: @Model?.Account?.Email</h3>
+    <hr />
+    <h3>No. HP: @Model?.Account?.NoHp</h3>
+    <hr />
+    <h3>Status: @(Model?.Account?.Status != true ? "Tidak Aktif" : "Aktif")</h3>
+    <hr />
+    <h3>Nama Toko: @Model?.Account?.NamaTokoOnline</h3>
+    <hr />*@
+
 <h3>KTP:</h3>
-@if (!String.IsNullOrWhiteSpace(Model.PhotoKtpUrl))
-{
-    <img src="@Url.Content(Model.PhotoKtpUrl)" width="65%" />
-}
-else
-{
-    <img src="~/Content/Images/no-img-market.jpg" />
-}
+    <img src="@Url.Content(ktp)" width="65%" />
 <hr />
-<h3>Email: @Model.Email</h3>
+<h3>Email: @email</h3>
 <hr />
-<h3>No. HP: @Model.NoHp</h3>
+<h3>No. HP: @hp</h3>
 <hr />
-<h3>Status: @(Model.Status != true ? "Tidak Aktif" : "Aktif")</h3>
+<h3>Status: @status</h3>
 <hr />
-<h3>Nama Toko: @Model.NamaTokoOnline</h3>
+<h3>Nama Toko: @namaToko</h3>
 <hr />

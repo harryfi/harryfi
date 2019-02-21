@@ -44,7 +44,8 @@
                 <tr>
                     <td>@user.Email</td>
                     <td>
-                        <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
+                        @*<a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })"> 'change by nurul 20/2/2019*@
+                        <a class="user-link" href="#" onclick="LihatAccount2(@(user.AccountId))">
                             @user.Username
                         </a>
                     </td>
