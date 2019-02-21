@@ -1317,9 +1317,9 @@ namespace MasterOnline.Controllers
                             //{
                             using (SqlCommand oCommand = oConnection.CreateCommand())
                             {
-                                var AttributeInDb = MoDbContext.AttributeShopee.ToList();
+                                var AttributeInDb = MoDbContext.AttributeShopee.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE)).ToList();
                                 //cek jika belum ada di database, insert
-                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
+                                var cari = AttributeInDb;
                                 if (cari.Count() == 0)
                                 {
                                     oCommand.CommandType = CommandType.Text;

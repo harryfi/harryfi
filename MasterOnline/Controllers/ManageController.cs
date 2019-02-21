@@ -17953,7 +17953,7 @@ namespace MasterOnline.Controllers
             return qtyOnHand;
         }
 
-        [HttpPost]
+        [HttpGet]
         public void UpdateCategoryShopeeAPI()
         {
             var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
@@ -17978,7 +17978,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet]
         public void UpdateAttributeShopeeAPI()
         {
             var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
