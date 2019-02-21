@@ -1049,7 +1049,9 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Customer (START)
 
         [HttpGet]
-        public ActionResult CekJumlahMarketplace(string uname)
+        //change by nurul 21/2/2019
+        //public ActionResult CekJumlahMarketplace(string uname)
+        public ActionResult CekJumlahMarketplace(long accId)
         {
             var jumlahAkunMarketplace = ErasoftDbContext.ARF01
                 .GroupBy(m => m.NAMA)
@@ -1059,11 +1061,11 @@ namespace MasterOnline.Controllers
                     Jumlah = g.Select(o => o.NAMA).Distinct().Count()
                 });
 
-            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.Username == uname);
+            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
 
             if (accInDb == null)
             {
-                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.Username == uname)?.AccountId;
+                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.AccountId == accId)?.AccountId;
                 accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accIdByUser);
             }
 
@@ -8439,15 +8441,17 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public ActionResult CekJumlahPesananBulanIni(string uname)
+        //change by nurul 21/2/2019
+        //public ActionResult CekJumlahPesananBulanIni(string uname)
+        public ActionResult CekJumlahPesananBulanIni(long accId)
         {
             var listPesanan = ErasoftDbContext.SOT01A.ToList();
             var jumlahPesananBulanIni = listPesanan.Count(p => p.TGL?.Month == DateTime.Today.Month);
-            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.Username == uname);
+            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
 
             if (accInDb == null)
             {
-                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.Username == uname)?.AccountId;
+                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.AccountId == accId)?.AccountId;
                 accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accIdByUser);
             }
 
