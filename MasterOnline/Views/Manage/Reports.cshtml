@@ -95,6 +95,7 @@
                 }
 </style>
 
+
 <div class="row">
     <div class="animated flipInY col-lg-12 col-md-12 col-sm-6 col-xs-12">
         <div class="reports-tile">
@@ -386,3 +387,36 @@
         </div>
     </div>
 *@
+<script src="~/Content/selectize.js" type="text/javascript"></script>
+<script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.283.1.min.js"></script>
+<script type="text/javascript">
+    function GetKategoriShopee() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("UpdateCategoryShopeeAPI", "Manage")',
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+    function GetAttributeShopee() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("UpdateAttributeShopeeAPI", "Manage")',
+            contentType: 'application/json',
+            cache: false,
+            success: function (data) {
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+            }
+        });
+    }
+</script>

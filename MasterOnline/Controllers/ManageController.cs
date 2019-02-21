@@ -17952,5 +17952,55 @@ namespace MasterOnline.Controllers
             qtyOnHand = qtyOnHand - qtySO;
             return qtyOnHand;
         }
+
+        [HttpGet]
+        public void UpdateCategoryShopeeAPI()
+        {
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopee = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            bool onlyFirst = true;
+            foreach (ARF01 tblCustomer in listShopee)
+            {
+                if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                {
+                    if (onlyFirst)
+                    {
+                        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                        };
+                        ShopeeController shoAPI = new ShopeeController();
+                        Task.Run(() => shoAPI.GetCategory(iden).Wait());
+
+                        onlyFirst = false;
+                    }
+                }
+            }
+        }
+
+        [HttpGet]
+        public void UpdateAttributeShopeeAPI()
+        {
+            var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopee = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            bool onlyFirst = true;
+            foreach (ARF01 tblCustomer in listShopee)
+            {
+                if (!string.IsNullOrEmpty(tblCustomer.Sort1_Cust))
+                {
+                    if (onlyFirst)
+                    {
+                        ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
+                        {
+                            merchant_code = tblCustomer.Sort1_Cust,
+                        };
+                        ShopeeController shoAPI = new ShopeeController();
+                        Task.Run(() => shoAPI.GetAttribute(iden).Wait());
+
+                        onlyFirst = false;
+                    }
+                }
+            }
+        }
     }
 }
