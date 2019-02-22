@@ -288,11 +288,11 @@
                 });
                 $('#willexpired-tab').click(function () {
                     var d = new Date();
-                    d.setMonth(d.getMonth() - 1);
+                    d.setMonth(d.getMonth() + 1);
                     $('#DrTanggal').datepicker({
                         format: 'dd/mm/yyyy',
                         language: 'id'
-                    }).datepicker('setDate', d).change(function () {
+                    }).datepicker('setDate', '0').change(function () {
                         $('#DrTanggal').val($('#DrTanggal').val());
                         $('#DrTanggal').datepicker('hide');
                         refreshTableWillexpired();
@@ -300,7 +300,7 @@
                     $('#SdTanggal').datepicker({
                         format: 'dd/mm/yyyy',
                         language: 'id'
-                    }).datepicker('setDate', '0').change(function () {
+                    }).datepicker('setDate', d).change(function () {
                         $('#SdTanggal').val($('#SdTanggal').val());
                         $('#SdTanggal').datepicker('hide');
                         refreshTableWillexpired();

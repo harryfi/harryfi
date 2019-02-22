@@ -97,7 +97,11 @@ namespace MasterOnline.Controllers
         [Route("manage/home")]
         public ActionResult Index()
         {
-            return View();
+            var vm = new SubsViewModel()
+            {
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+            return View(vm);
         }
 
         public ActionResult DashboardPartial(string selDate)

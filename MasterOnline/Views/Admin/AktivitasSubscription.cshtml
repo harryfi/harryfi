@@ -92,7 +92,8 @@
                                     <td class="text-center">@sub.Account</td>
                                     <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
                                     <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@sub.TipeSubs</td>
+                                    @*<td class="text-center">@sub.TipeSubs</td>*@
+                                    <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
                                     <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
                                 </tr>
                             }
@@ -137,7 +138,7 @@
             function () {
                 //change by nurul 19/2/2019
                 //var table = $('#datatable').DataTable();
-                
+
                 //end change by nurul 19/2/2019
                 $('#search_subs').keyup(function () {
                     table.search($(this).val()).draw();

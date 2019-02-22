@@ -61,7 +61,7 @@
                 position: absolute;
                 top: 35px;
                 left: 0px;
-                padding: 2px 5px;
+                /*padding: 2px 5px;*/
                 background: #1a1a1a;
                 color: #fff;
                 z-index: 9;
@@ -2933,16 +2933,6 @@
                 .on('shown.bs.modal',
                 function () {
                         //add by nurul 19/2/2019
-                    //if ($TabAktif == 0 && $jumlahPesanan == false) {
-                    //    $('#konfUbahStatus').hide();
-                    //    $('#modalPricing').show();
-
-                    //}
-                    //if ($TabAktif == 1 && $jumlahPesanan == false) {
-                    //    $('#konfUbahStatusDibayar').hide();
-                    //    $('#modalPricing').show();
-
-                    //}
                     if ($TabAktif == 0) {
                         cekJumlahPesananBulanIni();
                         if ($jumlahPesanan == false) {

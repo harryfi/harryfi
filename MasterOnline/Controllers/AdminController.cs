@@ -253,7 +253,10 @@ namespace MasterOnline.Controllers
         {
             var vm = new SubsViewModel()
             {
-                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList()
+                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+                //ADD BY NURUL 22/2/2019
+                ListSubs=MoDbContext.Subscription.ToList()
+                //END ADD BY NURUL 22/2/2019
             };
 
             return View(vm);
