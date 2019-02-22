@@ -28,7 +28,7 @@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tgl. Berakhir Subs</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Status</th>
-            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah Status</th>
             @*end change by nurul 13/2/2019*@
         </tr>
     </thead>
@@ -46,7 +46,8 @@
                 <tr>
                     <td>@user.Email</td>
                     <td>
-                        <a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })">
+                        @*<a class="user-link" href="@Url.Action("AccountDetail", "Admin", new {accId = user.AccountId })"> 'change by nurul 20/2/2019*@
+                        <a class="user-link" href="#" onclick="LihatAccount(@(user.AccountId))">
                             @user.Username
                         </a>
                     </td>

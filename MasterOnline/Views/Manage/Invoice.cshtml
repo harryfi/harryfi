@@ -9,16 +9,18 @@
 
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
 
+    long accId;
     var username = "";
     if (dataSession?.User != null)
     {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         //context.Dispose(); 'remark by nurul 4/2/2019
     }
     else
     {
         username = dataSession?.Account?.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
     }
 }
 
@@ -2797,8 +2799,11 @@
         }
 
         function cekJumlahPesananBulanIni() {
-            var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new { uname = "replaceUname" })';
-            link = link.replace("replaceUname", '@(username)');
+            //change by nurul 21/2/2019
+            @*var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {uname = "replaceUname"})';
+            link = link.replace("replaceUname", '@(username)');*@
+            var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
+            link = link.replace("replaceUname", '@(accId)');
 
             $.ajax({
                 type: "GET",
