@@ -14965,65 +14965,71 @@ namespace MasterOnline.Controllers
                     if (data.Stf02 != null)
                     {
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
-                        if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
+                        var tokped = MoDbContext.Marketplaces.Where(a => a.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault().IdMarket;
+                        
+                        if(customer.NAMA != Convert.ToString(tokped))
                         {
-                            bool createSTF02Induk = true;
-                            var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == data.TempBrg.KODE_BRG_INDUK).FirstOrDefault();
-                            var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrginDB.KODE_BRG_INDUK).FirstOrDefault();
-                            if (brgInduk != null)
+                            if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
                             {
-                                var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
-                                if (stf02h_induk == null)
+                                bool createSTF02Induk = true;
+                                var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == data.TempBrg.KODE_BRG_INDUK).FirstOrDefault();
+                                var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrginDB.KODE_BRG_INDUK).FirstOrDefault();
+                                if (brgInduk != null)
                                 {
-                                    createSTF02Induk = false;
-                                    if (tempBrgInduk != null)
+                                    var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                    if (stf02h_induk == null)
                                     {
-                                        var ret1 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
-                                        if (ret1.status == 0)
-                                            return JsonErrorMessage(ret1.message);
-                                    }
-                                    else
-                                    {
-                                        return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
-                                    }
+                                        createSTF02Induk = false;
+                                        if (tempBrgInduk != null)
+                                        {
+                                            var ret1 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                            if (ret1.status == 0)
+                                                return JsonErrorMessage(ret1.message);
+                                        }
+                                        else
+                                        {
+                                            return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                        }
 
-                                }
-                            }
-                            else
-                            {
-                                if (tempBrginDB != null)
-                                {
-                                    if (tempBrgInduk != null)
-                                    {
-                                        //sinkron brg induk terlebih dahulu
-                                        var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
-                                        if (ret2.status == 0)
-                                            return JsonErrorMessage(ret2.message);
                                     }
-                                    else
-                                    {
-                                        return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
-                                    }
-
                                 }
                                 else
                                 {
-                                    return JsonErrorMessage("Barang ini sudah diproses.");
+                                    if (tempBrginDB != null)
+                                    {
+                                        if (tempBrgInduk != null)
+                                        {
+                                            //sinkron brg induk terlebih dahulu
+                                            var ret2 = AutoSyncBrgInduk(data.Stf02, tempBrgInduk, data.TempBrg.KODE_BRG_INDUK, customer, username, createSTF02Induk);
+                                            if (ret2.status == 0)
+                                                return JsonErrorMessage(ret2.message);
+                                        }
+                                        else
+                                        {
+                                            return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        return JsonErrorMessage("Barang ini sudah diproses.");
+                                    }
                                 }
+                                //if (brgInduk == null)
+                                //{
+                                //    //user input kode brg induk baru, cari brg induk di temp
+
+                                //}
+                                //else 
+                                //if(stf02h_induk == null)
+                                //{
+                                //    // brg induk sudah ada di stf02 tp blm ada di stf02h -> create stf02h saja
+
+                                //}
+
                             }
-                            //if (brgInduk == null)
-                            //{
-                            //    //user input kode brg induk baru, cari brg induk di temp
-
-                            //}
-                            //else 
-                            //if(stf02h_induk == null)
-                            //{
-                            //    // brg induk sudah ada di stf02 tp blm ada di stf02h -> create stf02h saja
-
-                            //}
-
                         }
+                        
 
                         var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
