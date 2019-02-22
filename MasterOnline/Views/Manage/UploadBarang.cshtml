@@ -1324,7 +1324,7 @@
             if (val == '1') {
                 $("#divBrgInduk").show();
             } else {
-                $("#txtBrgInduk").val('');
+                //$("#txtBrgInduk").val('');
                 $("#divBrgInduk").hide();
             }
         }
@@ -1346,9 +1346,9 @@
                 var enc_desc2 = $('<div/>').text(desc2).html();
                 $('#TempBrg_AVALUE_1').val(enc_desc2);
 
-                //if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
-                $('#TempBrg_KODE_BRG_INDUK').val($('#txtBrgInduk').val());
-                //}
+                if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
+                    $('#TempBrg_KODE_BRG_INDUK').val($('#txtBrgInduk').val());
+                }
 
                 $('#Stf02_BRG').val($('#txtBrg').val());
 
