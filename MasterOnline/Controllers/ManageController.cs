@@ -2817,8 +2817,8 @@ namespace MasterOnline.Controllers
                     //update harga, qty, dll
 
                     saveBarangBlibli(2, dataBarang);
-                    //saveBarangElevenia(2, dataBarang, imgPath);
-                    //saveBarangShopee(2, dataBarang, updateHarga);
+                    saveBarangElevenia(2, dataBarang, imgPath);
+                    saveBarangShopee(2, dataBarang, updateHarga);
 
 
                     //get image
