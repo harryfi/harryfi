@@ -3256,7 +3256,7 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
-
+            double promoPrice;
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -3285,46 +3285,68 @@ namespace MasterOnline.Controllers
                 discount_name = varPromo.NAMA_PROMOSI,
                 start_time = starttime,
                 end_time = endtime,
+                items = new List<ShopeeAddDiscountDataItems>()
             };
-            foreach (var promoDetail in varPromoDetail)
+            try
             {
-                var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(promoDetail.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-
-                string[] brg_mp = brgInDB.BRG_MP.Split(';');
-                if (brg_mp.Count() == 2)
+                foreach (var promoDetail in varPromoDetail)
                 {
-                    if (brg_mp[1] == "0")
+                    var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(promoDetail.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
+                    if (brgInDB != null)
                     {
-                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                        promoPrice = promoDetail.HARGA_PROMOSI;
+                        if (promoPrice == 0)
                         {
-                            item_id = Convert.ToInt64(brg_mp[0]),
-                            item_promotion_price = (float)promoDetail.HARGA_PROMOSI,
-                            purchase_limit = 10,
-                        };
-                        item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                            promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * promoDetail.PERSEN_PROMOSI / 100);
+                        }
+                        string[] brg_mp = brgInDB.BRG_MP.Split(';');
+                        if (brg_mp.Count() == 2)
                         {
-                            variation_id = 0,
-                            variation_promotion_price = 0
-                        });
-                        HttpBody.items.Add(item);
-                    }
-                    else if (brg_mp[1] == "0")
-                    {
-                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-                        {
-                            item_id = Convert.ToInt64(brg_mp[0]),
-                            item_promotion_price = (float)promoDetail.HARGA_PROMOSI,
-                            purchase_limit = 10,
-                        };
-                        item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-                        {
-                            variation_id = Convert.ToInt64(brg_mp[1]),
-                            variation_promotion_price = (float)promoDetail.HARGA_PROMOSI
-                        });
-                        HttpBody.items.Add(item);
+                            if (brg_mp[1] == "0")
+                            {
+                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                                {
+                                    item_id = Convert.ToInt64(brg_mp[0]),
+                                    item_promotion_price = (float)promoPrice,
+                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
+                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
+                                };
+                                //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                                //{
+                                //    variation_id = 0,
+                                //    variation_promotion_price = (float)0.1
+                                //});
+                                HttpBody.items.Add(item);
+                            }
+                            else /*if (brg_mp[1] == "0")*/
+                            {
+                                ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                                {
+                                    item_id = Convert.ToInt64(brg_mp[0]),
+                                    item_promotion_price = (float)promoPrice,
+                                    //purchase_limit = 10,
+                                    purchase_limit = (UInt32)(promoDetail.MAX_QTY == 0 ? 2 : promoDetail.MAX_QTY),
+                                    variations = new List<ShopeeAddDiscountDataItemsVariation>()
+                                };
+                                item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                                {
+                                    variation_id = Convert.ToInt64(brg_mp[1]),
+                                    //variation_promotion_price = (float)promoDetail.HARGA_PROMOSI
+                                    variation_promotion_price = (float)promoPrice,
+                                });
+                                HttpBody.items.Add(item);
+                            }
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return "";
+            }
+
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -3357,13 +3379,27 @@ namespace MasterOnline.Controllers
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                return "";
             }
 
             if (responseFromServer != null)
             {
                 try
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
+                    if (resServer != null)
+                    {
+                        if (string.IsNullOrEmpty(resServer.error))
+                        {
+                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + resServer.discount_id + "' WHERE RECNUM = " + recNumPromosi);
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -3373,12 +3409,13 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
         public async Task<string> AddDiscountItem(ShopeeAPIData iden, long discount_id, DetailPromosi detilPromosi)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
-
+            double promoPrice;
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -3400,45 +3437,61 @@ namespace MasterOnline.Controllers
                 partner_id = MOPartnerID,
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                discount_id = discount_id
+                discount_id = discount_id,
+                items = new List<ShopeeAddDiscountDataItems>()
             };
 
             var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-
-            string[] brg_mp = brgInDB.BRG_MP.Split(';');
-            if (brg_mp.Count() == 2)
+            if (brgInDB != null)
             {
-                if (brg_mp[1] == "0")
+                promoPrice = detilPromosi.HARGA_PROMOSI;
+                if (promoPrice == 0)
                 {
-                    ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
-                    {
-                        item_id = Convert.ToInt64(brg_mp[0]),
-                        item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
-                        purchase_limit = 10,
-                    };
-                    item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
-                    {
-                        variation_id = 0,
-                        variation_promotion_price = 0
-                    });
-                    HttpBody.items.Add(item);
+                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * detilPromosi.PERSEN_PROMOSI / 100);
                 }
-                else if (brg_mp[1] == "0")
+                string[] brg_mp = brgInDB.BRG_MP.Split(';');
+                if (brg_mp.Count() == 2)
                 {
-                    ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                    if (brg_mp[1] == "0")
                     {
-                        item_id = Convert.ToInt64(brg_mp[0]),
-                        item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
-                        purchase_limit = 10,
-                    };
-                    item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                        {
+                            item_id = Convert.ToInt64(brg_mp[0]),
+                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
+                            item_promotion_price = (float)promoPrice,
+                            //purchase_limit = 10,
+                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
+                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
+                        };
+                        //item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                        //{
+                        //    variation_id = 0,
+                        //    variation_promotion_price = 0
+                        //});
+                        HttpBody.items.Add(item);
+                    }
+                    else/* if (brg_mp[1] == "0")*/
                     {
-                        variation_id = Convert.ToInt64(brg_mp[1]),
-                        variation_promotion_price = (float)detilPromosi.HARGA_PROMOSI
-                    });
-                    HttpBody.items.Add(item);
+                        ShopeeAddDiscountDataItems item = new ShopeeAddDiscountDataItems()
+                        {
+                            item_id = Convert.ToInt64(brg_mp[0]),
+                            //item_promotion_price = (float)detilPromosi.HARGA_PROMOSI,
+                            item_promotion_price = (float)promoPrice,
+                            //purchase_limit = 10,
+                            purchase_limit = (UInt32)(detilPromosi.MAX_QTY == 0 ? 2 : detilPromosi.MAX_QTY),
+                            variations = new List<ShopeeAddDiscountDataItemsVariation>()
+                        };
+                        item.variations.Add(new ShopeeAddDiscountDataItemsVariation()
+                        {
+                            variation_id = Convert.ToInt64(brg_mp[1]),
+                            //variation_promotion_price = (float)detilPromosi.HARGA_PROMOSI
+                            variation_promotion_price = (float)promoPrice,
+                        });
+                        HttpBody.items.Add(item);
+                    }
                 }
             }
+
 
             string myData = JsonConvert.SerializeObject(HttpBody);
 
@@ -3477,7 +3530,19 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeCreatePromoRes)) as ShopeeCreatePromoRes;
+                    if (resServer != null)
+                    {
+                        if (string.IsNullOrEmpty(resServer.error))
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -4651,6 +4716,12 @@ namespace MasterOnline.Controllers
         {
             public long item_id { get; set; }
             public Item item { get; set; }
+        }
+
+        public class ShopeeCreatePromoRes : ShopeeError
+        {
+            public int discount_id { get; set; }
+            public int count { get; set; }
         }
 
         public class Item

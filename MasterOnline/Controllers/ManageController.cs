@@ -8432,6 +8432,10 @@ namespace MasterOnline.Controllers
             {
                 listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
             }
+            else
+            {
+                return Json(listBarang, JsonRequestBehavior.AllowGet);
+            }
 
             return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
         }
@@ -14478,6 +14482,7 @@ namespace MasterOnline.Controllers
                     //change by nurul 3/1/2019 -- dataVm.PromosiDetail.RecNumPromosi = lastRecNum;
                     dataVm.PromosiDetail.RecNumPromosi = dataVm.Promosi.RecNum;
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
+                    ErasoftDbContext.SaveChanges();
                 }
 
                 //add by calvin 26 desember 2018
@@ -14495,7 +14500,9 @@ namespace MasterOnline.Controllers
                         {
                             merchant_code = customer.Sort1_Cust,
                         };
-                        Task.Run(() => ShopeeApi.AddDiscount(data, lastRecNum.HasValue ? lastRecNum.Value : 0)).Wait();
+                        //Task.Run(() => ShopeeApi.AddDiscount(data, lastRecNum.HasValue ? lastRecNum.Value : 0)).Wait();
+                        Task.Run(() => ShopeeApi.AddDiscount(data, dataVm.Promosi.RecNum.HasValue ? dataVm.Promosi.RecNum.Value : 0)).Wait();
+
                     }
                 }
                 //end add by calvin 26 desember 2018
@@ -14513,6 +14520,7 @@ namespace MasterOnline.Controllers
                 {
                     dataVm.PromosiDetail.RecNumPromosi = promosiInDb.RecNum;
                     ErasoftDbContext.DETAILPROMOSI.Add(dataVm.PromosiDetail);
+                    ErasoftDbContext.SaveChanges();
 
                     //add by calvin 26 desember 2018
                     //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
@@ -14966,14 +14974,14 @@ namespace MasterOnline.Controllers
                     {
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
                         var tokped = MoDbContext.Marketplaces.Where(a => a.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault().IdMarket;
-                        
-                        if(customer.NAMA != Convert.ToString(tokped))
+
+                        if (customer.NAMA != Convert.ToString(tokped))
                         {
                             if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))//handle induk dari barang varian
                             {
                                 bool createSTF02Induk = true;
                                 var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == data.TempBrg.KODE_BRG_INDUK).FirstOrDefault();
-                                var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrginDB.KODE_BRG_INDUK).FirstOrDefault();
+                                var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == tempBrginDB.KODE_BRG_INDUK && b.CUST == data.TempBrg.CUST).FirstOrDefault();
                                 if (brgInduk != null)
                                 {
                                     var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
@@ -14988,7 +14996,190 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                            //change 25 Feb 2019
+                                            //return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                            stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == tempBrginDB.KODE_BRG_INDUK && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                            if (stf02h_induk != null)
+                                            {
+                                                //stf02h_induk.BRG = data.TempBrg.KODE_BRG_INDUK;
+                                                //stf02h_induk.RecNum = 0;
+                                                var dupeStf02h = new STF02H
+                                                {
+                                                    BRG = data.TempBrg.KODE_BRG_INDUK,
+                                                    BRG_MP = stf02h_induk.BRG_MP,
+                                                    CATEGORY_CODE = stf02h_induk.CATEGORY_CODE,
+                                                    CATEGORY_NAME = stf02h_induk.CATEGORY_NAME,
+                                                    HJUAL = stf02h_induk.HJUAL,
+                                                    IDMARKET = stf02h_induk.IDMARKET,
+                                                    AKUNMARKET = stf02h_induk.AKUNMARKET,
+                                                    USERNAME = stf02h_induk.USERNAME,
+                                                    DISPLAY = stf02h_induk.DISPLAY,
+                                                    DeliveryTempElevenia = stf02h_induk.DeliveryTempElevenia,
+                                                    PICKUP_POINT = stf02h_induk.PICKUP_POINT
+                                                };
+                                                #region attribute mp
+                                                dupeStf02h.ACODE_1 = stf02h_induk.ACODE_1;
+                                                dupeStf02h.ANAME_1 = stf02h_induk.ANAME_1;
+                                                dupeStf02h.AVALUE_1 = stf02h_induk.AVALUE_1;
+                                                dupeStf02h.ACODE_2 = stf02h_induk.ACODE_2;
+                                                dupeStf02h.ANAME_2 = stf02h_induk.ANAME_2;
+                                                dupeStf02h.AVALUE_2 = stf02h_induk.AVALUE_2;
+                                                dupeStf02h.ACODE_3 = stf02h_induk.ACODE_3;
+                                                dupeStf02h.ANAME_3 = stf02h_induk.ANAME_3;
+                                                dupeStf02h.AVALUE_3 = stf02h_induk.AVALUE_3;
+                                                dupeStf02h.ACODE_4 = stf02h_induk.ACODE_4;
+                                                dupeStf02h.ANAME_4 = stf02h_induk.ANAME_4;
+                                                dupeStf02h.AVALUE_4 = stf02h_induk.AVALUE_4;
+                                                dupeStf02h.ACODE_5 = stf02h_induk.ACODE_5;
+                                                dupeStf02h.ANAME_5 = stf02h_induk.ANAME_5;
+                                                dupeStf02h.AVALUE_5 = stf02h_induk.AVALUE_5;
+                                                dupeStf02h.ACODE_6 = stf02h_induk.ACODE_6;
+                                                dupeStf02h.ANAME_6 = stf02h_induk.ANAME_6;
+                                                dupeStf02h.AVALUE_6 = stf02h_induk.AVALUE_6;
+                                                dupeStf02h.ACODE_7 = stf02h_induk.ACODE_7;
+                                                dupeStf02h.ANAME_7 = stf02h_induk.ANAME_7;
+                                                dupeStf02h.AVALUE_7 = stf02h_induk.AVALUE_7;
+                                                dupeStf02h.ACODE_8 = stf02h_induk.ACODE_8;
+                                                dupeStf02h.ANAME_8 = stf02h_induk.ANAME_8;
+                                                dupeStf02h.AVALUE_8 = stf02h_induk.AVALUE_8;
+                                                dupeStf02h.ACODE_9 = stf02h_induk.ACODE_9;
+                                                dupeStf02h.ANAME_9 = stf02h_induk.ANAME_9;
+                                                dupeStf02h.AVALUE_9 = stf02h_induk.AVALUE_9;
+                                                dupeStf02h.ACODE_10 = stf02h_induk.ACODE_10;
+                                                dupeStf02h.ANAME_10 = stf02h_induk.ANAME_10;
+                                                dupeStf02h.AVALUE_10 = stf02h_induk.AVALUE_10;
+                                                dupeStf02h.ACODE_11 = stf02h_induk.ACODE_11;
+                                                dupeStf02h.ANAME_11 = stf02h_induk.ANAME_11;
+                                                dupeStf02h.AVALUE_11 = stf02h_induk.AVALUE_11;
+                                                dupeStf02h.ACODE_12 = stf02h_induk.ACODE_12;
+                                                dupeStf02h.ANAME_12 = stf02h_induk.ANAME_12;
+                                                dupeStf02h.AVALUE_12 = stf02h_induk.AVALUE_12;
+                                                dupeStf02h.ACODE_13 = stf02h_induk.ACODE_13;
+                                                dupeStf02h.ANAME_13 = stf02h_induk.ANAME_13;
+                                                dupeStf02h.AVALUE_13 = stf02h_induk.AVALUE_13;
+                                                dupeStf02h.ACODE_14 = stf02h_induk.ACODE_14;
+                                                dupeStf02h.ANAME_14 = stf02h_induk.ANAME_14;
+                                                dupeStf02h.AVALUE_14 = stf02h_induk.AVALUE_14;
+                                                dupeStf02h.ACODE_15 = stf02h_induk.ACODE_15;
+                                                dupeStf02h.ANAME_15 = stf02h_induk.ANAME_15;
+                                                dupeStf02h.AVALUE_15 = stf02h_induk.AVALUE_15;
+                                                dupeStf02h.ACODE_16 = stf02h_induk.ACODE_16;
+                                                dupeStf02h.ANAME_16 = stf02h_induk.ANAME_16;
+                                                dupeStf02h.AVALUE_16 = stf02h_induk.AVALUE_16;
+                                                dupeStf02h.ACODE_17 = stf02h_induk.ACODE_17;
+                                                dupeStf02h.ANAME_17 = stf02h_induk.ANAME_17;
+                                                dupeStf02h.AVALUE_17 = stf02h_induk.AVALUE_17;
+                                                dupeStf02h.ACODE_18 = stf02h_induk.ACODE_18;
+                                                dupeStf02h.ANAME_18 = stf02h_induk.ANAME_18;
+                                                dupeStf02h.AVALUE_18 = stf02h_induk.AVALUE_18;
+                                                dupeStf02h.ACODE_19 = stf02h_induk.ACODE_19;
+                                                dupeStf02h.ANAME_19 = stf02h_induk.ANAME_19;
+                                                dupeStf02h.AVALUE_19 = stf02h_induk.AVALUE_19;
+                                                dupeStf02h.ACODE_20 = stf02h_induk.ACODE_20;
+                                                dupeStf02h.ANAME_20 = stf02h_induk.ANAME_20;
+                                                dupeStf02h.AVALUE_20 = stf02h_induk.AVALUE_20;
+                                                dupeStf02h.ACODE_21 = stf02h_induk.ACODE_21;
+                                                dupeStf02h.ANAME_21 = stf02h_induk.ANAME_21;
+                                                dupeStf02h.AVALUE_21 = stf02h_induk.AVALUE_21;
+                                                dupeStf02h.ACODE_22 = stf02h_induk.ACODE_22;
+                                                dupeStf02h.ANAME_22 = stf02h_induk.ANAME_22;
+                                                dupeStf02h.AVALUE_22 = stf02h_induk.AVALUE_22;
+                                                dupeStf02h.ACODE_23 = stf02h_induk.ACODE_23;
+                                                dupeStf02h.ANAME_23 = stf02h_induk.ANAME_23;
+                                                dupeStf02h.AVALUE_23 = stf02h_induk.AVALUE_23;
+                                                dupeStf02h.ACODE_24 = stf02h_induk.ACODE_24;
+                                                dupeStf02h.ANAME_24 = stf02h_induk.ANAME_24;
+                                                dupeStf02h.AVALUE_24 = stf02h_induk.AVALUE_24;
+                                                dupeStf02h.ACODE_25 = stf02h_induk.ACODE_25;
+                                                dupeStf02h.ANAME_25 = stf02h_induk.ANAME_25;
+                                                dupeStf02h.AVALUE_25 = stf02h_induk.AVALUE_25;
+                                                dupeStf02h.ACODE_26 = stf02h_induk.ACODE_26;
+                                                dupeStf02h.ANAME_26 = stf02h_induk.ANAME_26;
+                                                dupeStf02h.AVALUE_26 = stf02h_induk.AVALUE_26;
+                                                dupeStf02h.ACODE_27 = stf02h_induk.ACODE_27;
+                                                dupeStf02h.ANAME_27 = stf02h_induk.ANAME_27;
+                                                dupeStf02h.AVALUE_27 = stf02h_induk.AVALUE_27;
+                                                dupeStf02h.ACODE_28 = stf02h_induk.ACODE_28;
+                                                dupeStf02h.ANAME_28 = stf02h_induk.ANAME_28;
+                                                dupeStf02h.AVALUE_28 = stf02h_induk.AVALUE_28;
+                                                dupeStf02h.ACODE_29 = stf02h_induk.ACODE_29;
+                                                dupeStf02h.ANAME_29 = stf02h_induk.ANAME_29;
+                                                dupeStf02h.AVALUE_29 = stf02h_induk.AVALUE_29;
+                                                dupeStf02h.ACODE_30 = stf02h_induk.ACODE_30;
+                                                dupeStf02h.ANAME_30 = stf02h_induk.ANAME_30;
+                                                dupeStf02h.AVALUE_30 = stf02h_induk.AVALUE_30;
+                                                dupeStf02h.ACODE_31 = stf02h_induk.ACODE_31;
+                                                dupeStf02h.ANAME_31 = stf02h_induk.ANAME_31;
+                                                dupeStf02h.AVALUE_31 = stf02h_induk.AVALUE_31;
+                                                dupeStf02h.ACODE_32 = stf02h_induk.ACODE_32;
+                                                dupeStf02h.ANAME_32 = stf02h_induk.ANAME_32;
+                                                dupeStf02h.AVALUE_32 = stf02h_induk.AVALUE_32;
+                                                dupeStf02h.ACODE_33 = stf02h_induk.ACODE_33;
+                                                dupeStf02h.ANAME_33 = stf02h_induk.ANAME_33;
+                                                dupeStf02h.AVALUE_33 = stf02h_induk.AVALUE_33;
+                                                dupeStf02h.ACODE_34 = stf02h_induk.ACODE_34;
+                                                dupeStf02h.ANAME_34 = stf02h_induk.ANAME_34;
+                                                dupeStf02h.AVALUE_34 = stf02h_induk.AVALUE_34;
+                                                dupeStf02h.ACODE_35 = stf02h_induk.ACODE_35;
+                                                dupeStf02h.ANAME_35 = stf02h_induk.ANAME_35;
+                                                dupeStf02h.AVALUE_35 = stf02h_induk.AVALUE_35;
+                                                dupeStf02h.ACODE_36 = stf02h_induk.ACODE_36;
+                                                dupeStf02h.ANAME_36 = stf02h_induk.ANAME_36;
+                                                dupeStf02h.AVALUE_36 = stf02h_induk.AVALUE_36;
+                                                dupeStf02h.ACODE_37 = stf02h_induk.ACODE_37;
+                                                dupeStf02h.ANAME_37 = stf02h_induk.ANAME_37;
+                                                dupeStf02h.AVALUE_37 = stf02h_induk.AVALUE_37;
+                                                dupeStf02h.ACODE_38 = stf02h_induk.ACODE_38;
+                                                dupeStf02h.ANAME_38 = stf02h_induk.ANAME_38;
+                                                dupeStf02h.AVALUE_38 = stf02h_induk.AVALUE_38;
+                                                dupeStf02h.ACODE_39 = stf02h_induk.ACODE_39;
+                                                dupeStf02h.ANAME_39 = stf02h_induk.ANAME_39;
+                                                dupeStf02h.AVALUE_39 = stf02h_induk.AVALUE_39;
+                                                dupeStf02h.ACODE_40 = stf02h_induk.ACODE_40;
+                                                dupeStf02h.ANAME_40 = stf02h_induk.ANAME_40;
+                                                dupeStf02h.AVALUE_40 = stf02h_induk.AVALUE_40;
+                                                dupeStf02h.ACODE_41 = stf02h_induk.ACODE_41;
+                                                dupeStf02h.ANAME_41 = stf02h_induk.ANAME_41;
+                                                dupeStf02h.AVALUE_41 = stf02h_induk.AVALUE_41;
+                                                dupeStf02h.ACODE_42 = stf02h_induk.ACODE_42;
+                                                dupeStf02h.ANAME_42 = stf02h_induk.ANAME_42;
+                                                dupeStf02h.AVALUE_42 = stf02h_induk.AVALUE_42;
+                                                dupeStf02h.ACODE_43 = stf02h_induk.ACODE_43;
+                                                dupeStf02h.ANAME_43 = stf02h_induk.ANAME_43;
+                                                dupeStf02h.AVALUE_43 = stf02h_induk.AVALUE_43;
+                                                dupeStf02h.ACODE_44 = stf02h_induk.ACODE_44;
+                                                dupeStf02h.ANAME_44 = stf02h_induk.ANAME_44;
+                                                dupeStf02h.AVALUE_44 = stf02h_induk.AVALUE_44;
+                                                dupeStf02h.ACODE_45 = stf02h_induk.ACODE_45;
+                                                dupeStf02h.ANAME_45 = stf02h_induk.ANAME_45;
+                                                dupeStf02h.AVALUE_45 = stf02h_induk.AVALUE_45;
+                                                dupeStf02h.ACODE_46 = stf02h_induk.ACODE_46;
+                                                dupeStf02h.ANAME_46 = stf02h_induk.ANAME_46;
+                                                dupeStf02h.AVALUE_46 = stf02h_induk.AVALUE_46;
+                                                dupeStf02h.ACODE_47 = stf02h_induk.ACODE_47;
+                                                dupeStf02h.ANAME_47 = stf02h_induk.ANAME_47;
+                                                dupeStf02h.AVALUE_47 = stf02h_induk.AVALUE_47;
+                                                dupeStf02h.ACODE_48 = stf02h_induk.ACODE_48;
+                                                dupeStf02h.ANAME_48 = stf02h_induk.ANAME_48;
+                                                dupeStf02h.AVALUE_48 = stf02h_induk.AVALUE_48;
+                                                dupeStf02h.ACODE_49 = stf02h_induk.ACODE_49;
+                                                dupeStf02h.ANAME_49 = stf02h_induk.ANAME_49;
+                                                dupeStf02h.AVALUE_49 = stf02h_induk.AVALUE_49;
+                                                dupeStf02h.ACODE_50 = stf02h_induk.ACODE_50;
+                                                dupeStf02h.ANAME_50 = stf02h_induk.ANAME_50;
+                                                dupeStf02h.AVALUE_50 = stf02h_induk.AVALUE_50;
+                                                #endregion
+                                                ErasoftDbContext.STF02H.Add(dupeStf02h);
+                                                if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
+                                                    EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
+                                                ErasoftDbContext.SaveChanges();
+                                            }
+                                            else
+                                            {
+                                                return JsonErrorMessage("Kode Barang Induk tidak ditemukan.");
+                                            }
+                                            //end change 25 Feb 2019
+
                                         }
 
                                     }
@@ -15027,10 +15218,10 @@ namespace MasterOnline.Controllers
 
                                 //}
 
-                            }
-                        }
-                        
 
+                            }
+
+                        }
                         var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {

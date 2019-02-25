@@ -24,5 +24,9 @@ namespace MasterOnline.Models
 
         [Column(TypeName = "date")]
         public DateTime? TGL_INPUT { get; set; }
+
+        public int MAX_QTY { get; set; }
+
+        public double PERSEN_PROMOSI { get; set; }
     }
 }

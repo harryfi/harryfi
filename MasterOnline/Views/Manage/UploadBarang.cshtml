@@ -1326,6 +1326,7 @@
             } else {
                 //$("#txtBrgInduk").val('');
                 $("#divBrgInduk").hide();
+                $('#txtBrgInduk').val('');
             }
         }
         function uploadBarang(btnClicked) {
@@ -1346,9 +1347,9 @@
                 var enc_desc2 = $('<div/>').text(desc2).html();
                 $('#TempBrg_AVALUE_1').val(enc_desc2);
 
-                if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
+                //if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
                     $('#TempBrg_KODE_BRG_INDUK').val($('#txtBrgInduk').val());
-                }
+                //}
 
                 $('#Stf02_BRG').val($('#txtBrg').val());
 
@@ -1530,12 +1531,17 @@
                     $('#hidden_url_gambar_3').val(data.LINK_GAMBAR_3);
                 getFotoProduk();
                 if (data.Sort1 != null) {
-                    document.getElementById('statBarang').innerText = 'Kode Barang sudah ada dan akan\nDi-Link dengan barang ini.';
                     //$('#KATEGORI')[0].selectize.setValue(data.Sort1, true);
                     $('#Stf02_Sort1').val(data.Sort1);
                     //$('#MERK')[0].selectize.setValue(data.Sort2, true);
                     $('#Stf02_Sort2').val(data.Sort2);
 
+                }
+                //else {
+                //    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
+                //}
+                if (data.Id > 0) {
+                    document.getElementById('statBarang').innerText = 'Kode Barang sudah ada dan akan\nDi-Link dengan barang ini.';
                 } else {
                     document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
                 }
