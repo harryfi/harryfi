@@ -2815,9 +2815,10 @@ namespace MasterOnline.Controllers
                 {
                     //saveBarangBlibli(1, dataBarang);
                     //update harga, qty, dll
+
                     saveBarangBlibli(2, dataBarang);
-                    saveBarangElevenia(2, dataBarang, imgPath);
-                    saveBarangShopee(2, dataBarang, updateHarga);
+                    //saveBarangElevenia(2, dataBarang, imgPath);
+                    //saveBarangShopee(2, dataBarang, updateHarga);
 
 
                     //get image
@@ -11157,15 +11158,17 @@ namespace MasterOnline.Controllers
         [Route("manage/reports")]
         public ActionResult Reports()
         {
-            
-            string brgtes = "01.SMKR00.00.3m";
-            List<string> listBrg = new List<string>();
-            
-            listBrg.Add("01.SMKR00.00.12m");
-            listBrg.Add("01.SMKR00.00.3m");
-            listBrg.Add("01.SMKR00.00.6m");
-            
-            updateStockMarketPlace(listBrg);
+
+            //string brgtes = "01.SMKR00.00.3m";
+            //List<string> listBrg = new List<string>();
+
+            //listBrg.Add(brgtes);
+
+            //listBrg.Add("01.SMKR00.00.12m");
+            //listBrg.Add("01.SMKR00.00.3m");
+            //listBrg.Add("01.SMKR00.00.6m");
+
+            //updateStockMarketPlace(listBrg);
             return View();
         }
 

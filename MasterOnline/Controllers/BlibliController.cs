@@ -5216,10 +5216,6 @@ namespace MasterOnline.Controllers
 
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
             var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.dataBarangInDb.BRG && p.IDMARKET == arf01.RecNum).FirstOrDefault();
-            var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
-            var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
-            var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
-            var var_stf02i = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kode && p.MARKET == "BLIBLI").ToList().OrderBy(p => p.RECNUM);
 
             Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
             for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
@@ -5316,6 +5312,12 @@ namespace MasterOnline.Controllers
             }
             else
             {
+
+                var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == data.kode).ToList();
+                var var_stf02_listbrg = var_stf02.Select(p => p.BRG).ToList();
+                var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_listbrg.Contains(p.BRG) && p.IDMARKET == arf01.RecNum).ToList();
+                var var_stf02i = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kode && p.MARKET == "BLIBLI").ToList().OrderBy(p => p.RECNUM);
+
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
                 for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
                 {
