@@ -1096,6 +1096,41 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        
+        public BindingBase GetCategoryBL(string noBukti, string transId, string userId, string token)
+        {
+            var ret = new BindingBase();
+            string Myprod = "{ \"data\": { \"id\":\"" + transId + "\", \"payment_rejection[reason]\":\"Stok Habis\" } }";
+            /* REASON (case sensitive) :
+             * Stok Habis
+             * Harga barang/biaya kirim tidak sesuai
+             * Ada kesibukan lain yang sifatnya mendadak
+             * Permintaan pembeli tidak dapat dilayani
+            */
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            var bindCancel = req.CallBukaLapakAPI("PUT", "transactions/reject.json", Myprod, userId, token, typeof(BukaLapakRes)) as BukaLapakRes;
+            if (bindCancel != null)
+            {
+                if (bindCancel.status.Equals("OK"))
+                {
+                    //string username = sessionData.Account.Username;
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    ret.status = 1;
+                    //change status menjadi  11 => cancelled
+                    //EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI = '" + noBukti + "'");
+                }
+                else
+                {
+                    ret.message = bindCancel.message;
+                }
+            }
+            else
+            {
+                ret.message = "failed to call Buka Lapak api";
+            }
+
+            return ret;
+        }
 
         public enum api_status
         {

@@ -489,18 +489,33 @@
             $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
+        var $angka;
 
         function modeEditTd() {
             $('.harga-promosi-barang').addClass('editable');
+            $('.persen-promosi-barang').addClass('editable');
+            $('.batas-pembelanjaan').addClass('editable');
+
             $('#table_tambah_promosi > tbody > tr > td.editable').prop('contentEditable', true);
             $('#table_tambah_promosi > tbody > tr > td.editable').on('click', function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
                 var $inputClass = '';
-                var $angka = convertToAngka($this.text());
+                //var $angka = convertToAngka($this.text());
+
+                if ($this.text() !== '') {
+                    //change by calvin 12 nov 2018
+                    //$angka = $this.text();
+                    $angka = convertToAngka($this.text());
+                    //end change by calvin 12 nov 2018
+                }
 
                 if ($class == 'harga-promosi-barang editable') {
                     $inputClass = 'harga-promosi-input';
+                } else if ($class == 'persen-promosi-barang editable') {
+                    $inputClass = 'persen-promosi-input';
+                } else if ($class == 'batas-pembelanjaan editable') {
+                    $inputClass = 'batas-pembelanjaan';
                 }
 
                 var $input = $('<input>', {
@@ -511,10 +526,18 @@
                         if (this.value === '') {
                             if ($class === 'harga-promosi-barang editable') {
                                 $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">');
+                            } else if ($class === 'persen-promosi-barang editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field PERSEN_PROMOSI must be a number." data-val-required="The PERSEN_PROMOSI field is required." id="PromosiDetail_PERSEN_PROMOSI" name="PromosiDetail.PERSEN_PROMOSI" type="hidden" value="">');
+                            } else if ($class === 'batas-pembelanjaan editable') {
+                                $this.html(0 + '<input data-val="true" data-val-number="The field MAX_QTY must be a number." data-val-required="The MAX_QTY field is required." id="PromosiDetail_MAX_QTY" name="PromosiDetail.MAX_QTY" type="hidden" value="">');
                             }
                         } else {
                             if ($class === 'harga-promosi-barang editable') {
                                 $this.html(convertToRupiah(this.value) + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">');
+                            } else if ($class === 'persen-promosi-barang editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field PERSEN_PROMOSI must be a number." data-val-required="The PERSEN_PROMOSI field is required." id="PromosiDetail_PERSEN_PROMOSI" name="PromosiDetail.PERSEN_PROMOSI" type="hidden" value="">');
+                            } else if ($class === 'batas-pembelanjaan editable') {
+                                $this.html(this.value + '<input data-val="true" data-val-number="The field MAX_QTY must be a number." data-val-required="The MAX_QTY field is required." id="PromosiDetail_MAX_QTY" name="PromosiDetail.MAX_QTY" type="hidden" value="">');
                             }
                         }
                     },
@@ -675,7 +698,8 @@
                             $($trElement + ' .nama-barang').text('-');
                             $($trElement + ' .harga-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA_NORMAL must be a number." data-val-required="The HARGA_NORMAL field is required." id="PromosiDetail_HARGA_NORMAL" name="PromosiDetail.HARGA_NORMAL" type="hidden" value="">');
                             $($trElement + ' .harga-promosi-barang').html('0,00' + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">');
-
+                            $($trElement + ' .persen-promosi-barang').html('0,00' + '<input data-val="true" data-val-number="The field PERSEN_PROMOSI must be a number." data-val-required="The PERSEN_PROMOSI field is required." id="PromosiDetail_PERSEN_PROMOSI" name="PromosiDetail.PERSEN_PROMOSI" type="hidden" value="">');
+                            $($trElement + ' .batas-pembelanjaan').html('0' + '<input data-val="true" data-val-number="The field MAX_QTY must be a number." data-val-required="The MAX_QTY field is required." id="PromosiDetail_MAX_QTY" name="PromosiDetail.MAX_QTY" type="hidden" value="">');
                             $($trElement + ' .btn-primary').attr('disabled', 'disabled');
                             onTab();
                             modeEditOff();
@@ -692,6 +716,8 @@
             $('#table_tambah_promosi > tbody > tr > td.editable').prop('contentEditable', false);
             $('#table_tambah_promosi > tbody > tr > td.editable').prop('onclick', null).off('click');
             $('.harga-promosi-barang').removeClass('editable');
+            $('.persen-promosi-barang').removeClass('editable');
+            $('.batas-pembelanjaan').removeClass('editable');
         }
 
         function convertToRupiah(angka) {
@@ -705,10 +731,18 @@
         }
 
         function convertToAngka(rupiah) {
-
+            if (rupiah == '') {
+                rupiah = '0';
+            }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            if (rupiah.includes(",00")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
             //end change by calvin 26 september 2018
         }
 
@@ -888,6 +922,8 @@
                     $('#PromosiDetail_KODE_BRG').val($('#BRG').selectivity('val'));
                     $('#PromosiDetail_HARGA_NORMAL').val(convertToAngka($('tr[data-promosi-id="0"] .harga-barang').text()));
                     $('#PromosiDetail_HARGA_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .harga-promosi-barang').text()));
+                    $('#PromosiDetail_PERSEN_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .persen-promosi-barang').text()));
+                    $('#PromosiDetail_MAX_QTY').val(convertToAngka($('tr[data-promosi-id="0"] .batas-pembelanjaan').text()));
 
                     $.ajax({
                         type: "POST",
