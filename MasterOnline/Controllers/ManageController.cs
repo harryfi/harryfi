@@ -15218,10 +15218,10 @@ namespace MasterOnline.Controllers
 
                                 //}
 
-                            }
-                        }
 
-                    }
+                            }
+
+                        }
                         var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(data.Stf02.BRG.ToUpper())).FirstOrDefault();
                         if (barangInDB != null)
                         {
