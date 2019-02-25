@@ -1855,8 +1855,11 @@
         }
 
         function cekJumlahPesananBulanIni() {
-            var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new { uname = "replaceUname" })';
-            link = link.replace("replaceUname", '@(username)');
+            //change by nurul 21/2/2019
+            @*var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {uname = "replaceUname"})';
+            link = link.replace("replaceUname", '@(username)');*@
+            var link = '@Url.Action("CekJumlahPesananBulanIni", "Manage", new {accId = "replaceUname"})';
+            link = link.replace("replaceUname", '@(accId)');
 
             $.ajax({
                 type: "GET",
@@ -2184,18 +2187,38 @@
                     getDataBarang();
                     getMarketplace();
 
-                    $('#tambah_faktur').click();
+                    //change by nurul 20/02/2019
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'faktur-tab') return;
+
+                        $(this).addClass('disabled-tab');
+
+                    });
+
+                    $('#faktur-tempo-tab').off('click').on('click', function () {
+                        $('#div_tgl_Tempo').hide();
+                    });
+                    //end change by nurul 20/02/2019
 
                     $nettoSebelumnya += $bakalNetto;
-                    if ($jumlahPesanan == true) {
-                        $('input, select, .btn-danger').each(function () {
+                    $('input, select, .btn-danger').each(function () {
                             $(this).attr('disabled', 'disabled');
                         });
-                    } else if ($jumlahPesanan == false) {
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).removeAttr('disabled');
-                        });
-                    }
+                    //if ($jumlahPesanan == true) {
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).attr('disabled', 'disabled');
+                    //    });
+                    //} else if ($jumlahPesanan == false) {
+                    //    $('input, select, .btn-danger').each(function () {
+                    //        $(this).removeAttr('disabled');
+                    //    });
+                    //}
                     $('tr[data-faktur-id="0"]').remove();
                     $('#loading_spinner').hide();
                 },
@@ -3350,7 +3373,24 @@
                     getGudangForBarang();
                     getMarketplace();
 
-                    $('#tambah_faktur').click();
+                    //change by nurul 20/02/2019
+                    //$('#tambah_faktur').click();
+                    $('.faktur_table_section').hide();
+                    $('.faktur_editor_section').show();
+
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'faktur-tab') return;
+
+                        $(this).addClass('disabled-tab');
+
+                    });
+
+                    $('#faktur-tempo-tab').off('click').on('click', function () {
+                        $('#div_tgl_Tempo').hide();
+                    });
+                    //end change by nurul 20/02/2019
 
                     $nettoSebelumnya += $bakalNetto;
                     $('#loading_spinner').hide();

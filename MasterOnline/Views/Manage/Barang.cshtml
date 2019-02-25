@@ -1301,8 +1301,6 @@
                                             var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
                                             SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
                                             fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-
-                                            //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
                                         }
                                         else {
                                             //textbox
@@ -1619,7 +1617,7 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
-                                if (ACODE != null && ATYPE != null && ATYPE != "DEFINING_ATTRIBUTE") {
+                                if (ACODE != null && !(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4")) {
                                     if (ACODE != "") {
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
@@ -1712,22 +1710,20 @@
                         });
 
                     if (ATYPE == "DEFINING_ATTRIBUTE") {
-                        //remark by calvin 12 februari 2019, dipindah ke tab variasi
-                        //var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                        //    maxItems : 7,
-                        //    valueField: 'id',
-                        //    searchField: 'text',
-                        //    options: listAttributeOpt,
-                        //    onChange: function (value) {
-                        //        $('#' + fieldAVALUE_ID).val(value);
-                        //    }
-                        //});
+                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                            maxItems : 1,
+                            valueField: 'id',
+                            searchField: 'text',
+                            options: listAttributeOpt,
+                            onChange: function (value) {
+                                $('#' + fieldAVALUE_ID).val(value);
+                            }
+                        });
 
-                        //if (adaValue != ""){
-                        //    var adaValues = adaValue.split(',');
-                        //    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                        //}
-                        //end remark by calvin 12 februari 2019, dipindah ke tab variasi
+                        if (adaValue != ""){
+                            var adaValues = adaValue.split(',');
+                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                        }
                     }
                     else {
                         var AttributeOptSelect = $('#' + selectID).selectize({

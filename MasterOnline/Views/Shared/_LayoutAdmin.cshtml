@@ -120,11 +120,14 @@
                                     <a href="@Url.Action("Subscription", "Admin")"><i class="fa fa-diamond"></i> Subscription</a>
                                 </li>
                                 <li>
-                                    <a href="@Url.Action("AktivitasSubscription", "Admin")"><i class="fa fa-exchange"></i> Aktivitas Subscription</a>
+                                    @*<a href="@Url.Action("AktivitasSubscription", "Admin")"><i class="fa fa-exchange"></i> Aktivitas Subscription</a>*@
+                                    <a href="@Url.Action("AktivitasSubscription", "Admin")"><i class="fa fa-exchange"></i> History Pembayaran</a>
                                 </li>
-                                <li>
-                                    <a href="@Url.Action("Promo", "Admin")"><i class="fa fa-money"></i> Promo</a>
-                                </li>
+                                @*//remark by nurul 20/2/2019*@
+                                @*<li>
+            <a href="@Url.Action("Promo", "Admin")"><i class="fa fa-money"></i> Promo</a>
+        </li>*@
+                                @*//remark by nurul 20/2/2019*@
                                 <li>
                                     <a href="@Url.Action("TambahHapusDatabaseAcc", "Admin")"><i class="fa fa-database"></i> Database Per Account</a>
                                 </li>

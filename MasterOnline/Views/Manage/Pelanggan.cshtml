@@ -5,17 +5,20 @@
     ViewBag.Title = "Marketplace / Customer";
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
     var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+
+    long accId;
     var username = "";
     var context = new MoDbContext();
     if (dataSession?.User != null)
     {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+        accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
         //context.Dispose(); 'remark by nurul 4/2/2019
     }
     else
     {
         username = dataSession?.Account.Username;
+        accId = (dataSession?.Account?.AccountId ?? 0);
     }
 }
 @section styles
@@ -1054,7 +1057,7 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { autocomplete = "off" , enctype = "multipart/form-data" }))
                                         {
                                             @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
@@ -1095,13 +1098,13 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", type = "email", required = "required" })
+                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
                                                 </div>
                                             </div>
                                             <div class="form-group" id="password-akun">
                                                 @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", type = "password", required = "required" })
+                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "false", type = "password", required = "required" })
                                                 </div>
                                             </div>
                                             @*<div class="form-group">
@@ -1364,8 +1367,11 @@
             });
 
         function cekJumlahMarketplace() {
-            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
-            link = link.replace("replaceUname", '@(username)');
+            //change by nurul 21/2/2019
+            @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
+            link = link.replace("replaceUname", '@(username)');*@
+            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { accId = "replaceUname" })';
+            link = link.replace("replaceUname", '@(accId)');
 
             $.ajax({
                 type: "GET",
@@ -1616,8 +1622,11 @@
         function simpanCustomer(btnClicked) {
             if (!validateForm()) return false;
 
-            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
-            link = link.replace("replaceUname", '@(username)');
+            //change by nurul 21/2/2019
+            @*var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { uname = "replaceUname" })';
+            link = link.replace("replaceUname", '@(username)');*@
+            var link = '@Url.Action("CekJumlahMarketplace", "Manage", new { accId = "replaceUname" })';
+            link = link.replace("replaceUname", '@(accId)');
 
             $.ajax({
                 type: "GET",

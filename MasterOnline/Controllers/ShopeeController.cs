@@ -1317,9 +1317,9 @@ namespace MasterOnline.Controllers
                             //{
                             using (SqlCommand oCommand = oConnection.CreateCommand())
                             {
-                                var AttributeInDb = MoDbContext.AttributeShopee.ToList();
+                                var AttributeInDb = MoDbContext.AttributeShopee.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE)).ToList();
                                 //cek jika belum ada di database, insert
-                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category.CATEGORY_CODE));
+                                var cari = AttributeInDb;
                                 if (cari.Count() == 0)
                                 {
                                     oCommand.CommandType = CommandType.Text;
@@ -1458,7 +1458,10 @@ namespace MasterOnline.Controllers
                     if (stat == StatusOrder.READY_TO_SHIP)
                     {
                         string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
-                        await GetOrderDetails(iden, ordersn_list, connID, CUST, NAMA_CUST);
+                        if (ordersn_list.Count() > 0)
+                        {
+                            await GetOrderDetails(iden, ordersn_list, connID, CUST, NAMA_CUST);
+                        }
                     }
 
                 }
@@ -2490,12 +2493,53 @@ namespace MasterOnline.Controllers
 
             foreach (var log in ShopeeGetLogisticsResult.logistics.Where(p => p.enabled == true && p.fee_type.ToUpper() != "CUSTOM_PRICE" && p.fee_type.ToUpper() != "SIZE_SELECTION"))
             {
-                logistics.Add(new ShopeeLogisticsClass()
+                bool lolosValidLogistic = true;
+                if (log.weight_limits != null)
                 {
-                    enabled = log.enabled,
-                    is_free = false,
-                    logistic_id = log.logistic_id,
-                });
+                    if (log.weight_limits.item_max_weight < (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                    if (log.weight_limits.item_min_weight > (brgInDb.BERAT / 1000))
+                    {
+                        lolosValidLogistic = false;
+                    }
+                }
+
+                if (log.item_max_dimension != null)
+                {
+                    if (log.item_max_dimension.length > 0)
+                    {
+                        if (log.item_max_dimension.length < (Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.height > 0)
+                    {
+                        if (log.item_max_dimension.height < (Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                    if (log.item_max_dimension.width > 0)
+                    {
+                        if (log.item_max_dimension.width < (Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR)))
+                        {
+                            lolosValidLogistic = false;
+                        }
+                    }
+                }
+
+                if (lolosValidLogistic)
+                {
+                    logistics.Add(new ShopeeLogisticsClass()
+                    {
+                        enabled = log.enabled,
+                        is_free = false,
+                        logistic_id = log.logistic_id,
+                    });
+                }
             }
             //end add by calvin 21 desember 2018, default nya semua logistic enabled
 
@@ -2560,11 +2604,13 @@ namespace MasterOnline.Controllers
             if (brgInDb.TYPE == "4")//Barang Induk ( memiliki Variant )
             {
                 var ListVariant = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
+                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == brg).ToList();
                 //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                 List<string> byteGambarUploaded = new List<string>();
                 //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                 foreach (var item in ListVariant)
                 {
+                    List<string> Duplikat = HttpBody.variations.Select(p => p.name).ToList();
                     //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                     if (!byteGambarUploaded.Contains(item.Sort5))
                     {
@@ -2575,15 +2621,44 @@ namespace MasterOnline.Controllers
                     //end add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
 
                     var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
-                    ShopeeVariationClass adaVariant = new ShopeeVariationClass()
+                    string nama_var1 = "";
+                    if ((item.Sort8 == null ? "" : item.Sort8) != "")
                     {
-                        name = ((item.Ket_Sort8 == null ? "" : item.Ket_Sort8) + " " + (item.Ket_Sort9 == null ? "" : item.Ket_Sort9) + " " + (item.Ket_Sort10 == null ? "" : item.Ket_Sort10)).Trim(),
-                        price = stf02h != null ? stf02h.HJUAL : detailBrg.HJUAL,
-                        stock = 1,//create product min stock = 1
-                        variation_sku = item.BRG
-                    };
-                    HttpBody.variations.Add(adaVariant);
-
+                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
+                        if (getNamaVar != null)
+                        {
+                            nama_var1 = getNamaVar.MP_VALUE_VAR;
+                        }
+                    }
+                    string nama_var2 = "";
+                    if ((item.Sort9 == null ? "" : item.Sort9) != "")
+                    {
+                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                        if (getNamaVar != null)
+                        {
+                            nama_var2 = getNamaVar.MP_VALUE_VAR;
+                        }
+                    }
+                    string nama_var3 = "";
+                    if ((item.Sort10 == null ? "" : item.Sort10) != "")
+                    {
+                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 3 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort10).FirstOrDefault();
+                        if (getNamaVar != null)
+                        {
+                            nama_var3 = getNamaVar.MP_VALUE_VAR;
+                        }
+                    }
+                    if (!Duplikat.Contains((nama_var1 + " " + nama_var2 + " " + nama_var3).Trim()))
+                    {
+                        ShopeeVariationClass adaVariant = new ShopeeVariationClass()
+                        {
+                            name = (nama_var1 + " " + nama_var2 + " " + nama_var3).Trim(),
+                            price = stf02h != null ? stf02h.HJUAL : detailBrg.HJUAL,
+                            stock = 1,//create product min stock = 1
+                            variation_sku = item.BRG
+                        };
+                        HttpBody.variations.Add(adaVariant);
+                    }
                 }
             }
 
@@ -4411,9 +4486,9 @@ namespace MasterOnline.Controllers
 
         public class ShopeeGetLogisticsLogistic
         {
-            public ShopeeGetLogisticsWeight_Limits weight_limits { get; set; }
+            public ShopeeGetLogisticsResultWeight_Limits weight_limits { get; set; }
             public bool has_cod { get; set; }
-            public ShopeeGetLogisticsItem_Max_Dimension item_max_dimension { get; set; }
+            public ShopeeGetLogisticsResultItem_Max_Dimension item_max_dimension { get; set; }
             public object[] sizes { get; set; }
             public string logistic_name { get; set; }
             public bool enabled { get; set; }
@@ -4421,14 +4496,18 @@ namespace MasterOnline.Controllers
             public string fee_type { get; set; }
         }
 
-        public class ShopeeGetLogisticsWeight_Limits
+        public class ShopeeGetLogisticsResultWeight_Limits
         {
             public float item_min_weight { get; set; }
             public float item_max_weight { get; set; }
         }
 
-        public class ShopeeGetLogisticsItem_Max_Dimension
+        public class ShopeeGetLogisticsResultItem_Max_Dimension
         {
+            public int width { get; set; }
+            public int length { get; set; }
+            public string unit { get; set; }
+            public int height { get; set; }
         }
         public class ShopeeCancelOrderData
         {
