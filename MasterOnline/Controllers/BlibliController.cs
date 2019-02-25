@@ -1657,17 +1657,11 @@ namespace MasterOnline.Controllers
             #region Get Product List ( untuk dapatkan QOH di Blibi )
             double QOHBlibli = 0;
             //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
-            string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getProductSummary", iden.API_secret_key);
+            string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
             string[] brg_mp = data.kode_mp.Split(';');
             if (brg_mp.Length == 2)
             {
-                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getProductSummary?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&channelId=MasterOnline";
-                urll_1 += "&size=100";
-                if (!string.IsNullOrEmpty(data.nama))
-                {
-                    var search = data.nama.Split(' ');
-                    urll_1 += "&productName=" + search[1];
-                }
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
 
                 HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
                 myReq_1.Method = "GET";
@@ -1676,7 +1670,7 @@ namespace MasterOnline.Controllers
                 myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
                 myReq_1.Accept = "application/json";
                 myReq_1.ContentType = "application/json";
-                myReq_1.Headers.Add("requestId", milis.ToString());
+                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
                 myReq_1.Headers.Add("sessionId", milis.ToString());
                 myReq_1.Headers.Add("username", userMTA);
                 string responseFromServer_1 = "";
@@ -1696,39 +1690,19 @@ namespace MasterOnline.Controllers
                 }
                 if (responseFromServer_1 != null)
                 {
-                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1);
-                    if (string.IsNullOrEmpty(result.errorCode.Value))
+                    BlibliDetailProductResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1, typeof(BlibliDetailProductResult)) as BlibliDetailProductResult;
+                    if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
                     {
-                        if (result.content.Count > 0)
+                        if (result.value.items.Count() > 0)
                         {
-                            List<ProductSummaryResult> availableGdnSkus = new List<ProductSummaryResult>();
-
-                            foreach (var item in result.content)
-                            {
-                                if (item.gdnSku.Value.Contains(brg_mp[0]))
-                                {
-                                    availableGdnSkus.Add(new ProductSummaryResult
-                                    {
-                                        gdnSku = (item.gdnSku.Value),
-                                        stockAvailableLv2 = item.stockAvailableLv2.Value,
-                                        sellingPrice = item.sellingPrice.Value,
-                                    });
-                                }
-                            }
-
-                            //foreach (var item in result.content)
-                            //{
-                            //    QOHBlibli = item.stockAvailableLv2.Value;
-                            //}
-
                             string myData = "{";
                             myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
                             myData += "\"productRequests\": ";
                             myData += "[ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
                             {
-                                foreach (var item in availableGdnSkus)
+                                if (result.value.items.Count() > 0)
                                 {
-                                    QOHBlibli = item.stockAvailableLv2;
+                                    QOHBlibli = result.value.items[0].availableStockLevel2;
                                     if (Convert.ToInt32(data.Qty) - QOHBlibli != 0) // tidak sama
                                     {
                                         QOHBlibli = Convert.ToInt32(data.Qty) - QOHBlibli;
@@ -1740,12 +1714,12 @@ namespace MasterOnline.Controllers
                                     //if (QOHBlibli != 0)
                                     {
                                         myData += "{";
-                                        myData += "\"gdnSku\": \"" + item.gdnSku + "\",  ";
+                                        myData += "\"gdnSku\": \"" + brg_mp[0] + "\",  ";
                                         myData += "\"stock\": " + Convert.ToString(QOHBlibli) + ", ";
                                         myData += "\"minimumStock\": " + data.MinQty + ", ";
                                         myData += "\"price\": " + data.MarketPrice + ", ";
                                         myData += "\"salePrice\": " + data.MarketPrice + ", ";// harga yg tercantum di display blibli
-                                        //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
+                                                                                              //myData += "\"salePrice\": " + item.sellingPrice + ", ";// harga yg promo di blibli
                                         myData += "\"buyable\": " + data.display + ", ";
                                         myData += "\"displayable\": " + data.display + " "; // true=tampil    
                                         myData += "},";
@@ -1824,8 +1798,8 @@ namespace MasterOnline.Controllers
                                 }
                                 else
                                 {
-                                    currentLog.REQUEST_RESULT = result.errorCode.Value;
-                                    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                                    currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
+                                    currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
                                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                                 }
                             }
@@ -5841,6 +5815,163 @@ namespace MasterOnline.Controllers
             public string requestAction { get; set; }
             public int total { get; set; }
             public long timeStamp { get; set; }
+        }
+
+        public class BlibliDetailProductResult
+        {
+            public string requestId { get; set; }
+            public object headers { get; set; }
+            public object errorMessage { get; set; }
+            public object errorCode { get; set; }
+            public bool success { get; set; }
+            public BlibliDetailProductResultValue value { get; set; }
+        }
+
+        public class BlibliDetailProductResultValue
+        {
+            public string id { get; set; }
+            public string storeId { get; set; }
+            public long createdDate { get; set; }
+            public string createdBy { get; set; }
+            public long updatedDate { get; set; }
+            public string updatedBy { get; set; }
+            public object version { get; set; }
+            public string productSku { get; set; }
+            public string productCode { get; set; }
+            public string businessPartnerCode { get; set; }
+            public bool synchronize { get; set; }
+            public string productName { get; set; }
+            public int productType { get; set; }
+            public string categoryCode { get; set; }
+            public string categoryName { get; set; }
+            public string categoryHierarchy { get; set; }
+            public string brand { get; set; }
+            public string description { get; set; }
+            public string specificationDetail { get; set; }
+            public string uniqueSellingPoint { get; set; }
+            public string productStory { get; set; }
+            public BlibliDetailProductResultItem[] items { get; set; }
+            public BlibliDetailProductResultAttribute[] attributes { get; set; }
+            public BlibliDetailProductResultImage1[] images { get; set; }
+            public string url { get; set; }
+            public bool installationRequired { get; set; }
+            public string categoryId { get; set; }
+        }
+
+        public class BlibliDetailProductResultItem
+        {
+            public string id { get; set; }
+            public string storeId { get; set; }
+            public long createdDate { get; set; }
+            public string createdBy { get; set; }
+            public long updatedDate { get; set; }
+            public string updatedBy { get; set; }
+            public object version { get; set; }
+            public string itemSku { get; set; }
+            public string skuCode { get; set; }
+            public string merchantSku { get; set; }
+            public string upcCode { get; set; }
+            public string itemName { get; set; }
+            public float length { get; set; }
+            public float width { get; set; }
+            public float height { get; set; }
+            public float weight { get; set; }
+            public float shippingWeight { get; set; }
+            public int dangerousGoodsLevel { get; set; }
+            public bool lateFulfillment { get; set; }
+            public string pickupPointCode { get; set; }
+            public string pickupPointName { get; set; }
+            public int availableStockLevel1 { get; set; }
+            public int reservedStockLevel1 { get; set; }
+            public int availableStockLevel2 { get; set; }
+            public int reservedStockLevel2 { get; set; }
+            public int minimumStock { get; set; }
+            public bool synchronizeStock { get; set; }
+            public bool off2OnActiveFlag { get; set; }
+            public object pristineId { get; set; }
+            public BlibliDetailProductResultPrice[] prices { get; set; }
+            public BlibliDetailProductResultViewconfig[] viewConfigs { get; set; }
+            public BlibliDetailProductResultImage[] images { get; set; }
+            public object cogs { get; set; }
+            public string cogsErrorCode { get; set; }
+            public bool promoBundling { get; set; }
+        }
+
+        public class BlibliDetailProductResultPrice
+        {
+            public object id { get; set; }
+            public object storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public string channelId { get; set; }
+            public float price { get; set; }
+            public float salePrice { get; set; }
+            public object discountAmount { get; set; }
+            public object discountStartDate { get; set; }
+            public object discountEndDate { get; set; }
+            public object promotionName { get; set; }
+        }
+
+        public class BlibliDetailProductResultViewconfig
+        {
+            public object id { get; set; }
+            public object storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public string channelId { get; set; }
+            public bool display { get; set; }
+            public bool buyable { get; set; }
+        }
+
+        public class BlibliDetailProductResultImage
+        {
+            public object id { get; set; }
+            public object storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public bool mainImage { get; set; }
+            public int sequence { get; set; }
+            public string locationPath { get; set; }
+        }
+
+        public class BlibliDetailProductResultAttribute
+        {
+            public object id { get; set; }
+            public object storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public string attributeCode { get; set; }
+            public string attributeType { get; set; }
+            public string[] values { get; set; }
+            public bool skuValue { get; set; }
+            public string attributeName { get; set; }
+            public string itemSku { get; set; }
+        }
+
+        public class BlibliDetailProductResultImage1
+        {
+            public object id { get; set; }
+            public object storeId { get; set; }
+            public object createdDate { get; set; }
+            public object createdBy { get; set; }
+            public object updatedDate { get; set; }
+            public object updatedBy { get; set; }
+            public object version { get; set; }
+            public bool mainImage { get; set; }
+            public int sequence { get; set; }
+            public string locationPath { get; set; }
         }
 
     }
