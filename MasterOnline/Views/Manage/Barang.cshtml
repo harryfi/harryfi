@@ -478,7 +478,7 @@
                     $page = $('#datatable').DataTable().page.info().page;
                 });
                 $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                //end add by nurul 12/2/2019
             });
 
             $('#kosong-tab').click(function () {
@@ -507,7 +507,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         });
 
         function refreshTableBarang() {
@@ -774,7 +774,7 @@
                     $page = $('#datatable').DataTable().page.info().page;
                 });
                 $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                //end add by nurul 12/2/2019
             });
             getKategoriPertamaLazada(-1);//add by Tri
             getKategoriPertamaBlibli(-1);
@@ -1054,7 +1054,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
@@ -1617,7 +1617,7 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
-                                if (ACODE != null && !(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4")) {
+                                if (ACODE != null && (!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4") || ACODE == "WA-0000002")) {
                                     if (ACODE != "") {
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
