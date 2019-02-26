@@ -17,6 +17,9 @@ using Erasoft.Function;
 using System.Xml;
 using System.Web.Script.Serialization;
 using System.Security.Cryptography;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace MasterOnline.Controllers
 {
@@ -5081,7 +5084,7 @@ namespace MasterOnline.Controllers
             public object pristineId { get; set; }
             public Price[] prices { get; set; }
             public Viewconfig[] viewConfigs { get; set; }
-            public Image[] images { get; set; }
+            public ItemImage[] images { get; set; }
             public object cogs { get; set; }
             public string cogsErrorCode { get; set; }
             public bool promoBundling { get; set; }
@@ -5119,7 +5122,7 @@ namespace MasterOnline.Controllers
             public bool buyable { get; set; }
         }
 
-        public class Image
+        public class ItemImage
         {
             public object id { get; set; }
             public object storeId { get; set; }
@@ -5245,8 +5248,24 @@ namespace MasterOnline.Controllers
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_1);
-                            images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            images_pervar.Add(data.dataBarangInDb.Sort5);
+                            //images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images_pervar.Add(data.dataBarangInDb.Sort5);
+
+                            using (var stream = new MemoryStream(bytes, true))
+                            {
+                                var img = Image.FromStream(stream);
+                                float newResolution = img.Height;
+                                if (img.Width < newResolution)
+                                {
+                                    newResolution = img.Width;
+                                }
+                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                ImageConverter _imageConverter = new ImageConverter();
+                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+
+                                images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(data.dataBarangInDb.Sort5);
+                            }
                         }
                     }
                 }
@@ -5258,8 +5277,24 @@ namespace MasterOnline.Controllers
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_2);
-                            images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            images_pervar.Add(data.dataBarangInDb.Sort6);
+                            //images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images_pervar.Add(data.dataBarangInDb.Sort6);
+
+                            using (var stream = new MemoryStream(bytes, true))
+                            {
+                                var img = Image.FromStream(stream);
+                                float newResolution = img.Height;
+                                if (img.Width < newResolution)
+                                {
+                                    newResolution = img.Width;
+                                }
+                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                ImageConverter _imageConverter = new ImageConverter();
+                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+
+                                images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(data.dataBarangInDb.Sort6);
+                            }
                         }
                     }
                 }
@@ -5271,8 +5306,24 @@ namespace MasterOnline.Controllers
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_3);
-                            images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            images_pervar.Add(data.dataBarangInDb.Sort7);
+                            //images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            //images_pervar.Add(data.dataBarangInDb.Sort7);
+
+                            using (var stream = new MemoryStream(bytes, true))
+                            {
+                                var img = Image.FromStream(stream);
+                                float newResolution = img.Height;
+                                if (img.Width < newResolution)
+                                {
+                                    newResolution = img.Width;
+                                }
+                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                ImageConverter _imageConverter = new ImageConverter();
+                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+
+                                images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(data.dataBarangInDb.Sort7);
+                            }
                         }
                     }
                 }
@@ -5368,7 +5419,21 @@ namespace MasterOnline.Controllers
                         using (var client = new HttpClient())
                         {
                             var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
-                            images.Add(var_item.Sort5, Convert.ToBase64String(bytes));
+                            //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            using (var stream = new MemoryStream(bytes, true))
+                            {
+                                var img = Image.FromStream(stream);
+                                float newResolution = img.Height;
+                                if (img.Width < newResolution)
+                                {
+                                    newResolution = img.Width;
+                                }
+                                var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                                ImageConverter _imageConverter = new ImageConverter();
+                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+
+                                images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                            }
                         }
                     }
 
@@ -5537,6 +5602,30 @@ namespace MasterOnline.Controllers
             }
 
             return ret;
+        }
+        public static Bitmap BlibliResizeImage(System.Drawing.Image image, int width, int height)
+        {
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                using (var wrapMode = new ImageAttributes())
+                {
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
         }
 
         public class CreateProductBlibliData
