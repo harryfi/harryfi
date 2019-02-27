@@ -1057,7 +1057,7 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { autocomplete = "off" , enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off" , enctype = "multipart/form-data" }))
                                         {
                                             @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
@@ -1098,13 +1098,13 @@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.EMAIL, "Email Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
+                                                    @Html.TextBoxFor(m => m.Customers.EMAIL, new { @class = "form-control", @autocomplete = "off", type = "email", required = "required" })
                                                 </div>
                                             </div>
                                             <div class="form-group" id="password-akun">
                                                 @Html.LabelFor(m => m.Customers.PASSWORD, "Password Akun *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
-                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "false", type = "password", required = "required" })
+                                                    @Html.TextBoxFor(m => m.Customers.PASSWORD, new { @class = "form-control", @autocomplete = "off", type = "password", required = "required" })
                                                 </div>
                                             </div>
                                             @*<div class="form-group">

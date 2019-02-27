@@ -248,7 +248,8 @@ namespace MasterOnline.Controllers
                             API_secret_key = tblCustomer.API_KEY,
                             token = tblCustomer.TOKEN,
                             mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value
                         };
 
                         await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -292,7 +293,8 @@ namespace MasterOnline.Controllers
                             API_secret_key = tblCustomer.API_KEY,
                             token = tblCustomer.TOKEN,
                             mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value
                         };
 
                         await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -453,7 +455,8 @@ namespace MasterOnline.Controllers
                             API_secret_key = tblCustomer.API_KEY,
                             token = tblCustomer.TOKEN,
                             mta_username_email_merchant = tblCustomer.EMAIL,
-                            mta_password_password_merchant = tblCustomer.PASSWORD
+                            mta_password_password_merchant = tblCustomer.PASSWORD,
+                            idmarket = tblCustomer.RecNum.Value
                         };
 
                         await bliApi.GetOrderList(iden, BlibliController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -1115,7 +1118,8 @@ namespace MasterOnline.Controllers
                         mta_username_email_merchant = customer.EMAIL,
                         mta_password_password_merchant = customer.PASSWORD,
                         merchant_code = customer.Sort1_Cust,
-                        token = customer.TOKEN
+                        token = customer.TOKEN,
+                        idmarket = customer.RecNum.Value
                     };
                     await BliApi.GetCategoryTree(data);
                     //BliApi.GetCategoryTree(data);
@@ -1310,6 +1314,7 @@ namespace MasterOnline.Controllers
                         API_secret_key = customer.Customers.API_KEY,
                         mta_username_email_merchant = customer.Customers.EMAIL,
                         mta_password_password_merchant = customer.Customers.PASSWORD,
+                        idmarket = customer.Customers.RecNum.Value
                     };
                     BliApi.GetToken(data, true);
                     //BliApi.GetPickupPoint(data);
@@ -1992,7 +1997,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            return Json(listKategoriTokped, JsonRequestBehavior.AllowGet);
+            return Json(listKategoriTokped.OrderBy(p => p.MASTER_CATEGORY_CODE).ThenBy(p => p.IS_LAST_NODE), JsonRequestBehavior.AllowGet);
         }
         public class GetAttributeTokpedReturn
         {
@@ -2815,6 +2820,7 @@ namespace MasterOnline.Controllers
                 {
                     //saveBarangBlibli(1, dataBarang);
                     //update harga, qty, dll
+
                     saveBarangBlibli(2, dataBarang);
                     saveBarangElevenia(2, dataBarang, imgPath);
                     saveBarangShopee(2, dataBarang, updateHarga);
@@ -3771,7 +3777,9 @@ namespace MasterOnline.Controllers
                                                 };
                                                 ShopeeController shoAPI = new ShopeeController();
 
-                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
+                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                //end remark by calvin 26 februari 2019
                                                 Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG), stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 if (updateHarga)
@@ -3862,7 +3870,9 @@ namespace MasterOnline.Controllers
                                                 };
                                                 ShopeeController shoAPI = new ShopeeController();
 
-                                                Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
+                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
+                                                //end remark by calvin 26 februari 2019
                                                 Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 if (updateHarga)
@@ -3938,7 +3948,8 @@ namespace MasterOnline.Controllers
                                                 API_secret_key = tblCustomer.API_KEY,
                                                 token = tblCustomer.TOKEN,
                                                 mta_username_email_merchant = tblCustomer.EMAIL,
-                                                mta_password_password_merchant = tblCustomer.PASSWORD
+                                                mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                idmarket = tblCustomer.RecNum.Value
                                             };
                                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                             {
@@ -3995,7 +4006,8 @@ namespace MasterOnline.Controllers
                                                     API_secret_key = tblCustomer.API_KEY,
                                                     token = tblCustomer.TOKEN,
                                                     mta_username_email_merchant = tblCustomer.EMAIL,
-                                                    mta_password_password_merchant = tblCustomer.PASSWORD
+                                                    mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                    idmarket = tblCustomer.RecNum.Value
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
@@ -4033,7 +4045,8 @@ namespace MasterOnline.Controllers
                                                         API_secret_key = tblCustomer.API_KEY,
                                                         token = tblCustomer.TOKEN,
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
-                                                        mta_password_password_merchant = tblCustomer.PASSWORD
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value
                                                     };
                                                     BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                                     {
@@ -4109,7 +4122,8 @@ namespace MasterOnline.Controllers
                                                 API_secret_key = tblCustomer.API_KEY,
                                                 token = tblCustomer.TOKEN,
                                                 mta_username_email_merchant = tblCustomer.EMAIL,
-                                                mta_password_password_merchant = tblCustomer.PASSWORD
+                                                mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                idmarket = tblCustomer.RecNum.Value
                                             };
                                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                             {
@@ -4123,7 +4137,8 @@ namespace MasterOnline.Controllers
                                                 IDMarket = tblCustomer.RecNum.ToString(),
                                                 Length = Convert.ToString(barangInDb.PANJANG),
                                                 Width = Convert.ToString(barangInDb.LEBAR),
-                                                Height = Convert.ToString(barangInDb.TINGGI)
+                                                Height = Convert.ToString(barangInDb.TINGGI),
+                                                dataBarangInDb = barangInDb
                                             };
                                             data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
                                             data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
@@ -4163,7 +4178,8 @@ namespace MasterOnline.Controllers
                                                     API_secret_key = tblCustomer.API_KEY,
                                                     token = tblCustomer.TOKEN,
                                                     mta_username_email_merchant = tblCustomer.EMAIL,
-                                                    mta_password_password_merchant = tblCustomer.PASSWORD
+                                                    mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                    idmarket = tblCustomer.RecNum.Value
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
@@ -4201,7 +4217,8 @@ namespace MasterOnline.Controllers
                                                         API_secret_key = tblCustomer.API_KEY,
                                                         token = tblCustomer.TOKEN,
                                                         mta_username_email_merchant = tblCustomer.EMAIL,
-                                                        mta_password_password_merchant = tblCustomer.PASSWORD
+                                                        mta_password_password_merchant = tblCustomer.PASSWORD,
+                                                        idmarket = tblCustomer.RecNum.Value
                                                     };
                                                     BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                                                     {
@@ -4215,7 +4232,8 @@ namespace MasterOnline.Controllers
                                                         IDMarket = tblCustomer.RecNum.ToString(),
                                                         Length = Convert.ToString(barangInDb.PANJANG),
                                                         Width = Convert.ToString(barangInDb.LEBAR),
-                                                        Height = Convert.ToString(barangInDb.TINGGI)
+                                                        Height = Convert.ToString(barangInDb.TINGGI),
+                                                        dataBarangInDb = barangInDb
                                                     };
                                                     data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
                                                     data.Price = Convert.ToString(stf02h.HJUAL);
@@ -4428,7 +4446,8 @@ namespace MasterOnline.Controllers
                                 mta_username_email_merchant = tblCustomer.EMAIL,
                                 mta_password_password_merchant = tblCustomer.PASSWORD,
                                 merchant_code = tblCustomer.Sort1_Cust,
-                                token = tblCustomer.TOKEN
+                                token = tblCustomer.TOKEN,
+                                idmarket = tblCustomer.RecNum.Value
                             };
                             BliApi.GetQueueFeedDetail(data, null);
                         }
@@ -5392,7 +5411,7 @@ namespace MasterOnline.Controllers
             var listStf02inDbCek = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
             var listBrgStf02inDbCek = listStf02inDbCek.Select(p => p.BRG).ToList();
             var listStf02HinDbCekDuplikat = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDbCek.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) != "")).ToList();
-            var listBrgStf02hinDbCekDuplikat = listStf02HinDbCekDuplikat.Select(p => p.BRG).ToList();
+            //var listBrgStf02hinDbCekDuplikat = listStf02HinDbCekDuplikat.Select(p => p.BRG).ToList();
             //cek stf02h yg sudah berhasil link ke marketplace
 
             var stf20b = ErasoftDbContext.STF20B.Where(m => m.CATEGORY_MO == kategori.KODE).ToList();
@@ -5414,7 +5433,7 @@ namespace MasterOnline.Controllers
                                         {
                                             foreach (var item3 in opt_selected_3.Where(p => p.Trim() != "").ToList())
                                             {
-                                                if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2 + "." + item3))
+                                                if (!listBrgStf02inDbCek.Contains(STF02_Induk.BRG + "." + item + "." + item2 + "." + item3))
                                                 {
                                                     STF02 newVariantData = new STF02();
                                                     newVariantData = CopyStf02(STF02_Induk);
@@ -5432,8 +5451,29 @@ namespace MasterOnline.Controllers
                                                     newVariantData.PART = STF02_Induk.BRG;
                                                     newVariantData.TYPE = "3";
                                                     ListNewVariantData_Stf02.Add(newVariantData);
+                                                }
+                                                else
+                                                {
+                                                    var UpdateStf02Sorts = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && p.BRG == (STF02_Induk.BRG + "." + item + "." + item2 + "." + item3)).SingleOrDefault();
+                                                    if (UpdateStf02Sorts != null)
+                                                    {
+                                                        string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                                        string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                                        string ket_varlv3 = stf20b.Where(p => p.LEVEL_VAR == 3 && p.KODE_VAR == item3).FirstOrDefault()?.KET_VAR;
+                                                        UpdateStf02Sorts.Sort8 = item;
+                                                        UpdateStf02Sorts.Sort9 = item2;
+                                                        UpdateStf02Sorts.Sort10 = item3;
+                                                        UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
+                                                        UpdateStf02Sorts.Ket_Sort9 = ket_varlv2;
+                                                        UpdateStf02Sorts.Ket_Sort10 = ket_varlv3;
+                                                        ErasoftDbContext.SaveChanges();
+                                                    }
+                                                }
 
-                                                    foreach (var stf02h_induk in List_STF02H_Induk)
+                                                foreach (var stf02h_induk in List_STF02H_Induk)
+                                                {
+                                                    var cekAdaSTF02HVariasi = listStf02HinDbCekDuplikat.Where(p => p.BRG == STF02_Induk.BRG + "." + item + "." + item2 + "." + item3 && p.IDMARKET == stf02h_induk.IDMARKET).FirstOrDefault();
+                                                    if (cekAdaSTF02HVariasi == null)
                                                     {
                                                         STF02H newVariantDataStf02H = new STF02H();
                                                         newVariantDataStf02H = CopyStf02h(stf02h_induk);
@@ -5445,7 +5485,7 @@ namespace MasterOnline.Controllers
                                         }
                                         else
                                         {
-                                            if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2))
+                                            if (!listBrgStf02inDbCek.Contains(STF02_Induk.BRG + "." + item + "." + item2))
                                             {
                                                 STF02 newVariantData = new STF02();
                                                 newVariantData = CopyStf02(STF02_Induk);
@@ -5460,8 +5500,26 @@ namespace MasterOnline.Controllers
                                                 newVariantData.PART = STF02_Induk.BRG;
                                                 newVariantData.TYPE = "3";
                                                 ListNewVariantData_Stf02.Add(newVariantData);
+                                            }
+                                            else
+                                            {
+                                                var UpdateStf02Sorts = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && p.BRG == (STF02_Induk.BRG + "." + item + "." + item2)).SingleOrDefault();
+                                                if (UpdateStf02Sorts != null)
+                                                {
+                                                    string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                                    string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                                    UpdateStf02Sorts.Sort8 = item;
+                                                    UpdateStf02Sorts.Sort9 = item2;
+                                                    UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
+                                                    UpdateStf02Sorts.Ket_Sort9 = ket_varlv2;
+                                                    ErasoftDbContext.SaveChanges();
+                                                }
+                                            }
 
-                                                foreach (var stf02h_induk in List_STF02H_Induk)
+                                            foreach (var stf02h_induk in List_STF02H_Induk)
+                                            {
+                                                var cekAdaSTF02HVariasi = listStf02HinDbCekDuplikat.Where(p => p.BRG == STF02_Induk.BRG + "." + item + "." + item2 && p.IDMARKET == stf02h_induk.IDMARKET).FirstOrDefault();
+                                                if (cekAdaSTF02HVariasi == null)
                                                 {
                                                     STF02H newVariantDataStf02H = new STF02H();
                                                     newVariantDataStf02H = CopyStf02h(stf02h_induk);
@@ -5473,7 +5531,7 @@ namespace MasterOnline.Controllers
                                     }
                                     else
                                     {
-                                        if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item + "." + item2))
+                                        if (!listBrgStf02inDbCek.Contains(STF02_Induk.BRG + "." + item + "." + item2))
                                         {
                                             STF02 newVariantData = new STF02();
                                             newVariantData = CopyStf02(STF02_Induk);
@@ -5488,8 +5546,26 @@ namespace MasterOnline.Controllers
                                             newVariantData.PART = STF02_Induk.BRG;
                                             newVariantData.TYPE = "3";
                                             ListNewVariantData_Stf02.Add(newVariantData);
+                                        }
+                                        else
+                                        {
+                                            var UpdateStf02Sorts = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && p.BRG == (STF02_Induk.BRG + "." + item + "." + item2)).SingleOrDefault();
+                                            if (UpdateStf02Sorts != null)
+                                            {
+                                                string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                                string ket_varlv2 = stf20b.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item2).FirstOrDefault()?.KET_VAR;
+                                                UpdateStf02Sorts.Sort8 = item;
+                                                UpdateStf02Sorts.Sort9 = item2;
+                                                UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
+                                                UpdateStf02Sorts.Ket_Sort9 = ket_varlv2;
+                                                ErasoftDbContext.SaveChanges();
+                                            }
+                                        }
 
-                                            foreach (var stf02h_induk in List_STF02H_Induk)
+                                        foreach (var stf02h_induk in List_STF02H_Induk)
+                                        {
+                                            var cekAdaSTF02HVariasi = listStf02HinDbCekDuplikat.Where(p => p.BRG == STF02_Induk.BRG + "." + item + "." + item2 && p.IDMARKET == stf02h_induk.IDMARKET).FirstOrDefault();
+                                            if (cekAdaSTF02HVariasi == null)
                                             {
                                                 STF02H newVariantDataStf02H = new STF02H();
                                                 newVariantDataStf02H = CopyStf02h(stf02h_induk);
@@ -5502,7 +5578,7 @@ namespace MasterOnline.Controllers
                             }
                             else
                             {
-                                if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item))
+                                if (!listBrgStf02inDbCek.Contains(STF02_Induk.BRG + "." + item))
                                 {
                                     STF02 newVariantData = new STF02();
                                     newVariantData = CopyStf02(STF02_Induk);
@@ -5515,7 +5591,23 @@ namespace MasterOnline.Controllers
                                     newVariantData.TYPE = "3";
                                     ListNewVariantData_Stf02.Add(newVariantData);
 
-                                    foreach (var stf02h_induk in List_STF02H_Induk)
+                                }
+                                else
+                                {
+                                    var UpdateStf02Sorts = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && p.BRG == (STF02_Induk.BRG + "." + item)).SingleOrDefault();
+                                    if (UpdateStf02Sorts != null)
+                                    {
+                                        string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                        UpdateStf02Sorts.Sort8 = item;
+                                        UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                }
+
+                                foreach (var stf02h_induk in List_STF02H_Induk)
+                                {
+                                    var cekAdaSTF02HVariasi = listStf02HinDbCekDuplikat.Where(p => p.BRG == STF02_Induk.BRG + "." + item && p.IDMARKET == stf02h_induk.IDMARKET).FirstOrDefault();
+                                    if (cekAdaSTF02HVariasi == null)
                                     {
                                         STF02H newVariantDataStf02H = new STF02H();
                                         newVariantDataStf02H = CopyStf02h(stf02h_induk);
@@ -5527,7 +5619,7 @@ namespace MasterOnline.Controllers
                         }
                         else
                         {
-                            if (!listBrgStf02hinDbCekDuplikat.Contains(STF02_Induk.BRG + "." + item))
+                            if (!listBrgStf02inDbCek.Contains(STF02_Induk.BRG + "." + item))
                             {
                                 STF02 newVariantData = new STF02();
                                 newVariantData = CopyStf02(STF02_Induk);
@@ -5540,7 +5632,23 @@ namespace MasterOnline.Controllers
                                 newVariantData.TYPE = "3";
                                 ListNewVariantData_Stf02.Add(newVariantData);
 
-                                foreach (var stf02h_induk in List_STF02H_Induk)
+                            }
+                            else
+                            {
+                                var UpdateStf02Sorts = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && p.BRG == (STF02_Induk.BRG + "." + item)).SingleOrDefault();
+                                if (UpdateStf02Sorts != null)
+                                {
+                                    string ket_varlv1 = stf20b.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item).FirstOrDefault()?.KET_VAR;
+                                    UpdateStf02Sorts.Sort8 = item;
+                                    UpdateStf02Sorts.Ket_Sort8 = ket_varlv1;
+                                    ErasoftDbContext.SaveChanges();
+                                }
+                            }
+
+                            foreach (var stf02h_induk in List_STF02H_Induk)
+                            {
+                                var cekAdaSTF02HVariasi = listStf02HinDbCekDuplikat.Where(p => p.BRG == STF02_Induk.BRG + "." + item && p.IDMARKET == stf02h_induk.IDMARKET).FirstOrDefault();
+                                if (cekAdaSTF02HVariasi == null)
                                 {
                                     STF02H newVariantDataStf02H = new STF02H();
                                     newVariantDataStf02H = CopyStf02h(stf02h_induk);
@@ -5571,6 +5679,24 @@ namespace MasterOnline.Controllers
                 }
 
                 ErasoftDbContext.STF02.AddRange(ListNewVariantData_Stf02);
+                ErasoftDbContext.SaveChanges();
+            }
+            #endregion
+            #region Save STF02H Variant
+            if (ListNewVariantData_Stf02H.Count() > 0)
+            {
+                var listStf02inDb = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg).ToList();
+                if (listStf02inDb.Count() > 0)
+                {
+                    var listBrgStf02inDb = listStf02inDb.Select(p => p.BRG).ToList();
+                    var listStf02HinDb = ErasoftDbContext.STF02H.Where(p => listBrgStf02inDb.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) == "")).ToList();
+                    if (listStf02HinDb.Count() > 0)
+                    {
+                        ErasoftDbContext.STF02H.RemoveRange(listStf02HinDb);
+                    }
+                    ErasoftDbContext.SaveChanges();
+                }
+
                 ErasoftDbContext.STF02H.AddRange(ListNewVariantData_Stf02H);
                 ErasoftDbContext.SaveChanges();
             }
@@ -9082,7 +9208,8 @@ namespace MasterOnline.Controllers
                                         API_secret_key = marketPlace.API_KEY,
                                         token = marketPlace.TOKEN,
                                         mta_username_email_merchant = marketPlace.EMAIL,
-                                        mta_password_password_merchant = marketPlace.PASSWORD
+                                        mta_password_password_merchant = marketPlace.PASSWORD,
+                                        idmarket = marketPlace.RecNum.Value
                                     };
                                     bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID);
                                 }
@@ -11157,6 +11284,17 @@ namespace MasterOnline.Controllers
         [Route("manage/reports")]
         public ActionResult Reports()
         {
+
+            //string brgtes = "01.SMKR00.00.3m";
+            //List<string> listBrg = new List<string>();
+
+            //listBrg.Add(brgtes);
+
+            //listBrg.Add("01.SMKR00.00.12m");
+            //listBrg.Add("01.SMKR00.00.3m");
+            //listBrg.Add("01.SMKR00.00.6m");
+
+            //updateStockMarketPlace(listBrg);
             return View();
         }
 
@@ -12427,7 +12565,8 @@ namespace MasterOnline.Controllers
                                 API_secret_key = marketPlace.API_KEY,
                                 token = marketPlace.TOKEN,
                                 mta_username_email_merchant = marketPlace.EMAIL,
-                                mta_password_password_merchant = marketPlace.PASSWORD
+                                mta_password_password_merchant = marketPlace.PASSWORD,
+                                idmarket = marketPlace.RecNum.Value
                             };
                             BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                             {
@@ -14723,7 +14862,8 @@ namespace MasterOnline.Controllers
                     API_secret_key = customer.API_KEY,
                     token = customer.TOKEN,
                     mta_username_email_merchant = customer.EMAIL,
-                    mta_password_password_merchant = customer.PASSWORD
+                    mta_password_password_merchant = customer.PASSWORD,
+                    idmarket = customer.RecNum.Value
                 };
                 BlibliController.BlibliProductData data = new BlibliController.BlibliProductData
                 {
@@ -17231,7 +17371,8 @@ namespace MasterOnline.Controllers
                                             mta_username_email_merchant = arf01.EMAIL,
                                             mta_password_password_merchant = arf01.PASSWORD,
                                             merchant_code = arf01.Sort1_Cust,
-                                            token = arf01.TOKEN
+                                            token = arf01.TOKEN,
+                                            idmarket = arf01.RecNum.Value
                                         };
                                         var resultBli = BliApi.getProduct(data, "", page, arf01.CUST, recordCount);
                                         if (resultBli.status == 1)
@@ -17296,6 +17437,7 @@ namespace MasterOnline.Controllers
                                             API_secret_key = arf01.API_KEY, //Shop ID 
                                             token = arf01.TOKEN
                                         };
+
                                         //var resultShopee = await TokoAPI.GetActiveItemList(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
                                         var resultShopee = await TokoAPI.GetItemListSemua(data, page, recordCount, arf01.CUST, arf01.NAMA, arf01.RecNum.Value);
 

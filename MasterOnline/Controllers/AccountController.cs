@@ -390,6 +390,17 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                         {
+                            //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                            //{
+                            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                            //    token = tblCustomer.TOKEN
+                            //};
+                            //string product_id = "372506586";
+                            //Task.Run(() => tokopediaApi.GetItemList(data, "", tblCustomer.CUST, tblCustomer.NAMA, product_id).Wait());
+
                             TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
                             {
                                 merchant_code = tblCustomer.Sort1_Cust, //FSID
@@ -407,6 +418,7 @@ namespace MasterOnline.Controllers
                             //};
                             tokopediaApi.GetToken(iden);
 
+                            
                             ////debug
                             //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
                             //{
