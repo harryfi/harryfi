@@ -178,14 +178,14 @@ namespace MasterOnline.Models
     }
     public class Transaction
     {
-        public int id { get; set; }
-        public int invoice_id { get; set; }
+        public long id { get; set; }
+        public long invoice_id { get; set; }
         public string state { get; set; }
         public DateTime updated_at { get; set; }
         public bool unread { get; set; }
         public bool quick_trans { get; set; }
         public string transaction_id { get; set; }
-        public int amount { get; set; }
+        public long amount { get; set; }
         public int quantity { get; set; }
         public string courier { get; set; }
         public object same_day_service_info { get; set; }
@@ -194,31 +194,31 @@ namespace MasterOnline.Models
         public string buyer_notes { get; set; }
         public string dropshipper_name { get; set; }
         public string dropshipper_notes { get; set; }
-        public int shipping_fee { get; set; }
-        public int shipping_id { get; set; }
+        public long shipping_fee { get; set; }
+        public long shipping_id { get; set; }
         public string shipping_code { get; set; }
         public Shipping_History[] shipping_history { get; set; }
         public string shipping_service { get; set; }
-        public int insurance_cost { get; set; }
-        public int subtotal_amount { get; set; }
-        public int total_amount { get; set; }
-        public int coded_amount { get; set; }
-        public int? uniq_code { get; set; }
-        public int refund_amount { get; set; }
-        public int reduction_amount { get; set; }
+        public long insurance_cost { get; set; }
+        public long subtotal_amount { get; set; }
+        public long total_amount { get; set; }
+        public long coded_amount { get; set; }
+        public long? uniq_code { get; set; }
+        public long refund_amount { get; set; }
+        public long reduction_amount { get; set; }
         public bool? use_seller_voucher { get; set; }
         public bool use_voucher { get; set; }
-        public int voucher_amount { get; set; }
-        public int reward_amount { get; set; }
-        public int promo_payment_amount { get; set; }
-        public int priority_buyer_reduction_amount { get; set; }
-        public int priority_buyer_package_price { get; set; }
-        public int agent_commission_amount { get; set; }
+        public long voucher_amount { get; set; }
+        public long reward_amount { get; set; }
+        public long promo_payment_amount { get; set; }
+        public long priority_buyer_reduction_amount { get; set; }
+        public long priority_buyer_package_price { get; set; }
+        public long agent_commission_amount { get; set; }
         public string payment_method { get; set; }
         public string payment_method_name { get; set; }
-        public int payment_amount { get; set; }
-        public int remit_amount { get; set; }
-        public int service_fee { get; set; }
+        public long payment_amount { get; set; }
+        public long remit_amount { get; set; }
+        public long service_fee { get; set; }
         //public Feedback feedback { get; set; }
         public ProductBukaLapak[] products { get; set; }
         public object[] bundles_items { get; set; }
@@ -304,7 +304,7 @@ namespace MasterOnline.Models
 
     public class Invoice
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string invoice_id { get; set; }
         public string state { get; set; }
     }

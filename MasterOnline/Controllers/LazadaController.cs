@@ -26,7 +26,7 @@ namespace MasterOnline.Controllers
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
 #elif Debug_AWS
-                        
+
         string eraAppKey = "101775";
         string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
         string eraCallbackUrl = "https://masteronline.co.id/lzd/code?user=";
@@ -511,6 +511,69 @@ namespace MasterOnline.Controllers
                 xmlString += "<Quantity>" + qty + "</Quantity>";
             if (!string.IsNullOrEmpty(harga))
                 xmlString += "<Price>" + harga + "</Price>";
+            xmlString += "</Sku></Skus></Product></Request>";
+
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/price_quantity/update");
+            request.AddApiParameter("payload", xmlString);
+            try
+            {
+                LazopResponse response = client.Execute(request, token);
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, token, currentLog);
+                }
+                else
+                {
+                    ret.message = res.detail[0].message;
+                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+            }
+
+
+            return ret;
+        }
+
+        public BindingBase UpdatePromoPrice(string kdBrg, double SalePrice, DateTime SaleStartDate, DateTime SaleEndDate, string token)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Promo Product",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = kdBrg,
+                REQUEST_ATTRIBUTE_2 = SalePrice.ToString(),
+                REQUEST_ATTRIBUTE_3 = SaleStartDate + ":" + SaleEndDate,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, token, currentLog);
+
+            if (string.IsNullOrEmpty(kdBrg))
+            {
+                ret.message = "Item not linked to MP";
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, token, currentLog);
+                return ret;
+            }
+            string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
+            xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
+            xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
+            xmlString += "<SaleStartDate>" + SaleStartDate.ToString("yyyy-MM-dd") + "</SaleStartDate>";
+            xmlString += "<SaleEndDate>" + SaleEndDate.ToString("yyyy-MM-dd") + "</SaleEndDate>";
             xmlString += "</Sku></Skus></Product></Request>";
 
 
@@ -3333,7 +3396,7 @@ namespace MasterOnline.Controllers
 #if AWS
                     string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #elif Debug_AWS
-                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                             string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif

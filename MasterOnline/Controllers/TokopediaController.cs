@@ -949,6 +949,13 @@ namespace MasterOnline.Controllers
                                 MEREK = "OEM",
                                 CUST = CUST
                             };
+                            //add by Tri, 26 Feb 2019
+                            var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
+                            if(kategory != null)
+                            {
+                                newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                            }
+                            //end add by Tri, 26 Feb 2019
                             listNewRecord.Add(newrecord);
                             ret.recordCount = ret.recordCount + 1;
                         }

@@ -3455,7 +3455,9 @@ namespace MasterOnline.Controllers
                         {
                             promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * promoDetail.PERSEN_PROMOSI / 100);
                         }
-                        string[] brg_mp = brgInDB.BRG_MP.Split(';');
+                        string[] brg_mp = new string[1];
+                        if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                            brg_mp = brgInDB.BRG_MP.Split(';');
                         if (brg_mp.Count() == 2)
                         {
                             if (brg_mp[1] == "0")
@@ -3605,7 +3607,10 @@ namespace MasterOnline.Controllers
                 {
                     promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * detilPromosi.PERSEN_PROMOSI / 100);
                 }
-                string[] brg_mp = brgInDB.BRG_MP.Split(';');
+                //string[] brg_mp = brgInDB.BRG_MP.Split(';');
+                string[] brg_mp = new string[1];
+                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                    brg_mp = brgInDB.BRG_MP.Split(';');
                 if (brg_mp.Count() == 2)
                 {
                     if (brg_mp[1] == "0")
@@ -3776,7 +3781,19 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountData)) as ShopeeDeleteDiscountData;
+                    if (resServer != null)
+                    {
+                        if (string.IsNullOrEmpty(resServer.error))
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -3818,12 +3835,20 @@ namespace MasterOnline.Controllers
             };
 
             var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG.Equals(detilPromosi.KODE_BRG) && t.IDMARKET == arf01.RecNum).FirstOrDefault();
-
-            string[] brg_mp = brgInDB.BRG_MP.Split(';');
+            string[] brg_mp = new string[1];
+            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                brg_mp = brgInDB.BRG_MP.Split(';');
+            //string[] brg_mp = brgInDB.BRG_MP.Split(';');
             if (brg_mp.Count() == 2)
             {
-                HttpBody.item_id = Convert.ToInt64(brg_mp[0]);
-                HttpBody.variation_id = Convert.ToInt64(brg_mp[1]);
+                //if(brg_mp[1] == "0")
+                //{
+                    HttpBody.item_id = Convert.ToInt64(brg_mp[0]);
+                //}
+                //else
+                //{
+                    HttpBody.variation_id = Convert.ToInt64(brg_mp[1]);
+                //}
             }
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -3863,7 +3888,19 @@ namespace MasterOnline.Controllers
             {
                 try
                 {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                    var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeDeleteDiscountItemData)) as ShopeeDeleteDiscountItemData;
+                    if (resServer != null)
+                    {
+                        if (string.IsNullOrEmpty(resServer.error))
+                        {
+                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_RESULT = resServer.error + " " + resServer.msg;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                        }
+                    }
                 }
                 catch (Exception ex2)
                 {
@@ -4887,7 +4924,11 @@ namespace MasterOnline.Controllers
             public int discount_id { get; set; }
             public int count { get; set; }
         }
-
+        public class ShopeeDeletePromo : ShopeeError
+        {
+            public UInt64 discount_id { get; set; }
+            public DateTime modify_time { get; set; }
+        }
         public class Item
         {
             public List<ShopeeLogisticsClass> logistics { get; set; }
@@ -4995,7 +5036,7 @@ namespace MasterOnline.Controllers
             public long discount_id { get; set; }
             public List<ShopeeAddDiscountDataItems> items { get; set; }
         }
-        public class ShopeeDeleteDiscountItemData
+        public class ShopeeDeleteDiscountItemData : ShopeeError
         {
             public int partner_id { get; set; }
             public int shopid { get; set; }
@@ -5004,7 +5045,7 @@ namespace MasterOnline.Controllers
             public long item_id { get; set; }
             public long variation_id { get; set; }
         }
-        public class ShopeeDeleteDiscountData
+        public class ShopeeDeleteDiscountData : ShopeeError
         {
             public int partner_id { get; set; }
             public int shopid { get; set; }
