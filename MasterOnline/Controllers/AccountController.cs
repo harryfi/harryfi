@@ -417,7 +417,6 @@ namespace MasterOnline.Controllers
                             //    token = "pmgdpFANTcC0PM9tVzrwmw"
                             //};
                             tokopediaApi.GetToken(iden);
-
                             
                             ////debug
                             //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()

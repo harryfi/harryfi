@@ -5418,7 +5418,14 @@ namespace MasterOnline.Controllers
                         uploadedImageID.Add(var_item.Sort5);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                            string url = var_stf02h_item.AVALUE_50;
+                            if (string.IsNullOrWhiteSpace(url))
+                            {
+                                url = var_item.LINK_GAMBAR_1;
+                            }
+                            //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
+                            var bytes = await client.GetByteArrayAsync(url);
+                            
                             //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5432,7 +5439,8 @@ namespace MasterOnline.Controllers
                                 ImageConverter _imageConverter = new ImageConverter();
                                 byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
 
-                                images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images.Add(var_stf02h_item.ACODE_50, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             }
                         }
                     }
@@ -5810,6 +5818,7 @@ namespace MasterOnline.Controllers
             public bool packageCreated { get; set; }
         }
 
+
         public class BlibliGetOrderDetail
         {
             public string requestId { get; set; }
@@ -5882,8 +5891,8 @@ namespace MasterOnline.Controllers
             public string logisticsProductCode { get; set; }
             public string logisticsProductName { get; set; }
             public string logisticsOptionCode { get; set; }
-            public float originLongitude { get; set; }
-            public float originLatitude { get; set; }
+            public object originLongitude { get; set; }
+            public object originLatitude { get; set; }
             public float destinationLongitude { get; set; }
             public float destinationLatitude { get; set; }
             public float itemWeightInKg { get; set; }

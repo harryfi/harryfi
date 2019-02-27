@@ -682,8 +682,8 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "V428-O " || p.BRG == "PM001")).ToList(),
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "02.LEM00.00" || p.BRG == "16.BWHG00.04.00")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -2086,6 +2086,33 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public ActionResult DeleteFotoProdukBlibli(string recnum, int urutan)
+        {
+            try
+            {
+                int recnum_int = Convert.ToInt32(recnum);
+                var barangInDb = ErasoftDbContext.STF02H.FirstOrDefault(b => b.RecNum.Value == recnum_int);
+
+                if (barangInDb != null)
+                {
+                    switch (urutan)
+                    {
+                        case 1:
+                            barangInDb.AVALUE_50 = null;
+                            barangInDb.ACODE_50 = null;
+                            break;
+                    }
+
+                    ErasoftDbContext.SaveChanges();
+                }
+
+                return Json("Sukses hapus url foto produk dari tabel", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
         [HttpPost]
         public ActionResult SaveBarang(BarangViewModel dataBarang)
         {
@@ -2814,6 +2841,7 @@ namespace MasterOnline.Controllers
                     saveBarangBlibli(1, dataBarang);
                     #endregion
                     saveBarangShopee(1, dataBarang, false);
+                    saveBarangTokpedVariant(1, barangInDb.BRG, false);
                 }
                 //end add by tri call marketplace api to create product
                 else
@@ -2838,6 +2866,9 @@ namespace MasterOnline.Controllers
                     //    }
                     //}
                     //end get image
+
+                    saveBarangTokpedVariant(2, barang.BRG, false);
+
                     if (updateDisplay)
                     {
                         #region lazada
@@ -3873,6 +3904,10 @@ namespace MasterOnline.Controllers
                                                 //remark by calvin 26 februari 2019, ini untuk update deskripsi dll
                                                 //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
                                                 //end remark by calvin 26 februari 2019
+
+                                                //Task.Run(() => shoAPI.GetVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
+                                                //Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
+
                                                 Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
                                                 if (updateHarga)
@@ -5045,6 +5080,7 @@ namespace MasterOnline.Controllers
 
             saveBarangShopeeVariant(2, brg, false);
             saveBarangBlibliVariant(2, brg);
+            saveBarangTokpedVariant(2, brg, false);
             var partialVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
@@ -5391,6 +5427,30 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
                 first = false;
+            }
+            return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateGambarVariantBarangBlibli()
+        {
+            foreach (var item in Request.Files.AllKeys)
+            {
+                int stf02h_recnum = Convert.ToInt32(item);
+                var itemVar = ErasoftDbContext.STF02H.Where(p => p.RecNum == stf02h_recnum).SingleOrDefault();
+                if (itemVar != null)
+                {
+                    var file = Request.Files[item];
+
+                    if (file != null && file.ContentLength > 0)
+                    {
+                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+
+                        itemVar.AVALUE_50 = image.data.link_l;
+                        itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
+                    }
+                    ErasoftDbContext.SaveChanges();
+                }
             }
             return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
         }

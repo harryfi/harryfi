@@ -54,6 +54,126 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public async Task<string> CreateProductGetStatus(TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create/status?shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&upload_id=" + Uri.EscapeDataString(Convert.ToString(upload_id));
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = log_request_id
+            };
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (responseFromServer != "")
+            {
+
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductGetStatusResult)) as CreateProductGetStatusResult;
+                if (result.header.error_code == 0)
+                {
+                    if (result.data.upload_data.Count() > 0)
+                    {
+                        foreach (var item in result.data.upload_data)
+                        {
+                            if (item.unprocessed_rows > 0)
+                            {
+                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                if (success == 1)
+                                {
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                            else if (item.success_rows > 0)
+                            {
+
+                            }
+                            else if (item.failed_rows > 0)
+                            {
+                                foreach (var item_failed in item.failed_rows_data)
+                                {
+                                    currentLog.REQUEST_RESULT = item_failed.error;
+                                    currentLog.REQUEST_EXCEPTION = item_failed.error;
+                                }
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_RESULT = result.header.reason;
+                    currentLog.REQUEST_EXCEPTION = result.header.messages;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                }
+            }
+
+            return ret;
+        }
+
+        public class CreateProductGetStatusResult
+        {
+            public CreateProductGetStatusResultHeader header { get; set; }
+            public CreateProductGetStatusResultData data { get; set; }
+        }
+
+        public class CreateProductGetStatusResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class CreateProductGetStatusResultData
+        {
+            public CreateProductGetStatusResultUpload_Data[] upload_data { get; set; }
+        }
+
+        public class CreateProductGetStatusResultUpload_Data
+        {
+            public int upload_id { get; set; }
+            public string status { get; set; }
+            public int total_data { get; set; }
+            public int unprocessed_rows { get; set; }
+            public int success_rows { get; set; }
+            public int failed_rows { get; set; }
+            public CreateProductGetStatusResultFailed_Rows_Data[] failed_rows_data { get; set; }
+            public int processed { get; set; }
+        }
+
+        public class CreateProductGetStatusResultFailed_Rows_Data
+        {
+            public string product_name { get; set; }
+            public int product_price { get; set; }
+            public string sku { get; set; }
+            public string error { get; set; }
+        }
+
         public async Task<string> CreateProduct(TokopediaAPIData iden, string brg)
         {
             string ret = "";
@@ -62,6 +182,8 @@ namespace MasterOnline.Controllers
             {
                 var brg_stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == brg && p.IDMARKET == iden.idmarket).SingleOrDefault();
                 string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/create?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+
+
                 long milis = CurrentTimeMillis();
                 DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -74,7 +196,10 @@ namespace MasterOnline.Controllers
                     REQUEST_ATTRIBUTE_2 = "brg : " + brg,
                     REQUEST_STATUS = "Pending",
                 };
-                CreateProductTokpedData newData = new CreateProductTokpedData();
+                CreateProductTokpedData newData = new CreateProductTokpedData()
+                {
+                    products = new List<CreateProduct_Product>()
+                };
                 CreateProduct_Product newDataProduct = new CreateProduct_Product()
                 {
                     name = brg_stf02.NAMA + " " + brg_stf02.NAMA2,
@@ -89,25 +214,36 @@ namespace MasterOnline.Controllers
                     must_insurance = false,
                     returnable = false,
                     sku = brg_stf02.BRG,
-                    stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always available
-                    etalase = new CreateProduct_Etalase()
-                    {
-                        etalase_id = Convert.ToInt32(brg_stf02h.DeliveryTempElevenia),
-                        etalase_name = brg_stf02h.PICKUP_POINT
-                    },
+                    stock = 1, //1 - 10000.Stock should be 1 if want to add variant product. 0 indicates always availabl
                     product_wholesale_price = null,
                     product_preorder = null,
-                    product_video = null
+                    product_video = null,
+                    images = new List<CreateProduct_Images>()
+                };
+
+                int etalase_id = Convert.ToInt32(brg_stf02h.PICKUP_POINT);
+
+                newDataProduct.etalase = new CreateProduct_Etalase()
+                {
+                    etalase_id = etalase_id,
+                    etalase_name = ""
                 };
 
                 if (brg_stf02.TYPE == "4") // punya variasi
                 {
+                    CreateProduct_Product_Variant product_variant = new CreateProduct_Product_Variant()
+                    {
+                        product_variant = new List<CreateProduct_Product_Variant1>(),
+                        variant = new List<CreateProduct_Variant>()
+                    };
                     var AttributeOptTokped = MoDbContext.AttributeOptTokped.ToList();
                     var var_stf02 = ErasoftDbContext.STF02.Where(p => p.PART == brg).ToList();
                     var var_strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == brg && p.MARKET == "TOKPED").ToList().OrderBy(p => p.RECNUM);
                     var var_stf02_brg_list = var_stf02.Select(p => p.BRG).ToList();
                     var var_stf02h = ErasoftDbContext.STF02H.Where(p => var_stf02_brg_list.Contains(p.BRG) && p.IDMARKET == iden.idmarket).ToList();
 
+                    string category_mo = var_strukturVar.Select(p => p.CATEGORY_MO).FirstOrDefault();
+                    var var_stf20 = ErasoftDbContext.STF20B.Where(p => p.CATEGORY_MO == category_mo).ToList();
                     #region variant lv 1
                     if (var_strukturVar.Where(p => p.LEVEL_VAR == 1).Count() > 0)
                     {
@@ -118,16 +254,17 @@ namespace MasterOnline.Controllers
                         {
                             v = variant_id,
                             vu = unit_id,
-                            pos = 1
+                            pos = 1,
+                            opt = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 1))
                         {
                             #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
-                            if (newDataProduct.product_variant.variant.Count > 0)
+                            if (product_variant.variant.Count > 0)
                             {
-                                foreach (var variant in newDataProduct.product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
+                                foreach (var variant in product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
                                 {
                                     var added_value_id = variant.opt.Select(p => p.vuv).ToList();
                                     if (add)
@@ -144,7 +281,7 @@ namespace MasterOnline.Controllers
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
                                 {
-                                    file_name = "",
+                                    file_name = "Image " + Convert.ToString(fe_record.RECNUM),
                                     file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
                                     x = 128,
                                     y = 128
@@ -153,14 +290,25 @@ namespace MasterOnline.Controllers
                                 {
                                     vuv = Convert.ToInt32(fe_record.MP_VALUE_VAR),
                                     t_id = fe_record.RECNUM,
-                                    cstm = ""
+                                    cstm = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
+                                    image = new List<CreateProduct_Image>()
                                 };
                                 newOpt.image.Add(gambarVariant);
 
                                 newVariasi.opt.Add(newOpt);
+
+                                if (newDataProduct.images.Count() == 0)
+                                {
+                                    newDataProduct.images.Add(new CreateProduct_Images()
+                                    {
+                                        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                        image_description = ""
+                                    });
+                                }
                             }
                         }
-                        newDataProduct.product_variant.variant.Add(newVariasi);
+                        product_variant.variant.Add(newVariasi);
                     }
                     #endregion
 
@@ -174,16 +322,17 @@ namespace MasterOnline.Controllers
                         {
                             v = variant_id,
                             vu = unit_id,
-                            pos = 2
+                            pos = 2,
+                            opt = new List<CreateProduct_Opt>()
                         };
 
                         foreach (var fe_record in var_strukturVar.Where(p => p.LEVEL_VAR == 2))
                         {
                             #region cek duplikat variant_id, unit_id, value_id
                             bool add = true;
-                            if (newDataProduct.product_variant.variant.Count > 0)
+                            if (product_variant.variant.Count > 0)
                             {
-                                foreach (var variant in newDataProduct.product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
+                                foreach (var variant in product_variant.variant.Where(p => p.v == variant_id && p.vu == unit_id))
                                 {
                                     var added_value_id = variant.opt.Select(p => p.vuv).ToList();
                                     if (add)
@@ -200,7 +349,7 @@ namespace MasterOnline.Controllers
                             {
                                 CreateProduct_Image gambarVariant = new CreateProduct_Image()
                                 {
-                                    file_name = "",
+                                    file_name = "Image " + Convert.ToString(fe_record.RECNUM),
                                     file_path = var_stf02.Where(p => p.Sort9 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
                                     x = 128,
                                     y = 128
@@ -209,14 +358,25 @@ namespace MasterOnline.Controllers
                                 {
                                     vuv = Convert.ToInt32(fe_record.MP_VALUE_VAR),
                                     t_id = fe_record.RECNUM,
-                                    cstm = ""
+                                    cstm = var_stf20.Where(p => p.LEVEL_VAR == fe_record.LEVEL_VAR && p.KODE_VAR == fe_record.KODE_VAR).FirstOrDefault()?.KET_VAR,
+                                    image = new List<CreateProduct_Image>()
                                 };
                                 newOpt.image.Add(gambarVariant);
 
                                 newVariasi.opt.Add(newOpt);
+
+                                if (newDataProduct.images.Count() == 0)
+                                {
+                                    newDataProduct.images.Add(new CreateProduct_Images()
+                                    {
+                                        image_file_name = "Image " + Convert.ToString(fe_record.RECNUM),
+                                        image_file_path = var_stf02.Where(p => p.Sort8 == fe_record.KODE_VAR).FirstOrDefault().LINK_GAMBAR_1,
+                                        image_description = ""
+                                    });
+                                }
                             }
                         }
-                        newDataProduct.product_variant.variant.Add(newVariasi);
+                        product_variant.variant.Add(newVariasi);
                     }
                     #endregion
 
@@ -230,13 +390,14 @@ namespace MasterOnline.Controllers
                             stock = 1,
                             price_var = (float)item_var.HJUAL,
                             sku = item_var.BRG,
+                            opt = new List<int>()
                         };
                         if (!string.IsNullOrWhiteSpace(item_var.Sort8))
                         {
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item_var.Sort8).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.opt.Add(recnumVariasi.RECNUM);
+                                newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
                             }
                         }
                         if (!string.IsNullOrWhiteSpace(item_var.Sort9))
@@ -244,11 +405,13 @@ namespace MasterOnline.Controllers
                             var recnumVariasi = var_strukturVar.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item_var.Sort9).FirstOrDefault();
                             if (recnumVariasi != null)
                             {
-                                newProductVariasi.opt.Add(recnumVariasi.RECNUM);
+                                newProductVariasi.opt.Add(Convert.ToInt32(recnumVariasi.RECNUM));
                             }
                         }
-                        newDataProduct.product_variant.product_variant.Add(newProductVariasi);
+                        product_variant.product_variant.Add(newProductVariasi);
                     }
+
+                    newDataProduct.product_variant = product_variant;
                 }
                 else if (brg_stf02.TYPE == "3")
                 {
@@ -287,21 +450,43 @@ namespace MasterOnline.Controllers
                 string myData = JsonConvert.SerializeObject(newData);
                 string responseFromServer = "";
 
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
-
-                using (HttpContent responseContent = clientResponse.Content)
+                try
                 {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
+                    var client = new HttpClient();
+                    client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                    HttpResponseMessage clientResponse = await client.PostAsync(
+                        urll, content);
 
+                    using (HttpContent responseContent = clientResponse.Content)
+                    {
+                        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                        {
+                            responseFromServer = await reader.ReadToEndAsync();
+                        }
+                    };
+                }
+                catch (Exception ex)
+                {
+                    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                }
+
+                if (responseFromServer != "")
+                {
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokpedCreateProductResult)) as TokpedCreateProductResult;
+                    if (result.header.error_code == 0)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+                        await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_RESULT = result.header.reason;
+                        currentLog.REQUEST_EXCEPTION = result.header.messages;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                    }
+                }
                 //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
                 //myReq.Method = "POST";
                 //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
@@ -328,6 +513,7 @@ namespace MasterOnline.Controllers
                 //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                 //}
+
             }
 
             return ret;
@@ -2352,6 +2538,25 @@ namespace MasterOnline.Controllers
             public int etalase_id { get; set; }
             public string etalase_name { get; set; }
             public string url { get; set; }
+        }
+
+        public class TokpedCreateProductResult
+        {
+            public TokpedCreateProductResultHeader header { get; set; }
+            public TokpedCreateProductResultData data { get; set; }
+        }
+
+        public class TokpedCreateProductResultHeader
+        {
+            public float process_time { get; set; }
+            public string messages { get; set; }
+            public string reason { get; set; }
+            public int error_code { get; set; }
+        }
+
+        public class TokpedCreateProductResultData
+        {
+            public int upload_id { get; set; }
         }
 
     }
