@@ -14489,6 +14489,7 @@ namespace MasterOnline.Controllers
                 //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
                 var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                 var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+                var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
 
                 if (customer.NAMA.Equals(kdShopee))
                 {
@@ -14502,6 +14503,27 @@ namespace MasterOnline.Controllers
                         };
                         //Task.Run(() => ShopeeApi.AddDiscount(data, lastRecNum.HasValue ? lastRecNum.Value : 0)).Wait();
                         Task.Run(() => ShopeeApi.AddDiscount(data, dataVm.Promosi.RecNum.HasValue ? dataVm.Promosi.RecNum.Value : 0)).Wait();
+
+                    }
+                }
+                else if (customer.NAMA.Equals(kdLazada))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                    {
+                        var lazadaApi = new LazadaController();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataVm.PromosiDetail.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                        if(brgInDB != null)
+                        {
+                            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                            {
+                                var promoPrice = dataVm.PromosiDetail.HARGA_PROMOSI;
+                                if (promoPrice == 0)
+                                {
+                                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
+                                }
+                                lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                            }
+                        }
 
                     }
                 }
@@ -14526,6 +14548,7 @@ namespace MasterOnline.Controllers
                     //change by nurul 3/1/2019 -- var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.Kode == dataVm.Promosi.NAMA_MARKET);
                     var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                     var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
+                    var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
 
                     if (customer.NAMA.Equals(kdShopee))
                     {
@@ -14541,6 +14564,27 @@ namespace MasterOnline.Controllers
                                 };
                                 Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(dataVm.Promosi.MP_PROMO_ID), dataVm.PromosiDetail)).Wait();
                             }
+                        }
+                    }
+                    else if (customer.NAMA.Equals(kdLazada))
+                    {
+                        if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                        {
+                            var lazadaApi = new LazadaController();
+                            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataVm.PromosiDetail.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                            if (brgInDB != null)
+                            {
+                                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                                {
+                                    var promoPrice = dataVm.PromosiDetail.HARGA_PROMOSI;
+                                    if (promoPrice == 0)
+                                    {
+                                        promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
+                                    }
+                                    lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                                }
+                            }
+
                         }
                     }
                     //end add by calvin 26 desember 2018
