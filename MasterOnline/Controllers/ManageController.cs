@@ -2086,7 +2086,43 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult DeleteFotoProdukBlibli(string recnum, int urutan)
+        public ActionResult DeleteFotoProdukBlibli(string brg, string recnum, int urutan)
+        {
+            try
+            {
+                int recnum_int = Convert.ToInt32(recnum);
+                var barangInDb = ErasoftDbContext.STF02H.FirstOrDefault(b => b.BRG == brg && b.IDMARKET == recnum_int);
+
+                if (barangInDb != null)
+                {
+                    switch (urutan)
+                    {
+                        case 1:
+                            barangInDb.AVALUE_50 = null;
+                            barangInDb.ACODE_50 = null;
+                            break;
+                        case 2:
+                            barangInDb.AVALUE_49 = null;
+                            barangInDb.ACODE_49 = null;
+                            break;
+                        case 3:
+                            barangInDb.AVALUE_48 = null;
+                            barangInDb.ACODE_48 = null;
+                            break;
+                    }
+
+                    ErasoftDbContext.SaveChanges();
+                }
+
+                return Json("Sukses hapus url foto produk dari tabel", JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+
+        public ActionResult DeleteFotoProdukBliVar(string recnum, int urutan)
         {
             try
             {
@@ -2114,6 +2150,7 @@ namespace MasterOnline.Controllers
             }
         }
         [HttpPost]
+        //public ActionResult SaveBarang(BarangViewModel dataBarang, IEnumerable<HttpPostedFileBase> fotoProdukBlibli)
         public ActionResult SaveBarang(BarangViewModel dataBarang)
         {
             if (!ModelState.IsValid)
@@ -2186,9 +2223,75 @@ namespace MasterOnline.Controllers
                     }
                     if (validPrice)
                     {
+                        //add by calvin 1 maret 2019
+                        Dictionary<string, string> extra_image_uploaded = new Dictionary<string, string>();
+                        Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
+                        if (Request.Files.Count > 0)
+                        {
+                            for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                            {
+                                string key = Request.Files.GetKey(file_index);
+                                string[] key_split = key.Split(';');
+                                if (key_split.Count() > 1)
+                                {
+                                    #region Extra Image
+                                    int urutan = Convert.ToInt32(key_split[0]);
+                                    int idmarket = Convert.ToInt32(key_split[1]);
+                                    var file = Request.Files[file_index];
+
+                                    if (file != null && file.ContentLength > 0)
+                                    {
+                                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                                        {
+                                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                                            extra_image_uploaded.Add(Convert.ToString(urutan) + ";" + Convert.ToString(idmarket) + ";" + Convert.ToString(file.ContentLength), image.data.link_l);
+                                        }
+                                        else
+                                        {
+                                            extra_image_uploaded.Add(Convert.ToString(urutan) + ";" + Convert.ToString(idmarket) + ";" + Convert.ToString(file.ContentLength), same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value);
+                                        }
+                                    }
+                                    #endregion
+                                }
+                            }
+                        }
+                        //end add by calvin 1 maret 2019
+
                         foreach (var hargaPerMarket in dataBarang.ListHargaJualPermarket)
                         {
                             hargaPerMarket.BRG = dataBarang.Stf02.BRG;
+
+                            //add by calvin 1 maret 2019
+                            if (extra_image_uploaded.Count() > 0)
+                            {
+                                foreach (var extra_image in extra_image_uploaded)
+                                {
+                                    string[] key_split = extra_image.Key.Split(';');
+                                    int urutan = Convert.ToInt32(key_split[0]);
+                                    int idmarket = Convert.ToInt32(key_split[1]);
+                                    string idGambar = Convert.ToString(key_split[2]);
+                                    if (idmarket == hargaPerMarket.IDMARKET)
+                                    {
+                                        switch (urutan)
+                                        {
+                                            case 1:
+                                                hargaPerMarket.ACODE_50 = idGambar;
+                                                hargaPerMarket.AVALUE_50 = extra_image.Value;
+                                                break;
+                                            case 2:
+                                                hargaPerMarket.ACODE_49 = idGambar;
+                                                hargaPerMarket.AVALUE_49 = extra_image.Value;
+                                                break;
+                                            case 3:
+                                                hargaPerMarket.ACODE_48 = idGambar;
+                                                hargaPerMarket.AVALUE_48 = extra_image.Value;
+                                                break;
+                                        }
+                                    }
+                                }
+                            }
+                            //end add by calvin 1 maret 2019
                             ErasoftDbContext.STF02H.Add(hargaPerMarket);
                         }
                     }
@@ -2412,12 +2515,80 @@ namespace MasterOnline.Controllers
                         }
                         if (validPrice)
                         {
+
+                            //add by calvin 1 maret 2019
+                            Dictionary<string, string> extra_image_uploaded = new Dictionary<string, string>();
+                            Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
+                            if (Request.Files.Count > 0)
+                            {
+                                for (int file_index = 0; file_index < Request.Files.Count; file_index++)
+                                {
+                                    string key = Request.Files.GetKey(file_index);
+                                    string[] key_split = key.Split(';');
+                                    if (key_split.Count() > 1)
+                                    {
+                                        #region Extra Image
+                                        int urutan = Convert.ToInt32(key_split[0]);
+                                        int idmarket = Convert.ToInt32(key_split[1]);
+                                        var file = Request.Files[file_index];
+
+                                        if (file != null && file.ContentLength > 0)
+                                        {
+                                            if (!same_uploaded.ContainsKey(file.ContentLength))
+                                            {
+                                                ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                                                same_uploaded.Add(file.ContentLength, image.data.link_l);
+                                                extra_image_uploaded.Add(Convert.ToString(urutan) + ";" + Convert.ToString(idmarket) + ";" + Convert.ToString(file.ContentLength), image.data.link_l);
+                                            }
+                                            else
+                                            {
+                                                extra_image_uploaded.Add(Convert.ToString(urutan) + ";" + Convert.ToString(idmarket) + ";" + Convert.ToString(file.ContentLength), same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value);
+                                            }
+                                        }
+                                        #endregion
+                                    }
+                                }
+                            }
+                            //end add by calvin 1 maret 2019
+
                             foreach (var dataBaru in dataBarang.ListHargaJualPermarket)
                             {
                                 var dataHarga = ErasoftDbContext.STF02H.SingleOrDefault(h => h.RecNum == dataBaru.RecNum);
                                 if (dataHarga == null)
                                 {
                                     dataBaru.BRG = barangInDb.BRG;
+
+                                    //add by calvin 1 maret 2019
+                                    if (extra_image_uploaded.Count() > 0)
+                                    {
+                                        foreach (var extra_image in extra_image_uploaded)
+                                        {
+                                            string[] key_split = extra_image.Key.Split(';');
+                                            int urutan = Convert.ToInt32(key_split[0]);
+                                            int idmarket = Convert.ToInt32(key_split[1]);
+                                            string idGambar = Convert.ToString(key_split[2]);
+                                            if (idmarket == dataBaru.IDMARKET)
+                                            {
+                                                switch (urutan)
+                                                {
+                                                    case 1:
+                                                        dataBaru.ACODE_50 = idGambar;
+                                                        dataBaru.AVALUE_50 = extra_image.Value;
+                                                        break;
+                                                    case 2:
+                                                        dataBaru.ACODE_49 = idGambar;
+                                                        dataBaru.AVALUE_49 = extra_image.Value;
+                                                        break;
+                                                    case 3:
+                                                        dataBaru.ACODE_48 = idGambar;
+                                                        dataBaru.AVALUE_48 = extra_image.Value;
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    //end add by calvin 1 maret 2019
+
                                     ErasoftDbContext.STF02H.Add(dataBaru);
                                 }
                                 else
@@ -2487,9 +2658,11 @@ namespace MasterOnline.Controllers
                                     dataHarga.ACODE_45 = dataBaru.ACODE_45;
                                     dataHarga.ACODE_46 = dataBaru.ACODE_46;
                                     dataHarga.ACODE_47 = dataBaru.ACODE_47;
-                                    dataHarga.ACODE_48 = dataBaru.ACODE_48;
-                                    dataHarga.ACODE_49 = dataBaru.ACODE_49;
-                                    dataHarga.ACODE_50 = dataBaru.ACODE_50;
+                                    //remark by calvin 1 maret 2019, dipakai untuk gambar
+                                    //dataHarga.ACODE_48 = dataBaru.ACODE_48;
+                                    //dataHarga.ACODE_49 = dataBaru.ACODE_49;
+                                    //dataHarga.ACODE_50 = dataBaru.ACODE_50;
+                                    //remark by calvin 1 maret 2019, dipakai untuk gambar
 
                                     dataHarga.ANAME_1 = dataBaru.ANAME_1;
                                     dataHarga.ANAME_2 = dataBaru.ANAME_2;
@@ -2538,9 +2711,11 @@ namespace MasterOnline.Controllers
                                     dataHarga.ANAME_45 = dataBaru.ANAME_45;
                                     dataHarga.ANAME_46 = dataBaru.ANAME_46;
                                     dataHarga.ANAME_47 = dataBaru.ANAME_47;
-                                    dataHarga.ANAME_48 = dataBaru.ANAME_48;
-                                    dataHarga.ANAME_49 = dataBaru.ANAME_49;
-                                    dataHarga.ANAME_50 = dataBaru.ANAME_50;
+                                    //remark by calvin 1 maret 2019, dipakai untuk gambar
+                                    //dataHarga.ANAME_48 = dataBaru.ANAME_48;
+                                    //dataHarga.ANAME_49 = dataBaru.ANAME_49;
+                                    //dataHarga.ANAME_50 = dataBaru.ANAME_50;
+                                    //remark by calvin 1 maret 2019, dipakai untuk gambar
 
                                     dataHarga.AVALUE_1 = dataBaru.AVALUE_1;
                                     dataHarga.AVALUE_2 = dataBaru.AVALUE_2;
@@ -2589,10 +2764,43 @@ namespace MasterOnline.Controllers
                                     dataHarga.AVALUE_45 = dataBaru.AVALUE_45;
                                     dataHarga.AVALUE_46 = dataBaru.AVALUE_46;
                                     dataHarga.AVALUE_47 = dataBaru.AVALUE_47;
-                                    dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
-                                    dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
-                                    dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
+                                    //remark by calvin 1 maret 2019, dipakai untuk gambar
+                                    //dataHarga.AVALUE_48 = dataBaru.AVALUE_48;
+                                    //dataHarga.AVALUE_49 = dataBaru.AVALUE_49;
+                                    //dataHarga.AVALUE_50 = dataBaru.AVALUE_50;
+                                    //end remark by calvin 1 maret 2019
                                     #endregion
+
+                                    //add by calvin 1 maret 2019
+                                    if (extra_image_uploaded.Count() > 0)
+                                    {
+                                        foreach (var extra_image in extra_image_uploaded)
+                                        {
+                                            string[] key_split = extra_image.Key.Split(';');
+                                            int urutan = Convert.ToInt32(key_split[0]);
+                                            int idmarket = Convert.ToInt32(key_split[1]);
+                                            string idGambar = Convert.ToString(key_split[2]);
+                                            if (idmarket == dataHarga.IDMARKET)
+                                            {
+                                                switch (urutan)
+                                                {
+                                                    case 1:
+                                                        dataHarga.ACODE_50 = idGambar;
+                                                        dataHarga.AVALUE_50 = extra_image.Value;
+                                                        break;
+                                                    case 2:
+                                                        dataHarga.ACODE_49 = idGambar;
+                                                        dataHarga.AVALUE_49 = extra_image.Value;
+                                                        break;
+                                                    case 3:
+                                                        dataHarga.ACODE_48 = idGambar;
+                                                        dataHarga.AVALUE_48 = extra_image.Value;
+                                                        break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    //end add by calvin 1 maret 2019
                                 }
                             }
                         }
@@ -5416,7 +5624,7 @@ namespace MasterOnline.Controllers
                         {
                             itemVar.LINK_GAMBAR_1 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
                         }
-                        
+
                         //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                         itemVar.Sort5 = Convert.ToString(file.ContentLength);
 
@@ -5436,6 +5644,89 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext.SaveChanges();
                 }
                 first = false;
+            }
+            return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
+        }
+
+        [HttpPost]
+        public ActionResult UpdateGambarBlibli()
+        {
+            if (Request.Files.AllKeys.Count() > 0)
+            {
+                Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
+                string first_key = Convert.ToString(Request.Files.AllKeys.FirstOrDefault());
+                string brg = first_key.Split(';')[2];
+
+                var itemVarAllMarket = ErasoftDbContext.STF02H.Where(p => p.BRG == brg).ToList();
+                foreach (var item in Request.Files.AllKeys)
+                {
+                    string[] key_split = item.Split(';');
+                    int urutan = Convert.ToInt32(key_split[0]);
+                    int idmarket = Convert.ToInt32(key_split[1]);
+                    var itemVar = itemVarAllMarket.Where(p => p.IDMARKET == idmarket).SingleOrDefault();
+                    if (itemVar != null)
+                    {
+                        var file = Request.Files[item];
+
+                        if (file != null && file.ContentLength > 0)
+                        {
+                            switch (urutan)
+                            {
+                                case 1:
+                                    {
+                                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                                        {
+                                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                                            itemVar.AVALUE_50 = image.data.link_l;
+                                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                                        }
+                                        else
+                                        {
+                                            itemVar.AVALUE_50 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                                        }
+
+                                        itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                                        {
+                                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                                            itemVar.AVALUE_49 = image.data.link_l;
+                                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                                        }
+                                        else
+                                        {
+                                            itemVar.AVALUE_49 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                                        }
+
+                                        itemVar.ACODE_49 = Convert.ToString(file.ContentLength);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                    break;
+                                case 3:
+                                    {
+                                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                                        {
+                                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                                            itemVar.AVALUE_48 = image.data.link_l;
+                                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                                        }
+                                        else
+                                        {
+                                            itemVar.AVALUE_48 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                                        }
+
+                                        itemVar.ACODE_48 = Convert.ToString(file.ContentLength);
+                                        ErasoftDbContext.SaveChanges();
+                                    }
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
             return Json($"Update Gambar Variant Berhasil.", JsonRequestBehavior.AllowGet);
         }
@@ -14729,7 +15020,7 @@ namespace MasterOnline.Controllers
                     {
                         var lazadaApi = new LazadaController();
                         var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataVm.PromosiDetail.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
-                        if(brgInDB != null)
+                        if (brgInDB != null)
                         {
                             if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                             {

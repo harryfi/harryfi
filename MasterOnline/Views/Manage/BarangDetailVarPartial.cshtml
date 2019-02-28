@@ -189,7 +189,7 @@
             var data_barang_kode = $(item).attr("data-barang-kode");
             $('#btn_hapus_var_blibli_' + data_barang_id).hide();
             $('#btn_hapus_var_blibli_' + data_barang_id).off('click').on('click', function () {
-                var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBlibli", "Manage", new { recnum = "replaceKode", urutan = "replaceUrutan" }))';
+                var $link = '@Html.Raw(Url.Action("DeleteFotoProdukBliVar", "Manage", new { recnum = "replaceKode", urutan = "replaceUrutan" }))';
                 $link = $link.replace("replaceKode", data_barang_id);
                 $link = $link.replace("replaceUrutan", 1);
 

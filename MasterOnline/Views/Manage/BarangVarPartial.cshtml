@@ -29,10 +29,20 @@
                 $('#simpan_btn').show();
                 $('#next_btn').hide();
                 $('#div_info_harga_variant').hide();
+
+                $('.detail_mp_blibli_gambar').each(function () {
+                    var $this = $(this);
+                    $this.show();
+                });
             } else {
                 $('#simpan_btn').hide();
                 $('#next_btn').show();
                 $('#div_info_harga_variant').show();
+
+                $('.detail_mp_blibli_gambar').each(function () {
+                    var $this = $(this);
+                    $this.hide();
+                });
             }
         });
 

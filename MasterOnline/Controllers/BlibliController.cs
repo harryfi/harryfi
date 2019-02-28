@@ -5240,16 +5240,24 @@ namespace MasterOnline.Controllers
             if (data.type == "3") // bukan barang variasi
             {
                 List<string> images_pervar = new List<string>();
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort5))
+                string idGambar = "";
+                string urlGambar = "";
+
+                idGambar = stf02h.ACODE_50;
+                urlGambar = stf02h.AVALUE_50;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort5))
+                    idGambar = data.dataBarangInDb.Sort5;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort5);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_1);
-                            //images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort5);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5263,22 +5271,27 @@ namespace MasterOnline.Controllers
                                 ImageConverter _imageConverter = new ImageConverter();
                                 byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
 
-                                images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort5);
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort6))
+                idGambar = stf02h.ACODE_49;
+                urlGambar = stf02h.AVALUE_49;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort6))
+                    idGambar = data.dataBarangInDb.Sort6;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort6);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_2);
-                            //images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort6);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5292,22 +5305,28 @@ namespace MasterOnline.Controllers
                                 ImageConverter _imageConverter = new ImageConverter();
                                 byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
 
-                                images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort6);
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort7))
+
+                idGambar = stf02h.ACODE_48;
+                urlGambar = stf02h.AVALUE_48;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort7))
+                    idGambar = data.dataBarangInDb.Sort7;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort7);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_3);
-                            //images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort7);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5321,8 +5340,8 @@ namespace MasterOnline.Controllers
                                 ImageConverter _imageConverter = new ImageConverter();
                                 byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
 
-                                images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort7);
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
