@@ -603,7 +603,7 @@
                                         .css('pointer-events', 'auto')
                                         .html("0,00" + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">');
                                 } else {
-                                    var $ndisc1 = convertToRupiah(this.value * $hargaBarang / 100);
+                                    var $ndisc1 = convertToRupiah($hargaBarang - (this.value * $hargaBarang / 100));
 
                                     $($trElement + ' .harga-promosi-barang')
                                         .removeClass('editable')
