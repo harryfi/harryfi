@@ -1316,7 +1316,7 @@ namespace MasterOnline.Controllers
                         mta_password_password_merchant = customer.Customers.PASSWORD,
                         idmarket = customer.Customers.RecNum.Value
                     };
-                    BliApi.GetToken(data, true);
+                    BliApi.GetToken(data, true, true);
                     //BliApi.GetPickupPoint(data);
                 }
             }
@@ -3906,7 +3906,7 @@ namespace MasterOnline.Controllers
                                                 //end remark by calvin 26 februari 2019
 
                                                 //Task.Run(() => shoAPI.GetVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
-                                                //Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
+                                                Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
 
                                                 Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
                                                 string[] brg_mp = stf02h.BRG_MP.Split(';');
@@ -5395,6 +5395,7 @@ namespace MasterOnline.Controllers
         public ActionResult UpdateGambarVariantBarang()
         {
             bool first = true;
+            Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
             foreach (var item in Request.Files.AllKeys)
             {
                 int stf02_id = Convert.ToInt32(item);
@@ -5405,9 +5406,17 @@ namespace MasterOnline.Controllers
 
                     if (file != null && file.ContentLength > 0)
                     {
-                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
-
-                        itemVar.LINK_GAMBAR_1 = image.data.link_l;
+                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                        {
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                            itemVar.LINK_GAMBAR_1 = image.data.link_l;
+                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                        }
+                        else
+                        {
+                            itemVar.LINK_GAMBAR_1 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                        }
+                        
                         //add by calvin 13 februari 2019, untuk compare size gambar, agar saat upload barang, tidak perlu upload gambar duplikat
                         itemVar.Sort5 = Convert.ToString(file.ContentLength);
 
@@ -5419,7 +5428,7 @@ namespace MasterOnline.Controllers
                                 if (string.IsNullOrWhiteSpace(itemInduk.Sort5))
                                 {
                                     itemInduk.Sort5 = Convert.ToString(file.ContentLength);
-                                    itemInduk.LINK_GAMBAR_1 = image.data.link_l;
+                                    itemInduk.LINK_GAMBAR_1 = itemVar.LINK_GAMBAR_1;
                                 }
                             }
                         }
@@ -5434,6 +5443,7 @@ namespace MasterOnline.Controllers
         [HttpPost]
         public ActionResult UpdateGambarVariantBlibli()
         {
+            Dictionary<int, string> same_uploaded = new Dictionary<int, string>();
             foreach (var item in Request.Files.AllKeys)
             {
                 int stf02h_recnum = Convert.ToInt32(item);
@@ -5444,9 +5454,17 @@ namespace MasterOnline.Controllers
 
                     if (file != null && file.ContentLength > 0)
                     {
-                        ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                        if (!same_uploaded.ContainsKey(file.ContentLength))
+                        {
+                            ImgurImageResponse image = UploadImageService.UploadSingleImageToImgur(file, "uploaded-image");
+                            itemVar.AVALUE_50 = image.data.link_l;
+                            same_uploaded.Add(file.ContentLength, image.data.link_l);
+                        }
+                        else
+                        {
+                            itemVar.AVALUE_50 = same_uploaded.Where(p => p.Key == file.ContentLength).FirstOrDefault().Value;
+                        }
 
-                        itemVar.AVALUE_50 = image.data.link_l;
                         itemVar.ACODE_50 = Convert.ToString(file.ContentLength);
                     }
                     ErasoftDbContext.SaveChanges();

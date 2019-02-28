@@ -114,7 +114,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BliBliToken GetToken(BlibliAPIData data, bool syncData)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
+        public BliBliToken GetToken(BlibliAPIData data, bool syncData, bool resetToken)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
@@ -133,7 +133,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                if (TokenExpired)
+                if (TokenExpired || resetToken)
                 {
                     //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
                     string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
@@ -5412,10 +5412,16 @@ namespace MasterOnline.Controllers
                     var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
 
                     List<string> images_pervar = new List<string>();
-                    images_pervar.Add(var_item.Sort5); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                    if (!uploadedImageID.Contains(var_item.Sort5))
+                    string image_id = var_stf02h_item.ACODE_50;
+                    if (string.IsNullOrWhiteSpace(image_id))
                     {
-                        uploadedImageID.Add(var_item.Sort5);
+                        image_id = var_item.Sort5;
+                    }
+                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+
+                    if (!uploadedImageID.Contains(image_id))
+                    {
+                        uploadedImageID.Add(image_id);
                         using (var client = new HttpClient())
                         {
                             string url = var_stf02h_item.AVALUE_50;
@@ -5425,7 +5431,7 @@ namespace MasterOnline.Controllers
                             }
                             //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
                             var bytes = await client.GetByteArrayAsync(url);
-                            
+
                             //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5538,7 +5544,7 @@ namespace MasterOnline.Controllers
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductResult)) as CreateProductResult;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))

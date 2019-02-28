@@ -548,12 +548,12 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
-                                                                                <div class="col-md-12">
+                                                                                <div class="col-md-6">
                                                                                     <div class="row">
-                                                                                        <div class="col-md-2 col-sm-2 col-xs-12">
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12">
                                                                                             @Html.Label("Pickup Point *", new { @class = "control-label" })
                                                                                         </div>
-                                                                                        <div class="col-md-3 col-sm-3 col-xs-12">
+                                                                                        <div class="col-md-6 col-sm-6 col-xs-12">
                                                                                             @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
                                                                                             <div class="input-group text">
                                                                                                 <table>
@@ -574,6 +574,32 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
+                                                                                @*<div class="col-md-6">
+                                                                                    <div class="row">
+                                                                                        <div class="col-md-4 col-sm-4 col-xs-12">
+                                                                                            @Html.Label("Gambar", new { @class = "control-label" })
+                                                                                        </div>
+                                                                                        <div class="col-md-6 col-sm-6 col-xs-12">
+                                                                                            @Html.HiddenFor(m => m.ListHargaJualPermarket[i].PICKUP_POINT, new { Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                                            <div class="input-group text">
+                                                                                                <table>
+                                                                                                    <tr>
+                                                                                                        <td>
+                                                                                                            @Html.TextBox("PickupPoint" + i + "Blibli", "", new { @class = "form-control", data_valid_toggle_required = "1", @MaxLength = "10", disabled = "disabled", required = "required", Value = Model?.ListHargaJualPermarketView.FirstOrDefault(p => p.IDMARKET == recnumArf01 && p.BRG == (Model?.Stf02 != null ? Model?.Stf02.BRG : ""))?.PICKUP_POINT })
+                                                                                                        </td>
+                                                                                                        <td>
+                                                                                                            <span class="input-group-btn">
+                                                                                                                <button class="btn btn-default" type="button" style="height: 34px;" onclick="PromptPickupPointBlibli(@i,@($"(\"{listMarket[i].Sort1_Cust}\")"))">
+                                                                                                                    <span class="glyphicon glyphicon-option-horizontal"></span>
+                                                                                                                </button>
+                                                                                                            </span>
+                                                                                                        </td>
+                                                                                                    </tr>
+                                                                                                </table>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>*@
                                                                             </div>
                                                                         }
                                                                     </div>

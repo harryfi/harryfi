@@ -304,7 +304,7 @@ namespace MasterOnline.Controllers
                             token = tblCustomer.TOKEN,
                             idmarket = tblCustomer.RecNum.Value
                         };
-                        BliApi.GetToken(data, true);
+                        BliApi.GetToken(data, true, false);
                         //Task.Run(() => BliApi.GetCategoryTree(data)).Wait();
                     }
                 }
