@@ -407,6 +407,7 @@ namespace MasterOnline.Controllers
                                 API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
                                 API_client_username = tblCustomer.API_CLIENT_U, //Client ID
                                 API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                idmarket = tblCustomer.RecNum.Value
                             };
                             //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
                             //{

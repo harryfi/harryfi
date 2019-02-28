@@ -102,15 +102,16 @@ namespace MasterOnline.Controllers
                         {
                             if (item.unprocessed_rows > 0)
                             {
-                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 if (success == 1)
                                 {
-                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                                 }
                             }
                             else if (item.success_rows > 0)
                             {
-
+                                await GetActiveItemListBySKU(iden, 0, 50, iden.idmarket, brg);
+                                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
                             else if (item.failed_rows > 0)
                             {
@@ -118,6 +119,7 @@ namespace MasterOnline.Controllers
                                 {
                                     currentLog.REQUEST_RESULT = item_failed.error;
                                     currentLog.REQUEST_EXCEPTION = item_failed.error;
+                                    var failed = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 }
                                 manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
                             }
@@ -951,7 +953,7 @@ namespace MasterOnline.Controllers
                             };
                             //add by Tri, 26 Feb 2019
                             var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
-                            if(kategory != null)
+                            if (kategory != null)
                             {
                                 newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
                             }
@@ -1081,6 +1083,187 @@ namespace MasterOnline.Controllers
             }
             return "";
         }
+        public async Task<BindingBase> GetActiveItemListBySKU(TokopediaAPIData iden, int page, int recordCount, int recnumArf01, string SKU)
+        {
+            var connId = Guid.NewGuid().ToString();
+
+            BindingBase ret = new BindingBase();
+            ret.message = "";// jika perlu lanjut recursive, isi
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+            int rows = 10;
+            int Rowsstart = page * rows;
+            //order by name
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
+            string queryParam = "shop_id=" + Uri.EscapeDataString(iden.API_secret_key) + "&rows=" + Uri.EscapeDataString(Convert.ToString(rows)) + "&start=" + Uri.EscapeDataString(Convert.ToString(Rowsstart)) + "&product_id=&order_by=9&keyword=&exclude_keyword=&sku=&price_min=1&price_max=500000000&preorder=false&free_return=false&wholesale=false";
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Item List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+
+            string responseFromServer = "";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+            HttpResponseMessage clientResponse = await client.GetAsync(
+                urll + queryParam);
+
+            using (HttpContent responseContent = clientResponse.Content)
+            {
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                {
+                    responseFromServer = await reader.ReadToEndAsync();
+                }
+            };
+
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll + queryParam);
+            //myReq.Method = "GET";
+            //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            //myReq.Accept = "application/x-www-form-urlencoded";
+            //myReq.ContentType = "application/json";
+            //try
+            //{
+            //    using (WebResponse response = await myReq.GetResponseAsync())
+            //    {
+            //        using (Stream stream = response.GetResponseStream())
+            //        {
+            //            StreamReader reader = new StreamReader(stream);
+            //            responseFromServer = reader.ReadToEnd();
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductListResult)) as ActiveProductListResult;
+                if (result.header.error_code == 0)
+                {
+                    var found = false;
+                    foreach (var item in result.data.products)
+                    {
+                        if (!found)
+                        {
+                            if (item.sku == SKU)
+                            {
+                                found = true;
+                                if (item.childs.Count() > 0)
+                                {
+                                    await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
+                                }
+                                else
+                                {
+                                    var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                }
+                            }
+                        }
+                    }
+                }
+                //if (result.header.error_code == 0)
+                //{
+                //    ret.message = (page + 1).ToString();
+                //    if (Rowsstart + rows >= result.data.total_data)
+                //    {
+                //        ret.message = "";
+                //    }
+                //    ret.status = 1;
+                //    ret.recordCount = recordCount;
+                //    foreach (var item in result.data.products)
+                //    {
+                //        bool adaChild = false;
+                //        if (item.childs != null)
+                //        {
+                //            if (item.childs.Count() > 0)
+                //            {
+                //                adaChild = true;
+                //                //await GetActiveItemVariant(iden, connId, CUST, NAMA_CUST, recnumArf01, item, ret);
+                //            }
+                //        }
+                //        if (!adaChild)
+                //        {
+                //            string namaBrg = item.name;
+                //            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                //            urlImage = "";
+                //            urlImage2 = "";
+                //            urlImage3 = "";
+                //            if (namaBrg.Length > 30)
+                //            {
+                //                nama = namaBrg.Substring(0, 30);
+                //                //change by calvin 15 januari 2019
+                //                //if (namaBrg.Length > 60)
+                //                //{
+                //                //    nama2 = namaBrg.Substring(30, 30);
+                //                //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                //                //}
+                //                if (namaBrg.Length > 285)
+                //                {
+                //                    nama2 = namaBrg.Substring(30, 255);
+                //                    nama3 = "";
+                //                }
+                //                //end change by calvin 15 januari 2019
+                //                else
+                //                {
+                //                    nama2 = namaBrg.Substring(30);
+                //                    nama3 = "";
+                //                }
+                //            }
+                //            else
+                //            {
+                //                nama = namaBrg;
+                //                nama2 = "";
+                //                nama3 = "";
+                //            }
+
+                //            var desc = await GetItemList(iden, connId, CUST, NAMA_CUST, Convert.ToString(item.id));
+
+                //            string description = "";
+                //            double price = 0;
+                //            foreach (var dtail in desc.data)
+                //            {
+                //                description = dtail.desc;
+                //                price = dtail.price;
+                //            }
+                //            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                //            {
+                //                SELLER_SKU = item.sku,
+                //                BRG_MP = Convert.ToString(item.id),
+                //                NAMA = nama,
+                //                NAMA2 = nama2,
+                //                NAMA3 = nama3,
+                //                CATEGORY_CODE = Convert.ToString(item.category_id),
+                //                CATEGORY_NAME = item.category_name,
+                //                IDMARKET = recnumArf01,
+                //                IMAGE = item.image_url_700,
+                //                DISPLAY = true,
+                //                HJUAL = price,
+                //                HJUAL_MP = price,
+                //                Deskripsi = description,
+                //                MEREK = "OEM",
+                //                CUST = CUST
+                //            };
+                //            ErasoftDbContext.TEMP_BRG_MP.Add(newrecord);
+                //            ErasoftDbContext.SaveChanges();
+                //            ret.recordCount = ret.recordCount + 1;
+                //        }
+                //    }
+                //}
+            }
+
+            return ret;
+        }
+
         public async Task<BindingBase> GetActiveItemList(TokopediaAPIData iden, int page, int recordCount, string CUST, string NAMA_CUST, int recnumArf01)
         {
             var connId = Guid.NewGuid().ToString();
@@ -1239,7 +1422,59 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        public async Task<string> GetActiveItemVariantByProductID(TokopediaAPIData iden, string brg, int recnumArf01, string product_id)
+        {
+            string ret = "";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
 
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            //order by name
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/variant/" + Uri.EscapeDataString(product_id);
+
+            string responseFromServer = "";
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(ActiveProductVariantResult)) as ActiveProductVariantResult;
+                if (result.header.error_code == 200)
+                {
+                    List<TEMP_BRG_MP> listNewData = new List<TEMP_BRG_MP>();
+                    var success_induk = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+
+                    foreach (var item in result.data.children)
+                    {
+                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.product_id) + "' WHERE BRG = '" + Convert.ToString(item.sku) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                    }
+                }
+            }
+            return ret;
+        }
         public async Task<string> GetActiveItemVariant(TokopediaAPIData iden, string connId, string CUST, string NAMA_CUST, int recnumArf01, ActiveProductListResultProduct parent, BindingBase retParent)
         {
             string ret = "";
@@ -1432,7 +1667,17 @@ namespace MasterOnline.Controllers
                     {
                         arf01inDB.TOKEN = ret.access_token;
                         arf01inDB.STATUS_API = "1";
+                        data.token = ret.access_token;
                         ErasoftDbContext.SaveChanges();
+
+                        var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PENDING;")).ToList();
+                        if (cekPendingCreate.Count > 0)
+                        {
+                            foreach (var item in cekPendingCreate)
+                            {
+                                Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                            }
+                        }
                     }
                     else
                     {
