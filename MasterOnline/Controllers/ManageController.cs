@@ -11651,7 +11651,7 @@ namespace MasterOnline.Controllers
         // =============================================== Bagian Report (START)
 
         [Route("manage/reports")]
-        public ActionResult Reports()
+        public async Task<ActionResult> Reports()
         {
 
             //string brgtes = "01.SMKR00.00.3m";
@@ -11664,7 +11664,125 @@ namespace MasterOnline.Controllers
             //listBrg.Add("01.SMKR00.00.6m");
 
             //updateStockMarketPlace(listBrg);
+
+            //add by calvin 1 maret 2019, tes resize image
+            //string urlGambar = "https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/7331b819-34d8-4056-9adb-a6ff695092b6.jpg";
+            //using (var client = new System.Net.Http.HttpClient())
+            //{
+            //    var bytes = await client.GetByteArrayAsync(urlGambar);
+
+            //    using (var stream = new MemoryStream(bytes, true))
+            //    {
+            //        var img = Image.FromStream(stream);
+            //        float newResolution = img.Height;
+            //        if (img.Width < newResolution)
+            //        {
+            //            newResolution = img.Width;
+            //        }
+
+            //        System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+            //        // Create an Encoder object based on the GUID  
+            //        // for the Quality parameter category.  
+            //        System.Drawing.Imaging.Encoder myEncoder =
+            //            System.Drawing.Imaging.Encoder.Quality;
+
+            //        // Create an EncoderParameters object.  
+            //        // An EncoderParameters object has an array of EncoderParameter  
+            //        // objects. In this case, there is only one  
+            //        // EncoderParameter object in the array.  
+            //        System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+            //        System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+            //        myEncoderParameters.Param[0] = myEncoderParameter;
+
+            //        //img.Save(@"D:\TesResize\img.jpg");
+            //        var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+            //        //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+            //        //resizedImage.Save(@"D:\TesResize\resizedImage.jpg", jpgEncoder, myEncoderParameters);
+            //        resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+            //        //ImageConverter _imageConverter = new ImageConverter();
+            //        //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+            //        stream.ToArray();
+
+            //        //using (var ms = new MemoryStream(resizedByteArr))
+            //        //{
+            //        //    var img2 = Image.FromStream(ms);
+            //        //    img2.Save(@"D:\TesResize\resizedByte.jpg", jpgEncoder, myEncoderParameters);
+            //        //}
+            //        //resizedImage.Save(@"D:\TesResize\resizedImage.jpg", jpgEncoder, myEncoderParameters);
+
+            //    }
+            //}
+            //end add by calvin 1 maret 2019, tes resize image
+
             return View();
+        }
+
+        public Bitmap BlibliResizeImage(System.Drawing.Image image, int width, int height)
+        {
+            var destRect = new Rectangle(0, 0, width, height);
+            var destImage = new Bitmap(width, height);
+
+            destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(destImage))
+            {
+                graphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+                graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                
+                using (var wrapMode = new System.Drawing.Imaging.ImageAttributes())
+                {
+                    wrapMode.SetWrapMode( System.Drawing.Drawing2D.WrapMode.TileFlipXY);
+                    graphics.DrawImage(image, destRect, 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+
+            return destImage;
+        }
+        private System.Drawing.Imaging.ImageCodecInfo GetEncoder(System.Drawing.Imaging.ImageFormat format)
+        {
+            System.Drawing.Imaging.ImageCodecInfo[] codecs = System.Drawing.Imaging.ImageCodecInfo.GetImageDecoders();
+            foreach (System.Drawing.Imaging.ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+        public static Bitmap BlibliResizeImageFromStream(MemoryStream stream)
+        {
+            using (var img = Image.FromStream(stream))
+            {
+                float newResolution = img.Height;
+                if (img.Width < newResolution)
+                {
+                    newResolution = img.Width;
+                }
+                var destRect = new Rectangle(0, 0, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                var destImage = new Bitmap(Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+
+                //var newWidth = (int)(srcImage.Width * scaleFactor);
+                //var newHeight = (int)(srcImage.Height * scaleFactor);
+                var newWidth = (int)(newResolution);
+                var newHeight = (int)(newResolution);
+                using (var newImage = new Bitmap(newWidth, newHeight))
+                using (var graphics = Graphics.FromImage(newImage))
+                {
+                    graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    graphics.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                    graphics.DrawImage(img, destRect);
+                    //newImage.Save("","Test", System.Drawing.Imaging.ImageFormat.Jpeg);
+                }
+                return destImage;
+            }
         }
 
         //[Route("manage/report/test")]

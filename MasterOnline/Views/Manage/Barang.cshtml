@@ -1310,7 +1310,15 @@
                                             //select
                                             var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
                                             SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            //change by calvin 1 maret 2019
+                                            //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            }
+                                            else {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                            }
+                                            //end change by calvin 1 maret 2019
                                         }
                                         else {
                                             //textbox
@@ -2283,7 +2291,15 @@
                                             //select
                                             var selectID = 'attribute_select_shopee_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            //change by calvin 1 maret 2019
+                                            //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            }
+                                            else {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih"></select></div>';
+                                            }
+                                            //end change by calvin 1 maret 2019
                                         }
                                         else
                                         {

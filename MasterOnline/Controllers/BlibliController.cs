@@ -5167,6 +5167,19 @@ namespace MasterOnline.Controllers
             public string locationPath { get; set; }
         }
 
+        private System.Drawing.Imaging.ImageCodecInfo GetEncoder(System.Drawing.Imaging.ImageFormat format)
+        {
+            System.Drawing.Imaging.ImageCodecInfo[] codecs = System.Drawing.Imaging.ImageCodecInfo.GetImageDecoders();
+            foreach (System.Drawing.Imaging.ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+
         public async Task<string> CreateProduct(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
@@ -5268,8 +5281,24 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+                                
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+                                
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
 
                                 images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                 images_pervar.Add(idGambar);
@@ -5302,8 +5331,24 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
 
                                 images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                 images_pervar.Add(idGambar);
@@ -5337,8 +5382,24 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
 
                                 images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                 images_pervar.Add(idGambar);
@@ -5461,8 +5522,24 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
 
                                 //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                                 images.Add(var_stf02h_item.ACODE_50, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
@@ -5635,6 +5712,34 @@ namespace MasterOnline.Controllers
             }
 
             return ret;
+        }
+        public static Bitmap BlibliResizeImageFromStream(MemoryStream stream)
+        {
+            using (var img = Image.FromStream(stream))
+            {
+                float newResolution = img.Height;
+                if (img.Width < newResolution)
+                {
+                    newResolution = img.Width;
+                }
+                var destRect = new Rectangle(0, 0, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                var destImage = new Bitmap(Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+
+                //var newWidth = (int)(srcImage.Width * scaleFactor);
+                //var newHeight = (int)(srcImage.Height * scaleFactor);
+                var newWidth = (int)(newResolution);
+                var newHeight = (int)(newResolution);
+                using (var newImage = new Bitmap(newWidth, newHeight))
+                using (var graphics = Graphics.FromImage(newImage))
+                {
+                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    graphics.DrawImage(img, destRect);
+                    //newImage.Save(outputFile);
+                }
+                return destImage;
+            }
         }
         public static Bitmap BlibliResizeImage(System.Drawing.Image image, int width, int height)
         {
