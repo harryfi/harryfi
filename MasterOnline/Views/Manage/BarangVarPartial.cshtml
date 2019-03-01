@@ -29,10 +29,20 @@
                 $('#simpan_btn').show();
                 $('#next_btn').hide();
                 $('#div_info_harga_variant').hide();
+
+                $('.detail_mp_blibli_gambar').each(function () {
+                    var $this = $(this);
+                    $this.show();
+                });
             } else {
                 $('#simpan_btn').hide();
                 $('#next_btn').show();
                 $('#div_info_harga_variant').show();
+
+                $('.detail_mp_blibli_gambar').each(function () {
+                    var $this = $(this);
+                    $this.hide();
+                });
             }
         });
 
@@ -718,7 +728,9 @@
                     ada_tokped = true;
                     var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtTokpedCategoryCodeFound').val() + '__CATEGORY_CODE';
                     tokped_code = $(fieldCategoryCode).val();
-                    validasiAutoloadStf02VariantTokped();
+                    if (validasi_autoloadStf02Variant) {
+                        validasiAutoloadStf02VariantTokped();
+                    }
                 }
             }
             //END TOKPED
@@ -731,7 +743,9 @@
                     ada_blibli = true;
                     var fieldCategoryCode = '#ListHargaJualPermarket_' + $('#txtBlibliCategoryCodeFound').val() + '__CATEGORY_CODE';
                     blibli_code = $(fieldCategoryCode).val();
-                    validasiAutoloadStf02VariantBlibli();
+                    if (validasi_autoloadStf02Variant) {
+                        validasiAutoloadStf02VariantBlibli();
+                    }
                 }
             }
             //END BLIBLI
