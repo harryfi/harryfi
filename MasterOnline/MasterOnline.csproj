@@ -5945,6 +5945,12 @@
     <Content Include="Views\Admin\TableAccountWillExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountExpired.cshtml" />
     <Content Include="Views\Manage\PromptEtalaseTokopedia.cshtml" />
+    <Content Include="Views\Admin\AccountMenuEdit.cshtml" />
+    <Content Include="Views\Admin\TableAccountEdit.cshtml" />
+    <Content Include="Views\Admin\TableAccountExpiredEdit.cshtml" />
+    <Content Include="Views\Admin\TableAccountWillExpiredEdit.cshtml" />
+    <Content Include="Views\Admin\AccountDetailEdit.cshtml" />
+    <Content Include="Views\Admin\FormAccountPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

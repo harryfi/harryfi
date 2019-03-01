@@ -502,7 +502,152 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian Form (END)
+        // =============================================== Bagian Editor Account (START)
+        [Route("admin/manage/editor-account")]
+        [SessionAdminCheck]
+        public ActionResult AccountMenuEdit()
+        {
+            //change by nurul 13/2/2019
+            //var listAcc = MoDbContext.Account.ToList();
+            //return View(listAcc);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return View(vm);
+            //end change by nurul 13/2/2019
+        }
 
+        public ActionResult AccountDetailEdit(int? accId)
+        {
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId);
+
+            if (accInDb == null)
+                return View("Error");
+
+            //add by nurul 20/2/2019
+            var vm = new MenuAccount()
+            {
+                Account = accInDb
+            };
+            //end add by nurul 20/2/2019
+
+            //return View(accInDb);
+            return PartialView("AccountDetailEdit", vm);
+        }
+
+        //add by nurul 13/2/2019
+        public ActionResult RefreshAccountMenuEdit()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountEdit", vm);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AccountMenuWillExpiredEdit(string param)
+        {
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountWillExpiredEdit", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccountMenuExpiredEdit(string param)
+        {
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountExpiredEdit", vm);
+        }
+
+        public ActionResult EditAccount(int? accountId)
+        {
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(m => m.AccountId == accountId),
+                ListSubs=MoDbContext.Subscription.ToList()
+            };
+
+            //ViewData["Editing"] = 1;
+
+            //return View("AccountMenuEdit", vm);
+            return PartialView("FormAccountPartial", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveAccount(MenuAccount data)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("AccountMenuEdit", data);
+            }
+
+            if (data.Account.AccountId == 0)
+            {
+                var accInDb = MoDbContext.Account.SingleOrDefault(m => m.AccountId == data.Account.AccountId);
+
+                if (accInDb != null)
+                {
+                    ModelState.AddModelError("", @"Kode account sudah terdaftar!");
+                    return View("AccountMenuEdit", data);
+                }
+
+                MoDbContext.Account.Add(data.Account);
+            }
+            else
+            {
+                var accInDb = MoDbContext.Account.Single(m => m.AccountId == data.Account.AccountId);
+                //if (accInDb.Status != vm.Account.Status)
+                //{
+                //    Task<ActionResult> x = ChangeStatusPartner(Convert.ToString(vm.Account.AccountId));
+                //}
+                accInDb.Email = data.Account.Email;
+                accInDb.KODE_SUBSCRIPTION = data.Account.KODE_SUBSCRIPTION;
+                accInDb.TGL_SUBSCRIPTION = data.Account.TGL_SUBSCRIPTION;
+                accInDb.NoHp = data.Account.NoHp;
+                accInDb.jumlahUser = data.Account.jumlahUser;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            //return RedirectToAction("AccountMenuEdit");
+            //return RedirectToAction("FormAccountPartial");
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == data.Account.AccountId)
+            };
+
+            return PartialView("FormAccountPartial", vm);
+        }
+        // =============================================== Bagian Account (END)
         // =============================================== Menu-menu pada halaman admin (START)
 
         [Route("admin/manage/account")]

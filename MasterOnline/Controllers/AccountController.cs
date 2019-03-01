@@ -551,6 +551,9 @@ namespace MasterOnline.Controllers
             //add by Tri 13 Feb 2019, tambah tanggal daftar
             account.TGL_DAFTAR = DateTime.Now;
             //end add by Tri 13 Feb 2019, tambah tanggal daftar
+            //add by nurul 28/2/2019 set jumlahUser = 0
+            account.jumlahUser = 0;
+            //add by nurul 28/2/2019 set jumlahUser = 0
             MoDbContext.Account.Add(account);
             MoDbContext.SaveChanges();
             ModelState.Clear();
