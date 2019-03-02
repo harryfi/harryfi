@@ -748,7 +748,7 @@
             $bakalNetto = convertToAngka($('#Faktur_BRUTO').val());
 
             //change by nurul 6/11/2018 -- var $nPpn = Math.ceil($bakalNetto * $('#Faktur_PPN').val() / 100);
-            var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Faktur_NILAI_DISC').val()))) * parseInt($('#Faktur_PPN').val()) / 100);
+            var $nPpn = Math.ceil(($bakalNetto - parseFloat(convertToAngka($('#Faktur_NILAI_DISC').val()))) * parseFloat($('#Faktur_PPN').val()) / 100);
             $('#Faktur_NILAI_PPN').val(convertToRupiah($nPpn));
 
             $bakalNetto -= convertToAngka($('#Faktur_NILAI_DISC').val());
@@ -1197,9 +1197,18 @@
 
         function convertToAngka(rupiah) {
 
+            if (rupiah == '') {
+                rupiah = '0';
+            }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
             //end change by calvin 26 september 2018
         }
 

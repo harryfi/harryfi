@@ -304,7 +304,8 @@ namespace MasterOnline.Controllers
                             token = tblCustomer.TOKEN,
                             idmarket = tblCustomer.RecNum.Value
                         };
-                        BliApi.GetToken(data, true);
+                        BliApi.GetToken(data, true, false);
+                        //Task.Run(() => BliApi.GetCategoryTree(data)).Wait();
                     }
                 }
             }
@@ -389,12 +390,24 @@ namespace MasterOnline.Controllers
                     {
                         if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                         {
+                            //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
+                            //{
+                            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                            //    token = tblCustomer.TOKEN
+                            //};
+                            //string product_id = "372506586";
+                            //Task.Run(() => tokopediaApi.GetItemList(data, "", tblCustomer.CUST, tblCustomer.NAMA, product_id).Wait());
+
                             TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
                             {
                                 merchant_code = tblCustomer.Sort1_Cust, //FSID
                                 API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
                                 API_client_username = tblCustomer.API_CLIENT_U, //Client ID
                                 API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                idmarket = tblCustomer.RecNum.Value
                             };
                             //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
                             //{
@@ -405,7 +418,7 @@ namespace MasterOnline.Controllers
                             //    token = "pmgdpFANTcC0PM9tVzrwmw"
                             //};
                             tokopediaApi.GetToken(iden);
-
+                            
                             ////debug
                             //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
                             //{
@@ -551,6 +564,9 @@ namespace MasterOnline.Controllers
             //add by Tri 13 Feb 2019, tambah tanggal daftar
             account.TGL_DAFTAR = DateTime.Now;
             //end add by Tri 13 Feb 2019, tambah tanggal daftar
+            //add by nurul 28/2/2019 set jumlahUser = 0
+            account.jumlahUser = 0;
+            //add by nurul 28/2/2019 set jumlahUser = 0
             MoDbContext.Account.Add(account);
             MoDbContext.SaveChanges();
             ModelState.Clear();

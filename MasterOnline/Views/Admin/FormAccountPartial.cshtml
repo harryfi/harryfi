@@ -1,0 +1,176 @@
+﻿@using System.Globalization
+@model MasterOnline.Models.MenuAccount
+
+@{
+    var setStatus = "";
+    var status1 = Model?.Account?.Status;
+    if (status1 != null)
+    {
+        if (status1 == true)
+        {
+            setStatus = "Aktif";
+        }
+        else
+        {
+            setStatus = "Tidak Aktif";
+        }
+    }
+}
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Account.AccountId)
+<div class="row">
+    <div id="hidden_partner">
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.AccountId, "AccountId", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Account.AccountId, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Account.Username, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.NamaTokoOnline, "Nama Toko Online", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Account.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
+                @if (!String.IsNullOrWhiteSpace(Model?.Account?.PhotoKtpUrl))
+                {
+                    <img src="@Url.Content(Model.Account.PhotoKtpUrl)" width="65%" />
+                }
+                else
+                {
+                    <img src="~/Content/Images/no-img-market.jpg" />
+                }
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.KODE_REFERRAL, "Kode Referral", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Account.KODE_REFERRAL, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(m => m.Account.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+            <div class="col-md-6 col-sm-6 col-xs-12">
+                @Html.TextBoxFor(m => m.Account.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.Account?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
+            </div>
+        </div>
+
+        <div id="photo_base">
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.DatabasePathErasoft, "DatabasePathErasoft", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.DatabasePathErasoft, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.DatabasePathMo, "DatabasePathMo", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.DatabasePathMo, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.PhotoKtpBase64, "PhotoKtpBase64", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.PhotoKtpBase64, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.TOKEN_CC, "TOKEN_CC", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.TOKEN_CC, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.VCode, "VCode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.VCode, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.UserId, "User Id", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.UserId, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Account.Password, "Password", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Account.Password, new { @class = "form-control", @ReadOnly = true })
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", required = "required", min = 0, @data_val_length_max = 30,maxlength = 30 })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.KODE_SUBSCRIPTION, "Tipe Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.DropDownListFor(m => m.Account.KODE_SUBSCRIPTION, new List<SelectListItem>()
+    {
+    new SelectListItem()
+    {
+    Text = @"BASIC",
+    Value = "01",
+    },
+    new SelectListItem()
+    {
+    Text = @"SILVER",
+    Value = "02"
+    },
+    new SelectListItem()
+    {
+    Text = @"GOLD",
+    Value = "03"
+    }
+    }, new { @class = "form-control" })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.TGL_SUBSCRIPTION, "Tanggal Berakhir Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.HiddenFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", required = "required", Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
+            <div class="input-group date">
+                <input type="text" id="TGL" class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.jumlahUser, "Jumlah User", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", required = "required", Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser), maxlength = 20, min = 0, @data_val_length_max = 20 })
+        </div>
+    </div>
+</div>
+
+<hr />
+<input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanAccount('@Model.Account.AccountId')" />

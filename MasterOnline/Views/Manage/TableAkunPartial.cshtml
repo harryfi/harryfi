@@ -5,7 +5,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Username</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">No. HP</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Security</th>
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Security</th> 'remark by nurul 1/3/2019*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
         </tr>
@@ -17,7 +17,8 @@
                 <td>@user.Username</td>
                 <td>@user.Email</td>
                 <td>@user.NoHp</td>
-                <td>
+                
+                @*<td>
                     @{
                         var listSec = Model.ListSec.Where(m => m.UserId == user.UserId).ToList();
 
@@ -40,7 +41,7 @@
                             @("Belum ada")
                         }
                     }
-                </td>
+                </td> 'remark by nurul 1/3/2019*@
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="editUser(@user.UserId)">
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
