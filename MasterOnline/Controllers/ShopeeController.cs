@@ -1816,7 +1816,10 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = seconds.ToString(),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_1 = ordersn,
+                REQUEST_ATTRIBUTE_2 = dTrackNo,
+                REQUEST_ATTRIBUTE_3 = "dropoff",
+                REQUEST_ATTRIBUTE_4 = dSender + "[;]" + dBranch,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -1929,7 +1932,10 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = seconds.ToString(),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_1 = ordersn,
+                REQUEST_ATTRIBUTE_2 = "",
+                REQUEST_ATTRIBUTE_3 = "NonIntegrated",
+                REQUEST_ATTRIBUTE_4 = savedParam,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -2005,7 +2011,10 @@ namespace MasterOnline.Controllers
                 REQUEST_ID = seconds.ToString(),
                 REQUEST_ACTION = "Update No Resi",
                 REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_1 = ordersn,
+                REQUEST_ATTRIBUTE_2 = "",
+                REQUEST_ATTRIBUTE_3 = "Pickup",
+                REQUEST_ATTRIBUTE_4 = savedParam,
                 REQUEST_STATUS = "Pending",
             };
 

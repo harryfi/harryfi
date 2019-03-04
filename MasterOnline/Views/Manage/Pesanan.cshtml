@@ -5129,7 +5129,7 @@
 
                     $('#resi_no_bukti_Shopee').val(response[2]);
                     $('#resi_pembeli_Shopee').val(response[3]);
-                    $('#resi_kurir_Shopee').val(response[4]);
+                    $('#resi_kurir_Shopee').val(response[1]);
 
                     var valueTRACKING_SHIPMENT = response[0].split('[;]');
 
@@ -5713,7 +5713,7 @@
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    //$('#see_expedisi_pesanan').val($('#Pesanan_EXPEDISI').val()).show();
+                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
@@ -5761,7 +5761,7 @@
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    //$('#see_expedisi_pesanan').val($('#Pesanan_EXPEDISI').val()).show();
+                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     $('#TGL').parent().hide();
                     $('.pesanan_sudah_dibayar_section').hide();

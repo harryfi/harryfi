@@ -11653,15 +11653,12 @@ namespace MasterOnline.Controllers
         [Route("manage/reports")]
         public async Task<ActionResult> Reports()
         {
-
             //string brgtes = "01.SMKR00.00.3m";
             //List<string> listBrg = new List<string>();
-
             //listBrg.Add(brgtes);
 
-            //listBrg.Add("01.SMKR00.00.12m");
-            //listBrg.Add("01.SMKR00.00.3m");
-            //listBrg.Add("01.SMKR00.00.6m");
+            //listBrg.Add("01.DCTR00.00.3m");
+            //listBrg.Add("01.JACJ00.00.18m");
 
             //updateStockMarketPlace(listBrg);
 
