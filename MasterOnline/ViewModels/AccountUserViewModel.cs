@@ -14,5 +14,9 @@ namespace MasterOnline.ViewModels
         public List<User> ListUser { get; set; } = new List<User>();
         public List<SecUser> ListSec { get; set; } = new List<SecUser>();
         public List<string> Errors { get; set; } = new List<string>();
+
+        //add by nurul 1/3/2019
+        public List<Subscription> ListSubs { get; set; } = new List<Subscription>();
+        //end add by nurul 1/3/2019
     }
 }
