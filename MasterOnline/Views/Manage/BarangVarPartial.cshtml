@@ -494,6 +494,7 @@
                         searchField: 'text',
                         options: SelectList,
                         onChange: function (value) {
+                            debugger;
                             $('#save_map_var_blibli').removeAttr('disabled');
                             var input_data_recnum = $(this.$input).attr('data-recnum');
                             $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
@@ -501,7 +502,7 @@
                     });
 
                     attributeOptSelect[0].selectize.clearOptions();
-                    attributeOptSelect[0].selectize.renderCache = {};
+                    //attributeOptSelect[0].selectize.renderCache = {};
                     attributeOptSelect[0].selectize.load(function (callback) {
                         callback(SelectList);
 

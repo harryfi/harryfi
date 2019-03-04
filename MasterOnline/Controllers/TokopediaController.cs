@@ -1040,7 +1040,6 @@ namespace MasterOnline.Controllers
         }
         public async Task<string> UpdateStock(TokopediaAPIData iden, int product_id, int stok)
         {
-
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
