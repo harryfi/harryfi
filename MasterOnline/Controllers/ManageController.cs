@@ -6856,7 +6856,11 @@ namespace MasterOnline.Controllers
                 //ListUser = MoDbContext.User.Where(u => u.AccountId == dataSession.Account.AccountId).ToList(),
                 ListUser = userAc,
                 //end change by nurul 8/2/2019
-                ListSec = MoDbContext.SecUser.ToList()
+                ListSec = MoDbContext.SecUser.ToList(),
+
+                //add by nurul 1/3/2019
+                ListSubs=MoDbContext.Subscription.ToList()
+                //end add by nurul 1/3/2019
             };
 
             return View(vm);
@@ -7054,6 +7058,29 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableAkunPartial", vm);
         }
+
+        //add by nurul 1/3/2019
+        public ActionResult CekJumlahUser(long accId)
+        {
+            var accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accId);
+
+            if (accInDb == null)
+            {
+                var accIdByUser = MoDbContext.User.FirstOrDefault(u => u.AccountId == accId)?.AccountId;
+                accInDb = MoDbContext.Account.FirstOrDefault(a => a.AccountId == accIdByUser);
+            }
+
+            var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
+            var cekuser = MoDbContext.User.Where(a => a.AccountId == accId).Count();
+            
+            var valSubs = new ValidasiSubs()
+            {
+                JumlahUserLebih = (cekuser >= accInDb.jumlahUser)
+            };
+
+            return Json(valSubs, JsonRequestBehavior.AllowGet);
+        }
+        //end add by nurul 1/3/2019
 
         // =============================================== Bagian User (END)
 

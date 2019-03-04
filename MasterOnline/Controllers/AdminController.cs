@@ -255,7 +255,8 @@ namespace MasterOnline.Controllers
             {
                 ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
                 //ADD BY NURUL 22/2/2019
-                ListSubs=MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList(),
+                ListAccount = MoDbContext.Account.ToList()
                 //END ADD BY NURUL 22/2/2019
             };
 
