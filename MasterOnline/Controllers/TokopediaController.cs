@@ -1281,9 +1281,16 @@ namespace MasterOnline.Controllers
                             if (item.sku == SKU)
                             {
                                 found = true;
-                                if (item.childs.Count() > 0)
+                                if (item.childs != null)
                                 {
-                                    await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
+                                    if (item.childs.Count() > 0)
+                                    {
+                                        await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
+                                    }
+                                    else
+                                    {
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    }
                                 }
                                 else
                                 {

@@ -298,7 +298,7 @@
                         options: SelectList,
                         onChange: function (value) {
                             $('#save_map_var_tokped').removeAttr('disabled');
-                            var input_data_recnum = $(this.$input).attr('data-recnum');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
                             $('#txtVariantTokpedLv' + level + '_' + input_data_recnum).val(value);
                         }
                     });
@@ -494,9 +494,9 @@
                         searchField: 'text',
                         options: SelectList,
                         onChange: function (value) {
-                            debugger;
+
                             $('#save_map_var_blibli').removeAttr('disabled');
-                            var input_data_recnum = $(this.$input).attr('data-recnum');
+                            var input_data_recnum = $($(this.$input).closest('.tampungdatarecnum')).attr('data-recnum');
                             $('#txtVariantBlibliLv' + level + '_' + input_data_recnum).val(value);
                         }
                     });
@@ -1392,8 +1392,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -1479,8 +1481,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -1566,8 +1570,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantBlibliLv3_@(VariantPerMpBlibliLv3[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM" class="selectVariantBlibliLv3_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv3_" + VariantPerMpBlibliLv3[i].RECNUM, VariantPerMpBlibliLv3[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv3_" })
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv3_@(VariantPerMpBlibliLv3[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM" class="selectVariantBlibliLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv3_" + VariantPerMpBlibliLv3[i].RECNUM, VariantPerMpBlibliLv3[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv3_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -1998,9 +2004,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantTokpedLv1_@(VariantPerMpTokpedLv1[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM" class="selectVariantTokpedLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv1_" + VariantPerMpTokpedLv1[i].RECNUM, VariantPerMpTokpedLv1[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv1_" })
-                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM"></div>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv1_@(VariantPerMpTokpedLv1[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM" class="selectVariantTokpedLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv1_" + VariantPerMpTokpedLv1[i].RECNUM, VariantPerMpTokpedLv1[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv1_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -2086,9 +2093,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantTokpedLv2_@(VariantPerMpTokpedLv2[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM" class="selectVariantTokpedLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv2_" + VariantPerMpTokpedLv2[i].RECNUM, VariantPerMpTokpedLv2[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv2_" })
-                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM"></div>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv2_@(VariantPerMpTokpedLv2[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM" class="selectVariantTokpedLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv2_" + VariantPerMpTokpedLv2[i].RECNUM, VariantPerMpTokpedLv2[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv2_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -2174,9 +2182,10 @@
                                                                    })
                                                                     </td>
                                                                     <td>
-                                                                        <select id="selectVariantTokpedLv3_@(VariantPerMpTokpedLv3[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM" class="selectVariantTokpedLv3_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv3_" + VariantPerMpTokpedLv3[i].RECNUM, VariantPerMpTokpedLv3[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv3_" })
-                                                                        <div style="display:none" class="txtVariantRECNUM" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM"></div>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv3_@(VariantPerMpTokpedLv3[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM" class="selectVariantTokpedLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv3_" + VariantPerMpTokpedLv3[i].RECNUM, VariantPerMpTokpedLv3[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv3_" })
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             }

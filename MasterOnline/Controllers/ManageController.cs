@@ -682,8 +682,11 @@ namespace MasterOnline.Controllers
             {
                 //ListStf02S = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "CCTESCUP2" || p.BRG == "16.BWHG00.04.00")).ToList(),
+
+                //ingat ganti saat publish, by calvin
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "16.BWHG00.04.00")).ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
                 //ListCategoryBlibli = MoDbContext.CategoryBlibli.Where(p => string.IsNullOrEmpty(p.PARENT_CODE)).ToList(),
@@ -5286,9 +5289,11 @@ namespace MasterOnline.Controllers
 
             ModelState.Clear();
 
+            //ingat ganti saat publish, by calvin
             saveBarangShopeeVariant(2, brg, false);
             saveBarangBlibliVariant(2, brg);
             saveBarangTokpedVariant(2, brg, false);
+
             var partialVm = new BarangViewModel()
             {
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
@@ -11689,6 +11694,7 @@ namespace MasterOnline.Controllers
         [Route("manage/reports")]
         public async Task<ActionResult> Reports()
         {
+            //ingat ganti saat publish, by calvin
             //string brgtes = "01.SMKR00.00.3m";
             //List<string> listBrg = new List<string>();
             //listBrg.Add(brgtes);

@@ -2649,8 +2649,7 @@ namespace MasterOnline.Controllers
             string myData = JsonConvert.SerializeObject(HttpBody);
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-
-
+            
             string responseFromServer = "";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
@@ -2683,7 +2682,8 @@ namespace MasterOnline.Controllers
 
             //var client = new HttpClient();
             //client.DefaultRequestHeaders.Add("Authorization", signature);
-            //var content = new FormUrlEncodedContent(ToKeyValue(myData));
+            //var content = new StringContent(myData);
+            //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
 
             //HttpResponseMessage clientResponse = await client.PostAsync(
             //    urll, content);
@@ -4335,6 +4335,7 @@ namespace MasterOnline.Controllers
             {
                 byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
                 return BitConverter.ToString(hashmessage).Replace("-", "").ToLower();
+                //return BitConverter.ToString(hashmessage).ToLower();
             }
         }
         protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, ShopeeAPIData iden, API_LOG_MARKETPLACE data)

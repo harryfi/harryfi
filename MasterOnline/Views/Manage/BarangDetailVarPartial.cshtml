@@ -252,24 +252,41 @@
     function getFotoProdukVariant() {
         $('.hidden_url_gambar_var').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
-            $('#box_upload_var_' + data_barang_id).css({
-                'background-image': 'url("' + $(item).val() + '")',
-                'background-size': 'cover'
-            });
-            $('#box_upload_var_' + data_barang_id + ' span').hide();
-            $('#btn_hapus_var_' + data_barang_id).show();
+
+            $('#foto_produk_var_' + data_barang_id).val(null);
+            $('#box_upload_var_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var_' + data_barang_id).show();
+            }
+
         });
     }
 
     function getFotoProdukBlibliVariant() {
         $('.hidden_url_gambar_var_blibli').each(function (i, item) {
             var data_barang_id = $(item).attr("data-barang-id");
-            $('#box_upload_var_blibli_' + data_barang_id).css({
-                'background-image': 'url("' + $(item).val() + '")',
-                'background-size': 'cover'
-            });
-            $('#box_upload_var_blibli_' + data_barang_id + ' span').hide();
-            $('#btn_hapus_var_blibli_' + data_barang_id).show();
+
+            $('#foto_produk_var_blibli_' + data_barang_id).val(null);
+            $('#box_upload_var_blibli_' + data_barang_id).css('background-image', '');
+            $('#box_upload_var_blibli_' + data_barang_id + ' span').show();
+            $('#btn_hapus_var_blibli_' + data_barang_id).hide();
+
+            if ($(item).val() != "") {
+                $('#box_upload_var_blibli_' + data_barang_id).css({
+                    'background-image': 'url("' + $(item).val() + '")',
+                    'background-size': 'cover'
+                });
+                $('#box_upload_var_blibli_' + data_barang_id + ' span').hide();
+                $('#btn_hapus_var_blibli_' + data_barang_id).show();
+            }
         });
     }
 
