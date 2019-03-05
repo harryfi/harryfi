@@ -1951,7 +1951,7 @@
                 $(this).attr('data-toggle', 'tab');
                 $(this).removeClass('disabled-tab');
             });
-            
+
             //end add by nurul 6/11/2018
 
             $modeEdit = 0;
@@ -2031,7 +2031,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    
+
                     //end add
 
                     //if ($TabAktif == 0) {
@@ -2219,6 +2219,9 @@
                     //        $(this).removeAttr('disabled');
                     //    });
                     //}
+
+                    $('#tambah-pembeli').hide();
+
                     $('tr[data-faktur-id="0"]').remove();
                     $('#loading_spinner').hide();
                 },
@@ -2450,7 +2453,13 @@
             });
 
             $('#tambah-pembeli').click(function() {
-                window.open('@Url.Action("BuyerPopup", "Manage")', "popupWindow", "width=600, height=400, scrollbars=yes");
+                promptPembeli = "1";
+                //change by calvin 4 maret 2019
+                //window.open('@Url.Action("BuyerPopup", "Manage")', "popupWindow", "width=600, height=400, scrollbars=yes");
+                window.open('@Url.Action("BuyerPopUp1", "Manage")',
+                    "popupWindow",
+                    "width=850, height=400, scrollbars=yes, resizable=no");
+                //end change by calvin 4 maret 2019
             });
 
             $('#lihat-pembeli').click(function () {
@@ -3003,28 +3012,28 @@
                             };
                         });
 
-                    $('#MARKETPEMESAN').selectize()[0].selectize.destroy();
+                    //$('#MARKETPEMESAN').selectize()[0].selectize.destroy();
 
-                    var marketSelect = $('#MARKETPEMESAN').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listPembeli,
-                        onChange: function (value) {
-                            $('#Faktur_PEMESAN').val(value);
-                            $('#Faktur_NAMAPEMESAN').val($("#MARKETPEMESAN option:selected").text());
+                    //var marketSelect = $('#MARKETPEMESAN').selectize({
+                    //    valueField: 'id',
+                    //    searchField: 'text',
+                    //    options: listPembeli,
+                    //    onChange: function (value) {
+                    //        $('#Faktur_PEMESAN').val(value);
+                    //        $('#Faktur_NAMAPEMESAN').val($("#MARKETPEMESAN option:selected").text());
 
-                            if (value == null) {
-                                $('#tambah-pembeli').show();
-                                $('#lihat-pembeli').hide();
-                            } else {
-                                $('#tambah-pembeli').hide();
-                                $('#lihat-pembeli').show();
-                            }
-                            $('#btn-simpan-perubahan-row').show();
-                        }
-                    });
+                    //        if (value == null) {
+                    //            $('#tambah-pembeli').show();
+                    //            $('#lihat-pembeli').hide();
+                    //        } else {
+                    //            $('#tambah-pembeli').hide();
+                    //            $('#lihat-pembeli').show();
+                    //        }
+                    //        $('#btn-simpan-perubahan-row').show();
+                    //    }
+                    //});
 
-                    marketSelect[0].selectize.setValue($('#Faktur_PEMESAN').val());
+                    //marketSelect[0].selectize.setValue($('#Faktur_PEMESAN').val());
                     $('#btn-simpan-perubahan-row').hide();
                 },
                 error: function (xhr) {
@@ -3762,6 +3771,40 @@
             //link += '?filename=' + txt;
 
         }
+        var promptPembeli = "";
+
+        //add by calvin 4 maret 2019
+        function afterPromptPembeli(kd) {
+            if (promptPembeli == "1") {
+                $('#Faktur_PEMESAN').val(kd);
+                getBuyerPrompt(kd);
+            }
+            promptPembeli = "";
+        }
+
+        function getBuyerPrompt(kd) {
+            var link = '';
+
+            link = '@Url.Action("GetPembeliPesanan", "Manage", new { kode = "replaceKode" })';
+            link = link.replace("replaceKode", $('#Faktur_PEMESAN').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                    $('#Faktur_PEMESAN').val(res.BUYER_CODE);
+                    $('#Faktur_NAMAPEMESAN').val(res.NAMA);
+
+                    //$('#Pesanan_ALAMAT_KIRIM').val(res.AL);
+                    ////$("#MARKETPEMESAN").val(res.NAMA);
+                    //$('#btn-simpan-perubahan-row').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add
 
         //add by nurul 3/12/2018
         function cetakFaktur(nobuk) {
