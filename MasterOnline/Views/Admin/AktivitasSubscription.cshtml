@@ -98,7 +98,8 @@
                             @*<td class="text-center">@sub.TipeSubs</td>*@
                             <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
                             @*add by nurul 4/3/2019*@
-                            <td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>
+                            @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
+                            <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
                             @*end add by nurul 4/3/2019*@
                             <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
                         </tr>
