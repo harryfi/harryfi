@@ -181,9 +181,18 @@ namespace MasterOnline.Controllers
             ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
             MoDbContext.SaveChanges();
 
-            var listAcc = MoDbContext.Account.ToList();
+            //change by nurul 5/3/2019
+            //var listAcc = MoDbContext.Account.ToList();
 
-            return View("AccountMenu", listAcc);
+            //return View("AccountMenu", listAcc);
+
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return View("AccountMenu", vm);
+            //end change by nurul 5/3/2019
         }
 
         public ActionResult TambahHapusDatabaseAcc(int? accId)
