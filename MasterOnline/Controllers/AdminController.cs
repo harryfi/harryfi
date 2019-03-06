@@ -116,7 +116,8 @@ namespace MasterOnline.Controllers
         }
 
         // Mengubah status akun utama
-        public ActionResult ChangeStatusAcc(int? accId)
+        //public ActionResult ChangeStatusAcc(int? accId)
+        public async Task<ActionResult> ChangeStatusAcc(int? accId)
         {
             var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
             accInDb.Status = !accInDb.Status;
@@ -180,6 +181,79 @@ namespace MasterOnline.Controllers
 
             ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
             MoDbContext.SaveChanges();
+
+            //add by nurul 5/3/2019
+            var email = new MailAddress(accInDb.Email);
+            var originPassword = accInDb.Password;
+            var nama = accInDb.Username;
+            //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                "<p>Hi {2},</p>" +
+                "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
+                "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
+                "<p>Email akun anda ialah sebagai berikut :</p>" +
+                "<p>Email: {0}</p>" +
+                "<p>Fitur utama kami:</p>" +
+                "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
+                "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
+                "<p>3. Analisa penjualan di semua marketplace.</p>" +
+                "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email csmasteronline@gmail.com atau chat melalui website kami www.masteronline.co.id.</p>" +
+                "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
+                "<p>&nbsp;</p>" +
+                "<p>Best regards,</p>" +
+                "<p>CS Master Online.</p>";
+            //end change by nurul 5/3/2019
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Pendaftaran MasterOnline berhasil!";
+            message.Body = string.Format(body, accInDb.Email, originPassword, nama);
+            message.IsBodyHtml = true;
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#endif
+            //end add by nurul 5/3/2019
 
             //change by nurul 5/3/2019
             //var listAcc = MoDbContext.Account.ToList();
