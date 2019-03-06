@@ -1942,8 +1942,8 @@ namespace MasterOnline.Controllers
             return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        //public async Task<ActionResult> GetAttributeShopee(string code,string marketrecnum)
-        public async Task<ActionResult> GetAttributeShopee(string code)
+        //public async Task<ActionResult> GetAttributeShopee(string code, string marketrecnum)
+        public ActionResult GetAttributeShopee(string code)
         {
             string[] codelist = code.Split(';');
             var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();

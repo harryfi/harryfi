@@ -665,7 +665,7 @@
                         $('#simpan_btn').hide();
                         $('#next_btn').show();
                         $('#div_info_harga_variant').show();
-                        
+
                         $('.detail_mp_blibli_gambar').each(function () {
                             var $this = $(this);
                             $this.hide();
@@ -2240,9 +2240,12 @@
         function getAttributeShopee(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
-            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode",marketrecnum = "replaceSort1Cust" })';
+            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", categoryCode);
-            link = link.replace("replaceSort1Cust", listMarketRecNum);
+
+            @*var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode",marketrecnum = "replaceSort1Cust" })';
+            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceSort1Cust", listMarketRecNum);*@
 
             $.ajax({
                 type: "GET",
