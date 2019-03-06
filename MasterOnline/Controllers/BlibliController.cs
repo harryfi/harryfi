@@ -5297,6 +5297,7 @@ namespace MasterOnline.Controllers
 
                                 resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
 
+                                stream.Position = 0;
                                 byte[] resizedByteArr = stream.ToArray();
                                 //end change by calvin 1 maret 2019
 
@@ -5347,6 +5348,7 @@ namespace MasterOnline.Controllers
 
                                 resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
 
+                                stream.Position = 0;
                                 byte[] resizedByteArr = stream.ToArray();
                                 //end change by calvin 1 maret 2019
 
@@ -5398,6 +5400,7 @@ namespace MasterOnline.Controllers
 
                                 resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
 
+                                stream.Position = 0;
                                 byte[] resizedByteArr = stream.ToArray();
                                 //end change by calvin 1 maret 2019
 
@@ -5538,11 +5541,12 @@ namespace MasterOnline.Controllers
 
                                 resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
 
+                                stream.Position = 0;
                                 byte[] resizedByteArr = stream.ToArray();
                                 //end change by calvin 1 maret 2019
 
                                 //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images.Add(var_stf02h_item.ACODE_50, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             }
                         }
                     }

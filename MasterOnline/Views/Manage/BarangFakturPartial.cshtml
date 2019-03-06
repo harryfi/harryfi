@@ -45,7 +45,7 @@
 @Html.HiddenFor(m => m.Faktur.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
 @Html.HiddenFor(m => m.Faktur.NO_REF, new { Value = "" })
 @Html.HiddenFor(m => m.Faktur.NILAI_PPNBM, new { Value = 0 })
-@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN, new { Value = "" })
+@*@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN, new { Value = "" })*@
 
 
 <div class="form-horizontal">
@@ -137,14 +137,15 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="input-group">
                         @Html.HiddenFor(m => m.Faktur.PEMESAN)
-                        <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>
+                        @Html.TextBoxFor(m => m.Faktur.NAMAPEMESAN, new { @class = "form-control" })
+                        @*<select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>*@
                         <span class="input-group-btn">
                             <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
                                 <span class="glyphicon glyphicon-plus"></span>
                             </button>
-                            <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
+                            @*<button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
                                 <span class="glyphicon glyphicon-eye-open"></span>
-                            </button>
+                            </button>*@
                         </span>
                     </div>
                 </div>
