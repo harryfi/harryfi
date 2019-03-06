@@ -597,7 +597,7 @@ namespace MasterOnline.Controllers
             var message = new MailMessage();
             message.To.Add(email);
             message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Pendaftaran MasterOnline berhasil!";
+            message.Subject = "Pendaftaran Master Online berhasil!";
             message.Body = string.Format(body, account.Email, originPassword, nama);
             message.IsBodyHtml = true;
 #if AWS
