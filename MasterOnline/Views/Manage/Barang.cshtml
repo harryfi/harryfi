@@ -1616,8 +1616,10 @@
         function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
+            @*var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode);*@
             var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceCode", categoryCode + ';' + listMarketRecNum);
 
             $.ajax({
                 type: "GET",
@@ -1628,7 +1630,7 @@
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
-                    $.each(data,
+                    $.each(data.attributes,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
                                 var ACODE = item["ACODE_" + (i + 1)];
@@ -1682,20 +1684,20 @@
                                             loop = 0;
                                         }
                                     }
-                                    else {
-                                        if (loop == 1) {
-                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
-                                            fieldAVALUE = "";
-                                            loop = 2;
-                                            for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
-                                            }
+                                }
+                                else {
+                                    if (loop == 1) {
+                                        $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
+                                        fieldAVALUE = "";
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5],data.attribute_opt);
                                         }
-                                        else if (loop == 0) {
-                                            loop = 2;
-                                            for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
-                                            }
+                                    }
+                                    else if (loop == 0) {
+                                        loop = 2;
+                                        for (var i = 0; i < (SelectList.length / 6); i++) {
+                                            getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5],data.attribute_opt);
                                         }
                                     }
                                 }
@@ -1707,8 +1709,8 @@
                 }
             });
         }
-        function getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE){
-            var link = '@Url.Action("GetAttributeOptBlibli", "Manage", new { code = "replaceCode" })';
+        function getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE,optAttributes){
+            @*var link = '@Url.Action("GetAttributeOptBlibli", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ACODE);
 
             $.ajax({
@@ -1716,52 +1718,52 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                success: function (data) {
-                    var listAttributeOpt = [];
+                success: function (data) {*@
+            var listAttributeOpt = [];
 
-                    $.each(data,
-                        function (i, item) {
-                            listAttributeOpt[i] = {
-                                id: item.OPTION_VALUE,
-                                text: item.OPTION_VALUE
-                            };
-                        });
+            $.each(optAttributes.filter(p=>p.ACODE == ACODE),
+                function (i, item) {
+                    listAttributeOpt[i] = {
+                        id: item.OPTION_VALUE,
+                        text: item.OPTION_VALUE
+                    };
+                });
 
-                    if (ATYPE == "DEFINING_ATTRIBUTE") {
-                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                            maxItems : 1,
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
-
-                        if (adaValue != ""){
-                            var adaValues = adaValue.split(',');
-                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                        }
+            if (ATYPE == "DEFINING_ATTRIBUTE") {
+                var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                    maxItems : 1,
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listAttributeOpt,
+                    onChange: function (value) {
+                        $('#' + fieldAVALUE_ID).val(value);
                     }
-                    else {
-                        var AttributeOptSelect = $('#' + selectID).selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
+                });
 
-                        if (adaValue != "" && adaValue != null) {
-                            AttributeOptSelect[0].selectize.setValue(adaValue, true);
-                        }
-                    }
-                },
-                error: function (xhr) {
-                    console.log(xhr);
+                if (adaValue != ""){
+                    var adaValues = adaValue.split(',');
+                    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                 }
-            });
+            }
+            else {
+                var AttributeOptSelect = $('#' + selectID).selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listAttributeOpt,
+                    onChange: function (value) {
+                        $('#' + fieldAVALUE_ID).val(value);
+                    }
+                });
+
+                if (adaValue != "" && adaValue != null) {
+                    AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                }
+            }
+            //    },
+            //    error: function (xhr) {
+            //        console.log(xhr);
+            //    }
+            //});
         }
 
 
@@ -2240,12 +2242,11 @@
         function getAttributeShopee(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
-            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
+            @*var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode);*@
 
-            @*var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode",marketrecnum = "replaceSort1Cust" })';
-            link = link.replace("replaceCode", categoryCode);
-            link = link.replace("replaceSort1Cust", listMarketRecNum);*@
+            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
+            link = link.replace("replaceCode", categoryCode + ';' + listMarketRecNum);
 
             $.ajax({
                 type: "GET",
@@ -2253,10 +2254,11 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
+                    debugger;
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
-                    $.each(data,
+                    $.each(data.attributes,
                         function (i, item) {
                             for (var i = 0; i < 30; i++) {
                                 var ACODE = item["ACODE_" + (i + 1)];
@@ -2334,13 +2336,13 @@
                                             fieldAVALUE = "";
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
                                             }
                                         }
                                         else if (loop == 0) {
                                             loop = 2;
                                             for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                                getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
                                             }
                                         }
                                     }
@@ -2351,13 +2353,13 @@
                                         fieldAVALUE = "";
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
                                         }
                                     }
                                     else if (loop == 0) {
                                         loop = 2;
                                         for (var i = 0; i < (SelectList.length / 6); i++) {
-                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
+                                            getAttributeOptionShopee(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5], data.attribute_opts);
                                         }
                                     }
                                 }
@@ -2370,8 +2372,8 @@
             });
         }
 
-        function getAttributeOptionShopee(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE){
-            var link = '@Url.Action("GetAttributeOptShopee", "Manage", new { code = "replaceCode" })';
+        function getAttributeOptionShopee(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE,optAttributes){
+            @*var link = '@Url.Action("GetAttributeOptShopee", "Manage", new { code = "replaceCode" })';
             link = link.replace("replaceCode", ACODE);
 
             $.ajax({
@@ -2379,54 +2381,53 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
-                success: function (data) {
-                    var listAttributeOpt = [];
+                success: function (data) {*@
+            var listAttributeOpt = [];
+            $.each(optAttributes.filter(p=>p.ACODE == ACODE),
+                function (i, item) {
+                    listAttributeOpt[i] = {
+                        id: item.OPTION_VALUE,
+                        text: item.OPTION_VALUE
+                    };
+                });
 
-                    $.each(data,
-                        function (i, item) {
-                            listAttributeOpt[i] = {
-                                id: item.OPTION_VALUE,
-                                text: item.OPTION_VALUE
-                            };
-                        });
+            if (ATYPE == "DEFINING_ATTRIBUTE") {
 
-                    if (ATYPE == "DEFINING_ATTRIBUTE") {
-
-                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                            maxItems : 7,
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
-
-                        if (adaValue != "" && adaValue != null){
-                            var adaValues = adaValue.split(',');
-                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                        }
+                var AttributeOptSelectMultiple = $('#' + selectID).selectize({
+                    maxItems : 7,
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listAttributeOpt,
+                    onChange: function (value) {
+                        $('#' + fieldAVALUE_ID).val(value);
                     }
-                    else {
-                        var AttributeOptSelect = $('#' + selectID).selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
+                });
 
-                        if (adaValue != "" && adaValue != null) {
-                            AttributeOptSelect[0].selectize.setValue(adaValue, true);
-                        }
-                    }
-
-                },
-                error: function (xhr) {
-                    console.log(xhr);
+                if (adaValue != "" && adaValue != null){
+                    var adaValues = adaValue.split(',');
+                    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                 }
-            });
+            }
+            else {
+                var AttributeOptSelect = $('#' + selectID).selectize({
+                    valueField: 'id',
+                    searchField: 'text',
+                    options: listAttributeOpt,
+                    onChange: function (value) {
+                        $('#' + fieldAVALUE_ID).val(value);
+                    }
+                });
+
+                if (adaValue != "" && adaValue != null) {
+                    AttributeOptSelect[0].selectize.setValue(adaValue, true);
+                }
+            }
+
+            //    },
+            //    error: function (xhr) {
+            //        console.log(xhr);
+            //    }
+            //});
         }
         //END ADD BY CALVIN 18 DESEMBER 2018
         //ADD BY CALVIN 6 FEBRUARI 2019
