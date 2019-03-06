@@ -1244,6 +1244,111 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList(ShopeeAPIData iden, CATEGORY_SHOPEE category)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            ATTRIBUTE_SHOPEE_AND_OPT ret = new ATTRIBUTE_SHOPEE_AND_OPT();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //ganti
+            string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+
+            //ganti
+            ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                language = "id",
+                category_id = Convert.ToInt32(category.CATEGORY_CODE)
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
+#if AWS
+                        string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                        string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                    string a = "";
+                    int i = 0;
+                    foreach (var attribs in result.attributes)
+                    {
+                        ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
+                        a = Convert.ToString(i + 1);
+                        returnData.CATEGORY_CODE = category.CATEGORY_CODE;
+                        returnData.CATEGORY_NAME = category.CATEGORY_NAME;
+
+                        returnData["ACODE_" + a] = attribs.attribute_id;
+                        returnData["ATYPE_" + a] = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
+                        returnData["ANAME_" + a] = attribs.attribute_name;
+                        returnData["AOPTIONS_" + a] = attribs.options.Count() > 0 ? "1" : "0";
+                        returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
+
+                        ret.attributes.Add(returnData);
+
+                        if (attribs.options.Count() > 0)
+                        {
+                            foreach (var option in attribs.options)
+                            {
+                                ATTRIBUTE_OPT_SHOPEE returnDataOpts = new ATTRIBUTE_OPT_SHOPEE();
+
+                                returnDataOpts.ACODE = Convert.ToString(attribs.attribute_id);
+                                returnDataOpts.OPTION_VALUE = option;
+                                ret.attribute_opts.Add(returnDataOpts);
+                            }
+                        }
+                        i = i + 1;
+                    }
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return ret;
+        }
+
         public async Task<string> GetAttribute(ShopeeAPIData iden)
         {
             int MOPartnerID = 841371;
@@ -2649,7 +2754,7 @@ namespace MasterOnline.Controllers
             string myData = JsonConvert.SerializeObject(HttpBody);
 
             string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
-            
+
             string responseFromServer = "";
             HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
