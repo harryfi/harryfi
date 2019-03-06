@@ -34,5 +34,7 @@ namespace MasterOnline.Models
 
         [Required]
         public int BULAN { get; set; }
-    }
+
+        public int? jumlahUser { get; set; }
+}
 }

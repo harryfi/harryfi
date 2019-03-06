@@ -47,15 +47,17 @@
         </div>
         <div id="divSubsExpand">
             <div class="text-center">
-                <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
-                    Selamat bisnis Anda telah berkembang! Untuk tetap dapat menggunakan Master Online, silakan Anda meng-<i>update</i>
+                @*<label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">*@
+                <label style="margin-bottom: 20px;color:black;">
+                    Selamat bisnis Anda telah berkembang! Untuk tetap dapat menggunakan Master Online,<br /> silakan Anda meng-<i>update</i>
                     status keanggotaan Anda sesuai dengan kebutuhan Anda!
                 </label>
             </div>
         </div>
         <div id="divSubExpired">
             <div class="text-center">
-                <label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">
+                @*<label style="margin-bottom: 20px;color:white;text-shadow:-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;">*@
+                <label style="margin-bottom: 20px;color:black;">
                     Paket langganan Anda sudah <i>expired</i> pada tanggal @tglBerakhir,<br />
                     silakan perpanjang paket Anda!
                 </label>
@@ -69,15 +71,15 @@
 </div>
 <div class="subs_body">
     @*<div id="loading_structure_partial" class="text-center">
-        <img src="~/Content/Images/spinner.gif" width="100" />
-    </div>*@
+            <img src="~/Content/Images/spinner.gif" width="100" />
+        </div>*@
     <div class="container-fluid" @*style="margin-top:8%"*@>
 
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default-noborder">
                     <div class="panel panel-body">
-                        <table class="table_subs">
+                        <table class="table_subs" style="width:100%">
                             <thead>
                                 <tr>
                                     <th scope="col" style="text-align:left;"></th>
@@ -97,12 +99,12 @@
                                     <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Plan</th>
                                     <td style="text-align:center;">Free Trial<br>14hari</td>
                                     @*<td style="text-align:center;">Rp 400,000<br>per bulan</td>
-        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
+                                        <td style="text-align:center;">Rp 900,000<br>per bulan</td>*@
                                     @foreach (var subs in Model)
                                     {
                                         if (subs.KODE != "01")
                                         {
-                                            <td style="text-align:center;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)<br>per bulan</td>
+                                            <td style="text-align:center;">Rp <label id="lbl_0_@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</label><br>per bulan</td>
                                         }
                                     }
                                     <td style="text-align:center;">CALL</td>
@@ -126,7 +128,7 @@
                                         if (subs.KODE != "01")
                                         {
                                             <td style="text-align:center;">
-                                                <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '3')">
+                                                <a class='btn btn-basicfree' role="button" id="btnPay_3_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '3')">
                                                     Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)) <br>per 3 bulan
                                                 </a>
                                             </td>
@@ -152,7 +154,7 @@
                                         if (subs.KODE != "01")
                                         {
                                             <td style="text-align:center;">
-                                                <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '12')">
+                                                <a class='btn btn-basicfree' role="button" id="btnPay_12_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '12')">
                                                     Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)) <br>per 12 bulan
                                                 </a><br><p style="font-size:12px;color:#891539;">hemat 2 bulan</p>
                                             </td>
@@ -164,8 +166,8 @@
                                     @*<th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Market Place</th> 'change by nurul 19/2/2019*@
                                     <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Jumlah Marketplace</th>
                                     @*<td style="text-align:center;">2</td>
-        <td style="text-align:center;">Unlimited</td>
-        <td style="text-align:center;">Unlimited</td>*@
+                                        <td style="text-align:center;">Unlimited</td>
+                                        <td style="text-align:center;">Unlimited</td>*@
                                     @foreach (var subs in Model)
                                     {
                                         <td style="text-align:center;">@(subs.JUMLAH_MP >= 99 ? "Unlimited" : subs.JUMLAH_MP.ToString())</td>
@@ -245,9 +247,13 @@
                                     <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
                                     <td style="text-align:center;"><span class="glyphicon glyphicon-remove" style="color:#891539"></span></td>
                                     @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
+                                        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
                                     <td style="text-align:center;">2</td>
-                                    <td style="text-align:center;">5</td>
+                                    <td style="text-align:center;">
+                                        <button id="btnMin" style="color:red;background-color: transparent;" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
+                                        <label id="txtJmlUser">5</label>
+                                        <button id="btnPlus" style="color:green;background-color: transparent;" onclick="changeUser(1);"><span class="glyphicon glyphicon-plus"></span></button>
+                                    </td>
                                     <td style="text-align:center;"></td>
                                 </tr>
 
@@ -259,6 +265,56 @@
         </div>
 
 
+    </div>
+</div>
+@*<div class="text-center" style="background:white;">
+    <p style="color:black">
+        Pembayaran dapat di transfer ke rekening :
+        <br />
+        PT. ERASOFT TEKNOLOGI INDONESIA
+        <br />
+        BCA NO. 4943025919
+        <br />
+        Setelah Transfer Harap konfirmasi ke Telp: 021-6349318 dgn Erni / Indrie
+    </p>
+</div>*@
+<div style="visibility:hidden">
+    <input id="txtCode" />
+    <input id="txtBulan" />
+</div>
+<div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-labelledby="transferLabel">
+    <div class="modal-dialog" id="modal-transfer" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Master Online</h4>
+        </div>
+        <div class="modal-content-subs" style="margin:0px 5px 5px;height:80vh;">
+            <br />
+            <div>
+                <p style="color:black">
+                    Pembayaran dapat di transfer ke rekening :
+                    <br />
+                    -PT. ERASOFT TEKNOLOGI INDONESIA
+                    <br />
+                    -BCA NO. 4943025919
+                    <br />
+                    Setelah Transfer Harap konfirmasi ke Telp: 021-6349318 dgn Erni / Indrie
+                </p>
+            </div>
+            <br />
+            <br />
+            <br />
+            <div>
+                <p style="color:black">
+                    Pembayaran menggunakan Credit Card atau Virtual account dapat dilanjutkan dengan klik tombol di bawah.
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div>
+                <button onclick="snapMidtrans($('#txtCode').val(), $('#txtBulan').val())" style="background-color:mediumblue;width:100%;color:white">Lanjut</button>
+            </div>
+        </div>
     </div>
 </div>
 <div class="text-center" style="margin-top: -15px; border-radius: 10px; padding-top: 40px; padding-bottom: 10px; background: white">

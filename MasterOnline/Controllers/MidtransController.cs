@@ -17,7 +17,7 @@ namespace MasterOnline.Controllers
         public MoDbContext MoDbContext { get; set; }
         // GET: Midtrans
         [System.Web.Mvc.HttpGet]
-        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId)
+        public async System.Threading.Tasks.Task<ActionResult> PaymentMidtrans(string code, string bulan, int accId, int? accCount)
         {
             MoDbContext = new MoDbContext();
             var accInDB = new Account();
@@ -75,6 +75,12 @@ namespace MasterOnline.Controllers
                     };
                     data.transaction_details = new TransactionDetail();
                     data.transaction_details.gross_amount = Convert.ToInt64(price) * bln;
+                    //add 3 Maret 2019, handle jumlah user
+                    if(code == "03" && accCount > 5)
+                    {
+                        data.transaction_details.gross_amount = ((Convert.ToInt64(price) + 100000 * (accCount - 5)) * bln) ?? 0;
+                    }
+                    //add change 3 Maret 2019, handle jumlah user
                     data.transaction_details.order_id = noTrans;
                     data.credit_card = new CreditCard();
                     data.credit_card.secure = true;
@@ -127,6 +133,10 @@ namespace MasterOnline.Controllers
                             dataTrans.TYPE = code;
                             dataTrans.VALUE = MoDbContext.Subscription.SingleOrDefault(s => s.KODE == code).HARGA;
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
+                            //add 1 Maret 2019, jumlah user
+                            if (code == "03")
+                                dataTrans.jumlahUser = accCount;
+                            //end add 1 Maret 2019, jumlah user
                             //dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
                             if (accId > 0)
                             {
@@ -286,13 +296,24 @@ namespace MasterOnline.Controllers
 
                                     insertTrans.Account = userData.Username;
                                     insertTrans.Email = userData.Email;
-                                    insertTrans.Nilai = tranMidtrans.VALUE * (tranMidtrans.BULAN > 0 ? tranMidtrans.BULAN : 1);
+                                    //insertTrans.Nilai = tranMidtrans.VALUE * (tranMidtrans.BULAN > 0 ? tranMidtrans.BULAN : 1);
+                                    insertTrans.Nilai = Convert.ToDouble(notification_data.gross_amount);
                                     insertTrans.TanggalBayar = Convert.ToDateTime(notification_data.transaction_time);
                                     insertTrans.TipeSubs = tranMidtrans.TYPE;
                                     insertTrans.TipePembayaran = notification_data.payment_type + " " + newData.BANK;
                                     insertTrans.DrTGL = drTgl;
                                     insertTrans.SdTGL = sdTgl;
-
+                                    //add 1 Maret 2019, jumlah user
+                                    if (tranMidtrans.TYPE == "03")
+                                    {
+                                        insertTrans.jumlahUser = tranMidtrans.jumlahUser;
+                                    }
+                                    else
+                                    {
+                                        insertTrans.jumlahUser = 2;
+                                    }
+                                    userData.jumlahUser = insertTrans.jumlahUser;
+                                    //end add 1 Maret 2019, jumlah user
                                     MoDbContext.AktivitasSubscription.Add(insertTrans);
                                 }
 
@@ -366,8 +387,9 @@ namespace MasterOnline.Controllers
 
         public static string Base64Encode()
         {
-
-            string plainText = "Mid-server-OB_-aJie9ELUo3pDnZSj0vYq";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+            //production : Mid-client-sMzViq24qWRlPdPu Mid-server-brKgVeWZt89aotXTI8DDPkfY
+            //sandbox : SB-Mid-client-AyzcvZKcwAlD_0QY SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb
+            string plainText = "SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return Convert.ToBase64String(plainTextBytes);
         }

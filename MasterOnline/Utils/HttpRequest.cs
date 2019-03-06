@@ -781,8 +781,8 @@ namespace MasterOnline.Utils
             try
             {
                 var client = new System.Net.Http.HttpClient();
-                var REST_URL_API = "https://app.midtrans.com/snap/";
-                //var REST_URL_API = "https://app.sandbox.midtrans.com/snap/";
+                //var REST_URL_API = "https://app.midtrans.com/snap/";
+                var REST_URL_API = "https://app.sandbox.midtrans.com/snap/";
 
                 string url = string.Format(REST_URL_API, string.Empty) + service.ToString() + "/" + RouteMap;
                 client.BaseAddress = new Uri(url);

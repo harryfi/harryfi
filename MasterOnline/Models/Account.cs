@@ -77,5 +77,7 @@ namespace MasterOnline.Models
         public string KODE_REFERRAL { get; set; }
         
         public DateTime? TGL_DAFTAR { get; set; }
+
+        public int? jumlahUser { get; set; }
     }
 }

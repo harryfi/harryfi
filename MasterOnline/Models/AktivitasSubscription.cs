@@ -35,5 +35,6 @@ namespace MasterOnline.Models
 
         public DateTime? SdTGL { get; set; }
 
+        public int? jumlahUser { get; set; }
     }
 }

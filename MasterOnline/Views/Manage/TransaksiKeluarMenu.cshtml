@@ -673,7 +673,7 @@
         }
 
         function modeEditTd() {
-            $('.qty-barang').addClass('editable');
+            $('#table_tambah_stok > tbody > tr[data-stok-id="0"] > .qty-barang').addClass('editable');
             $('#table_tambah_stok > tbody > tr > td.editable').prop('contentEditable', true);
             $('#table_tambah_stok > tbody > tr > td.editable').on('click', function () {
                 var $this = $(this);

@@ -1198,6 +1198,9 @@
                                         @Html.Partial("BarangInvoicePartial")
                                     </div>
                                 }
+                                <div class="form-horizontal" id="form_subs">
+                                    @Html.Partial("PricingNewPartialView", Model?.ListSubs)
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1480,8 +1483,8 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
     @*add by Tri snap js*@
-    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
-
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
+    @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
         var $TabAktif = 0;// 0 Faktur, 1 Invoice Sudah Lunas, 2 Invoice Jatuh Tempo
         //add by nurul 6/11/2018
@@ -1632,6 +1635,21 @@
 
 
         //add by Tri, call midtrans api get token
+
+        function changeUser(val) {
+            if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
+                return;
+            }
+            var currentUser = parseInt($('#txtJmlUser')[0].innerText);
+            var cost = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCost = cost + (100000 * val);
+            $('#txtJmlUser')[0].innerText = currentUser + val;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
+
+        }
+
         function setBln(kode, bln) {
             switch (kode){
                 case "01":
@@ -1679,6 +1697,8 @@
             var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
             //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
+                $('#txtCode').val(kode);
+                $('#txtBulan').val(bln);
             if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                 //tglSub.setMonth(tglSub.getMonth() + bln);
@@ -1689,7 +1709,7 @@
                     @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -1711,12 +1731,13 @@
                         error: function (xhr, status, error) {
                             console.log(error);
                         }
-                    });
+                    });*@
+                    $('#modalTransfer').modal('show');
                 }
             }
             else
             {
-                var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                 link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                 $.ajax({
@@ -1738,13 +1759,43 @@
                     error: function (xhr, status, error) {
                         console.log(error);
                     }
-                });
+                });*@
+                $('#modalTransfer').modal('show');
             }
             }
             else {
             alert('Anda harus menyetujui Syarat & Ketentuan');
             }
 
+        }
+
+        function snapMidtrans(kode, bln) {
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        if (response.error == null) {
+                            snap.pay(response.token, { skipOrderSummary: true });
+                            $('#modalTransfer').modal('hide');
+                        } else {
+                            alert(response.error);
+                            $('#modalTransfer').modal('hide');
+                        }
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#modalTransfer').modal('hide');
+                }
+            });
         }
         //end add by Tri, call midtrans api get token
 
@@ -1853,7 +1904,7 @@
                     });
                     $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
-                    
+
                 }
                 else if ($TabAktif == 1) {
                     //add by nurul 10/1/2019
@@ -2317,7 +2368,7 @@
                     $('#tambah_invoice').hide();
                 }
             });
-            //end add by nurul 
+            //end add by nurul
             //add by nurul 12/2/2019
             $('#datatable').on('page.dt', function () {
                 $page = $('#datatable').DataTable().page.info().page;
@@ -2392,12 +2443,12 @@
             if (e.keyCode === 190 || e.keyCode === 110) e.preventDefault();
         }
         function modeEditTd() {
-            $('.qty-barang').addClass('editable');
-            $('.disc1-barang').addClass('editable');
-            $('.ndisc1-barang').addClass('editable');
-            $('.disc2-barang').addClass('editable');
-            $('.ndisc2-barang').addClass('editable');
-            $('.harga-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .qty-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .disc1-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .ndisc1-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .disc2-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .ndisc2-barang').addClass('editable');
+            $('#table_tambah_invoice > tbody > tr[data-invoice-id="0"] > .harga-barang').addClass('editable');
             $('#table_tambah_invoice > tbody > tr > td.editable').on('click', function () {
                 var $this = $(this);
                 var $class = $this.attr('class');
@@ -2813,8 +2864,30 @@
                     $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
                     if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
-                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                            'data-target="#modalPricing" id="tambah_invoice">Tambah Baru</button>');
+                        //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                        //    'data-target="#modalPricing" id="tambah_invoice">Tambah Baru</button>');
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_invoice">Tambah Baru</button>');
+                        $('#tambah_invoice').on('click', function () {
+                            $('.invoice_table_section').hide();
+                            $('.invoice_editor_section').show();
+
+                            $('#form-partial').hide();
+                            $('#form_subs').show();
+
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'invoice-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+
+                            $('#invoice-tempo-tab').off('click').on('click', function () {
+                                $('#div_tgl_Tempo').hide();
+                            });
+                            //end add
+                        });
                         showSubsMenu(1);
                         //add by nurul 11/2/2019
                         $jumlahPesanan = false;
@@ -2823,8 +2896,30 @@
                         //change by Tri 12 Feb 2019, 1 view subscribe
                         //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
                         //    'data-target="#modalPricingExpired" id="tambah_faktur">Tambah Baru</button>');
-                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                            'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
+                        //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                        //    'data-target="#modalPricing" id="tambah_faktur">Tambah Baru</button>');
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_invoice">Tambah Baru</button>');
+                        $('#tambah_invoice').on('click', function () {
+                            $('.invoice_table_section').hide();
+                            $('.invoice_editor_section').show();
+
+                            $('#form-partial').hide();
+                            $('#form_subs').show();
+
+                            //add by nurul 17/10/2018
+                            $('#myTab li a').each(function () {
+                                $(this).removeAttr('data-toggle');
+
+                                if ($(this).attr('id') === 'invoice-tab') return;
+
+                                $(this).addClass('disabled-tab');
+                            });
+
+                            $('#invoice-tempo-tab').off('click').on('click', function () {
+                                $('#div_tgl_Tempo').hide();
+                            });
+                            //end add
+                        });
                         showSubsMenu(2);
                         //end change by Tri 12 Feb 2019
                         //add by nurul 11/2/2019
@@ -2835,6 +2930,9 @@
                         $('#tambah_invoice').on('click', function () {
                             $('.invoice_table_section').hide();
                             $('.invoice_editor_section').show();
+
+                            $('#form-partial').show();
+                            $('#form_subs').hide();
 
                             //add by nurul 17/10/2018
                             $('#myTab li a').each(function () {
@@ -3099,7 +3197,7 @@
                     $('#invoice-tempo-tab').off('click').on('click', function () {
                         $('#div_tgl_Tempo').hide();
                     });
-                    //end change 
+                    //end change
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
@@ -3159,7 +3257,7 @@
                     $('#invoice-tempo-tab').off('click').on('click', function () {
                         $('#div_tgl_Tempo').hide();
                     });
-                    //end change 
+                    //end change
                     $('#loading_spinner').hide();
                     $nettoSebelumnya += $bakalNetto;
                 },
