@@ -884,7 +884,8 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var $page = window.text;
+        //var $page = window.text;
+        var $page = 0;
         var $accId = 0;
         var $status = 0;
         var $tabPage = 0; //acoount ; 1=will expired; 2= expired
@@ -902,7 +903,7 @@
         });
         $(document).on('ready',
             function () {
-                $page = 0;
+                
                 
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
@@ -970,7 +971,6 @@
                     $('#datatable').on('page.dt', function () {
                         $page = $('#datatable').DataTable().page.info().page;
                     });
-                    //refreshForm();
                         refreshTableAccount();
                         
                         $('#datatable').DataTable().page($page).draw(false);
@@ -978,21 +978,21 @@
                 $('#close-editor-2').off('click').on('click', function () {
                     $('.user_table_section_2').show();
                     $('.WillExpired_detail_section').hide();
-
-                    refreshTableAccount();
                     $('#datatable_willexpired').on('page.dt', function () {
                         $page = $('#datatable_willexpired').DataTable().page.info().page;
                     });
+                    refreshTableWillexpired();
+                    
                     $('#datatable_willexpired').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-3').off('click').on('click', function () {
                     $('.user_table_section_3').show();
                     $('.Expired_detail_section').hide();
-
-                    refreshTableAccount();
                     $('#datatable_expired').on('page.dt', function () {
                         $page = $('#datatable_expired').DataTable().page.info().page;
                     });
+                    refreshTableExpired();
+                    
                     $('#datatable_expired').DataTable().page($page).draw(false);
                 });
 
@@ -1013,7 +1013,6 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                    //refreshForm();
                     $('#datatable').on('page.dt', function () {
                         $page = $('#datatable').DataTable().page.info().page;
                     });
@@ -1163,6 +1162,10 @@
                         $page = $('#datatable').DataTable().page.info().page;
                     });
                     $('#datatable').DataTable().page($page).draw(false);
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1188,6 +1191,10 @@
                     });
                     $('#datatable_willexpired').show();
                     tableWillexpired.search($('#search_willexpired').val()).draw();
+                    $('#datatable_willexpired').on('page.dt', function () {
+                        $page = $('#datatable_willexpired').DataTable().page.info().page;
+                    });
+                    $('#datatable_willexpired').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1212,6 +1219,10 @@
                     });
                     $('#datatable_expired').show();
                     tableExpired.search($('#search_expired').val()).draw();
+                    $('#datatable_expired').on('page.dt', function () {
+                        $page = $('#datatable_expired').DataTable().page.info().page;
+                    });
+                    $('#datatable_expired').DataTable().page($page).draw(false);
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
