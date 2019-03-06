@@ -1,11 +1,18 @@
 ﻿@model MasterOnline.ViewModels.BuyerViewModel
+@{
+    var context_ = new MoDbContext();
+    var prov = context_.Provinsi.ToList();
+    var kota = context_.KabupatenKota.ToList();
+}
 <table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
     <thead>
         <tr role="row">
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 90px;">Kode Pembeli</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 115px;">Nama Pembeli</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Alamat</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Provinsi</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Kota</th>
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">Alamat</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 85px;">No. HP</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Edit</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
@@ -14,11 +21,25 @@
     <tbody>
         @foreach (var pembeli in Model.ListPembeli)
         {
+            //add by nurul 6/3/2019
+            var isiprov = "";
+            var isikota = "";
+            if(pembeli?.KODEPROV != null)
+            {
+                isiprov = prov.SingleOrDefault(a => a.KodeProv == pembeli.KODEPROV).NamaProv;
+            }
+            if (pembeli?.KODEKABKOT != null)
+            {
+                isikota = kota.SingleOrDefault(a => a.KodeKabKot == pembeli.KODEKABKOT).NamaKabKot;
+            }
+            //end add by nurul 6/3/2019
             <tr>
                 <td>@pembeli.BUYER_CODE</td>
                 <td>@pembeli.NAMA</td>
+                <td class="text-center">@isiprov</td>
+                <td class="text-center">@isikota</td>
                 <td>@pembeli.EMAIL</td>
-                <td>@pembeli.AL</td>
+                @*<td>@pembeli.AL</td>*@
                 <td>@pembeli.TLP</td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="editPembeli(@pembeli.RecNum)">

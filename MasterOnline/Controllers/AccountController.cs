@@ -538,6 +538,7 @@ namespace MasterOnline.Controllers
             }
 
             var email = new MailAddress(account.Email);
+            var nama = account.Username;
             account.UserId = email.User + "_" + email.Host.Replace(".", "_");
             account.Status = false; //User tidak aktif untuk pertama kali
             //change back to set user to free user
@@ -572,20 +573,32 @@ namespace MasterOnline.Controllers
             ModelState.Clear();
 
             //remark by calvin 2 oktober 2018, untuk testing dlu
-            var body = "<p>Selamat, akun Anda berhasil didaftarkan pada sistem kami&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+            //change by nurul 5/3/2019
+            //var body = "<p>Selamat, akun Anda berhasil didaftarkan pada sistem kami&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+            //    "<p>&nbsp;</p>" +
+            //    "<p>Detail akun Anda ialah sebagai berikut,</p>" +
+            //    "<p>Email: {0}</p>" +
+            //    "<p>Password: {1}</p>" +
+            //    "<p>Semoga sukses selalu dalam bisnis Anda di MasterOnline.</p><p>&nbsp;</p>" +
+            //    "<p>Best regards,</p>" +
+            //    "<p>CS MasterOnline.</p>";
+            //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                "<p>Hi {2},</p>" +
+                "<p>Selamat bergabung di Master Online.</p>" +
+                "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
+                "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
+                "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
                 "<p>&nbsp;</p>" +
-                "<p>Detail akun Anda ialah sebagai berikut,</p>" +
-                "<p>Email: {0}</p>" +
-                "<p>Password: {1}</p>" +
-                "<p>Semoga sukses selalu dalam bisnis Anda di MasterOnline.</p><p>&nbsp;</p>" +
                 "<p>Best regards,</p>" +
-                "<p>CS MasterOnline.</p>";
+                "<p>CS Master Online.</p>";
+            //end change by nurul 5/3/2019
 
             var message = new MailMessage();
             message.To.Add(email);
             message.From = new MailAddress("csmasteronline@gmail.com");
             message.Subject = "Pendaftaran MasterOnline berhasil!";
-            message.Body = string.Format(body, account.Email, originPassword);
+            message.Body = string.Format(body, account.Email, originPassword, nama);
             message.IsBodyHtml = true;
 #if AWS
             //using (var smtp = new SmtpClient())
