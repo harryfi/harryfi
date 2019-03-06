@@ -7,6 +7,10 @@ using System.Web;
 
 namespace MasterOnline.Models
 {
+    public class ATTRIBUTE_SHOPEE_AND_OPT {
+        public List<ATTRIBUTE_SHOPEE> attributes { get; set; } = new List<ATTRIBUTE_SHOPEE>();
+        public List<ATTRIBUTE_OPT_SHOPEE> attribute_opts { get; set; } = new List<ATTRIBUTE_OPT_SHOPEE>();
+    }
     [Table("ATTRIBUTE_SHOPEE")]
     public class ATTRIBUTE_SHOPEE
     {
@@ -318,5 +322,27 @@ namespace MasterOnline.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int? RecNum { get; set; }
+
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                // probably faster without reflection:
+                // like:  return Properties.Settings.Default.PropertyValues[propertyName] 
+                // instead of the following
+                Type myType = typeof(ATTRIBUTE_SHOPEE);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                return myPropInfo.GetValue(this, null);
+            }
+            set
+            {
+                Type myType = typeof(ATTRIBUTE_SHOPEE);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                myPropInfo.SetValue(this, value, null);
+
+            }
+
+        }
     }
 }

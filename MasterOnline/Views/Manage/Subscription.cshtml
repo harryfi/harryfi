@@ -930,8 +930,8 @@
 {
     <script src="~/Scripts/moment-with-locales.js" type="text/javascript"></script>
     @*add by Tri snap js*@
-    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
-    @*SB-Mid-client-kNpQZUsTHkQzk9BZ_Mid-client-h0vTBXHcfhnwHBSg*@
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
+    @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
         $(document).ready(function () {
             //$('.btn-subs').click(function () {
@@ -980,6 +980,20 @@
             //end change by calvin 26 september 2018
         }
 
+        function changeUser(val) {
+            if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
+                return;
+            }
+            var currentUser = parseInt($('#txtJmlUser')[0].innerText);
+            var cost = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCost = cost + (100000 * val);
+            $('#txtJmlUser')[0].innerText = currentUser + val;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
+
+        }
+
         function setBln(kode, bln) {
             switch (kode){
                 case "01":
@@ -1026,6 +1040,8 @@
                 var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
                 //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
+                $('#txtCode').val(kode);
+                $('#txtBulan').val(bln);
                 if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
                     //tglSub.setMonth(tglSub.getMonth() + bln);
@@ -1035,8 +1051,8 @@
                 @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                        var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
-                        link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                        link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
 
                         $.ajax({
                             type: "GET",
@@ -1057,12 +1073,13 @@
                             error: function (xhr, status, error) {
                                 console.log(error);
                             }
-                        });
+                        });*@
+                        $('#modalTransfer').modal('show');
                     }
                 }
                 else
                 {
-                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -1084,7 +1101,8 @@
                         error: function (xhr, status, error) {
                             console.log(error);
                         }
-                    });
+                    });*@
+                    $('#modalTransfer').modal('show');
                 }
 
             } else {
@@ -1092,5 +1110,33 @@
             }
         }
 
+        function snapMidtrans(kode, bln) {
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        if (response.error == null) {
+                            snap.pay(response.token, { skipOrderSummary: true });
+                            $('#modalTransfer').modal('hide');
+                        } else {
+                            alert(response.error);
+                            $('#modalTransfer').modal('hide');
+                        }
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#modalTransfer').modal('hide');
+                }
+            });
+        }
     </script>
 }

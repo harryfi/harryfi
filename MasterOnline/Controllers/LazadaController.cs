@@ -572,8 +572,11 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
-            xmlString += "<SaleStartDate>" + SaleStartDate.ToString("yyyy-MM-dd") + "</SaleStartDate>";
-            xmlString += "<SaleEndDate>" + SaleEndDate.ToString("yyyy-MM-dd") + "</SaleEndDate>";
+            if(SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
+            {
+                xmlString += "<SaleStartDate>" + SaleStartDate.ToString("yyyy-MM-dd") + "</SaleStartDate>";
+                xmlString += "<SaleEndDate>" + SaleEndDate.ToString("yyyy-MM-dd") + "</SaleEndDate>";
+            }            
             xmlString += "</Sku></Skus></Product></Request>";
 
 

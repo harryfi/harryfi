@@ -1029,7 +1029,7 @@
                     <button id="close-editor" type="button" class="pull-right page-close">
                         <span class="close-btn thick"></span>
                     </button>
-                    <div class="form-horizontal">
+                    <div class="form-horizontal" id="form_input">
                         <div id="somediv" role="dialog"></div>
                         <div class="row">
                             <div class="col-md-12 col-sm-12 col-xs-12">
@@ -1057,7 +1057,7 @@
                                             }
                                         }
                                         <br>
-                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off" , enctype = "multipart/form-data" }))
+                                        @using (Html.BeginForm("SaveCustomer", "Manage", FormMethod.Post, new { @autocomplete = "off", enctype = "multipart/form-data" }))
                                         {
                                             @Html.HiddenFor(m => m.Customers.USERNAME, new { Value = username })
                                             @Html.HiddenFor(m => m.Customers.KLINK, new { Value = "1" })
@@ -1192,6 +1192,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-horizontal" id="form_subs">
+                        @Html.Partial("PricingNewPartialView", Model?.ListSubs)
+                    </div>
                 </div>
             </div>
         </div>
@@ -1219,6 +1222,9 @@
 </div>
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        </div>
         <div class="modal-content">
             @*@Html.Partial("PricingPartialView", Model?.ListSubs)*@
             @Html.Partial("PricingNewPartialView", Model?.ListSubs)
@@ -1316,7 +1322,8 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     @*add by Tri snap js*@
-    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
+    @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
         var $customerId = "";
         var $jumlahMarketplace = 0;
@@ -1380,12 +1387,19 @@
                     $jumlahMarketplaceMax = parseInt(res.JumlahMarketplaceMax);
                     $jumlahMarketplace = parseInt(res.JumlahMarketplace);
                     $listNamaMarketTerpakai = res.ListNamaMarketTerpakai;
-                    
+
 
                     if (res.SudahSampaiBatasTanggal) {
                         $('#tambah_market').remove();
-                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                            'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
+                        //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+                        //    'data-target="#modalPricing" id="tambah_market">Tambah Baru</button>');
+                        $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_market">Tambah Baru</button>');
+                        $('#tambah_market').on('click', function () {
+                            $('.customer_table_section').hide();
+                            $('.customer_editor_section').show();
+                            $('#form_input').hide();
+                            $('#form_subs').show();
+                        });
                         showSubsMenu(2);
                     } else {
                     $('#tambah_market').remove();
@@ -1393,6 +1407,8 @@
                     $('#tambah_market').on('click', function () {
                         $('.customer_table_section').hide();
                         $('.customer_editor_section').show();
+                        $('#form_input').show();
+                        $('#form_subs').hide();
                         $('#generate_code').remove();
                         Customers_TLP.value = '.';
                         Customers_AL.value = '.';
@@ -1495,6 +1511,10 @@
                             if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
                                 $("#Customers_NAMA").val(null);
                                 $('#tambah_market_pricing').click();
+
+                                $('#form_input').hide();
+                                $('#form_subs').show();
+
                                 showSubsMenu(1);
                             } else {
                                 $("#Customers_NAMA").val(value);
@@ -1641,6 +1661,11 @@
                     if (!isExist && $jumlahMarketplace >= $jumlahMarketplaceMax) {
                         $("#Customers_NAMA").val(null);
                         $('#tambah_market_pricing').click();
+
+                        $('#form_input').hide();
+                        $('#form_subs').show();
+                        showSubsMenu(1);
+
                     } else {
                         var $form = $(btnClicked).parents('form');
 
@@ -1809,9 +1834,9 @@
 
             cekJumlahMarketplace();
 
-            $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
-                'data-target="#modalPricing" id="tambah_market_pricing" style="display: none;">Modal Pricing</button>');
-
+            //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
+            //    'data-target="#modalPricing" id="tambah_market_pricing" style="display: none;">Modal Pricing</button>');
+            $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" style="display: none;" id="tambah_market_pricing">Modal Pricing</button>');
             var table = $('#datatable').DataTable();
 
             $('#search_customer').keyup(function () {
@@ -2103,6 +2128,47 @@
             });
         }
         //add by Tri, call midtrans api get token
+
+        function convertToRupiah(angka) {
+            //change by calvin 26 september 2018
+            //var rupiah = '';
+            //var angkarev = angka.toString().split('').reverse().join('');
+            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+            return $.number(angka, 2, ',', '.');
+            //end change by calvin 26 september 2018
+        }
+
+        function convertToAngka(rupiah) {
+            if (rupiah == '') {
+                rupiah = '0';
+            }
+            //change by calvin 26 september 2018
+            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+            if (rupiah.includes(",00")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
+            //end change by calvin 26 september 2018
+        }
+
+        function changeUser(val) {
+            if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
+                return;
+            }
+            var currentUser = parseInt($('#txtJmlUser')[0].innerText);
+            var cost = convertToAngka($('#lbl_0_03')[0].innerText);
+            var newCost = cost + (100000 * val);
+            $('#txtJmlUser')[0].innerText = currentUser + val;
+            $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
+            $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+            $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
+
+        }
+
         function setBln(kode, bln) {
             switch (kode){
                 case "01":
@@ -2149,9 +2215,11 @@
                 var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
                 var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
                 //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
+                $('#txtCode').val(kode);
+                $('#txtBulan').val(bln);
 
                 if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
-
+                    
                     //tglSub.setMonth(tglSub.getMonth() + bln);
                     var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
                     if (confirm(msg)) {
@@ -2159,7 +2227,7 @@
                     @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                        var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                         link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                         $.ajax({
@@ -2181,11 +2249,12 @@
                             error: function (xhr, status, error) {
                                 console.log(error);
                             }
-                        });
+                        });*@
+                        $('#modalTransfer').modal('show');
                     }
                 }
                 else {
-                    var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -2204,11 +2273,40 @@
                         error: function (xhr, status, error) {
                             console.log(error);
                         }
-                    });
+                    });*@
+                    $('#modalTransfer').modal('show');
                 }
             } else {
                 alert('Anda harus menyetujui Syarat & Ketentuan');
             }
+        }
+
+        function snapMidtrans(kode, bln) {
+            var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+            link += '?code=' + kode + '&bulan=' + bln + '&accId=0' + '&accCount=' + $('#txtJmlUser')[0].innerText;
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        //window.location = response.urlView;
+                        if (response.error == null) {
+                            snap.pay(response.token, { skipOrderSummary: true });
+                            $('#modalTransfer').modal('hide');
+                        } else {
+                            alert(response.error);
+                            $('#modalTransfer').modal('hide');
+                        }
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#modalTransfer').modal('hide');
+                }
+            });
         }
         @*function clickSub(sendKode)
         {

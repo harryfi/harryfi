@@ -55,7 +55,7 @@ namespace MasterOnline.Controllers
         }
 
         [System.Web.Mvc.Route("loginSubs")]
-        public ActionResult LoginSubs(string Ref, string kode, string bln)
+        public ActionResult LoginSubs(string Ref, string kode, string bln, int jmlUser)
         {
             var partnerInDb = MoDbContext.Partner.FirstOrDefault(p => p.KodeRefPilihan == Ref);
 
@@ -75,7 +75,8 @@ namespace MasterOnline.Controllers
             var vm = new Account
             {
                 DatabasePathMo = bln,
-                KODE_SUBSCRIPTION = kode
+                KODE_SUBSCRIPTION = kode,
+                jumlahUser = jmlUser
             };
             return View("Register", vm);
         }
@@ -565,9 +566,16 @@ namespace MasterOnline.Controllers
             //add by Tri 13 Feb 2019, tambah tanggal daftar
             account.TGL_DAFTAR = DateTime.Now;
             //end add by Tri 13 Feb 2019, tambah tanggal daftar
-            //add by nurul 28/2/2019 set jumlahUser = 0
-            account.jumlahUser = 0;
-            //add by nurul 28/2/2019 set jumlahUser = 0
+            //add by Tri 4 Mar 2019, tambah jumlah user
+            if (userSubs == "02")
+            {
+                account.jumlahUser = 2;
+            }
+            else if (userSubs == "01")
+            {
+                account.jumlahUser = 0;
+            }
+            //end add by Tri 4 Mar 2019, tambah jumlah user
             MoDbContext.Account.Add(account);
             MoDbContext.SaveChanges();
             ModelState.Clear();
@@ -665,7 +673,7 @@ namespace MasterOnline.Controllers
             if (userSubs != "01")
             {
                 var midtrans = new MidtransController();
-                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId));
+                return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
             return View("Register");

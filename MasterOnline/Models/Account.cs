@@ -78,6 +78,6 @@ namespace MasterOnline.Models
         
         public DateTime? TGL_DAFTAR { get; set; }
 
-        public Int32? jumlahUser { get; set; }
+        public int? jumlahUser { get; set; }
     }
 }

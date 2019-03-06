@@ -670,7 +670,7 @@
                                 {
                                     if (subs.KODE != "01")
                                     {
-                                        <td style="text-align:center;">Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)<br>per bulan</td>
+                                        <td style="text-align:center;">Rp <label id="lbl_0_@subs.KODE">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA)</label><br>per bulan</td>
                                     }
                                 }
                                 <td style="text-align:center;">CALL</td>
@@ -683,7 +683,7 @@
                                     if (subs.KODE != "01")
                                     {
                                         <td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '3')">
+                                            <a class='btn btn-basicfree' role="button" id="btnPay_3_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '3')">
                                                 Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 3)) <br>per 3 bulan
                                             </a>
                                         </td>
@@ -699,7 +699,7 @@
                                     if (subs.KODE != "01")
                                     {
                                         <td style="text-align:center;">
-                                            <a class='btn btn-basicfree' role="button" title="Beli" onclick="clickSub('@subs.KODE', '12')">
+                                            <a class='btn btn-basicfree' role="button" id="btnPay_12_@subs.KODE" title="Beli" onclick="clickSub('@subs.KODE', '12')">
                                                 Rp @(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", subs.HARGA * 10)) <br>per 12 bulan
                                             </a><br><p style="font-size:12px;color:#891539;">hemat 2 bulan</p>
                                         </td>
@@ -786,9 +786,13 @@
                                 <th scope="row"><span class="glyphicon glyphicon-plus"></span>&nbsp;&nbsp;Multi User & Security</th>
                                 <td style="text-align:center;"><span class="glyphicon glyphicon-remove"></span></td>
                                 @*<td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>
-        <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
+                                    <td style="text-align:center;"><span class="glyphicon glyphicon-ok"></span></td>*@
                                 <td style="text-align:center;">2</td>
-                                <td style="text-align:center;">5</td>
+                                <td style="text-align:center;">
+                                    <button id="btnMin" style="color:red" onclick="changeUser(-1);"><span class="glyphicon glyphicon-minus"></span></button>
+                                    <label id="txtJmlUser">5</label>
+                                    <button id="btnPlus" style="color:green" onclick="changeUser(1);"><span class="glyphicon glyphicon-plus"></span></button>
+                                </td>
                                 <td style="text-align:center;"></td>
                             </tr>
 
@@ -807,14 +811,60 @@
     <img src="~/Content/Images/payment_logo.png" width="25%" />
 </div>
 
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="~/Scripts/jquery.number.js"></script>
+@*<script type="text/javascript" src="https://code.jquery.com/jquery-1.10.2.js"></script>*@
+@*<script src="~/Scripts/jquery-1.10.2.js"></script>*@
 <script type="text/javascript">
+    function convertToRupiah(angka) {
+        //change by calvin 26 september 2018
+        var rupiah = '';
+        var angkarev = angka.toString().split('').reverse().join('');
+        for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
+        return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
+        //return $.number(angka, 2, ',', '.');
+        //end change by calvin 26 september 2018
+    }
+
+    String.prototype.replaceAll = function (searchStr, replaceStr) {
+        var str = this;
+
+        // escape regexp special characters in search string
+        searchStr = searchStr.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+
+        return str.replace(new RegExp(searchStr, 'gi'), replaceStr);
+    };
+
+    function convertToAngka(rupiah) {
+
+        //change by calvin 26 september 2018
+        //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+        //end change by calvin 26 september 2018
+    }
+    function changeUser(val) {
+        if (val == -1 && $('#txtJmlUser')[0].innerText == 5) {
+            return;
+        }
+        var currentUser = parseInt($('#txtJmlUser')[0].innerText);
+        var cost = convertToAngka($('#lbl_0_03')[0].innerText);
+        var newCost = cost + (100000 * val);
+        $('#txtJmlUser')[0].innerText = currentUser + val;
+        $('#lbl_0_03')[0].innerText = convertToRupiah(newCost);
+        $('#btnPay_3_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 3) + '\n per 3 bulan';
+        $('#btnPay_12_03')[0].innerText = 'Rp ' + convertToRupiah(newCost * 10) + '\n per 12 bulan';
+
+    }
+
     function clickSub(kode, bln) {
         if ($('#ckBox')[0].checked) {
             var url = '@Url.Action("loginSubs", "Account")';
-            url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln;
+            url += "?Ref=" + '@referral' + "&kode=" + kode + "&bln=" + bln + "&jmlUser=" + $('#txtJmlUser')[0].innerText;
             window.location.href = url;
         } else {
             alert('Anda harus menyetujui Syarat & Ketentuan');
         }
     }
+
 </script>
+

@@ -556,7 +556,7 @@
                     blur: function () {
                         if (this.value === '') {
                             if ($class === 'harga-promosi-barang editable') {
-                                $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">')                                
+                                $this.html(convertToRupiah(0) + '<input data-val="true" data-val-number="The field HARGA_PROMOSI must be a number." data-val-required="The HARGA_PROMOSI field is required." id="PromosiDetail_HARGA_PROMOSI" name="PromosiDetail.HARGA_PROMOSI" type="hidden" value="">')
 
                                 $($trElement + ' .persen-promosi-barang')
                                     .text(0)
@@ -1037,15 +1037,31 @@
                 }
             });
         }
+        function DataIsValid() {
+            if ($('#Promosi_TGL_MULAI').val() != '' &&
+                $('#Promosi_TGL_AKHIR').val() != '' &&
+                $('#Promosi_NAMA_MARKET').val() != '' &&
+                $('#Promosi_NAMA_PROMOSI').val() != ''
+            ) {
+                if ($('#Promosi_TGL_AKHIR').val() < $('#Promosi_TGL_MULAI').val()) {
+                    alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
+                    return false;
+                }
 
+            } else {
+                alert('Silakan isi semua field terlebih dahulu!');
+                return false;
+            }
+            return true;
+        }
         function simpanbrg($id) {
-            if (!validateForm()) return false;
+            if (!validateForm() || !DataIsValid()) return false;
             if ($id == 'brg-0') {
-                if ($('#Promosi_TGL_MULAI').val() != '' &&
-                    $('#Promosi_TGL_AKHIR').val() != '' &&
-                    $('#Promosi_NAMA_MARKET').val() != '' &&
-                    $('#Promosi_NAMA_PROMOSI').val() != ''
-                ) {
+                //if ($('#Promosi_TGL_MULAI').val() != '' &&
+                //    $('#Promosi_TGL_AKHIR').val() != '' &&
+                //    $('#Promosi_NAMA_MARKET').val() != '' &&
+                //    $('#Promosi_NAMA_PROMOSI').val() != ''
+                //) {
                     $('#PromosiDetail_KODE_BRG').val($('#BRG').selectivity('val'));
                     $('#PromosiDetail_HARGA_NORMAL').val(convertToAngka($('tr[data-promosi-id="0"] .harga-barang').text()));
                     $('#PromosiDetail_HARGA_PROMOSI').val(convertToAngka($('tr[data-promosi-id="0"] .harga-promosi-barang').text()));
@@ -1091,9 +1107,10 @@
                             console.log(xhr);
                         }
                     });
-                } else {
-                    alert('Silakan isi semua field terlebih dahulu!');
-                }
+            //}
+            //else {
+            //        alert('Silakan isi semua field terlebih dahulu!');
+            //    }
             }
         }
     </script>

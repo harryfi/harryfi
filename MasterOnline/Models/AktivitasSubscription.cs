@@ -35,9 +35,6 @@ namespace MasterOnline.Models
 
         public DateTime? SdTGL { get; set; }
 
-        //add by nurul 4/3/2019
-        public Int32? jumlahUser { get; set; }
-        //end add by nurul 4/3/2019
-
+        public int? jumlahUser { get; set; }
     }
 }

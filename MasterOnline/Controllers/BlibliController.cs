@@ -4664,6 +4664,214 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        public async Task<string> UpdateAttributeList(BlibliAPIData data, List<CATEGORY_BLIBLI> category)
+        {
+            string ret = "";
+            var listCategoryCode = category.Select(p => p.CATEGORY_CODE).ToList();
+            var AttributeInDb = MoDbContext.AttributeBlibli.Where(p => listCategoryCode.Contains(p.CATEGORY_CODE)).ToList();
+            MoDbContext.AttributeBlibli.RemoveRange(AttributeInDb);
+            MoDbContext.SaveChanges();
+
+            foreach (var item in category)
+            {
+                string categoryCode = item.CATEGORY_CODE;
+                string categoryName = item.CATEGORY_NAME;
+
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                //Stream dataStream = myReq.GetRequestStream();
+                //WebResponse response = myReq.GetResponse();
+                //dataStream = response.GetResponseStream();
+                //StreamReader reader = new StreamReader(dataStream);
+                //string responseFromServer = reader.ReadToEnd();
+                //dataStream.Close();
+                //response.Close();
+
+                // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                //cek refreshToken
+                if (responseFromServer != null)
+                {
+                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
+                    {
+                        if (result.value.attributes.Count > 0)
+                        {
+                            bool insertAttribute = false;
+#if AWS
+                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+
+                                    //cek jika sudah ada di database
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(categoryCode.ToUpper())
+                                    ).ToList();
+                                    //cek jika sudah ada di database
+
+                                    if (cari.Count == 0)
+                                    {
+                                        insertAttribute = true;
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        #region Generate Parameters dan CommandText
+                                        for (int i = 1; i <= 30; i++)
+                                        {
+                                            a = Convert.ToString(i);
+                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        #endregion
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = categoryCode;
+                                        oCommand.Parameters[1].Value = categoryName;
+                                        for (int i = 0; i < 30; i++)
+                                        {
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
+                                            try
+                                            {
+                                                oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                                                oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                                                oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                                                oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                                if (insertAttribute)
+                                {
+                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                    {
+                                        oCommand2.CommandType = CommandType.Text;
+                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
+                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
+                                        string a = "";
+                                        var AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                        for (int i = 0; i < 30; i++)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            try
+                                            {
+                                                if (result.value.attributes[i].options.Count > 0)
+                                                {
+                                                    string ACODE = "";
+                                                    string ATYPE = "";
+                                                    string ANAME = "";
+                                                    string OPTION_VALUE = "";
+                                                    if (Convert.ToString(result.value.attributes[i].attributeCode.Value) != "WA-0000002") // warna
+                                                    {
+                                                        for (int j = 0; j < result.value.attributes[i].options.Count; j++)
+                                                        {
+                                                            ACODE = result.value.attributes[i].attributeCode.Value;
+                                                            ATYPE = result.value.attributes[i].attributeType.Value;
+                                                            ANAME = result.value.attributes[i].name.Value;
+                                                            OPTION_VALUE = result.value.attributes[i].options[j].Value;
+
+                                                            //cek jika sudah ada di database
+                                                            var cari = AttributeOptInDb.Where(p => p.ACODE.ToUpper().Equals(ACODE.ToUpper())
+                                                            && p.ATYPE.ToUpper().Equals(ATYPE.ToUpper())
+                                                            && p.ANAME.ToUpper().Equals(ANAME.ToUpper())
+                                                            && p.OPTION_VALUE.ToUpper().Equals(OPTION_VALUE.ToUpper())
+                                                            ).ToList();
+                                                            //cek jika sudah ada di database
+
+                                                            if (cari.Count == 0)
+                                                            {
+                                                                oCommand2.Parameters[0].Value = ACODE;
+                                                                oCommand2.Parameters[1].Value = ATYPE;
+                                                                oCommand2.Parameters[2].Value = ANAME;
+                                                                oCommand2.Parameters[3].Value = OPTION_VALUE;
+                                                                oCommand2.ExecuteNonQuery();
+
+                                                                AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
         public async Task<string> GetAttributeList(BlibliAPIData data)
         {
             var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
@@ -5282,12 +5490,12 @@ namespace MasterOnline.Controllers
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
                                 //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
-                                
+
                                 //change by calvin 1 maret 2019
                                 //ImageConverter _imageConverter = new ImageConverter();
                                 //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
                                 System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
-                                
+
                                 System.Drawing.Imaging.Encoder myEncoder =
                                     System.Drawing.Imaging.Encoder.Quality;
                                 System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);

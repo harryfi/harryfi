@@ -117,6 +117,7 @@
                         <div class="form-group">
                             @Html.HiddenFor(m => m.DatabasePathMo)
                             @Html.HiddenFor(m => m.KODE_SUBSCRIPTION)
+                            @Html.HiddenFor(m => m.jumlahUser)
                         </div>
                         <div class="space-15">
                             <p>Dengan menekan Daftar, saya mengkonfirmasi telah menyetujui Syarat dan Ketentuan</p>
@@ -131,7 +132,44 @@
         </div>
     </div>
 </div>
-
+<div style="visibility:hidden">
+    <input id="txtSnapToken" />
+</div>
+<div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-labelledby="transferLabel">
+    <div class="modal-dialog" id="modal-transfer" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px;padding:0px">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Master Online</h4>
+        </div>
+        <div class="modal-content-subs" style="margin:0px 5px 5px;height:80vh;">
+            <br />
+            <div>
+                <p style="color:black">
+                    Pembayaran dapat di transfer ke rekening :
+                    <br />
+                    -PT. ERASOFT TEKNOLOGI INDONESIA
+                    <br />
+                    -BCA NO. 4943025919
+                    <br />
+                    Setelah Transfer Harap konfirmasi ke Telp: 021-6349318 dgn Erni / Indrie
+                </p>
+            </div>
+            <br />
+            <br />
+            <br />
+            <div>
+                <p style="color:black">
+                    Pembayaran menggunakan Credit Card atau Virtual account dapat dilanjutkan dengan klik tombol di bawah.
+                </p>
+            </div>
+        </div>
+        <div class="modal-footer" style="padding:15px">
+            <div>
+                <button onclick="openMidtrans()" style="background-color:mediumblue;width:100%;color:white;border-radius:4px;border:1px solid #cccccc">Lanjut</button>
+            </div>
+        </div>
+    </div>
+</div>
 <style>
     body {
         background-color: #f3f3f4;
@@ -205,8 +243,8 @@
 @section scripts
 {
     @*add by Tri snap js*@
-    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-h0vTBXHcfhnwHBSg"></script>
-    @*SB-Mid-client-kNpQZUsTHkQzk9BZ*@
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
+    @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
         $(document).on('ready', function (event) {
             $("#alert-error-section").hide();
@@ -240,7 +278,9 @@
                     success: function (response) {
                         if (response.error == null) {
                             if (response.token != null) {
-                                snap.pay(response.token, { skipOrderSummary: true });
+                                //snap.pay(response.token, { skipOrderSummary: true });
+                                $('#modalTransfer').modal('show');
+                                $('#txtSnapToken').val(response.token);
                             }
                             else {
                                 //window.location.href = response;
@@ -276,6 +316,12 @@
             });
         });
 
+        function openMidtrans() {
+            if ($('#txtSnapToken').val() != "") {
+                snap.pay($('#txtSnapToken').val(), { skipOrderSummary: true });
+            }
+            $('#modalTransfer').modal('hide');
+        }
         function isEmptyOrSpaces(str) {
             return str === null || str.match(/^ *$/) !== null;
         }
