@@ -1942,10 +1942,23 @@ namespace MasterOnline.Controllers
             return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeShopee(string code)
+        public async Task<ActionResult> GetAttributeShopee(string code,string marketrecnum)
         {
             string[] codelist = code.Split(';');
             var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var CategoryShopee = MoDbContext.CategoryShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            //var marketrecnum_int = Convert.ToInt32(marketrecnum);
+            //var sort1_cust = ErasoftDbContext.ARF01.Where(p => p.RecNum == marketrecnum_int).FirstOrDefault().Sort1_Cust;
+
+            //var ShopeeApi = new ShopeeController();
+
+            //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            //{
+            //    merchant_code = sort1_cust,
+            //};
+
+            //var listAttributeShopee = await ShopeeApi.GetAttributeToList(data, CategoryShopee);
+
             return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]

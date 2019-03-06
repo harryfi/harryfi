@@ -2240,8 +2240,9 @@
         function getAttributeShopee(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
             var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
 
-            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode" })';
+            var link = '@Url.Action("GetAttributeShopee", "Manage", new { code = "replaceCode",marketrecnum = "replaceSort1Cust" })';
             link = link.replace("replaceCode", categoryCode);
+            link = link.replace("replaceSort1Cust", listMarketRecNum);
 
             $.ajax({
                 type: "GET",
