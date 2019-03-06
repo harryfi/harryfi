@@ -665,6 +665,11 @@
                         $('#simpan_btn').hide();
                         $('#next_btn').show();
                         $('#div_info_harga_variant').show();
+                        
+                        $('.detail_mp_blibli_gambar').each(function () {
+                            var $this = $(this);
+                            $this.hide();
+                        });
                     } else {
                         $cbxTarget.val('3');
                         $('#var-structure-partial').html('');
@@ -672,6 +677,11 @@
                         $('#simpan_btn').show();
                         $('#next_btn').hide();
                         $('#div_info_harga_variant').hide();
+
+                        $('.detail_mp_blibli_gambar').each(function () {
+                            var $this = $(this);
+                            $this.show();
+                        });
                     }
 
                     CekTabVariant();
@@ -1300,7 +1310,15 @@
                                             //select
                                             var selectID = 'attribute_select_lazada_' + listMarketRecNum + '_' + (i + 1);
                                             SelectList.push(ANAME, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, AINPUT_TYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            //change by calvin 1 maret 2019
+                                            //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            }
+                                            else {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                            }
+                                            //end change by calvin 1 maret 2019
                                         }
                                         else {
                                             //textbox
@@ -2273,7 +2291,15 @@
                                             //select
                                             var selectID = 'attribute_select_shopee_'+ listMarketRecNum +'_'+ (i + 1);
                                             SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            //change by calvin 1 maret 2019
+                                            //fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            if (AMANDATORY == "1") {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                            }
+                                            else {
+                                                fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih"></select></div>';
+                                            }
+                                            //end change by calvin 1 maret 2019
                                         }
                                         else
                                         {
@@ -2892,7 +2918,7 @@
             $('.cbxTarget').each(function () {
                 var $this = $(this);
 
-                if($this.val() == "False"){
+                if($this.val() == "False" || $this.val() == "false" || $this.val() == false){
                     var data_ar_recnum = $this.attr("data-ar-recnum");
                     $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').removeAttr('required');
                 }
@@ -2910,6 +2936,7 @@
 
             if (!valid || !valid2) return false;
             if (!valid || !valid2) return false;
+
             //$('form .selectized[required="required"]').each(function () {
             //    var $this = $(this);
             //    var $inputSelectize = $this.parent().find('.item');
@@ -2945,6 +2972,16 @@
 
             var $form = $(btnClicked).parents('form');
             var $formData = new FormData($('form')[0]);
+
+            //add by calvin 1 maret 2019
+            //var listGambarBlibli = new FormData();
+            $('.foto_produk_blibli').each(function (i, item) {
+                var data_barang_level = $(item).attr("data-barang-level");
+                var data_barang_id = $(item).attr("data-barang-id");
+                $formData.append(data_barang_level + ';' + data_barang_id, $(item)[0].files[0]);
+            });
+
+            //end add by calvin 1 maret 2019
 
             $.ajax({
                 type: "POST",

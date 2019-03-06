@@ -561,9 +561,18 @@
         //end add by nurul 31/10/2018
         function convertToAngka(rupiah) {
 
+            if (rupiah == '') {
+                rupiah = '0';
+            }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            if (rupiah.includes(",")) {
+                return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
+            }
+            else {
+                //jika bisa desimal
+                return parseFloat(rupiah.replaceAll(',', '.'));
+            }
             //end change by calvin 26 september 2018
         }
         function addError(obj, msg) {

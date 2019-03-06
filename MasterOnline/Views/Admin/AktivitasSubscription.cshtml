@@ -66,10 +66,10 @@
                     <thead>
                         <tr role="row">
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
-                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
+        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Pembayaran</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
@@ -77,6 +77,9 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Dari Tanggal</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">S/d Tanggal</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+                            @*add by nurul 4/3/2019*@
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Jumlah User</th>
+                            @*end add by nurul 4/3/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>
                         </tr>
                     </thead>
@@ -85,17 +88,21 @@
                         {
                             foreach (var sub in Model.ListAktivitasSubs)
                             {
-                                <tr>
-                                    <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@sub.TipePembayaran</td>
-                                    <td class="text-center">@sub.Email</td>
-                                    <td class="text-center">@sub.Account</td>
-                                    <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
-                                    <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
-                                    @*<td class="text-center">@sub.TipeSubs</td>*@
-                                    <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
-                                    <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
-                                </tr>
+                        <tr>
+                            <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
+                            <td class="text-center">@sub.TipePembayaran</td>
+                            <td class="text-center">@sub.Email</td>
+                            <td class="text-center">@sub.Account</td>
+                            <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
+                            <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
+                            @*<td class="text-center">@sub.TipeSubs</td>*@
+                            <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
+                            @*add by nurul 4/3/2019*@
+                            @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
+                            <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
+                            @*end add by nurul 4/3/2019*@
+                            <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
+                        </tr>
                             }
                         }
                     </tbody>

@@ -8,6 +8,9 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 100px;">Tgl. Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 60px;">Marketplace</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 70px;">Pembeli</th>
+            @*add by nurul 6/3/2019*@
+            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 70px;">No. Resi</th>
+            @*end add by nurul 6/3/2019*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 90px;">Total</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; text-align: center">Cek Faktur</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 90px; text-align: center">Buat Faktur</th>
@@ -36,6 +39,20 @@
             {
                 NamaMarket = market.NamaMarket;
             }
+            //add by nurul 6/3/2019
+            var noresi = "";
+            if (pesanan.TRACKING_SHIPMENT != null)
+            {
+                if (NamaMarket.ToUpper() == "SHOPEE")
+                {
+                    noresi = Convert.ToString(pesanan.TRACKING_SHIPMENT.Split(']')[pesanan.TRACKING_SHIPMENT.Split(']').Length - 1]);
+                }
+                else
+                {
+                    noresi = pesanan.TRACKING_SHIPMENT;
+                }
+            }
+            //end add by nurul 6/3/2019
         <tr>
             <td>@pesanan.NO_BUKTI</td>
             <td>@(String.IsNullOrWhiteSpace(generatedFaktur?.NO_BUKTI) ? "---" : generatedFaktur?.NO_BUKTI)</td>
@@ -56,6 +73,9 @@
                 @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
                 @(buyer == null ? "" : buyer.NAMA)
             </td>
+            @*add by nurul 6/3/2019*@
+            <td>@noresi</td>
+            @*add by nurul 6/3/2019*@
             <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
             <td class="edit-hapus-col">
                 @if (generatedFaktur == null)

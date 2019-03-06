@@ -28,9 +28,9 @@
     <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
     <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/responsive/2.2.2/css/responsive.dataTables.min.css" rel="stylesheet" />
 
     <style>
         [data-tip] {
@@ -2369,7 +2369,8 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
-    <script src="https://cdn.datatables.net/responsive/2.2.2/js/dataTables.responsive.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
 
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
@@ -2427,6 +2428,7 @@
             //"order": [[0, 1, "desc"]], //or asc
             "order": [[1, "desc"], [0, "desc"]], //or asc
             "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+            responsive: true,
         });
         var tableNunggu = $('#datatable_nunggu').DataTable({
             //"order": [[0, 1, "desc"]], //or asc
@@ -4340,7 +4342,7 @@
             }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            if (rupiah.includes(",00")) {
+            if (rupiah.includes(",")) {
                 return parseFloat(rupiah.replaceAll('.','').replaceAll(',', '.'));
             }
             else{
@@ -5176,7 +5178,10 @@
                     //add by nurul 22/11/2018
                     $('#resi_no_bukti').val(response[2]);
                     $('#resi_pembeli').val(response[3]);
-                    $('#resi_kurir').val(response[4]);
+                    //change by calvin 4 maret 2019
+                    //$('#resi_kurir').val(response[4]);
+                    $('#resi_kurir').val(response[1]);
+                    //end change by calvin 4 maret 2019
                     //end add
 
                 },
@@ -5221,7 +5226,7 @@
 
                     $('#resi_no_bukti_Shopee').val(response[2]);
                     $('#resi_pembeli_Shopee').val(response[3]);
-                    $('#resi_kurir_Shopee').val(response[4]);
+                    $('#resi_kurir_Shopee').val(response[1]);
 
                     var valueTRACKING_SHIPMENT = response[0].split('[;]');
 
@@ -5805,7 +5810,7 @@
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    //$('#see_expedisi_pesanan').val($('#Pesanan_EXPEDISI').val()).show();
+                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
@@ -5853,7 +5858,7 @@
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    //$('#see_expedisi_pesanan').val($('#Pesanan_EXPEDISI').val()).show();
+                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     $('#TGL').parent().hide();
                     $('.pesanan_sudah_dibayar_section').hide();

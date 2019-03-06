@@ -2395,13 +2395,17 @@
         }
 
         function refreshNetto() {
-            $bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
+            //$bakalNetto = parseInt(convertToAngka($('#Invoice_BRUTO').val()));
+            $bakalNetto = parseFloat(convertToAngka($('#Invoice_BRUTO').val()));
 
             //CHANGE BY NURUL 26/10/2018   var $nPpn = Math.ceil($bakalNetto * parseInt($('#Invoice_PPN').val()) / 100);
-            var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
+            //var $nPpn = Math.ceil(($bakalNetto - parseInt(convertToAngka($('#Invoice_NDISC1').val()))) * parseInt($('#Invoice_PPN').val()) / 100);
+            //$('#Invoice_NPPN').val(convertToRupiah($nPpn));
+            var $nPpn = Math.ceil(($bakalNetto - parseFloat(convertToAngka($('#Invoice_NDISC1').val()))) * parseFloat($('#Invoice_PPN').val()) / 100);
             $('#Invoice_NPPN').val(convertToRupiah($nPpn));
 
-            $bakalNetto -= parseInt(convertToAngka($('#Invoice_NDISC1').val()));
+            //$bakalNetto -= parseInt(convertToAngka($('#Invoice_NDISC1').val()));
+            $bakalNetto -= parseFloat(convertToAngka($('#Invoice_NDISC1').val()));
             $bakalNetto += $nPpn;
             //add by nurul 10/12/2018
             $bakalNetto += convertToAngka($('#Invoice_BIAYA_LAIN').val());
@@ -2679,11 +2683,13 @@
                         }
                     },
                     change: function () {
-                        if ($(this).hasClass('qty-input')) {
-                            if ($(this).val() > 999) {
-                                $(this).val(999);
-                            }
-                        }
+                        //remark by nurul 27/2/2019
+                        //if ($(this).hasClass('qty-input')) {
+                        //    if ($(this).val() > 999) {
+                        //        $(this).val(999);
+                        //    }
+                        //}
+                        //end remark by nurul 27/2/2019
 
                         if ($(this).hasClass('disc-input')) {
                             if ($(this).val() > 99) {
@@ -3146,7 +3152,7 @@
             }
             //change by calvin 26 september 2018
             //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            if (rupiah.includes(",00")) {
+            if (rupiah.includes(",")) {
                 return parseFloat(rupiah.replaceAll('.','').replaceAll(',', '.'));
             }
             else{

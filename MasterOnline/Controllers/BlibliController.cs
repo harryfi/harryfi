@@ -114,7 +114,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BliBliToken GetToken(BlibliAPIData data, bool syncData)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
+        public BliBliToken GetToken(BlibliAPIData data, bool syncData, bool resetToken)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
@@ -133,7 +133,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                if (TokenExpired)
+                if (TokenExpired || resetToken)
                 {
                     //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
                     string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
@@ -4664,6 +4664,214 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+
+        public async Task<string> UpdateAttributeList(BlibliAPIData data, List<CATEGORY_BLIBLI> category)
+        {
+            string ret = "";
+            var listCategoryCode = category.Select(p => p.CATEGORY_CODE).ToList();
+            var AttributeInDb = MoDbContext.AttributeBlibli.Where(p => listCategoryCode.Contains(p.CATEGORY_CODE)).ToList();
+            MoDbContext.AttributeBlibli.RemoveRange(AttributeInDb);
+            MoDbContext.SaveChanges();
+
+            foreach (var item in category)
+            {
+                string categoryCode = item.CATEGORY_CODE;
+                string categoryName = item.CATEGORY_NAME;
+
+                long milis = CurrentTimeMillis();
+                DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+                string apiId = data.API_client_username + ":" + data.API_client_password;//<-- diambil dari profil API
+                string userMTA = data.mta_username_email_merchant;//<-- email user merchant
+                string passMTA = data.mta_password_password_merchant;//<-- pass merchant
+
+                string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + Uri.EscapeDataString(milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(data.merchant_code) + "&categoryCode=" + Uri.EscapeDataString(categoryCode) + "&channelId=MasterOnline";
+                //string signature = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes", data.API_secret_key);
+                //    string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/getCategoryAttributes?requestId=" + milis + "&businessPartnerCode=" + data.merchant_code + "&categoryCode=" + categoryCode;
+
+                HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                myReq.Method = "GET";
+                myReq.Headers.Add("Authorization", ("bearer " + data.token));
+                myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq.Accept = "application/json";
+                myReq.ContentType = "application/json";
+                myReq.Headers.Add("requestId", milis.ToString());
+                myReq.Headers.Add("sessionId", milis.ToString());
+                myReq.Headers.Add("username", userMTA);
+                string responseFromServer = "";
+                try
+                {
+                    using (WebResponse response = await myReq.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+
+                //Stream dataStream = myReq.GetRequestStream();
+                //WebResponse response = myReq.GetResponse();
+                //dataStream = response.GetResponseStream();
+                //StreamReader reader = new StreamReader(dataStream);
+                //string responseFromServer = reader.ReadToEnd();
+                //dataStream.Close();
+                //response.Close();
+
+                // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
+                //cek refreshToken
+                if (responseFromServer != null)
+                {
+                    dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                    if (string.IsNullOrEmpty(result.errorCode.Value))
+                    {
+                        if (result.value.attributes.Count > 0)
+                        {
+                            bool insertAttribute = false;
+#if AWS
+                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                            string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                            using (SqlConnection oConnection = new SqlConnection(con))
+                            {
+                                oConnection.Open();
+                                using (SqlCommand oCommand = oConnection.CreateCommand())
+                                {
+
+                                    //cek jika sudah ada di database
+                                    var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(categoryCode.ToUpper())
+                                    ).ToList();
+                                    //cek jika sudah ada di database
+
+                                    if (cari.Count == 0)
+                                    {
+                                        insertAttribute = true;
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        string sSQL = "INSERT INTO [ATTRIBUTE_BLIBLI] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                        string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                        string a = "";
+                                        #region Generate Parameters dan CommandText
+                                        for (int i = 1; i <= 30; i++)
+                                        {
+                                            a = Convert.ToString(i);
+                                            sSQL += "[ACODE_" + a + "],[ATYPE_" + a + "],[ANAME_" + a + "],[AOPTIONS_" + a + "],";
+                                            sSQLValue += "@ACODE_" + a + ",@ATYPE_" + a + ",@ANAME_" + a + ",@AOPTIONS_" + a + ",";
+                                            oCommand.Parameters.Add(new SqlParameter("@ACODE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ATYPE_" + a, SqlDbType.NVarChar, 50));
+                                            oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                            oCommand.Parameters.Add(new SqlParameter("@AOPTIONS_" + a, SqlDbType.NVarChar, 1));
+                                        }
+                                        sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                        #endregion
+                                        oCommand.CommandText = sSQL;
+                                        oCommand.Parameters[0].Value = categoryCode;
+                                        oCommand.Parameters[1].Value = categoryName;
+                                        for (int i = 0; i < 30; i++)
+                                        {
+                                            a = Convert.ToString(i * 4 + 2);
+                                            oCommand.Parameters[(i * 4) + 2].Value = "";
+                                            oCommand.Parameters[(i * 4) + 3].Value = "";
+                                            oCommand.Parameters[(i * 4) + 4].Value = "";
+                                            oCommand.Parameters[(i * 4) + 5].Value = "";
+                                            try
+                                            {
+                                                oCommand.Parameters[(i * 4) + 2].Value = result.value.attributes[i].attributeCode.Value;
+                                                oCommand.Parameters[(i * 4) + 3].Value = result.value.attributes[i].attributeType.Value;
+                                                oCommand.Parameters[(i * 4) + 4].Value = result.value.attributes[i].name.Value;
+                                                oCommand.Parameters[(i * 4) + 5].Value = result.value.attributes[i].options.Count > 0 ? "1" : "0";
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                        oCommand.ExecuteNonQuery();
+                                    }
+                                }
+                                if (insertAttribute)
+                                {
+                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                    {
+                                        oCommand2.CommandType = CommandType.Text;
+                                        oCommand2.Parameters.Add(new SqlParameter("@ACODE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ATYPE", SqlDbType.NVarChar, 50));
+                                        oCommand2.Parameters.Add(new SqlParameter("@ANAME", SqlDbType.NVarChar, 250));
+                                        oCommand2.Parameters.Add(new SqlParameter("@OPTION_VALUE", SqlDbType.NVarChar, 250));
+                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_BLIBLI (ACODE,ATYPE,ANAME,OPTION_VALUE) VALUES (@ACODE,@ATYPE,@ANAME,@OPTION_VALUE)";
+                                        string a = "";
+                                        var AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                        for (int i = 0; i < 30; i++)
+                                        {
+                                            a = Convert.ToString(i + 1);
+                                            try
+                                            {
+                                                if (result.value.attributes[i].options.Count > 0)
+                                                {
+                                                    string ACODE = "";
+                                                    string ATYPE = "";
+                                                    string ANAME = "";
+                                                    string OPTION_VALUE = "";
+                                                    if (Convert.ToString(result.value.attributes[i].attributeCode.Value) != "WA-0000002") // warna
+                                                    {
+                                                        for (int j = 0; j < result.value.attributes[i].options.Count; j++)
+                                                        {
+                                                            ACODE = result.value.attributes[i].attributeCode.Value;
+                                                            ATYPE = result.value.attributes[i].attributeType.Value;
+                                                            ANAME = result.value.attributes[i].name.Value;
+                                                            OPTION_VALUE = result.value.attributes[i].options[j].Value;
+
+                                                            //cek jika sudah ada di database
+                                                            var cari = AttributeOptInDb.Where(p => p.ACODE.ToUpper().Equals(ACODE.ToUpper())
+                                                            && p.ATYPE.ToUpper().Equals(ATYPE.ToUpper())
+                                                            && p.ANAME.ToUpper().Equals(ANAME.ToUpper())
+                                                            && p.OPTION_VALUE.ToUpper().Equals(OPTION_VALUE.ToUpper())
+                                                            ).ToList();
+                                                            //cek jika sudah ada di database
+
+                                                            if (cari.Count == 0)
+                                                            {
+                                                                oCommand2.Parameters[0].Value = ACODE;
+                                                                oCommand2.Parameters[1].Value = ATYPE;
+                                                                oCommand2.Parameters[2].Value = ANAME;
+                                                                oCommand2.Parameters[3].Value = OPTION_VALUE;
+                                                                oCommand2.ExecuteNonQuery();
+
+                                                                AttributeOptInDb = MoDbContext.AttributeOptBlibli.ToList();
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+
+                                            }
+                                            catch (Exception ex)
+                                            {
+
+                                            }
+                                        }
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                    }
+                }
+            }
+
+            return ret;
+        }
         public async Task<string> GetAttributeList(BlibliAPIData data)
         {
             var category = MoDbContext.CategoryBlibli.Where(p => p.IS_LAST_NODE.Equals("1")).ToList();
@@ -5167,6 +5375,19 @@ namespace MasterOnline.Controllers
             public string locationPath { get; set; }
         }
 
+        private System.Drawing.Imaging.ImageCodecInfo GetEncoder(System.Drawing.Imaging.ImageFormat format)
+        {
+            System.Drawing.Imaging.ImageCodecInfo[] codecs = System.Drawing.Imaging.ImageCodecInfo.GetImageDecoders();
+            foreach (System.Drawing.Imaging.ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
+        }
+
         public async Task<string> CreateProduct(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
@@ -5240,16 +5461,24 @@ namespace MasterOnline.Controllers
             if (data.type == "3") // bukan barang variasi
             {
                 List<string> images_pervar = new List<string>();
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort5))
+                string idGambar = "";
+                string urlGambar = "";
+
+                idGambar = stf02h.ACODE_50;
+                urlGambar = stf02h.AVALUE_50;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort5))
+                    idGambar = data.dataBarangInDb.Sort5;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_1;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort5);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_1);
-                            //images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort5);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5260,25 +5489,47 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
 
-                                images.Add(data.dataBarangInDb.Sort5, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort5);
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                stream.Position = 0;
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
+
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort6))
+                idGambar = stf02h.ACODE_49;
+                urlGambar = stf02h.AVALUE_49;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort6))
+                    idGambar = data.dataBarangInDb.Sort6;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_2;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort6);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_2);
-                            //images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort6);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5289,25 +5540,48 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
 
-                                images.Add(data.dataBarangInDb.Sort6, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort6);
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                stream.Position = 0;
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
+
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
                 }
-                if (!string.IsNullOrWhiteSpace(data.dataBarangInDb.Sort7))
+
+                idGambar = stf02h.ACODE_48;
+                urlGambar = stf02h.AVALUE_48;
+                if (string.IsNullOrWhiteSpace(idGambar))
                 {
-                    if (!uploadedImageID.Contains(data.dataBarangInDb.Sort7))
+                    idGambar = data.dataBarangInDb.Sort7;
+                    urlGambar = data.dataBarangInDb.LINK_GAMBAR_3;
+                }
+                if (!string.IsNullOrWhiteSpace(idGambar))
+                {
+                    if (!uploadedImageID.Contains(idGambar))
                     {
-                        uploadedImageID.Add(data.dataBarangInDb.Sort7);
+                        uploadedImageID.Add(idGambar);
                         using (var client = new HttpClient())
                         {
-                            var bytes = await client.GetByteArrayAsync(data.dataBarangInDb.LINK_GAMBAR_3);
-                            //images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(bytes)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                            //images_pervar.Add(data.dataBarangInDb.Sort7);
+                            var bytes = await client.GetByteArrayAsync(urlGambar);
 
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5318,11 +5592,28 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
 
-                                images.Add(data.dataBarangInDb.Sort7, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images_pervar.Add(data.dataBarangInDb.Sort7);
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                stream.Position = 0;
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
+
+                                images.Add(idGambar, Convert.ToBase64String(resizedByteArr)); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images_pervar.Add(idGambar);
                             }
                         }
                     }
@@ -5412,10 +5703,16 @@ namespace MasterOnline.Controllers
                     var var_stf02h_item = var_stf02h.Where(p => p.BRG == var_item.BRG).FirstOrDefault();
 
                     List<string> images_pervar = new List<string>();
-                    images_pervar.Add(var_item.Sort5); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                    if (!uploadedImageID.Contains(var_item.Sort5))
+                    string image_id = var_stf02h_item.ACODE_50;
+                    if (string.IsNullOrWhiteSpace(image_id))
                     {
-                        uploadedImageID.Add(var_item.Sort5);
+                        image_id = var_item.Sort5;
+                    }
+                    images_pervar.Add(image_id); // size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+
+                    if (!uploadedImageID.Contains(image_id))
+                    {
+                        uploadedImageID.Add(image_id);
                         using (var client = new HttpClient())
                         {
                             string url = var_stf02h_item.AVALUE_50;
@@ -5425,7 +5722,7 @@ namespace MasterOnline.Controllers
                             }
                             //var bytes = await client.GetByteArrayAsync(var_item.LINK_GAMBAR_1);
                             var bytes = await client.GetByteArrayAsync(url);
-                            
+
                             //images.Add(var_item.Sort5, Convert.ToBase64String(bytes));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             using (var stream = new MemoryStream(bytes, true))
                             {
@@ -5436,11 +5733,28 @@ namespace MasterOnline.Controllers
                                     newResolution = img.Width;
                                 }
                                 var resizedImage = (Image)BlibliResizeImage(img, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
-                                ImageConverter _imageConverter = new ImageConverter();
-                                byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                //var resizedImage = (Image)BlibliResizeImageFromStream(stream);
+
+                                //change by calvin 1 maret 2019
+                                //ImageConverter _imageConverter = new ImageConverter();
+                                //byte[] resizedByteArr = (byte[])_imageConverter.ConvertTo(resizedImage, typeof(byte[]));
+                                System.Drawing.Imaging.ImageCodecInfo jpgEncoder = GetEncoder(System.Drawing.Imaging.ImageFormat.Jpeg);
+
+                                System.Drawing.Imaging.Encoder myEncoder =
+                                    System.Drawing.Imaging.Encoder.Quality;
+                                System.Drawing.Imaging.EncoderParameters myEncoderParameters = new System.Drawing.Imaging.EncoderParameters(1);
+
+                                System.Drawing.Imaging.EncoderParameter myEncoderParameter = new System.Drawing.Imaging.EncoderParameter(myEncoder, 90L);
+                                myEncoderParameters.Param[0] = myEncoderParameter;
+
+                                resizedImage.Save(stream, jpgEncoder, myEncoderParameters);
+
+                                stream.Position = 0;
+                                byte[] resizedByteArr = stream.ToArray();
+                                //end change by calvin 1 maret 2019
 
                                 //images.Add(var_item.Sort5, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
-                                images.Add(var_stf02h_item.ACODE_50, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
+                                images.Add(image_id, Convert.ToBase64String(resizedByteArr));// size kb nya, sebagai id, agar tidak ada gambar duplikat terupload
                             }
                         }
                     }
@@ -5538,7 +5852,7 @@ namespace MasterOnline.Controllers
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(CreateProductResult)) as CreateProductResult;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
@@ -5610,6 +5924,34 @@ namespace MasterOnline.Controllers
             }
 
             return ret;
+        }
+        public static Bitmap BlibliResizeImageFromStream(MemoryStream stream)
+        {
+            using (var img = Image.FromStream(stream))
+            {
+                float newResolution = img.Height;
+                if (img.Width < newResolution)
+                {
+                    newResolution = img.Width;
+                }
+                var destRect = new Rectangle(0, 0, Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+                var destImage = new Bitmap(Convert.ToInt32(newResolution), Convert.ToInt32(newResolution));
+
+                //var newWidth = (int)(srcImage.Width * scaleFactor);
+                //var newHeight = (int)(srcImage.Height * scaleFactor);
+                var newWidth = (int)(newResolution);
+                var newHeight = (int)(newResolution);
+                using (var newImage = new Bitmap(newWidth, newHeight))
+                using (var graphics = Graphics.FromImage(newImage))
+                {
+                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    graphics.DrawImage(img, destRect);
+                    //newImage.Save(outputFile);
+                }
+                return destImage;
+            }
         }
         public static Bitmap BlibliResizeImage(System.Drawing.Image image, int width, int height)
         {

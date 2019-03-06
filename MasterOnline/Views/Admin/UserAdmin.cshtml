@@ -1,0 +1,294 @@
+﻿@using MasterOnline.ViewModels
+@model AdminUserViewModel
+
+@{
+    ViewBag.Title = "User Admin";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<style>
+    #akun-section > div {
+        background-color: #fff;
+        padding: 20px;
+    }
+</style>
+
+<div class="row" id="akun-section">
+    <div class="col-lg-12 col-md-12">
+        <div class="row user_table_section">
+            <div class="col-lg-4 col-sm-6">
+                <div class="input-group">
+                    <input id="search_user" type="text" class="form-control" placeholder="Pencarian">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </span>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6">
+                <div class="pull-right">
+                    <button type="button" class=" btn btn-default" data-style="expand-right">
+                        <span>Refresh</span>
+                    </button>
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_user">Tambah Baru</button>
+                </div>
+            </div>
+        </div>
+        <div class="row user_table_section">
+            <div class="col-sm-12">
+                <div id="table-akun-partial">
+                    @Html.Partial("TableAkunPartial")
+                </div>
+            </div>
+        </div>
+        <div class="row user_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">User</h2>
+                    <span class="title-accent"></span>
+                    <button id="close-editor" type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail User</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SaveUser", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", @id = "form-user" }))
+                                        {
+                                            <div id="form-partial">
+                                                @Html.Partial("FormAkunPartial")
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Hapus User -->
+<div class="modal fade" id="konfHapusUser" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin menghapus user ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="deleteUser()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts
+{
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        //add by nurul 12/2/2019
+        var $page = window.text;
+            //end add by nurul 12/2/2019
+        $userId = 0;
+
+        $(document).on('ready',
+            function () {
+                //add by nurul 12/2/2019
+                $page = 0;
+            //end add by nurul 12/2/2019
+                Initialize();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+            });
+
+        function Initialize() {
+            var table = $('#datatable').DataTable();
+
+            $('#search_user').keyup(function () {
+                table.search($(this).val()).draw();
+            });
+
+            $('#tambah_user').on('click', function () {
+                $('.user_table_section').hide();
+                $('.user_editor_section').show();
+            });
+
+            $('#close-editor').on('click', function () {
+                $('.user_table_section').show();
+                $('.user_editor_section').hide();
+                refreshTableAkun();
+                refreshForm();
+                //add by nurul 12/2/2019
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_user').click();
+            }
+            //add by nurul 12/2/2019
+            $('#datatable').on('page.dt', function () {
+                $page = $('#datatable').DataTable().page.info().page;
+            });
+            $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+        }
+
+        function simpanAkun(btnClicked) {
+            if (!validateForm()) return false;
+
+            if ($('#User_Password').val() != $('#User_KonfirmasiPassword').val()) {
+                alert('Password konfirmasi tidak sama dengan password!');
+                return false;
+            }
+
+            var $form = $(btnClicked).parents('form');
+
+            $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                success: function (response) {
+                    if (response.Errors == null) {
+                        alert('Data akun berhasil disimpan');
+                        $('#table-akun-partial').html(response);
+                        Initialize();
+                        $('#close-editor').click();
+                        $("html, body").animate({ scrollTop: 0 }, "slow");
+                    } else {
+                        alert(response.Errors);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+
+        function refreshTableAkun() {
+            var link = '@Url.Action("RefreshTableAkun", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-akun-partial').html(response);
+                    var table = $('#datatable').DataTable();
+                    $('#search_user').keyup(function () {
+                        table.search($(this).val()).draw();
+                    });
+                    //add by nurul 26 nov 2018, setelah di close, search lg
+                    table.search($('#search_user').val()).draw();
+                    //end add by nurul 26 nov 2018, setelah di close, search lg
+                    //add by nurul 12/2/2019
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function refreshForm() {
+            var link = '@Url.Action("RefreshAkunForm", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial').html(response);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function editUser(userId) {
+            var link = '@Url.Action("EditUser", "Manage", new { userId = "replaceId" })';
+            link = link.replace("replaceId", userId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial').html(response);
+                    Initialize();
+                    $('#tambah_user').click();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function pass(userId) {
+            this.$userId = userId;
+        }
+
+        function deleteUser() {
+            var link = '@Url.Action("DeleteUser", "Manage", new { userId = "replaceId" })';
+            link = link.replace("replaceId", this.$userId);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#table-akun-partial').html(response);
+                    Initialize();
+                    $('#konfHapusUser').modal('hide');
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+}

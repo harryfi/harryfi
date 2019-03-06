@@ -623,7 +623,7 @@ namespace MasterOnline.Controllers
                     break;
                 case StatusOrder.Paid:
                     //paid
-                    status = "200";
+                    status = "220";
                     break;
                 //case StatusOrder.PackagingINP:
                 //    status = "500";
@@ -686,12 +686,135 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                 TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
+                var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
                 var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
-                List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
                 var connIdARF01C = Guid.NewGuid().ToString();
 
                 foreach (var order in orderPaid)
                 {
+                    List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+                    ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
+
+                    string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                    insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                    insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV,CONNECTION_ID) VALUES ";
+                    var kabKot = "3174";
+                    var prov = "31";
+                    insertPembeli += "('" + order.recipient.name + "','" + order.recipient.address.address_full + "','" + order.recipient.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
+                    insertPembeli += "1, 'IDR', '01', '" + order.recipient.address.address_full + "', 0, 0, 0, 0, '1', 0, 0, ";
+                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient.address.postal_code + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                    var order_order_id = Convert.ToString(order.order_id);
+                    if (orderTokpedInDb.Where(p => p.order_id == order_order_id).Count() == 0)
+                    {
+                        //belum ada di temp
+                        foreach (var product in order.products)
+                        {
+                            TEMP_TOKPED_ORDERS newOrder = new TEMP_TOKPED_ORDERS()
+                            {
+                                fs_id = order.fs_id,
+                                order_id = Convert.ToString(order.order_id),
+                                accept_partial = order.accept_partial,
+                                invoice_ref_num = order.invoice_ref_num,
+                                product_id = product.id,
+                                product_name = product.name,
+                                product_quantity = product.quantity,
+                                product_notes = product.notes,
+                                product_weight = product.weight,
+                                product_total_weight = product.total_weight,
+                                product_price = product.price,
+                                product_total_price = product.total_price,
+                                product_currency = product.currency,
+                                product_sku = product.sku,
+                                products_fulfilled_product_id = 0,
+                                products_fulfilled_quantity_deliver = 0,
+                                products_fulfilled_quantity_reject = 0,
+                                device_type = order.device_type,
+                                buyer_id = order.buyer.id,
+                                buyer_name = order.buyer.name,
+                                buyer_email = order.buyer.email,
+                                buyer_phone = order.buyer.phone,
+                                shop_id = order.shop_id,
+                                payment_id = order.payment_id,
+                                recipient_name = order.recipient.name,
+                                recipient_address_address_full = order.recipient.address.address_full,
+                                recipient_address_district = order.recipient.address.district,
+                                recipient_address_district_id = order.recipient.address.district_id,
+                                recipient_address_city = order.recipient.address.city,
+                                recipient_address_city_id = order.recipient.address.city_id,
+                                recipient_address_province = order.recipient.address.province,
+                                recipient_address_province_id = order.recipient.address.province_id,
+                                recipient_address_country = order.recipient.address.country,
+                                recipient_address_geo = order.recipient.address.geo,
+                                recipient_address_postal_code = order.recipient.address.postal_code,
+                                recipient_phone = order.recipient.phone,
+                                logistics_shipping_id = order.logistics.shipping_id,
+                                logistics_shipping_agency = order.logistics.shipping_agency,
+                                logistics_service_type = order.logistics.service_type,
+                                amt_ttl_product_price = order.amt.ttl_product_price,
+                                amt_shipping_cost = order.amt.shipping_cost,
+                                amt_insurance_cost = order.amt.insurance_cost,
+                                amt_ttl_amount = order.amt.ttl_amount,
+                                amt_voucher_amount = order.amt.voucher_amount,
+                                amt_toppoints_amount = order.amt.toppoints_amount,
+                                dropshipper_info_name = order.dropshipper_info.name,
+                                dropshipper_info_phone = order.dropshipper_info.phone,
+                                voucher_info_voucher_code = order.voucher_info.voucher_code,
+                                voucher_info_voucher_type = order.voucher_info.voucher_type,
+                                order_status = order.order_status,
+                                create_time = DateTimeOffset.FromUnixTimeSeconds(order.create_time).UtcDateTime,
+                                custom_fields_awb = order.custom_fields.awb,
+                                conn_id = connId,
+                                CUST = CUST,
+                                NAMA_CUST = NAMA_CUST
+                            };
+                            var product_fulfilled = order.products_fulfilled.SingleOrDefault(p => p.product_id == product.id);
+                            if (product_fulfilled != null)
+                            {
+                                newOrder.products_fulfilled_product_id = product_fulfilled.product_id;
+                                newOrder.products_fulfilled_quantity_deliver = product_fulfilled.quantity_deliver;
+                                newOrder.products_fulfilled_quantity_reject = product_fulfilled.quantity_reject;
+                            }
+                            ListNewOrders.Add(newOrder);
+                        }
+                    }
+
+                    insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 1);
+                    EDB.ExecuteSQL("Constring", CommandType.Text, insertPembeli);
+
+                    ErasoftDbContext.TEMP_TOKPED_ORDERS.AddRange(ListNewOrders);
+                    ErasoftDbContext.SaveChanges();
+
+                    using (SqlCommand CommandSQL = new SqlCommand())
+                    {
+                        //call sp to insert buyer data
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIdARF01C;
+
+                        EDB.ExecuteSQL("Con", "MoveARF01CFromTempTable", CommandSQL);
+                    };
+                    using (SqlCommand CommandSQL = new SqlCommand())
+                    {
+                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connId;
+                        CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-7).ToString("yyyy-MM-dd HH:mm:ss");
+                        CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                        CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 1;
+                        CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                        CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = CUST;
+
+                        EDB.ExecuteSQL("Con", "MoveOrderFromTempTable", CommandSQL);
+                    }
+                }
+
+                foreach (var order in orderAccepted)
+                {
+                    List<TEMP_TOKPED_ORDERS> ListNewOrders = new List<TEMP_TOKPED_ORDERS>();
+
                     ErasoftDbContext.Database.ExecuteSqlCommand("DELETE FROM TEMP_TOKPED_ORDERS");
 
                     string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
@@ -1040,7 +1163,6 @@ namespace MasterOnline.Controllers
         }
         public async Task<string> UpdateStock(TokopediaAPIData iden, int product_id, int stok)
         {
-
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
@@ -1159,9 +1281,16 @@ namespace MasterOnline.Controllers
                             if (item.sku == SKU)
                             {
                                 found = true;
-                                if (item.childs.Count() > 0)
+                                if (item.childs != null)
                                 {
-                                    await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
+                                    if (item.childs.Count() > 0)
+                                    {
+                                        await GetActiveItemVariantByProductID(iden, SKU, recnumArf01, Convert.ToString(item.id));
+                                    }
+                                    else
+                                    {
+                                        var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(item.id) + "' WHERE BRG = '" + Convert.ToString(SKU) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                    }
                                 }
                                 else
                                 {
