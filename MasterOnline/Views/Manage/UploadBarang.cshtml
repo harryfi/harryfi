@@ -1540,16 +1540,20 @@
                 //else {
                 //    document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
                 //}
-                if (data.Id > 0) {
+                if (data.ID > 0) {
                     document.getElementById('statBarang').innerText = 'Kode Barang sudah ada dan akan\nDi-Link dengan barang ini.';
                 } else {
                     document.getElementById('statBarang').innerText = 'Kode Barang belum ada\nBuat barang baru';
                 }
-                if ($("#TempBrg_KODE_BRG_INDUK").val() != '' || $("#TempBrg_KODE_BRG_INDUK").val() != null) {
+                if ($("#TempBrg_KODE_BRG_INDUK").val() != '') {
                     if (data.PART != null) {
                         $('#txtBrgInduk').val(data.PART);
+                        $("#cmbVar").val('1').change();
                     }
-
+                } else if (data.TYPE == "3") {
+                    $("#cmbVar").val('0').change();
+                } else {
+                    $("#cmbVar").val('1').change();
                 }
             }
             Initialize();
