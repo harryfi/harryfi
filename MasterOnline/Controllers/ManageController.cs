@@ -684,8 +684,8 @@ namespace MasterOnline.Controllers
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
 
                 //ingat ganti saat publish, by calvin
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "16.BWHG00.04.00" || p.BRG == "JPTTEST")).ToList(),
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "16.BWHG00.04.00" || p.BRG == "JPTTEST")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
 
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
                 ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
@@ -1809,10 +1809,32 @@ namespace MasterOnline.Controllers
             return Json(listKategoriBlibli.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeBlibli(string code)
+        //public ActionResult GetAttributeBlibli(string code)
+        public async Task<ActionResult> GetAttributeBlibli(string code)
         {
             string[] codelist = code.Split(';');
-            var listAttributeBlibli = MoDbContext.AttributeBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var listAttributeBlibli = MoDbContext.AttributeBlibli.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            string categoryCode = codelist[0];
+            var marketrecnum_int = Convert.ToInt32(codelist[1]);
+            var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            var tblCustomer = ErasoftDbContext.ARF01.Where(p => p.RecNum == marketrecnum_int).FirstOrDefault();
+
+            var BliAPI = new BlibliController();
+
+            BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData
+            {
+                merchant_code = tblCustomer.Sort1_Cust,
+                API_client_password = tblCustomer.API_CLIENT_P,
+                API_client_username = tblCustomer.API_CLIENT_U,
+                API_secret_key = tblCustomer.API_KEY,
+                token = tblCustomer.TOKEN,
+                mta_username_email_merchant = tblCustomer.EMAIL,
+                mta_password_password_merchant = tblCustomer.PASSWORD,
+                idmarket = tblCustomer.RecNum.Value
+            };
+
+            var listAttributeBlibli = await BliAPI.GetAttributeToList(data, CategoryBlibli);
+
             return Json(listAttributeBlibli, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -1942,10 +1964,25 @@ namespace MasterOnline.Controllers
             return Json(listKategoriShopee.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
-        public ActionResult GetAttributeShopee(string code)
+        public async Task<ActionResult> GetAttributeShopee(string code)
+        //public ActionResult GetAttributeShopee(string code)
         {
             string[] codelist = code.Split(';');
-            var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var listAttributeShopee = MoDbContext.AttributeShopee.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            string categoryCode = codelist[0];
+            var marketrecnum_int = Convert.ToInt32(codelist[1]);
+            var CategoryShopee = MoDbContext.CategoryShopee.Where(k => k.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            var sort1_cust = ErasoftDbContext.ARF01.Where(p => p.RecNum == marketrecnum_int).FirstOrDefault().Sort1_Cust;
+
+            var ShopeeApi = new ShopeeController();
+
+            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+            {
+                merchant_code = sort1_cust,
+            };
+
+            var listAttributeShopee = await ShopeeApi.GetAttributeToList(data, CategoryShopee);
+
             return Json(listAttributeShopee, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -15074,7 +15111,7 @@ namespace MasterOnline.Controllers
                 if (!string.IsNullOrWhiteSpace(customer.TOKEN))
                 {
                     var lazadaApi = new LazadaController();
-                    foreach(var promo in detailPromosiInDb)
+                    foreach (var promo in detailPromosiInDb)
                     {
                         var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == promo.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
                         if (brgInDB != null)
@@ -15085,7 +15122,7 @@ namespace MasterOnline.Controllers
                                 lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
                             }
                         }
-                    }                    
+                    }
                 }
             }
             //end add by calvin 26 desember 2018

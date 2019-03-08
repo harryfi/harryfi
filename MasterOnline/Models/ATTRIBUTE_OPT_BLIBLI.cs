@@ -10,6 +10,14 @@ namespace MasterOnline.Models
     [Table("ATTRIBUTE_OPT_BLIBLI")]
     public class ATTRIBUTE_OPT_BLIBLI
     {
+        public ATTRIBUTE_OPT_BLIBLI(string code, string type, string name, string opt_value)
+        {
+            ACODE = code;
+            ATYPE = type;
+            ANAME = name;
+            OPTION_VALUE = opt_value;
+        }
+
         [StringLength(50)]
         public string ACODE { get; set; }
 

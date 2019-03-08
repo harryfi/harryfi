@@ -1311,34 +1311,29 @@ namespace MasterOnline.Controllers
 #endif
                     string a = "";
                     int i = 0;
+                    ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
                     foreach (var attribs in result.attributes)
                     {
-                        ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
                         a = Convert.ToString(i + 1);
                         returnData.CATEGORY_CODE = category.CATEGORY_CODE;
                         returnData.CATEGORY_NAME = category.CATEGORY_NAME;
 
-                        returnData["ACODE_" + a] = attribs.attribute_id;
+                        returnData["ACODE_" + a] = Convert.ToString(attribs.attribute_id);
                         returnData["ATYPE_" + a] = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
                         returnData["ANAME_" + a] = attribs.attribute_name;
                         returnData["AOPTIONS_" + a] = attribs.options.Count() > 0 ? "1" : "0";
                         returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
-
-                        ret.attributes.Add(returnData);
-
+                        
                         if (attribs.options.Count() > 0)
                         {
-                            foreach (var option in attribs.options)
-                            {
-                                ATTRIBUTE_OPT_SHOPEE returnDataOpts = new ATTRIBUTE_OPT_SHOPEE();
-
-                                returnDataOpts.ACODE = Convert.ToString(attribs.attribute_id);
-                                returnDataOpts.OPTION_VALUE = option;
-                                ret.attribute_opts.Add(returnDataOpts);
-                            }
+                            var optList = attribs.options.ToList();
+                            var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE(attribs.attribute_id.ToString(), x)).ToList();
+                            ret.attribute_opts.AddRange(listOpt);
                         }
                         i = i + 1;
                     }
+                    ret.attributes.Add(returnData);
+
                 }
                 catch (Exception ex2)
                 {
