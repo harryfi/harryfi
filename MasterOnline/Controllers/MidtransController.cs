@@ -211,7 +211,7 @@ namespace MasterOnline.Controllers
                 MoDbContext = new MoDbContext();
                 if (notification_data != null)
                 {
-                    var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID.Equals(notification_data.transaction_id) && m.STATUS_CODE.Equals(notification_data.status_code));
+                    var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID == notification_data.transaction_id && m.STATUS_CODE == notification_data.status_code);
                     if (dataMidtrans == null)
                     {
                         var newData = new MIDTRANS_DATA();
@@ -235,7 +235,7 @@ namespace MasterOnline.Controllers
 
                         MoDbContext.MidtransData.Add(newData);
 
-                        if (notification_data.status_code.Equals("200") && (notification_data.transaction_status.Equals("settlement") || notification_data.transaction_status.Equals("capture")))
+                        if (notification_data.status_code == "200" && (notification_data.transaction_status == "settlement" || notification_data.transaction_status == "capture"))
                         {
                             //transaction complete
                             var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
@@ -254,7 +254,7 @@ namespace MasterOnline.Controllers
                                         var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
                                         if (retActivate.status == 0)
                                         {
-                                            string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                                            string path = @"C:\logs\MidtransErrorLog.txt";
                                             if (!System.IO.File.Exists(path))
                                             {
                                                 var createFile = System.IO.File.Create(path);
@@ -326,7 +326,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                string path = @"C:\logs\MidtransErrorLog.txt";
                 if (!System.IO.File.Exists(path))
                 {
                     var createFile = System.IO.File.Create(path);

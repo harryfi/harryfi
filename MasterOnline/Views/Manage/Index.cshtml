@@ -832,55 +832,72 @@
     </style>
     @*//add by nurul 22/2/2019*@
 }
-
-<div class="row">
-    <div class="col-md-2">
-        <b class="hidden-md hidden-lg">Tanggal Hari Ini :</b>
-        <b class="hidden-xs hidden-sm" id="today_label">Tanggal Hari Ini :</b>
-    </div>
-    <div class="col-md-2">
-        <div class="input-group date">
-            <input type="text" id="TGL" class="form-control" />
-            <span class="input-group-addon">
-                <span class="glyphicon glyphicon-calendar"></span>
-            </span>
+<div id="top_dashboard">
+    <div class="row">
+        <div class="col-md-2">
+            <b class="hidden-md hidden-lg">Tanggal Hari Ini :</b>
+            <b class="hidden-xs hidden-sm" id="today_label">Tanggal Hari Ini :</b>
+        </div>
+        <div class="col-md-2">
+            <div class="input-group date">
+                <input type="text" id="TGL" class="form-control" />
+                <span class="input-group-addon">
+                    <span class="glyphicon glyphicon-calendar"></span>
+                </span>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-12">
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span id="mode">Grafik</span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    <li><a onclick="changeMode(0)">Grafik</a></li>
+                    <li><a onclick="changeMode(1)">Angka</a></li>
+                </ul>
+            </div>
         </div>
     </div>
-    <div class="col-md-2 col-sm-12">
-        <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                <span id="mode">Grafik</span>
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                <li><a onclick="changeMode(0)">Grafik</a></li>
-                <li><a onclick="changeMode(1)">Angka</a></li>
-            </ul>
+    <div class="row chart-mode">
+        <div class="col-md-6" id="chart-jumlah-section">
+            <h4>Grafik Berdasarkan Jumlah</h4>
+            <canvas id="chart-jumlah" height="200"></canvas>
+        </div>
+        <div class="col-md-6" id="chart-nilai-section">
+            <h4>Grafik Berdasarkan Nilai</h4>
+            <canvas id="chart-nilai" height="200"></canvas>
+        </div>
+    </div>
+    <br />
+    <div class="row chart-mode" style="margin-bottom: 20px;">
+        <div class="col-md-6" id="chart-jumlah-per-market-section">
+            <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
+            <canvas id="chart-jumlah-per-market" height="200"></canvas>
+        </div>
+        <div class="col-md-6" id="chart-nilai-per-market-section">
+            <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
+            <canvas id="chart-nilai-per-market" height="200"></canvas>
         </div>
     </div>
 </div>
-<div class="row chart-mode">
-    <div class="col-md-6" id="chart-jumlah-section">
-        <h4>Grafik Berdasarkan Jumlah</h4>
-        <canvas id="chart-jumlah" height="200"></canvas>
-    </div>
-    <div class="col-md-6" id="chart-nilai-section">
-        <h4>Grafik Berdasarkan Nilai</h4>
-        <canvas id="chart-nilai" height="200"></canvas>
-    </div>
-</div>
-<br />
-<div class="row chart-mode" style="margin-bottom: 20px;">
-    <div class="col-md-6" id="chart-jumlah-per-market-section">
-        <h4>Grafik Pesanan Per Market Berdasarkan Jumlah</h4>
-        <canvas id="chart-jumlah-per-market" height="200"></canvas>
-    </div>
-    <div class="col-md-6" id="chart-nilai-per-market-section">
-        <h4>Grafik Pesanan Per Market Berdasarkan Nilai</h4>
-        <canvas id="chart-nilai-per-market" height="200"></canvas>
+<div id="dashboard_partial">
+    <div id="dashboard_page"></div>
+    <div class="row pricing_page" style="display: none;">
+        <div class="col-lg-12">
+            <div class="page-editor">
+                <h2 class="editor-title">Subscription</h2>
+                <span class="title-accent"></span>
+                <button id="close-editor-1" type="button" class="pull-right page-close">
+                    <span class="close-btn thick"></span>
+                </button>
+                <div class="form-horizontal" id="form_subs">
+                    @Html.Partial("PricingNewPartialView", Model?.ListSubs)
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-<div id="dashboard_partial"></div>
 @*//add by nurul 21/2/2019*@
 <div class="modal fade" id="modalPricing" tabindex="-1" role="dialog" aria-labelledby="pricingLabel">
     <div class="modal-dialog" id="modal-pricing" role="document">
@@ -911,6 +928,13 @@
             $('#TGL').datepicker('setDate', '0');
             getDashboard();
 
+            $('#close-editor-1').on('click',
+                function () {
+                    $('#top_dashboard').show();
+                    $('#dashboard_page').show();
+                    $('.pricing_page').hide();
+                });
+
             //add by nurul 22/2/2019
             $href = window.location.href.split('home')[1];
             if ($href != "") {
@@ -925,15 +949,24 @@
                         $jumlahPesananBulanIni = res.JumlahPesananBulanIni;
 
                         if ($jumlahPesananBulanIni >= $jumlahPesananMax) {
-                            $('#modalPricing').modal('show');
+                            //$('#modalPricing').modal('show');
+                            $('#top_dashboard').hide();
+                            $('#dashboard_page').hide();
+                            $('.pricing_page').show();
                             showSubsMenu(1);
 
                         } else if (res.SudahSampaiBatasTanggal) {
-                            $('#modalPricing').modal('show');
+                            //$('#modalPricing').modal('show');
+                            $('#top_dashboard').hide();
+                            $('#dashboard_page').hide();
+                            $('.pricing_page').show();
                             showSubsMenu(2);
 
                         } else {
-                            $('#modalPricing').modal('hide');
+                            //$('#modalPricing').modal('hide');
+                            $('#top_dashboard').show();
+                            $('#dashboard_page').show();
+                            $('.pricing_page').hide();
                         }
                     },
                     error: function (xhr, status, error) {
@@ -1382,7 +1415,7 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#dashboard_partial').html(response);
+                    $('#dashboard_page').html(response);
 
                     if ($selectedDate !== '' && $selectedDate !== moment(new Date()).format("DD/MM/YYYY")) {
                         $('.date_label').text('Tanggal ' + $selectedDate);
@@ -1479,6 +1512,8 @@
                 var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
                 var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
                 //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
+                $('#txtCode').val(kode);
+                $('#txtBulan').val(bln);
 
                 if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
@@ -1512,7 +1547,7 @@
                                 console.log(error);
                             }
                         });*@
-                        snapMidtrans(kode, bln);
+                        $('#modalTransfer').modal('show');
                     }
                 }
                 else {
@@ -1536,7 +1571,7 @@
                             console.log(error);
                         }
                     });*@
-                    snapMidtrans(kode, bln);
+                    $('#modalTransfer').modal('show');
                 }
             } else {
                 alert('Anda harus menyetujui Syarat & Ketentuan');
@@ -1556,8 +1591,10 @@
                         //window.location = response.urlView;
                         if (response.error == null) {
                             snap.pay(response.token, { skipOrderSummary: true });
+                            $('#modalTransfer').modal('hide');
                         } else {
                             alert(response.error);
+                            $('#modalTransfer').modal('hide');
                         }
                     }
                     //window.open(response, "_self");
@@ -1566,6 +1603,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#modalTransfer').modal('hide');
                 }
             });
         }
