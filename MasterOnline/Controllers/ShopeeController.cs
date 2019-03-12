@@ -2887,9 +2887,7 @@ namespace MasterOnline.Controllers
 
             //var client = new HttpClient();
             //client.DefaultRequestHeaders.Add("Authorization", signature);
-            //var content = new StringContent(myData);
-            //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-
+            //var content = new StringContent(myData, Encoding.UTF8, "application/json");
             //HttpResponseMessage clientResponse = await client.PostAsync(
             //    urll, content);
 

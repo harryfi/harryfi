@@ -10,6 +10,9 @@ namespace MasterOnline.Models
     [Table("ATTRIBUTE_OPT_SHOPEE")]
     public class ATTRIBUTE_OPT_SHOPEE
     {
+        public ATTRIBUTE_OPT_SHOPEE()
+        {
+        }
         public ATTRIBUTE_OPT_SHOPEE(string asd,string dsa)
         {
             ACODE = asd;

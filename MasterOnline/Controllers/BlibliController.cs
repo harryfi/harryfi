@@ -663,7 +663,7 @@ namespace MasterOnline.Controllers
                                 oCommand.Parameters["@gdnSku"].Value = result.value.gdnSku;
                                 oCommand.Parameters["@gdnItemSku"].Value = result.value.gdnItemSku;
 
-                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku;
+                                oCommand.Parameters["@merchantSku"].Value = result.value.merchantSku != null ? result.value.merchantSku : "";
                                 oCommand.Parameters["@totalWeight"].Value = result.value.totalWeight;
                                 oCommand.Parameters["@merchantDeliveryType"].Value = result.value.merchantDeliveryType;
                                 oCommand.Parameters["@awbNumber"].Value = result.value.awbNumber != null ? result.value.awbNumber : "";
