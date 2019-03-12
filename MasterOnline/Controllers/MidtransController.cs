@@ -135,7 +135,17 @@ namespace MasterOnline.Controllers
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
                             //add 1 Maret 2019, jumlah user
                             if (code == "03")
+                            {
                                 dataTrans.jumlahUser = accCount;
+                            }
+                            else if (code == "02")
+                            {
+                                dataTrans.jumlahUser = 2;
+                            }
+                            else
+                            {
+                                dataTrans.jumlahUser = 0;
+                            }
                             //end add 1 Maret 2019, jumlah user
                             //dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
                             if (accId > 0)
