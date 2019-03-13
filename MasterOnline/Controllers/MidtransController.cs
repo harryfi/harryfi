@@ -135,7 +135,17 @@ namespace MasterOnline.Controllers
                             dataTrans.BULAN = string.IsNullOrEmpty(bulan) ? 0 : Convert.ToInt32(bulan);
                             //add 1 Maret 2019, jumlah user
                             if (code == "03")
+                            {
                                 dataTrans.jumlahUser = accCount;
+                            }
+                            else if (code == "02")
+                            {
+                                dataTrans.jumlahUser = 2;
+                            }
+                            else
+                            {
+                                dataTrans.jumlahUser = 0;
+                            }
                             //end add 1 Maret 2019, jumlah user
                             //dataTrans.ACCOUNT_ID = sessionData?.Account != null ? sessionData.Account.AccountId : sessionData.User.AccountId;
                             if (accId > 0)
@@ -211,7 +221,7 @@ namespace MasterOnline.Controllers
                 MoDbContext = new MoDbContext();
                 if (notification_data != null)
                 {
-                    var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID.Equals(notification_data.transaction_id) && m.STATUS_CODE.Equals(notification_data.status_code));
+                    var dataMidtrans = MoDbContext.MidtransData.SingleOrDefault(m => m.TRANSACTION_ID == notification_data.transaction_id && m.STATUS_CODE == notification_data.status_code);
                     if (dataMidtrans == null)
                     {
                         var newData = new MIDTRANS_DATA();
@@ -235,7 +245,7 @@ namespace MasterOnline.Controllers
 
                         MoDbContext.MidtransData.Add(newData);
 
-                        if (notification_data.status_code.Equals("200") && (notification_data.transaction_status.Equals("settlement") || notification_data.transaction_status.Equals("capture")))
+                        if (notification_data.status_code == "200" && (notification_data.transaction_status == "settlement" || notification_data.transaction_status == "capture"))
                         {
                             //transaction complete
                             var tranMidtrans = MoDbContext.TransaksiMidtrans.Where(t => t.NO_TRANSAKSI == notification_data.order_id).SingleOrDefault();
@@ -254,7 +264,7 @@ namespace MasterOnline.Controllers
                                         var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
                                         if (retActivate.status == 0)
                                         {
-                                            string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                                            string path = @"C:\logs\MidtransErrorLog.txt";
                                             if (!System.IO.File.Exists(path))
                                             {
                                                 var createFile = System.IO.File.Create(path);
@@ -326,7 +336,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                string path = @"C:\MasterOnline\MidtransErrorLog.txt";
+                string path = @"C:\logs\MidtransErrorLog.txt";
                 if (!System.IO.File.Exists(path))
                 {
                     var createFile = System.IO.File.Create(path);
@@ -389,8 +399,13 @@ namespace MasterOnline.Controllers
         {
             //production : Mid-client-sMzViq24qWRlPdPu Mid-server-brKgVeWZt89aotXTI8DDPkfY
             //sandbox : SB-Mid-client-AyzcvZKcwAlD_0QY SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb
-            string plainText = "Mid-server-brKgVeWZt89aotXTI8DDPkfY";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+
+            //string plainText = "Mid-server-brKgVeWZt89aotXTI8DDPkfY";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+            //var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+
+            string plainText = "SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+
             return Convert.ToBase64String(plainTextBytes);
         }
 

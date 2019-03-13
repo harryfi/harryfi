@@ -119,7 +119,8 @@ namespace MasterOnline.Controllers
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
                 pagination_offset = page * 10,
-                pagination_entries_per_page = 10
+                pagination_entries_per_page = 10,
+                
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -170,30 +171,32 @@ namespace MasterOnline.Controllers
                         ret.message = (page + 1).ToString();
                     foreach (var item in listBrg.items)
                     {
-                        string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
-                        string brgMp = item.item_id.ToString() + ";0";
-                        //change 13 Feb 2019, tuning
-                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
-                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
-                        //end change 13 Feb 2019, tuning
-
-                        if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
+                        if(item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                         {
-                            //var getDetailResult = await GetItemDetail(iden, item.item_id);
-                            var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
-                            if (getDetailResult.status == 1)
-                            {
-                                ret.recordCount += getDetailResult.recordCount;
-                            }
-                            else
-                            {
-                                currentLog.REQUEST_EXCEPTION = ret.message;
-                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-                            }
-                        }
+                            string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
+                            string brgMp = item.item_id.ToString() + ";0";
+                            //change 13 Feb 2019, tuning
+                            //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brgMp.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                            //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(brgMp) && t.IDMARKET == IdMarket).FirstOrDefault();
+                            var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                            var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brgMp.ToUpper()).FirstOrDefault();
+                            //end change 13 Feb 2019, tuning
 
+                            if ((tempbrginDB == null && brgInDB == null) || item.variations.Length > 1)
+                            {
+                                //var getDetailResult = await GetItemDetail(iden, item.item_id);
+                                var getDetailResult = await GetItemDetail(iden, item.item_id, tempBrg_local, stf02h_local, IdMarket);
+                                if (getDetailResult.status == 1)
+                                {
+                                    ret.recordCount += getDetailResult.recordCount;
+                                }
+                                else
+                                {
+                                    currentLog.REQUEST_EXCEPTION = ret.message;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                        }                       
                     }
 
                 }
@@ -297,7 +300,7 @@ namespace MasterOnline.Controllers
                         if (tempbrginDB == null && brgInDB == null)
                         {
                             //ret.recordCount++;
-                            var ret1 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "");
+                            var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "",iden);
                             ret.recordCount += ret1.status;
                         }
                         else if (brgInDB != null)
@@ -321,7 +324,7 @@ namespace MasterOnline.Controllers
                             if (tempbrginDB == null && brgInDB == null)
                             {
                                 //ret.recordCount++;
-                                var ret2 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk);
+                                var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk,iden);
                                 ret.recordCount += ret2.status;
                             }
                         }
@@ -330,7 +333,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         //ret.recordCount++;
-                        var ret0 = proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "");
+                        var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "",iden);
                         ret.recordCount += ret0.status;
                     }
                 }
@@ -341,7 +344,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected BindingBase proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk)
+        protected async Task< BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
@@ -404,7 +407,10 @@ namespace MasterOnline.Controllers
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             //end add kode brg induk dan type brg
 
-            var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            //var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
+            var GetAttributeShopee = await GetAttributeToList(iden, categoryCode,categoryName);
+            var attributeShopee = GetAttributeShopee.attributes.FirstOrDefault();
+
             #region set attribute
             if (attributeShopee != null)
             {
@@ -1201,12 +1207,16 @@ namespace MasterOnline.Controllers
                                     oCommand.Parameters[2].Value = "";
                                     oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
                                     oCommand.Parameters[4].Value = "";
-                                    if (oCommand.ExecuteNonQuery() == 1)
+                                    if (oCommand.ExecuteNonQuery() > 0)
                                     {
                                         if (item.has_children)
                                         {
                                             RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
                                         }
+                                    }
+                                    else
+                                    {
+
                                     }
                                 }
                                 //oTransaction.Commit();
@@ -1229,20 +1239,128 @@ namespace MasterOnline.Controllers
         {
             foreach (var child in categories.Where(p => p.parent_id == parent))
             {
+
+                var cekChildren = categories.Where(p => p.parent_id == child.category_id).FirstOrDefault();
                 oCommand.Parameters[0].Value = child.category_id;
                 oCommand.Parameters[1].Value = child.category_name;
                 oCommand.Parameters[2].Value = parent;
-                oCommand.Parameters[3].Value = child.has_children ? "0" : "1";
+                //change by calvin 11 maret 2019, API returnnya item.has children false, tetapi nyatanya ada childrennya, kasus 15949
+                //oCommand.Parameters[3].Value = child.has_children ? "0" : "1";
+                oCommand.Parameters[3].Value = cekChildren == null ? "1" : "0";
+                //end change by calvin 11 maret 2019
                 oCommand.Parameters[4].Value = master_category_code;
 
-                if (oCommand.ExecuteNonQuery() == 1)
+                if (oCommand.ExecuteNonQuery() > 0)
                 {
-                    if (child.has_children)
+                    if (cekChildren != null)
                     {
                         RecursiveInsertCategory(oCommand, categories, child.category_id, master_category_code);
                     }
                 }
+                else
+                {
+
+                }
             }
+        }
+
+        public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList(ShopeeAPIData iden, string category_code, string category_name)
+        {
+            int MOPartnerID = 841371;
+            string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
+            ATTRIBUTE_SHOPEE_AND_OPT ret = new ATTRIBUTE_SHOPEE_AND_OPT();
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            //ganti
+            string urll = "https://partner.shopeemobile.com/api/v1/item/attributes/get";
+
+            //ganti
+            ShopeeGetAttributeData HttpBody = new ShopeeGetAttributeData
+            {
+                partner_id = MOPartnerID,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                language = "id",
+                category_id = Convert.ToInt32(category_code)
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            if (responseFromServer != null)
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetAttributeResult)) as ShopeeGetAttributeResult;
+#if AWS
+                    string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                    string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                    string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                    string a = "";
+                    int i = 0;
+                    ATTRIBUTE_SHOPEE returnData = new ATTRIBUTE_SHOPEE();
+                    foreach (var attribs in result.attributes)
+                    {
+                        a = Convert.ToString(i + 1);
+                        returnData.CATEGORY_CODE = category_code;
+                        returnData.CATEGORY_NAME = category_name;
+
+                        returnData["ACODE_" + a] = Convert.ToString(attribs.attribute_id);
+                        returnData["ATYPE_" + a] = attribs.options.Count() > 0 ? "PREDEFINED_ATTRIBUTE" : "DESCRIPTIVE_ATTRIBUTE";
+                        returnData["ANAME_" + a] = attribs.attribute_name;
+                        returnData["AOPTIONS_" + a] = attribs.options.Count() > 0 ? "1" : "0";
+                        returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
+
+                        if (attribs.options.Count() > 0)
+                        {
+                            var optList = attribs.options.ToList();
+                            var listOpt = optList.Select(x => new ATTRIBUTE_OPT_SHOPEE(attribs.attribute_id.ToString(), x)).ToList();
+                            ret.attribute_opts.AddRange(listOpt);
+                        }
+                        i = i + 1;
+                    }
+                    ret.attributes.Add(returnData);
+
+                }
+                catch (Exception ex2)
+                {
+
+                }
+            }
+
+            return ret;
         }
 
         public async Task<ATTRIBUTE_SHOPEE_AND_OPT> GetAttributeToList(ShopeeAPIData iden, CATEGORY_SHOPEE category)
@@ -1323,7 +1441,7 @@ namespace MasterOnline.Controllers
                         returnData["ANAME_" + a] = attribs.attribute_name;
                         returnData["AOPTIONS_" + a] = attribs.options.Count() > 0 ? "1" : "0";
                         returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
-                        
+
                         if (attribs.options.Count() > 0)
                         {
                             var optList = attribs.options.ToList();
@@ -1559,7 +1677,7 @@ namespace MasterOnline.Controllers
                     {
                         string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                         //add by calvin 4 maret 2019, filter
-                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-7).DateTime;
+                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
                         var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         //end add by calvin
                         var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));
@@ -2782,9 +2900,7 @@ namespace MasterOnline.Controllers
 
             //var client = new HttpClient();
             //client.DefaultRequestHeaders.Add("Authorization", signature);
-            //var content = new StringContent(myData);
-            //content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-
+            //var content = new StringContent(myData, Encoding.UTF8, "application/json");
             //HttpResponseMessage clientResponse = await client.PostAsync(
             //    urll, content);
 

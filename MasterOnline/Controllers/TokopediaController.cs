@@ -520,10 +520,117 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        public async Task<string> PostAckOrder(TokopediaAPIData iden, string ordNo)
+
+
+        public async Task<string> PostRequestPickup(TokopediaAPIData iden, string NO_BUKTI_SOT01A, string NO_REFERENSI_SOT01A)
         {
             string ret = "";
-            string urll = "https://fs.tokopedia.net//v1/order/" + Uri.EscapeDataString(ordNo) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/ack";
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/pick-up";
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = milis.ToString(),
+                REQUEST_ACTION = "Request PIckup",
+                REQUEST_DATETIME = milisBack,
+                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
+                REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
+                REQUEST_STATUS = "Pending",
+            };
+
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            RequestPickup newData = new RequestPickup()
+            {
+                order_id = NO_REFERENSI_SOT01A,
+                shop_id = Convert.ToInt32(iden.API_secret_key),
+                request_time = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss +0000 UTC")
+            };
+
+            string myData = JsonConvert.SerializeObject(newData);
+
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "POST";
+            //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //string responseFromServer = "";
+            //try
+            //{
+            //    myReq.ContentLength = myData.Length;
+            //    using (var dataStream = myReq.GetRequestStream())
+            //    {
+            //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //    }
+            //    using (WebResponse response = await myReq.GetResponseAsync())
+            //    {
+            //        using (Stream stream = response.GetResponseStream())
+            //        {
+            //            StreamReader reader = new StreamReader(stream);
+            //            responseFromServer = reader.ReadToEnd();
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+
+            string responseFromServer = "";
+            try
+            {
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                HttpResponseMessage clientResponse = await client.PostAsync(
+                    urll, content);
+
+                using (HttpContent responseContent = clientResponse.Content)
+                {
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+                    {
+                        responseFromServer = await reader.ReadToEndAsync();
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                //if (string.IsNullOrEmpty(result.errorCode.Value))
+                //{
+                //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                //    if (result.content.Count > 0)
+                //    {
+                //        foreach (var item in result.content)
+                //        {
+                //            await GetOrderDetail(iden, item.orderNo.Value, item.orderItemNo.Value, connId, CUST, NAMA_CUST);
+                //        }
+                //    }
+                //}
+                //else
+                //{
+                //    currentLog.REQUEST_RESULT = result.errorCode.Value;
+                //    currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
+                //    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                //}
+            }
+            return ret;
+        }
+
+        public async Task<string> PostAckOrder(TokopediaAPIData iden, string ordNo, string noref)
+        {
+            string ret = "";
+            string[] splitNoRef = noref.Split(';');
+            string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(splitNoRef[0]) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/ack";
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -534,53 +641,87 @@ namespace MasterOnline.Controllers
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
                 REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
+                REQUEST_ATTRIBUTE_3 = "NoRef : " + splitNoRef[0],
                 REQUEST_STATUS = "Pending",
             };
+
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             AckOrder newData = new AckOrder();
-            var detailSO = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == ordNo).ToList();
-            foreach (var item in detailSO)
-            {
-                AckOrder_Product product = new AckOrder_Product
-                {
-                    product_id = item.BRG,
-                    quantity_deliver = item.QTY,
-                    quantity_reject = 0
-                };
-                newData.products.Add(product);
-            }
+
+            //remark by calvin 11 maret 2019
+            //dari tokopedia : jika full accept, set saja products : null
+            //MO belum ada accept partial
+            //newData.products = new List<AckOrder_Product>();
+            //var detailSO = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == ordNo).ToList();
+            //foreach (var item in detailSO)
+            //{
+            //    AckOrder_Product product = new AckOrder_Product
+            //    {
+            //        product_id = item.BRG,
+            //        quantity_deliver = item.QTY,
+            //        quantity_reject = 0
+            //    };
+            //    newData.products.Add(product);
+            //}
+            //end remark by calvin 11 maret 2019
+
             string myData = JsonConvert.SerializeObject(newData);
 
-            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
-            myReq.Method = "POST";
-            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
-            myReq.Accept = "application/x-www-form-urlencoded";
-            myReq.ContentType = "application/json";
+            //HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            //myReq.Method = "POST";
+            //myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            //myReq.Accept = "application/json";
+            //myReq.ContentType = "application/json";
+            //string responseFromServer = "";
+            //try
+            //{
+            //    myReq.ContentLength = myData.Length;
+            //    using (var dataStream = myReq.GetRequestStream())
+            //    {
+            //        dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            //    }
+            //    using (WebResponse response = await myReq.GetResponseAsync())
+            //    {
+            //        using (Stream stream = response.GetResponseStream())
+            //        {
+            //            StreamReader reader = new StreamReader(stream);
+            //            responseFromServer = reader.ReadToEnd();
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+
+
             string responseFromServer = "";
             try
             {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+                var content = new StringContent(myData, Encoding.UTF8, "application/json");
+                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+                HttpResponseMessage clientResponse = await client.PostAsync(
+                    urll, content);
+
+                using (HttpContent responseContent = clientResponse.Content)
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                }
-                using (WebResponse response = await myReq.GetResponseAsync())
-                {
-                    using (Stream stream = response.GetResponseStream())
+                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                     {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
+                        responseFromServer = await reader.ReadToEndAsync();
                     }
-                }
+                };
             }
             catch (Exception ex)
             {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+
             }
+
             if (responseFromServer != null)
             {
-                TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
                 //    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
@@ -2119,6 +2260,170 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        public async Task<string> GetAttributeToList(TokopediaAPIData data, string category_CATEGORY_CODE)
+        {
+            string ret = "";
+            //List<CATEGORY_TOKPED> categories = MoDbContext.Database.SqlQuery<CATEGORY_TOKPED>("SELECT * FROM CATEGORY_TOKPED WHERE IS_LAST_NODE = '1'").ToList();
+            //foreach (var category in categories)
+            //{
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(data.merchant_code) + "/category/get_variant?cat_id=" + Uri.EscapeDataString(category_CATEGORY_CODE);
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + data.token));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            if (responseFromServer != null)
+            {
+                var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariantResult)) as GetVariantResult;
+                if (string.IsNullOrEmpty(result.header.reason))
+                {
+                    try
+                    {
+#if AWS
+                            string con = "Data Source=localhost;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#elif Debug_AWS
+                        string con = "Data Source=13.250.232.74;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#else
+                            string con = "Data Source=13.251.222.53;Initial Catalog=MO;Persist Security Info=True;User ID=sa;Password=admin123^";
+#endif
+                        using (SqlConnection oConnection = new SqlConnection(con))
+                        {
+                            oConnection.Open();
+                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                            //{
+                            using (SqlCommand oCommand = oConnection.CreateCommand())
+                            {
+                                var AttributeInDb = MoDbContext.AttributeTokped.ToList();
+                                //cek jika belum ada di database, insert
+                                var cari = AttributeInDb.Where(p => p.CATEGORY_CODE.ToUpper().Equals(category_CATEGORY_CODE));
+                                if (cari.Count() == 0)
+                                {
+                                    oCommand.CommandType = CommandType.Text;
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                    oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+
+                                    string sSQL = "INSERT INTO [ATTRIBUTE_TOKPED] ([CATEGORY_CODE], [CATEGORY_NAME],";
+                                    string sSQLValue = ") VALUES (@CATEGORY_CODE, @CATEGORY_NAME,";
+                                    string a = "";
+                                    int i = 0;
+                                    foreach (var attribs in result.data)
+                                    {
+                                        a = Convert.ToString(i + 1);
+                                        sSQL += "[VARIANT_ID_" + a + "],[HAS_UNIT_" + a + "],[ANAME_" + a + "],[STATUS_" + a + "],";
+                                        sSQLValue += "@VARIANT_ID_" + a + ",@HAS_UNIT_" + a + ",@ANAME_" + a + ",@STATUS_" + a + ",";
+                                        oCommand.Parameters.Add(new SqlParameter("@VARIANT_ID_" + a, SqlDbType.Int));
+                                        oCommand.Parameters.Add(new SqlParameter("@HAS_UNIT_" + a, SqlDbType.Int));
+                                        oCommand.Parameters.Add(new SqlParameter("@ANAME_" + a, SqlDbType.NVarChar, 250));
+                                        oCommand.Parameters.Add(new SqlParameter("@STATUS_" + a, SqlDbType.NVarChar, 1));
+
+                                        a = Convert.ToString(i * 4 + 2);
+                                        oCommand.Parameters[(i * 4) + 2].Value = "";
+                                        oCommand.Parameters[(i * 4) + 3].Value = "";
+                                        oCommand.Parameters[(i * 4) + 4].Value = "";
+                                        oCommand.Parameters[(i * 4) + 5].Value = "";
+
+                                        oCommand.Parameters[(i * 4) + 2].Value = attribs.variant_id;
+                                        oCommand.Parameters[(i * 4) + 3].Value = attribs.has_unit;
+                                        oCommand.Parameters[(i * 4) + 4].Value = attribs.name;
+                                        oCommand.Parameters[(i * 4) + 5].Value = attribs.status;
+
+                                        if (attribs.units.Count() > 0)
+                                        {
+                                            var AttributeUnitInDb = MoDbContext.AttributeUnitTokped.AsNoTracking().ToList();
+                                            foreach (var unit in attribs.units)
+                                            {
+                                                var cariUnit = AttributeUnitInDb.Where(p => p.UNIT_ID == unit.unit_id);
+                                                if (cariUnit.Count() == 0)
+                                                {
+                                                    using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                                    {
+                                                        oCommand2.CommandType = CommandType.Text;
+                                                        oCommand2.CommandText = "INSERT INTO ATTRIBUTE_UNIT_TOKPED ([VARIANT_ID], [UNIT_ID], [UNIT_NAME], [UNIT_SHORT_NAME]) VALUES (@VARIANT_ID, @UNIT_ID, @UNIT_NAME, @UNIT_SHORT_NAME)";
+                                                        oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
+                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
+                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_NAME", SqlDbType.NVarChar, 100));
+                                                        oCommand2.Parameters.Add(new SqlParameter("@UNIT_SHORT_NAME", SqlDbType.NVarChar, 75));
+                                                        oCommand2.Parameters[0].Value = attribs.variant_id;
+                                                        oCommand2.Parameters[1].Value = unit.unit_id;
+                                                        oCommand2.Parameters[2].Value = unit.name;
+                                                        oCommand2.Parameters[3].Value = unit.short_name;
+                                                        oCommand2.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+
+                                            var AttributeOptInDb = MoDbContext.AttributeOptTokped.AsNoTracking().ToList();
+                                            foreach (var unit in attribs.units)
+                                            {
+                                                foreach (var opt in unit.values)
+                                                {
+                                                    var cariOpt = AttributeOptInDb.Where(p => p.VARIANT_ID == attribs.variant_id && p.UNIT_ID == unit.unit_id && p.VALUE_ID == opt.value_id);
+                                                    if (cariOpt.Count() == 0)
+                                                    {
+                                                        using (SqlCommand oCommand2 = oConnection.CreateCommand())
+                                                        {
+                                                            oCommand2.CommandType = CommandType.Text;
+                                                            oCommand2.CommandText = "INSERT INTO ATTRIBUTE_OPT_TOKPED ([VALUE_ID], [UNIT_ID], [VALUE], [HEX_CODE], [ICON], [VARIANT_ID]) VALUES (@VALUE_ID, @UNIT_ID, @VALUE, @HEX_CODE, @ICON, @VARIANT_ID)";
+                                                            oCommand2.Parameters.Add(new SqlParameter("@VALUE_ID", SqlDbType.Int));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@UNIT_ID", SqlDbType.Int));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@VALUE", SqlDbType.NVarChar, 50));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@HEX_CODE", SqlDbType.NVarChar, 50));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@ICON", SqlDbType.NVarChar, 200));
+                                                            oCommand2.Parameters.Add(new SqlParameter("@VARIANT_ID", SqlDbType.Int));
+                                                            oCommand2.Parameters[0].Value = opt.value_id;
+                                                            oCommand2.Parameters[1].Value = unit.unit_id;
+                                                            oCommand2.Parameters[2].Value = opt.value;
+                                                            oCommand2.Parameters[3].Value = opt.hex_code;
+                                                            oCommand2.Parameters[4].Value = opt.icon;
+                                                            oCommand2.Parameters[5].Value = attribs.variant_id;
+                                                            oCommand2.ExecuteNonQuery();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        i = i + 1;
+                                    }
+                                    sSQL = sSQL.Substring(0, sSQL.Length - 1) + sSQLValue.Substring(0, sSQLValue.Length - 1) + ")";
+                                    oCommand.CommandText = sSQL;
+                                    oCommand.Parameters[0].Value = category_CATEGORY_CODE;
+                                    oCommand.Parameters[1].Value = "";
+                                    oCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex2)
+                    {
+
+                    }
+                }
+            }
+            //}
+
+            return ret;
+        }
+
         protected void RecursiveInsertCategory(SqlCommand oCommand, CategoryChild[] item_children, string parent, string master_category_code, TokopediaAPIData data)
         {
             foreach (var child in item_children)
@@ -2415,6 +2720,12 @@ namespace MasterOnline.Controllers
             public int quantity_reject { get; set; }
         }
 
+        public class RequestPickup
+        {
+            public string order_id { get; set; }
+            public int shop_id { get; set; }
+            public string request_time { get; set; }
+        }
 
         public class AckOrder
         {

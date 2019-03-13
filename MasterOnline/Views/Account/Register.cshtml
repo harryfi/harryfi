@@ -135,23 +135,29 @@
 <div style="visibility:hidden">
     <input id="txtSnapToken" />
 </div>
-<div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-labelledby="transferLabel">
+<div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-labelledby="transferLabel" style="-webkit-text-stroke-width:0pt">
     <div class="modal-dialog" id="modal-transfer" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px;padding:0px">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             <h4 class="modal-title">Master Online</h4>
         </div>
         <div class="modal-content-subs" style="margin:0px 5px 5px;height:80vh;">
-            <br />
             <div>
                 <p style="color:black">
-                    Pembayaran dapat di transfer ke rekening :
+                    Pembayaran dapat dilakukan dengan dua cara :
                     <br />
-                    -PT. ERASOFT TEKNOLOGI INDONESIA
                     <br />
-                    -BCA NO. 4943025919
+                    1. Pembayaran langsung ke rekening :
                     <br />
-                    Setelah Transfer Harap konfirmasi ke Telp: 021-6349318 dgn Erni / Indrie
+                    <b>-PT. ERASOFT TEKNOLOGI INDONESIA</b>
+                    <br />
+                    <b>-BCA NO. 4943025919</b>
+                    <br />
+                    Setelah Transfer Harap konfirmasi ke <b>Telp: 021-6349318</b> atau
+                    <br />
+                    <b>email : cserasoft@gmail.com</b>
+                    <br />
+                    <b>UP : Erni / Indrie</b>
                 </p>
             </div>
             <br />
@@ -159,13 +165,17 @@
             <br />
             <div>
                 <p style="color:black">
-                    Pembayaran menggunakan Credit Card atau Virtual account dapat dilanjutkan dengan klik tombol di bawah.
+                    2. Pembayaran menggunakan Credit Card atau Virtual account dapat dilanjutkan dengan klik tombol di bawah ini.
                 </p>
+            </div>
+            <div>
+                <button disabled onclick="openMidtrans()" style="background-color:gray;width:100%;color:white">Lanjut</button>
+                <center>(fasilitas ini menyusul)</center>
             </div>
         </div>
         <div class="modal-footer" style="padding:15px">
             <div>
-                <button onclick="openMidtrans()" style="background-color:mediumblue;width:100%;color:white;border-radius:4px;border:1px solid #cccccc">Lanjut</button>
+                @*<button onclick="openMidtrans()" style="background-color:mediumblue;width:100%;color:white;border-radius:4px;border:1px solid #cccccc">Lanjut</button>*@
             </div>
         </div>
     </div>
@@ -243,7 +253,8 @@
 @section scripts
 {
     @*add by Tri snap js*@
-    <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
+    <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
+    @*<script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>*@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script>
         $(document).on('ready', function (event) {

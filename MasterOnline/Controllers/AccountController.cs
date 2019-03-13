@@ -178,7 +178,28 @@ namespace MasterOnline.Controllers
         {
             //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-
+            //var mid = new MidtransController();
+            //var dataMid = new MidtransTransactionData
+            //{
+            //    va_numbers = new BCAVA[1],
+            //    transaction_time = "2019-03-06 15:07:50",
+            //    transaction_status = "settlement",
+            //    transaction_id = "19b283b2-ed3b-405e-8cb2-c4488a61c98e",
+            //    status_message = "midtrans payment notification",
+            //    status_code = "200",
+            //    signature_key = "143cc0e7ccd2b92d20afd1d865c858e6c9735dfa40f390d5864ef363549ff345b7080dab88dc9d900fdf964c2fad7fcbaa1c526359b8791d1b32c5dbb1cec45d",
+            //    //settlement_time = "2019-03-06 15:14:45",
+            //    payment_type = "bank_transfer",
+            //    order_id = "190000008027",
+            //    gross_amount = "2400000.00",
+            //    fraud_status = "accept"
+            //};
+            //dataMid.va_numbers[0] = new BCAVA
+            //{
+            //    bank = "bca",
+            //    va_number = "644537235209833"
+            //};
+            //mid.PostReceive(dataMid);
             //add by calvin 9 oktober 2018
             //delete log API older than 7 days
             var deleteOldLogs = (from p in LocalErasoftDbContext.API_LOG_MARKETPLACE where p.REQUEST_DATETIME.Day.CompareTo(DateTime.Now.Day) > 7 select p).ToList();
@@ -419,7 +440,7 @@ namespace MasterOnline.Controllers
                             //    token = "pmgdpFANTcC0PM9tVzrwmw"
                             //};
                             tokopediaApi.GetToken(iden);
-                            
+
                             ////debug
                             //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
                             //{
@@ -694,7 +715,7 @@ namespace MasterOnline.Controllers
                 var userId = Convert.ToString(accInDb.AccountId);
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
-
+                //var path = "C:\\inetpub\\wwwroot\\MasterOnline\\Content\\admin\\";
                 var path = Server.MapPath("~/Content/admin/");
                 sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
                       $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
