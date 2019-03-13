@@ -5639,8 +5639,7 @@
             var ret = true;
             var link = '@Html.Raw(Url.Action("SaveResiTokped", "Manage", new { recNum = "replaceRecNum" }))';
 
-            link = link.replace("replaceRecNum", window.$recResiShopee);
-            link = link.replace("replaceMetode", metode);
+            link = link.replace("replaceRecNum", window.$recResiTokped);
             
             $.ajax({
                 type: "GET",

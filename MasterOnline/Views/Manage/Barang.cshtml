@@ -1637,8 +1637,10 @@
                                 var ATYPE = item["ATYPE_" + (i + 1)];
                                 var ANAME = item["ANAME_" + (i + 1)];
                                 var AOPTIONS = item["AOPTIONS_" + (i + 1)];
-                                if (ACODE != null && (!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4") || ACODE == "WA-0000002")) {
-                                    if (ACODE != "") {
+                                //if (ACODE != null && ((!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4")) || ACODE == "WA-0000002")) {
+                                if (ACODE != null) {
+                                    //if (ACODE != "") {
+                                        if (ACODE != "" && (!(ATYPE == "DEFINING_ATTRIBUTE" && $('#Stf02_TYPE').val() == "4") || ACODE == "WA-0000002")) {
 
                                         var label = '<label class="control-label">'+ ANAME +'</label>';
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
