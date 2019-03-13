@@ -57,12 +57,7 @@
                 @Html.TextBoxFor(m => m.Account.KODE_REFERRAL, new { @class = "form-control", @ReadOnly = true })
             </div>
         </div>
-        <div class="form-group">
-            @Html.LabelFor(m => m.Account.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-            <div class="col-md-6 col-sm-6 col-xs-12">
-                @Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })
-            </div>
-        </div>
+
         <div class="form-group">
             @Html.LabelFor(m => m.Account.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
             <div class="col-md-6 col-sm-6 col-xs-12">
@@ -75,6 +70,7 @@
                 @Html.TextBoxFor(m => m.Account.tgl_approve, new { @class = "form-control", @ReadOnly = true, Value = Model?.Account?.tgl_approve?.ToString("dd/MM/yyyy") })
             </div>
         </div>
+
         <div id="photo_base">
             <div class="form-group">
                 @Html.LabelFor(m => m.Account.DatabasePathErasoft, "DatabasePathErasoft", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -125,57 +121,80 @@
     <div class="form-group">
         @Html.LabelFor(m => m.Account.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
         <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
+            @*@Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })*@
+            @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @ReadOnly = true, type = "email", })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Account.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
         <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", required = "required", min = 0, @data_val_length_max = 30, maxlength = 30 })
+            @*@Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", required = "required", min = 0, @data_val_length_max = 30,maxlength = 30 })*@
+            @Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", @ReadOnly = true })
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Account.KODE_SUBSCRIPTION, "Tipe Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
         <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.DropDownListFor(m => m.Account.KODE_SUBSCRIPTION, new List<SelectListItem>()
-    {
-    new SelectListItem()
-    {
-    Text = @"BASIC",
-    Value = "01",
-    },
-    new SelectListItem()
-    {
-    Text = @"SILVER",
-    Value = "02"
-    },
-    new SelectListItem()
-    {
-    Text = @"GOLD",
-    Value = "03"
-    }
-    }, new { @class = "form-control" })
-        </div>
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.Account.jumlahUser, "Jumlah User", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-        <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", required = "required", Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser), maxlength = 20, min = 0, @data_val_length_max = 20 })
+            @Html.TextBoxFor(m => m.ListSubs.SingleOrDefault(p => p.KODE == Model.Account.KODE_SUBSCRIPTION).KETERANGAN, new { @class = "form-control", @ReadOnly = true })
+            @*@Html.DropDownListFor(m => m.Account.KODE_SUBSCRIPTION, new List<SelectListItem>()
+                {
+                new SelectListItem()
+                {
+                Text = @"BASIC",
+                Value = "01",
+                },
+                new SelectListItem()
+                {
+                Text = @"SILVER",
+                Value = "02"
+                },
+                new SelectListItem()
+                {
+                Text = @"GOLD",
+                Value = "03"
+                }
+                }, new { @class = "form-control" })*@
         </div>
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Account.TGL_SUBSCRIPTION, "Tanggal Berakhir Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
         <div class="col-md-6 col-sm-6 col-xs-12">
-            @Html.HiddenFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", required = "required", Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
-            <div class="input-group date">
-                <input type="text" id="TGL" class="form-control" />
-                <span class="input-group-addon">
-                    <span class="glyphicon glyphicon-calendar"></span>
-                </span>
-            </div>
+            @Html.TextBoxFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", @ReadOnly = true, Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
+            @*@Html.HiddenFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", required = "required", Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
+                <div class="input-group date">
+                    <input type="text" id="TGL" class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>*@
         </div>
     </div>
-
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.jumlahUser, "Jumlah User", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @*@Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", required = "required", Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser), maxlength = 20, min = 0, @data_val_length_max = 20 })*@
+            @Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", @ReadOnly = true, Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser) })
+        </div>
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Account.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            @*@Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })*@
+            @Html.DropDownListFor(m => m.Account.Status, new List<SelectListItem>()
+                                                    {
+                                                        new SelectListItem()
+                                                        {
+                                                            Text = @"Tidak Aktif",
+                                                            Value = "false",
+                                                        },
+                                                        new SelectListItem()
+                                                        {
+                                                            Text = @"Aktif",
+                                                            Value = "true"
+                                                        }
+                                                    }, new { @class = "form-control" })
+        </div>
+    </div>
 </div>
 
 <hr />

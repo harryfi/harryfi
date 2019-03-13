@@ -24,5 +24,8 @@ namespace MasterOnline.ViewModels
         public List<STF02H> ListBarangMarket { get; set; } = new List<STF02H>();
         public List<QOH_PER_GD> ListQOHPerGD { get; set; } = new List<QOH_PER_GD>();
         public List<QOO_PER_BRG> ListQOOPerBRG { get; set; } = new List<QOO_PER_BRG>();
+        //add by nurul 11/3/2019
+        public string setGd { get; set; }
+        //end add by nurul 11/3/2019
     }
 }

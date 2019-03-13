@@ -786,7 +786,8 @@
         function getGudangForBarang() {
             if ($('#BarangStok_Nobuk').val() != '') {
 
-                var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';
+                @*var link = '@Url.Action("GetGudangBarang", "Manage", new { brgId = "replaceId" })';*@
+                var link = '@Url.Action("GetGudangBarangStok", "Manage", new { brgId = "replaceId" })';
                 link = link.replace("replaceId", $('#BarangStok_Nobuk').val());
                 $.ajax({
                     type: "GET",
@@ -794,14 +795,30 @@
                     contentType: 'application/json',
                     cache: false,
                     success: function (response) {
+                        //add by nurul 11/3/2019 set default gudang dr sifsys
+                        var defaultGd = response.setGd;
+                        var listGd = response.ListQOHPerGD;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
+                        //end add by nurul 11/3/2019 set default gudang dr sifsys
                         var listGudang = [];
-                        if (response[0] != undefined) {
-                            $.each(response,
+                        if (listGd[0] != undefined) {
+                            $.each(listGd,
                                 function (i, item) {
                                     listGudang[i] = {
                                         id: item.GD,
                                         text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                     };
+                                    //add by nurul 11/3/2019 set default gudang dr sifsys
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    }
+                                    //end add by nurul 11/3/2019 set default gudang dr sifsys
                                 });
                         }
                         var dariGudangSelect = $('#DARIGUDANG').selectize({
@@ -823,7 +840,18 @@
                         dariGudangSelect[0].selectize.load(function (callback) {
                             callback(listGudang);
                         });
-                        dariGudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
+                        //change by nurul 11/3/2019 set default gudang dr sifsys
+                        //dariGudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
+                        if (link == false || listGd.length == 0) {
+                            $(".selectize-input input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input input[placeholder]").attr('style', 'width: 66px !important');
+                            dariGudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val());
+                        } else if (link == true && listGd.length > 0) {
+                            $(".selectize-input input[placeholder]").attr('placeholder', nama);
+                            $('#gudang-kode').text(gudang);
+                            dariGudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val(nama));
+                        }
+                        //end change by nurul 11/3/2019 set default gudang dr sifsys
 
                     },
                     error: function (xhr) {

@@ -7114,10 +7114,31 @@ namespace MasterOnline.Controllers
 
             var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
             var cekuser = MoDbContext.User.Where(a => a.AccountId == accId).Count();
+            var jmluser = false;
+            if (accSubs.KODE == "03")
+            {
+                if (cekuser >= accInDb.jumlahUser) //basic dan gold
+                {
+                    jmluser = true;
+                }
+            } else if (accSubs.KODE == "02") { 
+                if (cekuser >= 2) //silver
+                {
+                    jmluser = true;
+                }
+            }else if (accSubs.KODE == "01")
+            {
+                if (cekuser >= 0)
+                {
+                    jmluser = true;
+                }
+            }
+
 
             var valSubs = new ValidasiSubs()
             {
-                JumlahUserLebih = (cekuser >= accInDb.jumlahUser)
+                //JumlahUserLebih = (cekuser >= accInDb.jumlahUser)
+                JumlahUserLebih = jmluser
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
@@ -9361,6 +9382,18 @@ namespace MasterOnline.Controllers
             //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
             sSQL = "SELECT BRG,GD = B.LOKASI, QSO = ISNULL(SUM(ISNULL(QTY,0)),0) FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04')  AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG IN ('" + brg + "') AND A.NO_BUKTI <> '" + noBuk + "' GROUP BY BRG, B.LOKASI";
             var ListQOOPerBRG = ErasoftDbContext.Database.SqlQuery<QOO_PER_BRG>(sSQL).ToList();
+            //add by nurul 11/3/2019
+            var cekgudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
+            var gudang = "";
+            if (cekgudang.Count() > 0)
+            {
+                gudang = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG;
+            }
+            else
+            {
+                gudang = ErasoftDbContext.STF18.FirstOrDefault().Kode_Gudang;
+            }
+            //end add by nurul 11/3/2019
             var vm = new PesananViewModel()
             {
                 //add by nurul 23/11/2018
@@ -9369,7 +9402,10 @@ namespace MasterOnline.Controllers
                 ListPesananDetail = ListPesananDetail,
                 ListBarang = ListBarang,
                 ListQOHPerGD = ListQOHPerGD,
-                ListQOOPerBRG = ListQOOPerBRG
+                ListQOOPerBRG = ListQOOPerBRG,
+                //add by nurul 11/3/2019
+                setGd = gudang
+                //end add by nurul 11/3/2019
             };
 
             return PartialView("GudangQtyPartial", vm);
@@ -11385,8 +11421,27 @@ namespace MasterOnline.Controllers
             {
                 string sSQL = "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
                 sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brgId + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang";
-                var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
-                return Json(ListQOHPerGD, JsonRequestBehavior.AllowGet);
+                //change by nurul 8/3/2019 set default gudang dr sifsys
+                //var ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList();
+                //return Json(ListQOHPerGD, JsonRequestBehavior.AllowGet);
+                var cekgudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
+                var gudang = "";
+                if (cekgudang.Count() > 0)
+                {
+                    gudang = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG;
+                }
+                else
+                {
+                    gudang = ErasoftDbContext.STF18.FirstOrDefault().Kode_Gudang;
+                }
+                var vm = new FakturViewModel()
+                {
+                    ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList(),
+                    //setGd = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG
+                    setGd = gudang
+                };   
+                return Json(vm, JsonRequestBehavior.AllowGet);
+                //end change by nurul 8/3/2019 set default gudang dr sifsys
             }
             else
             {
@@ -11398,6 +11453,40 @@ namespace MasterOnline.Controllers
             //return Json(ListQOHPerGD, JsonRequestBehavior.AllowGet);
         }
         //end add by nurul
+
+        //add by nurul 11/3/2019 set default gudang dr sifsys
+        public ActionResult GetGudangBarangStok(string brgId)
+        {
+
+            if (brgId != "")
+            {
+                string sSQL = "SELECT A.BRG, A.GD, B.Nama_Gudang, QOH = ISNULL(SUM(QAWAL+(QM1+QM2+QM3+QM4+QM5+QM6+QM7+QM8+QM9+QM10+QM11+QM12)-(QK1+QK2+QK3+QK4+QK5+QK6+QK7+QK8+QK9+QK10+QK11+QK12)),0) ";
+                sSQL += "FROM STF08A A LEFT JOIN STF18 B ON A.GD = B.Kode_Gudang WHERE A.TAHUN=" + DateTime.Now.ToString("yyyy") + " AND A.BRG IN ('" + brgId + "') GROUP BY A.BRG, A.GD, B.Nama_Gudang";
+                var cekgudang = ErasoftDbContext.STF18.Where(a => a.Kode_Gudang == ErasoftDbContext.SIFSYS.FirstOrDefault().GUDANG).ToList();
+                var gudang = "";
+                if (cekgudang != null)
+                {
+                    gudang = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG;
+                }
+                else
+                {
+                    gudang = ErasoftDbContext.STF18.FirstOrDefault().Kode_Gudang;
+                }
+                var vm = new StokViewModel()
+                {
+                    ListQOHPerGD = ErasoftDbContext.Database.SqlQuery<QOH_PER_GD>(sSQL).ToList(),
+                    //setGd = ErasoftDbContext.SIFSYS.SingleOrDefault().GUDANG
+                    setGd = gudang
+                };
+                return Json(vm, JsonRequestBehavior.AllowGet);
+            }
+            else
+            {
+                var listGudang = ErasoftDbContext.STF18.ToList();
+                return Json(listGudang, JsonRequestBehavior.AllowGet);
+            }
+        }
+        //end add by nurul 11/3/2019
 
         [Route("manage/sa/stok")]
         public ActionResult StokMenu()
@@ -14130,6 +14219,9 @@ namespace MasterOnline.Controllers
             dataPerusahaanInDb.NPWP = dataVm.DataUsaha.NPWP;
             dataPerusahaanInDb.METODA_NO = dataVm.DataUsaha.METODA_NO;
             dataPerusahaanInDb.KODE_BRG_STYLE = dataVm.DataUsaha.KODE_BRG_STYLE;
+            //add by nurul 11/3/2019
+            dataPerusahaanInDb.GUDANG = dataVm.DataUsaha.GUDANG;
+            //end add by nurul 11/3/2019
             //dataPerusahaanInDb.BCA_API_KEY = dataVm.DataUsaha.BCA_API_KEY;
             //dataPerusahaanInDb.BCA_API_SECRET = dataVm.DataUsaha.BCA_API_SECRET;
             //dataPerusahaanInDb.BCA_CLIENT_ID = dataVm.DataUsaha.BCA_CLIENT_ID;

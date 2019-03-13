@@ -220,6 +220,14 @@
                                                       : Html.TextBoxFor(m => m.DataUsahaTambahan.TELEPON, new { @class = "form-control limited_number_textbox", type = "number", required = "required", Value = "" }))
                                             </div>
                                         </div>
+                                        //add by nurul 11/3/2019
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.GUDANG, "Default Gudang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @(Model?.DataUsaha?.NAMA_PT != "PT ERAKOMP INFONUSA" ? Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required" }) : Html.TextBoxFor(m => m.DataUsaha.GUDANG, new { @class = "form-control", required = "required", Value = "" }))
+                                            </div>
+                                        </div>
+                                        //end add by nurul 11/3/2019
                                         @*--REMARK BY NURUL 24/8/2018--
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsaha.BCA_API_KEY, "BCA API KEY", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
