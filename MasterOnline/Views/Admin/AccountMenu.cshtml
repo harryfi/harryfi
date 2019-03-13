@@ -24,6 +24,34 @@
             background: white;
             padding: 20px;
         }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        .logo_perusahaan_section {
+            padding: 0 10px 10px 10px;
+        }
+
+            .logo_perusahaan_section > .box_upload {
+                width: 200px;
+                height: 200px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                cursor: pointer;
+            }
     </style>
 }
 
@@ -82,6 +110,56 @@
                                 </button>
                                 <div id="form-partial-detail">
                                     @Html.Partial("AccountDetail")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row account_editor_section_1" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Account</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-form-1" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div class="form-horizontal">
+                                    <div class="row">
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2 style="font-size: 16px">Detail Account</h2>
+                                                    <ul class="nav navbar-right panel_toolbox">
+                                                        <li>
+                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                                        </li>
+                                                    </ul>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="x_content">
+                                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                                    {
+                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                                        {
+                                                            <div class="alert alert-danger">
+                                                                <span class="message-error">@modelError.ErrorMessage</span>
+                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    <br>
+                                                    @using (Html.BeginForm("SaveAccountNew", "Admin", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-account" }))
+                                                    {
+                                                        <div id="form-partial">
+
+                                                        </div>
+
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -324,7 +402,11 @@
                 //add by nurul 20/2/2019
                 $('#close-editor').off('click').on('click', function () {
                         $('.user_table_section').show();
-                        $('.account_detail_section').hide();
+                    $('.account_detail_section').hide();
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
                     $('#datatable').on('page.dt', function () {
                         $page = $('#datatable').DataTable().page.info().page;
                     });
@@ -358,6 +440,50 @@
                 });
                 $('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 20/2/2019
+
+
+                //add by nurul 12/3/2019
+                $('#close-form-1').off('click').on('click', function () {
+
+                    $('.user_table_section').show();
+                    $('.account_detail_section').hide();
+                    $('.account_editor_section_1').hide();
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    refreshTableAccount();
+
+                    $('#datatable').DataTable().page($page).draw(false);
+                });
+                if ($('.message-error').text() !== '') {
+                    //if ($tabPage == 0) {
+                    $('.user_table_section').hide();
+                    $('.account_editor_section_1').show();
+                    $('.account_detail_section').hide();
+                    $('#photo_base').hide()
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+
+                    //$('#TGL').datepicker({
+                    //    format: 'dd/mm/yyyy',
+                    //    language: 'id'
+                    //}).change(function () {
+                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
+                    //    $(this).datepicker('hide');
+                    //});
+
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                }
+                //end add by nurul 12/3/2019
 
             });
 
@@ -534,5 +660,99 @@
             });
         }
         //end add by nurul 13/2/2019
+
+        //add by nurul 12/3/2019
+        function editAccount($Id) {
+            var link = '@Url.Action("EditAccountNew", "Admin", new { accountId = "replaceId" })';
+            link = link.replace("replaceId", $Id);
+
+            //location.href = link;
+            $.ajax({
+                async: true,
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial').html(response);
+
+                    $('.user_table_section').hide();
+                    $('.account_detail_section').hide();
+                    $('.account_editor_section_1').show();
+                    $('#photo_base').hide()
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'account-tab') return;
+
+                        $(this).addClass('disabled-tab');
+
+                    });
+
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+
+                    //$('#TGL').datepicker({
+                    //    format: 'dd/mm/yyyy',
+                    //    language: 'id'
+                    //}).change(function () {
+                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
+                    //    $(this).datepicker('hide');
+                    //    });
+
+                    //$("#Account_NoHp").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'ANGKA');
+                    //    });
+                    //$("#Account_jumlahUser").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'ANGKA');
+                    //    });
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+            
+        }
+
+        function simpanAccount($id) {
+
+            $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SaveAccountNew", "Admin")',
+                        data: $('#form-account').serialize(),
+                success: function (response) {
+                    alert('Data berhasil tersimpan');
+                    $('#form-partial').html(response);
+                    $('#photo_base').hide()
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+                    //$('#TGL').datepicker({
+                    //    format: 'dd/mm/yyyy',
+                    //    language: 'id'
+                    //}).change(function () {
+                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
+                    //    $(this).datepicker('hide');
+                    //    });
+
+                    //$("#Account_NoHp").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'ANGKA');
+                    //    });
+                    //$("#Account_jumlahUser").keydown(
+                    //    function () {
+                    //        validateInput($(this), 'ANGKA');
+                    //    });
+                    
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+        }
+        //end add by nurul 12/3/2019
     </script>
 }

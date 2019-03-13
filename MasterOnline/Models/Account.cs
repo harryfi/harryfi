@@ -79,5 +79,9 @@ namespace MasterOnline.Models
         public DateTime? TGL_DAFTAR { get; set; }
 
         public int? jumlahUser { get; set; }
+
+        //add by nurul 12/3/2019
+        public DateTime? tgl_approve { get; set; }
+        //end add by nurul 12/3/2019
     }
 }

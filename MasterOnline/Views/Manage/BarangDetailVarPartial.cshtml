@@ -313,6 +313,7 @@
             }
         });
     }
+
     var validasi_simpanBarangVariant = true;
     function simpanBarangVariant() {
         if (confirm('Selesai setting gambar dan harga per variasi ?')) {
@@ -578,6 +579,62 @@
                 }
             </div>
             <div id="lazada_detail_tab_variant_2" class="tab-pane fade in">
+                @for (var i = 0; i < listMarket.ToList().Count; i++)
+                {
+                    var idMarket = Convert.ToInt32(listMarket[i].NAMA);
+                    var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
+                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                    {
+                        <div>
+                            <h2 style="font-size: 14px">
+                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                            </h2>
+                        </div>
+                        <div class="row" style="padding-top:10px">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                @*@if (string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
+                                    {
+                                        <label>Gagal Sync, Item tidak akan diupload ke akun ini.</label>
+                                    }
+                                    else
+                                    {*@
+                                <table id="datatable_detail_var_lazada" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 20%;">Kode</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 35%;">Nama</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 30%;">Harga</th>
+                                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 15%;">Status Link Marketplace</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var barang in Model.VariantMO)
+                                        {
+                                            var VarStf02H = Model.VariantMO_H.Where(p => p.BRG == barang.BRG && p.IDMARKET == recnumArf01).FirstOrDefault();
+                                            if (VarStf02H != null)
+                                            {
+                                                <tr>
+                                                    <td>@barang.BRG</td>
+                                                    <td>@barang.NAMA @barang.NAMA2</td>
+                                                    <td>
+                                                        @Html.TextBox("txtHargaVariantMP_" + VarStf02H.RecNum, String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", VarStf02H.HJUAL), new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", required = "required", maxlength = "12", data_jenis = "hjual_var", data_hjual_recnum = VarStf02H.RecNum })
+                                                    </td>
+                                                    <td>
+                                                        @if (!string.IsNullOrWhiteSpace(VarStf02H.BRG_MP))
+                                                        {
+                                                            <label>Sukses</label>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                                @*}*@
+                            </div>
+                        </div>
+                    }
+                }
             </div>
             <div id="shopee_detail_tab_variant_2" class="tab-pane fade in">
                 @for (var i = 0; i < listMarket.ToList().Count; i++)

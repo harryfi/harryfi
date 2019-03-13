@@ -31,7 +31,6 @@
     <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
-
     <style>
         [data-tip] {
             position: relative;
@@ -711,7 +710,6 @@
     }
 </style>
 <style type="text/css">
-
     .bar {
         font-size: 30px;
         color: #ed1338;
@@ -1357,9 +1355,9 @@
                                         @Html.Partial("BarangPesananPartial")
                                     </div>
                                 }
-                                    <div class="form-horizontal" id="form_subs">
-                                        @Html.Partial("PricingNewPartialView", Model?.ListSubs)
-                                    </div>
+                                <div class="form-horizontal" id="form_subs">
+                                    @Html.Partial("PricingNewPartialView", Model?.ListSubs)
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2023,9 +2021,7 @@
                         @*<div id="print_label">
                                 <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
                             </div>*@
-
                     </div>
-
                 </div>
                 <div class="row">
                     <div class="form-group" style="margin-top: 5px;">
@@ -2178,6 +2174,84 @@
                         <button id="btn-resi-shopee-non" onclick="saveResiShopee(2);" type="button" class="btn btn-success">Mulai Pengiriman</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalIsiResiTokped" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelTokped">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="isiResiLabelTokped">Pengiriman</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Pesanan</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_no_bukti_Tokped">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Pembeli</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_pembeli_Tokped">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top: 5px;">
+                        <label class="control-label col-md-4 col-sm-4 col-xs-12">Kurir</label>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <input type="text" class="form-control" disabled="disabled" id="resi_kurir_Tokped">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 5px;" id="tokped-resi-pickup-section">
+                    <div class="col-md-10 col-sm-10 col-xs-10">
+                        <div class="x_panel">
+                            <div class="x_title">
+                                <table>
+                                    <tr>
+                                        <td><img src="~/Content/Images/shopee_pickup.png" /></td>
+                                        <td>
+                                            <ul class="nav navbar-left panel_toolbox">
+                                                <li>
+                                                    <a class="collapse-link" style="height:35px"><h2 style="font-size: 16px; color:#73879C">Saya akan gunakan jasa Pick-up (jemput)</h2></a>
+                                                </li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="x_content" >
+                                <div class="form-group" id="div-waktu-request-tokped-pickup">
+                                    <label class="control-label col-md-4 col-sm-4 col-xs-12">Waktu Request</label>
+                                    <div class="col-md-6 col-sm-6 col-xs-12">
+                                        <input type="text" class="form-control" disabled="disabled" id="waktu-request-tokped-pickup">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="text-align:right">
+                                        <button id="btn-resi-tokped-pickup" onclick="saveResiTokped();" type="button" class="btn btn-success">Request Pickup</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="labelContainerTokped"></div>
+            </div>
+            <div class="modal-footer">
+                @*<div class="form-group">
+                        <div class="col-md-10 col-sm-10 col-xs-10" style="text-align:right">
+                            <button id="btn-resi-tokped-non" onclick="saveResiTokped(2);" type="button" class="btn btn-success">Mulai Pengiriman</button>
+                        </div>
+                    </div>*@
             </div>
         </div>
     </div>
@@ -2371,7 +2445,6 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
-
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
     @*<script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>*@
@@ -2510,25 +2583,25 @@
             var link = '@Url.Action("LazadaLabel", "Manage", new { recnum = "replaceRecNum" })';
             //link += '?code=' + kode + '&bulan=' + bln;
             link = link.replace("replaceRecNum", this.$recResi);
-                    $.ajax({
-                        type: "GET",
-                        url: link,
-                        success: function (response) {
-                            if (response != null) {
-                                if (response.Errors == null) {
-                                    //$('#labelContainer').html(response);
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        if (response.Errors == null) {
+                            //$('#labelContainer').html(response);
 
-                                    //window.open(response, "_self");
-                                    var w = window.open('about:blank');
-                                    w.document.open();
-                                    w.document.write(response);
-                                    w.document.close();
-                                } else {
-                                    alert(response.Errors[0]);
-                                }
-                            }
                             //window.open(response, "_self");
-                            //window.location.href(response);
+                            var w = window.open('about:blank');
+                            w.document.open();
+                            w.document.write(response);
+                            w.document.close();
+                        } else {
+                            alert(response.Errors[0]);
+                        }
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
 
                 },
                 error: function (xhr, status, error) {
@@ -2542,19 +2615,19 @@
             //link += '?code=' + kode + '&bulan=' + bln;
             link = link.replace("replaceRecNum", this.$recResi);
             link += '&DeliveryProvider=' + $('#txtShipment').val();
-                    $.ajax({
-                        type: "GET",
-                        url: link,
-                        success: function (response) {
-                            if (response != null) {
-                                if (response.Errors == null) {
-                                    $('#Pesanan_TRACKING_SHIPMENT').val(response.NoResi);
-                                } else {
-                                    alert(response.Errors);
-                                }
-                            }
-                            //window.open(response, "_self");
-                            //window.location.href(response);
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    if (response != null) {
+                        if (response.Errors == null) {
+                            $('#Pesanan_TRACKING_SHIPMENT').val(response.NoResi);
+                        } else {
+                            alert(response.Errors);
+                        }
+                    }
+                    //window.open(response, "_self");
+                    //window.location.href(response);
 
                 },
                 error: function (xhr, status, error) {
@@ -2575,7 +2648,7 @@
                     $page = $('#datatable').DataTable().page.info().page;
                 });
                 $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                //end add by nurul 12/2/2019
             });
             $('#pesanan-tab').click(function () {
                 $TabAktif = 0;
@@ -2648,7 +2721,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         });
 
         //add by Tri, call midtrans api get token
@@ -2692,29 +2765,29 @@
                 //        bln = txtBln_03.value;
                 //        break;
                 //}
-            @{
+                @{
                 var account = context.Account.SingleOrDefault(p => p.AccountId == accId);
             }
-            //moment.locale('id');
-            var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-            var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
-            var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-            var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
-            //var tglSub2 = moment(tglSub);
+                //moment.locale('id');
+                var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
+                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+                var tglSub = new Date(tglSubThn, tglSubBln, tglSubHari);
+                //var tglSub2 = moment(tglSub);
                 $('#txtCode').val(kode);
                 $('#txtBulan').val(bln);
 
-            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
+                if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.now()) {
 
-                //tglSub.setMonth(tglSub.getMonth() + bln);
-                var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
-                if (confirm(msg))
-                {
-                    //alert('kode:' + kode + '\nbln:' + bln);
-                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //tglSub.setMonth(tglSub.getMonth() + bln);
+                    var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
+                    if (confirm(msg))
+                    {
+                        //alert('kode:' + kode + '\nbln:' + bln);
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -2737,12 +2810,12 @@
                             console.log(error);
                         }
                     });*@
-                    $('#modalTransfer').modal('show');
+                        $('#modalTransfer').modal('show');
+                    }
                 }
-            }
-            else
-            {
-                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                else
+                {
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                 link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                 $.ajax({
@@ -2765,7 +2838,7 @@
                         console.log(error);
                     }
                 });*@
-                $('#modalTransfer').modal('show');
+                    $('#modalTransfer').modal('show');
                 }
             } else {
                 alert('Anda harus menyetujui Syarat & Ketentuan');
@@ -2830,7 +2903,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -2883,7 +2956,7 @@
                             $page = $('#datatable').DataTable().page.info().page;
                         });
                         $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                        //end add by nurul 12/2/2019
                     }
                 });
 
@@ -2986,7 +3059,7 @@
             $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .on('shown.bs.modal',
                 function () {
-                        //add by nurul 19/2/2019
+                    //add by nurul 19/2/2019
                     if ($TabAktif == 0) {
                         cekJumlahPesananBulanIni();
                         if ($jumlahPesanan == false) {
@@ -2997,43 +3070,43 @@
                         cekJumlahPesananBulanIni();
                         if ($jumlahPesanan == false) {
                             $('#konfUbahStatusDibayar').modal('hide');
-                                $('#tambah_pesanan').click();
-                            }
+                            $('#tambah_pesanan').click();
                         }
-                        //end add by nurul 19/2/2019
-                        //add by calvin 17 desember 2018
-                        $('#footer_info_pesananSudahBayar').hide();
-                        $('#SudahBayarKonfUbahStatusText').html("");
-                        //end add by calvin 17 desember 2018
+                    }
+                    //end add by nurul 19/2/2019
+                    //add by calvin 17 desember 2018
+                    $('#footer_info_pesananSudahBayar').hide();
+                    $('#SudahBayarKonfUbahStatusText').html("");
+                    //end add by calvin 17 desember 2018
 
-                        var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
-                        link = link.replace("replaceNoBuk", $nobukPesanan);
+                    var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
+                    link = link.replace("replaceNoBuk", $nobukPesanan);
 
-                        $.ajax({
-                            type: "GET",
-                            url: link,
-                            success: function(response) {
-                                $('.no_pesanan').text(response.NoPesanan);
-                                $('.tgl_pesanan').text(response.TglPesanan);
-                                $('.market_pesanan').text(response.Marketplace);
-                                $('.buyer_pesanan').text(response.Pembeli);
-                                $('.total_pesanan').text(response.Total);
-                                //add by calvin 17 desember 2018
-                                if (response.allowContinue == 0) {
-                                    $('#footer_info_pesananSudahBayar').hide();
-                                    $('#SudahBayarKonfUbahStatusText').html("Ada kode barang yang belum terdaftar di Master Online, silahkan cek detail pesanan anda");
-                                }else {
-                                    //$('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
-                                    $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?");
-                                    $('#footer_info_pesananSudahBayar').show();
-                                }
-                                //end add by calvin 17 desember 2018
-                            },
-                            error: function(xhr, status, error) {
-                                console.log(error);
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function(response) {
+                            $('.no_pesanan').text(response.NoPesanan);
+                            $('.tgl_pesanan').text(response.TglPesanan);
+                            $('.market_pesanan').text(response.Marketplace);
+                            $('.buyer_pesanan').text(response.Pembeli);
+                            $('.total_pesanan').text(response.Total);
+                            //add by calvin 17 desember 2018
+                            if (response.allowContinue == 0) {
+                                $('#footer_info_pesananSudahBayar').hide();
+                                $('#SudahBayarKonfUbahStatusText').html("Ada kode barang yang belum terdaftar di Master Online, silahkan cek detail pesanan anda");
+                            }else {
+                                //$('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
+                                $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?");
+                                $('#footer_info_pesananSudahBayar').show();
                             }
-                        });
+                            //end add by calvin 17 desember 2018
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(error);
+                        }
                     });
+                });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
             $(
@@ -3060,7 +3133,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
 
         function cekJumlahPesananBulanIni() {
@@ -3483,7 +3556,7 @@
                 $page = $('#datatable').DataTable().page.info().page;
             });
             $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
 
         function refreshNettoBarang($trId) {
@@ -4380,7 +4453,7 @@
                         $(this).attr('data-toggle', 'tab');
                         $(this).removeClass('disabled-tab');
                     });
-                        //end add by nurul 11/2/2019
+                    //end add by nurul 11/2/2019
                     getTanggal();
                     getBuyer();
                     getDataBarang();
@@ -4441,17 +4514,17 @@
                     $('.pesanan_table_section').hide();
                     $('.pesanan_editor_section').show();
 
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
-                        $('tr[data-pesanan-id="0"]').remove();
-                        $('#myTab li a').each(function () {
-                            $(this).removeAttr('data-toggle');
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).attr('disabled', 'disabled');
+                    });
+                    $('tr[data-pesanan-id="0"]').remove();
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
 
-                            if ($(this).attr('id') === 'pesanan-tab') return;
+                        if ($(this).attr('id') === 'pesanan-tab') return;
 
-                            $(this).addClass('disabled-tab');
-                        });
+                        $(this).addClass('disabled-tab');
+                    });
                     //end change by nurul 19/2/2019
                     $nettoSebelumnya += $bakalNetto;
                     //$('#see_tgl_pesanan').removeAttr('style');
@@ -4824,6 +4897,10 @@
             window.$recResiShopee = rec;
             getResiShopee(rec);
         }
+        function passRecResiTokped(rec) {
+            window.$recResiTokped = rec;
+            getResiTokped(rec);
+        }
 
         //ADD BY CALVIN 17 DESEMBER 2018
         function fixDataBarangNotFound(rec) {
@@ -4917,6 +4994,14 @@
                         var $brg_sot01b = $this.attr('data-brg');
                         var temp_listQOHPerGD = listQOHPerGD;
 
+                        //add by nurul 11/3/2019 set default gudang dr sifsys
+                        var defaultGd = setgd;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
+                        //end add by nurul 11/3/2019 set default gudang dr sifsys
+
                         temp_listQOHPerGD = $.grep(temp_listQOHPerGD, function( n, i ) {
                             return n.BRG===$brg_sot01b;
                         });
@@ -4929,6 +5014,14 @@
                                         id: item.GD,
                                         text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                     };
+                                    //add by nurul 11/3/2019 set default gudang dr sifsys
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    }
+                                    //end add by nurul 11/3/2019 set default gudang dr sifsys
                                 });
                         }
                         //end add by calvin 27 nov 2018
@@ -4977,7 +5070,14 @@
                         }).click(function() {
                             var $offsetTop = $this.offset().top;
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
-                        }).change();
+                            }).change();
+
+                        //add by nurul 13/3/2019
+                        if (link == true && temp_listQOHPerGD.length > 0) {
+                            $('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                            $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                        }
+                        //end add by nurul 13/3/2019
 
                         $('#modal-gudang-qty-body #Qty-' + $recNum).change(function() {
                             var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();
@@ -5193,6 +5293,53 @@
                     //end change by calvin 4 maret 2019
                     //end add
 
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function getResiTokped(rec) {
+            $('#tokped-resi-pickup-section').hide();
+            $('#div-waktu-request-tokped-pickup').hide();
+            $('#btn-resi-tokped-pickup').hide();
+
+            var link = '@Url.Action("GetResiTokped", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", rec);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function(response) {
+                    $('#txtShipment').val(response[1]);
+                    $('#Pesanan_SHIPMENT').val(response[1]);
+
+                    $('#resi_no_bukti_Tokped').val(response[2]);
+                    $('#resi_pembeli_Tokped').val(response[3]);
+                    $('#resi_kurir_Tokped').val(response[1]);
+
+                    var valueTRACKING_SHIPMENT = response[0].split('[;]');
+
+                    if (response[0] != "") {
+                        //LANJUT DSINI, TRACKING SHIPMENT SUDAH TERISI
+                        $('#tokped-resi-pickup-section').show();
+                        $('#div-waktu-request-tokped-pickup').show();
+                        $('#waktu-request-tokped-pickup').val(response[1]);
+                        $('#btn-resi-tokped-pickup').hide();
+                        //format : P[;]ADDRESS_ID[;]PICKUP_TIME
+                    }
+                    else {
+                        if (response[5] != "") {
+                            var parameters = response[5].split(';');
+                            if (parameters.includes("PICKUP")) {
+                                $('#tokped-resi-pickup-section').show();
+                                $('#div-waktu-request-tokped-pickup').hide();
+                                $('#btn-resi-tokped-pickup').show();
+                            }
+                        }
+                    }
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -5513,6 +5660,28 @@
                     }
                 });
             }
+        }
+
+        function saveResiTokped(){
+            var ret = true;
+            var link = '@Html.Raw(Url.Action("SaveResiTokped", "Manage", new { recNum = "replaceRecNum" }))';
+
+            link = link.replace("replaceRecNum", window.$recResiShopee);
+            link = link.replace("replaceMetode", metode);
+            
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function() {
+                    $('#modalIsiResiTokped').modal('hide');
+                    refreshTableSiapKirim();
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
         }
         function saveResiShopee(metode) {
             var ret = true;

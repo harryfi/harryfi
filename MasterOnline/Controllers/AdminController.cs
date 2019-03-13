@@ -176,6 +176,9 @@ namespace MasterOnline.Controllers
                 {
                     accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
                 }
+                //add by nurul 12/3/2019
+                accInDb.tgl_approve = DateTime.Today;
+                //end add 
             }
             //end add by Tri, set free trials 14 hari
 
@@ -632,43 +635,43 @@ namespace MasterOnline.Controllers
             return PartialView("TableAccountEdit", vm);
         }
 
-        [SessionAdminCheck]
-        public ActionResult AccountMenuWillExpiredEdit(string param)
-        {
-            string dr = (param.Split(';')[param.Split(';').Length - 2]);
-            string sd = (param.Split(';')[param.Split(';').Length - 1]);
-            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
-            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
-            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
-            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
-            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
-            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
-            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
-            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
-            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var vm = new MenuAccount()
-            {
-                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccountWillExpiredEdit", vm);
-        }
-        [SessionAdminCheck]
-        public ActionResult AccountMenuExpiredEdit(string param)
-        {
-            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
-            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
-            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
-            string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
-            var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            var vm = new MenuAccount()
-            {
-                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
-                ListPartner = MoDbContext.Partner.ToList()
-            };
-            return PartialView("TableAccountExpiredEdit", vm);
-        }
+        //[SessionAdminCheck]
+        //public ActionResult AccountMenuWillExpiredEdit(string param)
+        //{
+        //    string dr = (param.Split(';')[param.Split(';').Length - 2]);
+        //    string sd = (param.Split(';')[param.Split(';').Length - 1]);
+        //    string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+        //    string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+        //    string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+        //    string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+        //    string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+        //    string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+        //    string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+        //    string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+        //    var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        //    var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccountWillExpiredEdit", vm);
+        //}
+        //[SessionAdminCheck]
+        //public ActionResult AccountMenuExpiredEdit(string param)
+        //{
+        //    string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+        //    string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+        //    string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+        //    string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
+        //    var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+        //    var vm = new MenuAccount()
+        //    {
+        //        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
+        //        ListPartner = MoDbContext.Partner.ToList()
+        //    };
+        //    return PartialView("TableAccountExpiredEdit", vm);
+        //}
 
         public ActionResult EditAccount(int? accountId)
         {
@@ -714,9 +717,22 @@ namespace MasterOnline.Controllers
                 //}
                 accInDb.Email = data.Account.Email;
                 accInDb.KODE_SUBSCRIPTION = data.Account.KODE_SUBSCRIPTION;
+                //if (data.Account.KODE_SUBSCRIPTION == "03")
+                //{
+                //    accInDb.jumlahUser = data.Account.jumlahUser;
+                //}
+                //else if(data.Account.KODE_SUBSCRIPTION == "02")
+                //{
+                //    accInDb.jumlahUser = 2;
+                //}
+                //else
+                //{
+                //    accInDb.jumlahUser = 0;
+                //}
+                accInDb.jumlahUser = data.Account.jumlahUser;
                 accInDb.TGL_SUBSCRIPTION = data.Account.TGL_SUBSCRIPTION;
                 accInDb.NoHp = data.Account.NoHp;
-                accInDb.jumlahUser = data.Account.jumlahUser;
+                
             }
 
             MoDbContext.SaveChanges();
@@ -731,6 +747,67 @@ namespace MasterOnline.Controllers
 
             return PartialView("FormAccountPartial", vm);
         }
+        //add by nurul 12/3/2019
+        public ActionResult EditAccountNew(int? accountId)
+        {
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(m => m.AccountId == accountId),
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            //ViewData["Editing"] = 1;
+
+            //return View("AccountMenuEdit", vm);
+            return PartialView("FormAccountPartialNew", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveAccountNew(MenuAccount data)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("AccountMenu", data);
+            }
+
+            if (data.Account.AccountId == 0)
+            {
+                var accInDb = MoDbContext.Account.SingleOrDefault(m => m.AccountId == data.Account.AccountId);
+
+                if (accInDb != null)
+                {
+                    ModelState.AddModelError("", @"Kode account sudah terdaftar!");
+                    return View("AccountMenu", data);
+                }
+
+                MoDbContext.Account.Add(data.Account);
+            }
+            else
+            {
+                var accInDb = MoDbContext.Account.Single(m => m.AccountId == data.Account.AccountId);
+                if (accInDb.Status != data.Account.Status)
+                {
+                    Task<ActionResult> x = ChangeStatusAcc(Convert.ToInt32(data.Account.AccountId));
+                }
+                //accInDb.Email = data.Account.Email;
+                //accInDb.KODE_SUBSCRIPTION = data.Account.KODE_SUBSCRIPTION;
+                //accInDb.TGL_SUBSCRIPTION = data.Account.TGL_SUBSCRIPTION;
+                //accInDb.NoHp = data.Account.NoHp;
+                //accInDb.jumlahUser = data.Account.jumlahUser;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == data.Account.AccountId)
+            };
+
+            return PartialView("FormAccountPartialNew", vm);
+        }
+        //end add by nurul 12/3/2019
         // =============================================== Bagian Account (END)
         // =============================================== Menu-menu pada halaman admin (START)
 
@@ -778,7 +855,7 @@ namespace MasterOnline.Controllers
             var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
                 ListPartner = MoDbContext.Partner.ToList()
             };
             return PartialView("TableAccountWillExpired", vm);
@@ -793,7 +870,7 @@ namespace MasterOnline.Controllers
             var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl && a.Status == true).ToList(),
                 ListPartner = MoDbContext.Partner.ToList()
             };
             return PartialView("TableAccountExpired", vm);

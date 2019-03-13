@@ -1207,12 +1207,16 @@ namespace MasterOnline.Controllers
                                     oCommand.Parameters[2].Value = "";
                                     oCommand.Parameters[3].Value = item.has_children ? "0" : "1";
                                     oCommand.Parameters[4].Value = "";
-                                    if (oCommand.ExecuteNonQuery() == 1)
+                                    if (oCommand.ExecuteNonQuery() > 0)
                                     {
                                         if (item.has_children)
                                         {
                                             RecursiveInsertCategory(oCommand, result.categories, item.category_id, item.category_id);
                                         }
+                                    }
+                                    else
+                                    {
+
                                     }
                                 }
                                 //oTransaction.Commit();
@@ -1235,18 +1239,27 @@ namespace MasterOnline.Controllers
         {
             foreach (var child in categories.Where(p => p.parent_id == parent))
             {
+
+                var cekChildren = categories.Where(p => p.parent_id == child.category_id).FirstOrDefault();
                 oCommand.Parameters[0].Value = child.category_id;
                 oCommand.Parameters[1].Value = child.category_name;
                 oCommand.Parameters[2].Value = parent;
-                oCommand.Parameters[3].Value = child.has_children ? "0" : "1";
+                //change by calvin 11 maret 2019, API returnnya item.has children false, tetapi nyatanya ada childrennya, kasus 15949
+                //oCommand.Parameters[3].Value = child.has_children ? "0" : "1";
+                oCommand.Parameters[3].Value = cekChildren == null ? "1" : "0";
+                //end change by calvin 11 maret 2019
                 oCommand.Parameters[4].Value = master_category_code;
 
-                if (oCommand.ExecuteNonQuery() == 1)
+                if (oCommand.ExecuteNonQuery() > 0)
                 {
-                    if (child.has_children)
+                    if (cekChildren != null)
                     {
                         RecursiveInsertCategory(oCommand, categories, child.category_id, master_category_code);
                     }
+                }
+                else
+                {
+
                 }
             }
         }
@@ -1428,7 +1441,7 @@ namespace MasterOnline.Controllers
                         returnData["ANAME_" + a] = attribs.attribute_name;
                         returnData["AOPTIONS_" + a] = attribs.options.Count() > 0 ? "1" : "0";
                         returnData["AMANDATORY_" + a] = attribs.is_mandatory ? "1" : "0";
-                        
+
                         if (attribs.options.Count() > 0)
                         {
                             var optList = attribs.options.ToList();
@@ -1664,7 +1677,7 @@ namespace MasterOnline.Controllers
                     {
                         string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                         //add by calvin 4 maret 2019, filter
-                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-7).DateTime;
+                        var dariTgl = DateTimeOffset.UtcNow.AddDays(-30).DateTime;
                         var SudahAdaDiMO = ErasoftDbContext.SOT01A.Where(p => p.USER_NAME == "Auto Shopee" && p.TGL >= dariTgl).Select(p => p.NO_REFERENSI).ToList();
                         //end add by calvin
                         var filtered = ordersn_list.Where(p => !SudahAdaDiMO.Contains(p));

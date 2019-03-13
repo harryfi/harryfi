@@ -33,5 +33,9 @@ namespace MasterOnline.ViewModels
         public string Marketplace { get; set; }
         public string LogoKurir { get; set; }
         public string NoResi { get; set; }
+        //add by nurul 8/3/2019
+        public List<QOH_PER_GD> ListQOHPerGD { get; set; } = new List<QOH_PER_GD>();
+        public string setGd { get; set; }
+        //end add by nurul 8/3/2019
     }
 }
