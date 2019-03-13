@@ -9,9 +9,11 @@
     @{
         var listQOHPerGD = Model.ListQOHPerGD;
         var ListQOOPerBRG = Model.ListQOOPerBRG;
+        var setGd = Model.setGd;
     }
     var listQOHPerGD = @Html.Raw(Json.Encode(listQOHPerGD));
     var ListQOOPerBRG = @Html.Raw(Json.Encode(ListQOOPerBRG));
+    var setgd = @Html.Raw(Json.Encode(setGd));
     //end add by calvin 27 nov 2018, munculkan QOH di combobox gudang
 
     $(".gudang-qty-num-only").on('keydown',

@@ -4442,6 +4442,10 @@
                     $modeEdit = 1;
                     //end add
                     $('#form-partial').html(response);
+                    //add by Tri 11 Maret 2019
+                    $('#form-partial').show();
+                    $('#form_subs').hide();
+                    //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
                     refreshInputan();
                     //add by nurul 11/2/2019
@@ -4493,7 +4497,7 @@
                     $modeEdit = 1;
                     //end add
                     $('#form-partial').html(response);
-                    //end add by Tri 11 Maret 2019
+                    //add by Tri 11 Maret 2019
                     $('#form-partial').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
@@ -4990,6 +4994,14 @@
                         var $brg_sot01b = $this.attr('data-brg');
                         var temp_listQOHPerGD = listQOHPerGD;
 
+                        //add by nurul 11/3/2019 set default gudang dr sifsys
+                        var defaultGd = setgd;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
+                        //end add by nurul 11/3/2019 set default gudang dr sifsys
+
                         temp_listQOHPerGD = $.grep(temp_listQOHPerGD, function( n, i ) {
                             return n.BRG===$brg_sot01b;
                         });
@@ -5002,6 +5014,14 @@
                                         id: item.GD,
                                         text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                     };
+                                    //add by nurul 11/3/2019 set default gudang dr sifsys
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    }
+                                    //end add by nurul 11/3/2019 set default gudang dr sifsys
                                 });
                         }
                         //end add by calvin 27 nov 2018
@@ -5050,7 +5070,14 @@
                         }).click(function() {
                             var $offsetTop = $this.offset().top;
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
-                        }).change();
+                            }).change();
+
+                        //add by nurul 13/3/2019
+                        if (link == true && temp_listQOHPerGD.length > 0) {
+                            $('#modal-gudang-qty-body #Gudang-Dropdown-' + $recNum).selectivity('value', gudang);
+                            $this.find(".selectivity-input input[placeholder]").attr('placeholder', nama);
+                        }
+                        //end add by nurul 13/3/2019
 
                         $('#modal-gudang-qty-body #Qty-' + $recNum).change(function() {
                             var $valMax = $('#modal-gudang-qty-body #Max-Qty-' + $recNum).val();

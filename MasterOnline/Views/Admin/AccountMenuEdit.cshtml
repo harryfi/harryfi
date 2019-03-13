@@ -70,12 +70,12 @@
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="account-tab" role="tab" data-toggle="tab" aria-expanded="true">Account</a>
                 </li>
-                <li role="presentation" class="">
+                @*<li role="presentation" class="">
                     <a href="#tab_content2" role="tab" id="willexpired-tab" data-toggle="tab" aria-expanded="false">Akan Expired</a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content3" role="tab" id="expired-tab" data-toggle="tab" aria-expanded="false">Sudah Expired</a>
-                </li>
+                </li>*@
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="account-tab">
@@ -394,205 +394,7 @@
                             </div>
                         </div>
                     </div>
-                    @*<div class="row account_editor_section_2" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-form-2" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div class="form-horizontal">
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="x_panel">
-                                                <div class="x_title">
-                                                    <h2 style="font-size: 16px">Detail Account</h2>
-                                                    <ul class="nav navbar-right panel_toolbox">
-                                                        <li>
-                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="clearfix"></div>
-                                                </div>
-                                                <div class="x_content">
-                                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                                    {
-                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                                        {
-                                                            <div class="alert alert-danger">
-                                                                <span class="message-error">@modelError.ErrorMessage</span>
-                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                        }
-                                                    }
-                                                    <br>
-                                                    @using (Html.BeginForm("SaveAccount", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                                                    {
-                                                        @Html.AntiForgeryToken()
-                                                        @Html.HiddenFor(m => m.Account.AccountId)
-                                                        var setStatus = "";
-                                                        var status1 = Model?.Account?.Status;
-                                                        if (status1 != null)
-                                                        {
-                                                            if (status1 == true)
-                                                            {
-                                                                setStatus = "Aktif";
-                                                            }
-                                                            else
-                                                            {
-                                                                setStatus = "Tidak Aktif";
-                                                            }
-                                                        }
-
-
-                                                        <div id="hidden_partner">
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.AccountId, "AccountId", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.AccountId, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.Username, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.NamaTokoOnline, "Nama Toko Online", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
-                                                                    @if (!String.IsNullOrWhiteSpace(Model?.Account?.PhotoKtpUrl))
-                                                                    {
-                                                                        <img src="@Url.Content(Model.Account.PhotoKtpUrl)" width="65%" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <img src="~/Content/Images/no-img-market.jpg" />
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.KODE_REFERRAL, "Kode Referral", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.KODE_REFERRAL, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.Account?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
-                                                                </div>
-                                                            </div>
-
-                                                            <div id="photo_base">
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.DatabasePathErasoft, "DatabasePathErasoft", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.DatabasePathErasoft, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.VCode, "VCode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.VCode, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.UserId, "User Id", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.UserId, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.Password, "Password", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.Password, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", min = 0, max = 999999999999999 })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.KODE_SUBSCRIPTION, "Tipe Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.DropDownListFor(m => m.Account.KODE_SUBSCRIPTION, new List<SelectListItem>()
-                                                {
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"BASIC",
-                                                        Value = "01",
-                                                    },
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"SILVER",
-                                                        Value = "02"
-                                                    },
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"GOLD",
-                                                        Value = "03"
-                                                    }
-                                                }, new { @class = "form-control" })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.TGL_SUBSCRIPTION, "Tanggal Berakhir Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.HiddenFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
-                                                                <div class="input-group date">
-                                                                    <input type="text" id="TGL" class="form-control" />
-                                                                    <span class="input-group-addon">
-                                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.jumlahUser, "Jumlah User", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser), min = 0, max = 99999 })
-                                                            </div>
-                                                        </div>
-
-                                                        <hr />
-                                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanAccount2(this)" />
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+                   
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content3" aria-labelledby="expired-tab">
                     @*end add by nurul 13/2/2019*@
@@ -652,205 +454,7 @@
                             </div>
                         </div>
                     </div>
-                    @*<div class="row account_editor_section_3" style="display: none;">
-                        <div class="col-lg-12">
-                            <div class="page-editor">
-                                <h2 class="editor-title">Account</h2>
-                                <span class="title-accent"></span>
-                                <button id="close-form-3" type="button" class="pull-right page-close">
-                                    <span class="close-btn thick"></span>
-                                </button>
-                                <div class="form-horizontal">
-                                    <div class="row">
-                                        <div class="col-md-12 col-sm-12 col-xs-12">
-                                            <div class="x_panel">
-                                                <div class="x_title">
-                                                    <h2 style="font-size: 16px">Detail Account</h2>
-                                                    <ul class="nav navbar-right panel_toolbox">
-                                                        <li>
-                                                            <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                                        </li>
-                                                    </ul>
-                                                    <div class="clearfix"></div>
-                                                </div>
-                                                <div class="x_content">
-                                                    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
-                                                    {
-                                                        foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
-                                                        {
-                                                            <div class="alert alert-danger">
-                                                                <span class="message-error">@modelError.ErrorMessage</span>
-                                                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                        }
-                                                    }
-                                                    <br>
-                                                    @using (Html.BeginForm("SaveAccount", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
-                                                    {
-                                                        @Html.AntiForgeryToken()
-                                                        @Html.HiddenFor(m => m.Account.AccountId)
-                                                        var setStatus = "";
-                                                        var status1 = Model?.Account?.Status;
-                                                        if (status1 != null)
-                                                        {
-                                                            if (status1 == true)
-                                                            {
-                                                                setStatus = "Aktif";
-                                                            }
-                                                            else
-                                                            {
-                                                                setStatus = "Tidak Aktif";
-                                                            }
-                                                        }
-
-
-                                                        <div id="hidden_partner">
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.AccountId, "AccountId", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.AccountId, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.Username, "Nama Lengkap", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.Username, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.NamaTokoOnline, "Nama Toko Online", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.NamaTokoOnline, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.PhotoKtpUrl, "Photo Ktp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12 logo_perusahaan_section">
-                                                                    @if (!String.IsNullOrWhiteSpace(Model?.Account?.PhotoKtpUrl))
-                                                                    {
-                                                                        <img src="@Url.Content(Model.Account.PhotoKtpUrl)" width="65%" />
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <img src="~/Content/Images/no-img-market.jpg" />
-                                                                    }
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.KODE_REFERRAL, "Kode Referral", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.KODE_REFERRAL, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.Status, "Status", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => setStatus, new { @class = "form-control", @ReadOnly = true })
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                @Html.LabelFor(m => m.Account.TGL_DAFTAR, "Tanggal Daftar", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                    @Html.TextBoxFor(m => m.Account.TGL_DAFTAR, new { @class = "form-control", @ReadOnly = true, Value = Model?.Account?.TGL_DAFTAR?.ToString("dd/MM/yyyy") })
-                                                                </div>
-                                                            </div>
-
-                                                            <div id="photo_base">
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.DatabasePathErasoft, "DatabasePathErasoft", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.DatabasePathErasoft, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.VCode, "VCode", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.VCode, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.UserId, "User Id", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.UserId, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    @Html.LabelFor(m => m.Account.Password, "Password", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                        @Html.TextBoxFor(m => m.Account.Password, new { @class = "form-control", @ReadOnly = true })
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.Email, "Email", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.Email, new { @class = "form-control", @autocomplete = "false", type = "email", required = "required" })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.NoHp, "No Hp", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.NoHp, new { @class = "form-control num-only", min = 0, max = 999999999999999 })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.KODE_SUBSCRIPTION, "Tipe Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.DropDownListFor(m => m.Account.KODE_SUBSCRIPTION, new List<SelectListItem>()
-                                                {
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"BASIC",
-                                                        Value = "01",
-                                                    },
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"SILVER",
-                                                        Value = "02"
-                                                    },
-                                                    new SelectListItem()
-                                                    {
-                                                        Text = @"GOLD",
-                                                        Value = "03"
-                                                    }
-                                                }, new { @class = "form-control" })
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.TGL_SUBSCRIPTION, "Tanggal Berakhir Subscribe", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.HiddenFor(m => m.Account.TGL_SUBSCRIPTION, new { @class = "form-control", Value = Model?.Account?.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy") })
-                                                                <div class="input-group date">
-                                                                    <input type="text" id="TGL" class="form-control" />
-                                                                    <span class="input-group-addon">
-                                                                        <span class="glyphicon glyphicon-calendar"></span>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            @Html.LabelFor(m => m.Account.jumlahUser, "Jumlah User", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                            <div class="col-md-6 col-sm-6 col-xs-12">
-                                                                @Html.TextBoxFor(m => m.Account.jumlahUser, new { @class = "form-control num-only", Value = (Model?.Account?.jumlahUser == null ? 0 : Model.Account.jumlahUser), min = 0, max = 99999 })
-                                                            </div>
-                                                        </div>
-
-                                                        <hr />
-                                                        <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanAccount3(this)" />
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*@
+                    
                 </div>
             </div>
         </div>
@@ -1049,7 +653,17 @@
                     }).change(function () {
                         $('#Account_TGL_SUBSCRIPTION').val($(this).val());
                         $(this).datepicker('hide');
-                    });
+                        });
+                    $("#Account_KODE_SUBSCRIPTION").change(
+                        function () {
+                            if ($("#Account_KODE_SUBSCRIPTION").val() == "03") {
+                                $("#Account_jumlahUser").val('5');
+                            } else if ($("#Account_KODE_SUBSCRIPTION").val() == "02") {
+                                $("#Account_jumlahUser").val('2');
+                            } else {
+                                $("#Account_jumlahUser").val('0');
+                            }
+                        });
 
                     $('#datatable').on('page.dt', function () {
                         $page = $('#datatable').DataTable().page.info().page;
@@ -1064,7 +678,16 @@
                     });
                     $('#datatable').DataTable().page($page).draw(false);
                 });*@
-
+                $("#Account_KODE_SUBSCRIPTION").change(
+                    function () {
+                        if ($("#Account_KODE_SUBSCRIPTION").val() == "03") {
+                            $("#Account_jumlahUser").val('5');
+                        } else if ($("#Account_KODE_SUBSCRIPTION").val() == "02") {
+                            $("#Account_jumlahUser").val('2');
+                        } else {
+                            $("#Account_jumlahUser").val('0');
+                        }
+                    });
             });
 
         function editAccount($Id) {
@@ -1111,6 +734,16 @@
                     $("#Account_jumlahUser").keydown(
                         function () {
                             validateInput($(this), 'ANGKA');
+                        });
+                    $("#Account_KODE_SUBSCRIPTION").change(
+                        function () {
+                            if ($("#Account_KODE_SUBSCRIPTION").val() == "03") {
+                                $("#Account_jumlahUser").val('5');
+                            } else if ($("#Account_KODE_SUBSCRIPTION").val() == "02") {
+                                $("#Account_jumlahUser").val('2');
+                            } else {
+                                $("#Account_jumlahUser").val('0');
+                            }
                         });
 
                 },
@@ -1292,10 +925,6 @@
                         data: $('#form-account').serialize(),
                 success: function (response) {
                     alert('Data berhasil tersimpan');
-                    //$('.user_table_section_2').toggle('display');
-                    //$('.account_editor_section_2').toggle('display');
-                    //$('.WillExpired_detail_section').hide();
-                    //$('#photo_base').hide()
                     $('#form-partial').html(response);
                     $('#photo_base').hide()
                     if ($('#Account_TGL_SUBSCRIPTION').val() != '') {

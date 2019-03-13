@@ -2283,7 +2283,7 @@
                     $modeEdit = 1;
 
                     $('#form-partial').html(response);
-                    //end add by Tri 11 Maret 2019
+                    //add by Tri 11 Maret 2019
                     $('#form-partial').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
@@ -3203,14 +3203,26 @@
                     contentType: 'application/json',
                     cache: false,
                     success: function (response) {
+                        var defaultGd = response.setGd;
+                        var listGd = response.ListQOHPerGD;
+                        var kode = "";
+                        var gudang = "";
+                        var nama = "";
+                        var link = false;
                         var listGudang = [];
-                        if (response[0] != undefined) {
-                            $.each(response,
+                        if (listGd[0] != undefined) {
+                            $.each(listGd,
                                 function (i, item) {
                                     listGudang[i] = {
                                         id: item.GD,
                                         text: item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
                                     };
+                                    if (defaultGd == item.GD) {
+                                        link = true;
+                                        kode = item.BRG;
+                                        gudang = item.GD;
+                                        nama = item.Nama_Gudang + " (Qty Stok : " + item.QOH + ")"
+                                    }
                                 });
                         }
                         var gudangSelect = $('#GUDANG').selectize({
@@ -3235,7 +3247,17 @@
                         gudangSelect[0].selectize.load(function (callback) {
                             callback(listGudang);
                         });
-                        gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
+                        //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
+                        if (link == false || listGd.length == 0) {
+                            $(".selectize-input input[placeholder]").attr('placeholder', 'Harap pilih');
+                            $(".selectize-input input[placeholder]").attr('style', 'width: 66px !important');
+                            gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val());
+                        } else if (link == true && listGd.length > 0) {
+                            $(".selectize-input input[placeholder]").attr('placeholder', nama);
+                            $('#gudang-kode').text(gudang);
+                            gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
+                        }
+                        
 
                     },
                     error: function (xhr) {
@@ -3481,7 +3503,7 @@
                     $modeEdit = 1;
 
                     $('#form-partial').html(response);
-                    //end add by Tri 11 Maret 2019
+                    //add by Tri 11 Maret 2019
                     $('#form-partial').show();
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019

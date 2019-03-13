@@ -5952,6 +5952,7 @@
     <Content Include="Views\Admin\TableAccountWillExpiredEdit.cshtml" />
     <Content Include="Views\Admin\AccountDetailEdit.cshtml" />
     <Content Include="Views\Admin\FormAccountPartial.cshtml" />
+    <Content Include="Views\Admin\FormAccountPartialNew.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
