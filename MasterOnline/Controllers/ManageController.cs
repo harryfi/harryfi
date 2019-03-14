@@ -686,7 +686,7 @@ namespace MasterOnline.Controllers
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
 
                 //ingat ganti saat publish, by calvin
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "16.BWHG00.04.00" || p.BRG == "JPTTEST2")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "01.LIP00.00" || p.BRG == "JPTTEST2")).ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
 
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),

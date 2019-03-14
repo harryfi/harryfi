@@ -2892,28 +2892,28 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            try
-            {
-                var client = new HttpClient();
+            //try
+            //{
+            //    var client = new HttpClient();
 
-                client.DefaultRequestHeaders.Add("Authorization", (signature));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
+            //    client.DefaultRequestHeaders.Add("Authorization", (signature));
+            //    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            //    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            //    HttpResponseMessage clientResponse = await client.PostAsync(
+            //        urll, content);
 
-                using (HttpContent responseContent = clientResponse.Content)
-                {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            }
+            //    using (HttpContent responseContent = clientResponse.Content)
+            //    {
+            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //        {
+            //            responseFromServer = await reader.ReadToEndAsync();
+            //        }
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //}
 
 
             if (responseFromServer != null)

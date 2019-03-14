@@ -137,7 +137,7 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> EditProductGetStatus(TokopediaAPIData iden, string brg, int upload_id, string log_request_id)
+        public async Task<string> EditProductGetStatus(TokopediaAPIData iden, string brg, int upload_id, string log_request_id, string product_id)
         {
             //if merchant code diisi. barulah GetOrderList
             string ret = "";
@@ -185,7 +185,7 @@ namespace MasterOnline.Controllers
                         {
                             if (item.unprocessed_rows > 0)
                             {
-                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
+                                var success = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = 'PEDITENDING;" + Convert.ToString(upload_id) + ";" + Convert.ToString(log_request_id) + ";" + Convert.ToString(product_id) + "' WHERE BRG = '" + Convert.ToString(brg) + "' AND IDMARKET = '" + Convert.ToString(iden.idmarket) + "'");
                                 if (success == 1)
                                 {
                                     manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
@@ -193,7 +193,8 @@ namespace MasterOnline.Controllers
                             }
                             else if (item.success_rows > 0)
                             {
-                                await GetActiveItemListBySKU(iden, 0, 50, iden.idmarket, brg);
+                                await GetActiveItemVariantByProductID(iden, brg, iden.idmarket, Convert.ToString(product_id));
+
                                 manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
                             }
                             else if (item.failed_rows > 0)
@@ -289,6 +290,7 @@ namespace MasterOnline.Controllers
                     product_id = Convert.ToInt32(product_id),
                     name = Convert.ToString(brg_stf02.NAMA + " " + brg_stf02.NAMA2).Trim(),
                     //category_id = Convert.ToInt32(brg_stf02h.CATEGORY_CODE),
+                    category_id = null,
                     price = Convert.ToInt32(brg_stf02h.HJUAL),
                     status = 1,
                     minimum_order = 1,
@@ -572,7 +574,7 @@ namespace MasterOnline.Controllers
                     if (result.header.error_code == 0)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
-                        await CreateProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID);
+                        await EditProductGetStatus(iden, brg, result.data.upload_id, currentLog.REQUEST_ID, product_id);
                     }
                     else
                     {
@@ -1798,7 +1800,7 @@ namespace MasterOnline.Controllers
 
             long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
             long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
-            int rows = 10;
+            int rows = 50;
             int Rowsstart = page * rows;
             //order by name
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/product/list?";
@@ -2388,6 +2390,14 @@ namespace MasterOnline.Controllers
                             foreach (var item in cekPendingCreate)
                             {
                                 Task.Run(() => CreateProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                            }
+                        }
+                        var cekPendingEdit = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == data.idmarket && p.BRG_MP.Contains("PEDITENDING;")).ToList();
+                        if (cekPendingEdit.Count > 0)
+                        {
+                            foreach (var item in cekPendingEdit)
+                            {
+                                Task.Run(() => EditProductGetStatus(data, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2], item.BRG_MP.Split(';')[3]).Wait());
                             }
                         }
                     }
@@ -3547,7 +3557,7 @@ namespace MasterOnline.Controllers
         {
             public int product_id { get; set; }
             public string name { get; set; }
-            public int category_id { get; set; }
+            public int? category_id { get; set; }
             public int price { get; set; }
             public int status { get; set; }
             public int minimum_order { get; set; }
