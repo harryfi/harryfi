@@ -360,7 +360,8 @@ namespace MasterOnline.Controllers
                             API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                             API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                             API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            token = tblCustomer.TOKEN
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value
                         };
                         //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
                         //{
@@ -524,7 +525,8 @@ namespace MasterOnline.Controllers
                             API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                             API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                             API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            token = tblCustomer.TOKEN
+                            token = tblCustomer.TOKEN,
+                            idmarket = tblCustomer.RecNum.Value
                         };
                         //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
                         //{
@@ -684,7 +686,7 @@ namespace MasterOnline.Controllers
                 //ListStf02S = ErasoftDbContext.STF02.Where(a => a.SUP == "").ToList(),
 
                 //ingat ganti saat publish, by calvin
-                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "16.BWHG00.04.00" || p.BRG == "JPTTEST2")).ToList(),
+                //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "" && (p.BRG == "01.CMO00.00" || p.BRG == "01.LIP00.00" || p.BRG == "JPTTEST2")).ToList(),
                 ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
 
                 ListMarket = ErasoftDbContext.ARF01.OrderBy(p => p.RecNum).ToList(),
@@ -3986,29 +3988,31 @@ namespace MasterOnline.Controllers
                                         {
                                             if (!string.IsNullOrEmpty(stf02h.BRG_MP))
                                             {
-                                                //ShopeeController.ShopeeAPIData iden = new ShopeeController.ShopeeAPIData
-                                                //{
-                                                //    merchant_code = tblCustomer.Sort1_Cust,
-                                                //};
-                                                //ShopeeController shoAPI = new ShopeeController();
-
-                                                //Task.Run(() => shoAPI.UpdateProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), tblCustomer.CUST, new List<ShopeeController.ShopeeLogisticsClass>()).Wait());
-                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
-                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
-                                                //if (updateHarga)
-                                                //{
-                                                //    if (brg_mp.Count() == 2)
-                                                //    {
-                                                //        if (brg_mp[1] == "0")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //        else if (brg_mp[1] != "")
-                                                //        {
-                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                //        }
-                                                //    }
-                                                //}
+                                                TokopediaController tokoAPI = new TokopediaController();
+                                                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                                                {
+                                                    merchant_code = tblCustomer.Sort1_Cust, //FSID
+                                                    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
+                                                    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
+                                                    API_secret_key = tblCustomer.API_KEY, //Shop ID 
+                                                    token = tblCustomer.TOKEN,
+                                                    idmarket = tblCustomer.RecNum.Value
+                                                };
+                                                if (stf02h.BRG_MP.Contains("PENDING"))
+                                                {
+                                                    var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == tblCustomer.RecNum && p.BRG_MP == stf02h.BRG_MP).ToList();
+                                                    if (cekPendingCreate.Count > 0)
+                                                    {
+                                                        foreach (var item in cekPendingCreate)
+                                                        {
+                                                            Task.Run(() => tokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                                                        }
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                }
                                             }
                                             else
                                             {
@@ -4873,7 +4877,8 @@ namespace MasterOnline.Controllers
                     API_client_password = tblCustomer.API_CLIENT_P, //Client ID
                     API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
                     API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                    token = tblCustomer.TOKEN
+                    token = tblCustomer.TOKEN,
+                    idmarket = tblCustomer.RecNum.Value
                 };
                 var PromptModel = tokopediaApi.GetEtalase(iden);
                 return View("PromptEtalaseTokopedia", PromptModel);
@@ -9812,7 +9817,8 @@ namespace MasterOnline.Controllers
                                 API_client_password = marketPlace.API_CLIENT_P, //Client ID
                                 API_client_username = marketPlace.API_CLIENT_U, //Client Secret
                                 API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                token = marketPlace.TOKEN
+                                token = marketPlace.TOKEN,
+                                idmarket = marketPlace.RecNum.Value
                             };
                             Task.Run(() => TokoAPI.PostAckOrder(iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI)).Wait();
                         }
@@ -10333,7 +10339,8 @@ namespace MasterOnline.Controllers
                     API_client_password = marketPlace.API_CLIENT_P, //Client ID
                     API_client_username = marketPlace.API_CLIENT_U, //Client Secret
                     API_secret_key = marketPlace.API_KEY, //Shop ID 
-                    token = marketPlace.TOKEN
+                    token = marketPlace.TOKEN,
+                    idmarket = marketPlace.RecNum.Value
                 };
                 var TokoAPI = new TokopediaController();
                 string[] referensi = pesananInDb.NO_REFERENSI.Split(';');
@@ -12153,7 +12160,7 @@ namespace MasterOnline.Controllers
             //listBrg.Add(brgtes);
 
             //listBrg.Add("01.DCTR00.00.3m");
-            //listBrg.Add("01.JACJ00.00.18m");
+            //listBrg.Add("03.WNB00.04");
 
             //updateStockMarketPlace(listBrg);
 
@@ -13575,9 +13582,24 @@ namespace MasterOnline.Controllers
                                     API_client_password = marketPlace.API_CLIENT_P, //Client ID
                                     API_client_username = marketPlace.API_CLIENT_U, //Client Secret
                                     API_secret_key = marketPlace.API_KEY, //Shop ID 
-                                    token = marketPlace.TOKEN
+                                    token = marketPlace.TOKEN,
+                                    idmarket = marketPlace.RecNum.Value
                                 };
-                                Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
+                                if (stf02h.BRG_MP.Contains("PENDING"))
+                                {
+                                    var cekPendingCreate = ErasoftDbContext.STF02H.Where(p => p.IDMARKET == marketPlace.RecNum && p.BRG_MP == stf02h.BRG_MP).ToList();
+                                    if (cekPendingCreate.Count > 0)
+                                    {
+                                        foreach (var item in cekPendingCreate)
+                                        {
+                                            Task.Run(() => TokoAPI.CreateProductGetStatus(iden, item.BRG, Convert.ToInt32(item.BRG_MP.Split(';')[1]), item.BRG_MP.Split(';')[2]).Wait());
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
+                                }
                             }
                         }
                     }
