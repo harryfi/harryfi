@@ -406,7 +406,7 @@ namespace MasterOnline.Controllers
             //add kode brg induk dan type brg
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             //end add kode brg induk dan type brg
-            sSQL += ",'" + namaBrg + "'"; //request by Calvin, 19 maret 2019
+            sSQL += ",'" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "'"; //request by Calvin, 19 maret 2019
 
             //var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
             var GetAttributeShopee = await GetAttributeToList(iden, categoryCode, categoryName);
