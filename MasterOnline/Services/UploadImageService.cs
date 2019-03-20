@@ -172,8 +172,11 @@ namespace MasterOnline.Services
             }
             catch (Exception ex)
             {
+                imgurImage.data = new ImgurData();
+                imgurImage.data.link_l = "";
+                return imgurImage;
 
-                throw ex;
+                //throw ex;
             }
 
             imgurImage.data = new ImgurData();

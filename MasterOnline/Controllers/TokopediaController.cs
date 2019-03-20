@@ -1601,72 +1601,77 @@ namespace MasterOnline.Controllers
                     foreach (var item in result.data)
                     {
                         brgMp = Convert.ToString(item.product_id);
-                        var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
-                        //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
-                        var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
-                        if (CektempbrginDB == null && CekbrgInDB == null)
+                        if(item.status.ToUpper() != "DELETE")
                         {
-                            string namaBrg = item.name;
-                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                            urlImage = "";
-                            urlImage2 = "";
-                            urlImage3 = "";
-                            if (namaBrg.Length > 30)
+                            var CektempbrginDB = tempbrginDB.Where(t => (t.BRG_MP ?? "").ToUpper().Equals(brgMp.ToUpper())).FirstOrDefault();
+                            //var CekbrgInDB = brgInDB.Where(t => t.BRG_MP.Equals(brgMp)).FirstOrDefault();
+                            var CekbrgInDB = brgInDB.Where(t => (t.BRG_MP ?? "").Equals(brgMp)).FirstOrDefault();
+                            if (CektempbrginDB == null && CekbrgInDB == null)
                             {
-                                nama = namaBrg.Substring(0, 30);
-                                //change by calvin 15 januari 2019
-                                //if (namaBrg.Length > 60)
-                                //{
-                                //    nama2 = namaBrg.Substring(30, 30);
-                                //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
-                                //}
-                                if (namaBrg.Length > 285)
+                                string namaBrg = item.name;
+                                string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                                urlImage = "";
+                                urlImage2 = "";
+                                urlImage3 = "";
+                                if (namaBrg.Length > 30)
                                 {
-                                    nama2 = namaBrg.Substring(30, 255);
-                                    nama3 = "";
+                                    nama = namaBrg.Substring(0, 30);
+                                    //change by calvin 15 januari 2019
+                                    //if (namaBrg.Length > 60)
+                                    //{
+                                    //    nama2 = namaBrg.Substring(30, 30);
+                                    //    nama3 = (namaBrg.Length > 90) ? namaBrg.Substring(60, 30) : namaBrg.Substring(60);
+                                    //}
+                                    if (namaBrg.Length > 285)
+                                    {
+                                        nama2 = namaBrg.Substring(30, 255);
+                                        nama3 = "";
+                                    }
+                                    //end change by calvin 15 januari 2019
+                                    else
+                                    {
+                                        nama2 = namaBrg.Substring(30);
+                                        nama3 = "";
+                                    }
                                 }
-                                //end change by calvin 15 januari 2019
                                 else
                                 {
-                                    nama2 = namaBrg.Substring(30);
+                                    nama = namaBrg;
+                                    nama2 = "";
                                     nama3 = "";
                                 }
-                            }
-                            else
-                            {
-                                nama = namaBrg;
-                                nama2 = "";
-                                nama3 = "";
-                            }
 
-                            Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
-                            {
-                                SELLER_SKU = Convert.ToString(item.product_id),
-                                BRG_MP = Convert.ToString(item.product_id),
-                                NAMA = nama,
-                                NAMA2 = nama2,
-                                NAMA3 = nama3,
-                                CATEGORY_CODE = Convert.ToString(item.category_id),
-                                CATEGORY_NAME = "",
-                                IDMARKET = recnumArf01,
-                                IMAGE = "",
-                                DISPLAY = true,
-                                HJUAL = item.price,
-                                HJUAL_MP = item.price,
-                                Deskripsi = item.desc,
-                                MEREK = "OEM",
-                                CUST = CUST
-                            };
-                            //add by Tri, 26 Feb 2019
-                            var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
-                            if (kategory != null)
-                            {
-                                newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                                Models.TEMP_BRG_MP newrecord = new TEMP_BRG_MP()
+                                {
+                                    SELLER_SKU = Convert.ToString(item.product_id),
+                                    BRG_MP = Convert.ToString(item.product_id),
+                                    NAMA = nama,
+                                    NAMA2 = nama2,
+                                    NAMA3 = nama3,
+                                    CATEGORY_CODE = Convert.ToString(item.category_id),
+                                    CATEGORY_NAME = "",
+                                    IDMARKET = recnumArf01,
+                                    IMAGE = "",
+                                    DISPLAY = true,
+                                    HJUAL = item.price,
+                                    HJUAL_MP = item.price,
+                                    Deskripsi = item.desc,
+                                    MEREK = "OEM",
+                                    CUST = CUST,
+                                };
+                                newrecord.AVALUE_45 = namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg; //request by Calvin 19 maret 2019, isi nama barang ke avalue 45
+                                //add by Tri, 26 Feb 2019
+                                var kategory = MoDbContext.CategoryTokped.Where(m => m.CATEGORY_CODE == newrecord.CATEGORY_CODE).FirstOrDefault();
+                                if (kategory != null)
+                                {
+                                    newrecord.CATEGORY_NAME = kategory.CATEGORY_NAME;
+                                }
+                                //end add by Tri, 26 Feb 2019
+                                listNewRecord.Add(newrecord);
+                                ret.recordCount = ret.recordCount + 1;
                             }
-                            //end add by Tri, 26 Feb 2019
-                            listNewRecord.Add(newrecord);
-                            ret.recordCount = ret.recordCount + 1;
                         }
+                        
                     }
                     if (listNewRecord.Count() > 0)
                     {

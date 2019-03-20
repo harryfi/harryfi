@@ -17091,15 +17091,22 @@ namespace MasterOnline.Controllers
                     stf02.HJUAL = tempBrg.HJUAL;
                     stf02.STN = "pcs";
                     stf02.STN2 = "pcs";
-                    stf02.BERAT = tempBrg.BERAT;
-                    stf02.TINGGI = tempBrg.TINGGI;
-                    stf02.LEBAR = tempBrg.LEBAR;
-                    stf02.PANJANG = tempBrg.PANJANG;
+                    //change 20-03-2019, gunakan data yg sudah diinput user
+                    //stf02.BERAT = tempBrg.BERAT;
+                    //stf02.TINGGI = tempBrg.TINGGI;
+                    //stf02.LEBAR = tempBrg.LEBAR;
+                    //stf02.PANJANG = tempBrg.PANJANG;
+                    //stf02.Deskripsi = (string.IsNullOrEmpty(tempBrg.Deskripsi) ? "-" : tempBrg.Deskripsi);
+                    stf02.BERAT = data.BERAT;
+                    stf02.TINGGI = data.TINGGI;
+                    stf02.LEBAR = data.LEBAR;
+                    stf02.PANJANG = data.PANJANG;
+                    stf02.Deskripsi = data.Deskripsi;
+                    //end change 20-03-2019, gunakan data yg sudah diinput user
                     stf02.Sort1 = string.IsNullOrEmpty(data.Sort1) ? defaultCategoryCode.KODE : data.Sort1;
                     stf02.Sort2 = string.IsNullOrEmpty(data.Sort2) ? defaultBrand.KODE : data.Sort2;
                     stf02.KET_SORT1 = string.IsNullOrEmpty(data.KET_SORT1) ? defaultCategoryCode.KET : data.KET_SORT1;
                     stf02.KET_SORT2 = string.IsNullOrEmpty(data.KET_SORT2) ? defaultBrand.KET : data.KET_SORT2;
-                    stf02.Deskripsi = (string.IsNullOrEmpty(tempBrg.Deskripsi) ? "-" : tempBrg.Deskripsi);
 
                     if (!string.IsNullOrEmpty(tempBrg.IMAGE))
                     {
@@ -19234,6 +19241,11 @@ namespace MasterOnline.Controllers
                             retBarang.Sort2 = brg_induk.Sort2;
                             retBarang.KET_SORT1 = brg_induk.KET_SORT1;
                             retBarang.KET_SORT2 = brg_induk.KET_SORT2;
+                            retBarang.Deskripsi = brg_induk.Deskripsi;
+                            retBarang.PANJANG = brg_induk.PANJANG;
+                            retBarang.LEBAR = brg_induk.LEBAR;
+                            retBarang.BERAT = brg_induk.BERAT;
+                            retBarang.TINGGI = brg_induk.TINGGI;
                         }
                     }
                     return Json(retBarang, JsonRequestBehavior.AllowGet);
