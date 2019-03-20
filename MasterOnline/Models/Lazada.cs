@@ -33,6 +33,26 @@ namespace MasterOnline.Models
         public detailUpdateBrg[] detail { get; set; }
         public dataUploadBrg data { get; set; }
     }
+
+    public class LazadaCreateBarangResponse : LazadaCommonRes
+    {
+        public detailUpdateBrg[] detail { get; set; }
+        public LazadaCreateBarangResponseData data { get; set; }
+    }
+
+    public class LazadaCreateBarangResponseData
+    {
+        public int item_id { get; set; }
+        public LazadaCreateBarangResponseDataSku_List[] sku_list { get; set; }
+    }
+
+    public class LazadaCreateBarangResponseDataSku_List
+    {
+        public string shop_sku { get; set; }
+        public string seller_sku { get; set; }
+        public int sku_id { get; set; }
+    }
+
     public class detailUpdateBrg
     {
         public string seller_sku { get; set; }
