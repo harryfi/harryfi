@@ -81,6 +81,209 @@ namespace MasterOnline.Controllers
             return View("Register", vm);
         }
 
+
+        // Halaman login
+        [System.Web.Mvc.Route("support/login")]
+        public ActionResult SupportLogin()
+        {
+            return View();
+        }
+
+        [System.Web.Mvc.HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SupportPickAccount(SupportLogin admin)
+        {
+            ModelState.Remove("AdminId");
+            ModelState.Remove("Username");
+
+            if (!ModelState.IsValid)
+            {
+                return View("SupportLogin", admin);
+            }
+            {
+                System.Collections.Generic.List<string> ListSupport = new System.Collections.Generic.List<string>();
+
+                ListSupport.Add("marlakhy@yahoo.com");
+                ListSupport.Add("calvintes2@email.com");
+
+                if (!ListSupport.Contains(admin.Email))
+                {
+                    ModelState.AddModelError("", @"Support tidak ditemukan!");
+                    return View("SupportLogin", admin);
+                }
+
+                var accInDb = MoDbContext.Account.SingleOrDefault(a => a.Email == admin.Email);
+
+                if (accInDb == null)
+                {
+                    ModelState.AddModelError(string.Empty, @"Username / Email tidak ditemukan!");
+                    return View("SupportLogin", admin);
+                }
+
+                var key = accInDb.VCode;
+                var originPassword = admin.Password;
+                var encodedPassword = MasterOnline.Utils.Helper.EncodePassword(originPassword, key);
+                var pass = accInDb.Password;
+
+                if (!encodedPassword.Equals(pass))
+                {
+                    ModelState.AddModelError(string.Empty, @"Password salah!");
+                    ModelState.AddModelError(string.Empty, @"SUCCESS");
+                    return View("SupportLogin", admin);
+                }
+
+                if (!accInDb.Status)
+                {
+                    ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
+                    ModelState.AddModelError(string.Empty, @"SUCCESS");
+                    return View("SupportLogin", admin);
+                }
+
+            }
+
+            var accSelected = MoDbContext.Account.SingleOrDefault(a => a.Email == admin.SelectedAccount);
+
+            if (accSelected == null)
+            {
+                var userFromDb = MoDbContext.User.SingleOrDefault(a => a.Email == admin.SelectedAccount);
+
+
+                if (userFromDb == null)
+                {
+                    ModelState.AddModelError(string.Empty, @"Username / Email tidak ditemukan!");
+                    ModelState.AddModelError(string.Empty, @"SUCCESS");
+                    return View("SupportLogin", admin);
+                }
+
+                var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == userFromDb.AccountId);
+
+                if (!userFromDb.Status)
+                {
+                    ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
+                    ModelState.AddModelError(string.Empty, @"SUCCESS");
+                    return View("SupportLogin", admin);
+                }
+
+                _viewModel.User = userFromDb;
+            }
+            else
+            {
+                if (!accSelected.Status)
+                {
+                    ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
+                    ModelState.AddModelError(string.Empty, @"SUCCESS");
+                    return View("SupportLogin", admin);
+                }
+
+                _viewModel.Account = accSelected;
+            }
+
+            Session["SessionInfo"] = _viewModel;
+
+            ErasoftContext erasoftContext = null;
+            if (_viewModel?.Account != null)
+            {
+                erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+            }
+            else
+            {
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
+                erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+            }
+
+            var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
+            var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+
+            if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
+            {
+                SyncMarketplace(erasoftContext);
+                return RedirectToAction("Index", "Manage", "SyncMarketplace");
+            }
+
+            return RedirectToAction("Bantuan", "Manage");
+        }
+
+        //Proses login support
+        [System.Web.Mvc.HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SupportLoggingIn(SupportLogin admin)
+        {
+            ModelState.Remove("AdminId");
+            ModelState.Remove("Username");
+
+            if (!ModelState.IsValid)
+            {
+                return View("SupportLogin", admin);
+            }
+
+            System.Collections.Generic.List<string> ListSupport = new System.Collections.Generic.List<string>();
+            ListSupport.Add("marlakhy@yahoo.com");
+            ListSupport.Add("calvintes2@email.com");
+
+            if (!ListSupport.Contains(admin.Email))
+            {
+                ModelState.AddModelError("", @"Support tidak ditemukan!");
+                return View("SupportLogin", admin);
+            }
+
+            var accFromDb = MoDbContext.Account.SingleOrDefault(a => a.Email == admin.Email);
+
+            if (accFromDb == null)
+            {
+                ModelState.AddModelError(string.Empty, @"Username / Email tidak ditemukan!");
+                return View("SupportLogin", admin);
+            }
+            var accInDb = MoDbContext.Account.Single(ac => ac.AccountId == accFromDb.AccountId);
+            var key = accInDb.VCode;
+            var originPassword = admin.Password;
+            var encodedPassword = MasterOnline.Utils.Helper.EncodePassword(originPassword, key);
+            var pass = accFromDb.Password;
+
+            if (!encodedPassword.Equals(pass))
+            {
+                ModelState.AddModelError(string.Empty, @"Password salah!");
+                return View("SupportLogin", admin);
+            }
+
+            if (!accFromDb.Status)
+            {
+                ModelState.AddModelError(string.Empty, @"Akun tidak aktif!");
+                return View("SupportLogin", admin);
+            }
+
+            var accList = MoDbContext.Account.Where(p => p.Status).Select(p => p.Email).ToList();
+            admin.AccountList = accList;
+
+            //_viewModel.User = userFromDb;
+
+            //Session["SessionInfo"] = _viewModel;
+
+            //ErasoftContext erasoftContext = null;
+
+            //if (_viewModel?.Account != null)
+            //{
+            //    erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+            //}
+            //else
+            //{
+            //    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
+            //    erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+            //}
+
+            //var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
+            //var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
+
+            //if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
+            //{
+            //    SyncMarketplace(erasoftContext);
+            //    return RedirectToAction("Index", "Manage", "SyncMarketplace");
+            //}
+            //return RedirectToAction("Bantuan", "Manage");
+
+            ModelState.AddModelError(string.Empty, @"SUCCESS");
+            return View("SupportLogin", admin);
+        }
+
         // Proses Logging In dari Acc / User
         [System.Web.Mvc.HttpPost]
         [ValidateAntiForgeryToken]
