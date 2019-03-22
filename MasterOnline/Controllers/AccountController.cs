@@ -106,7 +106,7 @@ namespace MasterOnline.Controllers
                 ListSupport.Add("marlakhy@yahoo.com");
                 ListSupport.Add("calvintes2@email.com");
 
-                if (!ListSupport.Contains(admin.Email))
+                if (!ListSupport.Contains(admin.Email.ToLower()))
                 {
                     ModelState.AddModelError("", @"Support tidak ditemukan!");
                     return View("SupportLogin", admin);
@@ -196,7 +196,7 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncMarketplace(erasoftContext);
+                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
@@ -220,7 +220,7 @@ namespace MasterOnline.Controllers
             ListSupport.Add("marlakhy@yahoo.com");
             ListSupport.Add("calvintes2@email.com");
 
-            if (!ListSupport.Contains(admin.Email))
+            if (!ListSupport.Contains(admin.Email.ToLower()))
             {
                 ModelState.AddModelError("", @"Support tidak ditemukan!");
                 return View("SupportLogin", admin);
@@ -370,14 +370,15 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncMarketplace(erasoftContext);
+                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
             return RedirectToAction("Bantuan", "Manage");
         }
 
-        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext)
+        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
         {
             //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;

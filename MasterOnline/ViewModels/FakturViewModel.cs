@@ -16,6 +16,7 @@ namespace MasterOnline.ViewModels
         public SIT01B FakturDetail { get; set; }
         public List<SIT01B> ListFakturDetail { get; set; } = new List<SIT01B>();
         public List<STF02> ListBarang { get; set; } = new List<STF02>();
+        public List<STF02H> ListBarangMarket { get; set; } = new List<STF02H>();
         public List<ARF01C> ListPembeli { get; set; } = new List<ARF01C>();
         public List<ARF01> ListPelanggan { get; set; } = new List<ARF01>();
         public List<Marketplace> ListMarketplace { get; set; } = new List<Marketplace>();

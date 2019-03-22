@@ -228,6 +228,33 @@
                                             </div>
                                         </div>
                                         //end add by nurul 11/3/2019
+                                        <div class="form-group">
+                                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                                @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                                                <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                                    @*<option value="default">Harap pilih</option>*@
+                                                    @if (Model?.DataUsaha != null)
+                                                    {
+                                                        if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                                        {
+                                                            <option value="1" selected>Aktif</option>
+                                                            <option value="0">Tidak Aktif</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            <option value="1">Aktif</option>
+                                                            <option value="0" selected>Tidak Aktif</option>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="1">Aktif</option>
+                                                        <option value="0" selected>Tidak Aktif</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
                                         @*--REMARK BY NURUL 24/8/2018--
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.DataUsaha.BCA_API_KEY, "BCA API KEY", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
@@ -293,6 +320,10 @@
                 $('#DataUsaha_METODA_NO').val($(this).val());
             });
 
+            $('#DataUsaha_JtranRetur').change(function () {
+                $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+            });
+            
             $("input[type=file]").on("click",
                 function (e) {
                     e.stopPropagation();
