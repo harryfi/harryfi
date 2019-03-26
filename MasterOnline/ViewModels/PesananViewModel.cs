@@ -26,6 +26,7 @@ namespace MasterOnline.ViewModels
         public List<QOO_PER_BRG> ListQOOPerBRG { get; set; } = new List<QOO_PER_BRG>();
         //add by nurul 11/3/2019
         public string setGd { get; set; }
+        public string selectRec { get; set; }
         //end add by nurul 11/3/2019
     }
 }

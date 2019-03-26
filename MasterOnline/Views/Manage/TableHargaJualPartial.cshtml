@@ -28,10 +28,10 @@
                     @namaDepanBarang @namaBelakangBarang
                 </td>
                 <td>@namaMarket (@barangDijualPerMarket.AKUNMARKET)</td>
-                <td>
+                <td style = "text-align:right">
                     @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)
                 </td>
-                <td>@(Model?.ListHargaTerakhir?.OrderByDescending(b => b.TGL).FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.HPOKOK)</td>
+                <td style = "text-align:right">@(Model?.ListHargaTerakhir?.OrderByDescending(b => b.TGL).FirstOrDefault(b => b.BRG == barangDijualPerMarket.BRG)?.HPOKOK)</td>
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" data-toggle="modal" data-target="#modalEditHargaJual" 
                             onclick="pass('@barangDijualPerMarket.RecNum', '@barangDijualPerMarket.BRG', '@namaDepanBarang @namaBelakangBarang', '@barangDijualPerMarket.AKUNMARKET', '@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barangDijualPerMarket.HJUAL)')">

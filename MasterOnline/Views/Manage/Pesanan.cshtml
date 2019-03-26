@@ -31,6 +31,11 @@
     <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
+
+    <link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/css/dataTables.checkboxes.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />*@
+    <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
+    @*<link href="https://cdn.datatables.net/buttons/1.5.6/css/buttons.dataTables.min.css" rel="stylesheet" />*@
     <style>
         [data-tip] {
             position: relative;
@@ -104,6 +109,7 @@
 
         .ndisc-input {
             width: 100px;
+            text-align:right;
         }
 
         /*#BRG {
@@ -181,6 +187,19 @@
 
         /*add by nurul 29/11/2018*/
         #cetakfaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        #cetak_label {
+            color: orange;
+            font-weight: bold;
+        }
+        
+        #noFaktur_label {
+            color: orange;
+            font-weight: bold;
+        }
+        #tglFaktur_label {
             color: orange;
             font-weight: bold;
         }
@@ -1376,6 +1395,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                </button>
                                 <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
@@ -1431,6 +1453,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
+                                    <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
+                                </button>
                                 <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
@@ -1760,7 +1785,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
-                <button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>
+                @*<button type="button" class="btn btn-success" onclick="ubahStatusPesanan();">Ya</button>*@
+                <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
             </div>
         </div>
     </div>
@@ -2016,7 +2042,7 @@
                     <div class="form-group" style="margin-top: 5px;">
                         @Html.LabelFor(m => m.Pesanan.TRACKING_SHIPMENT, "No. Resi", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control" })
+                            @Html.TextBoxFor(m => m.Pesanan.TRACKING_SHIPMENT, new { @class = "form-control", maxlength = 30, @data_val_length_max = 30 })
                         </div>
                         @*<div id="print_label">
                                 <button name="btnLabel" type="button" class="btn btn-default" id="btnLabel" onclick="LazadaGetLabel()">Get Label</button>
@@ -2109,7 +2135,7 @@
                                 <div class="form-group" id="div-shopee-resi-dropoff-tracking-no">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
                                     <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input type="text" class="form-control" id="shopee-resi-dropoff-tracking-no">
+                                        <input type="text" class="form-control" id="shopee-resi-dropoff-tracking-no" maxlength=30 data_val_length_max = 30>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -2162,7 +2188,7 @@
                     <div class="form-group" style="margin-top: 5px;">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
-                            <input type="text" class="form-control" id="shopee-resi-non-integrated-tracking-no">
+                            <input type="text" class="form-control" id="shopee-resi-non-integrated-tracking-no"  maxlength = 30 data_val_length_max = 30>
                         </div>
                     </div>
                 </div>
@@ -2228,7 +2254,7 @@
                                     </tr>
                                 </table>
                             </div>
-                            <div class="x_content" >
+                            <div class="x_content">
                                 <div class="form-group" id="div-waktu-request-tokped-pickup">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12">Waktu Request</label>
                                     <div class="col-md-6 col-sm-6 col-xs-12">
@@ -2302,13 +2328,19 @@
 </div>
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content" style="width:550px;margin:auto;height:300px;">
+        <div class="modal-content" style="width:550px;margin:auto;height:400px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
                 @*add by nurul 29/11/2018*@
                 <hr />
-                <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Pesanan <span id="cetakfaktur_label"></span>?</h5>
+                <div id="ada_Faktur">
+                    <h5>No. Pesanan <span id="cetakfaktur_label"></span> sudah dibuatkan faktur dengan nomor <span id="noFaktur_label"></span> pada tanggal <span id="tglFaktur_label"></span>.</h5>
+                    <h5>Apakah Anda ingin melihat faktur/label ?</h5>
+                </div>
+                <div id="tidakada_Faktur">
+                    <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Pesanan <span id="cetak_label"></span>?</h5>
+                </div>
                 @*end add by nurul*@
             </div>
             <div class="modal-body">
@@ -2434,6 +2466,52 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalUbahStatusMultiDibayar" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
+    <div class="modal-dialog" id="status-multi" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row" id="dibayar_div">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?</h4>
+                </div>
+                <div id="modal-status-multi-body">
+                    @Html.Partial("UbahStatusMultiPartial")
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer right">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="UbahStatusPesananDibayar();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modalUbahStatusMultiPacking" tabindex="-1" role="dialog" aria-labelledby="UbahStatusMulti">
+    <div class="modal-dialog" id="status-multi" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row" id="packing_div">
+                    <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Invoicing?</h4>
+                </div>
+                <div id="modal-status-multi-packing-body">
+                    @Html.Partial("UbahStatusMultiPartial")
+                </div>
+            </div>
+            <br />
+            <div class="modal-footer right">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="UbahStatusPesananPacking();">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
@@ -2445,11 +2523,21 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
+
+    <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/js/dataTables.checkboxes.min.js"></script>
+    @*<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>*@
+    <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js" type="text/javascript"></script>
+    @*<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>*@
+    @*<script src="https://code.jquery.com/jquery-3.3.1.js" type="text/javascript"></script>*@
     @*add by Tri snap js*@
     <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>
     @*<script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>*@
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var bukti = "";
+        var fktur = "";
+        var tgl = "";
+        var $recnumSOPacking = "";
         //add by nurul 19/2/2019
         var $TabAktif = 0;// 0 pesanan, 1 pesanan Sudah dibayar, 2 pesanan packing, 3 pesanan invoicing, 4 pesanan selesai, 5 pesanan batal
         //end add by nurul 19/2/2019
@@ -2501,14 +2589,14 @@
         var table = $('#datatable').DataTable({
             //"order": [[0, 1, "desc"]], //or asc
             "order": [[1, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+            //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
             responsive: true,
         });
         var tableNunggu = $('#datatable_nunggu').DataTable({
-            //"order": [[0, 1, "desc"]], //or asc
             "order": [[1, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+            //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
         });
+
         var tableSedangProses = $('#datatable_sedangproses').DataTable({
             //"order": [[0, 1, "desc"]], //or asc
             "order": [[1, "desc"], [0, "desc"]], //or asc
@@ -2722,6 +2810,62 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+
+            //add by nurul 19/3/2019
+            $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                    $(this).prop('checked'));
+                if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                    $(".ubah-dibayar").attr('disabled', 'disabled');
+                } else {
+                    $(".ubah-dibayar").removeAttr('disabled');
+                }
+            });
+            $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                $(item).on('click', function () {
+                        if ($(item).prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            var cekTrue = [];
+                            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                if ($(chk).prop('checked') == true) {
+                                    cekTrue.push($(chk).attr("data-rec"));
+                                }
+                            });
+                            if (cekTrue.length == 0) {
+                                $(".ubah-dibayar").removeAttr('disabled');
+                            }
+                        }
+                });
+            });
+            $("#checkbox_all_gntstatus_packing").click(function () {
+                $(".checkbox_gntstatus_packing").prop('checked',
+                    $(this).prop('checked'));
+                if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                    $(".ubah-packing").attr('disabled', 'disabled');
+                } else {
+                    $(".ubah-packing").removeAttr('disabled');
+                }
+            });
+            $(".checkbox_gntstatus_packing").each(function (i, item) {
+                $(item).on('click', function () {
+                    if ($(item).prop('checked') == true) {
+                        $(".ubah-packing").attr('disabled', 'disabled');
+                    } else {
+                        var cekTrue = [];
+                        $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-rec"));
+                            }
+                        });
+                        if (cekTrue.length == 0) {
+                            $(".ubah-packing").removeAttr('disabled');
+                        }
+                    }
+                });
+            });
+            //end add by nurul 19/3/2019
+
         });
 
         //add by Tri, call midtrans api get token
@@ -3569,7 +3713,7 @@
             var $total = ($($trElement + ' .qty-barang').text() * $hargaBarang) - $totDisc;
 
             $($trElement + ' .netto-barang').html(convertToRupiah($total) +
-                '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="">');
+                '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="" style="text-align:right">');
             $('#Pesanan_BRUTO').val(convertToRupiah($total + $totalAwal + $nettoSebelumnya));
 
             refreshNetto();
@@ -3730,7 +3874,7 @@
                                         .css('pointer-events', 'auto');
                                 } else if ($class === 'ndisc1-barang editable') {
                                     $this.html("0,00" +
-                                        '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="0">');
+                                        '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="0" style="text-align:right">');
 
                                     $($trElement + ' .disc1-barang')
                                         .addClass('editable')
@@ -3743,7 +3887,7 @@
 
                                 } else if ($class === 'ndisc2-barang editable') {
                                     $this.html("0,00" +
-                                        '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="0">');
+                                        '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="0" style="text-align:right">');
 
                                     $($trElement + ' .disc2-barang')
                                         .addClass('editable')
@@ -3781,7 +3925,7 @@
                                             //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto')
                                             .html("0,00" +
-                                                '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="0">');
+                                                '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="0" style="text-align:right">');
                                     } else {
                                         var $ndisc1 = convertToRupiah(this.value *
                                             $hargaBarang *
@@ -3795,7 +3939,7 @@
                                             .html($ndisc1 +
                                                 '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="' +
                                                 convertToAngka($ndisc1) +
-                                                '">');
+                                                '" style="text-align:right">');
                                     }
 
                                     hitungUlangdisc2();
@@ -3815,7 +3959,7 @@
                                             //.prop('contentEditable', true)
                                             .css('pointer-events', 'auto')
                                             .html("0,00" +
-                                                '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="0">');
+                                                '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="0" style="text-align:right">');
                                     } else {
                                         var $ndisc1Exist = convertToAngka($($trElement + ' .ndisc1-barang').text());
                                         //change by nurul 1/10/2018
@@ -3833,13 +3977,13 @@
                                             .html($ndisc2 +
                                                 '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="' +
                                                 convertToAngka($ndisc2) +
-                                                '">');
+                                                '" style="text-align:right">');
                                     }
                                 } else if ($class === 'ndisc1-barang editable') {
                                     $this.html(convertToRupiah(this.value) +
                                         '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="' +
                                         convertToAngka(this.value) +
-                                        '">');
+                                        '" style="text-align:right">');
 
                                     //change by calvin 12 nov 2018
                                     //if (this.value != 0,00) {
@@ -3866,7 +4010,7 @@
                                     $this.html(convertToRupiah(this.value) +
                                         '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="' +
                                         this.value +
-                                        '">');
+                                        '" style="text-align:right">');
 
                                     //change by calvin 12 nov 2018
                                     //if (this.value != 0,00) {
@@ -4232,7 +4376,7 @@
                     $($trElement + ' .ndisc1-barang').html($ndisc1 +
                         '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="' +
                         convertToAngka($ndisc1) +
-                        '">');
+                        '" style="text-align:right">');
                 }
             }
         }
@@ -4252,7 +4396,7 @@
                     $($trElement + ' .ndisc2-barang').html($ndisc2 +
                         '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="' +
                         convertToAngka($ndisc2) +
-                        '">');
+                        '" style="text-align:right">');
                 }
             }
 
@@ -4310,7 +4454,7 @@
                                             $($trElement + ' .stn-barang').html(item.STN2 +
                                                 '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                             $($trElement + ' .harga-barang').html(convertToRupiah(item.HJUAL) +
-                                                '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
+                                                '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="" style="text-align:right">');
                                             return;
                                         }
                                     });
@@ -4339,7 +4483,7 @@
                                 $($trElement + ' .stn-barang').html('-' +
                                     '<input data-val="true" data-val-length="The field SATUAN must be a string with a maximum length of 10." data-val-length-max="10" id="PesananDetail_SATUAN" name="PesananDetail.SATUAN" type="hidden" value="">');
                                 $($trElement + ' .harga-barang').html('0,00' +
-                                    '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="">');
+                                    '<input data-val="true" data-val-number="The field H_SATUAN must be a number." data-val-required="The H_SATUAN field is required." id="PesananDetail_H_SATUAN" name="PesananDetail.H_SATUAN" type="hidden" value="" style="text-align:right">');
                                 $($trElement + ' .qty-barang').html('0' +
                                     '<input data-val="true" data-val-number="The field QTY must be a number." data-val-required="The QTY field is required." id="PesananDetail_QTY" name="PesananDetail.QTY" type="hidden" value="">');
                                 $($trElement + ' .disc1-barang').html('0' +
@@ -4347,11 +4491,11 @@
                                 $($trElement + ' .disc2-barang').html('0' +
                                     '<input data-val="true" data-val-number="The field DISCOUNT_2 must be a number." data-val-required="The DISCOUNT_2 field is required." id="PesananDetail_DISCOUNT_2" name="PesananDetail.DISCOUNT_2" type="hidden" value="">');
                                 $($trElement + ' .ndisc1-barang').html('0,00' +
-                                    '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="">');
+                                    '<input data-val="true" data-val-number="The field NILAI_DISC_1 must be a number." data-val-required="The NILAI_DISC_1 field is required." id="PesananDetail_NILAI_DISC_1" name="PesananDetail.NILAI_DISC_1" type="hidden" value="" style="text-align:right">');
                                 $($trElement + ' .ndisc2-barang').html('0,00' +
-                                    '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="">');
+                                    '<input data-val="true" data-val-number="The field NILAI_DISC_2 must be a number." data-val-required="The NILAI_DISC_2 field is required." id="PesananDetail_NILAI_DISC_2" name="PesananDetail.NILAI_DISC_2" type="hidden" value="" style="text-align:right">');
                                 $($trElement + ' .netto-barang').html('0,00' +
-                                    '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="">');
+                                    '<input data-val="true" data-val-number="The field HARGA must be a number." data-val-required="The HARGA field is required." id="PesananDetail_HARGA" name="PesananDetail.HARGA" type="hidden" value="" style="text-align:right">');
 
                                 $($trElement + ' .btn-primary').attr('disabled', 'disabled');
 
@@ -4652,7 +4796,7 @@
                     var table = $('#datatable').DataTable({
                         //"order": [[0, 1, "desc"]], //or asc
                         "order": [[1, "desc"], [0, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     $('#search_pesanan').keyup(function() {
                         table.search($(this).val()).draw();
@@ -4676,6 +4820,99 @@
             });
         }
 
+        //add by nurul 14/3/2019
+        function UbahStatusPesananDibayar() {
+            var get_selectedDibayar = [];
+            $('.get_data_recnum').each(function (i, item) {
+                get_selectedDibayar.push($(item).attr("data-rec"));
+            });
+
+            var link = '@Url.Action("UbahStatusPesananDibayar", "Manage")';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                data: JSON.stringify(get_selectedDibayar),
+                contentType: 'application/json; charset=UTF-8',
+                cache: false,
+                success: function(response) {
+                    if (response.Errors == null) {
+                            refreshTableSiapKirim();
+                            refreshTablePesanan();
+                            refreshTableCancel();
+                            refreshTableSudahDibayar();
+                        alert('Semua kode pesanan berhasil ubah status');
+                    } else {
+                        refreshTableSiapKirim();
+                        refreshTablePesanan();
+                        refreshTableCancel();
+                        refreshTableSudahDibayar();
+                        alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
+                        
+                    }
+                    $('#modal-status-multi-body').modal('hide');
+                    $('#modalUbahStatusMultiDibayar').modal('hide');
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function UbahStatusPesananPacking() {
+            var get_selected = [];
+            var cekTrue = [];
+            $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                if ($(chk).prop('checked') == true) {
+                    cekTrue.push($(chk).attr("data-rec"));
+                }
+            });
+            if (cekTrue.length == 0) {
+                get_selected.push(this.$recPesanan);
+            } else {
+                $('.get_data_recnum').each(function (i, item) {
+                    get_selected.push($(item).attr("data-rec"));
+                });
+            }
+            //if (this.$recPesanan != 0) {
+            //    get_selected.push(this.$recPesanan);
+            //} else {
+            //    $('.get_data_recnum').each(function (i, item) {
+            //        get_selected.push($(item).attr("data-rec"));
+            //    });
+            //}
+
+            var link = '@Url.Action("UbahStatusPesananPacking", "Manage")';
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                data: JSON.stringify(get_selected),
+                contentType: 'application/json; charset=UTF-8',
+                cache: false,
+                success: function(response) {
+                    if (response.Errors == null) {
+                            refreshTableSiapKirim();
+                            refreshTablePesanan();
+                            refreshTableSudahKirim();
+                        refreshTableSudahDibayar();
+                        alert('Semua kode pesanan berhasil ubah status');
+                    } else {
+                        refreshTableSiapKirim();
+                        refreshTablePesanan();
+                        refreshTableSudahKirim();
+                        refreshTableSudahDibayar();
+                        alert('Mohon lengkapi Gudang pada Pesanan (' + response.Errors + ') terlebih dahulu !');
+                    }
+                    $('#modal-status-multi-packing-body').modal('hide');
+                    $('#modalUbahStatusMultiPacking').modal('hide');
+                    $('#konfUbahStatusSiapkirim').modal('hide');
+                },
+                error: function(xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 14/3/2019
         function RefreshPesananDibayarMarketplace() {
             var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 
@@ -4688,13 +4925,41 @@
                 },
                 success: function(response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
-                    var table = $('#datatable_nunggu').DataTable({
-                        //"order": [[0, 1, "desc"]], //or asc
+                    var tableNunggu = $('#datatable_nunggu').DataTable({
                         "order": [[1, "desc"], [0, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
+                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-dibayar").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                        $(item).on('click', function () {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                //$(".ubah-dibayar").removeAttr('disabled');
+                                //var $cekCekbox = true;
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-dibayar").removeAttr('disabled');
+                                }
+                            }
+
+                        });
                     });
                     $('#search_nunggu').keyup(function() {
-                        table.search($(this).val()).draw();
+                        tableNunggu.search($(this).val()).draw();
                     });
                     $('#loading_sudah_dibayar_tab').hide();
                     $('#datatable_nunggu').show();
@@ -4719,13 +4984,40 @@
                 },
                 success: function(response) {
                     $('#table-pesanan-sudah-dibayar-partial').html(response);
-                    var table = $('#datatable_nunggu').DataTable({
-                        //"order": [[0, 1, "desc"]], //or asc
+                    var tableNunggu = $('#datatable_nunggu').DataTable({
                         "order": [[1, "desc"], [0, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
+                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-dibayar").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                        $(item).on('click', function () {
+                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-dibayar").removeAttr('disabled');
+                                }
+                            }
+                            //});
+                        });
                     });
                     $('#search_nunggu').keyup(function() {
-                        table.search($(this).val()).draw();
+                        tableNunggu.search($(this).val()).draw();
                     });
                     $('#loading_sudah_dibayar_tab').hide();
                     cekJumlahPesananBulanIni();
@@ -4752,18 +5044,44 @@
                 },
                 success: function(response) {
                     $('#table-pesanan-siap-kirim-partial').html(response);
-                    var table = $('#datatable_sedangproses').DataTable({
+                    var tableSedangProses = $('#datatable_sedangproses').DataTable({
                         //"order": [[0, 1, "desc"]], //or asc
                         "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
+                    $("#checkbox_all_gntstatus_packing").click(function () {
+                        $(".checkbox_gntstatus_packing").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                            $(".ubah-packing").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-packing").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_packing").each(function (i, item) {
+                        $(item).on('click', function () {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-packing").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-packing").removeAttr('disabled');
+                                }
+                            }
+                        });
+                    });
                     $('#search_sedangproses').keyup(function() {
-                        table.search($(this).val()).draw();
+                        tableSedangProses.search($(this).val()).draw();
                     });
                     $('#loading_siap_kirim_tab').hide();
                     $('#datatable_sedangproses').show();
                     //add by calvin 23 nov 2018, setelah di close, search lg
-                    table.search($('#search_sedangproses').val()).draw();
+                    tableSedangProses.search($('#search_sedangproses').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
@@ -4974,7 +5292,8 @@
         }
         //END ADD BY CALVIN 17 DESEMBER 2018
 
-        function getBarangForGudangQty(nobuk) {
+        function getBarangForGudangQty(nobuk, rec) {
+            $recnumSOPacking = rec;
             var link = '@Url.Action("RefreshGudangQtyPesanan", "Manage", new {noBuk = "replaceNoBuk"})';
             link = link.replace("replaceNoBuk", nobuk);
 
@@ -5174,12 +5493,37 @@
                             //if ($isSuccess < 1) {
                             if ($isSuccess == jmlgd) {
                                 refreshTableSiapKirim();
+                                //add by nurul 19/3/2019
+                                $('.checkbox_gntstatus_packing').each(function (i, item) {
+                                    var $recSO = $(item).attr('data-recnum');
+                                    //if ($(item).attr("data-recnum") == $recnumSOPacking) {
+                                    if ($recSO == $recnumSOPacking) {
+                                        //$(item).attr("data-recnum").attr('checked', true);
+                                        //$(item).attr('data-recnum', $recnumSOPacking).prop('checked', true);
+                                        //var attr = $('.checkbox_gntstatus_packing').attr('checked');
+
+                                        //if (typeof attr === typeof undefined && attr === false) {
+                                        //    $('#chekbox-' + $recSO).attr('checked', 'checked');
+                                        //}
+                                        $($('#chekbox-' + $recSO)[0]).attr('checked', 'checked');
+                                        //$('.checkbox_gntstatus_packing').checked = true;
+                                        //$(item).find('.data-recnum', $recnumSOPacking).attr('checked', true);
+
+                                        //$('#chekbox-' + $recSO).prop('checked',
+                                        //    $(this).prop('checked', true));
+
+                                    }
+                                });
+                                //end add by nurul 19/3/2019
                                 alert('Data berhasil disimpan!');
                                 $('#modalGudangDanQty').modal('hide');
+                                
+                                
                             }
+                            
                         } else {
                             alert(response.Errors);
-                            $('#loading_spinner').hide();
+                            //$('#loading_spinner').hide();
                         }
                     },
                     error: function(xhr) {
@@ -5225,7 +5569,7 @@
                 $('#divLblShip').append('<label id="lblShipment">Shipment Provider</label>');
                 $('#divTextShip')
                     .append(
-                        '<input id="txtShipment" disabled="disabled" required="required" class="form-control"></input>');
+                        '<input id="txtShipment" disabled="disabled" required="required" class="form-control"  maxlength = 30 data_val_length_max =30></input>');
                 $('#divBtnShip')
                     .append(
                         '<button id="btnShipment" class="btn btn-default" type="button" style="height: 34px;" onclick="PromptDeliveryProvLazada(\'' +
@@ -5653,6 +5997,9 @@
                     success: function() {
                         $('#modalIsiResi').modal('hide');
                         refreshTableSiapKirim();
+                        //add by nurul 19/3/2019
+                        refreshTableSudahKirim();
+                        //end add by nurul 19/3/2019
                         window.$recResiShopee = 0;
                     },
                     error: function(xhr) {
@@ -5668,7 +6015,7 @@
 
             link = link.replace("replaceRecNum", window.$recResiShopee);
             link = link.replace("replaceMetode", metode);
-            
+
             $.ajax({
                 type: "GET",
                 url: link,
@@ -5677,6 +6024,9 @@
                 success: function() {
                     $('#modalIsiResiTokped').modal('hide');
                     refreshTableSiapKirim();
+                    //add by nurul 19/3/2019
+                    refreshTableSudahKirim();
+                        //end add by nurul 19/3/2019
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -5774,6 +6124,9 @@
                     success: function() {
                         $('#modalIsiResiShopee').modal('hide');
                         refreshTableSiapKirim();
+                        //add by nurul 19/3/2019
+                        refreshTableSudahKirim();
+                        //end add by nurul 19/3/2019
                     },
                     error: function(xhr) {
                         console.log(xhr);
@@ -5783,6 +6136,7 @@
         }
 
         function passRecStatus(rec, status, nobuk) {
+            this.$recPesanan = 0;
             this.$recPesanan = rec;
             this.$statusPesanan = status;
             this.$nobukPesanan = nobuk;
@@ -5794,6 +6148,93 @@
             }
 
         }
+
+        //add by nurul 14/3/2019
+        function passRecStatusMultiDibayar() {
+
+            var rows_selected = [];
+            if ($TabAktif == 1) {
+                $('.checkbox_gntstatus_sudahdibayar').each(function (i, item) {
+                    if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
+                        rows_selected.push($(item).attr("data-recnum"));
+                    } else if ($(item).is(":checked")) {
+                        rows_selected.push($(item).attr("data-recnum"));
+                    }
+                });
+            } else if ($TabAktif == 2) {
+                $('.checkbox_gntstatus_packing').each(function (i, item) {
+                    if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
+                        rows_selected.push($(item).attr("data-recnum"));
+                    } else if ($(item).is(":checked")) {
+                        rows_selected.push($(item).attr("data-recnum"));
+                    }
+                });
+            }
+
+            var link = '@Url.Action("RefreshUbahStatusDibayar", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        if ($TabAktif == 1) {
+                            $('#modal-status-multi-body').html(response);
+                        }
+                        else if ($TabAktif == 2) {
+                            $('#modal-status-multi-packing-body').html(response);
+                        }
+                    } else {
+                        if ($TabAktif == 1) {
+                            $('#modalUbahStatusMultiDibayar').modal('hide');
+                            alert(response.Errors[0]);
+                        }
+                        else if ($TabAktif == 2) {
+                            $('#modalUbahStatusMultiPacking').modal('hide');
+                            alert(response.Errors[0]);
+                        }
+                        
+                    }
+
+
+                },
+                error: function (errMsg) {
+                    alert(errMsg);
+
+                },
+            });
+        }
+        function passRecStatusMultiPacking() {
+
+            var rows_selected = [];
+            $('.checkbox_gntstatus_packing').each(function (i, item) {
+                if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                } else if ($(item).is(":checked")) {
+                    rows_selected.push($(item).attr("data-recnum"));
+                }
+            });
+            var link = '@Url.Action("RefreshUbahStatusDibayar", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    $('#modal-status-multi-packing-body').html(response);
+                },
+                error: function (errMsg) {
+                    alert(errMsg);
+
+                },
+            });
+        }
+        //end add by nurul 14/3/2019
 
         function ubahStatusPesanan() {
             //if ($('#Pesanan_TRACKING_SHIPMENT').val() == '' && $statusPesanan == '03') {
@@ -5884,7 +6325,7 @@
             });
         }
 
-        function lihatFaktur(nobuk) {
+        function lihatFaktur(nobuk,nofak,tgl) {
             //change by calvin 28 nov 2018, print dialog
             @*var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
             link = link.replace('replaceNoBuk', nobuk);
@@ -5895,10 +6336,22 @@
             } else {
                 alert('Please allow popups for this website');
             }*@
-            //add by nurul 29/11/2018
-            $('#cetakfaktur_label').text(nobuk);
-            //end add
+            bukti = nobuk;
+            fktur = nofak;
+            tgl = tgl;
             $('#modalPrintOption').modal('show');
+            if (fktur != undefined && tgl != undefined) {
+                $('#tidakada_Faktur').hide();
+                $('#ada_Faktur').show();
+                $('#cetakfaktur_label').text(bukti);
+                $('#noFaktur_label').text(fktur);
+                $('#tglFaktur_label').text(tgl);
+            } else if(bukti != undefined && fktur == undefined && tgl == undefined){
+                $('#tidakada_Faktur').show();
+                $('#ada_Faktur').hide();
+                $('#cetak_label').text(bukti);
+            }
+            
             //add by nurul 7/12/2018
             $('#ctk_faktur').attr('checked', true);
             $('#ctk_label').attr('checked', true);
@@ -5910,17 +6363,6 @@
             $('#btn-print-faktur').off('click').on('click', function() {
                 var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                 link = link.replace('replaceNoBuk', nobuk);
-                //change by nurul 30/11/2018
-                //var win = window.open(link, '_blank');
-                //var $faktur = '&faktur=1';
-                //var $label = '&label=1';
-                //if ($("#ctk_faktur").is(":checked") == true && $("#ctk_label").is(":checked") == false) {
-                //    var win = window.open(link += $faktur, '_blank');
-                //} else if ($("#ctk_label").is(":checked") == true && $("#ctk_faktur").is(":checked") == false) {
-                //    var win = window.open(link += $label, '_blank');
-                //} else {
-                //    var win = window.open(link, '_blank');
-                //}
                 var toko = $('#nama_toko').val();
                 if ($('#nama_toko').val() != "") {
                     var $toko = '&' + toko;

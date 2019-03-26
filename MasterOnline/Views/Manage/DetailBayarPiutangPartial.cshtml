@@ -122,7 +122,7 @@
                             totalBayar = Model.Piutang.TBAYAR;
                         }
                     }
-                    @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -140,7 +140,7 @@
                             totalPot = Model.Piutang.TPOT;
                         }
                     }
-                    @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
                             totalSemua += (detailPiutang.BAYAR + detailPiutang.POT);
                         }
                     }
-                    @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -231,16 +231,16 @@
                         <td>
                             @detailPiutang.NFAKTUR
                         </td>
-                        <td class="sisa-piutang">
+                        <td class="sisa-piutang" style="text-align:right">
                             @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)*@
                             <span class="sisa-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.SISA)</span>
                         </td>
-                        <td class="potongan-piutang">
+                        <td class="potongan-piutang" style="text-align:right">
                             @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)*@
                             <input min="0" class="pot-input-box num-only" style="display: none;" />
                             <span class="pot-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.POT)</span>
                         </td>
-                        <td class="bayar-piutang">
+                        <td class="bayar-piutang" style="text-align:right">
                             @*@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)*@
                             <input min="0" class="bayar-input-box num-only" style="display: none;" />
                             <span class="bayar-initial">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailPiutang.BAYAR)</span>
@@ -269,17 +269,17 @@
                         <div id="FAKTUR" class="selectivity-input" tabindex="0"></div>
                         @Html.HiddenFor(m => m.PiutangDetail.NFAKTUR)
                     </td>
-                    <td class="sisa-piutang">
+                    <td class="sisa-piutang" style="text-align:right">
                         <span class="span-sisa-piutang">-</span>
                         @Html.HiddenFor(m => m.PiutangDetail.SISA)
                     </td>
-                    <td class="potongan-piutang">
+                    <td class="potongan-piutang" style="text-align:right">
                         <span class="span-potongan-piutang">0,00</span>
-                        @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                        @Html.TextBoxFor(m => m.PiutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                     </td>
-                    <td class="bayar-piutang">
+                    <td class="bayar-piutang" style="text-align:right">
                         <span class="span-bayar-piutang">0,00</span>
-                        @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                        @Html.TextBoxFor(m => m.PiutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                     </td>
                     @*<td class="edit-hapus-col">
                             <button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('piu-0')">
