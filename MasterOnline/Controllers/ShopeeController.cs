@@ -120,7 +120,7 @@ namespace MasterOnline.Controllers
                 timestamp = seconds,
                 pagination_offset = page * 10,
                 pagination_entries_per_page = 10,
-                
+
             };
 
             string myData = JsonConvert.SerializeObject(HttpBody);
@@ -171,7 +171,7 @@ namespace MasterOnline.Controllers
                         ret.message = (page + 1).ToString();
                     foreach (var item in listBrg.items)
                     {
-                        if(item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
+                        if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                         {
                             string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
                             string brgMp = item.item_id.ToString() + ";0";
@@ -196,7 +196,7 @@ namespace MasterOnline.Controllers
                                     manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                                 }
                             }
-                        }                       
+                        }
                     }
 
                 }
@@ -300,7 +300,7 @@ namespace MasterOnline.Controllers
                         if (tempbrginDB == null && brgInDB == null)
                         {
                             //ret.recordCount++;
-                            var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "",iden);
+                            var ret1 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMpInduk, detailBrg.item.name, detailBrg.item.variations[0].status, detailBrg.item.original_price, string.IsNullOrEmpty(detailBrg.item.item_sku) ? brgMpInduk : detailBrg.item.item_sku, 1, "", iden);
                             ret.recordCount += ret1.status;
                         }
                         else if (brgInDB != null)
@@ -324,7 +324,7 @@ namespace MasterOnline.Controllers
                             if (tempbrginDB == null && brgInDB == null)
                             {
                                 //ret.recordCount++;
-                                var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk,iden);
+                                var ret2 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, brgMp, detailBrg.item.name + " " + item.name, item.status, item.original_price, sellerSku, 2, brgMpInduk, iden);
                                 ret.recordCount += ret2.status;
                             }
                         }
@@ -333,7 +333,7 @@ namespace MasterOnline.Controllers
                     {
                         sellerSku = string.IsNullOrEmpty(detailBrg.item.item_sku) ? detailBrg.item.item_id.ToString() : detailBrg.item.item_sku;
                         //ret.recordCount++;
-                        var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "",iden);
+                        var ret0 = await proses_Item_detail(detailBrg, categoryCode, categoryName, cust, IdMarket, Convert.ToString(detailBrg.item.item_id) + ";0", detailBrg.item.name, detailBrg.item.status, detailBrg.item.original_price, sellerSku, 0, "", iden);
                         ret.recordCount += ret0.status;
                     }
                 }
@@ -344,13 +344,13 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected async Task< BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden)
+        protected async Task<BindingBase> proses_Item_detail(ShopeeGetItemDetailResult detailBrg, string categoryCode, string categoryName, string cust, int IdMarket, string barang_id, string barang_name, string barang_status, float barang_price, string sellerSku, int typeBrg, string kdBrgInduk, ShopeeAPIData iden)
         {
             // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
             var ret = new BindingBase();
             string brand = "OEM";
             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE,";
+            sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, AVALUE_45,";
             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
             sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30) VALUES ";
@@ -406,9 +406,10 @@ namespace MasterOnline.Controllers
             //add kode brg induk dan type brg
             sSQL += ", '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
             //end add kode brg induk dan type brg
+            sSQL += ",'" + (namaBrg.Length > 250 ? namaBrg.Substring(0, 250) : namaBrg) + "'"; //request by Calvin, 19 maret 2019
 
             //var attributeShopee = MoDbContext.AttributeShopee.Where(a => a.CATEGORY_CODE == categoryCode).FirstOrDefault();
-            var GetAttributeShopee = await GetAttributeToList(iden, categoryCode,categoryName);
+            var GetAttributeShopee = await GetAttributeToList(iden, categoryCode, categoryName);
             var attributeShopee = GetAttributeShopee.attributes.FirstOrDefault();
 
             #region set attribute
@@ -1780,8 +1781,11 @@ namespace MasterOnline.Controllers
                         //insertPembeli += "('" + order.recipient_address.name + "','" + order.recipient_address.full_address + "','" + order.recipient_address.phone + "','" + NAMA_CUST.Replace(',', '.') + "',0,0,'0','01',";
                         //insertPembeli += "1, 'IDR', '01', '" + order.recipient_address.full_address + "', 0, 0, 0, 0, '1', 0, 0, ";
                         //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.recipient_address.zipcode + "', '', '" + kabKot + "', '" + prov + "', '', '','" + connIdARF01C + "'),";
+
+                        string nama = order.recipient_address.name.Length > 30 ? order.recipient_address.name.Substring(0, 30) : order.recipient_address.name;
+
                         insertPembeli += string.Format("('{0}','{1}','{2}','{3}',0,0,'0','01',1, 'IDR', '01', '{4}', 0, 0, 0, 0, '1', 0, 0,'FP', '{5}', '{6}', '{7}', '', '{8}', '{9}', '', '','{10}'),",
-                            ((order.recipient_address.name ?? "").Replace("'", "`")),
+                            ((nama ?? "").Replace("'", "`")),
                             ((order.recipient_address.full_address ?? "").Replace("'", "`")),
                             ((order.recipient_address.phone ?? "").Replace("'", "`")),
                             (NAMA_CUST.Replace(',', '.')),
@@ -2795,7 +2799,7 @@ namespace MasterOnline.Controllers
                 item_sku = brg,
                 category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
                 condition = "NEW",
-                name = brgInDb.NAMA + " " + brgInDb.NAMA2,
+                name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim(),
                 description = brgInDb.Deskripsi,
                 package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
                 package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
@@ -2837,25 +2841,19 @@ namespace MasterOnline.Controllers
             }
             try
             {
-                string sSQL = "SELECT * FROM (";
                 for (int i = 1; i <= 30; i++)
                 {
-                    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_SHOPEE B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + brg + "' AND A.IDMARKET = '" + marketplace.RecNum + "' " + System.Environment.NewLine;
-                    if (i < 30)
+                    string attribute_id = Convert.ToString(detailBrg["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(detailBrg["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
-                        sSQL += "UNION ALL " + System.Environment.NewLine;
+
+                        HttpBody.attributes.Add(new ShopeeAttributeClass
+                        {
+                            attributes_id = Convert.ToInt64(attribute_id),
+                            value = value.Trim()
+                        });
                     }
-                }
-
-                DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' ");
-
-                for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
-                {
-                    HttpBody.attributes.Add(new ShopeeAttributeClass
-                    {
-                        attributes_id = Convert.ToInt64(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]),
-                        value = Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim()
-                    });
                 }
 
             }
@@ -2898,19 +2896,29 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            //var client = new HttpClient();
-            //client.DefaultRequestHeaders.Add("Authorization", signature);
-            //var content = new StringContent(myData, Encoding.UTF8, "application/json");
-            //HttpResponseMessage clientResponse = await client.PostAsync(
-            //    urll, content);
-
-            //using (HttpContent responseContent = clientResponse.Content)
+            //try
             //{
-            //    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //    var client = new HttpClient();
+
+            //    client.DefaultRequestHeaders.Add("Authorization", (signature));
+            //    var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            //    content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            //    HttpResponseMessage clientResponse = await client.PostAsync(
+            //        urll, content);
+
+            //    using (HttpContent responseContent = clientResponse.Content)
             //    {
-            //        responseFromServer = await reader.ReadToEndAsync();
-            //    }
-            //};
+            //        using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
+            //        {
+            //            responseFromServer = await reader.ReadToEndAsync();
+            //        }
+            //    };
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //}
+
 
             if (responseFromServer != null)
             {

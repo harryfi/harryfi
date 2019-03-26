@@ -18,6 +18,7 @@ namespace MasterOnline.Controllers
     {
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         string urlLazada = "https://api.lazada.co.id/rest";
+        List<string> listSku = new List<string>();
         //string eraCallbackUrl = "https://dev.masteronline.co.id/lzd/code?user=";
         //string eraAppKey = "";101775;106147
 #if AWS
@@ -276,31 +277,126 @@ namespace MasterOnline.Controllers
             }
 
             xmlString += "</Attributes>";
-            xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
-            xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
-            //xmlString += "<color_family>Not Specified</color_family>";
-            //xmlString += "<quantity>1</quantity>";
-            xmlString += "<price>" + data.harga + "</price>";
-            //xmlString += "<size>Int: One size</size>";
-            xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
-            xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
-            xmlString += "<Images>";
-            if (!string.IsNullOrEmpty(data.imageUrl))
-                xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-            if (!string.IsNullOrEmpty(data.imageUrl2))
-                xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-            if (!string.IsNullOrEmpty(data.imageUrl3))
-                xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
-            xmlString += "</Images>";
 
-            for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            if (Convert.ToString(stf02.TYPE) == "3")
             {
-                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-            }
+                xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
+                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<color_family>Not Specified</color_family>";
+                //xmlString += "<quantity>1</quantity>";
+                xmlString += "<price>" + data.harga + "</price>";
+                //xmlString += "<size>Int: One size</size>";
+                xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                xmlString += "<Images>";
+                if (!string.IsNullOrEmpty(data.imageUrl))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl2))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl3))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                xmlString += "</Images>";
 
-            xmlString += "</Sku></Skus></Product></Request>";
+                for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                {
+                    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                }
+                xmlString += "</Sku></Skus>";
+            }
+            else if (Convert.ToString(stf02.TYPE) == "4")
+            {
+                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kdBrg && p.MARKET == "LAZADA").ToList();
+                var ListStf02Var = ErasoftDbContext.STF02.Where(p => p.PART == data.kdBrg).ToList();
+                var ListStf02Var_BRG = ListStf02Var.Select(p => p.BRG).ToList();
+                int idmarket_int = Convert.ToInt32(data.idMarket);
+                var List_STF02H_Var = ErasoftDbContext.STF02H.Where(p => ListStf02Var_BRG.Contains(p.BRG) && p.IDMARKET == idmarket_int).ToList();
+
+                //untuk pastikan tidak ada duplikat kombinasi attribute variasi
+                Dictionary<string, string> KombinasiAttribute = new Dictionary<string, string>();
+                foreach (var item in ListStf02Var)
+                {
+                    if (!string.IsNullOrWhiteSpace(item.Sort8))
+                    {
+                        var getMPJudul_and_ValueVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item.Sort8).FirstOrDefault();
+                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR;
+                        if (!KombinasiAttribute.ContainsKey(attributeUnique))
+                        {
+                            KombinasiAttribute.Add(attributeUnique, item.BRG);
+
+                            if (!string.IsNullOrWhiteSpace(item.Sort9))
+                            {
+                                var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                                string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR;
+                                if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                                {
+                                    KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                                }
+                            }
+                        }
+                    }
+                }
+                //end untuk pastikan tidak ada duplikat kombinasi attribute variasi
+                List<string> attributesAdded;
+                xmlString += "<Skus>";
+                foreach (var item in ListStf02Var)
+                {
+                    attributesAdded = new List<string>();
+                    bool input = false;
+                    foreach (var attribute in KombinasiAttribute)
+                    {
+                        if (attribute.Value == item.BRG)
+                        {
+                            input = true;
+                        }
+                    }
+
+                    var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
+                    if (input && (GetStf02h != null))
+                    {
+                        xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
+                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+
+                        foreach (var attribute in KombinasiAttribute)
+                        {
+                            if (attribute.Value == item.BRG)
+                            {
+                                string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                                xmlString += "<"+ getId[0] + ">" + getId[1] + "</"+ getId[0] + ">";
+                                attributesAdded.Add(getId[0]);
+                            }
+                        }
+
+                        //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
+                        for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        {
+                            if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            {
+                                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            }
+                        }
+
+                        xmlString += "<price>" + data.harga + "</price>";
+                        xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                        xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                        xmlString += "<Images>";
+                        if (!string.IsNullOrEmpty(data.imageUrl))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                        if (!string.IsNullOrEmpty(data.imageUrl2))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                        if (!string.IsNullOrEmpty(data.imageUrl3))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        xmlString += "</Images>";
+                        xmlString += "</Sku>";
+                    }
+                }
+                xmlString += "</Skus>";
+            }
+            xmlString += "</Product></Request>";
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -312,12 +408,261 @@ namespace MasterOnline.Controllers
             {
                 LazopResponse response = client.Execute(request, data.token);
 
-                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
                 if (res.code.Equals("0"))
                 {
                     ret.status = 1;
                     //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + data.kdBrg + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                    var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                    foreach (var item in res.data.sku_list)
+                    {
+                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
+                    }
+
+                    if (result == 1)
+                    {
+                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                    }
+                }
+                else
+                {
+                    if (res.detail.Length == 1)
+                    {
+                        if (!string.IsNullOrEmpty(res.detail[0].field))
+                        {
+                            ret.message = res.detail[0].field + " : " + res.detail[0].message;
+                        }
+                        else
+                        {
+                            ret.message = res.detail[0].message;
+
+                        }
+                    }
+                    else if (res.detail.Length > 1)
+                    {
+                        ret.message = "";
+                        for (int i = 0; i < res.detail.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(res.detail[i].field))
+                            {
+                                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                            }
+                            else
+                            {
+                                ret.message += res.detail[i].message + "\n";
+
+                            }
+                        }
+                    }
+
+                    currentLog.REQUEST_EXCEPTION = ret.message;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
+            }
+            return ret;
+        }
+
+        public BindingBase UpdateProduct(BrgViewModel data)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Product",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = data.kdBrg,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
+
+            string sSQL = "SELECT * FROM (";
+            for (int i = 1; i <= 50; i++)
+            {
+                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
+                sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
+                if (i < 50)
+                {
+                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                }
+            }
+
+            DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+
+            string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
+            string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
+            xmlString = "<Request><Product><PrimaryCategory>" + primCategory + "</PrimaryCategory>";
+            xmlString += "<Attributes><name>" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "</name>";
+            //xmlString += "<short_description><![CDATA[" + data.deskripsi + "]]></short_description>";
+            xmlString += "<description><![CDATA[" + data.deskripsi.Replace(System.Environment.NewLine, "<br>") + "]]></description>";
+            xmlString += "<brand>No Brand</brand>";
+            //xmlString += "<model>" + data.kdBrg + "</model>";
+            //xmlString += "<warranty_type>No Warranty</warranty_type>";
+
+            for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            {
+                xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
+                xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            }
+
+            xmlString += "</Attributes>";
+
+            var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
+            if (Convert.ToString(stf02.TYPE) == "3")
+            {
+                xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
+                xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+                //xmlString += "<color_family>Not Specified</color_family>";
+                //xmlString += "<quantity>1</quantity>";
+                xmlString += "<price>" + data.harga + "</price>";
+                //xmlString += "<size>Int: One size</size>";
+                xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                xmlString += "<Images>";
+                if (!string.IsNullOrEmpty(data.imageUrl))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl2))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                if (!string.IsNullOrEmpty(data.imageUrl3))
+                    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                xmlString += "</Images>";
+
+                for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                {
+                    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                }
+                xmlString += "</Sku></Skus>";
+            }
+            else if (Convert.ToString(stf02.TYPE) == "4")
+            {
+                var ListSettingVariasi = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kdBrg && p.MARKET == "LAZADA").ToList();
+                var ListStf02Var = ErasoftDbContext.STF02.Where(p => p.PART == data.kdBrg).ToList();
+                var ListStf02Var_BRG = ListStf02Var.Select(p => p.BRG).ToList();
+                int idmarket_int = Convert.ToInt32(data.idMarket);
+                var List_STF02H_Var = ErasoftDbContext.STF02H.Where(p => ListStf02Var_BRG.Contains(p.BRG) && p.IDMARKET == idmarket_int).ToList();
+
+                //untuk pastikan tidak ada duplikat kombinasi attribute variasi
+                Dictionary<string, string> KombinasiAttribute = new Dictionary<string, string>();
+                foreach (var item in ListStf02Var)
+                {
+                    if (!string.IsNullOrWhiteSpace(item.Sort8))
+                    {
+                        var getMPJudul_and_ValueVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.KODE_VAR == item.Sort8).FirstOrDefault();
+                        string attributeUnique = getMPJudul_and_ValueVar.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVar.MP_VALUE_VAR;
+                        if (!KombinasiAttribute.ContainsKey(attributeUnique))
+                        {
+                            KombinasiAttribute.Add(attributeUnique, item.BRG);
+
+                            if (!string.IsNullOrWhiteSpace(item.Sort9))
+                            {
+                                var getMPJudul_and_ValueVarLv2 = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                                string attributeUniqueLv2 = getMPJudul_and_ValueVarLv2.MP_JUDUL_VAR + "[;]" + getMPJudul_and_ValueVarLv2.MP_VALUE_VAR;
+                                if (!KombinasiAttribute.ContainsKey(attributeUniqueLv2))
+                                {
+                                    KombinasiAttribute.Add(attributeUniqueLv2, item.BRG);
+                                }
+                            }
+                        }
+                    }
+                }
+                //end untuk pastikan tidak ada duplikat kombinasi attribute variasi
+                List<string> attributesAdded;
+                xmlString += "<Skus>";
+                foreach (var item in ListStf02Var)
+                {
+                    attributesAdded = new List<string>();
+                    bool input = false;
+                    foreach (var attribute in KombinasiAttribute)
+                    {
+                        if (attribute.Value == item.BRG)
+                        {
+                            input = true;
+                        }
+                    }
+
+                    var GetStf02h = List_STF02H_Var.Where(p => p.BRG == item.BRG).FirstOrDefault();
+                    if (input && (GetStf02h != null))
+                    {
+                        xmlString += "<Sku><SellerSku>" + item.BRG + "</SellerSku>";
+                        xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
+
+                        foreach (var attribute in KombinasiAttribute)
+                        {
+                            if (attribute.Value == item.BRG)
+                            {
+                                string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
+                                xmlString += "<" + getId[0] + ">" + getId[1] + "</" + getId[0] + ">";
+                                attributesAdded.Add(getId[0]);
+                            }
+                        }
+
+                        //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
+                        for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        {
+                            if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            {
+                                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                            }
+                        }
+
+                        xmlString += "<price>" + data.harga + "</price>";
+                        xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
+                        xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
+                        xmlString += "<Images>";
+                        if (!string.IsNullOrEmpty(data.imageUrl))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                        if (!string.IsNullOrEmpty(data.imageUrl2))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                        if (!string.IsNullOrEmpty(data.imageUrl3))
+                            xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        xmlString += "</Images>";
+                        xmlString += "</Sku>";
+                    }
+                }
+                xmlString += "</Skus>";
+            }
+            xmlString += "</Product></Request>";
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/update");
+            request.AddApiParameter("payload", xmlString);
+
+            //LazopResponse response = client.Execute(request, data.token);
+            try
+            {
+                LazopResponse response = client.Execute(request, data.token);
+
+                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
+                if (res.code.Equals("0"))
+                {
+                    ret.status = 1;
+                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                    var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                    foreach (var item in res.data.sku_list)
+                    {
+                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
+                    }
+
                     if (result == 1)
                     {
                         manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
@@ -572,11 +917,11 @@ namespace MasterOnline.Controllers
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
             xmlString += "<SalePrice>" + SalePrice + "</SalePrice>";
-            if(SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
+            if (SaleEndDate != DateTime.Today && SaleStartDate != DateTime.Today)
             {
                 xmlString += "<SaleStartDate>" + SaleStartDate.ToString("yyyy-MM-dd") + "</SaleStartDate>";
                 xmlString += "<SaleEndDate>" + SaleEndDate.ToString("yyyy-MM-dd") + "</SaleEndDate>";
-            }            
+            }
             xmlString += "</Sku></Skus></Product></Request>";
 
 
@@ -1461,7 +1806,7 @@ namespace MasterOnline.Controllers
             //request.AddApiParameter("update_after", "2010-01-01T00:00:00+0800");
             request.AddApiParameter("limit", "10");
             //request.AddApiParameter("options", "1");
-            //request.AddApiParameter("sku_seller_list", " [\"OX-292\"]");
+            //request.AddApiParameter("sku_seller_list", " [\"N105\"]");
             try
             {
                 LazopResponse response = client.Execute(request, accessToken);
@@ -1479,7 +1824,7 @@ namespace MasterOnline.Controllers
                                 ret.message = (page + 1).ToString();
                             }
                             string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
-                            sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE,";
+                            sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, DeliveryTempElevenia, PICKUP_POINT,";
                             sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                             sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
                             sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30, ";
@@ -1509,10 +1854,58 @@ namespace MasterOnline.Controllers
                                     var tempbrginDB = new TEMP_BRG_MP();
                                     var brgInDB = new STF02H();
                                     string kodeBrg = "";
-                                    if (varian && i == 0)
+                                    //add 18-03-2019, cek item id
+                                    bool createInduk = true;
+                                    kodeBrg = brg.item_id;
+                                    string SkuId = brg.skus[i].SkuId;
+                                    if (i == 0)
                                     {
-                                        kodeBrg = brg.item_id;
-                                        kdBrgInduk = kodeBrg;
+                                        brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP == kodeBrg && t.IDMARKET == IdMarket).FirstOrDefault();
+                                        if (brgInDB != null)
+                                        {
+                                            kdBrgInduk = brgInDB.BRG;
+                                            //item id sudah ada di master
+                                            if (!varian)
+                                            {
+                                                //jika brg ini terbaca sebagai barang non varian -> ubah menjadi varian
+                                                varian = true;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            var listTemp = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.PICKUP_POINT == kodeBrg && t.DeliveryTempElevenia != SkuId && t.IDMARKET == IdMarket).ToList();
+                                            if (listTemp.Count == 1)
+                                            {
+                                                //if(listTemp[0].TYPE != "4")
+                                                //{
+                                                //item id sudah ada di temp, tp masuk sebagai barang non varian
+                                                if (!varian)
+                                                {
+                                                    //jika brg ini terbaca sebagai barang non varian -> ubah menjadi varian
+                                                    varian = true;
+                                                }
+                                                //update brg sebelumnya menjadi brg varian
+                                                tempbrginDB = listTemp[0];
+                                                tempbrginDB.TYPE = "3";
+                                                tempbrginDB.KODE_BRG_INDUK = tempbrginDB.PICKUP_POINT;
+                                                ErasoftDbContext.SaveChanges();
+                                                //}
+                                            }
+                                            else if (listTemp.Count > 1 && !varian)
+                                            {
+                                                varian = true;
+                                                createInduk = false;
+                                            }
+                                        }
+
+                                    }
+                                    //end add 18-03-2019, cek item id
+
+                                    if (varian && i == 0 && createInduk)
+                                    {
+                                        //kodeBrg = brg.item_id;
+                                        if (string.IsNullOrEmpty(kdBrgInduk))
+                                            kdBrgInduk = kodeBrg;
                                         //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
                                         //brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.Equals(kodeBrg) && t.IDMARKET == IdMarket).FirstOrDefault();
                                         tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kodeBrg.ToUpper()).FirstOrDefault();
@@ -1525,10 +1918,10 @@ namespace MasterOnline.Controllers
                                             if (retSQLInduk.status == 1)
                                                 sSQL_Value += retSQLInduk.message;
                                         }
-                                        else if (brgInDB != null)
-                                        {
-                                            kdBrgInduk = kodeBrg;
-                                        }
+                                        //else if (brgInDB != null)
+                                        //{
+                                        //    kdBrgInduk = kodeBrg;
+                                        //}
                                     }
                                     kodeBrg = brg.skus[i].SellerSku;
                                     //tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(kodeBrg)).FirstOrDefault();
@@ -2546,6 +2939,7 @@ namespace MasterOnline.Controllers
                 sSQL_Value += "' , " + IdMarket + " , " + brg.skus[i].price + " , " + brg.skus[i].price + " , ";
                 sSQL_Value += display + " , '" + categoryCode + "' , '" + MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID.Equals(categoryCode)).FirstOrDefault().NAME + "' , '";
                 sSQL_Value += brg.attributes.brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + (typeBrg == 2 ? kodeBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                sSQL_Value += ",'" + brg.skus[i].SkuId + "','" + brg.item_id + "'";
                 var attributeLzd = MoDbContext.ATTRIBUTE_LAZADA.Where(a => a.CATEGORY_CODE.Equals(categoryCode)).FirstOrDefault();
                 //bool getAttr = true;
                 if (attributeLzd == null)
@@ -3242,7 +3636,10 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        sSQL_Value += ", '', '', ''";
+                        //change 19 maret 2019 request by Calvin, isi nama barang jika attribute 45 kosong
+                        //sSQL_Value += ", '', '', ''";
+                        sSQL_Value += ", '', '', '" + namaBrg + "'";
+                        //end change 19 maret 2019 request by Calvin, isi nama barang jika attribute 45 kosong
                     }
                     if (!string.IsNullOrEmpty(attributeLzd.ANAME46))
                     {

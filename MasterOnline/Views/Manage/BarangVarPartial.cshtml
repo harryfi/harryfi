@@ -563,8 +563,9 @@
                                     var ATYPE = item["ATYPE" + (a + 1)];
                                     var ANAME = item["ANAME" + (a + 1)];
                                     var AINPUT_TYPE = item["AINPUT_TYPE" + (a + 1)];
+                                    var ASALE_PROP = item["ASALE_PROP" + (a + 1)];
                                     var AMANDATORY = item["AMANDATORY" + (a + 1)];
-                                    if (AINPUT_TYPE.toUpperCase().includes("MULTI")) {
+                                    if (ASALE_PROP == "1") {
                                         if (ANAME != null && ANAME != "") {
                                             SelectList[counter] = {
                                                 id: ANAME,

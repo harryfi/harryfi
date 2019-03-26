@@ -400,11 +400,11 @@ namespace MasterOnline.Controllers
             //production : Mid-client-sMzViq24qWRlPdPu Mid-server-brKgVeWZt89aotXTI8DDPkfY
             //sandbox : SB-Mid-client-AyzcvZKcwAlD_0QY SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb
 
-            //string plainText = "Mid-server-brKgVeWZt89aotXTI8DDPkfY";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
-            //var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
-
-            string plainText = "SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+            string plainText = "Mid-server-brKgVeWZt89aotXTI8DDPkfY";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+
+            //string plainText = "SB-Mid-server-GAojYLM-zNP6Ik_HzyqBzaGb";//SB-Mid-server-RSxNraBOqtiTba9MSz1SpHx0 Mid-server-OB_-aJie9ELUo3pDnZSj0vYq
+            //var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
 
             return Convert.ToBase64String(plainTextBytes);
         }

@@ -1410,6 +1410,19 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
+    <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
+        <div class="modal-content" style="height:610px;width:900px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
+            </div>
+            <div class="modal-body" id="modal-fix-not-found-body">
+                @Html.Partial("BarangFixNotFoundPartialFaktur")
+            </div>
+        </div>
+    </div>
+</div>
 @*add by nurul 3/12/2018 - tambah cetak faktur*@
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
@@ -1507,6 +1520,7 @@
     <script type="text/javascript" src="~/Scripts/shim.min.js"></script>
     <script lang="text/javascript" src="~/Scripts/xlsx.full.min.js"></script>
     @*add by Tri snap js*@
+    @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
@@ -2315,8 +2329,8 @@
 
                     $nettoSebelumnya += $bakalNetto;
                     $('input, select, .btn-danger').each(function () {
-                            $(this).attr('disabled', 'disabled');
-                        });
+                        $(this).attr('disabled', 'disabled');
+                    });
                     //if ($jumlahPesanan == true) {
                     //    $('input, select, .btn-danger').each(function () {
                     //        $(this).attr('disabled', 'disabled');
@@ -3257,7 +3271,7 @@
                             $('#gudang-kode').text(gudang);
                             gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
                         }
-                        
+
 
                     },
                     error: function (xhr) {
@@ -3938,6 +3952,93 @@
             });
         }
         //end add
+
+        //ADD BY CALVIN 21 Maret 2019
+        function fixDataBarangNotFound(rec) {
+            this.$recDataBarangNotFound = rec;
+            fillModalFixNotFound(rec);
+        }
+
+        function fillModalFixNotFound(rec) {
+            var link = '@Url.Action("FillModalFixNotFoundFaktur", "Manage", new {recNum = "replaceRecNum"})';
+            link = link.replace("replaceRecNum", rec);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                success: function(response) {
+                    $('#modal-fix-not-found-body').html("");
+                    $('#modal-fix-not-found-body').html(response);
+                },
+                error: function(xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+        function updateNotFound(sit01b_nourut,stf02h_recnum,kode){
+            if(confirm("Perbaiki Kode Barang menjadi " + kode + " ?")){
+                var link = '@Url.Action("UpdateFixNotFoundFaktur", "Manage", new { nourut = "replaceNoUrut" })';
+                link = link.replace("replaceNoUrut", sit01b_nourut + ';' + stf02h_recnum);
+
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    contentType: 'application/json',
+                    cache: false,
+                    beforeSend: function() {
+                        $('#loading_spinner').show();
+                    },
+                    success: function(response) {
+                        alert('Data berhasil disimpan!');
+                        $('#modalFixNotFound').modal('hide');
+                        //samakan dengan function lihatFaktur onSuccess
+                        $modeEdit = 1;
+
+                        $('#form-partial').html(response);
+                        $('#form-partial').show();
+                        $('#form_subs').hide();
+                        $totalAwal = convertToAngka($('#Faktur_BRUTO').val());
+                        refreshInputan();
+                        getTanggal();
+                        getBuyer();
+                        getDataBarang();
+                        getMarketplace();
+
+                        $('.faktur_table_section').hide();
+                        $('.faktur_editor_section').show();
+
+                        $('#myTab li a').each(function () {
+                            $(this).removeAttr('data-toggle');
+
+                            if ($(this).attr('id') === 'faktur-tab') return;
+
+                            $(this).addClass('disabled-tab');
+
+                        });
+
+                        $('#faktur-tempo-tab').off('click').on('click', function () {
+                            $('#div_tgl_Tempo').hide();
+                        });
+
+                        $nettoSebelumnya += $bakalNetto;
+                        $('input, select, .btn-danger').each(function () {
+                            $(this).attr('disabled', 'disabled');
+                        });
+                        $('#tambah-pembeli').hide();
+                        $('tr[data-faktur-id="0"]').remove();
+                        $('#loading_spinner').hide();
+                        //end samakan dengan function lihatFaktur onSuccess
+                    },
+                    error: function(xhr) {
+                        console.log(xhr);
+                    }
+                });
+
+            }
+        }
+        //END ADD BY CALVIN 21 Maret 2019
 
         //add by nurul 3/12/2018
         function cetakFaktur(nobuk) {

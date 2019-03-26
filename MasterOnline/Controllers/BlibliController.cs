@@ -5561,30 +5561,70 @@ namespace MasterOnline.Controllers
                 productStory = Convert.ToBase64String(Encoding.ASCII.GetBytes(data.Keterangan)),
             };
 
-            string sSQL = "SELECT * FROM (";
-            for (int i = 1; i <= 30; i++)
-            {
-                sSQL += "SELECT B.ACODE_" + i.ToString() + " AS CATEGORY_CODE,B.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H (NOLOCK) A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI (NOLOCK) B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
-                if (i < 30)
-                {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
-                }
-            }
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 30; i++)
+            //{
+            //    sSQL += "SELECT B.ACODE_" + i.ToString() + " AS CATEGORY_CODE,B.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE_" + i.ToString() + " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H (NOLOCK) A INNER JOIN MO.DBO.ATTRIBUTE_BLIBLI (NOLOCK) B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kode + "' AND A.IDMARKET = '" + data.IDMarket + "' " + System.Environment.NewLine;
+            //    if (i < 30)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
 
-            DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
-            DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
+            //DataSet dsFeature = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'DEFINING_ATTRIBUTE' ");
+            //DataSet dsVariasi = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'DEFINING_ATTRIBUTE' ");
 
             var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
             var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.dataBarangInDb.BRG && p.IDMARKET == arf01.RecNum).FirstOrDefault();
+            var CategoryBlibli = MoDbContext.CategoryBlibli.Where(k => k.CATEGORY_CODE == data.CategoryCode).FirstOrDefault();
+            var listAttributeBlibli = await GetAttributeToList(iden, CategoryBlibli);
 
-            Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
-            for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+            List<string> dsFeature = new List<string>();
+            List<string> dsVariasi = new List<string>();
+            var attribute = listAttributeBlibli.attributes.FirstOrDefault();
+            for (int i = 1; i <= 30; i++)
             {
-                if (!nonDefiningAttributes.ContainsKey(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"])))
+                string attribute_id = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                string attribute_type = Convert.ToString(attribute["ACODE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+                    if (attribute_type == "DEFINING_ATTRIBUTE")
+                    {
+                        dsVariasi.Add(attribute_id);
+                    }
+                    else
+                    {
+                        dsFeature.Add(attribute_id);
+                    }
                 }
             }
+
+            Dictionary<string, string> nonDefiningAttributes = new Dictionary<string, string>();
+
+            //for (int i = 0; i < dsFeature.Tables[0].Rows.Count; i++)
+            //{
+            //    if (!nonDefiningAttributes.ContainsKey(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"])))
+            //    {
+            //        nonDefiningAttributes.Add(Convert.ToString(dsFeature.Tables[0].Rows[i]["CATEGORY_CODE"]), Convert.ToString(dsFeature.Tables[0].Rows[i]["VALUE"]).Trim());
+            //    }
+            //}
+
+            for (int i = 1; i <= 30; i++)
+            {
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
+                {
+                    if (dsFeature.Contains(attribute_id))
+                    {
+                        if (!nonDefiningAttributes.ContainsKey(attribute_id))
+                        {
+                            nonDefiningAttributes.Add(attribute_id, value.Trim());
+                        }
+                    }
+                }
+            }
+
             newData.productNonDefiningAttributes = nonDefiningAttributes;
 
             Dictionary<string, string> images = new Dictionary<string, string>();
@@ -5754,23 +5794,48 @@ namespace MasterOnline.Controllers
 
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
                 Dictionary<string, string> attributeMap = new Dictionary<string, string>();
-                for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //{
+                //    List<string> dsVariasiValues = new List<string>();
+                //    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
+                //    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
+                //    if (!dsVariasiValues.Contains(A_VALUE))
+                //    {
+                //        dsVariasiValues.Add(A_VALUE);
+                //    }
+
+                //    if (!DefiningAttributes.ContainsKey(A_CODE))
+                //    {
+                //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                //    }
+
+                //    attributeMap.Add(A_CODE, A_VALUE);
+                //}
+
+                for (int i = 1; i <= 30; i++)
                 {
-                    List<string> dsVariasiValues = new List<string>();
-                    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
-                    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
-                    if (!dsVariasiValues.Contains(A_VALUE))
+                    string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
-                        dsVariasiValues.Add(A_VALUE);
-                    }
+                        if (dsVariasi.Contains(attribute_id))
+                        {
+                            List<string> dsVariasiValues = new List<string>();
+                            if (!dsVariasiValues.Contains(value))
+                            {
+                                dsVariasiValues.Add(value);
+                            }
 
-                    if (!DefiningAttributes.ContainsKey(A_CODE))
-                    {
-                        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
-                    }
+                            if (!DefiningAttributes.ContainsKey(attribute_id))
+                            {
+                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                            }
 
-                    attributeMap.Add(A_CODE, A_VALUE);
+                            attributeMap.Add(attribute_id, value);
+                        }
+                    }
                 }
+
                 Productitem newVarItem = new Productitem()
                 {
                     upcCode = data.dataBarangInDb.BRG,
@@ -5797,38 +5862,78 @@ namespace MasterOnline.Controllers
                 var var_stf02i = ErasoftDbContext.STF02I.Where(p => p.BRG == data.kode && p.MARKET == "BLIBLI").ToList().OrderBy(p => p.RECNUM);
 
                 Dictionary<string, string[]> DefiningAttributes = new Dictionary<string, string[]>();
-                for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //for (int a = 0; a < dsVariasi.Tables[0].Rows.Count; a++)
+                //{
+                //    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
+                //    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
+
+                //    List<string> dsVariasiValues = new List<string>();
+                //    var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == A_CODE).ToList().OrderBy(p => p.RECNUM);
+                //    foreach (var v in var_stf02i_distinct)
+                //    {
+                //        if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                //        {
+                //            dsVariasiValues.Add(v.MP_VALUE_VAR);
+                //        }
+                //    }
+
+                //    //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                //    //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
+                //    if (var_stf02i_distinct.Count() == 0)
+                //    {
+                //        if (A_CODE == "WA-0000002") // Warna
+                //        {
+                //            ValueVariasiWarna = A_VALUE;
+                //            dsVariasiValues.Add(A_VALUE);
+                //        }
+                //    }
+                //    //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+
+                //    if (!DefiningAttributes.ContainsKey(A_CODE))
+                //    {
+                //        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                //    }
+                //}
+
+                for (int i = 1; i <= 30; i++)
                 {
-                    string A_CODE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["CATEGORY_CODE"]);
-                    string A_VALUE = Convert.ToString(dsVariasi.Tables[0].Rows[a]["VALUE"]);
-
-                    List<string> dsVariasiValues = new List<string>();
-                    var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == A_CODE).ToList().OrderBy(p => p.RECNUM);
-                    foreach (var v in var_stf02i_distinct)
+                    string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                    string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                    if (!string.IsNullOrWhiteSpace(attribute_id))
                     {
-                        if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                        if (dsVariasi.Contains(attribute_id))
                         {
-                            dsVariasiValues.Add(v.MP_VALUE_VAR);
-                        }
-                    }
+                            List<string> dsVariasiValues = new List<string>();
+                            var var_stf02i_distinct = var_stf02i.Where(p => p.MP_JUDUL_VAR == attribute_id).ToList().OrderBy(p => p.RECNUM);
+                            foreach (var v in var_stf02i_distinct)
+                            {
+                                if (!dsVariasiValues.Contains(v.MP_VALUE_VAR))
+                                {
+                                    dsVariasiValues.Add(v.MP_VALUE_VAR);
+                                }
+                            }
 
-                    //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
-                    //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
-                    if (var_stf02i_distinct.Count() == 0)
-                    {
-                        if (A_CODE == "WA-0000002") // Warna
-                        {
-                            ValueVariasiWarna = A_VALUE;
-                            dsVariasiValues.Add(A_VALUE);
-                        }
-                    }
-                    //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                            //add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
+                            //maka ambil value untuk attribute tersebut dari stf02h, ( diisi pada bagian detail per marketplace ).
+                            if (var_stf02i_distinct.Count() == 0)
+                            {
+                                if (attribute_id == "WA-0000002") // Warna
+                                {
+                                    ValueVariasiWarna = attribute_id;
+                                    dsVariasiValues.Add(value);
+                                }
+                            }
+                            //end add by calvin 26 februari, kasus pak rocky, masing" warna 1 sku induk
 
-                    if (!DefiningAttributes.ContainsKey(A_CODE))
-                    {
-                        DefiningAttributes.Add(A_CODE, dsVariasiValues.ToArray());
+                            if (!DefiningAttributes.ContainsKey(attribute_id))
+                            {
+                                DefiningAttributes.Add(attribute_id, dsVariasiValues.ToArray());
+                            }
+                        }
                     }
                 }
+
+
                 newData.productDefiningAttributes = DefiningAttributes;
 
                 foreach (var var_item in var_stf02)
