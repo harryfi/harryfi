@@ -11,7 +11,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 60px; text-align: center;">Gd & Qty</th>
             @* change by nurul 8/10/2018<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; text-align: center;">Kirim</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; text-align: center;">Ubah Status</th>
-            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 10px; max-width: 10px; border-left:hidden"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_gntstatus_packing" style="border-left:hidden" /></th>
+            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 10px; max-width: 10px; border-left:hidden"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_gntstatus_packing" style="border-left:hidden" /></th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px;">Undo Status</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
         </tr>
@@ -64,9 +64,9 @@
                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
             </td>
-            <td style="border-left:hidden">
+            @*<td style="border-left:hidden">
                 <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_packing" id="chekbox-@(pesanan.RecNum)" data-recnum="@pesanan.RecNum" style="border-left:hidden" />
-            </td>
+            </td>*@
             <td class="edit-hapus-col">
                 <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSiapkirim" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">
                     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
