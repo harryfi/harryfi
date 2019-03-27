@@ -372,7 +372,7 @@ namespace MasterOnline.Controllers
                         //    token = "pmgdpFANTcC0PM9tVzrwmw"
                         //};
                         //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
-                        await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO, 1);
                         //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                         //await tokopediaApi.GetCategoryTree(idenTest);
                         //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -548,7 +548,7 @@ namespace MasterOnline.Controllers
                             //    token = "pmgdpFANTcC0PM9tVzrwmw"
                             //};
                             //await tokopediaApi.GetActiveItemList(iden, connectionID, tblCustomer.CUST, tblCustomer.PERSO, tblCustomer.RecNum ?? 0);
-                            await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                            await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO,1);
                             //await tokopediaApi.GetOrderList(idenTest, TokopediaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
                             //await tokopediaApi.GetCategoryTree(idenTest);
                             //await tokopediaApi.GetOrderList(iden, TokopediaController.StatusOrder.Completed, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
@@ -1333,7 +1333,7 @@ namespace MasterOnline.Controllers
                         mta_password_password_merchant = customer.Customers.PASSWORD,
                         idmarket = customer.Customers.RecNum.Value
                     };
-                    BliApi.GetToken(data, true, true);
+                    Task.Run(() => BliApi.GetToken(data, true, true).Wait());
                     //BliApi.GetPickupPoint(data);
                 }
             }
@@ -4551,7 +4551,7 @@ namespace MasterOnline.Controllers
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
-                                                    BliApi.GetQueueFeedDetail(iden, null);
+                                                    Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
                                                 else
                                                 {
@@ -4567,7 +4567,7 @@ namespace MasterOnline.Controllers
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
-                                                    BliApi.UpdateProdukQOH_Display(iden, data);
+                                                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
                                                     #endregion
                                                 }
                                             }
@@ -4723,7 +4723,7 @@ namespace MasterOnline.Controllers
                                                 };
                                                 if (stf02h.BRG_MP == "PENDING")
                                                 {
-                                                    BliApi.GetQueueFeedDetail(iden, null);
+                                                    Task.Run(() => BliApi.GetQueueFeedDetail(iden, null).Wait());
                                                 }
                                                 else
                                                 {
@@ -4739,7 +4739,7 @@ namespace MasterOnline.Controllers
                                                     data.MarketPrice = stf02h.HJUAL.ToString();
                                                     var display = Convert.ToBoolean(stf02h.DISPLAY);
                                                     data.display = display ? "true" : "false";
-                                                    BliApi.UpdateProdukQOH_Display(iden, data);
+                                                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
                                                     #endregion
                                                 }
                                             }
@@ -4989,7 +4989,7 @@ namespace MasterOnline.Controllers
                                 token = tblCustomer.TOKEN,
                                 idmarket = tblCustomer.RecNum.Value
                             };
-                            BliApi.GetQueueFeedDetail(data, null);
+                            Task.Run(() => BliApi.GetQueueFeedDetail(data, null).Wait());
                         }
                     }
                 }
@@ -13887,7 +13887,8 @@ namespace MasterOnline.Controllers
                                 data.MarketPrice = stf02h.HJUAL.ToString();
                                 var display = Convert.ToBoolean(stf02h.DISPLAY);
                                 data.display = display ? "true" : "false";
-                                new BlibliController().UpdateProdukQOH_Display(iden, data);
+                                var BliApi = new BlibliController();
+                                Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
                             }
                         }
                         //add by calvin 18 desember 2018
@@ -16335,7 +16336,8 @@ namespace MasterOnline.Controllers
                     data.MarketPrice = hJualInDb.HJUAL.ToString();
                     var display = Convert.ToBoolean(hJualInDb.DISPLAY);
                     data.display = display ? "true" : "false";
-                    new BlibliController().UpdateProdukQOH_Display(iden, data);
+                    var BliApi = new BlibliController();
+                    Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
                 }
                 else if (customer.NAMA.Equals(kdElevenia))
                 {

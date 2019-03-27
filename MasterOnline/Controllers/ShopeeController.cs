@@ -4564,72 +4564,79 @@ namespace MasterOnline.Controllers
         }
         protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, ShopeeAPIData iden, API_LOG_MARKETPLACE data)
         {
-            switch (action)
+            try
             {
-                case api_status.Pending:
-                    {
-                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
-                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                switch (action)
+                {
+                    case api_status.Pending:
                         {
-                            CUST = arf01 != null ? arf01.CUST : iden.merchant_code,
-                            CUST_ATTRIBUTE_1 = iden.merchant_code,
-                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
-                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
-                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
-                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
-                            MARKETPLACE = "Shopee",
-                            REQUEST_ACTION = data.REQUEST_ACTION,
-                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
-                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
-                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
-                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
-                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
-                            REQUEST_DATETIME = data.REQUEST_DATETIME,
-                            REQUEST_ID = data.REQUEST_ID,
-                            REQUEST_STATUS = data.REQUEST_STATUS,
-                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
-                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
-                        };
-                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
-                        ErasoftDbContext.SaveChanges();
-                    }
-                    break;
-                case api_status.Success:
-                    {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        if (apiLogInDb != null)
-                        {
-                            apiLogInDb.REQUEST_STATUS = "Success";
-                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
-                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            var arf01 = ErasoftDbContext.ARF01.Where(p => p.Sort1_Cust == iden.merchant_code).FirstOrDefault();
+                            var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                            {
+                                CUST = arf01 != null ? arf01.CUST : iden.merchant_code,
+                                CUST_ATTRIBUTE_1 = iden.merchant_code,
+                                CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                                CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                                CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                                CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                                MARKETPLACE = "Shopee",
+                                REQUEST_ACTION = data.REQUEST_ACTION,
+                                REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                                REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                                REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                                REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                                REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                                REQUEST_DATETIME = data.REQUEST_DATETIME,
+                                REQUEST_ID = data.REQUEST_ID,
+                                REQUEST_STATUS = data.REQUEST_STATUS,
+                                REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                                REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                            };
+                            ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
                             ErasoftDbContext.SaveChanges();
                         }
-                    }
-                    break;
-                case api_status.Failed:
-                    {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        if (apiLogInDb != null)
+                        break;
+                    case api_status.Success:
                         {
-                            apiLogInDb.REQUEST_STATUS = "Failed";
-                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
-                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                            ErasoftDbContext.SaveChanges();
+                            var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                            if (apiLogInDb != null)
+                            {
+                                apiLogInDb.REQUEST_STATUS = "Success";
+                                apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                                apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
-                    }
-                    break;
-                case api_status.Exception:
-                    {
-                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
-                        if (apiLogInDb != null)
+                        break;
+                    case api_status.Failed:
                         {
-                            apiLogInDb.REQUEST_STATUS = "Failed";
-                            apiLogInDb.REQUEST_RESULT = "Exception";
-                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
-                            ErasoftDbContext.SaveChanges();
+                            var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                            if (apiLogInDb != null)
+                            {
+                                apiLogInDb.REQUEST_STATUS = "Failed";
+                                apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                                apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                                ErasoftDbContext.SaveChanges();
+                            }
                         }
-                    }
-                    break;
+                        break;
+                    case api_status.Exception:
+                        {
+                            var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                            if (apiLogInDb != null)
+                            {
+                                apiLogInDb.REQUEST_STATUS = "Failed";
+                                apiLogInDb.REQUEST_RESULT = "Exception";
+                                apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                                ErasoftDbContext.SaveChanges();
+                            }
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                
             }
         }
         public static long CurrentTimeSecond()
