@@ -57,7 +57,7 @@
             <td>@barang.Merk</td>
             @*<td>@barang.ISI</td>
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
-            <td>@(barang.HJual > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual) : "---")</td>
+            <td style = "text-align:right">@(barang.HJual > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual) : "---")</td>
             @*add by nurul 16/11/2018*@
             <td>@barang.Qoh</td>
             <td>@barang.Qoo</td>

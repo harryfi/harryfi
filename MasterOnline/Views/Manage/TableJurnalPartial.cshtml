@@ -38,8 +38,8 @@
             <tr>
                 <td>@jurnal.bukti</td>
                 <td>@jurnal.tgl.ToString("dd/MM/yyyy")</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalDebet)</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalKredit)</td>
+                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalDebet)</td>
+                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalKredit)</td>
                 @if (Convert.ToString(jurnal.posting) == "Y")
                 {
                     <td>

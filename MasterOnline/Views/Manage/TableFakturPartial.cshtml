@@ -56,16 +56,18 @@
         <tr>
             <td>@faktur.NO_BUKTI</td>
             <td>@(faktur.TGL.ToString("dd/MM/yyyy"))</td>
-            <td>@NamaMarket</td>
+            @*<td>@NamaMarket</td>*@
+            <td>@(NamaMarket + " (" + perso + ")")</td>
             @*add by nurul 7/11/2018*@
             <td>@faktur.NO_REF</td>
             @*end add by nurul*@
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                 @*@((buyer == null ? "" : buyer.NAMA) + " (" + pelanggan.PERSO + ")")*@
-                @(buyerNama + " (" + perso + ")")
+                @*@(buyerNama + " (" + perso + ")")*@
+                @buyerNama
             </td>
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
             @if (Convert.ToString(faktur.ST_POSTING) == "Y")
             {
                 <td>
@@ -96,16 +98,16 @@
             </td>
             <td class="edit-hapus-col">
                 @*@if (generatedFaktur == null)
-                {
-                    <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RecNum)">
-                        <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-                    </button>
-                }
-                else
-                {*@
-                    <button class="btn btn-primary lihat_faktur" onclick="cetakFaktur('@(faktur.NO_BUKTI)')">
-                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                    </button>
+            {
+                <button class="btn btn-primary buat_faktur" onclick="buatFaktur(@pesanan.RecNum)">
+                    <span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+                </button>
+            }
+            else
+            {*@
+                <button class="btn btn-primary lihat_faktur" onclick="cetakFaktur('@(faktur.NO_BUKTI)')">
+                    <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                </button>
                 @*}*@
             </td>
             <td class="edit-hapus-col">

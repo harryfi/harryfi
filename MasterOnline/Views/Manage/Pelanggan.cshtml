@@ -1108,11 +1108,11 @@
                                                 </div>
                                             </div>
                                             @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
-                                                    </div>
-                                                </div>*@
+                @Html.LabelFor(m => m.Customers.AL, "Alamat *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextAreaFor(m => m.Customers.AL, new { @class = "form-control", maxlength = 200, required = "required" })
+                </div>
+            </div>*@
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Customers.TOP, "TOP *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-6">
@@ -1124,38 +1124,38 @@
                                                 </div>
                                             </div>
                                             @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEPROV)
-                                                        <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.HiddenFor(m => m.Customers.KODEKABKOT)
-                                                        <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-12">
-                                                        @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
-                                                    </div>
-                                                </div>*@
+                @Html.LabelFor(m => m.Customers.KODEPROV, "Provinsi *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEPROV)
+                    <div id="KODEPROV" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEKABKOT, "Kota *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.HiddenFor(m => m.Customers.KODEKABKOT)
+                    <div id="KODEKABKOT" class="selectivity-input" tabindex="0"></div>
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.KODEPOS, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(m => m.Customers.TLP, "Telepon *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    @Html.TextBoxFor(m => m.Customers.TLP, new { @class = "form-control", required = "required", type = "number" })
+                </div>
+            </div>*@
                                             @*<div class="form-group">
-                                                    @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
-                                                    <div class="col-md-6 col-sm-6 col-xs-6">
-                                                        @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
-                                                    </div>
-                                                    <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
-                                                </div>*@
+                @Html.LabelFor(m => m.Customers.API_KEY, "API Key *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12", @id = "lbl_Customers_API_KEY" })
+                <div class="col-md-6 col-sm-6 col-xs-6">
+                    @Html.TextBoxFor(m => m.Customers.API_KEY, new { @class = "form-control" })
+                </div>
+                <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
+            </div>*@
                                             <div class="form-group">
                                                 <div id="divAPIKey"></div>
                                                 <div class="col-md-2 col-sm-2 col-xs-6" id="buttonGen"></div>
@@ -1185,6 +1185,10 @@
                                             </div>
                                             <div id="BlibliClientPass" class="form-group">
                                             </div>
+                                            @*add by nurul 25/03/2019*@
+                                            <div id="TokpedShopID" class="form-group">
+                                            </div>
+                                            @*end add by nurul 25/03/2019*@
                                             <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
                                         }
                                     </div>
@@ -1596,16 +1600,18 @@
                                 else {
                                     showHideBlibliForm(false);
                                 }
-                                @*if (@tokped == value) {
+                                //unremark by nurul 25/3/2019
+                                if (@tokped == value) {
                                     showHideTokpedForm(true);
-                                    lblDesc3.innerText = '';
-                                    lblDesc4.innerText = '';
+                                    //lblDesc3.innerText = '';
+                                    //lblDesc4.innerText = '';
                                 }
                                 else {
                                     showHideTokpedForm(false);
-                                    lblDesc3.innerText = '';
-                                    lblDesc4.innerText = '';
-                                }*@
+                                    //lblDesc3.innerText = '';
+                                    //lblDesc4.innerText = '';
+                                }
+                                //end unremark by nurul 25/3/2019
 
                                 //end add by Tri, remove/append api_key
                             }
@@ -1819,11 +1825,24 @@
                 if ($('#Customers_API_CLIENT_P').val() != null) {
                     valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
                 }
-                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="'+ valuetxtAPI_CLIENT_P +'"></div>';
+                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+
+                //add by nurul 25/3/2019
+                var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                var valuetxtAPI_Key = "";
+                if ($('#Customers_API_KEY').val() != null) {
+                    valuetxtAPI_Key = $('#Customers_API_KEY').val();
+                }
+                var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                                    
+                
+                //end add by nurul 25/3/2019
 
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                $('#TokpedShopID').append(labelAPI_Key + txtAPI_Key);
+                //$('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
                 $('#lbl_Customers_API_KEY').html("Shop ID *");
                 $('#labelAPI_CLIENT_U').html("Client ID *");
             }

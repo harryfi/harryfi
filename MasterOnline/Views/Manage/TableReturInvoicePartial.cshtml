@@ -23,7 +23,7 @@
                 <td>@(invoice.TGL?.ToString("dd/MM/yyyy"))</td>
                 <td>@invoice.REF</td>
                 <td>@invoice.NAMA</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NETTO)</td>
+                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.NETTO)</td>
                 @if (Convert.ToString(invoice.POSTING) == "Y")
                 {
                     <td>

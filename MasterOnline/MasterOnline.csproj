@@ -5940,6 +5940,7 @@
     <Content Include="Views\Admin\FormAccountPartialNew.cshtml" />
     <Content Include="Views\Account\SupportLogin.cshtml" />
     <Content Include="Views\Manage\BarangFixNotFoundPartialFaktur.cshtml" />
+    <Content Include="Views\Manage\UbahStatusMultiPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

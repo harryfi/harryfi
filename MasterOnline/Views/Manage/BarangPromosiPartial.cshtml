@@ -113,10 +113,10 @@
                             }
                             @nm @nm2
                         </td>
-                        <td class="harga-barang">
+                        <td class="harga-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", promosi.HARGA_NORMAL)
                         </td>
-                        <td class="harga-promosi-barang">
+                        <td class="harga-promosi-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", promosi.HARGA_PROMOSI)
                         </td>
                         <td class="persen-promosi-barang">
@@ -145,11 +145,11 @@
                         @Html.HiddenFor(m => m.PromosiDetail.KODE_BRG)
                     </td>
                     <td class="nama-barang" style="width: 250px; max-width: 250px;">-</td>
-                    <td class="harga-barang" style="width: 130px; max-width: 130px;">
+                    <td class="harga-barang" style="width: 130px; max-width: 130px; text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PromosiDetail.HARGA_NORMAL)
                     </td>
-                    <td class="harga-promosi-barang" style="width: 130px; max-width: 130px;">
+                    <td class="harga-promosi-barang" style="width: 130px; max-width: 130px; text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PromosiDetail.HARGA_PROMOSI)
                     </td>

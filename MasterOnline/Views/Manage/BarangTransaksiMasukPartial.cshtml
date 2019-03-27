@@ -206,7 +206,7 @@
                             @(stok.Satuan=="1" ? sstn : sstn2)
 
                         </td>
-                        <td class="harga-barang">
+                        <td class="harga-barang" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harsat)
                         </td>
                         <td class="gd-barang">
@@ -215,7 +215,7 @@
                         <td class="qty-barang">
                             @stok.Qty
                         </td>
-                        <td class="netto-barang">
+                        <td class="netto-barang" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", stok.Harga)
                         </td>
                         <td class="edit-hapus-col">
@@ -244,7 +244,7 @@
                         -
                         @Html.HiddenFor(m => m.BarangStok.Satuan)
                     </td>
-                    <td class="harga-barang">
+                    <td class="harga-barang" style="text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.BarangStok.Harsat)
                     </td>
@@ -259,7 +259,7 @@
                         0
                         @Html.HiddenFor(m => m.BarangStok.Qty)
                     </td>
-                    <td class="netto-barang">
+                    <td class="netto-barang" style="text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.BarangStok.Harga)
                     </td>

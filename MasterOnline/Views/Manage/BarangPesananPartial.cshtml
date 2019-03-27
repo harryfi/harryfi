@@ -198,7 +198,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.BRUTO, "Bruto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.BRUTO, new { @class = "form-control", Value = (Model?.Pesanan?.BRUTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.BRUTO) : "0,00") })
+                    @Html.TextBoxFor(m => m.Pesanan.BRUTO, new { @class = "form-control", Value = (Model?.Pesanan?.BRUTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.BRUTO) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -218,7 +218,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.ONGKOS_KIRIM, "Ongkos Kirim", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.ONGKOS_KIRIM, new { @class = "form-control num-only", Value = (Model?.Pesanan?.ONGKOS_KIRIM > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.ONGKOS_KIRIM) : "0,00") })
+                    @Html.TextBoxFor(m => m.Pesanan.ONGKOS_KIRIM, new { @class = "form-control num-only", Value = (Model?.Pesanan?.ONGKOS_KIRIM > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.ONGKOS_KIRIM) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -228,7 +228,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.NILAI_DISC, "Discount", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.NILAI_DISC, new { @class = "form-control num-only", Value = (Model?.Pesanan?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.NILAI_DISC) : "0,00") })
+                    @Html.TextBoxFor(m => m.Pesanan.NILAI_DISC, new { @class = "form-control num-only", Value = (Model?.Pesanan?.NILAI_DISC > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.NILAI_DISC) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -236,7 +236,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.NILAI_PPN, "Nilai PPN", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.NILAI_PPN, new { @class = "form-control", Value = (Model?.Pesanan?.NILAI_PPN >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NILAI_PPN) : "0,00") })
+                    @Html.TextBoxFor(m => m.Pesanan.NILAI_PPN, new { @class = "form-control", Value = (Model?.Pesanan?.NILAI_PPN >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NILAI_PPN) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -244,7 +244,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.NETTO, "Netto", new { @class = "col-md-4 col-sm-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.NETTO, new { @class = "form-control", Value = (Model?.Pesanan?.NETTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NETTO) : "0,00") })
+                    @Html.TextBoxFor(m => m.Pesanan.NETTO, new { @class = "form-control", Value = (Model?.Pesanan?.NETTO >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Pesanan.NETTO) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -326,7 +326,7 @@
                         <td class="stn-barang">
                             @stnBarang
                         </td>
-                        <td class="harga-barang">
+                        <td class="harga-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.H_SATUAN)
                         </td>
                         <td class="qty-barang">
@@ -335,16 +335,16 @@
                         <td class="disc1-barang">
                             @pesanan.DISCOUNT
                         </td>
-                        <td class="ndisc1-barang">
+                        <td class="ndisc1-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_1)
                         </td>
                         <td class="disc2-barang">
                             @pesanan.DISCOUNT_2
                         </td>
-                        <td class="ndisc2-barang">
+                        <td class="ndisc2-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NILAI_DISC_2)
                         </td>
-                        <td class="netto-barang">
+                        <td class="netto-barang" style = "text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.HARGA)
                         </td>
                         <td class="edit-hapus-col">
@@ -371,7 +371,7 @@
                         -
                         @Html.HiddenFor(m => m.PesananDetail.SATUAN)
                     </td>
-                    <td class="harga-barang">
+                    <td class="harga-barang" style = "text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PesananDetail.H_SATUAN)
                     </td>
@@ -383,7 +383,7 @@
                         0
                         @Html.HiddenFor(m => m.PesananDetail.DISCOUNT)
                     </td>
-                    <td class="ndisc1-barang">
+                    <td class="ndisc1-barang" style = "text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_1)
                     </td>
@@ -391,11 +391,11 @@
                         0
                         @Html.HiddenFor(m => m.PesananDetail.DISCOUNT_2)
                     </td>
-                    <td class="ndisc2-barang">
+                    <td class="ndisc2-barang" style = "text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PesananDetail.NILAI_DISC_2)
                     </td>
-                    <td class="netto-barang">
+                    <td class="netto-barang" style = "text-align:right">
                         0,00
                         @Html.HiddenFor(m => m.PesananDetail.HARGA)
                     </td>
