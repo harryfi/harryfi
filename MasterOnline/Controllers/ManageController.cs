@@ -2963,17 +2963,17 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
-            {
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
                 #region Sync ke Marketplace
                 //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");//moved to top
                 var listBLShop = ErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
@@ -3265,7 +3265,7 @@ namespace MasterOnline.Controllers
                     }
                 }
                 #endregion
-            }
+            //}
             ModelState.Clear();
 
             var partialVm = new BarangViewModel()
