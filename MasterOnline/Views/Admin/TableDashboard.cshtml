@@ -1,0 +1,38 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MasterOnline.ViewModels.DashboardAdminViewModel
+
+<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+    <thead>
+        <tr>
+            <th class="text-center">Tanggal</th>
+            <th class="text-center">Nilai Pembayaran</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model?.ListSales?.Count > 0)
+        {
+            foreach (var sales in Model.ListSales.OrderByDescending(b => b.TanggalBayar)/*.Take(10)*/)
+            {
+                <tr>
+                    <td class="text-center">@(sales.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
+                    <td class="text-right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sales.Nilai)</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td>---</td>
+                <td>---</td>
+            </tr>
+        }
+
+    </tbody>
+    <tfoot>
+        <tr>
+            <td class="text-center"><b>Total</b></td>
+            <td class="text-right"><b>Rp @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Bayar)</b></td>
+        </tr>
+    </tfoot>
+</table>
