@@ -114,7 +114,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public BliBliToken GetToken(BlibliAPIData data, bool syncData, bool resetToken)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
+        public async Task<BliBliToken> GetToken(BlibliAPIData data, bool syncData, bool resetToken)//string API_client_username, string API_client_password, string API_secret_key, string email_merchant, string password_merchant)
         {
             var ret = new BliBliToken();
             var arf01inDB = ErasoftDbContext.ARF01.Where(p => p.API_CLIENT_P.Equals(data.API_client_password) && p.API_CLIENT_U.Equals(data.API_client_username) && !string.IsNullOrEmpty(p.Sort1_Cust)).SingleOrDefault();
@@ -213,7 +213,7 @@ namespace MasterOnline.Controllers
                         }
                     }
                 }
-                GetQueueFeedDetail(data, null);
+                await GetQueueFeedDetail(data, null);
             }
             return ret;
         }
@@ -757,7 +757,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public string UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode, string merchantSku)
+        public async Task<string> UploadImage(BlibliAPIData iden, string[] imgPaths, string ProductCode, string merchantSku)
         {
             string ret = "";
             long milis = CurrentTimeMillis();
@@ -872,7 +872,7 @@ namespace MasterOnline.Controllers
                                         request_id = result.requestId.Value,
                                         log_request_id = currentLog.REQUEST_ID
                                     };
-                                    GetQueueFeedDetail(iden, queueData);
+                                    await GetQueueFeedDetail(iden, queueData);
                                 }
                                 //oTransaction.Commit();
                             }
@@ -966,7 +966,7 @@ namespace MasterOnline.Controllers
 
             return postDataStream;
         }
-        public void GetProdukInReviewList(BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
+        public async Task<string> GetProdukInReviewList(BlibliAPIData iden, string requestID, string ProductCode, string gdnSku, string api_log_requestId)
         {
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -991,7 +991,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -1115,6 +1115,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            return "";
         }
         public class Features
         {
@@ -1165,7 +1166,7 @@ namespace MasterOnline.Controllers
             public List<imagess> images { get; set; }
 
         }
-        public string UploadProduk(BlibliAPIData iden, BlibliProductData data)
+        public async Task<string> UploadProduk(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
@@ -1423,7 +1424,7 @@ namespace MasterOnline.Controllers
                                         request_id = result.requestId.Value,
                                         log_request_id = currentLog.REQUEST_ID
                                     };
-                                    GetQueueFeedDetail(iden, queueData);
+                                    await GetQueueFeedDetail(iden, queueData);
                                 }
                                 //oTransaction.Commit();
                             }
@@ -1646,7 +1647,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public string UpdateProdukQOH_Display(BlibliAPIData iden, BlibliProductData data)
+        public async Task<string> UpdateProdukQOH_Display(BlibliAPIData iden, BlibliProductData data)
         {
             //if merchant code diisi. barulah upload produk
             string ret = "";
@@ -1682,7 +1683,7 @@ namespace MasterOnline.Controllers
                 string responseFromServer_1 = "";
                 try
                 {
-                    using (WebResponse response = myReq_1.GetResponse())
+                    using (WebResponse response = await myReq_1.GetResponseAsync())
                     {
                         using (Stream stream = response.GetResponseStream())
                         {
@@ -1774,7 +1775,7 @@ namespace MasterOnline.Controllers
                                 {
                                     dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
                                 }
-                                using (WebResponse response = myReq.GetResponse())
+                                using (WebResponse response = await myReq.GetResponseAsync())
                                 {
                                     using (Stream stream = response.GetResponseStream())
                                     {
@@ -1800,7 +1801,7 @@ namespace MasterOnline.Controllers
                                         request_id = result2.requestId.Value,
                                         log_request_id = currentLog.REQUEST_ID
                                     };
-                                    GetQueueFeedDetail(iden, queueData);
+                                    await GetQueueFeedDetail(iden, queueData);
                                 }
                                 else
                                 {
@@ -1933,13 +1934,13 @@ namespace MasterOnline.Controllers
         //    return ret;
         //}
 
-        public string GetQueueFeedDetail(BlibliAPIData data, BlibliQueueFeedData feed)
+        public async Task<string> GetQueueFeedDetail(BlibliAPIData data, BlibliQueueFeedData feed)
         {
             string ret = "";
 
             if (feed != null)//satu requestId
             {
-                prosesQueueFeedDetail(data, feed.request_id, feed.log_request_id);
+                await prosesQueueFeedDetail(data, feed.request_id, feed.log_request_id);
             }
             else
             {
@@ -1949,7 +1950,7 @@ namespace MasterOnline.Controllers
                 {
                     for (int i = 0; i < dsRequestIdList.Tables[0].Rows.Count; i++)
                     {
-                        prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["REQUESTID"]), Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["LOG_REQUEST_ID"]));
+                        await prosesQueueFeedDetail(data, Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["REQUESTID"]), Convert.ToString(dsRequestIdList.Tables[0].Rows[i]["LOG_REQUEST_ID"]));
                     }
                 }
             }
@@ -4298,8 +4299,9 @@ namespace MasterOnline.Controllers
             return sSQL;
         }
 
-        protected void prosesQueueFeedDetail(BlibliAPIData data, string requestId, string log_request_id)
+        protected async Task<string> prosesQueueFeedDetail(BlibliAPIData data, string requestId, string log_request_id)
         {
+            string ret = "";
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
@@ -4322,7 +4324,7 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             try
             {
-                using (WebResponse response = myReq.GetResponse())
+                using (WebResponse response = await myReq.GetResponseAsync())
                 {
                     using (Stream stream = response.GetResponseStream())
                     {
@@ -4367,7 +4369,7 @@ namespace MasterOnline.Controllers
                                                 ProductCode = result.value.queueHistory[0].value;
                                             }
 
-                                            GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
+                                            await GetProdukInReviewList(data, requestId, ProductCode, gdnSku, log_request_id);
                                         }
                                     }
                                 }
@@ -4420,6 +4422,7 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
+            return ret;
         }
         public string GetCategoryPerUser(BlibliAPIData data)
         {
@@ -6142,7 +6145,7 @@ namespace MasterOnline.Controllers
                                         request_id = result.value.queueFeedId,
                                         log_request_id = currentLog.REQUEST_ID
                                     };
-                                    GetQueueFeedDetail(iden, queueData);
+                                    await GetQueueFeedDetail(iden, queueData);
                                 }
                                 //oTransaction.Commit();
                             }
