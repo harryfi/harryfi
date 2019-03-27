@@ -32,6 +32,14 @@
     @RenderSection("styles", required: false)
 
     <style>
+        /*add by nurul 27/3/2019*/
+        table thead tr {
+            background-color: #ffe8e8;
+        }
+        table tfoot tr {
+            background-color: #ffe8e8;
+        }
+        /*add by nurul 27/3/2019*/
         table.dataTable thead tr {
             background-color: #ffe8e8;
         }
@@ -98,6 +106,11 @@
                         <div class="menu_section">
                             <h3>General</h3>
                             <ul class="nav side-menu">
+                                @*//add by nurul 26/3/2019*@
+                                <li>
+                                    <a href="@Url.Action("DashboardAdmin", "Admin")"><i class="fa fa-home"></i> Dashboard</a>
+                                </li>
+                                @*//end add by nurul 26/3/2019*@
                                 <li>
                                     <a href="@Url.Action("AccountMenu", "Admin")"><i class="fa fa-user"></i> Account</a>
                                 </li>

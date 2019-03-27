@@ -197,7 +197,7 @@
         $(document).on('ready', function (event) {
             $("#alert-error-section").hide();
 
-            if ($('.alert-success').length) {
+            @*if ($('.alert-success').length) {
                 $('.alert-success')
                     .delay(2000)
                     .slideUp(700)
@@ -205,7 +205,7 @@
                     .done(function() {
                         window.location.href = '@Url.Action("Index", "Home")';
                     });
-            }
+            }*@
 
             initRequired();
 

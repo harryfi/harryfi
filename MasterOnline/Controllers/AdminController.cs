@@ -10,6 +10,8 @@ using MasterOnline.Models;
 using MasterOnline.Services;
 using MasterOnline.ViewModels;
 
+using System.Collections.Generic;
+
 namespace MasterOnline.Controllers
 {
     public class AdminController : Controller
@@ -65,7 +67,9 @@ namespace MasterOnline.Controllers
 
             Session["SessionAdmin"] = adminFromDb;
 
-            return RedirectToAction("AccountMenu");
+            //return RedirectToAction("AccountMenu");
+            return RedirectToAction("DashboardAdmin");
+
         }
 
         public ActionResult LoggingOut()
@@ -1120,5 +1124,107 @@ namespace MasterOnline.Controllers
 
             return Json(resultQuery, JsonRequestBehavior.AllowGet);
         }
+
+        // =============================================== Dashboard (START)
+
+        [Route("admin/home")]
+        [SessionAdminCheck]
+        public ActionResult DashboardAdmin()
+        {
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {                
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    //date = ((TimeSpan)(toDate - fromDate)).Days;
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }                
+            }
+            var date = DateTime.Today.AddMonths(-1);
+            var Sale = MoDbContext.AktivitasSubscription.Where(a => a.TanggalBayar >= date && a.TanggalBayar <= DateTime.Today).ToList();
+            double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                ListSales = Sale,
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                Bayar = lengthSum
+            };
+            return View(vm);
+        }
+
+        public static int GetMonthDifference(DateTime fromDate, DateTime toDate)
+        {
+            int monthsApart = 12 * (fromDate.Year - toDate.Year) + fromDate.Month - toDate.Month;
+            return Math.Abs(monthsApart);
+        }
+        [SessionAdminCheck]
+        public ActionResult RefreshDashboard(string param)
+        {
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }
+                    else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }
+            }
+            var Sale = MoDbContext.AktivitasSubscription.Where(b => b.TanggalBayar >= drTgl && b.TanggalBayar <= sdTgl).ToList();
+            double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                ListSales = Sale,
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                Bayar = lengthSum
+            };
+            return PartialView("TableDashboard", vm);
+        }
+
+        // =============================================== Dashboard (END)
     }
 }
