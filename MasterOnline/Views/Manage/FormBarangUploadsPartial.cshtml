@@ -323,12 +323,13 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        @Html.LabelFor(m => m.haveVarian, "Memiliki Varian *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+                        @Html.LabelFor(m => m.tipeBarang, "Tipe Barang *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-6 col-sm-6 col-xs-12">
-                            @Html.HiddenFor(m => m.haveVarian)
+                            @Html.HiddenFor(m => m.tipeBarang)
                             <select id="cmbVar" style="height:30px" placeholder="Harap pilih" required="required" onchange="ChangeCmbVar($('#cmbVar').val());">
-                                <option value="1">Ya</option>
-                                <option value="0">Tidak</option>
+                                <option value="1">Barang Varian</option>
+                                <option value="0">Barang Tanpa Varian</option>
+                                <option value="2">Barang Induk</option>
                             </select>
                         </div>
                     </div>

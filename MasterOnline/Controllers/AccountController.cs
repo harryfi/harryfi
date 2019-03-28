@@ -105,8 +105,9 @@ namespace MasterOnline.Controllers
 
                 ListSupport.Add("marlakhy@yahoo.com");
                 ListSupport.Add("calvintes2@email.com");
+                ListSupport.Add("rahmamk@gmail.com");
 
-                if (!ListSupport.Contains(admin.Email))
+                if (!ListSupport.Contains(admin.Email.ToLower()))
                 {
                     ModelState.AddModelError("", @"Support tidak ditemukan!");
                     return View("SupportLogin", admin);
@@ -219,8 +220,9 @@ namespace MasterOnline.Controllers
             System.Collections.Generic.List<string> ListSupport = new System.Collections.Generic.List<string>();
             ListSupport.Add("marlakhy@yahoo.com");
             ListSupport.Add("calvintes2@email.com");
+            ListSupport.Add("rahmamk@gmail.com");
 
-            if (!ListSupport.Contains(admin.Email))
+            if (!ListSupport.Contains(admin.Email.ToLower()))
             {
                 ModelState.AddModelError("", @"Support tidak ditemukan!");
                 return View("SupportLogin", admin);
@@ -381,6 +383,22 @@ namespace MasterOnline.Controllers
         {
             //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //var test = new JDIDController();
+            //var categoryJD = LocalErasoftDbContext.CATEGORY_JDID.Where(m => m.LEAF == "1").ToList();
+            //if (categoryJD.Count > 0)
+            //{
+            //    var jdCode = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID");
+            //    var listJD = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == jdCode.IdMarket.ToString()).ToList();
+            //    var data = new JDIDAPIData
+            //    {
+            //        accessToken = listJD[0].TOKEN,
+            //        appKey = listJD[0].API_CLIENT_P,
+            //        appSecret = listJD[0].API_CLIENT_U
+            //    };
+            //    var a = test.getAttribute(data, categoryJD[0].CATEGORY_CODE);
+            //    var b = test.getAttributeOpt(data, categoryJD[0].CATEGORY_CODE, a.ACODE_1, 1);
+            //}
+            //test.getCategory();
             //var mid = new MidtransController();
             //var dataMid = new MidtransTransactionData
             //{

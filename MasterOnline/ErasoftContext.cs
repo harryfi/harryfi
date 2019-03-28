@@ -441,6 +441,7 @@ namespace MasterOnline
         public virtual DbSet<STF20> STF20 { get; set; }
         public virtual DbSet<STF20B> STF20B { get; set; }
         public virtual DbSet<STF02I> STF02I { get; set; }
+        public virtual DbSet<CATEGORY_JDID> CATEGORY_JDID { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
