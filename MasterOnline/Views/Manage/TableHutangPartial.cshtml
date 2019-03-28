@@ -22,7 +22,7 @@
                 <td>@(hutang.TGL?.ToString("dd/MM/yyyy"))</td>
                 <td>@hutang.NSUPP (@hutang.SUPP)</td>
                 <td>@(hutang.JTGL?.ToString("dd/MM/yyyy"))</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TOTAL)</td>
+                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TOTAL)</td>
                 @if (Convert.ToString(hutang.POSTING) == "Y")
                 {
                     <td>

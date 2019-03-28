@@ -123,7 +123,7 @@
                             totalBayar = Model.Hutang.TBAYAR;
                         }
                     }
-                    @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALBYR", (totalBayar >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalBayar) : "0,00"), new { @class = "form-control" , @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -140,7 +140,7 @@
                             totalPot = Model.Hutang.TPOT;
                         }
                     }
-                    @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALPOT", (totalPot >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalPot) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -162,7 +162,7 @@
                         //    totalSemua = Model.Hutang.TBAYAR;
                         //}
                     }
-                    @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("TOTALBAYAR", (totalSemua >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalSemua) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
 
                 </div>
             </div>
@@ -256,14 +256,14 @@
                         <td>
                             @detailHutang.NINV
                         </td>
-                        <td class="sisa-hutang">
+                        <td class="sisa-hutang" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.SISA)
 
                         </td>
-                        <td class="potongan-hutang">
+                        <td class="potongan-hutang" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.POT)
                         </td>
-                        <td class="bayar-hutang">
+                        <td class="bayar-hutang" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", detailHutang.BAYAR)
                         </td>
                         <td class="edit-hapus-col">
@@ -285,17 +285,17 @@
                         <div id="INVOICE" class="selectivity-input" tabindex="0" ></div>
                         @Html.HiddenFor(m => m.HutangDetail.NINV)
                     </td>
-                    <td class="sisa-hutang">
+                    <td class="sisa-hutang" style="text-align:right">
                         <span class="span-sisa-hutang">-</span>
                         @Html.HiddenFor(m => m.HutangDetail.SISA)
                     </td>
-                    <td class="potongan-hutang">
+                    <td class="potongan-hutang" style="text-align:right">
                         <span class="span-potongan-hutang">0,00</span>
-                        @Html.TextBoxFor(m => m.HutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                        @Html.TextBoxFor(m => m.HutangDetail.POT, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                     </td>
-                    <td class="bayar-hutang">
+                    <td class="bayar-hutang" style="text-align:right">
                         <span class="span-bayar-hutang">0,00</span>
-                        @Html.TextBoxFor(m => m.HutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
+                        @Html.TextBoxFor(m => m.HutangDetail.BAYAR, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none; text-align:right" })
                     </td>
                     <td class="edit-hapus-col">
                         @*<button type="button" class="btn btn-primary" disabled="disabled" onclick="simpandetail('hut-0')">

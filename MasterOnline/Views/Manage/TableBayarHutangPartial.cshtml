@@ -23,10 +23,10 @@
         <tr>
             <td>@hutang.BUKTI</td>
             <td>@hutang.TGL.ToString("dd/MM/yyyy")</td>
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TPOT)</td>
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TBAYAR)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TPOT)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TBAYAR)</td>
             @* add by nurul 10/10/2018 *@
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TBAYAR + hutang.TPOT)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", hutang.TBAYAR + hutang.TPOT)</td>
             @* add by Tri status transfer bca *@
             @*@if (Convert.ToString(hutang.TGIRO) == "1")
     {

@@ -3957,7 +3957,6 @@ namespace MasterOnline.Controllers
                                         oCommand.Parameters[(k * 6) + 5].Value = "";
                                         oCommand.Parameters[(k * 6) + 6].Value = "0";
                                         oCommand.Parameters[(k * 6) + 7].Value = "0";
-
                                     }
                                     oCommand.ExecuteNonQuery();
 

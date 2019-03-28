@@ -19,10 +19,10 @@
         <tr>
             <td>@piutang.BUKTI</td>
             <td>@piutang.TGL.ToString("dd/MM/yyyy")</td>
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TPOT)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR)</td>
             @*change by nurul 10/10/2018   <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR - piutang.TPOT)</td>*@
-            <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR + piutang.TPOT)</td>
+            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TBAYAR + piutang.TPOT)</td>
             @if (Convert.ToString(piutang.POSTING) == "Y")
     {
         <td>

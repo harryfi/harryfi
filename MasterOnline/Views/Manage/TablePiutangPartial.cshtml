@@ -21,7 +21,7 @@
                 <td>@(piutang.TGL?.ToString("dd/MM/yyyy"))</td>
                 <td>@piutang.NCUST (@piutang.CUST)</td>
                 <td>@(piutang.JTGL?.ToString("dd/MM/yyyy"))</td>
-                <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TOTAL)</td>
+                <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", piutang.TOTAL)</td>
                 @if (Convert.ToString(piutang.POST) == "Y")
                 {
                     <td>

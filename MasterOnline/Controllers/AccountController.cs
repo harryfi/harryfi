@@ -197,7 +197,7 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncMarketplace(erasoftContext);
+                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
@@ -372,14 +372,15 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                SyncMarketplace(erasoftContext);
+                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
             return RedirectToAction("Bantuan", "Manage");
         }
 
-        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext)
+        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
         {
             //MoDbContext = new MoDbContext();
             AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;

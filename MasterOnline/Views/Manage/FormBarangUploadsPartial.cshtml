@@ -268,7 +268,7 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                             @Html.HiddenFor(m => m.TempBrg.HJUAL)
                             @*@(Model?.TempBrg != null ? Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL), disabled = "disabled", maxlength = "12" }) : Html.TextBoxFor(m => m.TempBrg.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))*@
-                            <input class="form-control" value="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL)" disabled />
+                            <input class="form-control" style = "text-align:right" value="@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.TempBrg.HJUAL)" disabled />
                         </div>
                     </div>
                 </div>
@@ -403,7 +403,7 @@
                     <div class="form-group">
                         @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                         <div class="col-md-4 col-sm-4 col-xs-12">
-                            @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" }))
+                            @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", Value = "0,00", required = "required", maxlength = "12" }))
                         </div>
                     </div>
                     <div class="form-group">

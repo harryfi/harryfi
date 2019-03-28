@@ -66,7 +66,7 @@
                         }
                     }
                     @Html.HiddenFor(m => m.Jurnal.tdebet, new { Value = totalDebet })
-                    @Html.TextBox("DEBET", (totalDebet >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalDebet) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("DEBET", (totalDebet >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalDebet) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
                         }
                     }
                     @Html.HiddenFor(m => m.Jurnal.tkredit, new { Value = totalKredit })
-                    @Html.TextBox("KREDIT", (totalKredit >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalKredit) : "0,00"), new { @class = "form-control" })
+                    @Html.TextBox("KREDIT", (totalKredit >= 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", totalKredit) : "0,00"), new { @class = "form-control", @style = "text-align:right" })
                 </div>
             </div>
         </div>
@@ -216,7 +216,7 @@
                                 @("Kredit (K)")
                             }
                         </td>
-                        <td class="nilai-rekening">
+                        <td class="nilai-rekening" style="text-align:right">
                             @String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", jurnal.nilai)
                         </td>
                         <td class="edit-hapus-col">
@@ -250,7 +250,7 @@
                             <option value="K">K</option>
                         </select>
                     </td>
-                    <td class="nilai-rekening">
+                    <td class="nilai-rekening" style="text-align:right">
                         <span class="span-nilai-rekening">0,00</span>
                         @Html.TextBoxFor(m => m.JurnalDetail.nilai, new { Value = 0, @class = "form-control", type = "number", min = 0, step = 1, style = "display: none;" })
                     </td>
