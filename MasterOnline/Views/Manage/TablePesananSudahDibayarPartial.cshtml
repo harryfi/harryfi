@@ -32,7 +32,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 115px;">Total</th>
             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Siap Kirim</th>*@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px; border-right:hidden;">Ubah Status</th>
-            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 10px; max-width: 10px;"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden" /></th>
+            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 10px; max-width: 10px;"><input type="checkbox" class="dt-checkboxes-select-all" id="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden" /></th>*@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Lihat Detail</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>*@
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
@@ -97,9 +97,9 @@
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                     </button>
                 </td>
-                <td>
+                @*<td>
                     <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RecNum" style="border-left:hidden" />
-                </td>
+                </td>*@
                 <td class="edit-hapus-col">
                     <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RecNum))">
                         <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
