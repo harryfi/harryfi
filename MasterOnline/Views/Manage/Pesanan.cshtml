@@ -4964,7 +4964,7 @@
                     $('#loading_sudah_dibayar_tab').hide();
                     $('#datatable_nunggu').show();
                     //add by calvin 23 nov 2018, setelah di close, search lg
-                    table.search($('#search_nunggu').val()).draw();
+                    tableNunggu.search($('#search_nunggu').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
@@ -5023,7 +5023,7 @@
                     cekJumlahPesananBulanIni();
                     $('#datatable_nunggu').show();
                     //add by calvin 23 nov 2018, setelah di close, search lg
-                    table.search($('#search_nunggu').val()).draw();
+                    tableNunggu.search($('#search_nunggu').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                 },
                 error: function(xhr, status, error) {
