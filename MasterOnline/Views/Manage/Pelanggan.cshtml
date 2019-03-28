@@ -1188,6 +1188,10 @@
                                             @*add by nurul 25/03/2019*@
                                             <div id="TokpedShopID" class="form-group">
                                             </div>
+                                            <div id="LabelTokped1" class="form-group">
+                                            </div>
+                                            <div id="LabelTokped2" class="form-group">
+                                            </div>
                                             @*end add by nurul 25/03/2019*@
                                             <input type="button" class="btn btn-primary pull-right" value="Simpan" id="simpan_btn" onclick="simpanCustomer(this)" />
                                         }
@@ -1420,6 +1424,11 @@
                         Customers_KODEPOS.value = '.';
                         Customers_KODEKABKOT.value = '3174';
                         Customers_KODEPROV.value = '31';
+                        Customers_Sort1_Cust.value = '';
+                        Customers_API_CLIENT_U.value = '';
+                        Customers_API_CLIENT_P.value = '';
+                        Customers_API_KEY.value = '';
+
                     });
                     }
                 },
@@ -1549,6 +1558,7 @@
                                 }*@
 
                                 if (@bklapak != value && @tokped != value && @shopee != value) {
+                                @*if (@bklapak != value && @shopee != value) {*@
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
                                     var txtAPI_Key = '';
                                     if (@lzd == value) {
@@ -1576,8 +1586,13 @@
                                     lblDesc3.style.visibility = 'visible';
                                     lblDesc4.style.visibility = 'visible';
                                     if (@tokped == value) {
-                                        lblDesc3.innerText ='1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.';
-                                        lblDesc4.innerText ='2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+                                        //lblDesc3.innerText ='1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.';
+                                        //lblDesc4.innerText ='2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".'
+                                        lblDesc.style.visibility = 'hidden';
+                                        lblDesc2.style.visibility = 'hidden';
+                                        lblPopUp.style.visibility = 'hidden';
+                                        lblDesc3.style.visibility = 'hidden';
+                                        lblDesc4.style.visibility = 'hidden';
 
                                     } else {
                                         lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
@@ -1764,6 +1779,10 @@
             $('#txtAPI_CLIENT_U').remove();
             $('#labelAPI_CLIENT_P').remove();
             $('#txtAPI_CLIENT_P').remove();
+            $('#labelAPI_Key').remove();
+            $('#txtAPI_Key').remove();
+            $('#labelKetTokped1').remove();
+            $('#labelKetTokped2').remove();
             if (show) {
                 var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">Merchant ID *</label>';
 
@@ -1803,48 +1822,58 @@
             $('#txtAPI_CLIENT_U').remove();
             $('#labelAPI_CLIENT_P').remove();
             $('#txtAPI_CLIENT_P').remove();
+            $('#labelAPI_KeyTokped').remove();
+            $('#txtAPI_KeyTokped').remove();
+            $('#labelKetTokped1').remove();
+            $('#labelKetTokped2').remove();
             if (show) {
-                var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID *</label>';
+                var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
 
                 var valuetxtSort1_Cust = "";
                 if ($('#Customers_Sort1_Cust').val() != null) {
                     valuetxtSort1_Cust = $('#Customers_Sort1_Cust').val();
-                }
-                var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
+                } 
+                //var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
+                var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
 
-                var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">Client ID *</label>';
+                var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">Client ID</label>';
 
                 var valuetxtAPI_CLIENT_U = "";
                 if ($('#Customers_API_CLIENT_U').val() != null) {
                     valuetxtAPI_CLIENT_U = $('#Customers_API_CLIENT_U').val();
-                }
-                var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
+                } 
+                //var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
+                var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" type="text" value="' + valuetxtAPI_CLIENT_U + '" maxlength="50"></div>';
 
-                var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">Client Secret *</label>';
+                var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">Client Secret</label>';
                 var valuetxtAPI_CLIENT_P = "";
                 if ($('#Customers_API_CLIENT_P').val() != null) {
                     valuetxtAPI_CLIENT_P = $('#Customers_API_CLIENT_P').val();
-                }
-                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+                } 
+                //var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+                var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
 
                 //add by nurul 25/3/2019
-                var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
+                var labelAPI_KeyTokped = '<label id="labelAPI_KeyTokped" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" >API Key</label>';
                 var valuetxtAPI_Key = "";
                 if ($('#Customers_API_KEY').val() != null) {
                     valuetxtAPI_Key = $('#Customers_API_KEY').val();
-                }
-                var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                } 
+                //var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                var txtAPI_KeyTokped = '<div id="txtAPI_KeyTokped" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100" value="' + valuetxtAPI_Key + '"></div>';
                                     
-                
+                //<div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
+                var labelKetTokped1 = '<label id="labelKetTokped1" >1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
+                var labelKetTokped2 = '<label id="labelKetTokped2" >2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
                 //end add by nurul 25/3/2019
-
+                $('#descAPIKey').hide();
+                $('#descAPIKey2').hide();
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
-                $('#TokpedShopID').append(labelAPI_Key + txtAPI_Key);
-                //$('#divAPIKey').append(labelAPI_Key + txtAPI_Key);
-                $('#lbl_Customers_API_KEY').html("Shop ID *");
-                $('#labelAPI_CLIENT_U').html("Client ID *");
+                $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
+                $('#LabelTokped1').append(labelKetTokped1);
+                $('#LabelTokped2').append(labelKetTokped2);
             }
         }
         function Initialize() {
@@ -2017,6 +2046,7 @@
                         $('#Customers_PASSWORD').removeAttr('required');
                     }
                     if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {
+                    @*if (@bklapak != response.Customers.NAMA) {*@
                         var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
                             valuetxtAPI_Key = response.Customers.API_KEY;
@@ -2100,6 +2130,10 @@
                     $('#txtAPI_CLIENT_U').remove();
                     $('#labelAPI_CLIENT_P').remove();
                     $('#txtAPI_CLIENT_P').remove();
+                    $('#labelAPI_KeyTokped').remove();
+                    $('#txtAPI_KeyTokped').remove();
+                    $('#labelKetTokped1').remove();
+                    $('#labelKetTokped2').remove();
                     @{
                         var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
                     }
@@ -2133,6 +2167,56 @@
                         $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                         $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
                         $('#labelAPI_CLIENT_U').html("API client username *");
+                    }
+                    if (@tokped == response.Customers.NAMA) {
+
+                        var labelSort1_Cust = '<label id="labelSort1_Cust" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_Sort1_Cust">FSID</label>';
+
+                        var valuetxtSort1_Cust = "";
+                        if (response.Customers.Sort1_Cust != null) {
+                            valuetxtSort1_Cust = response.Customers.Sort1_Cust;
+                        } 
+                        //var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" required="required" type="text" value="'+ valuetxtSort1_Cust +'" maxlength="10"></div>';
+                        var txtSort1_Cust = '<div id="txtSort1_Cust" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field FSID must be a string with a maximum length of 10." data-val-length-max="10" id="Customers_Sort1_Cust" name="Customers.Sort1_Cust" type="text" value="' + valuetxtSort1_Cust + '" maxlength="10"></div>';
+
+                        var labelAPI_CLIENT_U = '<label id="labelAPI_CLIENT_U" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">Client ID</label>';
+
+                        var valuetxtAPI_CLIENT_U = "";
+                        if (response.Customers.API_CLIENT_U != null) {
+                            valuetxtAPI_CLIENT_U = response.Customers.API_CLIENT_U;
+                        } 
+                        //var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="'+ valuetxtAPI_CLIENT_U +'" maxlength="50"></div>';
+                        var txtAPI_CLIENT_U = '<div id="txtAPI_CLIENT_U" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field Client ID must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" type="text" value="' + valuetxtAPI_CLIENT_U + '" maxlength="50"></div>';
+
+                        var labelAPI_CLIENT_P = '<label id="labelAPI_CLIENT_P" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_P">Client Secret</label>';
+                        var valuetxtAPI_CLIENT_P = "";
+                        if (response.Customers.API_CLIENT_P != null) {
+                            valuetxtAPI_CLIENT_P = response.Customers.API_CLIENT_P;
+                        } 
+                        //var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" required="required" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+                        var txtAPI_CLIENT_P = '<div id="txtAPI_CLIENT_P" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" id="Customers_API_CLIENT_P" name="Customers.API_CLIENT_P" type="text" value="' + valuetxtAPI_CLIENT_P + '"></div>';
+
+                        //add by nurul 25/3/2019
+                        var labelAPI_KeyTokped = '<label id="labelAPI_KeyTokped" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY">API Key</label>';
+                        var valuetxtAPI_Key = "";
+                        if (response.Customers.API_KEY != null) {
+                            valuetxtAPI_Key = response.Customers.API_KEY;
+                        } 
+                        //var txtAPI_Key = '<div id="txtAPI_Key" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" required="required" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100"></div>';
+                        var txtAPI_KeyTokped = '<div id="txtAPI_KeyTokped" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_KEY must be a string with a maximum length of 100." data-val-length-max="100" id="Customers_API_KEY" name="Customers.API_KEY" type="text" maxlength="100" value="' + valuetxtAPI_Key + '"></div>';
+
+                        //<div id="emptyDiv3" class="col-md-3 col-sm-3 col-xs-1"></div>
+                        var labelKetTokped1 = '<label id="labelKetTokped1">1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
+                        var labelKetTokped2 = '<label id="labelKetTokped2">2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
+                        //end add by nurul 25/3/2019
+                        $('#descAPIKey').hide();
+                        $('#descAPIKey2').hide();
+                        $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
+                        $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
+                        $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);
+                        $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
+                        $('#LabelTokped1').append(labelKetTokped1);
+                        $('#LabelTokped2').append(labelKetTokped2);
                     }
                     //end add by calvin, button for generate lazada code
 
