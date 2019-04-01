@@ -1300,13 +1300,16 @@
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
             }
-            if ($("#TempBrg_KODE_BRG_INDUK").val() != '') {
+            if ($('#cmbVar').val() == "1") {
                 if ($('#txtBrgInduk').val() == "") {
                     addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk harus diisi.");
                     ret = false;
                 }
-                else if ($("#TempBrg_KODE_BRG_INDUK").val().length > 20) {
-                    addError($("#TempBrg_KODE_BRG_INDUK").parent().parent(), "Kode barang Induk maksimal 20 karakter.");
+                else if ($("#TempBrg_KODE_BRG_INDUK").val().length > 11) {
+                    addError($("#TempBrg_KODE_BRG_INDUK").parent().parent(), "Kode barang Induk maksimal 11 karakter.");
+                    ret = false;
+                } else if ($('#txtBrgInduk').val() == $('#txtBrg').val()) {
+                    addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk tidak boleh sama dengan Kode Barang MO.");
                     ret = false;
                 }
             }
@@ -1353,7 +1356,7 @@
 
                 $('#Stf02_BRG').val($('#txtBrg').val());
 
-                $('#haveVarian').val($('#cmbVar').val());
+                $('#tipeBarang').val($('#cmbVar').val());
 
                 var $form = $(btnClicked).parents('form');
                 var $formData = new FormData($('form').get(0));
@@ -1548,11 +1551,13 @@
                 if ($("#TempBrg_KODE_BRG_INDUK").val() != '') {
                     if (data.PART != null) {
                         $('#txtBrgInduk').val(data.PART);
-                        $("#cmbVar").val('1').change();
+                        $("#cmbVar").val('1').change();//brg varian
                     }
                 } else if (data.TYPE == "3") {
                     $("#cmbVar").val('0').change();
-                } else {
+                } else if (data.TYPE == "4") {
+                    $("#cmbVar").val('2').change();
+                } else {//default barang varian
                     $("#cmbVar").val('1').change();
                 }
             }

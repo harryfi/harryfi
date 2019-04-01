@@ -74,19 +74,19 @@ namespace MasterOnline.Models
     {
         //public Deal_Info deal_info { get; set; }
         public string deal_request_state { get; set; }
-        public int price { get; set; }
-        public int category_id { get; set; }
+        public long price { get; set; }
+        public long category_id { get; set; }
         public string category { get; set; }
         public string[] category_structure { get; set; }
         public string seller_username { get; set; }
         public string seller_name { get; set; }
-        public int seller_id { get; set; }
+        public long seller_id { get; set; }
         public string seller_avatar { get; set; }
         public string seller_level { get; set; }
         public string seller_level_badge_url { get; set; }
         public string seller_delivery_time { get; set; }
-        public int seller_positive_feedback { get; set; }
-        public int seller_negative_feedback { get; set; }
+        //public int seller_positive_feedback { get; set; }
+        //public int seller_negative_feedback { get; set; }
         public string seller_term_condition { get; set; }
         public object seller_alert { get; set; }
         public bool for_sale { get; set; }
@@ -96,8 +96,8 @@ namespace MasterOnline.Models
         public bool top_merchant { get; set; }
         //public Last_Order_Schedule last_order_schedule { get; set; }
         //public Seller_Voucher seller_voucher { get; set; }
-        public int waiting_payment { get; set; }
-        public int sold_count { get; set; }
+        //public int waiting_payment { get; set; }
+        //public int sold_count { get; set; }
         public Specs specs { get; set; }
         public bool force_insurance { get; set; }
         public object[] free_shipping_coverage { get; set; }
@@ -112,7 +112,7 @@ namespace MasterOnline.Models
         public string city { get; set; }
         public string province { get; set; }
         public int weight { get; set; }
-        public int[] image_ids { get; set; }
+        public long[] image_ids { get; set; }
         public long[] new_image_ids { get; set; }
         public string[] images { get; set; }
         public string[] small_images { get; set; }
@@ -135,9 +135,9 @@ namespace MasterOnline.Models
         public bool on_bundling { get; set; }
         public string[] courier { get; set; }
         //public Negotiation negotiation { get; set; }
-        public int interest_count { get; set; }
+        //public int interest_count { get; set; }
         public DateTime last_relist_at { get; set; }
-        public int view_count { get; set; }
+        //public int view_count { get; set; }
     }
     public class Specs
     {
@@ -289,7 +289,7 @@ namespace MasterOnline.Models
     }
     public class Buyer
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string name { get; set; }
         public string username { get; set; }
         public string email { get; set; }
@@ -297,7 +297,7 @@ namespace MasterOnline.Models
 
     public class Seller
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string name { get; set; }
         public string username { get; set; }
     }
@@ -326,18 +326,18 @@ namespace MasterOnline.Models
         //public Deal_Info deal_info { get; set; }
         public string deal_request_state { get; set; }
         public int price { get; set; }
-        public int category_id { get; set; }
+        public long category_id { get; set; }
         public string category { get; set; }
         public string[] category_structure { get; set; }
         public string seller_username { get; set; }
         public string seller_name { get; set; }
-        public int seller_id { get; set; }
+        public long seller_id { get; set; }
         public string seller_avatar { get; set; }
         public string seller_level { get; set; }
         public string seller_level_badge_url { get; set; }
         public string seller_delivery_time { get; set; }
-        public int seller_positive_feedback { get; set; }
-        public int seller_negative_feedback { get; set; }
+        //public int seller_positive_feedback { get; set; }
+        //public int seller_negative_feedback { get; set; }
         public string seller_term_condition { get; set; }
         public string seller_alert { get; set; }
         public bool for_sale { get; set; }
@@ -365,7 +365,7 @@ namespace MasterOnline.Models
         public string city { get; set; }
         public string province { get; set; }
         public int weight { get; set; }
-        public int[] image_ids { get; set; }
+        public long[] image_ids { get; set; }
         public long[] new_image_ids { get; set; }
         public string[] images { get; set; }
         public string[] small_images { get; set; }
@@ -391,19 +391,19 @@ namespace MasterOnline.Models
         //public Negotiation negotiation { get; set; }
         public int interest_count { get; set; }
         public DateTime last_relist_at { get; set; }
-        public int view_count { get; set; }
+        //public int view_count { get; set; }
         public int order_quantity { get; set; }
-        public int accepted_price { get; set; }
+        public long accepted_price { get; set; }
         public long cart_item_id { get; set; }//changed from int to long
         public string status { get; set; }
-        public int nominal { get; set; }
-        public int active_mapping_id { get; set; }
+        public long nominal { get; set; }
+        public long active_mapping_id { get; set; }
         public string _operator { get; set; }
     }
     public class Amount_Details
     {
         public string name { get; set; }
-        public int? amount { get; set; }
+        public long? amount { get; set; }
     }
     #endregion
     #region change status
@@ -433,19 +433,19 @@ namespace MasterOnline.Models
     {
         //public Deal_Info deal_info { get; set; }
         public string deal_request_state { get; set; }
-        public int price { get; set; }
-        public int category_id { get; set; }
+        public long price { get; set; }
+        public long category_id { get; set; }
         public string category { get; set; }
         public string[] category_structure { get; set; }
         public string seller_username { get; set; }
         public string seller_name { get; set; }
-        public int seller_id { get; set; }
+        public long seller_id { get; set; }
         public string seller_avatar { get; set; }
         public string seller_level { get; set; }
         public string seller_level_badge_url { get; set; }
         public string seller_delivery_time { get; set; }
-        public int seller_positive_feedback { get; set; }
-        public int seller_negative_feedback { get; set; }
+        //public int seller_positive_feedback { get; set; }
+        //public int seller_negative_feedback { get; set; }
         public string seller_term_condition { get; set; }
         public object seller_alert { get; set; }
         public bool for_sale { get; set; }
@@ -456,7 +456,7 @@ namespace MasterOnline.Models
         //public Last_Order_Schedule last_order_schedule { get; set; }
         //public Seller_Voucher seller_voucher { get; set; }
         public int waiting_payment { get; set; }
-        public int sold_count { get; set; }
+        //public int sold_count { get; set; }
         public Specs specs { get; set; }
         public bool force_insurance { get; set; }
         public object[] free_shipping_coverage { get; set; }
@@ -471,7 +471,7 @@ namespace MasterOnline.Models
         public string city { get; set; }
         public string province { get; set; }
         public int weight { get; set; }
-        public int[] image_ids { get; set; }
+        public long[] image_ids { get; set; }
         public long[] new_image_ids { get; set; }
         public string[] images { get; set; }
         public string[] small_images { get; set; }
@@ -501,7 +501,7 @@ namespace MasterOnline.Models
         public string sla_type { get; set; }
         public object sla_display_raw { get; set; }
         public object sla_type_raw { get; set; }
-        public int interest_count { get; set; }
+        public long interest_count { get; set; }
         public DateTime last_relist_at { get; set; }
         public int view_count { get; set; }
     }
@@ -525,9 +525,9 @@ namespace MasterOnline.Models
     public class ListProduct
     {
         //public Deal_Info deal_info { get; set; }
-        public string deal_request_state { get; set; }
-        public int price { get; set; }
-        public int category_id { get; set; }
+        //public string deal_request_state { get; set; }
+        public long price { get; set; }
+        public long category_id { get; set; }
         public string category { get; set; }
         public string[] category_structure { get; set; }
         //public string seller_username { get; set; }
@@ -540,38 +540,41 @@ namespace MasterOnline.Models
         //public int seller_positive_feedback { get; set; }
         //public int seller_negative_feedback { get; set; }
         //public string seller_term_condition { get; set; }
-        public object seller_alert { get; set; }
+        //public object seller_alert { get; set; }
         public bool for_sale { get; set; }
         public object[] state_description { get; set; }
-        public bool premium_account { get; set; }
+        //public bool premium_account { get; set; }
         public bool brand { get; set; }
-        public bool top_merchant { get; set; }
+        //public bool top_merchant { get; set; }
         //public Last_Order_Schedule last_order_schedule { get; set; }
         //public Seller_Voucher seller_voucher { get; set; }
-        public int waiting_payment { get; set; }
-        public int sold_count { get; set; }
-        public Specs_prod specs { get; set; }
-        public bool force_insurance { get; set; }
-        public object[] free_shipping_coverage { get; set; }
-        public string video_url { get; set; }
-        public bool assurance { get; set; }
+        //public int waiting_payment { get; set; }
+        //public long sold_count { get; set; }
+
+        //public Specs_prod specs { get; set; }
+        public dynamic specs { get; set; }
+
+        //public bool force_insurance { get; set; }
+        //public object[] free_shipping_coverage { get; set; }
+        //public string video_url { get; set; }
+        //public bool assurance { get; set; }
         //public Label[] labels { get; set; }
         //public Tag_Pages[] tag_pages { get; set; }
         public string id { get; set; }
         public string url { get; set; }
         public string name { get; set; }
         public bool active { get; set; }
-        public string city { get; set; }
-        public string province { get; set; }
+        //public string city { get; set; }
+        //public string province { get; set; }
         public int weight { get; set; }
-        public int[] image_ids { get; set; }
+        public long[] image_ids { get; set; }
         public long[] new_image_ids { get; set; }
         public string[] images { get; set; }
         public string[] small_images { get; set; }
         public string desc { get; set; }
         public string condition { get; set; }
-        public int stock { get; set; }
-        public bool favorited { get; set; }
+        public long stock { get; set; }
+        //public bool favorited { get; set; }
         public DateTime created_at { get; set; }
         public DateTime updated_at { get; set; }
         public object[] product_sin { get; set; }
@@ -601,17 +604,17 @@ namespace MasterOnline.Models
 
     public class ProductSku
     {
-        public Deal_Info deal_info { get; set; }
-        public string deal_request_state { get; set; }
-        public int price { get; set; }
-        public int id { get; set; }
+        //public Deal_Info deal_info { get; set; }
+        //public string deal_request_state { get; set; }
+        public long price { get; set; }
+        public long id { get; set; }
         public string sku_name { get; set; }
         public int stock { get; set; }
         public string variant_name { get; set; }
         public Variant[] variant { get; set; }
         public int is_default { get; set; }
         public string state { get; set; }
-        public int[] image_ids { get; set; }
+        public long[] image_ids { get; set; }
         public long[] new_image_ids { get; set; }
         public string[] images { get; set; }
         public string[] small_images { get; set; }
@@ -625,16 +628,16 @@ namespace MasterOnline.Models
 
     public class Variant
     {
-        public int label_id { get; set; }
+        public long label_id { get; set; }
         public string label { get; set; }
         public string value { get; set; }
-        public int value_id { get; set; }
+        public long value_id { get; set; }
     }
 
     public class Installment
     {
         public string bank_issuer { get; set; }
-        public int[] terms { get; set; }
+        public long[] terms { get; set; }
         public string bank_name { get; set; }
         public string bank_acquirer { get; set; }
         public string url_logo { get; set; }
@@ -657,7 +660,7 @@ namespace MasterOnline.Models
 
     public class Category
     {
-        public int id { get; set; }
+        public long id { get; set; }
         public string name { get; set; }
         public List<Category> children { get; set; }
     }

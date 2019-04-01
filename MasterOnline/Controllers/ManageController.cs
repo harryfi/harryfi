@@ -1969,6 +1969,100 @@ namespace MasterOnline.Controllers
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
+        //add by Tri 22 Maret 2018
+        #region jd
+        [HttpGet]
+        public ActionResult GetKategoriJDByCode(/*string code*/)
+        {
+            //string[] codelist = code.Split(';');
+            //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
+            var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => string.IsNullOrEmpty(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriJDByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriLazada = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.PARENT_CODE)).OrderBy(k => k.CATEGORY_NAME).ToList();
+
+            return Json(listKategoriLazada, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriJDByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_JDID> listKategoriJD = new List<CATEGORY_JDID>();
+            var category = ErasoftDbContext.CATEGORY_JDID.Where(k => codelist.Contains(k.CATEGORY_CODE)).FirstOrDefault();
+            listKategoriJD.Add(category);
+
+            if (category.PARENT_CODE != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = ErasoftDbContext.CATEGORY_JDID.Where(k => k.CATEGORY_CODE.Equals(category.PARENT_CODE)).FirstOrDefault();
+                    listKategoriJD.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_CODE))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriJD.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeJD(string code, int cust)
+        {
+            string[] codelist = code.Split(';');
+            var retData = new List<ATTRIBUTE_JDID>();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == cust).FirstOrDefault();
+            if(customer != null)
+            {
+                if (!string.IsNullOrEmpty(customer.TOKEN))
+                {
+                    var data = new JDIDAPIData
+                    {
+                        accessToken = customer.TOKEN,
+                        appKey = customer.API_CLIENT_P,
+                        appSecret = customer.API_CLIENT_U
+                    };
+                    var jdApi = new JDIDController();
+                    retData.Add(jdApi.getAttribute(data, codelist[0]));
+                }
+                
+            }
+            
+            return Json(retData, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptJD(string code, string kategoryCode, int cust)
+        {
+            string[] codelist = code.Split(';');
+            var retData = new List<ATTRIBUTE_OPT_JDID>();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum == cust).FirstOrDefault();
+            if (customer != null)
+            {
+                if (!string.IsNullOrEmpty(customer.TOKEN))
+                {
+                    var data = new JDIDAPIData
+                    {
+                        accessToken = customer.TOKEN,
+                        appKey = customer.API_CLIENT_P,
+                        appSecret = customer.API_CLIENT_U
+                    };
+                    var jdApi = new JDIDController();
+                    var a = jdApi.getAttributeOpt(data, kategoryCode, codelist[0], 1);
+                    retData = a.OrderBy(m => m.OPTION_VALUE).ToList();
+                }
+
+            }
+
+            return Json(retData, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        //end add by Tri 22 Maret 2018
         //add by calvin 18 desember 2018
         #region Kategori Shopee
         [HttpGet]
@@ -16276,28 +16370,28 @@ namespace MasterOnline.Controllers
                             {
                                 var ShopeeApi = new ShopeeController();
 
-                                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
-                                {
-                                    merchant_code = customer.Sort1_Cust,
-                                };
-                                Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
-                            }
+                            ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                            {
+                                merchant_code = customer.Sort1_Cust,
+                            };
+                            Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
                         }
                     }
-                    else if (customer.NAMA.Equals(kdLazada))
+                }
+                else if (customer.NAMA.Equals(kdLazada))
+                {
+                    if (!string.IsNullOrWhiteSpace(customer.TOKEN))
                     {
-                        if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                        var lazadaApi = new LazadaController();
+                        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangPromosiInDb.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                        if (brgInDB != null)
                         {
-                            var lazadaApi = new LazadaController();
-                            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == barangPromosiInDb.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
-                            if (brgInDB != null)
+                            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                             {
-                                if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
-                                {
-                                    var promoPrice = brgInDB.HJUAL;
-                                    lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
-                                }
+                                //var promoPrice = brgInDB.HJUAL;
+                                lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, barangPromosiInDb.HARGA_PROMOSI, DateTime.Today.AddDays(-2), DateTime.Today.AddDays(-1), customer.TOKEN);
                             }
+                        }
 
                         }
                     }
@@ -17546,15 +17640,16 @@ namespace MasterOnline.Controllers
                                 data.Stf02.PART = data.TempBrg.KODE_BRG_INDUK;
                             //change by Tri 11 Feb 2019, handle brg tokped
                             //data.Stf02.TYPE = data.TempBrg.TYPE;
-                            if (data.haveVarian == 0)// barang tanpa varian
+                            if (data.tipeBarang == 0)// barang tanpa varian
                             {
                                 data.Stf02.TYPE = "3";
                             }
-                            else if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))// barang varian
+                            //else if (!string.IsNullOrEmpty(data.TempBrg.KODE_BRG_INDUK))// barang varian
+                            else if (data.tipeBarang == 1)// barang varian
                             {
                                 data.Stf02.TYPE = "3";
                             }
-                            else//barang induk
+                            else if (data.tipeBarang == 2)//barang induk
                             {
                                 data.Stf02.TYPE = "4";
                                 if (tempBrginDB.SELLER_SKU != data.Stf02.BRG)//user input baru kode brg MO -> update kode brg induk pada brg varian
@@ -18081,16 +18176,19 @@ namespace MasterOnline.Controllers
                 {
                     if (skipDataError > 0)
                     {
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
-                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
-                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                    dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -18108,6 +18206,9 @@ namespace MasterOnline.Controllers
                     }
 
                     var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
+                    var stf02temp = ErasoftDbContext.STF02.ToList();
+                    var tempBrgInduktemp = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == customer.RecNum).ToList();
+                    var stf02htemp = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
 
                     foreach (var item in dataBrg)
                     {
@@ -18132,11 +18233,14 @@ namespace MasterOnline.Controllers
                         if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
                             bool createSTF02Induk = true;
-                            var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
-                            var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var brgInduk = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG) == item.KODE_BRG_INDUK).FirstOrDefault();
+                            var tempBrgInduk = tempBrgInduktemp.Where(b => (b.BRG_MP == null ? "" : b.BRG_MP) == item.KODE_BRG_INDUK).FirstOrDefault();
+                            //var brgInduk = ErasoftDbContext.STF02.Where(b => b.BRG == item.KODE_BRG_INDUK).FirstOrDefault();
+                            //var tempBrgInduk = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.BRG_MP == item.KODE_BRG_INDUK).FirstOrDefault();
                             if (brgInduk != null)
                             {
-                                var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                                var stf02h_induk = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG) == brgInduk.BRG).FirstOrDefault();
+                                //var stf02h_induk = ErasoftDbContext.STF02H.Where(b => b.BRG == brgInduk.BRG && b.IDMARKET == customer.RecNum).FirstOrDefault();
                                 if (stf02h_induk == null)
                                 {
                                     createSTF02Induk = false;
@@ -18170,10 +18274,12 @@ namespace MasterOnline.Controllers
                             }
                         }
                         #endregion
-                        var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
+                        //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(item.SELLER_SKU.ToUpper())).FirstOrDefault();
+                        var barangInDB = stf02temp.Where(b => (b.BRG == null ? "" : b.BRG).ToUpper() == item.SELLER_SKU.ToUpper()).FirstOrDefault();
                         if (barangInDB != null)
                         {
-                            var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                            //var brgMp = ErasoftDbContext.STF02H.Where(b => b.BRG.ToUpper().Equals(barangInDB.BRG.ToUpper()) && b.IDMARKET == customer.RecNum).FirstOrDefault();
+                            var brgMp = stf02htemp.Where(b => (b.BRG == null ? "" : b.BRG).ToUpper() == barangInDB.BRG.ToUpper()).FirstOrDefault();
                             if (brgMp != null)
                             {
                                 if (!string.IsNullOrEmpty(brgMp.BRG_MP))
@@ -18592,6 +18698,17 @@ namespace MasterOnline.Controllers
 
                             //add 25 Jan 2019, handle brg induk & varian
                             stf02.TYPE = item.TYPE;
+                            if (string.IsNullOrEmpty(stf02.TYPE))
+                            {
+                                if (string.IsNullOrEmpty(item.KODE_BRG_INDUK))
+                                {
+                                    stf02.TYPE = "3";
+                                }
+                                else
+                                {
+                                    stf02.TYPE = "4";
+                                }
+                            }
                             stf02.PART = item.KODE_BRG_INDUK;
                             //end 25 Jan 2019, handle brg induk & varian
 
@@ -18791,11 +18908,15 @@ namespace MasterOnline.Controllers
                         //}
                         foreach (var brg_mp in listBrgSuccess)
                         {
-                            ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
+                            //ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.Equals(brg_mp)).Delete();
+                            ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP == brg_mp).Delete();
+
                         }
                         ErasoftDbContext.SaveChanges();
                     }
-                    barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
+                    //barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList();
+                    barangVm.ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST == cust).ToList();
+
                     barangVm.contRecursive = "1";
                     //if (barangVm.Errors.Count == 0)
                     //if(dataBrg.Count < Convert.ToInt32(dataPerPage))
@@ -20002,6 +20123,7 @@ namespace MasterOnline.Controllers
                         retBarang.LINK_GAMBAR_1 = tempBrg.IMAGE;
                         retBarang.LINK_GAMBAR_2 = tempBrg.IMAGE2;
                         retBarang.LINK_GAMBAR_3 = tempBrg.IMAGE3;
+                        retBarang.TYPE = tempBrg.TYPE;
 
                         if (!string.IsNullOrEmpty(tempBrg.KODE_BRG_INDUK))
                         {

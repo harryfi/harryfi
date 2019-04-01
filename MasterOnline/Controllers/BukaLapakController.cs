@@ -963,8 +963,12 @@ namespace MasterOnline.Controllers
                         if (display)
                             ret.message = "MOVE_TO_INACTIVE_PRODUCTS";
                     }
+                    int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
+                    var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                    var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+
                     string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
-                    sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3";
+                    sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE";
                     //sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
                     //sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
                     //sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30, ";
@@ -974,78 +978,116 @@ namespace MasterOnline.Controllers
                     string sSQL_Value = "";
                     foreach (var brg in resListProd.products)
                     {
-                        int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum.Value;
-                        var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
-                        var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        bool haveVarian = false;
+                        string kdBrgInduk = "";
+                        if (brg.product_sku.Count > 0)
+                        {
+                            haveVarian = true;
+                            kdBrgInduk = brg.id;
+                            var tempbrginDBInduk = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                            var brgInDBInduk = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == kdBrgInduk.ToUpper()).FirstOrDefault();
+                            if(tempbrginDBInduk == null && brgInDBInduk == null)
+                            {
+                                var insert1 = CreateTempQry(brg, cust, IdMarket, display, 1, "", 0);
+                                if (insert1.status == 1)
+                                    sSQL_Value += insert1.message;
+                            }
+                            else if (brgInDBInduk != null)
+                            {
+                                kdBrgInduk = brgInDBInduk.BRG;
+                            }
+                        }
+                        //var tempbrginDB = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        //var brgInDB = ErasoftDbContext.STF02H.Where(t => t.BRG_MP.ToUpper().Equals(brg.id.ToUpper()) && t.IDMARKET == IdMarket).FirstOrDefault();
+                        var tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
+                        var brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == brg.id.ToUpper()).FirstOrDefault();
                         if (tempbrginDB == null && brgInDB == null)
                         {
-                            ret.recordCount++;
-                            string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
-                            urlImage = "";
-                            urlImage2 = "";
-                            urlImage3 = "";
-                            if (brg.name.Length > 30)
+                            #region remark
+                            //ret.recordCount++;
+                            //string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                            //urlImage = "";
+                            //urlImage2 = "";
+                            //urlImage3 = "";
+                            //if (brg.name.Length > 30)
+                            //{
+                            //    nama = brg.name.Substring(0, 30);
+                            //    //change by calvin 15 januari 2019
+                            //    //if (brg.name.Length > 60)
+                            //    //{
+                            //    //    nama2 = brg.name.Substring(30, 30);
+                            //    //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
+                            //    //}
+                            //    if (brg.name.Length > 285)
+                            //    {
+                            //        nama2 = brg.name.Substring(30, 255);
+                            //        nama3 = "";
+                            //    }
+                            //    //end change by calvin 15 januari 2019
+                            //    else
+                            //    {
+                            //        nama2 = brg.name.Substring(30);
+                            //        nama3 = "";
+                            //    }
+                            //}
+                            //else
+                            //{
+                            //    nama = brg.name;
+                            //    nama2 = "";
+                            //    nama3 = "";
+                            //}
+
+                            //if (brg.images != null)
+                            //{
+                            //    urlImage = brg.images[0];
+                            //    if (brg.images.Length >= 2)
+                            //    {
+                            //        urlImage2 = brg.images[1];
+                            //        if (brg.images.Length >= 3)
+                            //        {
+                            //            urlImage3 = brg.images[2];
+                            //        }
+                            //    }
+                            //}
+
+                            //sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                            ////if (brg.name.Length > 30)
+                            ////{
+                            ////    sSQL += brg.name.Substring(0, 30) + "' , '" + brg.name.Substring(30) + "' , ";
+                            ////}
+                            ////else
+                            ////{
+                            ////    sSQL += brg.name + "' , '' , ";
+                            ////}
+                            //sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+                            //sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum;
+                            //sSQL_Value += " , " + brg.price + " , " + brg.price + " , " + (display ? "1" : "0") + ", '";
+                            //sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek);
+                            //sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "') ,";
+                            #endregion
+                            if (haveVarian)
                             {
-                                nama = brg.name.Substring(0, 30);
-                                //change by calvin 15 januari 2019
-                                //if (brg.name.Length > 60)
-                                //{
-                                //    nama2 = brg.name.Substring(30, 30);
-                                //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
-                                //}
-                                if (brg.name.Length > 285)
+                                for(int i = 0; i < brg.product_sku.Count; i++)
                                 {
-                                    nama2 = brg.name.Substring(30, 255);
-                                    nama3 = "";
-                                }
-                                //end change by calvin 15 januari 2019
-                                else
-                                {
-                                    nama2 = brg.name.Substring(30);
-                                    nama3 = "";
+                                    var insert2 = CreateTempQry(brg, cust, IdMarket, display, 2, kdBrgInduk, i);
+                                    if (insert2.status == 1)
+                                        sSQL_Value += insert2.message;
                                 }
                             }
                             else
                             {
-                                nama = brg.name;
-                                nama2 = "";
-                                nama3 = "";
+                                var insert2 = CreateTempQry(brg, cust, IdMarket, display, 0, "", 0);
+                                if (insert2.status == 1)
+                                    sSQL_Value += insert2.message;
                             }
-
-                            if (brg.images != null)
-                            {
-                                urlImage = brg.images[0];
-                                if (brg.images.Length >= 2)
-                                {
-                                    urlImage2 = brg.images[1];
-                                    if (brg.images.Length >= 3)
-                                    {
-                                        urlImage3 = brg.images[2];
-                                    }
-                                }
-                            }
-
-                            sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
-                            //if (brg.name.Length > 30)
-                            //{
-                            //    sSQL += brg.name.Substring(0, 30) + "' , '" + brg.name.Substring(30) + "' , ";
-                            //}
-                            //else
-                            //{
-                            //    sSQL += brg.name + "' , '' , ";
-                            //}
-                            sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
-                            sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + ErasoftDbContext.ARF01.Where(c => c.CUST.Equals(cust)).FirstOrDefault().RecNum;
-                            sSQL_Value += " , " + brg.price + " , " + brg.price + " , " + (display ? "1" : "0") + ", '";
-                            sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + (string.IsNullOrEmpty(brg.specs.merek) ? brg.specs.brand : brg.specs.merek);
-                            sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "') ,";
                         }
                     }
                     if (!string.IsNullOrEmpty(sSQL_Value))
                     {
                         sSQL = sSQL + sSQL_Value;
                         sSQL = sSQL.Substring(0, sSQL.Length - 1);
-                        EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                        ret.recordCount += a;
                     }
 
                 }
@@ -1059,6 +1101,118 @@ namespace MasterOnline.Controllers
                 ret.message = "failed to call Buka Lapak api";
             }
 
+            return ret;
+        }
+
+        public BindingBase CreateTempQry(ListProduct brg, string cust, int idMarket, bool display, int type, string kdBrgInduk, int i)
+        {
+            // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+            var ret = new BindingBase();
+            ret.status = 0;
+            string sSQL_Value = "";
+            try
+            {
+                string nama, nama2, nama3, urlImage, urlImage2, urlImage3;
+                urlImage = "";
+                urlImage2 = "";
+                urlImage3 = "";
+                string namaBrg = brg.name;
+                long itemPrice = brg.price;
+                if (type == 2)
+                {
+                    namaBrg += " " + brg.product_sku[i].variant_name;
+                    itemPrice = brg.product_sku[i].price;
+                }
+                if (namaBrg.Length > 30)
+                {
+                    nama = namaBrg.Substring(0, 30);
+                    //change by calvin 15 januari 2019
+                    //if (brg.name.Length > 60)
+                    //{
+                    //    nama2 = brg.name.Substring(30, 30);
+                    //    nama3 = (brg.name.Length > 90) ? brg.name.Substring(60, 30) : brg.name.Substring(60);
+                    //}
+                    if (namaBrg.Length > 285)
+                    {
+                        nama2 = namaBrg.Substring(30, 255);
+                        nama3 = "";
+                    }
+                    //end change by calvin 15 januari 2019
+                    else
+                    {
+                        nama2 = namaBrg.Substring(30);
+                        nama3 = "";
+                    }
+                }
+                else
+                {
+                    nama = namaBrg;
+                    nama2 = "";
+                    nama3 = "";
+                }
+
+                if (brg.images != null)
+                {
+                    if(type != 2)
+                    {
+                        urlImage = brg.images[0];
+                        if (brg.images.Length >= 2)
+                        {
+                            urlImage2 = brg.images[1];
+                            if (brg.images.Length >= 3)
+                            {
+                                urlImage3 = brg.images[2];
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(brg.product_sku[i].images != null)
+                        {
+                            urlImage = brg.product_sku[i].images[0];
+                            if (brg.product_sku[i].images.Length >= 2)
+                            {
+                                urlImage2 = brg.product_sku[i].images[1];
+                                if (brg.product_sku[i].images.Length >= 3)
+                                {
+                                    urlImage3 = brg.product_sku[i].images[2];
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                if(type != 2)
+                {
+                    sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
+                }
+                else
+                {
+                    sSQL_Value += "('" + brg.product_sku[i].id + "' , '" + brg.product_sku[i].sku_name + "' , '";
+                }
+                string brand = "";
+                if(brg.specs != null)
+                {
+                    brand = brg.specs.merek;
+                    if (string.IsNullOrEmpty(brand))
+                    {
+                        brand = brg.specs.brand;
+                    }
+                }
+                
+                sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
+                sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
+                sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
+                sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + brand;
+                sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','";
+                sSQL_Value += (type == 2 ? kdBrgInduk : "") + "','" + (type == 1 ? "4" : "3") + "') ,";
+                ret.status = 1;
+                ret.message = sSQL_Value;
+            }
+            catch(Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
             return ret;
         }
         [HttpGet]
