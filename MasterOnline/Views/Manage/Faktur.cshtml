@@ -1545,7 +1545,8 @@
         };
 
         var table = $('#datatable').DataTable({
-            "order": [[ 0,1, "desc" ]], //or asc
+            //"order": [[ 0,1, "desc" ]], //or asc
+            "order": [[1, "desc"], [0, "desc"] ], //or asc
             "columnDefs" : [{"targets":1, "type":"date-eu"}],
         });
 
@@ -1872,7 +1873,8 @@
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[ 0,1, "desc" ]], //or asc
+                        //"order": [[ 0,1, "desc" ]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs" : [{"targets":1, "type":"date-eu"}],
                     });
                     $('#search_faktur').keyup(function () {
@@ -1903,7 +1905,8 @@
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[ 0,1, "desc" ]], //or asc
+                        //"order": [[ 0,1, "desc" ]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs" : [{"targets":1, "type":"date-eu"}],
                     });
                     $('#search_faktur').keyup(function () {
@@ -3576,7 +3579,8 @@
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[0, 1, "desc"]], //or asc
+                        //"order": [[0, 1, "desc"]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
                     Initialize();
@@ -3645,7 +3649,8 @@
                 success: function (response) {
                     $('#table-faktur-partial').html(response);
                     var table = $('#datatable').DataTable({
-                        "order": [[ 0,1, "desc" ]], //or asc
+                        //"order": [[ 0,1, "desc" ]], //or asc
+                        "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs" : [{"targets":1, "type":"date-eu"}],
                     });
                     $('#search_faktur').keyup(function () {

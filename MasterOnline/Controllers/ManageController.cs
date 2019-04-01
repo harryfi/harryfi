@@ -9704,15 +9704,15 @@ namespace MasterOnline.Controllers
         }
 
         //add by nurul 18/3/2019
-        public ActionResult UbahStatusPesananDibayar(string[] get_selectedDibayar)
+        public ActionResult UbahStatusPesananDibayar(string[] get_selected)
         {
             List<String> listError = new List<String>();
 
-            for (int i = 0; i < get_selectedDibayar.Length; i++)
+            for (int i = 0; i < get_selected.Length; i++)
             {
-                if (!string.IsNullOrEmpty(get_selectedDibayar[i]))
+                if (!string.IsNullOrEmpty(get_selected[i]))
                 {
-                    Int32 rec = Convert.ToInt32(get_selectedDibayar[i]);
+                    Int32 rec = Convert.ToInt32(get_selected[i]);
                     var pesananInDb = ErasoftDbContext.SOT01A.Single(a => a.RecNum == rec);
                     var getnobuk = pesananInDb.NO_BUKTI;
                     var pesananDetailInDb = ErasoftDbContext.SOT01B.FirstOrDefault(p => p.NO_BUKTI == getnobuk && p.BRG == "NOT_FOUND");
@@ -10153,6 +10153,7 @@ namespace MasterOnline.Controllers
             return PartialView("TablePesananSudahDibayarPartial", vm);
         }
 
+        //add by nurul 24/03/2019
         public ActionResult RefreshUbahStatusDibayar(string[] rows_selected)
         {
             if(rows_selected == null)
@@ -10170,7 +10171,7 @@ namespace MasterOnline.Controllers
                 {
                     Int32 row = Convert.ToInt32(rows_selected[i]);
                     //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
-                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row).ToList();
+                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
                     listorder.AddRange(xx);
                 }
             }
@@ -10187,6 +10188,43 @@ namespace MasterOnline.Controllers
             };
             return PartialView("UbahStatusMultiPartial", vm);
         }
+
+        public ActionResult RefreshUbahStatusPacking(string[] rows_selected)
+        {
+            if (rows_selected == null)
+            {
+                var vmError = new PesananViewModel() { };
+
+                vmError.Errors.Add("Silahkan pilih pesanan yang akan diubah statusnya !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            var listorder = new List<SOT01A>();
+            string[] IRecnum = new string[rows_selected.Length];
+            for (int i = 0; i < rows_selected.Length; i++)
+            {
+                if (!string.IsNullOrEmpty(rows_selected[i]))
+                {
+                    Int32 row = Convert.ToInt32(rows_selected[i]);
+                    //var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "01").ToList();
+                    var xx = ErasoftDbContext.SOT01A.Where(a => a.RecNum == row && a.STATUS_TRANSAKSI == "02").ToList();
+                    listorder.AddRange(xx);
+                }
+            }
+
+            var vm = new PesananViewModel()
+            {
+                //ListPesanan = ErasoftDbContext.SOT01A.Where(p => p.STATUS_TRANSAKSI == "01").ToList(),
+                ListPesanan = listorder,
+                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                ListMarketplace = MoDbContext.Marketplaces.ToList()
+            };
+            return PartialView("UbahStatusMultiPacking", vm);
+        }
+
+        //end add by nurul 24/03/2019
 
         public ActionResult RefreshTablePesananSiapKirim()
         {
