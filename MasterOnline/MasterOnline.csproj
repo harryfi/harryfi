@@ -93,6 +93,18 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\EraControls.dll</HintPath>
     </Reference>
+    <Reference Include="Hangfire.Core, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Core.1.7.0\lib\net46\Hangfire.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.Dashboard.Authorization, Version=2.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.Dashboard.Authorization.2.1.0\lib\net45\Hangfire.Dashboard.Authorization.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Hangfire.SqlServer, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hangfire.SqlServer.1.7.0\lib\net45\Hangfire.SqlServer.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="HtmlRenderer, Version=1.5.0.6, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlRenderer.Core.1.5.0.6\lib\net45\HtmlRenderer.dll</HintPath>
     </Reference>
@@ -119,6 +131,22 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\MailBee.NET.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.2\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Owin, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Owin.2.2.2\lib\net45\Microsoft.AspNet.Identity.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.Core, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.Core.2.4.0\lib\net45\Microsoft.AspNet.SignalR.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.SignalR.SystemWeb, Version=2.4.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.SignalR.SystemWeb.2.4.0\lib\net45\Microsoft.AspNet.SignalR.SystemWeb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Build.Framework" />
     <Reference Include="Microsoft.CodeDom.Providers.DotNetCompilerPlatform, Version=2.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
@@ -131,8 +159,29 @@
     <Reference Include="Microsoft.Extensions.Primitives, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.Primitives.1.0.0\lib\netstandard1.0\Microsoft.Extensions.Primitives.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.0\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.OAuth, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.OAuth.3.0.1\lib\net45\Microsoft.Owin.Security.OAuth.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
       <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PagedList, Version=1.17.0.0, Culture=neutral, PublicKeyToken=abbb863e9397c5e1, processorArchitecture=MSIL">
       <HintPath>..\packages\PagedList.1.17.0.0\lib\net40\PagedList.dll</HintPath>
@@ -243,19 +292,27 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\Startup.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\MobileApiController.cs" />
     <Compile Include="Controllers\BCAController.cs" />
+    <Compile Include="Controllers\StokControllerJob.cs" />
+    <Compile Include="Controllers\BlibliControllerJob.cs" />
     <Compile Include="Controllers\BlibliController.cs" />
+    <Compile Include="Controllers\BukaLapakControllerJob.cs" />
     <Compile Include="Controllers\BukaLapakController.cs" />
+    <Compile Include="Controllers\EleveniaControllerJob.cs" />
     <Compile Include="Controllers\EleveniaController.cs" />
     <Compile Include="Controllers\JDIDController.cs" />
+    <Compile Include="Controllers\LazadaControllerJob.cs" />
     <Compile Include="Controllers\LazadaController.cs" />
     <Compile Include="Controllers\MidtransController.cs" />
     <Compile Include="Controllers\PostingController.cs" />
     <Compile Include="Controllers\ReportController.cs" />
     <Compile Include="Controllers\ScrapperController.cs" />
+    <Compile Include="Controllers\ShopeeControllerJob.cs" />
     <Compile Include="Controllers\ShopeeController.cs" />
+    <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
@@ -508,6 +565,7 @@
       <DependentUpon>201901110343098_change_avalue1_tempbrgmp_stf02h.cs</DependentUpon>
     </Compile>
     <Compile Include="Extensions.cs" />
+    <Compile Include="Hubs\MasterOnlineHub.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.cs" />
     <Compile Include="Migrations\201806190714594_AddPromoSubsAndAlterAccount.Designer.cs">
       <DependentUpon>201806190714594_AddPromoSubsAndAlterAccount.cs</DependentUpon>
@@ -1297,6 +1355,7 @@
     <Content Include="Content\Images\barang_terpusat_icon.png" />
     <Content Include="Content\Images\bca-bank-central-asia-logo.png" />
     <Content Include="Content\Images\bg_404.jpg" />
+    <Content Include="Content\Images\bg_banner.png" />
     <Content Include="Content\Images\blog.png" />
     <Content Include="Content\Images\cara-kerja-mo.png" />
     <Content Include="Content\Images\chart_mo.png" />
@@ -1310,9 +1369,14 @@
     <Content Include="Content\Images\facebook-white.jpg" />
     <Content Include="Content\Images\facebook.png" />
     <Content Include="Content\Images\flowchart_MO.jpg" />
+    <Content Include="Content\Images\flowchart_MO.png" />
     <Content Include="Content\Images\google-plus.png" />
     <Content Include="Content\Images\gratis_new.png" />
     <Content Include="Content\Images\header_image.png" />
+    <Content Include="Content\Images\header_image1.png" />
+    <Content Include="Content\Images\header_image11.png" />
+    <Content Include="Content\Images\header_image12.png" />
+    <Content Include="Content\Images\header_image2.png" />
     <Content Include="Content\Images\Home-Akunting.PNG" />
     <Content Include="Content\Images\Home-Barang.PNG" />
     <Content Include="Content\Images\Home-Dashboard.PNG" />
@@ -1330,6 +1394,7 @@
     <Content Include="Content\Images\logo-bukalapak.png" />
     <Content Include="Content\Images\logo-elevania.png" />
     <Content Include="Content\Images\logo-footer.png" />
+    <Content Include="Content\Images\logo-jdid.png" />
     <Content Include="Content\Images\logo-lazada.png" />
     <Content Include="Content\Images\logo-masteronline-white.png" />
     <Content Include="Content\Images\logo-masteronline.png" />
@@ -1352,6 +1417,7 @@
     <Content Include="Content\Images\no-image-icon2.png" />
     <Content Include="Content\Images\no-img-market.jpg" />
     <Content Include="Content\Images\no_data.png" />
+    <Content Include="Content\Images\order_notification_trans.png" />
     <Content Include="Content\Images\pack_ship_icon.png" />
     <Content Include="Content\Images\payment_logo.png" />
     <Content Include="Content\Images\paypal.png" />
@@ -1383,6 +1449,8 @@
     <Content Include="Content\Images\twitter.png" />
     <Content Include="Content\Images\user.png" />
     <Content Include="Content\Images\visa.png" />
+    <Content Include="Content\jquery.notify.css" />
+    <Content Include="Content\jquery.notify.js" />
     <Content Include="Content\Logo_Perusahaan\LogoUsaha-mochhazam-PT JackMa.jpg" />
     <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PT. DHE.jpg" />
     <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PTDHE.jpg" />
@@ -5566,6 +5634,8 @@
     <None Include="Scripts\jquery.validate-vsdoc.js" />
     <Content Include="Scripts\jquery.ajax-progress.js" />
     <Content Include="Scripts\jquery.number.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.0.js" />
+    <Content Include="Scripts\jquery.signalR-2.4.0.min.js" />
     <Content Include="Scripts\jquery.validate.js" />
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
