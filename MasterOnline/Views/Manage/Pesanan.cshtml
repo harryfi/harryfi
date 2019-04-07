@@ -2476,6 +2476,9 @@
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
             <div class="modal-body">
+                <div id="loading_ubahstatus_dibayar" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="row" id="dibayar_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?</h4>
                 </div>
@@ -2499,6 +2502,9 @@
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
             <div class="modal-body">
+                <div id="loading_ubahstatus_packing" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="row" id="packing_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Invoicing?</h4>
                 </div>
@@ -4905,6 +4911,7 @@
             $.ajax({
                 type: "POST",
                 url: link,
+                
                 data: JSON.stringify(get_selected),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
@@ -6186,18 +6193,28 @@
                 type: "POST",
                 url: link,
                 // The key needs to match your method's input parameter (case-sensitive).
+                beforeSend: function () {
+                    $('#datatable_ubahstatus_dibayar').hide();
+                    $('#loading_ubahstatus_dibayar').show();
+                },
                 data: JSON.stringify(rows_selected),
                 contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (response) {
                     if (response.Errors == null) {
-                            $('#modal-status-multi-body').html(response);
+                        $('#modal-status-multi-body').html(response);
+                        $('#datatable_ubahstatus_dibayar').show();
+                        $('#loading_ubahstatus_dibayar').hide();
                     } else {
-                            $('#modalUbahStatusMultiDibayar').modal('hide');
+                        $('#modalUbahStatusMultiDibayar').modal('hide');
+                        $('#datatable_ubahstatus_dibayar').show();
+                        $('#loading_ubahstatus_dibayar').hide();
                             alert(response.Errors[0]);
                     }
                 },
                 error: function (errMsg) {
+                    $('#datatable_ubahstatus_dibayar').show();
+                    $('#loading_ubahstatus_dibayar').hide();
                     alert(errMsg);
 
                 },
@@ -6214,21 +6231,32 @@
             $.ajax({
                 type: "POST",
                 url: link,
+                beforeSend: function () {
+                    $('#datatable_ubahstatus_packing').hide();
+                    $('#loading_ubahstatus_packing').show();
+                },
                 // The key needs to match your method's input parameter (case-sensitive).
                 data: JSON.stringify(rows_selected),
                 contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (response) {
                     if (response.Errors == null) {
-                            $('#modal-status-multi-packing-body').html(response);
+                        $('#modal-status-multi-packing-body').html(response);
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
                     } else {
-                            $('#modalUbahStatusMultiPacking').modal('hide');
-                            alert(response.Errors[0]);
+                        $('#modalUbahStatusMultiPacking').modal('hide');
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        alert(response.Errors[0]);
+
                     }
                 },
                 error: function (errMsg) {
+                    $('#loading_ubahstatus_packing').hide();
+                    $('#datatable_ubahstatus_packing').show();
+                    $('#loading_ubahstatus_packing').hide();
                     alert(errMsg);
-
                 },
             });
             }

@@ -35,17 +35,6 @@
                             <th class="text-center">Total Daftar</th>
                             <th class="text-center">Jumlah Customer</th>
                         </tr>
-                        @*<tr>
-                                <th class="text-center" rowspan="2" style="width: 300px; vertical-align: middle">Akun Marketplace</th>
-                                <th class="text-center date_label" colspan="2">Hari Ini</th>
-                                <th class="text-center month_label" colspan="2">Bulan Ini</th>
-                            </tr>
-                            <tr>
-                                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
-                                <th class="text-center">Nilai Pesanan</th>
-                                <th class="text-center" style="width: 120px;">Jumlah Pesanan</th>
-                                <th class="text-center">Nilai Pesanan</th>
-                            </tr>*@
                     </thead>
                     <tbody>
                         <tr>
@@ -124,6 +113,9 @@
                 </div>
             </div>
             <div class="row user_table_section">
+                <div id="loading_dashboard" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="col-sm-12" id="table-sale">
                     @Html.Partial("TableDashboard")
                 </div>
@@ -184,13 +176,14 @@
                     "columnDefs": [{ "targets": 0, "type": "date-eu" }],
                     destroy: true,
                 });
-
+                $('#loading_dashboard').hide();
                 var d = new Date();
                 d.setMonth(d.getMonth() - 1);
                 $('#DrTanggal').datepicker({
                     format: 'dd/mm/yyyy',
                     language: 'id'
-                }).datepicker('setDate', d).change(function () {
+                }).datepicker('setDate', d);
+                $('#DrTanggal').change(function () {
                     $('#DrTanggal').val($('#DrTanggal').val());
                     $('#DrTanggal').datepicker('hide');
                     refreshDashboard();
@@ -198,12 +191,14 @@
                 $('#SdTanggal').datepicker({
                     format: 'dd/mm/yyyy',
                     language: 'id'
-                }).datepicker('setDate', '0').change(function () {
+                }).datepicker('setDate', '0');
+                $('#SdTanggal').change(function () {
                     $('#SdTanggal').val($('#SdTanggal').val());
                     $('#SdTanggal').datepicker('hide');
                     refreshDashboard();
                 });
             });
+
 
         function refreshDashboard() {
             var link = '@Url.Action("RefreshDashboard", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
@@ -214,6 +209,10 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#datatable').hide();
+                    $('#loading_dashboard').show();
+                },
                 success: function (response) {
                     $('#table-sale').html(response);
                     var table = $('#datatable').DataTable({
@@ -222,9 +221,13 @@
                         destroy: true,
                     });
                     $('#datatable').show();
+                    $('#loading_dashboard').hide();
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_dashboard').hide();
+
                 }
             });
         }

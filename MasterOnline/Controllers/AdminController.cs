@@ -843,6 +843,29 @@ namespace MasterOnline.Controllers
             return PartialView("TableAccount", vm);
         }
 
+        //add by nurul 1/4/2019
+        [SessionAdminCheck]
+        public ActionResult AccountMenuAktif()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountAktif", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccountMenuNonaktif(string param)
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == false).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountNonaktif", vm);
+        }
+        //end add by nurul 1/4/2019
+
         [SessionAdminCheck]
         public ActionResult AccountMenuWillExpired(string param)
         {
@@ -1173,6 +1196,7 @@ namespace MasterOnline.Controllers
             int monthsApart = 12 * (fromDate.Year - toDate.Year) + fromDate.Month - toDate.Month;
             return Math.Abs(monthsApart);
         }
+        
         [SessionAdminCheck]
         public ActionResult RefreshDashboard(string param)
         {
