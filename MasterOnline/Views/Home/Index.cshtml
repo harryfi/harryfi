@@ -1,13 +1,73 @@
 ﻿@{
     ViewBag.Title = "Master Online";
 }
-
 @section styles
 {
     <link href="~/Content/hover-min.css" rel="stylesheet" />
-
     <style>
+        /* add by calvin 4 april 2019 */
+        #soc-med-btn-nav {
+            margin-right: 0px;
+        }
+
+        @@media screen and (min-width: 768px) {
+
+            .videoWrapper {
+                margin-top: -538px;
+                left: 0;
+            }
+
+
+            #btn-daftar-mobile {
+                font-size: 21px;
+                margin-top: -79px;
+            }
+
+            .header_images2 {
+                padding-left: 0px;
+                padding-right: 0px;
+                margin-bottom: -20px;
+            }
+        }
+
+        @@media screen and (min-width: 1024px) {
+
+            .videoWrapper {
+                margin-top: -240px;
+            }
+
+            .#btn-daftar-pc {
+                margin-top: -127px;
+            }
+        }
+
+        @@media screen and (min-width: 1440px) {
+            /* start of phone styles */
+            .videoWrapper {
+                margin-top: -350px;
+            }
+        }
+
+        @@media screen and (max-width: 479px) {
+            /* start of phone styles */
+            .videoWrapper {
+                margin-top: -245px;
+                left: 0;
+            }
+
+            .header_images2 {
+                margin-top: -85px;
+                padding-left: 0px;
+                padding-right: 0px;
+                margin-bottom: -20px;
+            }
+        }
+
         @@media (min-width: 320px) and (max-width: 480px) {
+            .header_images2 {
+                margin-top: -85px;
+            }
+
             .modal-content {
                 margin-top: 225px !important;
             }
@@ -68,15 +128,16 @@
         }
 
         #cover {
-            margin-top: 175px;
+            margin-top: 130px;
             margin-bottom: 18px;
             background-size: cover;
-            min-height: 350px;
+            /*min-height: 350px;*/
         }
 
         h2.pc-title {
+            padding-top: 10px;
             color: #891539;
-            font-size: 45px;
+            font-size: 30px;
             line-height: 60px;
             letter-spacing: 3px;
             font-weight: 700;
@@ -84,7 +145,7 @@
 
         h2.mobile-title {
             color: #891539;
-            font-size: 30px;
+            font-size: 25px;
             line-height: 58px;
             letter-spacing: 3px;
             font-weight: 700;
@@ -97,9 +158,9 @@
             font-family: 'RoundedElegance';
         }
 
-        #cover h3 span {
-            color: #ed5565;
-        }
+            #cover h3 span {
+                color: #ed5565;
+            }
 
         #cover span {
             font-size: 53px;
@@ -115,9 +176,9 @@
             color: #fff;
         }
 
-        #cover .btn:hover {
-            background-color: #f37100 !important;
-        }
+            #cover .btn:hover {
+                background-color: #f37100 !important;
+            }
 
         .focus-text {
             text-transform: uppercase;
@@ -125,11 +186,10 @@
         }
 
         #btn-daftar-pc {
-            width: 50%;
-            float: right;
+            text-align: center !important;
             margin: 0 auto;
             border-radius: 10px !important;
-            margin-top: 40px;
+            margin-top: -95px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
         }
 
@@ -138,9 +198,11 @@
         }
 
         #btn-daftar-mobile {
+            font-size: 10px;
+            padding-left: 6px;
             border-radius: 10px !important;
             width: 100%;
-            margin-top: 25px;
+            margin-top: -121px;
             box-shadow: 0px 7px 5px rgb(136, 136, 136);
         }
 
@@ -177,19 +239,20 @@
         }
 
         .videoWrapper {
+            /*margin-top: -350px;*/
             position: relative;
-            padding-bottom: 56.25%; /* 16:9 */
+            padding-bottom: 52.25%; /* 16:9 */
             padding-top: 25px;
             height: 0;
         }
 
-        .videoWrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
+            .videoWrapper iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
 
         .modal-dialog {
             width: 75%;
@@ -211,13 +274,13 @@
             height: 0;
         }
 
-        .videoBox iframe {
-            position: absolute;
-            top: 0;
-            left: 25%;
-            width: 50%;
-            height: 100%;
-        }
+            .videoBox iframe {
+                position: absolute;
+                top: 0;
+                left: 25%;
+                width: 50%;
+                height: 100%;
+            }
 
         #marketplace .logo-container {
             padding: 40px 0;
@@ -236,14 +299,14 @@
             padding: 10px 7px;
         }
 
-        #marketplace .title-box-red h3,
-        .carakerja .title-box-red h3 {
-            font-size: 20px;
-            color: #fff;
-            font-weight: 400;
-            margin: 0px;
-            text-align: left !important;
-        }
+            #marketplace .title-box-red h3,
+            .carakerja .title-box-red h3 {
+                font-size: 20px;
+                color: #fff;
+                font-weight: 400;
+                margin: 0px;
+                text-align: left !important;
+            }
 
         #marketplace .mp-logo:first-child {
             margin-left: 60px;
@@ -265,31 +328,31 @@
             background-color: #fff;
         }
 
-        .carakerja h3, .carakerja p {
-            font-weight: 300;
-            text-align: center;
-        }
+            .carakerja h3, .carakerja p {
+                font-weight: 300;
+                text-align: center;
+            }
 
-        .carakerja h3 {
-            font-size: 22px;
-        }
+            .carakerja h3 {
+                font-size: 22px;
+            }
 
-        .carakerja p {
-            font-size: 17px;
-            line-height: 24px;
-            color: #777;
-        }
+            .carakerja p {
+                font-size: 17px;
+                line-height: 24px;
+                color: #777;
+            }
 
-        .carakerja strong {
-            font-size: 20px;
-            font-weight: 500;
-            text-align: center;
-            display: block;
-        }
+            .carakerja strong {
+                font-size: 20px;
+                font-weight: 500;
+                text-align: center;
+                display: block;
+            }
 
-        .carakerja img {
-            margin-top: 25px;
-        }
+            .carakerja img {
+                margin-top: 25px;
+            }
 
         #banner {
             background: url(../../Content/Images/shattered.png) 0 50%;
@@ -298,12 +361,12 @@
             text-align: center;
         }
 
-        #banner h2 {
-            color: #999;
-            font-size: 25px;
-            font-weight: 400;
-            margin: 30px 0 28px 0;
-        }
+            #banner h2 {
+                color: #999;
+                font-size: 25px;
+                font-weight: 400;
+                margin: 30px 0 28px 0;
+            }
 
         footer {
             background: #891539;
@@ -326,18 +389,18 @@
             list-style: none;
         }
 
-        footer ul li {
-            margin-left: -40px !important;
-            padding: 7px 0 7px 10px;
-            border-bottom: 1px solid #f9f9f9;
-        }
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
 
-        footer ul li a {
-            color: #f7f7f7;
-            font-size: 12px;
-            font-weight: 300;
-            text-decoration: none;
-        }
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
 
         .title-box-red {
             background: rgba(137,21,57,1);
@@ -401,48 +464,76 @@
         .feature-mobile-row {
             margin-bottom: 30px;
         }
+
+        .box-bnn {
+            min-height: 200px;
+        }
+
+            .box-bnn img {
+                margin-right: -50px;
+            }
+
+        .hero {
+            margin: 20px 0;
+        }
+
+        .hero {
+            align-items: center;
+            height: auto;
+            min-width: 0;
+        }
+
+            .hero img {
+                max-width: 100%;
+                /*max-height: 500px;*/
+            }
     </style>
 }
-
 <a href="@Url.Action("Promo")">
     <img class="hvr-buzz" src="~/Content/Images/PromoPulsa.png" id="promo_pulsa" />
 </a>
-
 <!--Start Top Slogan-->
-<div id="cover">
-    <div class="container text-center">
-        <img width="60%" src="~/Content/Images/header_image.png" />
-    </div>
-    <div class="container-fluid">
-        <div class="col-md-12 text-center">
-            <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px;">SOLUSI CERDAS PEBISNIS ONLINE</h2>
-            <h2 class="hidden-xs hidden-sm pc-title">SOLUSI CERDAS PEBISNIS ONLINE</h2>
-            <p style="margin-top: 25px;">Cara <b class="focus-text">mudah</b> dan <b class="focus-text">cepat</b> kontrol bisnis Anda di berbagai marketplace</p>
-            <p style="margin-bottom: 0;">Kontrol Bisnis Anda dari Satu Tempat</p>
-            @*<p style="color: #5a5a5a;">1 FOR ALL AND ALL FOR 1</p>*@
-        </div>
-        <div class="row text-center hidden-sm hidden-xs">
-            <div class="col-md-6">
-                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
+<div class="container-fluid" style="margin-top: 105px;">
+    <div class="row" style="background:#EE3487;">
+        <div class="hero">
+            <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                <img src="~/Content/Images/header_image2.png" class="img-fluid" alt="Responsive image" style="width:960px;" />
+
+                <div class="videoWrapper">
+                    <iframe id="ytplayer" src="https://www.youtube.com/embed/14vUGrveI-E?autoplay=0&enablejsapi=1&version=3&playerapiid=ytplayer" allow='autoplay' frameborder="0" gesture="media" allowfullscreen=""></iframe>
+                </div>
+                <center>
+                    <div id="cover">
+                        <div class="row hidden-sm hidden-xs">
+                            <div class="col-md-12" style="width: 60%;">
+                                <a style="text-align: center;" class="btn btn-lg hidden-xs hidden-sm" id="btn-daftar-pc" href="/register" role="button">DAFTAR (FREE)</a>
+                            </div>
+                        </div>
+                        <div class="row text-center hidden-md hidden-lg" style="padding: 0 15px; width: 50%;">
+                            <div class="col-xs-12">
+                                <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
+                            </div>
+                        </div>
+                    </div>
+                </center>
             </div>
-            <div class="col-md-6">
-                <a class="btn btn-lg hidden-xs hidden-sm" id="btn-video-pc" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
-            </div>
-        </div>
-        <div class="row text-center hidden-md hidden-lg" style="padding: 0 15px;">
-            <div class="col-xs-12">
-                <a class="btn btn-lg hidden-md hidden-lg" id="btn-daftar-mobile" href="/register" role="button">DAFTAR (FREE)</a>
-            </div>
-            <div class="col-xs-12">
-                <a class="btn btn-lg hidden-md hidden-lg" id="btn-video-mobile" data-toggle="modal" data-target="#modalVideo" role="button">TONTON VIDEO DI SINI <span style="font-size: 16px; margin-left: 10px;" class="glyphicon glyphicon-play-circle"></span></a>
+            <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 col-xs-12 header_images2">
+                <img src="~/Content/Images/header_image12.png" class="img-responsive" alt="" />
             </div>
         </div>
     </div>
 </div>
+
+
 <!--End of Top Slogan-->
 <!--Start Marketplaces-->
-<div id="marketplace">
+<div id="marketplace" style="background: #F1F0F1;">
+    <div class="col-md-12 text-center" style="margin-top: -21px;">
+        <h2 class="hidden-md hidden-lg mobile-title" style="line-height: 40px; padding-top: 7px;">TERINTEGRASI DENGAN</h2>
+        <h2 class="hidden-xs hidden-sm pc-title">TERINTEGRASI DENGAN</h2>
+    </div>
     <div class="container-fluid logo-container hidden-sm hidden-xs">
+
         <div class="row">
             <div class="col-md-2"></div>
             <div class="mp-logo col-md-2">
@@ -457,24 +548,31 @@
             <div class="mp-logo col-md-2">
                 <img src="~/Content/Images/logo-lazada.png" style="display: block; margin: 0 auto;" alt="lazada" class="img-responsive">
             </div>
+            <div class="col-md-2"></div>
         </div>
         <br />
         <br />
         <div class="row">
             <div class="col-md-2"></div>
-            <div class="col-md-2"></div>
+            <div class="mp-logo col-md-2" style="margin-left: 15px;">
+                <img src="~/Content/Images/logo-jdid.png" style="display: block; margin: 0 auto;" alt="jdid" class="img-responsive">
+            </div>
             <div class="mp-logo col-md-2" style="margin-left: 15px;">
                 <img src="~/Content/Images/logo-blibli.png" width="65%" style="display: block; margin: 0 auto;" alt="blibli" class="img-responsive">
             </div>
             <div class="mp-logo col-md-2">
                 <img src="~/Content/Images/logo-elevania.png" style="display: block; margin: 0 auto;" alt="elevania" class="img-responsive">
             </div>
-            <div class="col-md-2"></div>
+            <div class="mp-logo col-md-2">
+                <img src="~/Content/Images/logo-woocommerce.png" style="display: block; margin: 0 auto;" alt="woocommerce" class="img-responsive">
+            </div>
             <div class="col-md-2"></div>
         </div>
     </div>
-
     <div class="container hidden-md hidden-lg" style="padding: 10px 0; margin-bottom: 40px;">
+        <div class="col-md-12 text-center">
+            <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 10px;">TERINTEGRASI DENGAN</h2>
+        </div>
         <div class="row">
             <div class="mp-logo col-xs-4 col-sm-4">
                 <img src="~/Content/Images/logo-tokopedia.png" alt="tokopedia" class="img-responsive">
@@ -497,12 +595,23 @@
         <br />
         <div class="row">
             <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-jdid.png" alt="jdid" class="img-responsive">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
+            </div>
+            <div class="mp-logo col-xs-4 col-sm-4">
                 <img src="~/Content/Images/logo-blibli.png" alt="blibli" class="img-responsive">
             </div>
+        </div>
+        <div class="row">
             <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-elevania.png" alt="elevenia" class="img-responsive">
+            </div>
+
+            <div class="mp-logo col-xs-4 col-sm-4">
+                <img src="~/Content/Images/logo-woocommerce.png" width="95%" style="padding-top:5px;" alt="woocommerce" class="img-responsive">
             </div>
             <div class="mp-logo col-xs-4 col-sm-4">
-                <img src="~/Content/Images/logo-elevania.png" alt="elevania" class="img-responsive">
             </div>
         </div>
     </div>
@@ -511,7 +620,7 @@
 <!--Start Smart And Be Easy-->
 <div class="container-fluid hidden-xs hidden-sm feature-pc" style="padding-bottom: 50px;">
     <div class="col-md-12 text-center">
-        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px;">FITUR CERDAS DAN EFISIEN</h2>
+        <h2 class="hidden-xs hidden-sm pc-title" style="line-height: 40px; padding-top: 5px;">FITUR CERDAS DAN EFISIEN</h2>
         <p style="color: #5a5a5a; font-size: 18px; margin-bottom: 40px;">UNTUK MEMBANTU ANDA MENGELOLA BISNIS DENGAN BAIK</p>
     </div>
     <div class="row" style="margin-bottom: 40px; margin-left: 25px;">
@@ -611,7 +720,6 @@
         <div class="col-md-3"></div>
     </div>
 </div>
-
 <div class="container-fluid hidden-lg hidden-md feature-mobile" style="padding-bottom: 10px;">
     <div class="col-xs-12 col-sm-12 text-center">
         <h2 class="mobile-title" style="line-height: 40px;">FITUR CERDAS DAN EFISIEN</h2>
@@ -723,11 +831,11 @@
     </div>
 </div>
 <!--End of Smart And Be Easy-->
-<div class="container-fluid grayish-white hidden-xs hidden-sm" style="padding: 35px 0 35px 0;">
-    <img width="50%" style="display: block; margin: 0 auto;" src="~/Content/Images/flowchart_MO.jpg"/>
+<div class="container-fluid grayish-white hidden-xs hidden-sm" style="padding: 35px 0 35px 0; background: #F1F0F1;">
+    <img width="50%" style="display: block; margin: 0 auto;" src="~/Content/Images/flowchart_MO.png" />
 </div>
-<div class="container-fluid grayish-white hidden-md hidden-lg" style="padding: 20px 0;">
-    <img width="90%" style="display: block; margin: 0 auto;" src="~/Content/Images/flowchart_MO.jpg" />
+<div class="container-fluid grayish-white hidden-md hidden-lg" style="padding: 20px 0; background: #F1F0F1;">
+    <img width="90%" style="display: block; margin: 0 auto;" src="~/Content/Images/flowchart_MO.png" />
 </div>
 <div class="container-fluid" style="padding: 20px 0 40px 0;">
     <div class="col-md-12 text-center">
@@ -754,7 +862,6 @@
                     </a>
                 </div>
             </div>
-
             <div class="row hidden-md hidden-lg" style="margin-top: 25px;">
                 <div class="col-md-6">
                     <a href="#">
@@ -772,7 +879,6 @@
         <div class="col-md-3"></div>
     </div>
 </div>
-
 <div class="modal fade" style="overflow-y: hidden;" id="modalVideo" tabindex="-1" role="dialog" aria-labelledby="modalvideo">
     <div class="modal-dialog" role="document">
         <div class="container hidden-xs hidden-sm">
@@ -782,12 +888,11 @@
         </div>
         <div class="modal-content">
             <div class="videoWrapper">
-                <iframe id="ytplayer" style="display: block; margin: 0 auto;" width="100%" height="100%" src="https://www.youtube.com/embed/14vUGrveI-E?autoplay=0&enablejsapi=1&version=3&playerapiid=ytplayer" allow='autoplay' frameborder="0" gesture="media" allowfullscreen=""></iframe>
+                <iframe id="ytplayer" style="display: block; margin: 0 auto;" width="500" height="700%" src="https://www.youtube.com/embed/14vUGrveI-E?autoplay=0&enablejsapi=1&version=3&playerapiid=ytplayer" allow='autoplay' frameborder="0" gesture="media" allowfullscreen=""></iframe>
             </div>
         </div>
     </div>
 </div>
-
 <!--Start Footer-->
 <footer>
     <div class="container">
@@ -817,7 +922,7 @@
                 </a>
             </div>
         </div>
-        <br class="hidden-md hidden-lg"/>
+        <br class="hidden-md hidden-lg" />
         <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
             <h3>Hubungi Kami</h3>
             <ul>
@@ -849,7 +954,6 @@
     </div>
 </footer>
 <!--End of Footer-->
-
 @section scripts
 {
     <script>
@@ -864,7 +968,7 @@
                 $('iframe#ytplayer')[0].contentWindow.postMessage('{"event":"command","func":"' + 'stopVideo' + '","args":""}', '*');
             });
 
-            $('#close-video').click(function() {
+            $('#close-video').click(function () {
                 $('#modalVideo').modal('hide');
             });
         });

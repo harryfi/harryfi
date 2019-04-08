@@ -6,25 +6,27 @@
     var dataSession = HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
     var nama = "";
 
+    var namaPerAccount = "";//add by calvin 1 april 2019
+
     if (dataSession?.Account != null)
     {
         nama = dataSession.Account.Username;
         erasoftContext = dataSession.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(dataSession.Account.DatabasePathErasoft);
+        namaPerAccount = dataSession.Account.DatabasePathErasoft;//add by calvin 1 april 2019
     }
     else
     {
         nama = dataSession?.User.Username;
         var accFromUser = context.Account.Single(a => a.AccountId == dataSession.User.AccountId);
         erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+        namaPerAccount = accFromUser.DatabasePathErasoft;//add by calvin 1 april 2019
     }
 
     var listParent = context.FormMoses.Where(m => m.ParentId == 0).ToList();
     var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
     var jumlahAkunMarketplace = erasoftContext.ARF01.Count();
 }
-
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -42,11 +44,20 @@
     <link href="~/Content/build/css/custom.min.css" rel="stylesheet">
     <link href="~/Content/ManageSite.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/Content/timeout-dialog.css" type="text/css" media="screen, projection" />
+
+    <!--add by calvin 1 april 2019-->
+    <link href="~/Content/jquery.notify.css" rel="stylesheet" />
+    <!--end add by calvin 1 april 2019-->
+
     <script src="~/Content/vendors/jquery/dist/jquery.min.js"></script>
+
+    <!--add by calvin 1 april 2019-->
+    <script src="~/Content/jquery.notify.js"></script>
+    <!--end add by calvin 1 april 2019-->
+
     @*//add by nurul 22/2/2019*@
     <link href="~/Content/hover-min.css" rel="stylesheet" />
     @*//end add by nurul 22/2/2019*@
-
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
@@ -58,12 +69,10 @@
         gtag('config', 'UA-130203101-1');
         gtag('config', 'AW-778375246');
     </script>
-
     <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
     <script>
         function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
-
     @RenderSection("styles", required: false)
     <style>
         .page-editor {
@@ -241,6 +250,14 @@
                                                     @if (parent.HaveChild)
                                                     {
                                                         <span class="fa fa-chevron-down"></span>
+                                                    }
+                                                    //add by calvin 5 april 2019
+                                                    else
+                                                    {
+                                                        if (parent.ScrId == 9) //Pesanan
+                                                        {
+                                                            <img id="new_order_icon" alt="logo" style="display:none; width: 25px; height: 25px;" src="~/Content/Images/order_notification_trans.png">
+                                                        }
                                                     }
                                                 </a>
                                                 <ul class="nav child_menu">
@@ -507,10 +524,14 @@
     <script src="~/Content/vendors/bootstrap-daterangepicker/daterangepicker.js"></script>
     <script src="~/Content/build/js/custom.min.js"></script>
     <script src="~/Scripts/jquery.number.js"></script>
-    <script
-        src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
-        integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
-        crossorigin="anonymous"></script>
+
+    <!--add by calvin 1 april 2019-->
+    <script src="~/Scripts/jquery.signalR-2.4.0.min.js"></script>
+    <script src="~/signalR/hubs"></script>
+    <!--end add by calvin 1 april 2019-->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+            crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="~/Content/timeout-dialog.js"></script>
     <script type="text/javascript">
@@ -547,17 +568,100 @@
 
         inactivityTime();*@
         //end remark by calvin 18 februari 2019
-    </script>   
-@* ReSharper disable once Mvc.ActionNotResolved *@
-<script type="text/javascript">
+    </script>
+    @* ReSharper disable once Mvc.ActionNotResolved *@
+    <script type="text/javascript">
         $(".alert").fadeTo(4000, 500).slideUp(500, function () {
             $(".alert").slideUp(500);
         });
 
         var counter = 0;
 
+        function failedJobRetryOnClick(jobid) {
+            var retryid = $('#btnRetryJob' + jobid);
+            retryid.attr("disabled", true);
+
+            var link = '@Url.Action("RequeueFailedJob", "Manage", new { nourut = "replaceNoUrut" })';
+            link = link.replace("replaceNoUrut", jobid);
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                beforeSend: function () {
+
+                },
+                success: function (response) {
+                    //untuk close div notif
+                    var notifdiv = retryid.closest('.notify__error');
+                    var link_close = notifdiv.children().children()[0];
+                    link_close.click();
+                    //end untuk close div notif
+                },
+                error: function (response) {
+                    retryid.attr("disabled", false);
+                }
+            });
+
+        }
         $(document).ready(function () {
-            var autoRefreshSession = setInterval(function() {
+            //add by calvin 1 april 2019
+            masterOnlineR = $.connection.MasterOnlineHub;
+            masterOnlineR.client.broadcastMessage = function (x) {
+                alert(x);
+            };
+
+            masterOnlineR.client.monotification = function (x) {
+                $.notify({
+                    jswrapper: 'body',
+                    message: x,
+                    dir: 'ltr',
+                    autoClose: true,
+                    duration: 4000,
+                    onOpen: null,
+                    onClose: null
+                });
+            };
+
+            masterOnlineR.client.moFailedJobs = function (mo_desc, mo_subjectDesc, mo_jobid) {
+                var description = mo_desc.replace("{obj}", mo_subjectDesc);
+                var button = '<button id="btnRetryJob' + mo_jobid + '" class="btn btn-default" type="button" style="border:1px;padding:2px 8px 2px 8px;margin:0px" title="Retry" onclick="failedJobRetryOnClick(\'' +
+                        mo_jobid +
+                        '\')"><span class="glyphicon glyphicon-repeat"></span></button>';
+                var mesg = '<div class="row"><div class="col-md-9">' + description + '</div><div class="col-md-3">' + button + '</div></div>'
+                $.notify({
+                    jswrapper: 'body',
+                    message: description + ' ' + button,
+                    type: 'error',
+                    dir: 'ltr',
+                    autoClose: false,
+                    onOpen: null,
+                    onClose: null
+                });
+            };
+
+            masterOnlineR.client.moNewOrder = function (x) {
+                $('#new_order_icon').show();
+
+                $.notify({
+                    jswrapper: 'body',
+                    message: x,
+                    dir: 'ltr',
+                    autoClose: true,
+                    duration: 4000,
+                    onOpen: null,
+                    onClose: null
+                });
+
+            };
+
+            $.connection.hub.start().done(function () {
+                masterOnlineR.server.joinGroup("@namaPerAccount");
+            });
+            //end add by calvin 1 april 2019
+
+            var autoRefreshSession = setInterval(function () {
                 $.ajax({
                     type: "GET",
                     url: '@Url.Action("KeepSessionAlive", "Manage")',
@@ -575,13 +679,13 @@
                 if (dataSession.User.UserId != null)
                 {
                     <text>
-                        $(".side-menu li.parent-li").each(function() {
-                            var id = $(this).attr("id");
-                            if ($(".parent-li#" + id + " .child_menu li").length === 0) {
-                                $(this).hide();
-                            }
-                        });
-                    </text>
+            $(".side-menu li.parent-li").each(function () {
+                var id = $(this).attr("id");
+                if ($(".parent-li#" + id + " .child_menu li").length === 0) {
+                    $(this).hide();
+                }
+            });
+            </text>
                 }
             }
 
@@ -603,7 +707,7 @@
             $('#btn-ubah-password').addClass('hidden_for_f2');
             $('#submit-sec').addClass('hidden_for_f2');
 
-            $('.page-close').click(function() {
+            $('.page-close').click(function () {
                 $('#simpan_btn').addClass('hidden_for_f2');
                 $('#btn-ubah-password').addClass('hidden_for_f2');
                 $('#submit-sec').addClass('hidden_for_f2');
@@ -616,9 +720,8 @@
             });
 
             $('body').keydown(function (event) {
-                if (!$('#simpan_btn').hasClass('hidden_for_f2') && !$('#btn-ubah-password').hasClass('hidden_for_f2') && !$('#submit-sec').hasClass('hidden_for_f2'))
-                {
-                    if(event.which == 113) {
+                if (!$('#simpan_btn').hasClass('hidden_for_f2') && !$('#btn-ubah-password').hasClass('hidden_for_f2') && !$('#submit-sec').hasClass('hidden_for_f2')) {
+                    if (event.which == 113) {
                         $('#simpan_btn').click();
                         $('#btn-ubah-password').click();
                         $('#submit-sec').click();
@@ -810,7 +913,7 @@
         }
 
         function resetError() {
-            $('.has-error').each(function() {
+            $('.has-error').each(function () {
                 $(this).removeClass('has-error');
             });
 
@@ -838,7 +941,7 @@
                 }
             });
 
-            $('form select[required="required"]').each(function() {
+            $('form select[required="required"]').each(function () {
                 var $this = $(this);
                 var $value = $this.find('option:selected').text();
 
@@ -939,7 +1042,7 @@
                         $this.closest('.form-group').addClass('has-error');
 
                         if (!$this.closest('div').find('.text-danger').length) {
-                            $this.closest('div').append('<span class="text-danger">' + $msg +'</span>');
+                            $this.closest('div').append('<span class="text-danger">' + $msg + '</span>');
                         }
                     }
                 },
@@ -949,7 +1052,7 @@
             });
         }
 
-        function isEmptyOrSpaces(str){
+        function isEmptyOrSpaces(str) {
             return str === null || str.match(/^ *$/) !== null;
         }
 

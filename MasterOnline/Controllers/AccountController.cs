@@ -14,12 +14,55 @@ using MasterOnline.Models.Api;
 using MasterOnline.Utils;
 using MasterOnline.ViewModels;
 
+using System.Web;
+using System.Collections.Generic;
+using System.Security.Claims;
+using Hangfire;
+using Hangfire.SqlServer;
+using Microsoft.Owin.Security;
+using Microsoft.AspNet.Identity;
+using Erasoft.Function;
+
 namespace MasterOnline.Controllers
 {
     public class AccountController : Controller
     {
         private MoDbContext MoDbContext;
         private AccountUserViewModel _viewModel;
+        //add by calvin 1 april 2019
+        public void IdentitySignin(string userId, string name, string providerKey = null, bool isPersistent = false)
+        {
+            var claims = new List<Claim>();
+
+            // create *required* claims
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, userId));
+            claims.Add(new Claim(ClaimTypes.Name, name));
+
+            var identity = new ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie);
+
+            // add to user here!
+            AuthenticationManager.SignIn(new AuthenticationProperties()
+            {
+                AllowRefresh = true,
+                IsPersistent = isPersistent,
+                ExpiresUtc = DateTime.UtcNow.AddDays(7)
+            }, identity);
+        }
+
+        public void IdentitySignout()
+        {
+            AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie,
+                                          DefaultAuthenticationTypes.ExternalCookie);
+        }
+
+        private IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().Authentication;
+            }
+        }
+        //end add by calvin 1 april 2019
 
         public AccountController()
         {
@@ -181,15 +224,27 @@ namespace MasterOnline.Controllers
 
             Session["SessionInfo"] = _viewModel;
 
+            DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;
+            string dbPathEra = "";
             if (_viewModel?.Account != null)
             {
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+                //add by calvin 1 april 2019
+                EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
+                dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
+                //end add by calvin 1 april 2019
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                //add by calvin 1 april 2019
+                EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                dbPathEra = accFromUser.DatabasePathErasoft;
+                //IdentitySignin(accFromUser.Email, accFromUser.Username);
+                //end add by calvin 1 april 2019
             }
 
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
@@ -197,7 +252,11 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                //change by calvin 1 april 2019
+                //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
@@ -356,15 +415,28 @@ namespace MasterOnline.Controllers
 
             Session["SessionInfo"] = _viewModel;
 
+            DatabaseSQL EDB; //add by calvin 1 april 2019
             ErasoftContext erasoftContext = null;
+            string dbPathEra = "";
+
             if (_viewModel?.Account != null)
             {
                 erasoftContext = _viewModel.Account.UserId == "admin_manage" ? new ErasoftContext() : new ErasoftContext(_viewModel.Account.DatabasePathErasoft);
+                //add by calvin 1 april 2019
+                EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
+                dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
+                //end add by calvin 1 april 2019
             }
             else
             {
                 var accFromUser = MoDbContext.Account.Single(a => a.AccountId == _viewModel.User.AccountId);
                 erasoftContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                //add by calvin 1 april 2019
+                EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                dbPathEra = accFromUser.DatabasePathErasoft;
+                //IdentitySignin(accFromUser.Email, accFromUser.Username);
+                //end add by calvin 1 april 2019
             }
 
             var dataUsahaInDb = erasoftContext.SIFSYS.Single(p => p.BLN == 1);
@@ -372,18 +444,89 @@ namespace MasterOnline.Controllers
 
             if (dataUsahaInDb?.NAMA_PT != "PT ERAKOMP INFONUSA" && jumlahAkunMarketplace > 0)
             {
-                    SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
-                
+                //change by calvin 1 april 2019
+                //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                //end change by calvin 1 april 2019
+
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
 
             return RedirectToAction("Bantuan", "Manage");
         }
 
-        protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
+        //change by calvin 1 april 2019
+        //protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
+        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username)
+        //end change by calvin 1 april 2019
         {
             //MoDbContext = new MoDbContext();
-            AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbPathEra);
+            MoDbContext = new MoDbContext();
+
+            var sqlStorage = new SqlServerStorage(EDBConnID);
+            var monitoringApi = sqlStorage.GetMonitoringApi();
+            var serverList = monitoringApi.Servers();
+            if (serverList.Count() > 0)
+            {
+                foreach (var server in serverList)
+                {
+                    var serverConnection = sqlStorage.GetConnection();
+                    serverConnection.RemoveServer(server.Name);
+                }
+
+                var options = new BackgroundJobServerOptions
+                {
+                    ServerName = "Account",
+                    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+                    WorkerCount = 1,
+                };
+                var newserver = new BackgroundJobServer(options, sqlStorage);
+
+                var optionsStokServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "Stok",
+                    Queues = new[] { "1_update_stok" },
+                    WorkerCount = 3,
+                };
+                var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+            }
+            else
+            {
+                var options = new BackgroundJobServerOptions
+                {
+                    ServerName = "Account",
+                    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+                    WorkerCount = 1,
+                };
+                var server = new BackgroundJobServer(options, sqlStorage);
+
+                var optionsStokServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "Stok",
+                    Queues = new[] { "1_update_stok" },
+                    WorkerCount = 3,
+                };
+                var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+            }
+
+            var client = new BackgroundJobClient(sqlStorage);
+            RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+            RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+            {
+                QueueName = "3_general"
+            };
+
+            //testFailedNotif
+            //recurJobM.AddOrUpdate("calvintesfailed", Hangfire.Common.Job.FromExpression<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "Failed 1 min")), Cron.MinuteInterval(1), recurJobOpt);
+            //recurJobM.AddOrUpdate("calvintesfailed2", Hangfire.Common.Job.FromExpression<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "Failed 2 min")), Cron.MinuteInterval(1), recurJobOpt);
+            //recurJobM.RemoveIfExists("calvintesfailed");
+            //recurJobM.RemoveIfExists("calvintesfailed2");
+
+            //var delaay = new TimeSpan(0, 1, 0);
+            //client.Schedule<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "asd"), delaay);
+
             //var test = new JDIDController();
             //var categoryJD = LocalErasoftDbContext.CATEGORY_JDID.Where(m => m.LEAF == "1").ToList();
             //if (categoryJD.Count > 0)
@@ -444,51 +587,35 @@ namespace MasterOnline.Controllers
             //        ErasoftDbContext = new ErasoftContext(accFromUser.UserId);
             //    }
             //}
-            var connectionID = Guid.NewGuid().ToString();
             //string username = sessionData.Account.Username;
 
-            //#region bukalapak
-            //var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
-            //var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
-            //var blApi = new BukaLapakController();
-            //if (listBLShop.Count > 0)
-            //{
-            //    foreach (ARF01 tblCustomer in listBLShop)
-            //    {
-            //        if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
-            //        {
-            //            var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
-            //            foreach (var item in stf02hinDB)
-            //            {
-            //                var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
-            //                if (barangInDb != null)
-            //                {
-            //                    var qtyOnHand = 0d;
-            //                    {
-            //                        object[] spParams = {
-            //                                new SqlParameter("@BRG", barangInDb.BRG),
-            //                                new SqlParameter("@GD","ALL"),
-            //                                new SqlParameter("@Satuan", "2"),
-            //                                new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-            //                                new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-            //                            };
-
-            //                        LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-            //                        qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-            //                    }
-            //                    blApi.updateProduk(item.BRG_MP, "", (qtyOnHand > 0 ? qtyOnHand.ToString() : "1"), tblCustomer.API_KEY, tblCustomer.TOKEN);
-            //                }
-
-            //            }
-            //        }
-            //    }
-            //}
-            //#endregion
+            #region bukalapak
+            var kdBL = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BUKALAPAK");
+            var listBLShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBL.IdMarket.ToString()).ToList();
+            if (listBLShop.Count > 0)
+            {
+                foreach (ARF01 tblCustomer in listBLShop)
+                {
+                    if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
+                    {
+                        string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        if (sync_pesanan_stok == "1")
+                        {
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        }
+                        else
+                        {
+                            recurJobM.RemoveIfExists(connId_JobId);
+                        }
+                    }
+                }
+            }
+            #endregion
 
             #region lazada
             var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA");
             var listLazadaShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdLazada.IdMarket.ToString()).ToList();
-            var lzdApi = new LazadaController();
+            //var lzdApi = new LazadaController();
             if (listLazadaShop.Count > 0)
             {
                 foreach (ARF01 tblCustomer in listLazadaShop)
@@ -496,8 +623,11 @@ namespace MasterOnline.Controllers
                     if (!string.IsNullOrEmpty(tblCustomer.TOKEN))
                     {
                         #region refresh token lazada
-                        lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
-                        lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+                        //change by calvin 4 april 2019
+                        //lzdApi.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN);
+                        //lzdApi.GetShipment(tblCustomer.CUST, tblCustomer.TOKEN);
+                        client.Enqueue<LazadaControllerJob>(x => x.GetRefToken(tblCustomer.CUST, tblCustomer.REFRESH_TOKEN, dbPathEra, username));
+                        //end change by calvin 4 april 2019
                         #endregion
                         //var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
                         //foreach (var item in stf02hinDB)
@@ -522,6 +652,16 @@ namespace MasterOnline.Controllers
                         //    }
 
                         //}
+                        if (sync_pesanan_stok == "1")
+                        {
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        }
+                        else
+                        {
+                            string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+                        }
                     }
                 }
             }
@@ -532,12 +672,27 @@ namespace MasterOnline.Controllers
             var listBLIShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdBli.IdMarket.ToString()).ToList();
             if (listBLIShop.Count > 0)
             {
-                var BliApi = new BlibliController();
+                //remark by calvin 1 april 2019
+                //var BliApi = new BlibliController();
                 foreach (ARF01 tblCustomer in listBLIShop)
                 {
                     if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                     {
-                        BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        //change by calvin 1 april 2019
+                        //BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData()
+                        //{
+                        //    API_client_username = tblCustomer.API_CLIENT_U,
+                        //    API_client_password = tblCustomer.API_CLIENT_P,
+                        //    API_secret_key = tblCustomer.API_KEY,
+                        //    mta_username_email_merchant = tblCustomer.EMAIL,
+                        //    mta_password_password_merchant = tblCustomer.PASSWORD,
+                        //    merchant_code = tblCustomer.Sort1_Cust,
+                        //    token = tblCustomer.TOKEN,
+                        //    idmarket = tblCustomer.RecNum.Value
+                        //};
+                        //BliApi.GetToken(data, true, false);
+                        ////Task.Run(() => BliApi.GetCategoryTree(data)).Wait();
+                        BlibliControllerJob.BlibliAPIData data = new BlibliControllerJob.BlibliAPIData()
                         {
                             API_client_username = tblCustomer.API_CLIENT_U,
                             API_client_password = tblCustomer.API_CLIENT_P,
@@ -546,10 +701,32 @@ namespace MasterOnline.Controllers
                             mta_password_password_merchant = tblCustomer.PASSWORD,
                             merchant_code = tblCustomer.Sort1_Cust,
                             token = tblCustomer.TOKEN,
-                            idmarket = tblCustomer.RecNum.Value
+                            idmarket = tblCustomer.RecNum.Value,
+                            DatabasePathErasoft = dbPathEra,
+                            username = username
                         };
-                        BliApi.GetToken(data, true, false);
-                        //Task.Run(() => BliApi.GetCategoryTree(data)).Wait();
+
+                        client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
+
+                        string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(2), recurJobOpt);
+
+                        if (sync_pesanan_stok == "1")
+                        {
+                            connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_blibli_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+                        }
+                        else
+                        {
+                            connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+
+                            connId_JobId = dbPathEra + "_blibli_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            recurJobM.RemoveIfExists(connId_JobId);
+                        }
                     }
                 }
             }
@@ -560,121 +737,82 @@ namespace MasterOnline.Controllers
             var listELShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdEL.IdMarket.ToString()).ToList();
             if (listELShop.Count > 0)
             {
-                var elApi = new EleveniaController();
+                //var elApi = new EleveniaController();
                 foreach (ARF01 tblCustomer in listELShop)
                 {
                     //isi delivery temp
-                    elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum), Convert.ToString(tblCustomer.API_KEY));
+                    //change by calvin 4 april 2019
+                    //elApi.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum), Convert.ToString(tblCustomer.API_KEY));
+                    var parentid = client.Enqueue<EleveniaControllerJob>(x => x.GetDeliveryTemp(Convert.ToString(tblCustomer.RecNum), Convert.ToString(tblCustomer.API_KEY), dbPathEra, username));
+                    //end change by calvin 4 april 2019
 
-                    ////cari yang brg_mp tidak null, per market
-                    //var stf02hinDB = LocalErasoftDbContext.STF02H.Where(p => !string.IsNullOrEmpty(p.BRG_MP) && p.IDMARKET == tblCustomer.RecNum).ToList();
-                    //foreach (var item in stf02hinDB)
-                    //{
-                    //    var barangInDb = LocalErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == item.BRG);
-                    //    if (barangInDb != null)
-                    //    {
-                    //        {
-                    //            #region getUrlImage
-                    //            string[] imgID = new string[3];
-                    //            for (int i = 0; i < 3; i++)
-                    //            {
-                    //                imgID[i] = "http://masteronline.co.id/ele/image?id=" + $"FotoProduk-{barangInDb.USERNAME}-{barangInDb.BRG}-foto-{i + 1}.jpg";
-                    //                imgID[i] = Convert.ToString(imgID[i]).Replace(" ", "%20");
-                    //            }
-                    //            #endregion
-                    //            var qtyOnHand = 0d;
-                    //            {
-                    //                object[] spParams = {
-                    //                        new SqlParameter("@BRG", barangInDb.BRG),
-                    //                        new SqlParameter("@GD","ALL"),
-                    //                        new SqlParameter("@Satuan", "2"),
-                    //                        new SqlParameter("@THN", Convert.ToInt16(DateTime.Now.ToString("yyyy"))),
-                    //                        new SqlParameter("@QOH", SqlDbType.Decimal) {Direction = ParameterDirection.Output}
-                    //                    };
+                    //add by calvin 2 april 2019
+                    string connId_JobId = "";
+                    if (sync_pesanan_stok == "1")
+                    {
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                    //                LocalErasoftDbContext.Database.ExecuteSqlCommand("exec [GetQOH_STF08A] @BRG, @GD, @Satuan, @THN, @QOH OUTPUT", spParams);
-                    //                qtyOnHand = Convert.ToDouble(((SqlParameter)spParams[4]).Value);
-                    //            }
-                    //            EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
-                    //            {
-                    //                api_key = tblCustomer.API_KEY,
-                    //                kode = barangInDb.BRG,
-                    //                nama = barangInDb.NAMA,
-                    //                berat = (barangInDb.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                    //                imgUrl = imgID,
-                    //                Keterangan = barangInDb.Deskripsi,
-                    //                Qty = Convert.ToString(qtyOnHand),
-                    //                DeliveryTempNo = item.DeliveryTempElevenia,
-                    //                IDMarket = tblCustomer.RecNum.ToString(),
-                    //            };
-                    //            data.Brand = LocalErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == barangInDb.Sort2 && m.LEVEL == "2").KET;
-                    //            data.Price = item.HJUAL.ToString();
-                    //            data.kode_mp = item.BRG_MP;
-                    //            elApi.UpdateProductQOH_Price(data);
-                    //        }
-                    //    }
-                    //}
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
 
-                    //var elApi = new EleveniaController();
-                    //elApi.GetOrder(tblCustomer.API_KEY, EleveniaController.StatusOrder.Paid, connectionID, tblCustomer.CUST, tblCustomer.PERSO);
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                    }
+                    else
+                    {
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+                    }
+                    //end add by calvin 2 april 2019
                 }
             }
             #endregion
 
             #region Tokopedia
-
             var kdTokped = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "TOKOPEDIA");
             var lisTokpedShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdTokped.IdMarket.ToString()).ToList();
             if (lisTokpedShop.Count > 0)
             {
-                var tokopediaApi = new TokopediaController();
+                //var tokopediaApi = new TokopediaController();
                 foreach (var tblCustomer in lisTokpedShop)
                 {
                     if (tblCustomer.Sort1_Cust != "")
                     {
                         if (!string.IsNullOrEmpty(tblCustomer.API_CLIENT_P) && !string.IsNullOrEmpty(tblCustomer.API_CLIENT_U))
                         {
-                            //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
-                            //{
-                            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
-                            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-                            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-                            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            //    token = tblCustomer.TOKEN
-                            //};
-                            //string product_id = "372506586";
-                            //Task.Run(() => tokopediaApi.GetItemList(data, "", tblCustomer.CUST, tblCustomer.NAMA, product_id).Wait());
-
-                            TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData
+                            TokopediaControllerJob.TokopediaAPIData data = new TokopediaControllerJob.TokopediaAPIData
                             {
                                 merchant_code = tblCustomer.Sort1_Cust, //FSID
                                 API_client_password = tblCustomer.API_CLIENT_P, //Client Secret
                                 API_client_username = tblCustomer.API_CLIENT_U, //Client ID
                                 API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                                idmarket = tblCustomer.RecNum.Value
+                                idmarket = tblCustomer.RecNum.Value,
+                                DatabasePathErasoft = dbPathEra,
+                                username = username
                             };
-                            //TokopediaController.TokopediaAPIData idenTest = new TokopediaController.TokopediaAPIData
-                            //{
-                            //    merchant_code = "13072", //FSID
-                            //    API_client_username = "36bc3d7bcc13404c9e670a84f0c61676", //Client ID
-                            //    API_client_password = "8a76adc52d144a9fa1ef4f96b59b7419", //Client Secret
-                            //    API_secret_key = "2619296", //Shop ID 
-                            //    token = "pmgdpFANTcC0PM9tVzrwmw"
-                            //};
-                            tokopediaApi.GetToken(iden);
+                            //tokopediaApi.GetToken(iden);
+                            var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
 
-                            ////debug
-                            //TokopediaController.TokopediaAPIData data = new TokopediaController.TokopediaAPIData()
-                            //{
-                            //    merchant_code = tblCustomer.Sort1_Cust, //FSID
-                            //    API_client_password = tblCustomer.API_CLIENT_P, //Client ID
-                            //    API_client_username = tblCustomer.API_CLIENT_U, //Client Secret
-                            //    API_secret_key = tblCustomer.API_KEY, //Shop ID 
-                            //    token = tblCustomer.TOKEN
-                            //};
-                            //var resultShopee = tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value);
-                            //Task.Run(() => tokopediaApi.GetItemListSemua(data, 2, 100, tblCustomer.CUST, tblCustomer.NAMA, tblCustomer.RecNum.Value)).Wait();
-                            //Task.Run(() => tokopediaApi.UpdateStock(data, Convert.ToInt32(224312920), Convert.ToInt32(1))).Wait();
+                            //add by calvin 2 april 2019
+                            string connId_JobId = "";
+                            if (sync_pesanan_stok == "1")
+                            {
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                            }
+                            else
+                            {
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+                            }
+                            //end add by calvin 2 april 2019
                         }
                     }
                 }
@@ -690,7 +828,33 @@ namespace MasterOnline.Controllers
             //};
             //var ShopeeApi = new ShopeeController();
             //var resultShopee = ShopeeApi.GetItemDetail(dataaa, 470836261);
+            var kdShopee = MoDbContext.Marketplaces.Single(m => m.NamaMarket.ToUpper() == "SHOPEE");
+            var listShopeeShop = LocalErasoftDbContext.ARF01.Where(m => m.NAMA == kdShopee.IdMarket.ToString()).ToList();
+            if (listShopeeShop.Count > 0)
+            {
+                //var shopeeApi = new ShopeeController();
+                foreach (ARF01 tblCustomer in listShopeeShop)
+                {
+                    ShopeeControllerJob.ShopeeAPIData iden = new ShopeeControllerJob.ShopeeAPIData();
+                    iden.merchant_code = tblCustomer.Sort1_Cust;
+                    iden.DatabasePathErasoft = dbPathEra;
+                    iden.username = username;
+
+                    string connId_JobId = "";
+                    if (sync_pesanan_stok == "1")
+                    {
+                        connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                    }
+                    else
+                    {
+                        connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+                    }
+                }
+            }
             #endregion
+            return "";
         }
 
         // Route ke halaman register
@@ -1001,11 +1165,41 @@ namespace MasterOnline.Controllers
         // Proses Logging Out + Hapus Session
         public ActionResult LoggingOut()
         {
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            string dbPathEra = "";
+            if (sessionData?.Account != null)
+            {
+                dbPathEra = sessionData.Account.DatabasePathErasoft;
+            }
+            else
+            {
+                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                dbPathEra = accFromUser.DatabasePathErasoft;
+            }
+            if (dbPathEra != "")
+            {
+                var EDB = new DatabaseSQL(dbPathEra);
+
+                string EDBConnID = EDB.GetConnectionString("ConnID");
+                var sqlStorage = new SqlServerStorage(EDBConnID);
+                var monitoringApi = sqlStorage.GetMonitoringApi();
+                var serverList = monitoringApi.Servers();
+                if (serverList.Count() > 0)
+                {
+                    foreach (var server in serverList)
+                    {
+                        var serverConnection = sqlStorage.GetConnection();
+                        serverConnection.RemoveServer(server.Name);
+                    }
+                }
+            }
+
             Session["SessionInfo"] = null;
             //add by Tri, clear session id from cookies
             Session.Abandon();
             Response.Cookies.Add(new System.Web.HttpCookie("ASP.NET_SessionId", ""));
             //end add by Tri, clear session id from cookies
+            //IdentitySignout();//add by calvin 1 april 2019
             return RedirectToAction("Index", "Home");
         }
 
