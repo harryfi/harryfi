@@ -7313,7 +7313,7 @@ namespace MasterOnline.Controllers
                 return View("MerkBarang", vm);
             }
 
-            var checkData = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataMerk.Merk.KODE);
+            var checkData = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataMerk.Merk.KODE && m.LEVEL == "2");
 
             ////add by nurul 3/10/2018
             //var vmError = new StokViewModel() { };
@@ -7346,7 +7346,7 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                var merkInDb = ErasoftDbContext.STF02E.Single(m => m.RecNum == dataMerk.Merk.RecNum);
+                var merkInDb = ErasoftDbContext.STF02E.Single(m => m.RecNum == dataMerk.Merk.RecNum && m.LEVEL == "2");
 
                 //merkInDb.KODE = dataMerk.Merk.KODE;
                 merkInDb.KET = dataMerk.Merk.KET;
