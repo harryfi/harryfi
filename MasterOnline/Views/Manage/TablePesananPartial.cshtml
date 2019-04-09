@@ -91,7 +91,8 @@
             <td>
                 @*change by nurul 30/1/2019 -- @(buyer.NAMA + " (" + perso + ")")*@
                 @*@(buyerNama + " (" + perso + ")") 'change by nurul 14/2/2019*@
-                @buyerNama
+                @*@buyerNama*@
+                @pesanan.NAMAPEMESAN
             </td>
             <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
             @*add by nurul 22/1/2019*@

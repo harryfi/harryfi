@@ -48,7 +48,8 @@
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                 @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan?.PERSO + ")")*@
-                @(buyer == null ? "" : buyer.NAMA)
+                @*@(buyer == null ? "" : buyer.NAMA)*@
+                @pesanan.NAMAPEMESAN
             </td>
             <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
             <td class="edit-hapus-col">
