@@ -18,6 +18,8 @@ using System.Web;
 using System.Collections.Generic;
 using System.Security.Claims;
 using Hangfire;
+using Hangfire.Server;
+using Hangfire.Storage;
 using Hangfire.SqlServer;
 using Microsoft.Owin.Security;
 using Microsoft.AspNet.Identity;
@@ -468,13 +470,13 @@ namespace MasterOnline.Controllers
             var sqlStorage = new SqlServerStorage(EDBConnID);
             var monitoringApi = sqlStorage.GetMonitoringApi();
             var serverList = monitoringApi.Servers();
-            if (serverList.Count() > 0)
+            if (serverList.Count() == 0)
             {
-                foreach (var server in serverList)
-                {
-                    var serverConnection = sqlStorage.GetConnection();
-                    serverConnection.RemoveServer(server.Name);
-                }
+                //foreach (var server in serverList)
+                //{
+                //    var serverConnection = sqlStorage.GetConnection();
+                //    serverConnection.RemoveServer(server.Name);
+                //}
 
                 var options = new BackgroundJobServerOptions
                 {
@@ -492,24 +494,24 @@ namespace MasterOnline.Controllers
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
             }
-            else
-            {
-                var options = new BackgroundJobServerOptions
-                {
-                    ServerName = "Account",
-                    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
-                    WorkerCount = 1,
-                };
-                var server = new BackgroundJobServer(options, sqlStorage);
+            //else
+            //{
+            //    var options = new BackgroundJobServerOptions
+            //    {
+            //        ServerName = "Account",
+            //        Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+            //        WorkerCount = 1,
+            //    };
+            //    var server = new BackgroundJobServer(options, sqlStorage);
 
-                var optionsStokServer = new BackgroundJobServerOptions
-                {
-                    ServerName = "Stok",
-                    Queues = new[] { "1_update_stok" },
-                    WorkerCount = 3,
-                };
-                var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
-            }
+            //    var optionsStokServer = new BackgroundJobServerOptions
+            //    {
+            //        ServerName = "Stok",
+            //        Queues = new[] { "1_update_stok" },
+            //        WorkerCount = 3,
+            //    };
+            //    var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+            //}
 
             var client = new BackgroundJobClient(sqlStorage);
             RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
@@ -517,6 +519,14 @@ namespace MasterOnline.Controllers
             {
                 QueueName = "3_general"
             };
+
+            //using (var connection = sqlStorage.GetConnection())
+            //{
+            //    foreach (var recurringJob in connection.GetRecurringJobs())
+            //    {
+            //        recurJobM.RemoveIfExists(recurringJob.Id);
+            //    }
+            //}
 
             //testFailedNotif
             //recurJobM.AddOrUpdate("calvintesfailed", Hangfire.Common.Job.FromExpression<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "Failed 1 min")), Cron.MinuteInterval(1), recurJobOpt);
@@ -526,6 +536,8 @@ namespace MasterOnline.Controllers
 
             //var delaay = new TimeSpan(0, 1, 0);
             //client.Schedule<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "asd"), delaay);
+
+
 
             //var test = new JDIDController();
             //var categoryJD = LocalErasoftDbContext.CATEGORY_JDID.Where(m => m.LEAF == "1").ToList();
@@ -1190,6 +1202,7 @@ namespace MasterOnline.Controllers
                     {
                         var serverConnection = sqlStorage.GetConnection();
                         serverConnection.RemoveServer(server.Name);
+                        serverConnection.Dispose();
                     }
                 }
             }
