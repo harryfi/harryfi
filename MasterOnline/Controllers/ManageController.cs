@@ -1940,7 +1940,12 @@ namespace MasterOnline.Controllers
         public ActionResult GetAttributeLazada(string code)
         {
             string[] codelist = code.Split(';');
-            var listAttributeLazada = MoDbContext.ATTRIBUTE_LAZADA.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            //var listAttributeLazada = MoDbContext.ATTRIBUTE_LAZADA.Where(k => codelist.Contains(k.CATEGORY_CODE)).ToList();
+            var listAttributeLazada = new List<ATTRIBUTE_LAZADA>();
+            var lzdApi = new LazadaController();
+            var attrLzd = lzdApi.getAttrLzd(code);
+            listAttributeLazada.Add(attrLzd);
+
             return Json(listAttributeLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -1950,7 +1955,7 @@ namespace MasterOnline.Controllers
             //var listAttributeOptLazada = MoDbContext.ATTRIBUTE_OPT_LAZADA.Where(k => codelist.Contains(k.A_NAME) && k.CATEGORY_CODE.ToUpper() == kategoryCode.ToUpper()).ToList();
             //var listAttributeOptLazada = MoDbContext.Database.SqlQuery<ATTRIBUTE_OPT_LAZADA>("SELECT * FROM ATTRIBUTE_OPT_LAZADA WHERE UPPER(CATEGORY_CODE)=UPPER('" + kategoryCode + "') AND A_NAME='" + codelist[0] + "'").ToList();
             var lzdApi = new LazadaController();
-            var listAttributeOptLazada = lzdApi.getAttrLzd(kategoryCode, codelist[0]);
+            var listAttributeOptLazada = lzdApi.getAttrOptLzd(kategoryCode, codelist[0]);
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         [HttpGet]
@@ -1965,7 +1970,7 @@ namespace MasterOnline.Controllers
         {
             string[] codelist = code.Split(';');
             var lzdApi = new LazadaController();
-            var listAttributeOptLazada = lzdApi.getAttrLzd(codelist[1], codelist[0]);
+            var listAttributeOptLazada = lzdApi.getAttrOptLzd(codelist[1], codelist[0]);
             return Json(listAttributeOptLazada, JsonRequestBehavior.AllowGet);
         }
         #endregion
@@ -9521,9 +9526,38 @@ namespace MasterOnline.Controllers
         public ActionResult GetDataBarang(string code)
         {
             //var listBarang = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019 
-            var listBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+            //var listBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+            var listBarang = from stf02 in ErasoftDbContext.STF02 where stf02.TYPE == "3"
+                             select new smolSTF02 {
+                                 BRG = stf02.BRG,
+                                 HJUAL = stf02.HJUAL,
+                                 NAMA = stf02.NAMA,
+                                 NAMA2 = string.IsNullOrEmpty(stf02.NAMA2) ? "" : stf02.NAMA2,
+                                 STN2 = stf02.STN2
+                             };
+
+            //change by Tri 5 April 2019, max length json
+            //var serializer = new JavaScriptSerializer();
+
+            //serializer.MaxJsonLength = Int32.MaxValue;
+            //var result = new ContentResult();
+            //try
+            //{
+
+            //    result.Content = serializer.Serialize(listBarang);
+            //    result.ContentType = "application/json";
+
+            //}
+            //catch (Exception ex)
+            //{
+
+            //}
 
             return Json(listBarang, JsonRequestBehavior.AllowGet);
+            //return Json(result, JsonRequestBehavior.AllowGet);
+
+            //end change by Tri 5 April 2019, max length json
+
         }
 
         [HttpGet]
@@ -16845,10 +16879,11 @@ namespace MasterOnline.Controllers
             var barangVm = new UploadBarangViewModel()
             {
                 ListTempBrg = new List<TEMP_BRG_MP>(),
-                ListMarket = ErasoftDbContext.ARF01.ToList(),
+                //ListMarket = ErasoftDbContext.ARF01.ToList(),
                 Stf02 = new STF02(),
                 TempBrg = new TEMP_BRG_MP(),
             };
+            barangVm.ListMarket = ErasoftDbContext.ARF01.ToList();
             //add and remark by calvin, untuk excel
             //ProsesTempExcelAutoCompleteBrg("000003");
             //end add and remark by calvin, untuk excel
@@ -19351,7 +19386,39 @@ namespace MasterOnline.Controllers
                                         }
                                         return Json(retBarang, JsonRequestBehavior.AllowGet);
                                     }
-
+                                case "JD.ID":
+                                    var JDApi = new JDIDController();
+                                    if (string.IsNullOrEmpty(arf01.TOKEN))
+                                    {
+                                        return JsonErrorMessage("Anda belum link marketplace dengan Akun ini.\nSilahkan ikuti langkah-langkah untuk link Akun pada menu Pengaturan > Link > Link ke marketplace");
+                                    }
+                                    else
+                                    {
+                                        JDIDAPIData data = new JDIDAPIData()
+                                        {
+                                            accessToken = arf01.TOKEN,
+                                            appKey = arf01.API_KEY,
+                                            appSecret = arf01.API_CLIENT_U,
+                                        };
+                                        var resultJD = JDApi.getListProduct(data, page, cust, recordCount);
+                                        if (resultJD.status == 1)
+                                        {
+                                            if (!string.IsNullOrEmpty(resultJD.message))
+                                            {
+                                                retBarang.RecordCount = resultJD.recordCount;
+                                                retBarang.Recursive = true;
+                                            }
+                                            else
+                                            {
+                                                retBarang.RecordCount = resultJD.recordCount;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            retBarang.RecordCount = resultJD.recordCount;
+                                        }
+                                        return Json(retBarang, JsonRequestBehavior.AllowGet);
+                                    }
                                 default:
                                     return JsonErrorMessage("Fasilitas untuk mengambil data dari marketplace ini belum dibuka.");
                             }
@@ -20258,5 +20325,14 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+    }
+    public class smolSTF02
+    {
+        public string BRG { get; set; }
+        public string NAMA { get; set; }
+        public string NAMA2 { get; set; }
+        public string STN2 { get; set; }
+        public double HJUAL { get; set; }
+
     }
 }

@@ -284,8 +284,8 @@
 
             $('#tambah_stok').on('click', function () {
                 refresh();
-                $('.stok_table_section').hide();
-                $('.stok_editor_section').show();
+                //$('.stok_table_section').hide();
+                //$('.stok_editor_section').show();
             });
 
             $('#close-editor').on('click', function () {
@@ -317,7 +317,7 @@
 
             $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
             widthBrg();
-            getDataBarang();
+            //getDataBarang();test remark
             getGudang();
             var $flagPerubahan = 0;
 
@@ -411,11 +411,11 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
-            
+
         }
         //add by nurul 19/12/2018 ngatur width barang
         function widthBrg() {
-            
+
             $(window).on('resize', function () {
                 //var win = $(this); //this = window
                 var style = $('.selectivity-dropdown').attr('style');
@@ -462,9 +462,9 @@
             $('body').click(function () {
                 $('#BRG').css('max-width', '105px').attr('style', 'width: 105px !important');
             });
-            
+
         }
-        //end add by nurul 
+        //end add by nurul
 
         function modeEditTd() {
             //$('.qty-barang').addClass('editable');
@@ -705,6 +705,7 @@
 
                     $('#form-partial').html(response);
                     Initialize();
+                    getDataBarang();//test remark
                     //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
@@ -733,6 +734,7 @@
 
                     $('#form-partial').html(response);
                     Initialize();
+                    getDataBarang();//test remark
                     //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
@@ -783,7 +785,10 @@
                 },
                 success: function (response) {
                     $('#form-partial').html(response);
+                    getDataBarang();//test remark
                     Initialize();
+                    $('.stok_table_section').hide();
+                    $('.stok_editor_section').show();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -948,7 +953,7 @@
                                 $modeEdit == 0
                                 $('#form-partial').html(response);
                                 widthBrg()
-                                getDataBarang();
+                                //getDataBarang();//test remark
                                 getGudang();
                                 getTanggal();
                                 $('#loading_spinner').hide();

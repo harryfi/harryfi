@@ -686,7 +686,21 @@ namespace MasterOnline.Utils
             }
             catch (Exception ex)
             {
-                return null;
+                dynamic retFail = Activator.CreateInstance(typeObj);
+                //dynamic retFail = new Models.BukaLapakResponse() as dynamic;
+                //{
+                retFail.status = "exception";
+                retFail.message = "Gagal memanggil Bukalapak API.";
+                //};
+                if (ex.Message.Contains("403"))
+                {
+                    retFail.message += "\nPeriksa kembali email dan password anda di link marketplace.";
+                }
+                else
+                {
+                    retFail.message += "\n" + ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                }
+                return retFail;
             }
         }
         #endregion
