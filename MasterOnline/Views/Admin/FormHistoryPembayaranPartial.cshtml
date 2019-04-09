@@ -1,0 +1,86 @@
+﻿@using System.Globalization
+@model MasterOnline.ViewModels.SubsViewModel
+
+@Html.AntiForgeryToken()
+@Html.HiddenFor(m => m.Payment.RecNum)
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.Email, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.Payment.Email)
+        <select id="ACCOUNT" placeholder="Harap Pilih" required="required"></select>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.Account, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.Payment.Account, new { @class = "form-control", @ReadOnly = true })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.TipeSubs, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.Payment.TipeSubs)
+        <select class="form-control" id="KODESUBS" placeholder="Harap Pilih" name="KODESUBS" required="required">
+            <option value="01">BASIC</option>
+            <option value="02">SILVER</option>
+            <option value="03">GOLD</option>
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.TanggalBayar, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.Payment.TanggalBayar, new { @class = "form-control", required = "required", Value = Model?.Payment?.TanggalBayar?.ToString("dd/MM/yyyy") })
+        <div class="input-group date">
+            <input type="text" id="TGL" class="form-control" />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.Nilai, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.Payment.Nilai, new { @class = "form-control num-only", required = "required", Value = (Model?.Payment?.Nilai == null ? 0 : Model.Payment.Nilai), maxlength = 20, min = 0, @data_val_length_max = 20 })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.TipePembayaran, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.Payment.TipePembayaran, new { @class = "form-control num-only", required = "required", disabled="disabled", Value = (Model?.Payment?.TipePembayaran == null || Model?.Payment?.TipePembayaran == "" ? "Manual_Transfer" : Model.Payment.TipePembayaran), maxlength = 50, min = 0, @data_val_length_max = 50 })
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.DrTGL, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.Payment.DrTGL, new { @class = "form-control", required = "required", Value = Model?.Payment?.DrTGL?.ToString("dd/MM/yyyy") })
+        <div class="input-group date">
+            <input type="text" id="drTGL" class="form-control" />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.SdTGL, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.HiddenFor(m => m.Payment.SdTGL, new { @class = "form-control", required = "required", Value = Model?.Payment?.SdTGL?.ToString("dd/MM/yyyy") })
+        <div class="input-group date">
+            <input type="text" id="sdTGL" class="form-control" />
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    @Html.LabelFor(m => m.Payment.jumlahUser, new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
+    <div class="col-md-6 col-sm-6 col-xs-12">
+        @Html.TextBoxFor(m => m.Payment.jumlahUser, new { @class = "form-control num-only", Value = (Model?.Payment?.jumlahUser == null ? 0 : Model.Payment.jumlahUser) })
+    </div>
+</div>
+<hr />
+@*<button type="submit" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanPayment('@Model.Payment.RecNum')">Simpan</button>*@
+<button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanPayment(this);">Simpan</button>

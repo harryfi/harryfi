@@ -109,7 +109,7 @@
 
         .ndisc-input {
             width: 100px;
-            text-align:right;
+            text-align: right;
         }
 
         /*#BRG {
@@ -190,15 +190,17 @@
             color: orange;
             font-weight: bold;
         }
+
         #cetak_label {
             color: orange;
             font-weight: bold;
         }
-        
+
         #noFaktur_label {
             color: orange;
             font-weight: bold;
         }
+
         #tglFaktur_label {
             color: orange;
             font-weight: bold;
@@ -1395,9 +1397,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*<button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-                                </button>*@
+                                </button>
                                 <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
@@ -1453,9 +1455,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*<button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
+                                <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-                                </button>*@
+                                </button>
                                 <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
@@ -2135,7 +2137,7 @@
                                 <div class="form-group" id="div-shopee-resi-dropoff-tracking-no">
                                     <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
                                     <div class="col-md-8 col-sm-8 col-xs-12">
-                                        <input type="text" class="form-control" id="shopee-resi-dropoff-tracking-no" maxlength=30 data_val_length_max = 30>
+                                        <input type="text" class="form-control" id="shopee-resi-dropoff-tracking-no" maxlength=30 data_val_length_max=30>
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -2188,7 +2190,7 @@
                     <div class="form-group" style="margin-top: 5px;">
                         <label class="control-label col-md-4 col-sm-4 col-xs-12">No. Resi</label>
                         <div class="col-md-8 col-sm-8 col-xs-12">
-                            <input type="text" class="form-control" id="shopee-resi-non-integrated-tracking-no"  maxlength = 30 data_val_length_max = 30>
+                            <input type="text" class="form-control" id="shopee-resi-non-integrated-tracking-no" maxlength=30 data_val_length_max=30>
                         </div>
                     </div>
                 </div>
@@ -2473,7 +2475,10 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body">
+                <div id="loading_ubahstatus_dibayar" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="row" id="dibayar_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?</h4>
                 </div>
@@ -2496,12 +2501,15 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="UbahStatusMulti">Konfirmasi</h4>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body">
+                <div id="loading_ubahstatus_packing" class="text-center">
+                    <img src="~/Content/Images/spinner.gif" width="100" />
+                </div>
                 <div class="row" id="packing_div">
                     <h4>Apakah Anda yakin ingin mengubah status dari Packing menjadi Invoicing?</h4>
                 </div>
                 <div id="modal-status-multi-packing-body">
-                    @Html.Partial("UbahStatusMultiPartial")
+                    @Html.Partial("UbahStatusMultiPacking")
                 </div>
             </div>
             <br />
@@ -2525,15 +2533,14 @@
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
 
     <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/js/dataTables.checkboxes.min.js"></script>
-    @*<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>*@
     <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js" type="text/javascript"></script>
-    @*<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>*@
-    @*<script src="https://code.jquery.com/jquery-3.3.1.js" type="text/javascript"></script>*@
+    <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/date-uk.js" type="text/javascript"></script>
     @*add by Tri snap js*@
     @*<script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-AyzcvZKcwAlD_0QY"></script>*@
     <script type="text/javascript" src="https://app.midtrans.com/snap/snap.js" data-client-key="Mid-client-sMzViq24qWRlPdPu"></script>
     @*SB-Mid-client-AyzcvZKcwAlD_0QY__Mid-client-sMzViq24qWRlPdPu*@
     <script type="text/javascript">
+        var get_selected = [];
         var bukti = "";
         var fktur = "";
         var tgl = "";
@@ -2588,8 +2595,11 @@
 
         var table = $('#datatable').DataTable({
             //"order": [[0, 1, "desc"]], //or asc
-            "order": [[1, "desc"], [0, "desc"]], //or asc
-            //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+            "order": [[1, "desc"],[0, "desc"]], //or asc
+            "columnDefs": [{ "targets": 1, "type": "date-eu"}],
+            //columnDefs: [
+            //    { type: 'date-uk', targets: 1 }
+            //],
             responsive: true,
         });
         var tableNunggu = $('#datatable_nunggu').DataTable({
@@ -2724,6 +2734,23 @@
             });
         }
         $(document).ready(function () {
+            jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+                "date-uk-pre": function (a) {
+                    if (a == null || a == "") {
+                        return 0;
+                    }
+                    var ukDatea = a.split('/');
+                    return (ukDatea[2] + ukDatea[1] + ukDatea[0]) * 1;
+                },
+
+                "date-uk-asc": function (a, b) {
+                    return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+                },
+
+                "date-uk-desc": function (a, b) {
+                    return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+                }
+            });
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -4795,8 +4822,11 @@
                     $('#table-pesanan-partial').html(response);
                     var table = $('#datatable').DataTable({
                         //"order": [[0, 1, "desc"]], //or asc
-                        "order": [[1, "desc"], [0, "desc"]], //or asc
-                        //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        "order": [[1, "desc"],[0, "desc"]], //or asc
+                        "columnDefs": [{ "targets": 1, "type": "date-eu"}],
+                        //columnDefs: [
+                        //    { type: 'date-uk', targets: 1 }
+                        //],
                     });
                     $('#search_pesanan').keyup(function() {
                         table.search($(this).val()).draw();
@@ -4822,9 +4852,9 @@
 
         //add by nurul 14/3/2019
         function UbahStatusPesananDibayar() {
-            var get_selectedDibayar = [];
+            get_selected.length = 0;
             $('.get_data_recnum').each(function (i, item) {
-                get_selectedDibayar.push($(item).attr("data-rec"));
+                get_selected.push($(item).attr("data-rec"));
             });
 
             var link = '@Url.Action("UbahStatusPesananDibayar", "Manage")';
@@ -4832,7 +4862,7 @@
             $.ajax({
                 type: "POST",
                 url: link,
-                data: JSON.stringify(get_selectedDibayar),
+                data: JSON.stringify(get_selected),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
                 success: function(response) {
@@ -4848,19 +4878,21 @@
                         refreshTableCancel();
                         refreshTableSudahDibayar();
                         alert('Kode barang pada pesanan (' + response.Errors + ') belum terdaftar di Master Online, silahkan cek detail pesanan anda !');
-                        
+
                     }
                     $('#modal-status-multi-body').modal('hide');
                     $('#modalUbahStatusMultiDibayar').modal('hide');
+                    get_selected.length = 0;
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
+                    get_selected.length = 0;
                 }
             });
         }
         function UbahStatusPesananPacking() {
-            var get_selected = [];
             var cekTrue = [];
+            get_selected.length = 0;
             $(".checkbox_gntstatus_packing").each(function (z, chk) {
                 if ($(chk).prop('checked') == true) {
                     cekTrue.push($(chk).attr("data-rec"));
@@ -4869,23 +4901,17 @@
             if (cekTrue.length == 0) {
                 get_selected.push(this.$recPesanan);
             } else {
-                $('.get_data_recnum').each(function (i, item) {
-                    get_selected.push($(item).attr("data-rec"));
+                $('.get_recnum').each(function (i, item) {
+                    get_selected.push($(item).attr("data-recnum"));
                 });
             }
-            //if (this.$recPesanan != 0) {
-            //    get_selected.push(this.$recPesanan);
-            //} else {
-            //    $('.get_data_recnum').each(function (i, item) {
-            //        get_selected.push($(item).attr("data-rec"));
-            //    });
-            //}
 
             var link = '@Url.Action("UbahStatusPesananPacking", "Manage")';
 
             $.ajax({
                 type: "POST",
                 url: link,
+                
                 data: JSON.stringify(get_selected),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
@@ -4906,9 +4932,11 @@
                     $('#modal-status-multi-packing-body').modal('hide');
                     $('#modalUbahStatusMultiPacking').modal('hide');
                     $('#konfUbahStatusSiapkirim').modal('hide');
+                    get_selected.length = 0;
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
+                    get_selected.length = 0;
                 }
             });
         }
@@ -5517,10 +5545,10 @@
                                 //end add by nurul 19/3/2019
                                 alert('Data berhasil disimpan!');
                                 $('#modalGudangDanQty').modal('hide');
-                                
-                                
+
+
                             }
-                            
+
                         } else {
                             alert(response.Errors);
                             //$('#loading_spinner').hide();
@@ -6014,7 +6042,7 @@
             var link = '@Html.Raw(Url.Action("SaveResiTokped", "Manage", new { recNum = "replaceRecNum" }))';
 
             link = link.replace("replaceRecNum", window.$recResiTokped);
-            
+
             $.ajax({
                 type: "GET",
                 url: link,
@@ -6160,6 +6188,37 @@
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
+                var link = '@Url.Action("RefreshUbahStatusDibayar", "Manage")';
+            $.ajax({
+                type: "POST",
+                url: link,
+                // The key needs to match your method's input parameter (case-sensitive).
+                beforeSend: function () {
+                    $('#datatable_ubahstatus_dibayar').hide();
+                    $('#loading_ubahstatus_dibayar').show();
+                },
+                data: JSON.stringify(rows_selected),
+                contentType: "application/json; charset=UTF-8",
+                cache: false,
+                success: function (response) {
+                    if (response.Errors == null) {
+                        $('#modal-status-multi-body').html(response);
+                        $('#datatable_ubahstatus_dibayar').show();
+                        $('#loading_ubahstatus_dibayar').hide();
+                    } else {
+                        $('#modalUbahStatusMultiDibayar').modal('hide');
+                        $('#datatable_ubahstatus_dibayar').show();
+                        $('#loading_ubahstatus_dibayar').hide();
+                            alert(response.Errors[0]);
+                    }
+                },
+                error: function (errMsg) {
+                    $('#datatable_ubahstatus_dibayar').show();
+                    $('#loading_ubahstatus_dibayar').hide();
+                    alert(errMsg);
+
+                },
+            });
             } else if ($TabAktif == 2) {
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
                     if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
@@ -6168,43 +6227,41 @@
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
-            }
-
-            var link = '@Url.Action("RefreshUbahStatusDibayar", "Manage")';
+                var link = '@Url.Action("RefreshUbahStatusPacking", "Manage")';
             $.ajax({
                 type: "POST",
                 url: link,
+                beforeSend: function () {
+                    $('#datatable_ubahstatus_packing').hide();
+                    $('#loading_ubahstatus_packing').show();
+                },
                 // The key needs to match your method's input parameter (case-sensitive).
                 data: JSON.stringify(rows_selected),
                 contentType: "application/json; charset=UTF-8",
                 cache: false,
                 success: function (response) {
                     if (response.Errors == null) {
-                        if ($TabAktif == 1) {
-                            $('#modal-status-multi-body').html(response);
-                        }
-                        else if ($TabAktif == 2) {
-                            $('#modal-status-multi-packing-body').html(response);
-                        }
+                        $('#modal-status-multi-packing-body').html(response);
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
                     } else {
-                        if ($TabAktif == 1) {
-                            $('#modalUbahStatusMultiDibayar').modal('hide');
-                            alert(response.Errors[0]);
-                        }
-                        else if ($TabAktif == 2) {
-                            $('#modalUbahStatusMultiPacking').modal('hide');
-                            alert(response.Errors[0]);
-                        }
-                        
+                        $('#modalUbahStatusMultiPacking').modal('hide');
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        alert(response.Errors[0]);
+
                     }
-
-
                 },
                 error: function (errMsg) {
+                    $('#loading_ubahstatus_packing').hide();
+                    $('#datatable_ubahstatus_packing').show();
+                    $('#loading_ubahstatus_packing').hide();
                     alert(errMsg);
-
                 },
             });
+            }
+
+
         }
         function passRecStatusMultiPacking() {
 
@@ -6350,7 +6407,7 @@
                 $('#ada_Faktur').hide();
                 $('#cetak_label').text(bukti);
             }
-            
+
             //add by nurul 7/12/2018
             $('#ctk_faktur').attr('checked', true);
             $('#ctk_label').attr('checked', true);

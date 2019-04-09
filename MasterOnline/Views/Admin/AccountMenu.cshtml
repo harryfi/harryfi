@@ -64,6 +64,12 @@
                     <a href="#tab_content1" id="account-tab" role="tab" data-toggle="tab" aria-expanded="true">Account</a>
                 </li>
                 <li role="presentation" class="">
+                    <a href="#tab_content4" id="aktif-tab" role="tab" data-toggle="tab" aria-expanded="false">Aktif</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content5" id="nonaktif-tab" role="tab" data-toggle="tab" aria-expanded="false">Tidak Aktif</a>
+                </li>
+                <li role="presentation" class="">
                     <a href="#tab_content2" role="tab" id="willexpired-tab" data-toggle="tab" aria-expanded="false">Akan Expired</a>
                 </li>
                 <li role="presentation" class="">
@@ -94,8 +100,8 @@
                     </div>
                     <div class="row user_table_section">
                         @*<div id="loading_account" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-account">
                             @Html.Partial("TableAccount")
                         </div>
@@ -165,6 +171,140 @@
                         </div>
                     </div>
                 </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="aktif-tab">
+                    <div class="row user_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_aktif" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row user_table_section">
+                            <div class="col-md-2">
+                                @Html.Label("", "Dari Tanggal")
+
+                                <div class="input-group date">
+                                    @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                @Html.Label("", "S/d Tanggal")
+
+                                <div class="input-group date">
+                                    @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                            </div>
+                        </div>*@
+                    <div class="row user_table_section">
+                        <div id="loading_aktif" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-account-aktif">
+                            @Html.Partial("TableAccountAktif")
+                        </div>
+                    </div>
+                    <div class="row aktif_detail_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Detail Account</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-4" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div id="form-partial-aktif">
+                                    @Html.Partial("AccountDetail")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="tab_content5" aria-labelledby="nonaktif-tab">
+                    <div class="row user_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_nonaktif" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row user_table_section">
+                            <div class="col-md-2">
+                                @Html.Label("", "Dari Tanggal")
+
+                                <div class="input-group date">
+                                    @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                @Html.Label("", "S/d Tanggal")
+
+                                <div class="input-group date">
+                                    @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                            </div>
+                        </div>*@
+                    <div class="row user_table_section">
+                        <div id="loading_nonaktif" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-account-nonaktif">
+                            @Html.Partial("TableAccountNonaktif")
+                        </div>
+                    </div>
+                    <div class="row nonaktif_detail_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Detail Account</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-5" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div id="form-partial-nonaktif">
+                                    @Html.Partial("AccountDetail")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="willexpired-tab">
                     @*end add by nurul 13/2/2019*@
                     <div class="row user_table_section">
@@ -213,9 +353,9 @@
                         </div>
                     </div>
                     <div class="row user_table_section">
-                        @*<div id="loading_willexpired" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                        <div id="loading_willexpired" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
                         <div class="col-sm-12" id="table-account-will-expired">
                             @Html.Partial("TableAccountWillExpired")
                         </div>
@@ -272,9 +412,9 @@
                         </div>
                     </div>
                     <div class="row user_table_section">
-                        @*<div id="loading_expired" class="text-center">
-                <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>*@
+                        <div id="loading_expired" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
                         <div class="col-sm-12" id="table-account-expired">
                             @Html.Partial("TableAccountExpired")
                         </div>
@@ -334,6 +474,14 @@
             "order": [[5, "desc"], [1, "asc"]], //or asc
             "columnDefs": [{ "targets": 5, "type": "date-eu" }],
         });
+        var tableAktif = $('#datatable_aktif').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        var tableNonaktif = $('#datatable_nonaktif').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
         var tableWillexpired = $('#datatable_willexpired').DataTable({
             "order": [[5, "desc"], [1, "asc"]], //or asc
             "columnDefs": [{ "targets": 5, "type": "date-eu" }],
@@ -349,12 +497,18 @@
                 //var tableWillexpired = $('#datatable_willexpired').DataTable();
                 //var tableExpired = $('#datatable_expired').DataTable();
                 //end add by nurul 13/2/2019
-                
-                
+
+
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
                 });
                 //add by nurul 13/2/2019
+                $('#search_aktif').keyup(function () {
+                    tableAktif.search($(this).val()).draw();
+                });
+                $('#search_nonaktif').keyup(function () {
+                    tableNonaktif.search($(this).val()).draw();
+                });
                 $('#search_willexpired').keyup(function () {
                     tableWillexpired.search($(this).val()).draw();
                 });
@@ -364,6 +518,12 @@
 
                 $('#account-tab').click(function () {
                     refreshTableAccount();
+                });
+                $('#aktif-tab').click(function () {
+                    refreshTableAktif();
+                });
+                $('#nonaktif-tab').click(function () {
+                    refreshTableNonaktif();
                 });
                 $('#willexpired-tab').click(function () {
                     var d = new Date();
@@ -411,8 +571,28 @@
                         $page = $('#datatable').DataTable().page.info().page;
                     });
                         refreshTableAccount();
-                        
+
                         $('#datatable').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-4').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.aktif_detail_section').hide();
+                    $('#datatable_aktif').on('page.dt', function () {
+                        $page = $('#datatable_aktif').DataTable().page.info().page;
+                    });
+                    refreshTableAktif();
+
+                    $('#datatable_aktif').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-5').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.nonaktif_detail_section').hide();
+                    $('#datatable_nonaktif').on('page.dt', function () {
+                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
+                    });
+                    refreshTableNonaktif();
+
+                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-2').off('click').on('click', function () {
                     $('.user_table_section').show();
@@ -421,7 +601,7 @@
                         $page = $('#datatable_willexpired').DataTable().page.info().page;
                     });
                     refreshTableWillexpired();
-                    
+
                     $('#datatable_willexpired').DataTable().page($page).draw(false);
                 });
                 $('#close-editor-3').off('click').on('click', function () {
@@ -431,7 +611,7 @@
                         $page = $('#datatable_expired').DataTable().page.info().page;
                     });
                     refreshTableExpired();
-                    
+
                     $('#datatable_expired').DataTable().page($page).draw(false);
                 });
 
@@ -512,12 +692,11 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                //beforeSend: function () {
-                //    $('#datatable').hide();
-                //    $('#loading_account').show();
-                //},
+                beforeSend: function () {
+                    $('#datatable').hide();
+                    //$('#loading_account').show();
+                },
                 success: function (response) {
-                    //$('#loading_account').hide();
                     $('#table-account').html(response);
                     var table = $('#datatable').DataTable({
                         "order": [[5, "desc"], [1, "asc"]], //or asc
@@ -527,6 +706,7 @@
                         table.search($(this).val()).draw();
                     });
                     $('#datatable').show();
+                    //$('#loading_account').hide();
                     table.search($('#search_user').val()).draw();
                     $('#datatable').on('page.dt', function () {
                         $page = $('#datatable').DataTable().page.info().page;
@@ -539,6 +719,78 @@
                 }
             });
         }
+        function refreshTableAktif() {
+            @*var link = '@Url.Action("AccountMenuAktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
+            var link = '@Url.Action("AccountMenuAktif", "Admin")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#datatable_aktif').hide();
+                    $('#loading_aktif').show();
+                },
+                success: function (response) {
+                    $('#table-account-aktif').html(response);
+                    var tableAktif = $('#datatable_aktif').DataTable({
+                        "order": [[5, "desc"], [1, "asc"]], //or asc
+                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    });
+                    $('#search_aktif').keyup(function () {
+                        tableAktif.search($(this).val()).draw();
+                    });
+                    $('#datatable_aktif').show();
+                    $('#loading_aktif').hide();
+                    tableAktif.search($('#search_aktif').val()).draw();
+                    $('#datatable_aktif').on('page.dt', function () {
+                        $page = $('#datatable_aktif').DataTable().page.info().page;
+                    });
+                    $('#datatable_aktif').DataTable().page($page).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_aktif').hide();
+                }
+            });
+        }
+        function refreshTableNonaktif() {
+            @*var link = '@Url.Action("AccountMenuNonaktif", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());*@
+            var link = '@Url.Action("AccountMenuNonaktif", "Admin")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#datatable_aktif').hide();
+                    $('#loading_nonaktif').show();
+                },
+                success: function (response) {
+                    $('#table-account-nonaktif').html(response);
+                    var tableNonaktif = $('#datatable_nonaktif').DataTable({
+                        "order": [[5, "desc"], [1, "asc"]], //or asc
+                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    });
+                    $('#search_nonaktif').keyup(function () {
+                        tableNonaktif.search($(this).val()).draw();
+                    });
+                    $('#datatable_nonaktif').show();
+                    $('#loading_nonaktif').hide();
+                    tableNonaktif.search($('#search_nonaktif').val()).draw();
+                    $('#datatable_nonaktif').on('page.dt', function () {
+                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
+                    });
+                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_nonaktif').hide();
+                }
+            });
+        }
         function refreshTableWillexpired() {
             var link = '@Url.Action("AccountMenuWillExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
@@ -547,10 +799,10 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                //beforeSend: function () {
-                //    $('#datatable_willexpired').hide();
-                //    $('#loading_willexpired').show();
-                //},
+                beforeSend: function () {
+                    $('#datatable_willexpired').hide();
+                    $('#loading_willexpired').show();
+                },
                 success: function (response) {
                     //$('#loading_willexpired').hide();
                     $('#table-account-will-expired').html(response);
@@ -562,6 +814,7 @@
                         tableWillexpired.search($(this).val()).draw();
                     });
                     $('#datatable_willexpired').show();
+                    $('#loading_willexpired').hide();
                     tableWillexpired.search($('#search_willexpired').val()).draw();
                     $('#datatable_willexpired').on('page.dt', function () {
                         $page = $('#datatable_willexpired').DataTable().page.info().page;
@@ -570,7 +823,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    //$('#loading_willexpired').hide();
+                    $('#loading_willexpired').hide();
                 }
             });
         }
@@ -581,10 +834,10 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                //beforeSend: function () {
-                //    $('#datatable_expired').hide();
-                //    $('#loading_expired').show();
-                //},
+                beforeSend: function () {
+                    $('#datatable_expired').hide();
+                    $('#loading_expired').show();
+                },
                 success: function (response) {
                     //$('#loading_expired').hide();
                     $('#table-account-expired').html(response);
@@ -596,6 +849,7 @@
                         tableExpired.search($(this).val()).draw();
                     });
                     $('#datatable_expired').show();
+                    $('#loading_expired').hide();
                     tableExpired.search($('#search_expired').val()).draw();
                     $('#datatable_expired').on('page.dt', function () {
                         $page = $('#datatable_expired').DataTable().page.info().page;
@@ -604,7 +858,7 @@
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
-                    //$('#loading_expired').hide();
+                    $('#loading_expired').hide();
                 }
             });
         }
@@ -619,6 +873,40 @@
                     $('#form-partial-detail').html(response);
                     $('.user_table_section').hide();
                     $('.account_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount4(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-aktif').html(response);
+                    $('.user_table_section').hide();
+                    $('.aktif_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount5(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-nonaktif').html(response);
+                    $('.user_table_section').hide();
+                    $('.nonaktif_detail_section').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -690,37 +978,23 @@
                     if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
                         $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
                     }
-
-                    //$('#TGL').datepicker({
-                    //    format: 'dd/mm/yyyy',
-                    //    language: 'id'
-                    //}).change(function () {
-                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
-                    //    $(this).datepicker('hide');
-                    //    });
-
-                    //$("#Account_NoHp").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-                    //$("#Account_jumlahUser").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
             });
-            
+
         }
 
         function simpanAccount($id) {
 
+            var link = '@Url.Action("ChangeStatusAcc", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", $id);
+            
             $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SaveAccountNew", "Admin")',
+                        @*url: '@Url.Action("SaveAccountNew", "Admin")',*@
+                        url: link,
                         data: $('#form-account').serialize(),
                 success: function (response) {
                     alert('Data berhasil tersimpan');
@@ -729,23 +1003,6 @@
                     if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
                         $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
                     }
-                    //$('#TGL').datepicker({
-                    //    format: 'dd/mm/yyyy',
-                    //    language: 'id'
-                    //}).change(function () {
-                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
-                    //    $(this).datepicker('hide');
-                    //    });
-
-                    //$("#Account_NoHp").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-                    //$("#Account_jumlahUser").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

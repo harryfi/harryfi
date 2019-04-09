@@ -15,7 +15,7 @@
 @section styles
 {
     <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
-    
+
     <style>
         .user-link {
             text-decoration: underline;
@@ -400,7 +400,8 @@
                                                 </div>
                                             </div>
                                             <hr />
-                                            <button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>
+                                            @*<button type="submit" id="simpan_btn" class="btn btn-primary pull-right">Simpan</button>*@
+                                            <button type="button" id="simpan_btn" class="btn btn-primary pull-right" onclick="simpanKomisi(this , '@Model.partner.PartnerId');">Simpan</button>
                                         }
                                     </div>
                                 </div>
@@ -486,23 +487,23 @@
                     $(this).val(convertToRupiah($(this).val()));
                 });
 
-                $('#simpan_btn').click(function () {
-                    var subs = $('#partner_komisi_subscribe').val();
-                    var supp = $('#partner_komisi_support').val();
-                    var gold = $('#partner_komisi_subscribe_gold').val();
-                    if (subs == "") {
-                        subs = "0";
-                    }
-                    if (supp == "") {
-                        supp = "0";
-                    }
-                    if (gold == "") {
-                        gold = "0";
-                    }
-                    $('#partner_komisi_support').val(convertToAngka(supp));
-                    $('#partner_komisi_subscribe').val(convertToAngka(subs));
-                    $('#partner_komisi_subscribe_gold').val(convertToAngka(gold));
-                });
+                //$('#simpan_btn').click(function () {
+                //    var subs = $('#partner_komisi_subscribe').val();
+                //    var supp = $('#partner_komisi_support').val();
+                //    var gold = $('#partner_komisi_subscribe_gold').val();
+                //    if (subs == "") {
+                //        subs = "0";
+                //    }
+                //    if (supp == "") {
+                //        supp = "0";
+                //    }
+                //    if (gold == "") {
+                //        gold = "0";
+                //    }
+                //    $('#partner_komisi_support').val(convertToAngka(supp));
+                //    $('#partner_komisi_subscribe').val(convertToAngka(subs));
+                //    $('#partner_komisi_subscribe_gold').val(convertToAngka(gold));
+                //});
 
                 //var $linkLogo = '/Content/Logo_Perusahaan/LogoUsaha-' + $('#DataUsaha_USERNAME').val() + '-' + $('#DataUsaha_NAMA_PT').val() + '.jpg';
                 var $linkLogo = '@Model.partner.PhotoKtpUrl';
@@ -566,6 +567,84 @@
 
         function convertToAngka(rupiah) {
             return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
+        }
+
+        function simpanKomisi(btnClicked, $ID) {
+                var subs = $('#partner_komisi_subscribe').val();
+                var supp = $('#partner_komisi_support').val();
+                var gold = $('#partner_komisi_subscribe_gold').val();
+                if (subs == "") {
+                        subs = "0";
+                }
+                if (supp == "") {
+                        supp = "0";
+                }
+                if (gold == "") {
+                        gold = "0";
+                }
+                $('#partner_komisi_support').val(convertToAngka(supp));
+                $('#partner_komisi_subscribe').val(convertToAngka(subs));
+                $('#partner_komisi_subscribe_gold').val(convertToAngka(gold));
+
+
+            var $form = $(btnClicked).parents('form');
+
+            var link = '@Url.Action("ChangeStatusPartner", "Admin", new { partnerid = "replaceId" })';
+            link = link.replace("replaceId", $ID);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (res) {
+                $.ajax({
+                type: "POST",
+                url: $form.attr('action'),
+                    data: $form.serialize(),
+                        success: function (response) {
+                            alert('Data berhasil tersimpan');
+
+                            $('#form-partial').html(response);
+                            $('.subs_table_section').hide();
+                            $('.payment_editor_section').show();
+
+                            $('#KODESUBS').val($('#Payment_TipeSubs').val());
+                            $('#ACCOUNT').val($('#Payment_Email').val());
+                            getTanggal();
+                            getEmail();
+                            $("#ACCOUNT").attr('disabled', 'disabled');
+                            if ($('#Payment_TanggalBayar').val() != '') {
+                                $('#TGL').val($('#Payment_TanggalBayar').val());
+                            }
+                            if ($('#Payment_DrTGL').val() != '') {
+                                $('#drTGL').val($('#Payment_DrTGL').val());
+                            }
+                            if ($('#Payment_SdTGL').val() != '') {
+                                $('#sdTGL').val($('#Payment_SdTGL').val());
+                            }
+                            $('#KODESUBS').change(function () {
+                                $("#Payment_TipeSubs").val($('#KODESUBS').val())
+                            });
+                            $("#KODESUBS").change(
+                                function () {
+                                    if ($("#KODESUBS").val() == "03") {
+                                        $("#Payment_jumlahUser").val('5');
+                                    } else if ($("#KODESUBS").val() == "02") {
+                                        $("#Payment_jumlahUser").val('2');
+                                    } else {
+                                        $("#Payment_jumlahUser").val('0');
+                                    }
+                                });
+                        },
+                        error: function (xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+            },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
         }
         //end add by nurul 15/2/2019
     </script>

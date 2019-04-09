@@ -4,10 +4,21 @@
     //ViewBag.Title = "Aktivitas Subscription";
     ViewBag.Title = "History Pembayaran";
     Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var context_ = new MoDbContext();
+
+    var editMode = 0;
+
+    if (ViewData["Editing"] != null)
+    {
+        editMode = (int)ViewData["Editing"];
+    }
 }
 
 @section styles
 {
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
     <style>
         #subs-section {
             margin-top: 60px;
@@ -36,6 +47,9 @@
                     <button type="button" class=" btn btn-default" data-style="expand-right">
                         <span>Refresh</span>
                     </button>
+                    @*//add by nurul 1/4/2019*@
+                    <button class="btn btn-primary btn_tambah_data" id="tambah_payment">Tambah Baru</button>
+                    @*//end add by nurul 1/4/2019*@
                 </div>
             </div>
         </div>
@@ -66,10 +80,10 @@
                     <thead>
                         <tr role="row">
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
-        <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 130px;">Email</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
+                                <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tanggal Bayar</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Pembayaran</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 30px;">Account</th>
@@ -81,6 +95,10 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Jumlah User</th>
                             @*end add by nurul 4/3/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Nilai</th>
+                            @*add by nurul 2/4/2019*@
+                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th>
+                            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus</th>
+                            @*end add by nurul 2/4/2019*@
                         </tr>
                     </thead>
                     <tbody>
@@ -88,27 +106,90 @@
                         {
                             foreach (var sub in Model.ListAktivitasSubs)
                             {
-                        <tr>
-                            <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
-                            <td class="text-center">@sub.TipePembayaran</td>
-                            <td class="text-center">@sub.Email</td>
-                            <td class="text-center">@sub.Account</td>
-                            <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
-                            <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
-                            @*<td class="text-center">@sub.TipeSubs</td>*@
-                            <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
-                            @*add by nurul 4/3/2019*@
-                            @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
-                            <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
-                            @*end add by nurul 4/3/2019*@
-                            <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
-                        </tr>
+                                <tr>
+                                    <td class="text-center">@(sub.TanggalBayar?.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">@sub.TipePembayaran</td>
+                                    <td class="text-center">@sub.Email</td>
+                                    <td class="text-center">@sub.Account</td>
+                                    <td class="text-center">@(sub.DrTGL?.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">@(sub.SdTGL?.ToString("dd/MM/yyyy"))</td>
+                                    @*<td class="text-center">@sub.TipeSubs</td>*@
+                                    <td class="text-center">@Model.ListSubs.Where(p => p.KODE == sub.TipeSubs).FirstOrDefault().KETERANGAN</td>
+                                    @*add by nurul 4/3/2019*@
+                                    @*<td class="text-center">@Model.ListAccount.Where(p => p.Email == sub.Email).FirstOrDefault().jumlahUser</td>*@
+                                    <td class="text-center">@(sub?.jumlahUser == null ? 0 : sub.jumlahUser)</td>
+                                    @*end add by nurul 4/3/2019*@
+                                    <td class="text-center">@(String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", sub.Nilai))</td>
+                                    @*add by nurul 2/4/2019*@
+                                    <td class="edit-hapus-col">
+                                        <button class="btn btn-primary" onclick="editPayment(@sub.RecNum)">
+                                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    <td class="edit-hapus-col">
+                                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusSubs" onclick="pass(@sub.RecNum)">
+                                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                    @*end add by nurul 2/4/2019*@
+                                </tr>
                             }
                         }
                     </tbody>
                 </table>
             </div>
         </div>
+        @*//add by nurul 1/4/2019*@
+        <div class="row payment_editor_section" style="display: none;">
+            <div class="col-lg-12">
+                <div class="page-editor">
+                    <h2 class="editor-title">Pembayaran Subscription</h2>
+                    <span class="title-accent"></span>
+                    <button type="button" class="pull-right page-close">
+                        <span class="close-btn thick"></span>
+                    </button>
+                    <div class="form-horizontal">
+                        <div class="row">
+                            <div class="col-md-12 col-sm-12 col-xs-12">
+                                <div class="x_panel">
+                                    <div class="x_title">
+                                        <h2 style="font-size: 16px">Detail Pembayaran Subscription</h2>
+                                        <ul class="nav navbar-right panel_toolbox">
+                                            <li>
+                                                <a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+                                            </li>
+                                        </ul>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="x_content">
+                                        @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+                                        {
+                                            foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
+                                            {
+                                                <div class="alert alert-danger">
+                                                    <span class="message-error">@modelError.ErrorMessage</span>
+                                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                        <span aria-hidden="true">&times;</span>
+                                                    </button>
+                                                </div>
+                                            }
+                                        }
+                                        <br>
+                                        @using (Html.BeginForm("SavePayment", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                        {
+                                            <div id="form-partial">
+                                                @Html.Partial("FormHistoryPembayaranPartial")
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @*//end add by nurul 1/4/2019*@
     </div>
 </div>
 
@@ -135,8 +216,12 @@
 @section scripts
 {
     <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var $subsId = 0;
+        var $paymentId = 0;
+        var $modeEdit = 0;
         var table = $('#datatable').DataTable({
             "order": [[0, "desc"]], //or asc
             "columnDefs": [{ "targets": 0, "type": "date-eu" }],
@@ -150,6 +235,57 @@
                 $('#search_subs').keyup(function () {
                     table.search($(this).val()).draw();
                 });
+
+                //ADD BY NURUL 2/4/2019
+                $('#tambah_payment').on('click', function () {
+                    $('.subs_table_section').toggle('display');
+                    $('.payment_editor_section').toggle('display');
+                    $('#KODESUBS').change(function () {
+                        $("#Payment_TipeSubs").val($('#KODESUBS').val())
+                    });
+                    $("#KODESUBS").change(
+                        function () {
+                            if ($("#KODESUBS").val() == "03") {
+                                $("#Payment_jumlahUser").val('5');
+                            } else if ($("#KODESUBS").val() == "02") {
+                                $("#Payment_jumlahUser").val('2');
+                            } else {
+                                $("#Payment_jumlahUser").val('0');
+                            }
+                        });
+                });
+
+                $('button>.close-btn').on('click', function () {
+                    $('.subs_table_section').toggle('display');
+                    $('.payment_editor_section').toggle('display');
+                });
+
+                if ($('.message-error').text() !== '' || @editMode === 1) {
+                    $('#tambah_payment').click();
+                }
+
+                $('.close-btn').click(function() {
+                    location.href = '@Url.Action("AktivitasSubscription")';
+                });
+
+                getTanggal();
+                getEmail();
+
+                $('#KODESUBS').change(function() {
+                    $("#Payment_TipeSubs").val($('#KODESUBS').val())
+                });
+                $("#KODESUBS").change(
+                    function () {
+                        if ($("#KODESUBS").val() == "03") {
+                            $("#Payment_jumlahUser").val('5');
+                        } else if ($("#KODESUBS").val() == "02") {
+                            $("#Payment_jumlahUser").val('2');
+                        } else {
+                            $("#Payment_jumlahUser").val('0');
+                        }
+                    });
+
+                //END ADD BY NURUL 2/4/2019
             });
 
         function convertToRupiah(angka) {
@@ -162,6 +298,272 @@
         function convertToAngka(rupiah) {
             return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
         }
+
+        //add by nurul 2/4/2019
+        function editPayment(paymentId) {
+            $modeEdit = 1;
+            var link = '@Url.Action("EditPayment", "Admin", new { paymentId = "replaceId" })';
+            link = link.replace("replaceId", paymentId);
+
+            //location.href = link;
+
+
+            $.ajax({
+                async: true,
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial').html(response);
+                    $('.subs_table_section').hide();
+                    $('.payment_editor_section').show();
+
+                    $('#KODESUBS').val($('#Payment_TipeSubs').val());
+                    $('#ACCOUNT').val($('#Payment_Email').val());
+                    getTanggal();
+                    getEmail();
+                    $("#ACCOUNT").attr('disabled', 'disabled');
+                    if ($('#Payment_TanggalBayar').val() != '') {
+                        $('#TGL').val($('#Payment_TanggalBayar').val());
+                    }
+                    if ($('#Payment_DrTGL').val() != '') {
+                        $('#drTGL').val($('#Payment_DrTGL').val());
+                    }
+                    if ($('#Payment_SdTGL').val() != '') {
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                    }
+                    $('#KODESUBS').change(function () {
+                        $("#Payment_TipeSubs").val($('#KODESUBS').val())
+                    });
+                    $("#KODESUBS").change(
+                        function () {
+                            if ($("#KODESUBS").val() == "03") {
+                                $("#Payment_jumlahUser").val('5');
+                            } else if ($("#KODESUBS").val() == "02") {
+                                $("#Payment_jumlahUser").val('2');
+                            } else {
+                                $("#Payment_jumlahUser").val('0');
+                            }
+                        });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        //function simpanPayment($id) {
+        function simpanPayment(btnClicked) {
+            //if (!validateForm()) return false;
+            var $form = $(btnClicked).parents('form');
+            $.ajax({
+                type: "POST",
+                @*url: '@Url.Action("SavePayment", "Admin")',
+                data: $('#form-payment').serialize(),*@
+                url: $form.attr('action'),
+                data: $form.serialize(),
+                success: function (response) {
+                    alert('Data berhasil tersimpan');
+
+                    $('#form-partial').html(response);
+                    $('.subs_table_section').hide();
+                    $('.payment_editor_section').show();
+
+                    $('#KODESUBS').val($('#Payment_TipeSubs').val());
+                    $('#ACCOUNT').val($('#Payment_Email').val());
+                    getTanggal();
+                    getEmail();
+                    $("#ACCOUNT").attr('disabled', 'disabled');
+                    if ($('#Payment_TanggalBayar').val() != '') {
+                        $('#TGL').val($('#Payment_TanggalBayar').val());
+                    }
+                    if ($('#Payment_DrTGL').val() != '') {
+                        $('#drTGL').val($('#Payment_DrTGL').val());
+                    }
+                    if ($('#Payment_SdTGL').val() != '') {
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                    }
+                    $('#KODESUBS').change(function () {
+                        $("#Payment_TipeSubs").val($('#KODESUBS').val())
+                    });
+                    $("#KODESUBS").change(
+                        function () {
+                            if ($("#KODESUBS").val() == "03") {
+                                $("#Payment_jumlahUser").val('5');
+                            } else if ($("#KODESUBS").val() == "02") {
+                                $("#Payment_jumlahUser").val('2');
+                            } else {
+                                $("#Payment_jumlahUser").val('0');
+                            }
+                        });
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+        }
+
+        function pass(paymentId) {
+            this.$paymentId = paymentId;
+        }
+
+        function deleteSubs() {
+            var link = '@Url.Action("DeletePayment", "Admin", new { paymentId = "replaceId" })';
+            link = link.replace("replaceId", this.$paymentId);
+
+            location.href = link;
+        }
+
+        function getEmail() {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("GetAccount", "Admin")',
+                contentType: 'application/json',
+                cache: false,
+                success: function (data) {
+                    var emailList = [];
+                    var subs = "";
+                    $.each(data,
+                        function (i, item) {
+                            emailList[i] = {
+                                id: item.Email,
+                                text: item.Email,
+                                acc: item.Username,
+                                sub: item.KODE_SUBSCRIPTION,
+                                user: item.jumlahUser
+                            };
+                        });
+
+                    var emailSelect = $('#ACCOUNT').selectize({
+                        valueField: 'id',
+                        searchField: 'text',
+                        options: emailList,
+                        onChange: function (value) {
+                            if (value == null) {
+                                $("#Payment_Email").val(null);
+                            } else {
+                                $("#Payment_Email").val(value);
+                                $.each(emailList,
+                                    function(i, item) {
+                                        if (item.id == value) {
+                                            $('#Payment_Account').val(item.acc).change();
+                                            $('#KODESUBS').val(item.sub).change();
+                                            $('#Payment_TipeSubs').val(item.sub);
+                                            $('#Payment_jumlahUser').val(item.user).change();
+                                        }
+                                    });
+                            }
+
+                            getTanggal();
+                        }
+                    });
+
+                    //change by calvin 21 juni 2018, set silent jadi true, agar event onchange tidak jalan saat set Faktur_CUST saat buka form faktur
+                    emailSelect[0].selectize.setValue($('#Payment_Email').val(), true);
+                    ////$('#btn-simpan-perubahan-row').hide();
+                },
+                error: function (xhr) {
+                    console.log(xhr);
+                }
+            });
+        }
+
+
+
+        function getTanggal() {
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
+                        $('#Payment_DrTGL').val('Pilih Tanggal Bayar dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    $('#Payment_TanggalBayar').val($('#TGL').val());
+                        $('#drTGL').val($('#TGL').val());
+                        $('#Payment_DrTGL').val($('#TGL').val());
+                        var $tglTop = $tgl.add('3', 'months');
+                        $('#Payment_SdTGL').val($tglTop.format('DD/MM/YYYY'));
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                    $('#TGL').datepicker('hide');
+                    });
+                $('#drTGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    var $tgl = moment($('#drTGL').val(), "DD/MM/YYYY");
+                    $('#drTGL').val($('#drTGL').val());
+                    $('#Payment_DrTGL').val($('#drTGL').val());
+                    var $tglTop = $tgl.add('3', 'months');
+                    $('#Payment_SdTGL').val($tglTop.format('DD/MM/YYYY'));
+                    $('#sdTGL').val($('#Payment_SdTGL').val());
+                    $('#drTGL').datepicker('hide');
+                    });
+                $('#sdTGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+
+                    var $tgl = moment($('#sdTGL').val(), "DD/MM/YYYY");
+                    $('#Payment_SdTGL').val($('#sdTGL').val());
+                    $('#sdTGL').val($('#Payment_SdTGL').val());
+                    $('#sdTGL').datepicker('hide');
+                });
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                        $('#Payment_DrTGL').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($('#TGL').val(), "DD/MM/YYYY");
+                    $('#Payment_TanggalBayar').val($('#TGL').val());
+                    if ($('#Payment_DrTGL').val() == null || $('#Payment_DrTGL').val() == "") {
+                        $('#drTGL').val($('#TGL').val());
+                        $('#Payment_DrTGL').val($('#TGL').val());
+                    }
+                    if ($('#Payment_SdTGL').val() == null || $('#Payment_SdTGL').val() == "") {
+                        var $tglTop = $tgl.add('3', 'months');
+                        $('#Payment_SdTGL').val($tglTop.format('DD/MM/YYYY'));
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                    }
+                    $('#TGL').datepicker('hide');
+                    });
+                if ($('#Payment_DrTGL').val() == null || $('#Payment_DrTGL').val() == "") {
+                    $('#drTGL').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        var $tgl = moment($('#drTGL').val(), "DD/MM/YYYY");
+                        $('#drTGL').val($('#drTGL').val());
+                        $('#Payment_DrTGL').val($('#drTGL').val());
+                        var $tglTop = $tgl.add('3', 'months');
+                        $('#Payment_SdTGL').val($tglTop.format('DD/MM/YYYY'));
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                        $('#drTGL').datepicker('hide');
+                    });
+                }
+                if ($('#Payment_SdTGL').val() == null || $('#Payment_SdTGL').val() == "") {
+                    $('#sdTGL').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).change(function () {
+                        var $tgl = moment($('#sdTGL').val(), "DD/MM/YYYY");
+                        $('#Payment_SdTGL').val($('#sdTGL').val());
+                        $('#sdTGL').val($('#Payment_SdTGL').val());
+                        $('#sdTGL').datepicker('hide');
+                    });
+                }
+            }
+        }
+        //end add by nurul 2/4/2019
 
 
     </script>

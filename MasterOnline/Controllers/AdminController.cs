@@ -98,7 +98,7 @@ namespace MasterOnline.Controllers
             //end add by nurul 20/2/2019
 
             //return View(accInDb);
-            return PartialView("AccountDetail",vm);
+            return PartialView("AccountDetail", vm);
         }
 
         // Mengubah status user
@@ -268,12 +268,18 @@ namespace MasterOnline.Controllers
 
             //return View("AccountMenu", listAcc);
 
+            //var vm = new MenuAccount()
+            //{
+            //    ListAccount = MoDbContext.Account.ToList(),
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
             var vm = new MenuAccount()
             {
-                ListAccount = MoDbContext.Account.ToList(),
+                Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId),
                 ListPartner = MoDbContext.Partner.ToList()
             };
-            return View("AccountMenu", vm);
+
+            return PartialView("FormAccountPartialNew", vm);
             //end change by nurul 5/3/2019
         }
 
@@ -340,19 +346,19 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
-        public ActionResult AktivitasSubscription()
-        {
-            var vm = new SubsViewModel()
-            {
-                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
-                //ADD BY NURUL 22/2/2019
-                ListSubs = MoDbContext.Subscription.ToList(),
-                ListAccount = MoDbContext.Account.ToList()
-                //END ADD BY NURUL 22/2/2019
-            };
+        //public ActionResult AktivitasSubscription()
+        //{
+        //    var vm = new SubsViewModel()
+        //    {
+        //        ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+        //        //ADD BY NURUL 22/2/2019
+        //        ListSubs = MoDbContext.Subscription.ToList(),
+        //        ListAccount = MoDbContext.Account.ToList()
+        //        //END ADD BY NURUL 22/2/2019
+        //    };
 
-            return View(vm);
-        }
+        //    return View(vm);
+        //}
 
         public ActionResult EditSubs(int? idSub)
         {
@@ -417,6 +423,114 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Bagian Subs (END)
+
+        // =============================================== Bagian History Pembayaran (START)
+
+        public ActionResult AktivitasSubscription()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+                //ADD BY NURUL 22/2/2019
+                ListSubs = MoDbContext.Subscription.ToList(),
+                ListAccount = MoDbContext.Account.ToList()
+                //END ADD BY NURUL 22/2/2019
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult EditPayment(int? paymentId)
+        {
+            var vm = new SubsViewModel()
+            {
+                Payment = MoDbContext.AktivitasSubscription.SingleOrDefault(m => m.RecNum == paymentId),
+            };
+
+            //ViewData["Editing"] = 1;
+
+            //return View("FormHistoryPembayaranPartial", vm);
+            return PartialView("FormHistoryPembayaranPartial", vm);
+        }
+
+        public ActionResult DeletePayment(int? paymentId)
+        {
+            var subsVm = new SubsViewModel()
+            {
+                Payment = MoDbContext.AktivitasSubscription.Single(m => m.RecNum == paymentId),
+                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList()
+            };
+
+            MoDbContext.AktivitasSubscription.Remove(subsVm.Payment);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AktivitasSubscription");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SavePayment(SubsViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                //return View("FormHistoryPembayaranPartial", vm);
+                return PartialView("FormHistoryPembayaranPartial", vm);
+            }
+
+            if (vm.Payment.RecNum == null)
+            {
+                //var subsInDb = MoDbContext.AktivitasSubscription.SingleOrDefault(m => m.KODE == vm.Subs.KODE);
+
+                //if (subsInDb != null)
+                //{
+                //    ModelState.AddModelError("", @"Kode history pembayaran sudah terdaftar!");
+                //    return View("AktivitasSubscription", vm);
+                //}
+
+                MoDbContext.AktivitasSubscription.Add(vm.Payment);
+                //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+                //akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
+                //akun.jumlahUser = vm.Payment.jumlahUser;
+                //akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
+            }
+            else
+            {
+                var subsInDb = MoDbContext.AktivitasSubscription.Single(m => m.RecNum == vm.Payment.RecNum);
+                subsInDb.Email = vm.Payment.Email;
+                subsInDb.Account = vm.Payment.Account;
+                subsInDb.TipeSubs = vm.Payment.TipeSubs;
+                subsInDb.TanggalBayar = vm.Payment.TanggalBayar;
+                subsInDb.Nilai = vm.Payment.Nilai;
+                subsInDb.TipePembayaran = vm.Payment.TipePembayaran;
+                subsInDb.DrTGL = vm.Payment.DrTGL;
+                subsInDb.SdTGL = vm.Payment.SdTGL;
+                subsInDb.jumlahUser = vm.Payment.jumlahUser;
+
+                //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+                //akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
+                //akun.jumlahUser = vm.Payment.jumlahUser;
+                //akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
+            }
+
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
+            akun.jumlahUser = vm.Payment.jumlahUser;
+            akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            //return RedirectToAction("FormHistoryPembayaranPartial");
+            return PartialView("FormHistoryPembayaranPartial", vm);
+        }
+        [HttpGet]
+        public ActionResult GetAccount()
+        {
+            var account = MoDbContext.Account.ToList();
+
+            return Json(account, JsonRequestBehavior.AllowGet);
+        }
+
+        // =============================================== Bagian History Pembayaran (END)
 
         // =============================================== Bagian Marketplace (START)
 
@@ -640,50 +754,13 @@ namespace MasterOnline.Controllers
             return PartialView("TableAccountEdit", vm);
         }
 
-        //[SessionAdminCheck]
-        //public ActionResult AccountMenuWillExpiredEdit(string param)
-        //{
-        //    string dr = (param.Split(';')[param.Split(';').Length - 2]);
-        //    string sd = (param.Split(';')[param.Split(';').Length - 1]);
-        //    string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
-        //    string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
-        //    string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
-        //    string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
-        //    string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
-        //    string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
-        //    string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
-        //    string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
-        //    var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-        //    var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-        //    var vm = new MenuAccount()
-        //    {
-        //        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl).ToList(),
-        //        ListPartner = MoDbContext.Partner.ToList()
-        //    };
-        //    return PartialView("TableAccountWillExpiredEdit", vm);
-        //}
-        //[SessionAdminCheck]
-        //public ActionResult AccountMenuExpiredEdit(string param)
-        //{
-        //    string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
-        //    string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
-        //    string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
-        //    string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
-        //    var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-        //    var vm = new MenuAccount()
-        //    {
-        //        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl).ToList(),
-        //        ListPartner = MoDbContext.Partner.ToList()
-        //    };
-        //    return PartialView("TableAccountExpiredEdit", vm);
-        //}
 
         public ActionResult EditAccount(int? accountId)
         {
             var vm = new MenuAccount()
             {
                 Account = MoDbContext.Account.SingleOrDefault(m => m.AccountId == accountId),
-                ListSubs=MoDbContext.Subscription.ToList()
+                ListSubs = MoDbContext.Subscription.ToList()
             };
 
             //ViewData["Editing"] = 1;
@@ -722,29 +799,15 @@ namespace MasterOnline.Controllers
                 //}
                 accInDb.Email = data.Account.Email;
                 accInDb.KODE_SUBSCRIPTION = data.Account.KODE_SUBSCRIPTION;
-                //if (data.Account.KODE_SUBSCRIPTION == "03")
-                //{
-                //    accInDb.jumlahUser = data.Account.jumlahUser;
-                //}
-                //else if(data.Account.KODE_SUBSCRIPTION == "02")
-                //{
-                //    accInDb.jumlahUser = 2;
-                //}
-                //else
-                //{
-                //    accInDb.jumlahUser = 0;
-                //}
                 accInDb.jumlahUser = data.Account.jumlahUser;
                 accInDb.TGL_SUBSCRIPTION = data.Account.TGL_SUBSCRIPTION;
                 accInDb.NoHp = data.Account.NoHp;
-                
+
             }
 
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            //return RedirectToAction("AccountMenuEdit");
-            //return RedirectToAction("FormAccountPartial");
             var vm = new MenuAccount()
             {
                 Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == data.Account.AccountId)
@@ -767,51 +830,6 @@ namespace MasterOnline.Controllers
             return PartialView("FormAccountPartialNew", vm);
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult SaveAccountNew(MenuAccount data)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View("AccountMenu", data);
-            }
-
-            if (data.Account.AccountId == 0)
-            {
-                var accInDb = MoDbContext.Account.SingleOrDefault(m => m.AccountId == data.Account.AccountId);
-
-                if (accInDb != null)
-                {
-                    ModelState.AddModelError("", @"Kode account sudah terdaftar!");
-                    return View("AccountMenu", data);
-                }
-
-                MoDbContext.Account.Add(data.Account);
-            }
-            else
-            {
-                var accInDb = MoDbContext.Account.Single(m => m.AccountId == data.Account.AccountId);
-                if (accInDb.Status != data.Account.Status)
-                {
-                    Task<ActionResult> x = ChangeStatusAcc(Convert.ToInt32(data.Account.AccountId));
-                }
-                //accInDb.Email = data.Account.Email;
-                //accInDb.KODE_SUBSCRIPTION = data.Account.KODE_SUBSCRIPTION;
-                //accInDb.TGL_SUBSCRIPTION = data.Account.TGL_SUBSCRIPTION;
-                //accInDb.NoHp = data.Account.NoHp;
-                //accInDb.jumlahUser = data.Account.jumlahUser;
-            }
-
-            MoDbContext.SaveChanges();
-            ModelState.Clear();
-
-            var vm = new MenuAccount()
-            {
-                Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == data.Account.AccountId)
-            };
-
-            return PartialView("FormAccountPartialNew", vm);
-        }
         //end add by nurul 12/3/2019
         // =============================================== Bagian Account (END)
         // =============================================== Menu-menu pada halaman admin (START)
@@ -842,6 +860,29 @@ namespace MasterOnline.Controllers
             };
             return PartialView("TableAccount", vm);
         }
+
+        //add by nurul 1/4/2019
+        [SessionAdminCheck]
+        public ActionResult AccountMenuAktif()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountAktif", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccountMenuNonaktif(string param)
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == false).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccountNonaktif", vm);
+        }
+        //end add by nurul 1/4/2019
 
         [SessionAdminCheck]
         public ActionResult AccountMenuWillExpired(string param)
@@ -978,10 +1019,10 @@ namespace MasterOnline.Controllers
             else
             {
                 var partInDb = MoDbContext.Partner.Single(m => m.PartnerId == vm.partner.PartnerId);
-                if (partInDb.Status != vm.partner.Status)
-                {
-                   Task<ActionResult> x = ChangeStatusPartner(Convert.ToString(vm.partner.PartnerId));
-                }
+                //if (partInDb.Status != vm.partner.Status)
+                //{
+                //    //Task<ActionResult> x = ChangeStatusPartner(Convert.ToString(vm.partner.PartnerId));
+                //}
                 partInDb.komisi_subscribe = vm.partner.komisi_subscribe;
                 partInDb.komisi_subscribe_gold = vm.partner.komisi_subscribe_gold;
                 partInDb.komisi_support = vm.partner.komisi_support;
@@ -1018,7 +1059,7 @@ namespace MasterOnline.Controllers
                 message.From = new MailAddress("csmasteronline@gmail.com");
                 message.Subject = "Pendaftaran Partner MasterOnline berhasil!";
                 message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
-                    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new {partnerId}));
+                    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
                 message.IsBodyHtml = true;
 
 #if AWS
@@ -1066,12 +1107,13 @@ namespace MasterOnline.Controllers
             }
 
             ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
-            var vm = new PartnerViewModel()
-            {
-                ListPartner = MoDbContext.Partner.ToList()
-            };
+            //var vm = new PartnerViewModel()
+            //{
+            //    ListPartner = MoDbContext.Partner.ToList()
+            //};
 
-            return View("PartnerMenu", vm);
+            //return View("PartnerMenu", vm);
+            return new EmptyResult();
         }
 
         public ActionResult GeneratorSqlMenu()
@@ -1138,7 +1180,7 @@ namespace MasterOnline.Controllers
             List<String> cekThree = new List<String>();
             List<String> cekTwelve = new List<String>();
             foreach (var item in x)
-            {                
+            {
                 if (item.DrTGL != null && item.SdTGL != null)
                 {
                     fromDate = Convert.ToDateTime(item.DrTGL);
@@ -1148,11 +1190,12 @@ namespace MasterOnline.Controllers
                     if (getMonth == 3)
                     {
                         cekThree.Add(item.Account);
-                    }else if (getMonth == 12)
+                    }
+                    else if (getMonth == 12)
                     {
                         cekTwelve.Add(item.Account);
                     }
-                }                
+                }
             }
             var date = DateTime.Today.AddMonths(-1);
             var Sale = MoDbContext.AktivitasSubscription.Where(a => a.TanggalBayar >= date && a.TanggalBayar <= DateTime.Today).ToList();
@@ -1173,6 +1216,7 @@ namespace MasterOnline.Controllers
             int monthsApart = 12 * (fromDate.Year - toDate.Year) + fromDate.Month - toDate.Month;
             return Math.Abs(monthsApart);
         }
+
         [SessionAdminCheck]
         public ActionResult RefreshDashboard(string param)
         {
