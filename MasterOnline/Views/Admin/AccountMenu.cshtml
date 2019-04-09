@@ -354,8 +354,8 @@
                     </div>
                     <div class="row user_table_section">
                         <div id="loading_willexpired" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
                         <div class="col-sm-12" id="table-account-will-expired">
                             @Html.Partial("TableAccountWillExpired")
                         </div>
@@ -413,8 +413,8 @@
                     </div>
                     <div class="row user_table_section">
                         <div id="loading_expired" class="text-center">
-                                <img src="~/Content/Images/spinner.gif" width="100" />
-                            </div>
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
                         <div class="col-sm-12" id="table-account-expired">
                             @Html.Partial("TableAccountExpired")
                         </div>
@@ -978,24 +978,6 @@
                     if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
                         $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
                     }
-
-                    //$('#TGL').datepicker({
-                    //    format: 'dd/mm/yyyy',
-                    //    language: 'id'
-                    //}).change(function () {
-                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
-                    //    $(this).datepicker('hide');
-                    //    });
-
-                    //$("#Account_NoHp").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-                    //$("#Account_jumlahUser").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -1006,9 +988,13 @@
 
         function simpanAccount($id) {
 
+            var link = '@Url.Action("ChangeStatusAcc", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", $id);
+            
             $.ajax({
                         type: "POST",
-                        url: '@Url.Action("SaveAccountNew", "Admin")',
+                        @*url: '@Url.Action("SaveAccountNew", "Admin")',*@
+                        url: link,
                         data: $('#form-account').serialize(),
                 success: function (response) {
                     alert('Data berhasil tersimpan');
@@ -1017,23 +1003,6 @@
                     if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
                         $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
                     }
-                    //$('#TGL').datepicker({
-                    //    format: 'dd/mm/yyyy',
-                    //    language: 'id'
-                    //}).change(function () {
-                    //    $('#Account_TGL_SUBSCRIPTION').val($(this).val());
-                    //    $(this).datepicker('hide');
-                    //    });
-
-                    //$("#Account_NoHp").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-                    //$("#Account_jumlahUser").keydown(
-                    //    function () {
-                    //        validateInput($(this), 'ANGKA');
-                    //    });
-
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

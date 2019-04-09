@@ -245,19 +245,42 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
-            string sSQL = "SELECT * FROM (";
+            //change 8 Apriil 2019, get attr from api
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 50; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
+            //    sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
+            //    if (i < 50)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+
+            //DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kdBrg && p.IDMARKET.ToString() == data.idMarket).FirstOrDefault();
+            List<string> dsSku = new List<string>();
+            List<string> dsNormal = new List<string>();
+
+            var attributeLzd = getAttrLzd(stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 50; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
-                sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
-                if (i < 50)
+                string attribute_id = Convert.ToString(attributeLzd["ANAME" + i.ToString()]);
+                string attribute_type = Convert.ToString(attributeLzd["ATYPE" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    if (attribute_type != "normal")
+                    {
+                        dsSku.Add(attribute_id);
+                    }
+                    else
+                    {
+                        dsNormal.Add(attribute_id);
+                    }
                 }
             }
-
-            DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
-            DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //end change 8 Apriil 2019, get attr from api
 
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
@@ -269,12 +292,44 @@ namespace MasterOnline.Controllers
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
 
-            for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //change 8 Apriil 2019, get attr from api
+            //for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //    xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
+            //    xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //}
+            Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
+            Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 50; i++)
             {
-                xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
-                xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (dsNormal.Contains(attribute_id))
+                    {
+                        if (!lzdAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                    else if (dsSku.Contains(attribute_id))
+                    {
+                        if (!lzdAttrSkuWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrSkuWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                }
             }
+            for (int i = 0; i < lzdAttrWithVal.Count; i++)
+            {
+                xmlString += "<" + dsNormal[i].ToString() + ">";
+                xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
+                xmlString += "</" + dsNormal[i].ToString() + ">";
+            }
+            //end change 8 Apriil 2019, get attr from api
 
             xmlString += "</Attributes>";
 
@@ -298,12 +353,21 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
                 xmlString += "</Images>";
 
-                for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                //change 8 Apriil 2019, get attr from api
+                //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                //{
+                //    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                //    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //}
+                for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
                 {
-                    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                    xmlString += "<" + dsSku[i].ToString() + ">";
+                    xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                    xmlString += "</" + dsSku[i].ToString() + ">";
                 }
+                //end change 8 Apriil 2019, get attr from api
+
                 xmlString += "</Sku></Skus>";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
@@ -364,21 +428,32 @@ namespace MasterOnline.Controllers
                             if (attribute.Value == item.BRG)
                             {
                                 string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                xmlString += "<"+ getId[0] + ">" + getId[1] + "</"+ getId[0] + ">";
+                                xmlString += "<" + getId[0] + ">" + getId[1] + "</" + getId[0] + ">";
                                 attributesAdded.Add(getId[0]);
                             }
                         }
 
                         //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
-                        for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //change 8 Apriil 2019, get attr from api
+                        //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //{
+                        //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                        //    {
+                        //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                        //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //    }
+                        //}
+                        for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
                         {
-                            if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            if (!attributesAdded.Contains(dsSku[i].ToString()))
                             {
-                                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                                xmlString += "<" + dsSku[i].ToString() + ">";
+                                xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                xmlString += "</" + dsSku[i].ToString() + ">";
                             }
                         }
+                        //end change 8 Apriil 2019, get attr from api
 
                         xmlString += "<price>" + data.harga + "</price>";
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
@@ -431,34 +506,42 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    if (res.detail.Length == 1)
+                    if (res.detail != null)
                     {
-                        if (!string.IsNullOrEmpty(res.detail[0].field))
+                        if (res.detail.Length == 1)
                         {
-                            ret.message = res.detail[0].field + " : " + res.detail[0].message;
-                        }
-                        else
-                        {
-                            ret.message = res.detail[0].message;
-
-                        }
-                    }
-                    else if (res.detail.Length > 1)
-                    {
-                        ret.message = "";
-                        for (int i = 0; i < res.detail.Length; i++)
-                        {
-                            if (!string.IsNullOrEmpty(res.detail[i].field))
+                            if (!string.IsNullOrEmpty(res.detail[0].field))
                             {
-                                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                ret.message = res.detail[0].field + " : " + res.detail[0].message;
                             }
                             else
                             {
-                                ret.message += res.detail[i].message + "\n";
+                                ret.message = res.detail[0].message;
 
                             }
                         }
+                        else if (res.detail.Length > 1)
+                        {
+                            ret.message = "";
+                            for (int i = 0; i < res.detail.Length; i++)
+                            {
+                                if (!string.IsNullOrEmpty(res.detail[i].field))
+                                {
+                                    ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                }
+                                else
+                                {
+                                    ret.message += res.detail[i].message + "\n";
+
+                                }
+                            }
+                        }
                     }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+
 
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
@@ -675,35 +758,41 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    if (res.detail.Length == 1)
+                    if (res.detail != null)
                     {
-                        if (!string.IsNullOrEmpty(res.detail[0].field))
+                        if (res.detail.Length == 1)
                         {
-                            ret.message = res.detail[0].field + " : " + res.detail[0].message;
-                        }
-                        else
-                        {
-                            ret.message = res.detail[0].message;
-
-                        }
-                    }
-                    else if (res.detail.Length > 1)
-                    {
-                        ret.message = "";
-                        for (int i = 0; i < res.detail.Length; i++)
-                        {
-                            if (!string.IsNullOrEmpty(res.detail[i].field))
+                            if (!string.IsNullOrEmpty(res.detail[0].field))
                             {
-                                ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                ret.message = res.detail[0].field + " : " + res.detail[0].message;
                             }
                             else
                             {
-                                ret.message += res.detail[i].message + "\n";
+                                ret.message = res.detail[0].message;
 
                             }
                         }
-                    }
+                        else if (res.detail.Length > 1)
+                        {
+                            ret.message = "";
+                            for (int i = 0; i < res.detail.Length; i++)
+                            {
+                                if (!string.IsNullOrEmpty(res.detail[i].field))
+                                {
+                                    ret.message += res.detail[i].field + " : " + res.detail[i].message + "\n";
+                                }
+                                else
+                                {
+                                    ret.message += res.detail[i].message + "\n";
 
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
                     currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
@@ -757,8 +846,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
-                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
 
@@ -812,8 +908,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
-                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
                 }
             }
@@ -874,8 +977,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
-                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
             }
@@ -940,7 +1050,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     currentLog.REQUEST_EXCEPTION = res.detail[0].message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
@@ -1006,8 +1124,15 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    ret.message = res.detail[0].message;
-                    currentLog.REQUEST_EXCEPTION = res.detail[0].message;
+                    if (res.detail != null)
+                    {
+                        ret.message = res.detail[0].message;
+                    }
+                    else
+                    {
+                        ret.message = res.message;
+                    }
+                    currentLog.REQUEST_EXCEPTION = ret.message;
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, token, currentLog);
                 }
             }
@@ -3802,7 +3927,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public List<ATTRIBUTE_OPT_LAZADA> getAttrLzd(string code, string aCode)
+        public List<ATTRIBUTE_OPT_LAZADA> getAttrOptLzd(string code, string aCode)
         {
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -3835,6 +3960,68 @@ namespace MasterOnline.Controllers
                 }
             }
             return new List<ATTRIBUTE_OPT_LAZADA>();
+        }
+        public ATTRIBUTE_LAZADA getAttrLzd(string code)
+        {
+            var retAttr = new ATTRIBUTE_LAZADA();
+
+            var tbl = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID == code).FirstOrDefault();
+            if (tbl != null)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/category/attributes/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("primary_category_id", code);
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr != null)
+                {
+                    if (bindAttr.code == "0")
+                    {
+                        try
+                        {
+                            retAttr.CATEGORY_CODE = code;
+                            int i = 1;
+                            foreach (var attr in bindAttr.data)
+                            {
+                                if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
+                                    && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
+                                    && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
+                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class")
+                                {
+                                    retAttr["ALABEL" + i] = attr.label;
+                                    retAttr["ANAME" + i] = attr.name;
+                                    retAttr["ATYPE" + i] = attr.attribute_type;
+                                    retAttr["AINPUT_TYPE" + i] = attr.input_type;
+                                    retAttr["ASALE_PROP" + i] = attr.is_sale_prop.ToString();
+                                    retAttr["AMANDATORY" + i] = attr.is_mandatory.ToString();
+                                    i++;
+                                }
+
+                            }
+                            for (int j = i; j <= 50; j++)
+                            {
+                                retAttr["ALABEL" + j] = "";
+                                retAttr["ANAME" + j] = "";
+                                retAttr["ATYPE" + j] = "";
+                                retAttr["AINPUT_TYPE" + j] = "";
+                                retAttr["ASALE_PROP" + j] = "0";
+                                retAttr["AMANDATORY" + j] = "0";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                    }
+                }
+            }
+
+            return retAttr;
         }
         public BindingBase getMissingAttr(string code)
         {

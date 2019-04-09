@@ -15,5 +15,9 @@ namespace MasterOnline.ViewModels
         //add by nurul 18/2/2019
         public List<Account> ListAccount { get; set; } = new List<Account>();
         //end add by nurul 18/2/2019
+        //add by nurul 1/4/2019
+        public AktivitasSubscription Payment { get; set; } = new AktivitasSubscription();
+        public Account account { get; set; } = new Account();
+        //end add by nurul 1/4/2019
     }
 }

@@ -1,4 +1,5 @@
-﻿using MasterOnline.Models;
+﻿using Erasoft.Function;
+using MasterOnline.Models;
 using MasterOnline.ViewModels;
 using Newtonsoft.Json;
 using System;
@@ -21,10 +22,11 @@ namespace MasterOnline.Controllers
 
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
+        public string imageUrl = "https://img20.jd.id/Indonesia/s70x70_/";
         public string ServerUrl = "https://open.jd.id/api";
-        public string AccessToken = "4304bd28315728067f7db7e6ff8cc015";
-        public string AppKey = "86b082cb8d3436bb340739a90d953ec7";
-        public string AppSecret = "1bcda1dca02339e049cb26c5b4c7da12";
+        public string AccessToken = "";
+        public string AppKey = "";
+        public string AppSecret = "";
         public string Version = "1.0";
         public string Format = "json";
         public string SignMethod = "md5";
@@ -33,6 +35,37 @@ namespace MasterOnline.Controllers
         public string ParamJson;
         public string ParamFile;
         protected List<long> listCategory = new List<long>();
+        public List<Model_Brand> listBrand = new List<Model_Brand>();
+
+        public ErasoftContext ErasoftDbContext { get; set; }
+        DatabaseSQL EDB;
+        string username;
+
+        public JDIDController()
+        {
+            MoDbContext = new MoDbContext();
+            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            if (sessionData?.Account != null)
+            {
+                if (sessionData.Account.UserId == "admin_manage")
+                    ErasoftDbContext = new ErasoftContext();
+                else
+                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+
+                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                username = sessionData.Account.Username;
+            }
+            else
+            {
+                if (sessionData?.User != null)
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                    username = accFromUser.Username;
+                }
+            }
+        }
 
         #region jdid tools
         private string getCurrentTimeFormatted()
@@ -146,64 +179,71 @@ namespace MasterOnline.Controllers
 
             string formdataTemplate = "\r\n--" + boundary +
                                         "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
-
-            if (formFields != null)
+            try
             {
-                foreach (string key in formFields.Keys)
+                if (formFields != null)
                 {
-                    string formitem = string.Format(formdataTemplate, key, formFields[key]);
-                    byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
-                    memStream.Write(formitembytes, 0, formitembytes.Length);
-                }
-            }
-
-
-            //file
-            if (files != null)
-            {
-                string headerTemplate =
-                    "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
-                    "Content-Type: application/octet-stream\r\n\r\n";
-                for (int i = 0; i < files.Length; i++)
-                {
-                    memStream.Write(boundarybytes, 0, boundarybytes.Length);
-                    var header = string.Format(headerTemplate, "param_file", files[i]);
-                    var headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
-
-                    memStream.Write(headerbytes, 0, headerbytes.Length);
-
-                    using (var fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read))
+                    foreach (string key in formFields.Keys)
                     {
-                        var buffer = new byte[1024];
-                        var bytesRead = 0;
-                        while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                        string formitem = string.Format(formdataTemplate, key, formFields[key]);
+                        byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
+                        memStream.Write(formitembytes, 0, formitembytes.Length);
+                    }
+                }
+
+
+                //file
+                if (files != null)
+                {
+                    string headerTemplate =
+                        "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
+                        "Content-Type: application/octet-stream\r\n\r\n";
+                    for (int i = 0; i < files.Length; i++)
+                    {
+                        memStream.Write(boundarybytes, 0, boundarybytes.Length);
+                        var header = string.Format(headerTemplate, "param_file", files[i]);
+                        var headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
+
+                        memStream.Write(headerbytes, 0, headerbytes.Length);
+
+                        using (var fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read))
                         {
-                            memStream.Write(buffer, 0, bytesRead);
+                            var buffer = new byte[1024];
+                            var bytesRead = 0;
+                            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
+                            {
+                                memStream.Write(buffer, 0, bytesRead);
+                            }
                         }
                     }
                 }
+                //~:end file
+
+
+                memStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
+                request.ContentLength = memStream.Length;
+
+                using (Stream requestStream = request.GetRequestStream())
+                {
+                    memStream.Position = 0;
+                    byte[] tempBuffer = new byte[memStream.Length];
+                    memStream.Read(tempBuffer, 0, tempBuffer.Length);
+                    memStream.Close();
+                    requestStream.Write(tempBuffer, 0, tempBuffer.Length);
+                }
+
+                using (var response = request.GetResponse())
+                {
+                    Stream stream2 = response.GetResponseStream();
+                    StreamReader reader2 = new StreamReader(stream2);
+                    return reader2.ReadToEnd();
+                }
             }
-            //~:end file
-
-
-            memStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
-            request.ContentLength = memStream.Length;
-
-            using (Stream requestStream = request.GetRequestStream())
+            catch (Exception ex)
             {
-                memStream.Position = 0;
-                byte[] tempBuffer = new byte[memStream.Length];
-                memStream.Read(tempBuffer, 0, tempBuffer.Length);
-                memStream.Close();
-                requestStream.Write(tempBuffer, 0, tempBuffer.Length);
+                return ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
 
-            using (var response = request.GetResponse())
-            {
-                Stream stream2 = response.GetResponseStream();
-                StreamReader reader2 = new StreamReader(stream2);
-                return reader2.ReadToEnd();
-            }
         }
 
         private string generateSign(Dictionary<string, string> sysDataDictionary)
@@ -429,7 +469,7 @@ namespace MasterOnline.Controllers
                                 retAttr["ANAME_" + a] = attr.nameEn;
                                 i = i + 1;
                             }
-                            for(int j = i; j < 20; j++)
+                            for (int j = i; j < 20; j++)
                             {
                                 a = Convert.ToString(j + 1);
                                 retAttr["ACODE_" + a] = "";
@@ -466,7 +506,7 @@ namespace MasterOnline.Controllers
                     var retOpt = JsonConvert.DeserializeObject(ret.openapi_data, typeof(JDID_ATTRIBUTE_OPT)) as JDID_ATTRIBUTE_OPT;
                     if (retOpt != null)
                     {
-                        if(retOpt.model != null)
+                        if (retOpt.model != null)
                         {
                             if (retOpt.model.data.Count > 0)
                             {
@@ -492,7 +532,7 @@ namespace MasterOnline.Controllers
                                 //}
                             }
                         }
-                        
+
                     }
                 }
             }
@@ -500,14 +540,641 @@ namespace MasterOnline.Controllers
 
             return listOpt;
         }
+
+        public BindingBase getListProduct(JDIDAPIData data, int page, string cust, int recordCount)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+                recordCount = recordCount,
+            };
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Get Item List",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = (page + 1).ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
+
+            try
+            {
+                if(listBrand.Count == 0)
+                {
+                    getShopBrand(data);
+                }
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "com.jd.eptid.warecenter.api.ware.WarePlusClient.getWareTinyInfoListByVenderId";
+                mgrApiManager.ParamJson = (page + 1) + ",10";
+
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData != null)
+                {
+                    if (retData.openapi_msg.ToLower() == "success")
+                    {
+                        var listProd = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_ListProd)) as Data_ListProd;
+                        if (listProd != null)
+                        {
+                            if (listProd.success)
+                            {
+                                string msg = "";
+                                bool adaError = false;
+                                if (listProd.model.spuInfoVoList.Count > 0)
+                                {
+                                    ret.status = 1;
+                                    int IdMarket = ErasoftDbContext.ARF01.Where(c => c.CUST == cust).FirstOrDefault().RecNum.Value;
+                                    if (listProd.model.spuInfoVoList.Count == 10)
+                                        ret.message = (page + 1).ToString();
+
+                                    foreach (var item in listProd.model.spuInfoVoList)
+                                    {
+                                        //product status: 1.online,2.offline,3.punish,4.deleted
+                                        if (item.wareStatus == 1 || item.wareStatus == 2)
+                                        {
+                                            var retProd = GetProduct(data, item, IdMarket, cust);
+                                            if (retProd.status == 1)
+                                            {
+                                                ret.recordCount += retProd.recordCount;
+                                            }
+                                            else
+                                            {
+                                                adaError = true;
+                                                msg += item.spuId + ":" + retProd.message + "___||___";
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                                if (adaError)
+                                {
+                                    currentLog.REQUEST_EXCEPTION = msg;
+                                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                                }
+                                else
+                                {
+                                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data, currentLog);
+                                }
+                            }
+                            else
+                            {
+                                ret.message = retData.openapi_data;
+                                currentLog.REQUEST_EXCEPTION = ret.message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            ret.message = retData.openapi_data;
+                            currentLog.REQUEST_EXCEPTION = ret.message;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        }
+                    }
+                    else
+                    {
+                        ret.message = retData.openapi_msg;
+                        currentLog.REQUEST_EXCEPTION = ret.message;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                currentLog.REQUEST_EXCEPTION = ret.message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+            return ret;
+        }
+
+        public BindingBase GetProduct(JDIDAPIData data, Spuinfovolist itemFromList, int IdMarket, string cust)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+            };
+
+            try
+            {
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "com.jd.eptid.warecenter.api.ware.WarePlusClient.getSkuInfoBySpuId";
+                mgrApiManager.ParamJson = "[" + itemFromList.spuId + "]";
+
+                var response = mgrApiManager.Call();
+                var retProd = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retProd != null)
+                {
+                    if (retProd.openapi_msg.ToLower() == "success")
+                    {
+                        var dataProduct = JsonConvert.DeserializeObject(retProd.openapi_data, typeof(ProductData)) as ProductData;
+                        if (dataProduct != null)
+                        {
+                            if (dataProduct.success)
+                            {
+                                var stf02h_local = ErasoftDbContext.STF02H.Where(m => m.IDMARKET == IdMarket).ToList();
+                                var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
+
+                                var haveVarian = false;
+                                if (dataProduct.model.Count > 1)
+                                {
+                                    haveVarian = true;
+                                }
+
+                                foreach (var item in dataProduct.model)
+                                {
+                                    var tempbrginDB = new TEMP_BRG_MP();
+                                    var brgInDB = new STF02H();
+
+                                    if (haveVarian)
+                                    {
+                                        //handle parent
+                                        string kdBrgInduk = item.spuId.ToString();
+                                        bool createParent = false;
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP) == kdBrgInduk).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
+                                        {
+                                            if (item.skuId == dataProduct.model[0].skuId)
+                                                createParent = true;
+                                        }
+                                        else if (brgInDB != null)
+                                        {
+                                            kdBrgInduk = brgInDB.BRG;
+                                        }
+                                        //end handle parent
+
+                                        //foreach (var varian in item.skuIds)
+                                        //{
+                                        //    tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == varian.ToString().ToUpper()).FirstOrDefault();
+                                        //    brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == varian.ToString().ToUpper()).FirstOrDefault();
+                                        //    if (tempbrginDB == null && brgInDB == null)
+                                        //    {
+
+                                        //    }
+                                        //}
+                                        //for (int i = 0; i < item.skuIds.Count; i++)
+                                        //{
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
+                                        {
+                                            var retData = getProductDetail(data, item, kdBrgInduk, createParent, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.status == 1)
+                                            {
+                                                ret.recordCount += retData.recordCount;
+                                                //createParent = false;
+                                            }
+                                        }
+                                        //}
+
+                                    }
+                                    else
+                                    {
+                                        tempbrginDB = tempBrg_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        brgInDB = stf02h_local.Where(t => (t.BRG_MP == null ? "" : t.BRG_MP).ToUpper() == item.skuId.ToString().ToUpper()).FirstOrDefault();
+                                        if (tempbrginDB == null && brgInDB == null)
+                                        {
+                                            var retData = getProductDetail(data, item, "", false, item.skuId.ToString(), cust, IdMarket, itemFromList);
+                                            if (retData.status == 1)
+                                            {
+                                                ret.recordCount += retData.recordCount;
+                                            }
+                                        }
+                                    }
+
+                                }
+
+                                ret.status = 1;
+                            }
+                            else
+                            {
+                                ret.message = retProd.openapi_data;
+                            }
+                        }
+                        else
+                        {
+                            ret.message = retProd.openapi_data;
+                        }
+                    }
+                    else
+                    {
+                        ret.message = retProd.openapi_msg;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+
+            return ret;
+        }
+
+        public BindingBase getProductDetail(JDIDAPIData data, Model_Product item, string kdBrgInduk, bool createParent, string skuId, string cust, int IdMarket, Spuinfovolist itemFromList)
+        {
+            var ret = new BindingBase
+            {
+                status = 0,
+            };
+
+            try
+            {
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "epi.ware.openapi.SkuApi.getSkuBySkuIds";
+                //mgrApiManager.ParamJson = "{ \"page\":" + page + ", \"pageSize\":10}";
+                mgrApiManager.ParamJson = "{\"skuIds\" : \"" + skuId + "\"}";
+
+                string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, BERAT, PANJANG, LEBAR, TINGGI, CUST, Deskripsi, IDMARKET, HJUAL, HJUAL_MP, ";
+                sSQL += "DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE, ";
+                sSQL += "ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
+                sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20) VALUES ";
+
+                string sSQLVal = "";
+
+                //if (!string.IsNullOrEmpty(kdBrgInduk))
+                //{
+                var response = mgrApiManager.Call();
+                var retProd = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retProd != null)
+                {
+                    if (retProd.openapi_msg.ToLower() == "success")
+                    {
+                        var detailData = JsonConvert.DeserializeObject(retProd.openapi_data, typeof(Data_Detail_Product)) as Data_Detail_Product;
+                        if (detailData != null)
+                        {
+                            if (detailData.success)
+                            {
+                                if (!string.IsNullOrEmpty(kdBrgInduk))
+                                {
+                                    if (createParent)
+                                    {
+                                        var retSQL = CreateSQLValue(item, detailData.model[0], kdBrgInduk, "", cust, IdMarket, 1, itemFromList);
+                                        if (retSQL.status == 1)
+                                            sSQLVal += retSQL.message;
+                                    }
+
+                                    var retSQL2 = CreateSQLValue(item, detailData.model[0], kdBrgInduk, skuId, cust, IdMarket, 2, itemFromList);
+                                    if (retSQL2.status == 1)
+                                        sSQLVal += retSQL2.message;
+                                }
+                                else
+                                {
+                                    var retSQL = CreateSQLValue(item, detailData.model[0], "", skuId, cust, IdMarket, 0, itemFromList);
+                                    if (retSQL.status == 1)
+                                        sSQLVal += retSQL.message;
+                                }
+                            }
+                            else
+                            {
+                                ret.message = string.IsNullOrEmpty(detailData.message) ? retProd.openapi_data : detailData.message;
+                            }
+                        }
+                        else
+                        {
+                            ret.message = retProd.openapi_data;
+                        }
+                    }
+                    else
+                    {
+                        ret.message = retProd.openapi_msg;
+                    }
+                }
+                else
+                {
+                    ret.message = response;
+                }
+
+                if (!string.IsNullOrEmpty(sSQLVal))
+                {
+                    sSQL = sSQL + sSQLVal;
+                    sSQL = sSQL.Substring(0, sSQL.Length - 1);
+                    var a = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+                    ret.recordCount += a;
+                    ret.status = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+            return ret;
+        }
+
+        protected BindingBase CreateSQLValue(Model_Product item, Model_Detail_Product detItem, string kdBrgInduk, string skuId, string cust, int IdMarket, int typeBrg, Spuinfovolist itemFromList)
+        {
+            // typeBrg : 0 = barang tanpa varian; 1 = barang induk; 2 = barang varian
+            var ret = new BindingBase
+            {
+                status = 0,
+            };
+
+            string sSQL_Value = "";
+            try
+            {
+
+                string[] attrVal;
+                string value = "";
+                var brgAttribute = new Dictionary<string, string>();
+                string namaBrg = item.skuName;
+                string nama, nama2, urlImage, urlImage2, urlImage3;
+                urlImage = "";
+                urlImage2 = "";
+                urlImage3 = "";
+                var categoryCode = itemFromList.fullCategoryId.Split('/');
+                var categoryName = itemFromList.fullCategoryName.Split('/');
+                double price = Convert.ToDouble(item.jdPrice);
+                //var statusBrg = detItem != null ? detItem.status : 1;
+                var statusBrg = detItem.status;
+                string brand = itemFromList.brandId.ToString();
+                //var display = statusBrg.Equals("active") ? 1 : 0;
+                string deskripsi = itemFromList.description;
+
+                if (typeBrg != 1)
+                {
+                    sSQL_Value += " ( '" + skuId + "' , '" + skuId + "' , '";
+                }
+                else
+                {
+                    namaBrg = itemFromList.spuName;
+                    sSQL_Value += " ( '" + kdBrgInduk + "' , '" + kdBrgInduk + "' , '";
+                }
+
+                if (typeBrg == 2)
+                {
+                    //namaBrg += " " + detItem.skuName;
+                    urlImage = imageUrl + detItem.mainImgUri;
+                }
+                else
+                {
+                    urlImage = imageUrl + item.mainImgUri;
+                }
+
+                if (namaBrg.Length > 30)
+                {
+                    nama = namaBrg.Substring(0, 30);
+                    if (namaBrg.Length > 285)
+                    {
+                        nama2 = namaBrg.Substring(30, 255);
+                    }
+                    else
+                    {
+                        nama2 = namaBrg.Substring(30);
+                    }
+                }
+                else
+                {
+                    nama = namaBrg;
+                    nama2 = "";
+                }
+
+
+                sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' ,";
+
+                //var attrVal = detItem.saleAttributeIds.Split(';');
+                //if (detItem == null)
+                //{
+                //    attrVal = item.saleAttributeIds.Split(';');
+                //    foreach (Newtonsoft.Json.Linq.JProperty property in item.saleAttributeNameMap)
+                //    {
+                //        brgAttribute.Add(property.Name, property.Value.ToString());
+                //    }
+                //}
+                //else
+                //{
+                attrVal = detItem.saleAttributeIds.Split(';');
+                foreach (Newtonsoft.Json.Linq.JProperty property in detItem.saleAttributeNameMap)
+                {
+                    brgAttribute.Add(property.Name, property.Value.ToString());
+                }
+                //price = brgAttribute.TryGetValue("jdPrice", out value) ? Convert.ToDouble(value) : Convert.ToDouble(item.jdPrice);
+                if (Convert.ToDouble(detItem.jdPrice) > 0)
+                    price = Convert.ToDouble(detItem.jdPrice);
+
+                //}
+                if(listBrand.Count > 0)
+                {
+                    var a = listBrand.Where(m => m.brandId == itemFromList.brandId).FirstOrDefault();
+                    if (a != null)
+                        brand = a.brandName;
+                }
+                //sSQL_Value += Convert.ToDouble(detItem != null ? detItem.netWeight : item.netWeight) * 1000 + " , " + Convert.ToDouble(detItem != null ? detItem.packLong : item.packLong) + " , ";
+                //sSQL_Value += Convert.ToDouble(detItem != null ? detItem.packWide : item.packWide) + " , " + Convert.ToDouble(detItem != null ? detItem.packHeight : item.packHeight);
+                sSQL_Value += Convert.ToDouble(detItem.netWeight) * 1000 + " , " + Convert.ToDouble(detItem.packLong) + " , ";
+                sSQL_Value += Convert.ToDouble(detItem.packWide) + " , " + Convert.ToDouble(detItem.packHeight);
+                sSQL_Value += " , '" + cust + "' , '" + deskripsi.Replace('\'', '`') + "' , " + IdMarket + " , " + price + " , " + price + " , ";
+                sSQL_Value += statusBrg + " , '" + categoryCode[categoryCode.Length - 1] + "' , '" + categoryName[categoryName.Length - 1] + "' , '";
+                sSQL_Value += brand + "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "' , '" + (typeBrg == 2 ? kdBrgInduk : "") + "' , '" + (typeBrg == 1 ? "4" : "3") + "'";
+                int i;
+                for (i = 0; i < attrVal.Length; i++)
+                {
+                    var attr = attrVal[i].Split(':');
+                    if (attr.Length == 2)
+                    {
+                        var attrName = (brgAttribute.TryGetValue(attrVal[i], out value) ? value : "").Split(':');
+
+                        sSQL_Value += ",'" + attr[0] + "','" + attrName[0] + "','" + attr[1] + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ",'','',''";
+                    }
+                }
+
+                for (int j = i; j < 20; j++)
+                {
+                    sSQL_Value += ",'','',''";
+                }
+
+                sSQL_Value += "),";
+                //if (typeBrg == 1)
+                //    sSQL_Value += ",";
+                ret.status = 1;
+                ret.message = sSQL_Value;
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+            return ret;
+        }
+
+        protected void getShopBrand(JDIDAPIData data)
+        {
+            try
+            {
+
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "epi.popShop.getShopBrandList";
+                var response = mgrApiManager.Call();
+                var retBrand = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retBrand != null)
+                {
+                    if(retBrand.openapi_msg.ToLower() == "success")
+                    {
+                        var dataBrand = JsonConvert.DeserializeObject(retBrand.openapi_data, typeof(Data_Brand)) as Data_Brand;
+                        if (dataBrand.success)
+                        {
+                            listBrand = dataBrand.model;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+        protected enum api_status
+        {
+            Pending = 1,
+            Success = 2,
+            Failed = 3,
+            Exception = 4
+        }
+        protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, JDIDAPIData iden, API_LOG_MARKETPLACE data)
+        {
+            switch (action)
+            {
+                case api_status.Pending:
+                    {
+                        var arf01 = ErasoftDbContext.ARF01.Where(p => p.TOKEN == iden.accessToken).FirstOrDefault();
+                        var apiLog = new MasterOnline.API_LOG_MARKETPLACE
+                        {
+                            CUST = arf01 != null ? arf01.CUST : iden.accessToken,
+                            CUST_ATTRIBUTE_1 = iden.accessToken,
+                            CUST_ATTRIBUTE_2 = data.CUST_ATTRIBUTE_2 != null ? data.CUST_ATTRIBUTE_2 : "",
+                            CUST_ATTRIBUTE_3 = data.CUST_ATTRIBUTE_3 != null ? data.CUST_ATTRIBUTE_3 : "",
+                            CUST_ATTRIBUTE_4 = data.CUST_ATTRIBUTE_4 != null ? data.CUST_ATTRIBUTE_4 : "",
+                            CUST_ATTRIBUTE_5 = data.CUST_ATTRIBUTE_5 != null ? data.CUST_ATTRIBUTE_5 : "",
+                            MARKETPLACE = "JD",
+                            REQUEST_ACTION = data.REQUEST_ACTION,
+                            REQUEST_ATTRIBUTE_1 = data.REQUEST_ATTRIBUTE_1 != null ? data.REQUEST_ATTRIBUTE_1 : "",
+                            REQUEST_ATTRIBUTE_2 = data.REQUEST_ATTRIBUTE_2 != null ? data.REQUEST_ATTRIBUTE_2 : "",
+                            REQUEST_ATTRIBUTE_3 = data.REQUEST_ATTRIBUTE_3 != null ? data.REQUEST_ATTRIBUTE_3 : "",
+                            REQUEST_ATTRIBUTE_4 = data.REQUEST_ATTRIBUTE_4 != null ? data.REQUEST_ATTRIBUTE_4 : "",
+                            REQUEST_ATTRIBUTE_5 = data.REQUEST_ATTRIBUTE_5 != null ? data.REQUEST_ATTRIBUTE_5 : "",
+                            REQUEST_DATETIME = data.REQUEST_DATETIME,
+                            REQUEST_ID = data.REQUEST_ID,
+                            REQUEST_STATUS = data.REQUEST_STATUS,
+                            REQUEST_EXCEPTION = data.REQUEST_EXCEPTION != null ? data.REQUEST_EXCEPTION : "",
+                            REQUEST_RESULT = data.REQUEST_RESULT != null ? data.REQUEST_RESULT : "",
+                        };
+                        ErasoftDbContext.API_LOG_MARKETPLACE.Add(apiLog);
+                        ErasoftDbContext.SaveChanges();
+                    }
+                    break;
+                case api_status.Success:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Success";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Failed:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = data.REQUEST_RESULT;
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+                case api_status.Exception:
+                    {
+                        var apiLogInDb = ErasoftDbContext.API_LOG_MARKETPLACE.Where(p => p.REQUEST_ID == data.REQUEST_ID).SingleOrDefault();
+                        if (apiLogInDb != null)
+                        {
+                            apiLogInDb.REQUEST_STATUS = "Failed";
+                            apiLogInDb.REQUEST_RESULT = "Exception";
+                            apiLogInDb.REQUEST_EXCEPTION = data.REQUEST_EXCEPTION;
+                            ErasoftDbContext.SaveChanges();
+                        }
+                    }
+                    break;
+            }
+        }
     }
+
     #region jdid data class
+    public class Data_Detail_Product
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public List<Model_Detail_Product> model { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Model_Detail_Product
+    {
+        public string skuName { get; set; }
+        public long skuId { get; set; }
+        public object upc { get; set; }
+        public object sellerSkuId { get; set; }
+        public string weight { get; set; }
+        public string netWeight { get; set; }
+        public string packLong { get; set; }
+        public string packWide { get; set; }
+        public string packHeight { get; set; }
+        public int piece { get; set; }
+        public string mainImgUri { get; set; }
+        public int status { get; set; }
+        public long spuId { get; set; }
+        public string saleAttributeIds { get; set; }
+        public dynamic saleAttributeNameMap { get; set; }
+        public float jdPrice { get; set; }
+        public object maxQuantity { get; set; }
+    }
+
     public class JDIDAPIData
     {
         public string appKey { get; set; }
         public string appSecret { get; set; }
         public string accessToken { get; set; }
     }
+
+
+    public class Data_Brand
+    {
+        public List<Model_Brand> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Model_Brand
+    {
+        public long id { get; set; }
+        public int isForever { get; set; }
+        public string logo { get; set; }
+        public long shopId { get; set; }
+        public int state { get; set; }
+        public int brandState { get; set; }
+        public long brandId { get; set; }
+        public string brandName { get; set; }
+    }
+
+
     public class JDID_RES
     {
         public string openapi_data { get; set; }
@@ -550,7 +1217,7 @@ namespace MasterOnline.Controllers
 
     public class Model_Attr
     {
-        public int propertyId { get; set; }
+        public long propertyId { get; set; }
         public int type { get; set; }
         public string name { get; set; }
         public string nameEn { get; set; }
@@ -573,10 +1240,108 @@ namespace MasterOnline.Controllers
 
     public class JDOpt
     {
-        public int attributeValueId { get; set; }
+        public long attributeValueId { get; set; }
         public string name { get; set; }
         public string nameEn { get; set; }
         public int attributeId { get; set; }
+    }
+
+    public class Data_ListProd
+    {
+        public Model_ListProd model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Model_ListProd
+    {
+        public int totalNum { get; set; }
+        public string _class { get; set; }
+        public List<Spuinfovolist> spuInfoVoList { get; set; }
+        public int pageNum { get; set; }
+    }
+
+    public class Spuinfovolist
+    {
+        public long transportId { get; set; }
+        public string mainImgUri { get; set; }
+        public long spuId { get; set; }
+        public string fullCategoryId { get; set; }
+        public string _class { get; set; }
+        public string fullCategoryName { get; set; }
+        public long brandId { get; set; }
+        public long warrantyPeriod { get; set; }
+        public string description { get; set; }
+        public long shopId { get; set; }
+        //public int afterSale { get; set; }
+        public string spuName { get; set; }
+        //public string appDescription { get; set; }
+        public int wareStatus { get; set; }
+    }
+    public class ProductData
+    {
+        public List<Model_Product> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Model_Product
+    {
+        public string packWide { get; set; }
+        public string weight { get; set; }
+        public string mainImgUri { get; set; }
+        public long spuId { get; set; }
+        public float jdPrice { get; set; }
+        public string skuName { get; set; }
+        public dynamic saleAttributeNameMap { get; set; }
+        public string saleAttributeIds { get; set; }
+        public string netWeight { get; set; }
+        public long skuId { get; set; }
+        public string packHeight { get; set; }
+        public string packLong { get; set; }
+        public int piece { get; set; }
+    }
+    public class DataProd
+    {
+        public int code { get; set; }
+        public object message { get; set; }
+        public List<Model_Product_2> model { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class Model_Product_2
+    {
+        public object wareTypeId { get; set; }
+        //public object sellerType { get; set; }
+        public object catId { get; set; }
+        public object wareStatus { get; set; }
+        public string mainImgUri { get; set; }
+        //public int shopId { get; set; }
+        public long spuId { get; set; }
+        public string spuName { get; set; }
+        public string fullCategoryId { get; set; }
+        public string fullCategoryName { get; set; }
+        public string shopName { get; set; }
+        public long transportId { get; set; }
+        public object propertyRight { get; set; }
+        public string brandName { get; set; }
+        public string brandLogo { get; set; }
+        public List<long> skuIds { get; set; }
+        public string appDescription { get; set; }
+        public string commonAttributeIds { get; set; }
+        public dynamic commonAttributeNameMap { get; set; }
+        public long modified { get; set; }
+        public object imgUris { get; set; }
+        public long brandId { get; set; }
+        public object productArea { get; set; }
+        public string description { get; set; }
+        public int auditStatus { get; set; }
+        public int minQuantity { get; set; }
+        public int afterSale { get; set; }
+        public object crossProductType { get; set; }
+        public object clearanceType { get; set; }
+        public object taxesType { get; set; }
+        public object countryId { get; set; }
     }
     #endregion
 }
