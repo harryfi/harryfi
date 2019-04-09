@@ -71,7 +71,8 @@
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                 @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                @(buyer == null ? "" : buyer.NAMA)
+                @*@(buyer == null ? "" : buyer.NAMA)*@
+                @pesanan.NAMAPEMESAN
             </td>
             @*add by nurul 6/3/2019*@
             <td>@noresi</td>

@@ -59,16 +59,43 @@ namespace MasterOnline.Controllers
                 return View("Login", admin);
             }
 
-            if (admin.Password != adminFromDb.Password)
+            //if (admin.Password != adminFromDb.Password)
+            //{
+            //    ModelState.AddModelError("", @"Password salah!");
+            //    return View("Login", admin);
+            //}
+
+            //Session["SessionAdmin"] = adminFromDb;
+
+            ////return RedirectToAction("AccountMenu");
+            //return RedirectToAction("DashboardAdmin");
+            var result = "";
+            if (adminFromDb.Email == "admin@masteronline.co.id")
             {
-                ModelState.AddModelError("", @"Password salah!");
-                return View("Login", admin);
+                if (admin.Password != adminFromDb.Password)
+                {
+                    ModelState.AddModelError("", @"Password salah!");
+                    return View("Login", admin);
+                }
+
+                Session["SessionAdmin"] = adminFromDb;
+
+                result="DashboardAdmin";
             }
+            else if (adminFromDb.Email == "csmasteronline@gmail.com")
+            {
+                if (admin.Password != adminFromDb.Password)
+                {
+                    ModelState.AddModelError("", @"Password salah!");
+                    return View("Login", admin);
+                }
 
-            Session["SessionAdmin"] = adminFromDb;
+                Session["SessionAdmin"] = adminFromDb;
 
-            //return RedirectToAction("AccountMenu");
-            return RedirectToAction("DashboardAdmin");
+                result="DashboardAdm";
+
+            }
+            return RedirectToAction(result);          
 
         }
 
@@ -345,21 +372,7 @@ namespace MasterOnline.Controllers
 
             return View(vm);
         }
-
-        //public ActionResult AktivitasSubscription()
-        //{
-        //    var vm = new SubsViewModel()
-        //    {
-        //        ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
-        //        //ADD BY NURUL 22/2/2019
-        //        ListSubs = MoDbContext.Subscription.ToList(),
-        //        ListAccount = MoDbContext.Account.ToList()
-        //        //END ADD BY NURUL 22/2/2019
-        //    };
-
-        //    return View(vm);
-        //}
-
+        
         public ActionResult EditSubs(int? idSub)
         {
             var vm = new SubsViewModel()
@@ -488,10 +501,6 @@ namespace MasterOnline.Controllers
                 //}
 
                 MoDbContext.AktivitasSubscription.Add(vm.Payment);
-                //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
-                //akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
-                //akun.jumlahUser = vm.Payment.jumlahUser;
-                //akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             }
             else
             {
@@ -506,10 +515,6 @@ namespace MasterOnline.Controllers
                 subsInDb.SdTGL = vm.Payment.SdTGL;
                 subsInDb.jumlahUser = vm.Payment.jumlahUser;
 
-                //var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
-                //akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
-                //akun.jumlahUser = vm.Payment.jumlahUser;
-                //akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
             }
 
             var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
@@ -519,7 +524,6 @@ namespace MasterOnline.Controllers
             MoDbContext.SaveChanges();
             ModelState.Clear();
 
-            //return RedirectToAction("FormHistoryPembayaranPartial");
             return PartialView("FormHistoryPembayaranPartial", vm);
         }
         [HttpGet]
@@ -831,7 +835,7 @@ namespace MasterOnline.Controllers
         }
 
         //end add by nurul 12/3/2019
-        // =============================================== Bagian Account (END)
+        // =============================================== Bagian Editor Account (END)
         // =============================================== Menu-menu pada halaman admin (START)
 
         [Route("admin/manage/account")]
@@ -1270,5 +1274,567 @@ namespace MasterOnline.Controllers
         }
 
         // =============================================== Dashboard (END)
+
+        //====================================================================    BAGIAN ADMINCS   ===========================================================================================================
+
+        // =============================================== Bagian Account (START)
+        [Route("adminCS/manage/account")]
+        [SessionAdminCheck]
+        public ActionResult AccMenu()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return View(vm);
+        }
+
+        public ActionResult RefreshAccMenu()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_DAFTAR).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAcc", vm);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AccMenuAktif()
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccAktif", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccMenuNonaktif(string param)
+        {
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.Status == false).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccNonaktif", vm);
+        }
+
+        [SessionAdminCheck]
+        public ActionResult AccMenuWillExpired(string param)
+        {
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccWillExpired", vm);
+        }
+        [SessionAdminCheck]
+        public ActionResult AccMenuExpired(string param)
+        {
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string tanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            var perTgl = DateTime.ParseExact(tanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount()
+            {
+                ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= perTgl && a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+            return PartialView("TableAccExpired", vm);
+        }
+        [Route("adminCS/account/detail/{accId}")]
+        public ActionResult AccDetail(int? accId)
+        {
+            var accInDb = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId);
+
+            if (accInDb == null)
+                return View("Error");
+
+            var vm = new MenuAccount()
+            {
+                Account = accInDb
+            };
+            return PartialView("AccDetail", vm);
+        }
+        
+        // Mengubah status akun utama
+        public async Task<ActionResult> ChangeStatusAccount(int? accId)
+        {
+            var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+            accInDb.Status = !accInDb.Status;
+            string sql = "";
+            var userId = Convert.ToString(accInDb.AccountId);
+
+            accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+
+            var path = Server.MapPath("~/Content/admin/");
+            sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                  $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                  $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+#if AWS
+            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                                "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+            SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                  "user id=masteronline;password=M@ster123;");
+#else
+            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                  "user id=masteronline;password=M@ster123;");
+#endif
+            SqlCommand command = new SqlCommand(sql, con);
+
+            con.Open();
+            command.ExecuteNonQuery();
+            con.Close();
+            con.Dispose();
+
+            ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+            var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
+            {
+                dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                ErasoftDbContext.SaveChanges();
+            }
+            //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
+            if (accInDb.Status == false)
+            {
+                var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
+                foreach (var user in listUserPerAcc)
+                {
+                    user.Status = false;
+                }
+            }
+            //add by Tri, set free trials 14 hari
+            if (accInDb.Status)
+            {
+                if (accInDb.KODE_SUBSCRIPTION == "01")
+                {
+                    accInDb.TGL_SUBSCRIPTION = DateTime.Today.AddDays(14);
+                }
+                accInDb.tgl_approve = DateTime.Today;
+            }
+            //end add by Tri, set free trials 14 hari
+
+            ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
+            MoDbContext.SaveChanges();
+
+            var email = new MailAddress(accInDb.Email);
+            var originPassword = accInDb.Password;
+            var nama = accInDb.Username;
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                "<p>Hi {2},</p>" +
+                "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
+                "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
+                "<p>Email akun anda ialah sebagai berikut :</p>" +
+                "<p>Email: {0}</p>" +
+                "<p>Fitur utama kami:</p>" +
+                "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
+                "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
+                "<p>3. Analisa penjualan di semua marketplace.</p>" +
+                "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email csmasteronline@gmail.com atau chat melalui website kami www.masteronline.co.id.</p>" +
+                "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
+                "<p>&nbsp;</p>" +
+                "<p>Best regards,</p>" +
+                "<p>CS Master Online.</p>";
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Akun Master Online Anda sudah aktif!";
+            message.Body = string.Format(body, accInDb.Email, originPassword, nama);
+            message.IsBodyHtml = true;
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#endif
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(a => a.AccountId == accId),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+
+            return PartialView("FormAccPartial", vm);
+        }
+        public ActionResult EditAccNew(int? accountId)
+        {
+            var vm = new MenuAccount()
+            {
+                Account = MoDbContext.Account.SingleOrDefault(m => m.AccountId == accountId),
+                ListSubs = MoDbContext.Subscription.ToList()
+            };
+
+            return PartialView("FormAccPartial", vm);
+        }
+        // =============================================== Bagian Account (END)
+
+        // =============================================== Menu Partner
+        [Route("adminCS/manage/partner")]
+        [SessionAdminCheck]
+        public ActionResult PartMenu()
+        {
+            var vm = new PartnerViewModel()
+            {
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+
+            return View(vm);
+        }
+        public async Task<ActionResult> ChangeStatusPart(string partnerid)
+        {
+            var partnerId = Convert.ToInt64(partnerid);
+            var partnerInDb = MoDbContext.Partner.Single(u => u.PartnerId == partnerId);
+            if (partnerInDb.Status && !partnerInDb.StatusSetuju)
+                partnerInDb.StatusSetuju = true;
+            else
+                partnerInDb.StatusSetuju = false;
+
+            partnerInDb.Status = !partnerInDb.Status;
+
+            MoDbContext.SaveChanges();
+
+            if (partnerInDb.Status)
+            {
+                var email = new MailAddress(partnerInDb.Email);
+                var message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("csmasteronline@gmail.com");
+                message.Subject = "Pendaftaran Partner MasterOnline berhasil!";
+                message.Body = System.IO.File.ReadAllText(Server.MapPath("~/Content/admin/AffiliateTerms.html"))
+                    .Replace("LINKPERSETUJUAN", Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PartnerApproval", "Account", new { partnerId }));
+                message.IsBodyHtml = true;
+
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+                using (var smtp = new SmtpClient())
+                {
+                    var credential = new NetworkCredential
+                    {
+                        UserName = "csmasteronline@gmail.com",
+                        Password = "erasoft123"
+                    };
+                    smtp.Credentials = credential;
+                    smtp.Host = "smtp.gmail.com";
+                    smtp.Port = 587;
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+#endif
+            }
+
+            ViewData["SuccessMessage"] = $"Partner {partnerInDb.Username} berhasil diubah statusnya.";
+            return new EmptyResult();
+        }
+        public ActionResult EditKomisiCS(int? partnerid)
+        {
+            var vm = new PartnerViewModel()
+            {
+                partner = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == partnerid),
+            };
+
+            ViewData["Editing"] = 1;
+
+            return View("PartMenu", vm);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SaveKomisiCS(PartnerViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("PartMenu", vm);
+            }
+
+            if (vm.partner.PartnerId == 0)
+            {
+                var partInDb = MoDbContext.Partner.SingleOrDefault(m => m.PartnerId == vm.partner.PartnerId);
+
+                if (partInDb != null)
+                {
+                    ModelState.AddModelError("", @"Kode partner sudah terdaftar!");
+                    return View("PartMenu", vm);
+                }
+
+                MoDbContext.Partner.Add(vm.partner);
+            }
+            else
+            {
+                var partInDb = MoDbContext.Partner.Single(m => m.PartnerId == vm.partner.PartnerId);
+                partInDb.komisi_subscribe = vm.partner.komisi_subscribe;
+                partInDb.komisi_subscribe_gold = vm.partner.komisi_subscribe_gold;
+                partInDb.komisi_support = vm.partner.komisi_support;
+            }
+
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return RedirectToAction("PartMenu");
+        }
+        // =============================================== Menu Partner (END)
+
+        // =============================================== Dashboard (START)
+
+        [Route("adminCS/home")]
+        [SessionAdminCheck]
+        public ActionResult DashboardAdm()
+        {
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }
+                    else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }
+            }
+            var date = DateTime.Today.AddMonths(-1);
+            var Sale = MoDbContext.AktivitasSubscription.Where(a => a.TanggalBayar >= date && a.TanggalBayar <= DateTime.Today).ToList();
+            double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                ListSales = Sale,
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                Bayar = lengthSum
+            };
+            return View(vm);
+        }
+        
+        [SessionAdminCheck]
+        public ActionResult RefreshDashboardCS(string param)
+        {
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }
+                    else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }
+            }
+            var Sale = MoDbContext.AktivitasSubscription.Where(b => b.TanggalBayar >= drTgl && b.TanggalBayar <= sdTgl).ToList();
+            double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                ListSales = Sale,
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                Bayar = lengthSum
+            };
+            return PartialView("TableDashboardAdm", vm);
+        }
+
+        // =============================================== Dashboard (END)
+
+        // =============================================== Bagian History Pembayaran (START)
+
+        public ActionResult AktivitasSubs()
+        {
+            var vm = new SubsViewModel()
+            {
+                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList(),
+                ListSubs = MoDbContext.Subscription.ToList(),
+                ListAccount = MoDbContext.Account.ToList()
+            };
+
+            return View(vm);
+        }
+
+        public ActionResult EditPaymentCS(int? paymentId)
+        {
+            var vm = new SubsViewModel()
+            {
+                Payment = MoDbContext.AktivitasSubscription.SingleOrDefault(m => m.RecNum == paymentId),
+            };
+
+            return PartialView("FormHistoryPembPartial", vm);
+        }
+
+        public ActionResult DeletePaymentCS(int? paymentId)
+        {
+            var subsVm = new SubsViewModel()
+            {
+                Payment = MoDbContext.AktivitasSubscription.Single(m => m.RecNum == paymentId),
+                ListAktivitasSubs = MoDbContext.AktivitasSubscription.ToList()
+            };
+
+            MoDbContext.AktivitasSubscription.Remove(subsVm.Payment);
+            MoDbContext.SaveChanges();
+
+            return RedirectToAction("AktivitasSubs");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult SavePaymentCS(SubsViewModel vm)
+        {
+            if (!ModelState.IsValid)
+            {
+                return PartialView("FormHistoryPembPartial", vm);
+            }
+
+            if (vm.Payment.RecNum == null)
+            {
+
+                MoDbContext.AktivitasSubscription.Add(vm.Payment);
+            }
+            else
+            {
+                var subsInDb = MoDbContext.AktivitasSubscription.Single(m => m.RecNum == vm.Payment.RecNum);
+                subsInDb.Email = vm.Payment.Email;
+                subsInDb.Account = vm.Payment.Account;
+                subsInDb.TipeSubs = vm.Payment.TipeSubs;
+                subsInDb.TanggalBayar = vm.Payment.TanggalBayar;
+                subsInDb.Nilai = vm.Payment.Nilai;
+                subsInDb.TipePembayaran = vm.Payment.TipePembayaran;
+                subsInDb.DrTGL = vm.Payment.DrTGL;
+                subsInDb.SdTGL = vm.Payment.SdTGL;
+                subsInDb.jumlahUser = vm.Payment.jumlahUser;
+            }
+
+            var akun = MoDbContext.Account.Single(m => m.Email == vm.Payment.Email && m.Username == vm.Payment.Account);
+            akun.KODE_SUBSCRIPTION = vm.Payment.TipeSubs;
+            akun.jumlahUser = vm.Payment.jumlahUser;
+            akun.TGL_SUBSCRIPTION = vm.Payment.SdTGL;
+            MoDbContext.SaveChanges();
+            ModelState.Clear();
+
+            return PartialView("FormHistoryPembPartial", vm);
+        }
+        [HttpGet]
+        public ActionResult GetAccountCS()
+        {
+            var account = MoDbContext.Account.ToList();
+
+            return Json(account, JsonRequestBehavior.AllowGet);
+        }
+
+        // =============================================== Bagian History Pembayaran (END)
+        
     }
 }

@@ -42,7 +42,8 @@
             <td>@(NamaMarket + " (" + buyer.PERSO + ")")</td>
             <td>
                 @*@(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                @buyer.NAMA
+                @*@buyer.NAMA*@
+                @faktur.NAMAPEMESAN
             </td>
             <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
 

@@ -6019,6 +6019,20 @@
     <Content Include="Views\Admin\TableAccountAktif.cshtml" />
     <Content Include="Views\Admin\TableAccountNonaktif.cshtml" />
     <Content Include="Views\Admin\FormHistoryPembayaranPartial.cshtml" />
+    <Content Include="Views\Admin\AccMenu.cshtml" />
+    <Content Include="Views\Admin\AccDetail.cshtml" />
+    <Content Include="Views\Admin\AktivitasSubs.cshtml" />
+    <Content Include="Views\Admin\DashboardAdm.cshtml" />
+    <Content Include="Views\Admin\FormAccPartial.cshtml" />
+    <Content Include="Views\Admin\FormHistoryPembPartial.cshtml" />
+    <Content Include="Views\Admin\TableAcc.cshtml" />
+    <Content Include="Views\Admin\TableAccAktif.cshtml" />
+    <Content Include="Views\Admin\TableAccNonaktif.cshtml" />
+    <Content Include="Views\Admin\TableAccExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccWillExpired.cshtml" />
+    <Content Include="Views\Admin\TableDashboardAdm.cshtml" />
+    <Content Include="Views\Admin\PartMenu.cshtml" />
+    <Content Include="Views\Shared\_LayoutAdminCS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
