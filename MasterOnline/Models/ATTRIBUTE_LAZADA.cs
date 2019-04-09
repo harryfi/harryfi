@@ -668,5 +668,26 @@ namespace MasterOnline.Models
         public string ASALE_PROP50 { get; set; }
         [StringLength(1)]
         public string AMANDATORY50 { get; set; }
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                // probably faster without reflection:
+                // like:  return Properties.Settings.Default.PropertyValues[propertyName] 
+                // instead of the following
+                Type myType = typeof(ATTRIBUTE_LAZADA);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                return myPropInfo.GetValue(this, null);
+            }
+            set
+            {
+                Type myType = typeof(ATTRIBUTE_LAZADA);
+                System.Reflection.PropertyInfo myPropInfo = myType.GetProperty(propertyName);
+                myPropInfo.SetValue(this, value, null);
+
+            }
+
+        }
     }
 }

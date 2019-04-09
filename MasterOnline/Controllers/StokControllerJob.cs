@@ -129,13 +129,13 @@ namespace MasterOnline.Controllers
         //queue sesuai dengan queue yang tersedia oleh BackgroundJobClient
         //NotifyOnFailed untuk message failed pada notifikasi, {obj} adalah nama object yang gagal ( contoh, kode barang, nomor so )
         //jika dipasangkan NotifyOnFailed, method harus memiliki parameter DBPathEra sebagai parameter pertama, dan nama object sebagai parameter kedua
-        //[AutomaticRetry(Attempts = 1)]
-        //[Queue("1_critical")]
-        //[NotifyOnFailed("Test notifikasi {obj} Gagal.")]
-        //public void testFailedNotif(string dbPathEra, string namaObj)
-        //{
-        //    var a = namaObj.Substring(0, 30);
-        //}
+        [AutomaticRetry(Attempts = 1)]
+        [Queue("1_critical")]
+        [NotifyOnFailed("Test notifikasi {obj} Gagal.")]
+        public void testFailedNotif(string dbPathEra, string namaObj)
+        {
+            //var a = namaObj.Substring(0, 30);
+        }
 
         protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string CUST, API_LOG_MARKETPLACE data, string Marketplace)
         {
