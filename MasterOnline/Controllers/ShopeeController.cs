@@ -118,8 +118,8 @@ namespace MasterOnline.Controllers
                 partner_id = MOPartnerID, //MasterOnline Partner ID
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                pagination_offset = page * 10,
-                pagination_entries_per_page = 10,
+                pagination_offset = page * 100,
+                pagination_entries_per_page = 100,
 
             };
 
@@ -167,7 +167,7 @@ namespace MasterOnline.Controllers
                     var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
-                    if (listBrg.items.Length == 10)
+                    if (listBrg.items.Length == 100)
                         ret.message = (page + 1).ToString();
                     foreach (var item in listBrg.items)
                     {
@@ -268,11 +268,16 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemDetailResult)) as ShopeeGetItemDetailResult;
-
+                   
                     //string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
                     string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
                     string categoryCode = detailBrg.item.category_id.ToString();
-                    string categoryName = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault().CATEGORY_NAME;
+                    var categoryInDB = MoDbContext.CategoryShopee.Where(p => p.CATEGORY_CODE == categoryCode).FirstOrDefault();
+                    string categoryName = "";
+                    if (categoryInDB != null)
+                    {
+                        categoryName = categoryInDB.CATEGORY_NAME;
+                    }
                     ret.status = 1;
 
                     var sellerSku = "";
@@ -1109,6 +1114,14 @@ namespace MasterOnline.Controllers
                     sSQL += ", '', '', '')";
                 }
             }
+            else
+            {
+                //attribute not found
+                sSQL += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                sSQL += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                sSQL += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '')";
+            }
+
             #endregion
             sSQL = sSQL.Replace("REPLACE_MEREK", brand);
             var retRec = EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
