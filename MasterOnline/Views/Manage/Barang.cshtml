@@ -2117,11 +2117,12 @@
                         $('#' + fieldAVALUE_ID).val(value);
                     }
                 });
-
-                if (adaValue != ""){
-                    var adaValues = adaValue.split(',');
-                    AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                }
+                if (adaValue != null) {
+                    if (adaValue != "") {
+                        var adaValues = adaValue.split(',');
+                        AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
+                    }
+                }                
             }
             else {
                 var AttributeOptSelect = $('#' + selectID).selectize({
@@ -2632,7 +2633,7 @@
                 contentType: 'application/json',
                 cache: false,
                 success: function (data) {
-                    debugger;
+                    //debugger;
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
