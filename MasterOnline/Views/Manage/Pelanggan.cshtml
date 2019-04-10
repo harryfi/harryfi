@@ -1424,10 +1424,6 @@
                         Customers_KODEPOS.value = '.';
                         Customers_KODEKABKOT.value = '3174';
                         Customers_KODEPROV.value = '31';
-                        Customers_Sort1_Cust.value = '';
-                        Customers_API_CLIENT_U.value = '';
-                        Customers_API_CLIENT_P.value = '';
-                        Customers_API_KEY.value = '';
 
                     });
                     }
@@ -1556,7 +1552,8 @@
                                 @*if ('@Model.Customers' != null) {
 
                                 }*@
-
+                                $('#descAPIKey').show();
+                                $('#descAPIKey2').show();
                                 if (@bklapak != value && @tokped != value && @shopee != value) {
                                 @*if (@bklapak != value && @shopee != value) {*@
                                     var labelAPI_Key = '<label class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_KEY" id="lbl_Customers_API_KEY">API Key *</label>';
@@ -1620,11 +1617,15 @@
                                     showHideTokpedForm(true);
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
+                                    $('#descAPIKey').hide();
+                                    $('#descAPIKey2').hide();
                                 }
                                 else {
                                     showHideTokpedForm(false);
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
+                                    $('#descAPIKey').show();
+                                    $('#descAPIKey2').show();
                                 }
                                 //end unremark by nurul 25/3/2019
 
@@ -1779,8 +1780,6 @@
             $('#txtAPI_CLIENT_U').remove();
             $('#labelAPI_CLIENT_P').remove();
             $('#txtAPI_CLIENT_P').remove();
-            $('#labelAPI_Key').remove();
-            $('#txtAPI_Key').remove();
             $('#labelKetTokped1').remove();
             $('#labelKetTokped2').remove();
             if (show) {
@@ -1866,8 +1865,8 @@
                 var labelKetTokped1 = '<label id="labelKetTokped1" >1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
                 var labelKetTokped2 = '<label id="labelKetTokped2" >2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
                 //end add by nurul 25/3/2019
-                $('#descAPIKey').hide();
-                $('#descAPIKey2').hide();
+                //$('#descAPIKey').hide();
+                //$('#descAPIKey2').hide();
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);

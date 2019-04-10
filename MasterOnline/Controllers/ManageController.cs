@@ -588,6 +588,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 26/9/2018
                 //ListBarangMarket = ErasoftDbContext.STF02H.ToList()
                 //end add 
+                //add by nurul 10/4/2019
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                //end add by nurul 10/4/2019
             };
 
             return View(vm);
@@ -10060,12 +10063,67 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //add by nurul 10/4/2019
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                //end add by nurul 10/4/2019
             };
 
             return PartialView("TablePesananPartial", vm);
         }
         //add by calvin 17 desember 2018
+
+        //add by nurul 10/4/2019
+        public ActionResult SaveStatusUpdate(string status)
+        {
+            try
+            {
+                var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
+
+                bool ubahSettingSync = false;
+                if (dataUsaha.JTRAN_RETUR != status)
+                {
+                    ubahSettingSync = true;
+                    dataUsaha.JTRAN_RETUR = status;
+                    ErasoftDbContext.SaveChanges();
+                }
+                else
+                {
+                    var vmError = new PesananViewModel() { };
+
+                    vmError.Errors.Add("Tidak ada perubahan status update !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                
+
+                if (ubahSettingSync)
+                {
+                    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                    var accControl = new AccountController();
+                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username).Wait());
+                }
+
+                var vm = new PesananViewModel()
+                {
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                };
+
+                return PartialView("Pesanan", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+        //end add by nurul 10/4/2019
+
         public ActionResult FillModalFixNotFound(string recNum)
         {
             var intRecnum = Convert.ToInt64(recNum);
