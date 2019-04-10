@@ -323,11 +323,17 @@ namespace MasterOnline.Controllers
                     }
                 }
             }
-            for (int i = 0; i < lzdAttrWithVal.Count; i++)
+            //for (int i = 0; i < lzdAttrWithVal.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal[i].ToString() + ">";
+            //    xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
+            //    xmlString += "</" + dsNormal[i].ToString() + ">";                
+            //}
+            foreach(var lzdAttr in lzdAttrWithVal)
             {
-                xmlString += "<" + dsNormal[i].ToString() + ">";
-                xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
-                xmlString += "</" + dsNormal[i].ToString() + ">";
+                xmlString += "<" + lzdAttr.Key + ">";
+                xmlString += lzdAttr.Value.ToString();
+                xmlString += "</" + lzdAttr.Key + ">";
             }
             //end change 8 Apriil 2019, get attr from api
 
@@ -360,11 +366,17 @@ namespace MasterOnline.Controllers
                 //    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
                 //    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
                 //}
-                for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                //{
+                //    xmlString += "<" + dsSku[i].ToString() + ">";
+                //    xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                //    xmlString += "</" + dsSku[i].ToString() + ">";
+                //}
+                foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "<" + dsSku[i].ToString() + ">";
-                    xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
-                    xmlString += "</" + dsSku[i].ToString() + ">";
+                    xmlString += "<" + lzdSkuAttr.Key + ">";
+                    xmlString += lzdSkuAttr.Value.ToString();
+                    xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
                 //end change 8 Apriil 2019, get attr from api
 
@@ -3914,7 +3926,7 @@ namespace MasterOnline.Controllers
                     sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
                     sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
                     sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
-                    sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '')";
+                    sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '') ,";
                 }
 
                 #endregion

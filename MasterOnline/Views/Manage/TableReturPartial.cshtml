@@ -40,7 +40,8 @@
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                 @*@(buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                @buyer.NAMA 
+                @*@buyer.NAMA*@ 
+                @faktur.NAMAPEMESAN
             </td>
             <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
             @if (Convert.ToString(faktur.ST_POSTING) == "Y")

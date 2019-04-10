@@ -1342,6 +1342,37 @@
                             </div>
                         </div>
                     </div>
+                    @*<div class="row pesanan_table_section">
+                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+                    </div>*@
+                    <div class="row pesanan_table_section form-group">
+                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
+                        <div class="col-md-2 col-sm-2 col-xs-12" >
+                            @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
+                            <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                                @*<option value="default">Harap pilih</option>*@
+                                @if (Model?.DataUsaha != null)
+                                {
+                                    if (Model.DataUsaha.JTRAN_RETUR == "1")
+                                    {
+                                        <option value="1" selected>Aktif</option>
+                                        <option value="0">Tidak Aktif</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="1">Aktif</option>
+                                        <option value="0" selected>Tidak Aktif</option>
+                                    }
+                                }
+                                else
+                                {
+                                    <option value="1">Aktif</option>
+                                    <option value="0" selected>Tidak Aktif</option>
+                                }
+                            </select>
+                        </div>
+                        <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+                    </div>
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         <div id="loading_pesanan_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
@@ -3305,6 +3336,11 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+            //add by nurul 10/4/2019
+            $('#DataUsaha_JtranRetur').change(function () {
+                $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+            });
+            //end add by nurul 10/4/2019
         }
 
         function cekJumlahPesananBulanIni() {
@@ -4843,6 +4879,11 @@
                     });
                     $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+                    //add by nurul 10/4/2019
+                    $('#DataUsaha_JtranRetur').change(function () {
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    });
+                    //end add by nurul 10/4/2019
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -6725,6 +6766,46 @@
             promptPembeli = "";
         }
         //end add
+        //add by nurul 10/4/2019
+        function simpanUpdate() {
+            //if (!validateForm()) return false;
+
+            //var $form = $(btnClicked).parents('form');
+            //var $formData = new FormData($('form')[0]);
+            var link = '@Url.Action("SaveStatusUpdate", "Manage", new { status = "replaceSt"})';
+            link = link.replace("replaceSt", $('#DataUsaha_JtranRetur').val());
+
+            $.ajax({
+                type: "POST",
+                url: link,
+                //data: $formData,
+                //processData: false,
+                //contentType: false,
+                //beforeSend: function () {
+                //    $('#loading_spinner').show();
+                //},
+                success: function (response) {
+                    if (response.Errors == null) {
+                            alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
+                            //refreshTablePesanan();
+                            $('#pesanan-tab').click();
+
+                        //$('#loading_spinner').hide();
+                    } else {
+                        alert(response.Errors);
+                        //console.log(response.Errors);
+                        //alert('Ada data yang tidak valid!');
+                        //$('#loading_spinner').hide();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+            return false;
+        }
+        //end add by nurul 10/4/2019
     </script>
     <script>
         //Disable Enter Key Submit Form

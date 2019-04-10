@@ -1286,10 +1286,15 @@
         }
         function DataIsValid() {
             var ret = true;
-            if ($("#Stf02_BRG").val().length > 20) {
+            if ($("#txtBrg").val().length > 20) {
                 addError($("#Stf02_BRG").parent().parent(), "Kode barang maksimal 20 karakter.");
                 ret = false;
-            } else {
+            }
+            else if ($("#txtBrg").val().length > 11 && $('#cmbVar').val() == "2") {
+                addError($("#Stf02_BRG").parent().parent(), "Kode barang untuk Barang Induk maksimal 11 karakter.");
+                ret = false;
+            }
+            else {
                 $("#Stf02_BRG").closest('div').append('<span class="text-danger"></span>');
             }
             if ($("#Stf02_Deskripsi").val().length < 30) {
@@ -1305,7 +1310,7 @@
                     addError($("#txtBrgInduk").parent().parent(), "Kode Barang Induk harus diisi.");
                     ret = false;
                 }
-                else if ($("#TempBrg_KODE_BRG_INDUK").val().length > 11) {
+                else if ($("#txtBrgInduk").val().length > 11) {
                     addError($("#TempBrg_KODE_BRG_INDUK").parent().parent(), "Kode barang Induk maksimal 11 karakter.");
                     ret = false;
                 } else if ($('#txtBrgInduk').val() == $('#txtBrg').val()) {
