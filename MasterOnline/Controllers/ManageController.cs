@@ -1308,7 +1308,8 @@ namespace MasterOnline.Controllers
                 //end add by Tri, add api key
                 custInDb.API_CLIENT_U = customer.Customers.API_CLIENT_U;
                 custInDb.API_CLIENT_P = customer.Customers.API_CLIENT_P;
-                custInDb.TOKEN = customer.Customers.TOKEN;
+                if (!string.IsNullOrEmpty(customer.Customers.TOKEN))
+                    custInDb.TOKEN = customer.Customers.TOKEN;
 
                 kdCustomer = custInDb.CUST;
             }
@@ -10130,7 +10131,7 @@ namespace MasterOnline.Controllers
                     vmError.Errors.Add("Tidak ada perubahan status update !");
                     return Json(vmError, JsonRequestBehavior.AllowGet);
                 }
-                
+
 
                 if (ubahSettingSync)
                 {

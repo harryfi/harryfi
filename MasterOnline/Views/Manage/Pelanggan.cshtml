@@ -1685,8 +1685,7 @@
                         }
                     });
 
-                    //namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), true);
-                    namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), false);
+                    namaMarket[0].selectize.setValue($('#Customers_NAMA').val(), true);
 
                 },
                 error: function (xhr) {
@@ -2148,19 +2147,16 @@
                     $('#txtAPI_Key').remove();
                     //$('#emptyDiv').remove();
                     //$('#txtDescAPIKey').remove();
-                    //remark 11/4/2019
-                    @*if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
+                    if (@bklapak == response.Customers.NAMA ||  @blibli == response.Customers.NAMA ) {
                         $('#password-akun').show();
                         $('#Customers_PASSWORD').attr('required', 'checked');
                     } else {
                         $('#password-akun').hide();
                         $('#Customers_PASSWORD').removeAttr('required');
                     }
-                    if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA) {*@
-                    //end remark 11/4/2019
+                    if (@bklapak != response.Customers.NAMA && @tokped != response.Customers.NAMA && @shopee != response.Customers.NAMA && @others != response.Customers.NAMA) {
                     @*if (@bklapak != response.Customers.NAMA) {*@
-                    //remark 11/4/2019
-                        @*var valuetxtAPI_Key = "";
+                        var valuetxtAPI_Key = "";
                         if (response.Customers.API_KEY != null) {
                             valuetxtAPI_Key = response.Customers.API_KEY;
                         }
@@ -2186,33 +2182,34 @@
                             lblDesc3.style.visibility = 'hidden';
                             lblDesc4.style.visibility = 'hidden';
                             lblPopUp.style.visibility = 'hidden';
-                        } else if (@shopee == response.Customers.NAMA) {
+                        @*} else if (@shopee == response.Customers.NAMA) {
                             lblDesc.style.visibility = 'hidden';
                             lblDesc2.style.visibility = 'hidden';
                             lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
                             lblDesc4.innerText = '';
-                            lblPopUp.style.visibility = 'hidden';
+                            lblPopUp.style.visibility = 'hidden';*@
                         }else {
                             lblDesc2.innerText = ' Untuk mendapatkan API silahkan lihat petunjuk '
                             lblPopUp.style.visibility = 'visible';
                             lblDesc3.style.visibility = 'hidden';
                             lblDesc4.style.visibility = 'hidden';
                         }
-                    } else if (@bklapak != response.Customers.NAMA) {
+                    }
+                    @*else if (@bklapak != response.Customers.NAMA) {
                         lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';
                         lblDesc3.style.visibility = 'visible';
                         lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi customer servise kami.';
                         lblDesc4.style.visibility = 'visible';
                         lblPopUp.style.visibility = 'hidden';
-                    }else {
+                    }*@
+                    else {
                         lblDesc.style.visibility = 'hidden';
                         lblDesc2.style.visibility = 'hidden';
                         lblPopUp.style.visibility = 'hidden';
                         lblDesc3.style.visibility = 'hidden';
                         lblDesc4.style.visibility = 'hidden';
-                    }*@
-                    //end remark 11/4/2019
+                    }
 
                     //end add by Tri, remove/append api_key
                     @*//add by Tri, API key bukalapak auto generate
@@ -2239,8 +2236,7 @@
                     //end remark by Tri, auto pop up when user save
                     //end add by Tri, button for generate lazada code
                     //add by calvin, textbox for client api blibli
-                    //remark 11/4/2019
-                    @*$('#labelSort1_Cust').remove();
+                    $('#labelSort1_Cust').remove();
                     $('#txtSort1_Cust').remove();
                     $('#labelAPI_CLIENT_U').remove();
                     $('#txtAPI_CLIENT_U').remove();
@@ -2250,6 +2246,10 @@
                     $('#txtAPI_KeyTokped').remove();
                     $('#labelKetTokped1').remove();
                     $('#labelKetTokped2').remove();
+                    $('#labelTOKEN').remove();
+                    $('#txtTOKEN').remove();
+                    $('#labelAPP_SECRET').remove();
+                    $('#txtAPP_SECRET').remove();
                     @{
                         var blibliCode = context.Marketplaces.SingleOrDefault(m => m.NamaMarket.Equals("BLIBLI")).IdMarket.ToString();
                     }
@@ -2333,8 +2333,36 @@
                         $('#TokpedShopID').append(labelAPI_KeyTokped + txtAPI_KeyTokped);
                         $('#LabelTokped1').append(labelKetTokped1);
                         $('#LabelTokped2').append(labelKetTokped2);
-                    }*@
-                    //remark 11/4/2019
+                    }
+                    if (@jd == response.Customers.NAMA) {
+                        var labelTOKEN = '<label id="labelTOKEN" class="control-label col-md-3 col-sm-3 col-xs-12" for="labelTOKEN">Access Token *</label>';
+
+                        var valuetxtToken = "";
+                        if (response.Customers.TOKEN != null) {
+                            valuetxtToken = response.Customers.TOKEN;
+                        }
+                        var txtToken = '<div id="txtTOKEN" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field TOKEN must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_TOKEN" name="Customers.TOKEN" required="required" type="text" value="' + valuetxtToken + '" maxlength="50"></div>';
+
+                        var labelAPP_SECRET = '<label id="labelAPP_SECRET" class="control-label col-md-3 col-sm-3 col-xs-12" for="Customers_API_CLIENT_U">APP Secret *</label>';
+
+                        var valuetxtAPP_SECRET = "";
+                        if (response.Customers.API_CLIENT_U != null) {
+                            valuetxtAPP_SECRET = response.Customers.API_CLIENT_U;
+                        }
+                        var txtAPI_CLIENT_U = '<div id="txtAPP_SECRET" class="col-md-6 col-sm-6 col-xs-6"><input class="form-control" data-val="true" data-val-length="The field API_CLIENT_U must be a string with a maximum length of 50." data-val-length-max="50" id="Customers_API_CLIENT_U" name="Customers.API_CLIENT_U" required="required" type="text" value="' + valuetxtAPP_SECRET + '" maxlength="50"></div>';
+
+                        $('#JDAppSecret').append(labelAPP_SECRET + txtAPI_CLIENT_U);
+                        $('#JDAccessToken').append(labelTOKEN + txtToken);
+                        $('#lbl_Customers_API_KEY').html("APP Key *");
+                    }
+                    if (@shopee == response.Customers.NAMA) {
+                            lblDesc.style.visibility = 'hidden';
+                        lblDesc2.style.visibility = 'hidden';
+                        lblDesc3.style.visibility = 'visible';
+                            lblDesc3.innerText = '1. Untuk dapat tersambung secara otomatis ke Shopee, Anda dapat melakukan save, dan akan dilanjutkan ke halaman shopee.';
+                            lblDesc4.innerText = '';
+                            lblPopUp.style.visibility = 'hidden';
+                    }
                     //end add by calvin, button for generate lazada code
 
                     $('.customer_table_section').hide();
