@@ -1077,6 +1077,73 @@ namespace MasterOnline.Controllers
 
             }
         }
+
+        public void UpdateStock(JDIDAPIData data, string id, int stok)
+        {
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Stock",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = id,
+                REQUEST_ATTRIBUTE_2 = stok.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
+            var mgrApiManager = new JDIDController();
+
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
+            mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+            try
+            {
+                var response = mgrApiManager.Call();
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_msg.ToLower() == "success")
+                    {
+                        var retStok = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpStok)) as Data_UpStok;
+                        if (retStok != null)
+                        {
+                            if (retStok.success)
+                            {
+
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = retStok.message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = response;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                }
+            }
+            catch(Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+            
+        }
+
         protected enum api_status
         {
             Pending = 1,
@@ -1193,6 +1260,15 @@ namespace MasterOnline.Controllers
         public string accessToken { get; set; }
     }
 
+
+    public class Data_UpStok
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public dynamic model { get; set; }
+        public bool success { get; set; }
+    }
+    
 
     public class Data_Brand
     {
