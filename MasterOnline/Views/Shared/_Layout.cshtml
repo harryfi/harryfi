@@ -9,7 +9,6 @@
     <link href="~/Content/vendors/font-awesome/css/font-awesome.min.css" rel="stylesheet">
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130203101-1"></script>
     <script>
@@ -20,12 +19,11 @@
         gtag('config', 'UA-130203101-1');
         gtag('config', 'AW-778375246');
     </script>
- 
+
     <!-- Event snippet for Sign-up conversion page In your html page, add the snippet and call gtag_report_conversion when someone clicks on the chosen link or button. -->
     <script>
         function gtag_report_conversion(url) { var callback = function () { if (typeof (url) != 'undefined') { window.location = url; } }; gtag('event', 'conversion', { 'send_to': 'AW-778375246/mXAzCP3X5pQBEM6glPMC', 'value': 30.0, 'currency': 'USD', 'event_callback': callback }); return false; }
     </script>
-
     <style>
         @@font-face {
             font-family: 'RoundedElegance';
@@ -175,7 +173,6 @@
             }
         }
     </style>
-
     @RenderSection("styles", required: false)
 </head>
 <body>
@@ -242,8 +239,7 @@
                     </div>
                 </div>
             </div>
-
-            <div class="col-sm-12 col-xs-12 hidden-md hidden-lg" style="margin: 10px 0;">
+            <div class="col-sm-12 col-xs-12 hidden-md hidden-lg" style="margin:auto;">
                 <div class="row text-center">
                     <a href="@Url.Action("Index", "Home", new {@ref = referral})" style="margin-right: 5px;">
                         <span>HOME</span>
@@ -257,6 +253,11 @@
                     <a class="daftarBtn" style="padding: 3px; padding-left: 7px; margin-right: 5px;" href="@Url.Action("Register", "Account", new {@ref = referral})">
                         <span>DAFTAR</span>
                     </a>
+                    @*add by calvin 11 april 2019, pricing*@
+                    <a href="@Url.Action("HomePricing", "Account", new {@ref = referral})" style="margin-right: 5px;">
+                        <span>PRICING</span>
+                    </a>
+                    @*end add calvin 11 april 2019, pricing*@
                     <a href="@Url.Action("Partner", "Account", new {@ref = referral})" style="margin-right: 5px;">
                         <span>PARTNER</span>
                     </a>
@@ -264,15 +265,12 @@
             </div>
         </div>
     </nav>
-
     <div id="loading_spinner">
         <div id="loading_spinner_image">
             <img src="~/Content/Images/spinner.gif" />
         </div>
     </div>
-
     @RenderBody()
-
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
@@ -283,8 +281,8 @@
                 event.preventDefault();
 
                 $('html, body').animate({
-                        scrollTop: $($.attr(this, 'href')).offset().top - 170
-                    },
+                    scrollTop: $($.attr(this, 'href')).offset().top - 170
+                },
                     500);
 
                 $('.btn-account').on('click',
@@ -339,7 +337,6 @@
             }
         }
     </script>
-
     <!--Start of Tawk.to Script-->
     <script type="text/javascript">
         var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();

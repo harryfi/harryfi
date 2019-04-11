@@ -1,10 +1,10 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-
 @section styles
 {
     <style>
+
         @@font-face {
             font-family: 'RoundedElegance';
             src: url("../../fonts/rounded_elegance.svg");
@@ -36,16 +36,54 @@
         #about-desc, #link-erasoft {
             font-size: 18px;
         }
+
+        footer {
+            background: #891539;
+            padding: 30px 0;
+        }
+
+        .footerMenuCol {
+            margin-bottom: 20px;
+        }
+
+        footer h3 {
+            color: #fff;
+            font-size: 15px;
+            font-weight: 400;
+            text-transform: uppercase;
+            margin-top: 0;
+        }
+
+        footer ul, footer ul li {
+            list-style: none;
+        }
+
+            footer ul li {
+                margin-left: -40px !important;
+                padding: 7px 0 7px 10px;
+                border-bottom: 1px solid #f9f9f9;
+            }
+
+                footer ul li a {
+                    color: #f7f7f7;
+                    font-size: 12px;
+                    font-weight: 300;
+                    text-decoration: none;
+                }
+
+
+        #soc-med-btn-nav {
+            margin-right:0px;
+        }
     </style>
 }
-
 <div id="container-about" class="container">
     <div class="row text-center">
         <h3 id="about-title">TENTANG KAMI</h3>
     </div>
-    <br/>
+    <br />
     <div class="row">
-        <img id="about-logo" class="img-responsive" src="~/Content/Images/erasoft_indonesia_pt_fb.png" /><br/>
+        <img id="about-logo" class="img-responsive" src="~/Content/Images/erasoft_indonesia_pt_fb.png" /><br />
         <p id="about-desc">
             PT Erasoft Teknologi Indonesia adalah sebuah perusahaan Solution
             Provider yg telah berdiri sejak 1998. Dengan berbagai pengalaman dan
@@ -63,3 +101,64 @@
         </a>
     </div>
 </div>
+<!--Start Footer-->
+<footer>
+    <div class="container">
+        <div class="col-md-3 col-md-offset-1 col-xs-12 col-sm-12 text-center">
+            <a href="http://www.masteronline.co.id">
+                <img width="75%" style="display: block; margin: 0 auto;" src="~/Content/Images/MO_new_logo_bottom.png" alt="MasterOnline" class="img-responsive">
+            </a><br /><br />
+            <span style="color: #f7f7f7">
+                PT Erasoft Teknologi Indonesia.<br />
+                Jl. Alaydrus No. 37,<br />
+                Jakarta Pusat, 10130<br />
+                ------------------------
+                csmasteronline@gmail.com<br />
+                Tel: 021-634-9318
+            </span>
+            <br class="hidden-md hidden-lg">
+            <br class="hidden-md hidden-lg">
+            <div class="container text-center hidden-md hidden-lg">
+                <a href="https://www.facebook.com/csmasteronline">
+                    <img src="~/Content/Images/facebook-white.jpg" alt="Facebook" width="24" height="24" />
+                </a>
+                <a href="https://www.instagram.com/csmasteronline" style="margin: 0 10px;">
+                    <img src="~/Content/Images/Instagram.png" alt="Instagram" width="24" height="24" />
+                </a>
+                <a href="http://blogmasteronline.wordpress.com/">
+                    <img src="~/Content/Images/blog.png" alt="Blog" width="24" height="24" />
+                </a>
+            </div>
+        </div>
+        <br class="hidden-md hidden-lg" />
+        <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+            <h3>Hubungi Kami</h3>
+            <ul>
+                <li><a href="mailto:csmasteronline@gmail.com">Email</a></li>
+                <li><a href="https://www.facebook.com/csmasteronline">Facebook</a></li>
+                <li><a href="https://www.instagram.com/csmasteronline">Instagram</a></li>
+                @*add by nurul 13/8/2018 (tambah blog)*@
+                <li><a href="http://blogmasteronline.wordpress.com/">Blog</a></li>
+                <li><a href="https://www.youtube.com/channel/UCFQSo4VeQKGhUgk7nuqowuQ">Youtube</a></li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+                <h3>Dukungan</h3>
+                <ul>
+                    @*<li><a href="@Url.Content("~/MO_Panduan.pdf")" target="_blank">Panduan Pemakaian</a></li> 'remark by nurul, dipindah ke setelah login*@
+                    <li><a href="/Home/FAQ">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footerMenuCol col-md-2 col-sm-6 col-xs-6">
+                <h3>Kebijakan</h3>
+                <ul>
+                    <li><a href="~/Content/Static/termsandconditions.html">Privasi</a></li>
+                    <li><a href="~/Content/Static/termsandconditions.html#security">Keamanan</a></li>
+                    <li><a href="~/Content/Static/termsandconditions.html#terms">Syarat dan Ketentuan</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</footer>
+<!--End of Footer-->
