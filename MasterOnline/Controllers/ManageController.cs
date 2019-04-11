@@ -15325,12 +15325,16 @@ namespace MasterOnline.Controllers
             dataPerusahaanInDb.NPWP = dataVm.DataUsaha.NPWP;
             dataPerusahaanInDb.METODA_NO = dataVm.DataUsaha.METODA_NO;
             dataPerusahaanInDb.KODE_BRG_STYLE = dataVm.DataUsaha.KODE_BRG_STYLE;
-            bool ubahSettingSync = false;
-            if (dataPerusahaanInDb.JTRAN_RETUR != dataVm.DataUsaha.JTRAN_RETUR)
-            {
-                ubahSettingSync = true;
-            }
-            dataPerusahaanInDb.JTRAN_RETUR = dataVm.DataUsaha.JTRAN_RETUR;
+
+            //remark by nurul 10/4/2019
+            //bool ubahSettingSync = false;
+            //if (dataPerusahaanInDb.JTRAN_RETUR != dataVm.DataUsaha.JTRAN_RETUR)
+            //{
+            //    ubahSettingSync = true;
+            //}
+            //dataPerusahaanInDb.JTRAN_RETUR = dataVm.DataUsaha.JTRAN_RETUR;
+            //end remark by nurul 10/4/2019
+
             //add by nurul 11/3/2019
             dataPerusahaanInDb.GUDANG = dataVm.DataUsaha.GUDANG;
             //end add by nurul 11/3/2019
@@ -15342,7 +15346,14 @@ namespace MasterOnline.Controllers
             var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
             var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
 
-            if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            //change by nurul 11/4/2019
+            //if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            if (accInDb != null)
+            {
+                accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+                accInDb.NoHp = dataVm.DataUsahaTambahan.TELEPON;
+            }
+
             MoDbContext.SaveChanges();
 
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
@@ -15354,14 +15365,16 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            if (ubahSettingSync)
-            {
-                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+            //remark by nurul 10/4/2019
+            //if (ubahSettingSync)
+            //{
+            //    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //    string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                var accControl = new AccountController();
-                Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataPerusahaanInDb.JTRAN_RETUR, username).Wait());
-            }
+            //    var accControl = new AccountController();
+            //    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataPerusahaanInDb.JTRAN_RETUR, username).Wait());
+            //}
+            //end remark by nurul 10/4/2019
 
             return new EmptyResult();
         }
