@@ -3273,6 +3273,11 @@
                             $(".selectize-input input[placeholder]").attr('placeholder', nama);
                             $('#gudang-kode').text(gudang);
                             gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
+                            //change by calvin 11 april 2019
+                            //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
+                            gudangSelect[0].selectize.setValue(nama);
+                            $('#FakturDetail_GUDANG').val(gudang);
+                            //end change by calvin 11 april 2019
                         }
 
 

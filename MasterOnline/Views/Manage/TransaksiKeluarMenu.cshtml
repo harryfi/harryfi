@@ -831,7 +831,11 @@
                         } else if (link == true && listGd.length > 0) {
                             $(".selectize-input input[placeholder]").attr('placeholder', nama);
                             $('#gudang-kode').text(gudang);
-                            gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val(nama));
+                            //change by calvin 11 april 2019
+                            //gudangSelect[0].selectize.setValue($('#BarangStok_Dr_Gd').val(nama));
+                            gudangSelect[0].selectize.setValue(nama);
+                            $('#BarangStok_Dr_Gd').val(gudang);
+                            //end change by calvin 11 april 2019
                         }
                         //end change by nurul 11/3/2019 set default gudang dr sifsys
 
