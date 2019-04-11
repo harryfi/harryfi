@@ -28,5 +28,8 @@ namespace MasterOnline.ViewModels
         public string setGd { get; set; }
         public string selectRec { get; set; }
         //end add by nurul 11/3/2019
+        //add by nurul 10/4/2019
+        public SIFSY DataUsaha { get; set; } = new SIFSY();
+        //end add by nurul 10/4/2019
     }
 }

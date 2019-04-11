@@ -477,6 +477,13 @@ namespace MasterOnline.Controllers
                 //    var serverConnection = sqlStorage.GetConnection();
                 //    serverConnection.RemoveServer(server.Name);
                 //}
+                var optionsStatusResiServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "StatusResiPesanan",
+                    Queues = new[] { "1_manage_pesanan" },
+                    WorkerCount = 2,
+                };
+                var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
 
                 var options = new BackgroundJobServerOptions
                 {

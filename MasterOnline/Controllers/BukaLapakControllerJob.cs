@@ -893,10 +893,14 @@ namespace MasterOnline.Controllers
         }
 
         [HttpGet]
-        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/ string shipCode, string transId, string courier, string userId, string token)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Bukalapak Gagal.")]
+        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/string dbPathEra,string namaPemesan, string uname, string shipCode, string transId, string courier, string userId, string token)
         {
             var ret = new BindingBase();
             ret.status = 0;
+            SetupContext(dbPathEra, uname);
 
             var data = new BindingShipBL
             {
@@ -914,17 +918,17 @@ namespace MasterOnline.Controllers
             {
                 data.payment_shipping.new_courier = courier;
             }
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Confirm Shipment",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = token,
-                REQUEST_ATTRIBUTE_2 = shipCode,
-                REQUEST_ATTRIBUTE_3 = transId,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Confirm Shipment",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = token,
+            //    REQUEST_ATTRIBUTE_2 = shipCode,
+            //    REQUEST_ATTRIBUTE_3 = transId,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, userId, currentLog);
 
             string dataPost = Newtonsoft.Json.JsonConvert.SerializeObject(data);
             Utils.HttpRequest req = new Utils.HttpRequest();
@@ -938,21 +942,23 @@ namespace MasterOnline.Controllers
                     ret.status = 1;
                     //change status menjadi  04 => shipped
                     //EDB.ExecuteSQL("", CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI = '" + noBukti + "'");
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, userId, currentLog);
 
                 }
                 else
                 {
-                    ret.message = bindStatus.message;
-                    currentLog.REQUEST_EXCEPTION = bindStatus.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                    throw new Exception(bindStatus.message);
+                    //ret.message = bindStatus.message;
+                    //currentLog.REQUEST_EXCEPTION = bindStatus.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                 }
             }
             else
             {
-                ret.message = "failed to call Buka Lapak api";
-                currentLog.REQUEST_EXCEPTION = ret.message;
-                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
+                    throw new Exception("failed to call Buka Lapak api");
+                //ret.message = "failed to call Buka Lapak api";
+                //currentLog.REQUEST_EXCEPTION = ret.message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
             }
 
             return ret;

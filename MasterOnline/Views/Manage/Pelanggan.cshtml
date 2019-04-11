@@ -1458,9 +1458,9 @@
                             Customers_KODEKABKOT.value = '3174';
                             Customers_KODEPROV.value = '31';
                             Customers_Sort1_Cust.value = '';
-                            Customers_API_CLIENT_U.value = '';
-                            Customers_API_CLIENT_P.value = '';
-                            Customers_API_KEY.value = '';
+                            //Customers_API_CLIENT_U.value = '';
+                            //Customers_API_CLIENT_P.value = '';
+                            //Customers_API_KEY.value = '';
                         });
                     }
                 },
@@ -1663,11 +1663,15 @@
                                     showHideTokpedForm(true);
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
+                                    $('#descAPIKey').hide();
+                                    $('#descAPIKey2').hide();
                                 }
                                 else {
                                     showHideTokpedForm(false);
                                     //lblDesc3.innerText = '';
                                     //lblDesc4.innerText = '';
+                                    $('#descAPIKey').show();
+                                    $('#descAPIKey2').show();
                                 }
                                 if (@jd == value) {
                                     showHideJDForm(true);
@@ -1972,8 +1976,8 @@
                 var labelKetTokped1 = '<label id="labelKetTokped1" >1. Untuk dapat tersambung secara otomatis ke Tokopedia, Anda harus terdaftar sebagai official store (pemegang merk). Apabila Anda sudah terdaftar sebagai official store di Tokopedia, silahkan hubungi MD (Merchandiser) untuk menggunakan fitur Fullfillment Service Tokopedia dan mendapatkan FSID, Client ID, Client Secret dan Shop ID Anda.</label>';
                 var labelKetTokped2 = '<label id="labelKetTokped2" >2. Apabila toko Anda bukan official store, maka Anda dapat menarik data penjualan Anda ke MasterOnline di menu Penjualan, Faktur dengan menekan tombol "Upload Faktur".</label>';
                 //end add by nurul 25/3/2019
-                $('#descAPIKey').hide();
-                $('#descAPIKey2').hide();
+                //$('#descAPIKey').hide();
+                //$('#descAPIKey2').hide();
                 $('#BlibliMerchantID').append(labelSort1_Cust + txtSort1_Cust);
                 $('#BlibliClient').append(labelAPI_CLIENT_U + txtAPI_CLIENT_U);
                 $('#BlibliClientPass').append(labelAPI_CLIENT_P + txtAPI_CLIENT_P);

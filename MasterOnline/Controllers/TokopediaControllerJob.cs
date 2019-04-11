@@ -977,23 +977,28 @@ namespace MasterOnline.Controllers
         }
 
 
-        public async Task<string> PostRequestPickup(TokopediaAPIData iden, string NO_BUKTI_SOT01A, string NO_REFERENSI_SOT01A)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Request Pickup Pesanan {obj} ke Tokopedia Gagal.")]
+        public async Task<string> PostRequestPickup(string dbPathEra, string namaPemesan, TokopediaAPIData iden, string NO_BUKTI_SOT01A, string NO_REFERENSI_SOT01A)
         {
+            var token = SetupContext(iden);
+            iden.token = token;
             string ret = "";
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/pick-up";
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Request PIckup",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-                REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
-                REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
-                REQUEST_STATUS = "Pending",
-            };
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Request PIckup",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+            //    REQUEST_ATTRIBUTE_2 = "orderNo : " + NO_BUKTI_SOT01A,
+            //    REQUEST_ATTRIBUTE_3 = "NoRef : " + NO_REFERENSI_SOT01A,
+            //    REQUEST_STATUS = "Pending",
+            //};
 
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             RequestPickup newData = new RequestPickup()
@@ -1036,30 +1041,32 @@ namespace MasterOnline.Controllers
 
 
             string responseFromServer = "";
-            try
-            {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
+            //try
+            //{
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            HttpResponseMessage clientResponse = await client.PostAsync(
+                urll, content);
 
-                using (HttpContent responseContent = clientResponse.Content)
+            using (HttpContent responseContent = clientResponse.Content)
+            {
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                 {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
+                    responseFromServer = await reader.ReadToEndAsync();
+                }
+            };
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
 
             if (responseFromServer != null)
             {
+                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                contextNotif.Clients.Group(iden.DatabasePathErasoft).monotification("Berhasil Request Pickup Pesanan " + Convert.ToString(namaPemesan) + " ke Tokopedia.");
                 //TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
                 //if (string.IsNullOrEmpty(result.errorCode.Value))
                 //{
@@ -1082,24 +1089,29 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public async Task<string> PostAckOrder(TokopediaAPIData iden, string ordNo, string noref)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Accept Pesanan {obj} ke Tokopedia Gagal.")]
+        public async Task<string> PostAckOrder(string dbPathEra, string namaPemesan, TokopediaAPIData iden, string ordNo, string noref)
         {
             string ret = "";
             string[] splitNoRef = noref.Split(';');
             string urll = "https://fs.tokopedia.net/v1/order/" + Uri.EscapeDataString(splitNoRef[0]) + "/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/ack";
             long milis = CurrentTimeMillis();
+            var token = SetupContext(iden);
+            iden.token = token;
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = milis.ToString(),
-                REQUEST_ACTION = "Accept Order",
-                REQUEST_DATETIME = milisBack,
-                REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-                REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
-                REQUEST_ATTRIBUTE_3 = "NoRef : " + splitNoRef[0],
-                REQUEST_STATUS = "Pending",
-            };
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Accept Order",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
+            //    REQUEST_ATTRIBUTE_2 = "orderNo : " + ordNo,
+            //    REQUEST_ATTRIBUTE_3 = "NoRef : " + splitNoRef[0],
+            //    REQUEST_STATUS = "Pending",
+            //};
 
             //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             AckOrder newData = new AckOrder();
@@ -1153,27 +1165,27 @@ namespace MasterOnline.Controllers
 
 
             string responseFromServer = "";
-            try
-            {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
-                var content = new StringContent(myData, Encoding.UTF8, "application/json");
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
-                HttpResponseMessage clientResponse = await client.PostAsync(
-                    urll, content);
+            //try
+            //{
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", ("Bearer " + iden.token));
+            var content = new StringContent(myData, Encoding.UTF8, "application/json");
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json");
+            HttpResponseMessage clientResponse = await client.PostAsync(
+                urll, content);
 
-                using (HttpContent responseContent = clientResponse.Content)
+            using (HttpContent responseContent = clientResponse.Content)
+            {
+                using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
                 {
-                    using (var reader = new StreamReader(await responseContent.ReadAsStreamAsync()))
-                    {
-                        responseFromServer = await reader.ReadToEndAsync();
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
+                    responseFromServer = await reader.ReadToEndAsync();
+                }
+            };
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
 
             if (responseFromServer != null)
             {

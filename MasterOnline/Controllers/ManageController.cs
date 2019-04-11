@@ -35,6 +35,7 @@ using System.Windows.Forms;
 
 //add by calvin 7 april 2019
 using Hangfire;
+using Hangfire.SqlServer;
 //end add by calvin 7 april 2019
 
 namespace MasterOnline.Controllers
@@ -47,6 +48,10 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string dbPathEra = "";
+        string EDBConnID = "";
+        SqlServerStorage sqlStorage;
+        BackgroundJobClient clientJobServer;
+        string usernameLogin;
         public ManageController()
         {
             MoDbContext = new MoDbContext();
@@ -60,6 +65,10 @@ namespace MasterOnline.Controllers
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
                 dbPathEra = sessionData.Account.DatabasePathErasoft;
+                EDBConnID = EDB.GetConnectionString("ConnID");
+                sqlStorage = new SqlServerStorage(EDBConnID);
+                clientJobServer = new BackgroundJobClient(sqlStorage);
+                usernameLogin = sessionData.Account.Username;
 
             }
             else
@@ -71,6 +80,10 @@ namespace MasterOnline.Controllers
 
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     dbPathEra = accFromUser.DatabasePathErasoft;
+                    EDBConnID = EDB.GetConnectionString("ConnID");
+                    sqlStorage = new SqlServerStorage(EDBConnID);
+                    clientJobServer = new BackgroundJobClient(sqlStorage);
+                    usernameLogin = sessionData.User.Username;
                 }
             }
         }
@@ -588,6 +601,9 @@ namespace MasterOnline.Controllers
                 //add by nurul 26/9/2018
                 //ListBarangMarket = ErasoftDbContext.STF02H.ToList()
                 //end add 
+                //add by nurul 10/4/2019
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                //end add by nurul 10/4/2019
             };
 
             return View(vm);
@@ -10083,12 +10099,67 @@ namespace MasterOnline.Controllers
                 ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
+                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //add by nurul 10/4/2019
+                DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                //end add by nurul 10/4/2019
             };
 
             return PartialView("TablePesananPartial", vm);
         }
         //add by calvin 17 desember 2018
+
+        //add by nurul 10/4/2019
+        public ActionResult SaveStatusUpdate(string status)
+        {
+            try
+            {
+                var dataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1);
+
+                bool ubahSettingSync = false;
+                if (dataUsaha.JTRAN_RETUR != status)
+                {
+                    ubahSettingSync = true;
+                    dataUsaha.JTRAN_RETUR = status;
+                    ErasoftDbContext.SaveChanges();
+                }
+                else
+                {
+                    var vmError = new PesananViewModel() { };
+
+                    vmError.Errors.Add("Tidak ada perubahan status update !");
+                    return Json(vmError, JsonRequestBehavior.AllowGet);
+                }
+                
+
+                if (ubahSettingSync)
+                {
+                    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                    var accControl = new AccountController();
+                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username).Wait());
+                }
+
+                var vm = new PesananViewModel()
+                {
+                    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                    DataUsaha = ErasoftDbContext.SIFSYS.SingleOrDefault(p => p.BLN == 1),
+                };
+
+                return PartialView("Pesanan", vm);
+            }
+            catch (Exception ex)
+            {
+                return View("Error");
+            }
+        }
+        //end add by nurul 10/4/2019
+
         public ActionResult FillModalFixNotFound(string recNum)
         {
             var intRecnum = Convert.ToInt64(recNum);
@@ -10496,20 +10567,29 @@ namespace MasterOnline.Controllers
             }
             if (doAPI)
             {
-                var blAPI = new BukaLapakController();
-                var lzdAPI = new LazadaController();
+                //var blAPI = new BukaLapakController();
+                //var lzdAPI = new LazadaController();
                 switch (status)
                 {
                     case "11"://cancel
                         {
                             if (mp.NamaMarket.ToUpper().Contains("SHOPEE"))
                             {
-                                var shoAPI = new ShopeeController();
-                                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                //var shoAPI = new ShopeeController();
+                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                                //{
+                                //    merchant_code = marketPlace.Sort1_Cust,
+                                //};
+                                //Task.Run(() => shoAPI.AcceptBuyerCancellation(data, pesanan.NO_REFERENSI).Wait());
+                                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                                 {
                                     merchant_code = marketPlace.Sort1_Cust,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
                                 };
-                                Task.Run(() => shoAPI.AcceptBuyerCancellation(data, pesanan.NO_REFERENSI).Wait());
+                                clientJobServer.Enqueue<ShopeeControllerJob>(x => x.AcceptBuyerCancellation(dbPathEra, pesanan.NAMAPEMESAN, data, pesanan.NO_REFERENSI));
+                                //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
 
                             if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
@@ -10519,8 +10599,10 @@ namespace MasterOnline.Controllers
                                 {
                                     foreach (var tbl in sot01b)
                                     {
-                                        lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
-
+                                        //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                        //lzdAPI.SetStatusToCanceled(tbl.ORDER_ITEM_ID, marketPlace.TOKEN);
+                                        clientJobServer.Enqueue<LazadaControllerJob>(x => x.SetStatusToCanceled(dbPathEra, pesanan.NAMAPEMESAN, tbl.ORDER_ITEM_ID, marketPlace.TOKEN, usernameLogin));
+                                        //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
                             }
@@ -10541,8 +10623,11 @@ namespace MasterOnline.Controllers
                                 {
                                     string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
                                     string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_PROD_NO"]);
-                                    var elApi = new EleveniaController();
-                                    elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
+                                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                    //var elApi = new EleveniaController();
+                                    //elApi.AcceptOrder(marketPlace.API_KEY, ordNo, ordPrdSeq);
+                                    clientJobServer.Enqueue<EleveniaControllerJob>(x => x.AcceptOrder(dbPathEra, pesanan.NAMAPEMESAN, marketPlace.API_KEY, ordNo, ordPrdSeq, usernameLogin));
+                                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                 }
                             }
                         }
@@ -10561,19 +10646,33 @@ namespace MasterOnline.Controllers
                         }
                         if (mp.NamaMarket.ToUpper().Contains("TOKOPEDIA"))
                         {
-                            var TokoAPI = new TokopediaController();
+                            //var TokoAPI = new TokopediaController();
                             if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
                             {
-                                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                                //{
+                                //    merchant_code = marketPlace.Sort1_Cust, //FSID
+                                //    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                                //    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                                //    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                                //    token = marketPlace.TOKEN,
+                                //    idmarket = marketPlace.RecNum.Value
+                                //};
+                                //Task.Run(() => TokoAPI.PostAckOrder(iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI)).Wait();
+                                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                                 {
                                     merchant_code = marketPlace.Sort1_Cust, //FSID
                                     API_client_password = marketPlace.API_CLIENT_P, //Client ID
                                     API_client_username = marketPlace.API_CLIENT_U, //Client Secret
                                     API_secret_key = marketPlace.API_KEY, //Shop ID 
                                     token = marketPlace.TOKEN,
-                                    idmarket = marketPlace.RecNum.Value
+                                    idmarket = marketPlace.RecNum.Value,
+                                    DatabasePathErasoft = dbPathEra,
+                                    username = usernameLogin
                                 };
-                                Task.Run(() => TokoAPI.PostAckOrder(iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI)).Wait();
+                                clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostAckOrder(dbPathEra, pesanan.NAMAPEMESAN, iden, pesanan.NO_BUKTI, pesanan.NO_REFERENSI));
+                                //end change by calvin 10 april 2019, jadi pakai backgroundjob
                             }
                         }
                         break;
@@ -10581,7 +10680,13 @@ namespace MasterOnline.Controllers
                         if (mp.NamaMarket.ToUpper().Contains("BUKALAPAK"))
                         {
                             if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
-                                blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                            {
+                                //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                //blAPI.KonfirmasiPengiriman(/*nobuk,*/ pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN);
+                                clientJobServer.Enqueue<BukaLapakControllerJob>(x => x.KonfirmasiPengiriman(dbPathEra, pesanan.NAMAPEMESAN, usernameLogin, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, pesanan.SHIPMENT, marketPlace.API_KEY, marketPlace.TOKEN));
+                                //end change by calvin 10 april 2019, jadi pakai backgroundjob
+                            }
+
                         }
                         else if (mp.NamaMarket.ToUpper().Contains("LAZADA"))
                         {
@@ -10606,10 +10711,12 @@ namespace MasterOnline.Controllers
                                     //    lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
                                     //}
                                     //lzdAPI.GetToPacked(ordItemId, pesanan.SHIPMENT, marketPlace.TOKEN);
-                                    lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+
+                                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                    //lzdAPI.GetToDeliver(ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN);
+                                    clientJobServer.Enqueue<LazadaControllerJob>(x => x.GetToDeliver(dbPathEra, pesanan.NAMAPEMESAN, usernameLogin, ordItemId, pesanan.SHIPMENT, pesanan.TRACKING_SHIPMENT, marketPlace.TOKEN));
+                                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                 }
-
-
                             }
                             //}
                         }
@@ -10617,7 +10724,6 @@ namespace MasterOnline.Controllers
                         {
                             if (!string.IsNullOrEmpty(pesanan.TRACKING_SHIPMENT))
                             {
-
                                 DataSet dsTEMP_ELV_ORDERS = new DataSet();
                                 dsTEMP_ELV_ORDERS = EDB.GetDataSet("Con", "TEMP_ELV_ORDERS", "SELECT DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO FROM TEMP_ELV_ORDERS WHERE DELIVERY_NO='" + Convert.ToString(pesanan.NO_REFERENSI) + "' GROUP BY DELIVERY_MTD_CD,DELIVERY_ETR_CD,ORDER_NO,DELIVERY_ETR_NAME,ORDER_PROD_NO");
                                 if (dsTEMP_ELV_ORDERS.Tables[0].Rows.Count > 0)
@@ -10631,8 +10737,12 @@ namespace MasterOnline.Controllers
                                         string ordNo = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_NO"]);
                                         string dlvEtprsNm = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["DELIVERY_ETR_NAME"]);
                                         string ordPrdSeq = Convert.ToString(dsTEMP_ELV_ORDERS.Tables[0].Rows[i]["ORDER_PROD_NO"]);
-                                        var elApi = new EleveniaController();
-                                        elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+
+                                        //var elApi = new EleveniaController();
+                                        //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                        //elApi.UpdateAWBNumber(marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq);
+                                        clientJobServer.Enqueue<EleveniaControllerJob>(x => x.UpdateAWBNumber(dbPathEra, pesanan.NAMAPEMESAN, usernameLogin, marketPlace.API_KEY, awb, dlvNo, dlvMthdCd, dlvEtprsCd, ordNo, dlvEtprsNm, ordPrdSeq));
+                                        //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
                             }
@@ -10643,11 +10753,24 @@ namespace MasterOnline.Controllers
                             {
                                 if (!string.IsNullOrEmpty(Convert.ToString(pesanan.NO_REFERENSI)))
                                 {
-                                    var bliAPI = new BlibliController();
+                                    //var bliAPI = new BlibliController();
                                     var listDetail = ErasoftDbContext.SOT01B.Where(p => p.NO_BUKTI == pesanan.NO_BUKTI).ToList();
                                     foreach (var item in listDetail)
                                     {
-                                        BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                                        //change by calvin 10 april 2019, jadi pakai backgroundjob
+                                        //BlibliController.BlibliAPIData iden = new BlibliController.BlibliAPIData
+                                        //{
+                                        //    merchant_code = marketPlace.Sort1_Cust,
+                                        //    API_client_password = marketPlace.API_CLIENT_P,
+                                        //    API_client_username = marketPlace.API_CLIENT_U,
+                                        //    API_secret_key = marketPlace.API_KEY,
+                                        //    token = marketPlace.TOKEN,
+                                        //    mta_username_email_merchant = marketPlace.EMAIL,
+                                        //    mta_password_password_merchant = marketPlace.PASSWORD,
+                                        //    idmarket = marketPlace.RecNum.Value
+                                        //};
+                                        //bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID);
+                                        BlibliControllerJob.BlibliAPIData iden = new BlibliControllerJob.BlibliAPIData
                                         {
                                             merchant_code = marketPlace.Sort1_Cust,
                                             API_client_password = marketPlace.API_CLIENT_P,
@@ -10656,9 +10779,12 @@ namespace MasterOnline.Controllers
                                             token = marketPlace.TOKEN,
                                             mta_username_email_merchant = marketPlace.EMAIL,
                                             mta_password_password_merchant = marketPlace.PASSWORD,
-                                            idmarket = marketPlace.RecNum.Value
+                                            idmarket = marketPlace.RecNum.Value,
+                                            DatabasePathErasoft = dbPathEra,
+                                            username = usernameLogin
                                         };
-                                        bliAPI.fillOrderAWB(iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID);
+                                        clientJobServer.Enqueue<BlibliControllerJob>(x => x.fillOrderAWB(dbPathEra, pesanan.NAMAPEMESAN, iden, pesanan.TRACKING_SHIPMENT, pesanan.NO_REFERENSI, item.ORDER_ITEM_ID));
+                                        //end change by calvin 10 april 2019, jadi pakai backgroundjob
                                     }
                                 }
                             }
@@ -11086,20 +11212,34 @@ namespace MasterOnline.Controllers
             var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
             if (!string.IsNullOrEmpty(marketPlace.Sort1_Cust))
             {
-                TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                //TokopediaController.TokopediaAPIData iden = new TokopediaController.TokopediaAPIData()
+                //{
+                //    merchant_code = marketPlace.Sort1_Cust, //FSID
+                //    API_client_password = marketPlace.API_CLIENT_P, //Client ID
+                //    API_client_username = marketPlace.API_CLIENT_U, //Client Secret
+                //    API_secret_key = marketPlace.API_KEY, //Shop ID 
+                //    token = marketPlace.TOKEN,
+                //    idmarket = marketPlace.RecNum.Value
+                //};
+                TokopediaControllerJob.TokopediaAPIData iden = new TokopediaControllerJob.TokopediaAPIData()
                 {
                     merchant_code = marketPlace.Sort1_Cust, //FSID
                     API_client_password = marketPlace.API_CLIENT_P, //Client ID
                     API_client_username = marketPlace.API_CLIENT_U, //Client Secret
                     API_secret_key = marketPlace.API_KEY, //Shop ID 
                     token = marketPlace.TOKEN,
-                    idmarket = marketPlace.RecNum.Value
+                    idmarket = marketPlace.RecNum.Value,
+                    DatabasePathErasoft = dbPathEra,
+                    username = usernameLogin
                 };
-                var TokoAPI = new TokopediaController();
+                //var TokoAPI = new TokopediaController();
                 string[] referensi = pesananInDb.NO_REFERENSI.Split(';');
                 if (referensi.Count() > 0)
                 {
-                    await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
+                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                    //await TokoAPI.PostRequestPickup(iden, pesananInDb.NO_BUKTI, referensi[0]);
+                    clientJobServer.Enqueue<TokopediaControllerJob>(x => x.PostRequestPickup(dbPathEra, pesananInDb.NAMAPEMESAN, iden, pesananInDb.NO_BUKTI, referensi[0]));
+                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
 
@@ -11140,14 +11280,26 @@ namespace MasterOnline.Controllers
             if (changeStat)
             {
                 var marketPlace = ErasoftDbContext.ARF01.Single(p => p.CUST == pesananInDb.CUST);
-                var shoAPI = new ShopeeController();
-                ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                //var shoAPI = new ShopeeController();
+                //ShopeeController.ShopeeAPIData data = new ShopeeController.ShopeeAPIData()
+                //{
+                //    merchant_code = marketPlace.Sort1_Cust,
+                //};
+                ShopeeControllerJob.ShopeeAPIData data = new ShopeeControllerJob.ShopeeAPIData()
                 {
                     merchant_code = marketPlace.Sort1_Cust,
+                    DatabasePathErasoft = dbPathEra,
+                    username = usernameLogin
                 };
                 if (metode == "0") // DROPOFF
                 {
-                    ShopeeController.ShopeeInitLogisticDropOffDetailData detail = new ShopeeController.ShopeeInitLogisticDropOffDetailData()
+                    //ShopeeController.ShopeeInitLogisticDropOffDetailData detail = new ShopeeController.ShopeeInitLogisticDropOffDetailData()
+                    //{
+                    //    branch_id = 0,
+                    //    sender_real_name = "",
+                    //    tracking_no = ""
+                    //};
+                    ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticDropOffDetailData()
                     {
                         branch_id = 0,
                         sender_real_name = "",
@@ -11165,11 +11317,19 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = dTrackNo;
                     }
-                    await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
+                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                    //await shoAPI.InitLogisticDropOff(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo);
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticDropOff(dbPathEra, pesananInDb.NAMAPEMESAN, data, pesananInDb.NO_REFERENSI, detail, recNum.Value, dBranch, dSender, dTrackNo));
+                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
                 else if (metode == "1") // PICKUP
                 {
-                    ShopeeController.ShopeeInitLogisticPickupDetailData detail = new ShopeeController.ShopeeInitLogisticPickupDetailData()
+                    //ShopeeController.ShopeeInitLogisticPickupDetailData detail = new ShopeeController.ShopeeInitLogisticPickupDetailData()
+                    //{
+                    //    address_id = 0,
+                    //    pickup_time_id = ""
+                    //};
+                    ShopeeControllerJob.ShopeeInitLogisticPickupDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticPickupDetailData()
                     {
                         address_id = 0,
                         pickup_time_id = ""
@@ -11182,11 +11342,18 @@ namespace MasterOnline.Controllers
                     {
                         detail.pickup_time_id = pTime;
                     }
-                    await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                    //await shoAPI.InitLogisticPickup(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticPickup(dbPathEra, pesananInDb.NAMAPEMESAN, data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
                 else if (metode == "2") // NON INTEGRATED
                 {
-                    ShopeeController.ShopeeInitLogisticNotIntegratedDetailData detail = new ShopeeController.ShopeeInitLogisticNotIntegratedDetailData()
+                    //ShopeeController.ShopeeInitLogisticNotIntegratedDetailData detail = new ShopeeController.ShopeeInitLogisticNotIntegratedDetailData()
+                    //{
+                    //    tracking_no = ""
+                    //};
+                    ShopeeControllerJob.ShopeeInitLogisticNotIntegratedDetailData detail = new ShopeeControllerJob.ShopeeInitLogisticNotIntegratedDetailData()
                     {
                         tracking_no = ""
                     };
@@ -11194,7 +11361,10 @@ namespace MasterOnline.Controllers
                     {
                         detail.tracking_no = nTrackNo;
                     }
-                    await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    //change by calvin 10 april 2019, jadi pakai backgroundjob
+                    //await shoAPI.InitLogisticNonIntegrated(data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT);
+                    clientJobServer.Enqueue<ShopeeControllerJob>(x => x.InitLogisticNonIntegrated(dbPathEra, pesananInDb.NAMAPEMESAN, data, pesananInDb.NO_REFERENSI, detail, recNum.Value, nilaiTRACKING_SHIPMENT));
+                    //end change by calvin 10 april 2019, jadi pakai backgroundjob
                 }
             }
             return new EmptyResult();
@@ -15176,12 +15346,16 @@ namespace MasterOnline.Controllers
             dataPerusahaanInDb.NPWP = dataVm.DataUsaha.NPWP;
             dataPerusahaanInDb.METODA_NO = dataVm.DataUsaha.METODA_NO;
             dataPerusahaanInDb.KODE_BRG_STYLE = dataVm.DataUsaha.KODE_BRG_STYLE;
-            bool ubahSettingSync = false;
-            if (dataPerusahaanInDb.JTRAN_RETUR != dataVm.DataUsaha.JTRAN_RETUR)
-            {
-                ubahSettingSync = true;
-            }
-            dataPerusahaanInDb.JTRAN_RETUR = dataVm.DataUsaha.JTRAN_RETUR;
+
+            //remark by nurul 10/4/2019
+            //bool ubahSettingSync = false;
+            //if (dataPerusahaanInDb.JTRAN_RETUR != dataVm.DataUsaha.JTRAN_RETUR)
+            //{
+            //    ubahSettingSync = true;
+            //}
+            //dataPerusahaanInDb.JTRAN_RETUR = dataVm.DataUsaha.JTRAN_RETUR;
+            //end remark by nurul 10/4/2019
+
             //add by nurul 11/3/2019
             dataPerusahaanInDb.GUDANG = dataVm.DataUsaha.GUDANG;
             //end add by nurul 11/3/2019
@@ -15193,7 +15367,14 @@ namespace MasterOnline.Controllers
             var dataPerusahaanTambahanInDb = ErasoftDbContext.SIFSYS_TAMBAHAN.SingleOrDefault();
             var accInDb = MoDbContext.Account.SingleOrDefault(ac => ac.Email == dataPerusahaanTambahanInDb.EMAIL);
 
-            if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            //change by nurul 11/4/2019
+            //if (accInDb != null) accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+            if (accInDb != null)
+            {
+                accInDb.Email = dataVm.DataUsahaTambahan.EMAIL;
+                accInDb.NoHp = dataVm.DataUsahaTambahan.TELEPON;
+            }
+
             MoDbContext.SaveChanges();
 
             dataPerusahaanTambahanInDb.KODEPOS = dataVm.DataUsahaTambahan.KODEPOS;
@@ -15205,14 +15386,16 @@ namespace MasterOnline.Controllers
 
             ErasoftDbContext.SaveChanges();
 
-            if (ubahSettingSync)
-            {
-                AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+            //remark by nurul 10/4/2019
+            //if (ubahSettingSync)
+            //{
+            //    AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //    string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
-                var accControl = new AccountController();
-                Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataPerusahaanInDb.JTRAN_RETUR, username).Wait());
-            }
+            //    var accControl = new AccountController();
+            //    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataPerusahaanInDb.JTRAN_RETUR, username).Wait());
+            //}
+            //end remark by nurul 10/4/2019
 
             return new EmptyResult();
         }
@@ -20249,11 +20432,11 @@ namespace MasterOnline.Controllers
             try
             {
                 string jobid = nourut;
-                string EDBConnID = EDB.GetConnectionString("ConnID");
-                var sqlStorage = new Hangfire.SqlServer.SqlServerStorage(EDBConnID);
+                //string EDBConnID = EDB.GetConnectionString("ConnID");
+                //var sqlStorage = new Hangfire.SqlServer.SqlServerStorage(EDBConnID);
 
-                var client = new BackgroundJobClient(sqlStorage);
-                client.Requeue(jobid);
+                //var client = new BackgroundJobClient(sqlStorage);
+                clientJobServer.Requeue(jobid);
 
                 return new JsonResult { Data = "Success", JsonRequestBehavior = JsonRequestBehavior.AllowGet };
             }
