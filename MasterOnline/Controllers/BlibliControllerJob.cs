@@ -1598,9 +1598,14 @@ namespace MasterOnline.Controllers
                     break;
             }
         }
-        public void fillOrderAWB(BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Blibli Gagal.")]
+        public void fillOrderAWB(string dbPathEra, string namaPemesan, BlibliAPIData iden, string awbNo, string orderNo, string orderItemNo)
         {
             long milis = CurrentTimeMillis();
+            var token = SetupContext(iden);
+            iden.token = token;
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
 
             string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
@@ -1665,27 +1670,27 @@ namespace MasterOnline.Controllers
             myReq.Headers.Add("sessionId", milis.ToString());
             myReq.Headers.Add("username", userMTA);
             string responseFromServer = "";
-            try
+            //try
+            //{
+            myReq.ContentLength = myData.Length;
+            using (var dataStream = myReq.GetRequestStream())
             {
-                myReq.ContentLength = myData.Length;
-                using (var dataStream = myReq.GetRequestStream())
+                dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+            }
+            using (WebResponse response = myReq.GetResponse())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
-                }
-                using (WebResponse response = myReq.GetResponse())
-                {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
             }
-            catch (Exception ex)
-            {
-                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
             if (responseFromServer != null)
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
@@ -1695,6 +1700,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
+                    throw new Exception(result.errorMessage.Value);
                     //currentLog.REQUEST_RESULT = result.errorCode.Value;
                     //currentLog.REQUEST_EXCEPTION = result.errorMessage.Value;
                     //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
@@ -4486,7 +4492,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task< string> GetCategoryPerUser(BlibliAPIData data)
+        public async Task<string> GetCategoryPerUser(BlibliAPIData data)
         {
 
             string ret = "";

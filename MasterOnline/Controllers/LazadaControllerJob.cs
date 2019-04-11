@@ -183,7 +183,7 @@ namespace MasterOnline.Controllers
 
         [AutomaticRetry(Attempts = 2)]
         [Queue("2_get_token")]
-        public LazadaAuth GetRefToken(string cust, string refreshToken,string dbPathEra,string uname)
+        public LazadaAuth GetRefToken(string cust, string refreshToken, string dbPathEra, string uname)
         {
             LazadaAuth ret = new LazadaAuth();
             string url;
@@ -384,7 +384,7 @@ namespace MasterOnline.Controllers
                             if (attribute.Value == item.BRG)
                             {
                                 string[] getId = attribute.Key.Split(new string[] { "[;]" }, StringSplitOptions.None);
-                                xmlString += "<"+ getId[0] + ">" + getId[1] + "</"+ getId[0] + ">";
+                                xmlString += "<" + getId[0] + ">" + getId[1] + "</" + getId[0] + ">";
                                 attributesAdded.Add(getId[0]);
                             }
                         }
@@ -1041,12 +1041,12 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        
+
         public BindingBase GetShipment(string cust, string accessToken)
         {
             var ret = new BindingBase();
             ret.status = 0;
-            
+
             accessToken = ErasoftDbContext.ARF01.Where(p => p.CUST == cust).SingleOrDefault().TOKEN;
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
@@ -1180,9 +1180,13 @@ namespace MasterOnline.Controllers
 
         }
 
-        public LazadaToDeliver GetToDeliver(List<string> orderItemId, string shippingProvider, string trackingNumber, string accessToken)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Lazada Gagal.")]
+        public LazadaToDeliver GetToDeliver(string dbPathEra, string namaPemesan, string uname, List<string> orderItemId, string shippingProvider, string trackingNumber, string accessToken)
         {
             var ret = new LazadaToDeliver();
+            SetupContext(dbPathEra, uname);
             string ordItems = "";
             if (orderItemId.Count > 1)
             {
@@ -1198,15 +1202,15 @@ namespace MasterOnline.Controllers
                 ordItems = orderItemId[0];
             }
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Set Status Order to Deliver",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = ordItems,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Set Status Order to Deliver",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = ordItems,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -1215,44 +1219,49 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("delivery_type", "dropship");
             request.AddApiParameter("order_item_ids", "[" + ordItems + "]");
             request.AddApiParameter("tracking_number", trackingNumber);
-            try
+            //try
+            //{
+            LazopResponse response = client.Execute(request, accessToken);
+            ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
+            if (ret.code.Equals("0"))
             {
-                LazopResponse response = client.Execute(request, accessToken);
-                ret = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaToDeliver)) as LazadaToDeliver;
-                if (ret.code.Equals("0"))
-                {
-                    manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
-                }
-                else
-                {
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
             }
-            catch (Exception ex)
+            else
             {
-                ret.message = ex.ToString();
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+                throw new Exception(ret.message);
+                //currentLog.REQUEST_EXCEPTION = ret.message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
             }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ret.message = ex.ToString();
+            //    currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //}
             return ret;
 
         }
 
-        public BindingBase SetStatusToCanceled(string orderItemId, string accessToken)
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_manage_pesanan")]
+        [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Lazada Gagal.")]
+        public BindingBase SetStatusToCanceled(string dbPathEra, string namaPemesan, string orderItemId, string accessToken, string uname)
         {
             var ret = new BindingBase();
             ret.status = 0;
+            SetupContext(dbPathEra, uname);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Set Status Order to Cancel",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = orderItemId,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Set Status Order to Cancel",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = orderItemId,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -1260,31 +1269,32 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("reason_detail", "Out of stock");
             request.AddApiParameter("reason_id", "15");
             request.AddApiParameter("order_item_id", orderItemId);
-            try
+            //try
+            //{
+            LazopResponse response = client.Execute(request, accessToken);
+            //ret = tgl + ":" + param;
+            var resCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCancelOrder)) as LazadaCancelOrder;
+            if (resCancel != null)
             {
-                LazopResponse response = client.Execute(request, accessToken);
-                //ret = tgl + ":" + param;
-                var resCancel = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCancelOrder)) as LazadaCancelOrder;
-                if (resCancel != null)
+                if (resCancel.code.Equals("0"))
                 {
-                    if (resCancel.code.Equals("0"))
-                    {
-                        ret.status = 1;
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
-                    }
-                    else
-                    {
-                        currentLog.REQUEST_EXCEPTION = ret.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
-                    }
+                    ret.status = 1;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                }
+                else
+                {
+                    throw new Exception(resCancel.message);
+                    //currentLog.REQUEST_EXCEPTION = ret.message;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                 }
             }
-            catch (Exception ex)
-            {
-                ret.message = ex.Message;
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    ret.message = ex.Message;
+            //    currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            //}
 
             return ret;
 
