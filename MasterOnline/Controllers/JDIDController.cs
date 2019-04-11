@@ -288,113 +288,152 @@ namespace MasterOnline.Controllers
         #endregion
 
         [System.Web.Mvc.HttpGet]
-        public void getCategory()
+        public void getCategory(JDIDAPIData data)
         {
+
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Get Category",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = data.accessToken,
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
+
             var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
             mgrApiManager.Method = "epi.ware.openapi.CategoryApi.getAllCategoryTree";
             mgrApiManager.ParamJson = "";
 
-            var response = mgrApiManager.Call();
-            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
-            if (ret.openapi_code == 0)
+            try
             {
-                var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
-                if (listKategori != null)
+                var response = mgrApiManager.Call();
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
                 {
-                    try
+                    if (ret.openapi_code == 0)
                     {
-                        string dbPath = "";
-                        var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-                        if (sessionData?.Account != null)
+                        var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
+                        if (listKategori != null)
                         {
-                            dbPath = sessionData.Account.DatabasePathErasoft;
-                        }
-                        else
-                        {
-                            if (sessionData?.User != null)
+                            if (listKategori.sucess)
                             {
-                                var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                                dbPath = accFromUser.DatabasePathErasoft;
-                            }
-                        }
+                                EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
+                                string dbPath = "";
+                                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                                if (sessionData?.Account != null)
+                                {
+                                    dbPath = sessionData.Account.DatabasePathErasoft;
+                                }
+                                else
+                                {
+                                    if (sessionData?.User != null)
+                                    {
+                                        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                                        dbPath = accFromUser.DatabasePathErasoft;
+                                    }
+                                }
 
-                        #region connstring
+                                #region connstring
 #if AWS
                     string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #elif Debug_AWS
-                        string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
                         string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
-                        #endregion
-                        using (SqlConnection oConnection = new SqlConnection(con))
-                        {
-                            oConnection.Open();
-                            //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
-                            //{
-                            using (SqlCommand oCommand = oConnection.CreateCommand())
-                            {
-                                //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
-                                //oCommand.ExecuteNonQuery();
-                                //oCommand.Transaction = oTransaction;
-                                oCommand.CommandType = CommandType.Text;
-                                oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
-                                //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
-                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
-                                oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
-                                oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
-                                oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
-                                oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
-                                oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
-
-                                try
+                                #endregion
+                                using (SqlConnection oConnection = new SqlConnection(con))
                                 {
-                                    foreach (var item in listKategori.model) //foreach parent level top
+                                    oConnection.Open();
+                                    //using (SqlTransaction oTransaction = oConnection.BeginTransaction())
+                                    //{
+                                    using (SqlCommand oCommand = oConnection.CreateCommand())
                                     {
-                                        oCommand.Parameters[0].Value = item.cateId;
-                                        oCommand.Parameters[1].Value = item.cateName;
-                                        oCommand.Parameters[2].Value = item.cateState;
-                                        oCommand.Parameters[3].Value = item.type;
-                                        oCommand.Parameters[4].Value = "1";
-                                        if (item.parentCateVo != null)
+                                        //oCommand.CommandText = "DELETE FROM [CATEGORY_BLIBLI] WHERE ARF01_SORT1_CUST='" + data.merchant_code + "'";
+                                        //oCommand.ExecuteNonQuery();
+                                        //oCommand.Transaction = oTransaction;
+                                        oCommand.CommandType = CommandType.Text;
+                                        oCommand.CommandText = "INSERT INTO [CATEGORY_JDID] ([CATEGORY_CODE], [CATEGORY_NAME], [CATE_STATE], [TYPE], [LEAF], [PARENT_CODE]) VALUES (@CATEGORY_CODE, @CATEGORY_NAME, @CATE_STATE, @TYPE, @LEAF, @PARENT_CODE)";
+                                        //oCommand.Parameters.Add(new SqlParameter("@ARF01_SORT1_CUST", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_CODE", SqlDbType.NVarChar, 50));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATEGORY_NAME", SqlDbType.NVarChar, 250));
+                                        oCommand.Parameters.Add(new SqlParameter("@CATE_STATE", SqlDbType.NVarChar, 3));
+                                        oCommand.Parameters.Add(new SqlParameter("@TYPE", SqlDbType.NVarChar, 3));
+                                        oCommand.Parameters.Add(new SqlParameter("@LEAF", SqlDbType.NVarChar, 1));
+                                        oCommand.Parameters.Add(new SqlParameter("@PARENT_CODE", SqlDbType.NVarChar, 50));
+
+                                        //try
+                                        //{
+                                        foreach (var item in listKategori.model) //foreach parent level top
                                         {
-                                            oCommand.Parameters[5].Value = item.parentCateVo.cateId;
-                                        }
-                                        else
-                                        {
-                                            oCommand.Parameters[5].Value = "";
-                                        }
-                                        if (oCommand.ExecuteNonQuery() > 0)
-                                        {
-                                            listCategory.Add(item.cateId);
+                                            oCommand.Parameters[0].Value = item.cateId;
+                                            oCommand.Parameters[1].Value = item.cateName;
+                                            oCommand.Parameters[2].Value = item.cateState;
+                                            oCommand.Parameters[3].Value = item.type;
+                                            oCommand.Parameters[4].Value = "1";
                                             if (item.parentCateVo != null)
                                             {
-                                                if (!listCategory.Contains(item.parentCateVo.cateId))
+                                                oCommand.Parameters[5].Value = item.parentCateVo.cateId;
+                                            }
+                                            else
+                                            {
+                                                oCommand.Parameters[5].Value = "";
+                                            }
+                                            if (oCommand.ExecuteNonQuery() > 0)
+                                            {
+                                                listCategory.Add(item.cateId);
+                                                if (item.parentCateVo != null)
                                                 {
-                                                    RecursiveInsertCategory(oCommand, item.parentCateVo);
+                                                    if (!listCategory.Contains(item.parentCateVo.cateId))
+                                                    {
+                                                        RecursiveInsertCategory(oCommand, item.parentCateVo);
+                                                    }
                                                 }
                                             }
-                                        }
-                                        else
-                                        {
+                                            else
+                                            {
 
+                                            }
                                         }
+                                        //oTransaction.Commit();
+                                        //}
+                                        //catch (Exception ex)
+                                        //{
+                                        //    //oTransaction.Rollback();
+                                        //}
                                     }
-                                    //oTransaction.Commit();
-                                }
-                                catch (Exception ex)
-                                {
-                                    //oTransaction.Rollback();
                                 }
                             }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                         }
                     }
-                    catch (Exception ex2)
-                    {
-
-                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = response;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+
+
         }
         protected void RecursiveInsertCategory(SqlCommand oCommand, Model_Cat item)
         {
@@ -561,7 +600,7 @@ namespace MasterOnline.Controllers
 
             try
             {
-                if(listBrand.Count == 0)
+                if (listBrand.Count == 0)
                 {
                     getShopBrand(data);
                 }
@@ -608,7 +647,7 @@ namespace MasterOnline.Controllers
                                                 msg += item.spuId + ":" + retProd.message + "___||___";
                                             }
                                         }
-                                        
+
                                     }
                                 }
                                 if (adaError)
@@ -962,7 +1001,7 @@ namespace MasterOnline.Controllers
                     price = Convert.ToDouble(detItem.jdPrice);
 
                 //}
-                if(listBrand.Count > 0)
+                if (listBrand.Count > 0)
                 {
                     var a = listBrand.Where(m => m.brandId == itemFromList.brandId).FirstOrDefault();
                     if (a != null)
@@ -1023,7 +1062,7 @@ namespace MasterOnline.Controllers
                 var retBrand = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retBrand != null)
                 {
-                    if(retBrand.openapi_msg.ToLower() == "success")
+                    if (retBrand.openapi_msg.ToLower() == "success")
                     {
                         var dataBrand = JsonConvert.DeserializeObject(retBrand.openapi_data, typeof(Data_Brand)) as Data_Brand;
                         if (dataBrand.success)
