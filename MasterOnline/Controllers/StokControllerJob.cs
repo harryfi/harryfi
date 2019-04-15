@@ -252,6 +252,7 @@ namespace MasterOnline.Controllers
                 var kdElevenia = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "ELEVENIA").IdMarket;
                 var kdShopee = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket;
                 var kdTokped = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "TOKOPEDIA").IdMarket;
+                var kdJD = Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "JD.ID").IdMarket;
 
                 string EDBConnID = EDB.GetConnectionString("ConnId");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
@@ -404,17 +405,34 @@ namespace MasterOnline.Controllers
                                     if (brg_mp[1] == "0")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft,stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
                                     }
                                     else if (brg_mp[1] != "")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft,stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
                                     }
                                 }
                             }
                         }
                         //end add by calvin 18 desember 2018
+                        //add by Tri 11 April 2019
+                        else if (marketPlace.NAMA.Equals(kdJD.ToString()))
+                        {
+                            JDIDAPIData data = new JDIDAPIData()
+                            {
+                                accessToken = marketPlace.TOKEN,
+                                appKey = marketPlace.API_KEY,
+                                appSecret = marketPlace.API_CLIENT_U,
+                            };
+                            if (stf02h.BRG_MP != "")
+                            {
+                                //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), null));
+                            }
+                        }
+                        //end add by Tri 11 April 2019
+
                     }
                 }
                 EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "DELETE FROM TEMP_ALL_MP_ORDER_ITEM WHERE CONN_ID = '" + connId + "'");
@@ -1068,6 +1086,58 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 3)]
+        [Queue("1_update_stok")]
+        [NotifyOnFailed("Update Stock {obj} ke JD.ID gagal.")]
+        public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, JDIDAPIData data, string id, int stok, PerformContext context)
+        {
+            var mgrApiManager = new JDIDController();
+
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
+            mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+
+            var response = mgrApiManager.Call();
+            var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+            if (ret != null)
+            {
+                if (ret.openapi_msg.ToLower() == "success")
+                {
+                    var retStok = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpStok)) as Data_UpStok;
+                    if (retStok != null)
+                    {
+                        if (retStok.success)
+                        {
+
+                        }
+                        else
+                        {
+                            //currentLog.REQUEST_EXCEPTION = retStok.message;
+                            //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        }
+                    }
+                    else
+                    {
+                        //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    }
+                }
+                else
+                {
+                    //currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                }
+            }
+            else
+            {
+                //currentLog.REQUEST_EXCEPTION = response;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+            }
+
+            return "";
+        }
 
         [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
         [System.Xml.Serialization.XmlRootAttribute(Namespace = "", IsNullable = false)]
