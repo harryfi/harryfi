@@ -257,7 +257,7 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username,5).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
@@ -449,7 +449,7 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username,5).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -463,7 +463,15 @@ namespace MasterOnline.Controllers
         public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username, int recurr_interval)
         //end change by calvin 1 april 2019
         {
+            //catatan by calvin : jika developer sedang mau mengecek API, tidak perlu menggunakan backgroundjob untuk memanggil API
+            //-jika terjadi jobs nyangkut ( enqueued dan tidak di proses )
+            //maka lakukan :
+            //dari sisi developer: lakukanHapusServer = true;
+            //lalu pada masteronline.co.id lakukan login dengan login support
+            //atau minta user login ulang
+
             //MoDbContext = new MoDbContext();
+            bool lakukanHapusServer = false;
             ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbPathEra);
             MoDbContext = new MoDbContext();
 
@@ -471,13 +479,33 @@ namespace MasterOnline.Controllers
             var monitoringApi = sqlStorage.GetMonitoringApi();
             var serverList = monitoringApi.Servers();
 
+            if (serverList.Count() > 0)
+            {
+#if Debug_AWS
+                if (lakukanHapusServer)
+                {
+                    foreach (var server in serverList)
+                    {
+                        var serverConnection = sqlStorage.GetConnection();
+                        serverConnection.RemoveServer(server.Name);
+                        serverConnection.Dispose();
+                    }
+                }
+#else
+                
+#endif
+            }
             if (serverList.Count() == 0)
             {
+#if Debug_AWS
+
+#else
                 var optionsStatusResiServer = new BackgroundJobServerOptions
                 {
                     ServerName = "StatusResiPesanan",
                     Queues = new[] { "1_manage_pesanan" },
                     WorkerCount = 2,
+                    
                 };
                 var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
 
@@ -496,6 +524,8 @@ namespace MasterOnline.Controllers
                     WorkerCount = 3,
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+#endif
+
             }
 
             var client = new BackgroundJobClient(sqlStorage);
@@ -793,7 +823,7 @@ namespace MasterOnline.Controllers
                                 username = username
                             };
                             //tokopediaApi.GetToken(iden);
-                            //var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
+                            var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
 
                             //add by calvin 2 april 2019
                             string connId_JobId = "";
