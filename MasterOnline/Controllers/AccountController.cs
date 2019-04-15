@@ -257,7 +257,7 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username,5).Wait());
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
@@ -449,7 +449,7 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username,5).Wait());
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -460,7 +460,7 @@ namespace MasterOnline.Controllers
 
         //change by calvin 1 april 2019
         //protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
-        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username)
+        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username, int recurr_interval)
         //end change by calvin 1 april 2019
         {
             //MoDbContext = new MoDbContext();
@@ -470,13 +470,9 @@ namespace MasterOnline.Controllers
             var sqlStorage = new SqlServerStorage(EDBConnID);
             var monitoringApi = sqlStorage.GetMonitoringApi();
             var serverList = monitoringApi.Servers();
+
             if (serverList.Count() == 0)
             {
-                //foreach (var server in serverList)
-                //{
-                //    var serverConnection = sqlStorage.GetConnection();
-                //    serverConnection.RemoveServer(server.Name);
-                //}
                 var optionsStatusResiServer = new BackgroundJobServerOptions
                 {
                     ServerName = "StatusResiPesanan",
@@ -501,24 +497,6 @@ namespace MasterOnline.Controllers
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
             }
-            //else
-            //{
-            //    var options = new BackgroundJobServerOptions
-            //    {
-            //        ServerName = "Account",
-            //        Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
-            //        WorkerCount = 1,
-            //    };
-            //    var server = new BackgroundJobServer(options, sqlStorage);
-
-            //    var optionsStokServer = new BackgroundJobServerOptions
-            //    {
-            //        ServerName = "Stok",
-            //        Queues = new[] { "1_update_stok" },
-            //        WorkerCount = 3,
-            //    };
-            //    var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
-            //}
 
             var client = new BackgroundJobClient(sqlStorage);
             RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
@@ -531,7 +509,7 @@ namespace MasterOnline.Controllers
             //{
             //    foreach (var recurringJob in connection.GetRecurringJobs())
             //    {
-            //        recurJobM.RemoveIfExists(recurringJob.Id);
+            //        recurJobM.AddOrUpdate(recurringJob.Id,recurringJob.Job, Cron.MinuteInterval(30),recurJobOpt);
             //    }
             //}
 
@@ -541,10 +519,8 @@ namespace MasterOnline.Controllers
             //recurJobM.RemoveIfExists("calvintesfailed");
             //recurJobM.RemoveIfExists("calvintesfailed2");
 
-            //var delaay = new TimeSpan(0, 1, 0);
-            //client.Schedule<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "asd"), delaay);
-
-
+            //var delaay = new TimeSpan(0, 0, 0);
+            //client.Schedule<Hubs.MasterOnlineHub>(x => x.Announcement("Maaf, MasterOnline akan ditutup untuk sementara waktu untuk dilakukan maintenance pada jam 14:40 WIB"), delaay);
 
             //var test = new JDIDController();
             //var categoryJD = LocalErasoftDbContext.CATEGORY_JDID.Where(m => m.LEAF == "1").ToList();
@@ -620,7 +596,7 @@ namespace MasterOnline.Controllers
                         string connId_JobId = dbPathEra + "_bukalapak_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                         if (sync_pesanan_stok == "1")
                         {
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                         }
                         else
                         {
@@ -674,7 +650,7 @@ namespace MasterOnline.Controllers
                         if (sync_pesanan_stok == "1")
                         {
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                         }
                         else
                         {
@@ -728,15 +704,15 @@ namespace MasterOnline.Controllers
                         client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
 
                         string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(2), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         if (sync_pesanan_stok == "1")
                         {
                             connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_blibli_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                         }
                         else
                         {
@@ -770,13 +746,13 @@ namespace MasterOnline.Controllers
                     if (sync_pesanan_stok == "1")
                     {
                         connId_JobId = dbPathEra + "_elevenia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_elevenia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                     }
                     else
                     {
@@ -817,14 +793,14 @@ namespace MasterOnline.Controllers
                                 username = username
                             };
                             //tokopediaApi.GetToken(iden);
-                            var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
+                            //var parentid = client.Enqueue<TokopediaControllerJob>(x => x.GetToken(data));
 
                             //add by calvin 2 april 2019
                             string connId_JobId = "";
                             if (sync_pesanan_stok == "1")
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                             }
                             else
                             {
@@ -832,6 +808,8 @@ namespace MasterOnline.Controllers
                                 recurJobM.RemoveIfExists(connId_JobId);
                             }
                             //end add by calvin 2 april 2019
+                            //new TokopediaControllerJob().GetToken(data);
+                            //await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                         }
                     }
                 }
@@ -863,11 +841,19 @@ namespace MasterOnline.Controllers
                     if (sync_pesanan_stok == "1")
                     {
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                        await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
                     else
                     {
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
                     }
                 }
@@ -1201,17 +1187,33 @@ namespace MasterOnline.Controllers
 
                 string EDBConnID = EDB.GetConnectionString("ConnID");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
-                var monitoringApi = sqlStorage.GetMonitoringApi();
-                var serverList = monitoringApi.Servers();
-                if (serverList.Count() > 0)
+                //CHANGE by calvin 15 april 2019
+                //var monitoringApi = sqlStorage.GetMonitoringApi();
+                //var serverList = monitoringApi.Servers();
+                //if (serverList.Count() > 0)
+                //{
+                //    foreach (var server in serverList)
+                //    {
+                //        var serverConnection = sqlStorage.GetConnection();
+                //        serverConnection.RemoveServer(server.Name);
+                //        serverConnection.Dispose();
+                //    }
+                //}
+
+                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                RecurringJobOptions recurJobOpt = new RecurringJobOptions()
                 {
-                    foreach (var server in serverList)
+                    QueueName = "3_general"
+                };
+
+                using (var connection = sqlStorage.GetConnection())
+                {
+                    foreach (var recurringJob in connection.GetRecurringJobs())
                     {
-                        var serverConnection = sqlStorage.GetConnection();
-                        serverConnection.RemoveServer(server.Name);
-                        serverConnection.Dispose();
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
                     }
                 }
+                //end CHANGE by calvin 15 april 2019
             }
 
             Session["SessionInfo"] = null;
