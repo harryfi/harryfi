@@ -97,11 +97,11 @@
         <div class="col-md-6">
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.EXPEDISI, "Kurir", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-6 col-xs-12" id="divShipment">
                     @Html.HiddenFor(m => m.Pesanan.NAMAPENGIRIM)
                     @Html.HiddenFor(m => m.Pesanan.EXPEDISI)
                     @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
-                    <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
+                    <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>                    
                 </div>
             </div>
         </div>
