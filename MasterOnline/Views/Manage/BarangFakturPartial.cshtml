@@ -137,12 +137,12 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="input-group">
                         @Html.HiddenFor(m => m.Faktur.PEMESAN)
-                        @Html.TextBoxFor(m => m.Faktur.NAMAPEMESAN, new { @class = "form-control" })
+                        @Html.TextBoxFor(m => m.Faktur.NAMAPEMESAN, new { @readonly = "readonly", placeholder = "Tambah/Pilih Pembeli", @style = "background-color : #eee; cursor :not-allowed;", @class = "form-control" })
                         @*<select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>*@
                         <span class="input-group-btn">
                             @*<button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">*@
-                            <button id="tambah-pembeli" class="btn btn-default" type="button" >
-                                <span class="glyphicon glyphicon-plus"></span>
+                            <button id="tambah-pembeli" class="btn btn-default" style="margin-right:0px" type="button" >
+                                <span class="glyphicon glyphicon-option-horizontal"></span>
                             </button>
                             @*<button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
             <span class="glyphicon glyphicon-eye-open"></span>

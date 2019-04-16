@@ -6768,7 +6768,32 @@
                         }
                     });
                 } else {
-                    alert('Silakan isi semua field terlebih dahulu!');
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    //if ($('#Pesanan_TGL').val() != '' &&
+                    //    $('#Pesanan_CUST').val() != '' &&
+                    //    $('#Pesanan_TERM').val() != '' &&
+                    //    $('#Pesanan_EXPEDISI').val() != '' &&
+                    //    $('#Pesanan_NAMAPEMESAN').val() != ''
+                    var messageErrorKosong = "";
+                    if ($('#Pesanan_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Pesanan_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Pesanan_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Pesanan_EXPEDISI').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Pesanan_NAMAPEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
                 }
             }
         }

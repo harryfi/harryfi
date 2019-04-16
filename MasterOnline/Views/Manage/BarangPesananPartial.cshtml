@@ -124,7 +124,7 @@
                     <div class="input-group">
                         @Html.HiddenFor(m => m.Pesanan.PEMESAN)
                         @* change by nurul 4/12/2018 -- @Html.TextBoxFor(m => m.Pesanan.NAMAPEMESAN)*@
-                        @Html.TextBoxFor(m => m.Pesanan.NAMAPEMESAN, new { @class = "form-control" })
+                        @Html.TextBoxFor(m => m.Pesanan.NAMAPEMESAN, new { @readonly = "readonly", placeholder = "Tambah/Pilih Pembeli", @style = "background-color : #eee; cursor :not-allowed;", @class = "form-control" })
                         @* remark by nurul 4/12/2018 -- <select id="MARKETPEMESAN" placeholder="Harap Pilih" required="required"></select>*@
                         <span class="input-group-btn">
                             @*  remark by nurul 4/12/2018 -- <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px;">
@@ -133,7 +133,7 @@
         <button id="lihat-pembeli" class="btn btn-default" type="button" style="height: 36px; top: -2px; display: none;">
             <span class="glyphicon glyphicon-eye-open"></span>
         </button>*@
-                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 34px; ">
+                            <button id="tambah-pembeli" class="btn btn-default" type="button" style="height: 34px;margin-right:0px;">
                                 <span class="glyphicon glyphicon-option-horizontal"></span>
                             </button>
                         </span>
