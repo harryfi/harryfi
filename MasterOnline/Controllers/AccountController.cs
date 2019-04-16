@@ -1033,69 +1033,113 @@ namespace MasterOnline.Controllers
             //    "<p>Best regards,</p>" +
             //    "<p>CS MasterOnline.</p>";
             //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
-            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
-                "<p>Hi {2},</p>" +
-                "<p>Selamat bergabung di Master Online.</p>" +
-                "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
-                "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
-                "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
-                "<p>&nbsp;</p>" +
-                "<p>Best regards,</p>" +
-                "<p>CS Master Online.</p>";
-            //end change by nurul 5/3/2019
 
-            var message = new MailMessage();
-            message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Pendaftaran Master Online berhasil!";
-            message.Body = string.Format(body, account.Email, originPassword, nama);
-            message.IsBodyHtml = true;
+            //remark by calvin 16 april 2019, pindah ke hangfire untuk kirim email nya
+            //            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+            //                "<p>Hi {2},</p>" +
+            //                "<p>Selamat bergabung di Master Online.</p>" +
+            //                "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
+            //                "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
+            //                "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+            //                "<p>&nbsp;</p>" +
+            //                "<p>Best regards,</p>" +
+            //                "<p>CS Master Online.</p>";
+            //            //end change by nurul 5/3/2019
+
+            //            var message = new MailMessage();
+            //            message.To.Add(email);
+            //            message.From = new MailAddress("csmasteronline@gmail.com");
+            //            message.Subject = "Pendaftaran Master Online berhasil!";
+            //            message.Body = string.Format(body, account.Email, originPassword, nama);
+            //            message.IsBodyHtml = true;
 #if AWS
-            //using (var smtp = new SmtpClient())
-            //{
-            //    var credential = new NetworkCredential
-            //    {
-            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
-            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
-            //    };
-            //    smtp.Credentials = credential;
-            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
-            //    smtp.Port = 587;
-            //    smtp.EnableSsl = true;
-            //    await smtp.SendMailAsync(message);
-            //}
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
-                {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+            //            //using (var smtp = new SmtpClient())
+            //            //{
+            //            //    var credential = new NetworkCredential
+            //            //    {
+            //            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //            //    };
+            //            //    smtp.Credentials = credential;
+            //            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //            //    smtp.Port = 587;
+            //            //    smtp.EnableSsl = true;
+            //            //    await smtp.SendMailAsync(message);
+            //            //}
+            //            using (var smtp = new SmtpClient())
+            //            {
+            //                var credential = new NetworkCredential
+            //                {
+            //                    UserName = "csmasteronline@gmail.com",
+            //                    Password = "erasoft123"
+            //                };
+            //                smtp.Credentials = credential;
+            //                smtp.Host = "smtp.gmail.com";
+            //                smtp.Port = 587;
+            //                smtp.EnableSsl = true;
+            //                await smtp.SendMailAsync(message);
+            //            }
 #else
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
-                {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+            //            using (var smtp = new SmtpClient())
+            //            {
+            //                var credential = new NetworkCredential
+            //                {
+            //                    UserName = "csmasteronline@gmail.com",
+            //                    Password = "erasoft123"
+            //                };
+            //                smtp.Credentials = credential;
+            //                smtp.Host = "smtp.gmail.com";
+            //                smtp.Port = 587;
+            //                smtp.EnableSsl = true;
+            //                await smtp.SendMailAsync(message);
+            //            }
+            //end remark by calvin 16 april 2019, pindah ke hangfire untuk kirim email nya
 #endif
-            //end remark by calvin 2 oktober 2018, untuk testing dlu
+
+            //var sqlStorage = new SqlServerStorage(System.Configuration.ConfigurationManager.ConnectionStrings["MoDbContext"].ConnectionString);
+            //var clientKirimEmail = new BackgroundJobClient(sqlStorage);
+            //var monitoringApi = sqlStorage.GetMonitoringApi();
+            //var serverList = monitoringApi.Servers();
+#if Debug_AWS
+            //if (serverList.Count() > 0)
+            //{
+            //    bool lakukanHapusServer = false;
+            //    if (lakukanHapusServer)
+            //    {
+            //        foreach (var server in serverList)
+            //        {
+            //            var serverConnection = sqlStorage.GetConnection();
+            //            serverConnection.RemoveServer(server.Name);
+            //            serverConnection.Dispose();
+            //        }
+
+            //        var options = new BackgroundJobServerOptions
+            //        {
+            //            ServerName = "Admin_Email",
+            //            Queues = new[] { "1_critical", "2_general" },
+            //            WorkerCount = 1,
+            //        };
+            //        var newserver = new BackgroundJobServer(options, sqlStorage);
+            //    }
+            //}
+#else
+#endif
+            //if (serverList.Count() == 0)
+            //{
+            //    var options = new BackgroundJobServerOptions
+            //    {
+            //        ServerName = "Admin_Email",
+            //        Queues = new[] { "1_critical", "2_general" },
+            //        WorkerCount = 1,
+            //    };
+            //    var newserver = new BackgroundJobServer(options, sqlStorage);
+            //}
+
+            //clientKirimEmail.Enqueue(() => TesSendEmail(email, account.Email, originPassword, nama));
+            Task.Run(() => TesSendEmail(email, account.Email, originPassword, nama));
 
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
-            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
+            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
 
             //if (account.KODE_SUBSCRIPTION != "01")
             //{
@@ -1118,8 +1162,47 @@ namespace MasterOnline.Controllers
                 return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
+            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
             return View("Register");
 
+        }
+
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("2_general")]
+        protected async Task<string> TesSendEmail(MailAddress email, string account_Email, string originPassword, string nama)
+        {
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+               "<p>Hi {2},</p>" +
+               "<p>Selamat bergabung di Master Online.</p>" +
+               "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
+               "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
+               "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+               "<p>&nbsp;</p>" +
+               "<p>Best regards,</p>" +
+               "<p>CS Master Online.</p>";
+            //end change by nurul 5/3/2019
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Pendaftaran Master Online berhasil!";
+            message.Body = string.Format(body, account_Email, originPassword, nama);
+            message.IsBodyHtml = true;
+
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+            return "";
         }
         //function activate account
         public BindingBase ChangeStatusAcc(int? accId)
