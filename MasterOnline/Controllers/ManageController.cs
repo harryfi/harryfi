@@ -17331,6 +17331,18 @@ namespace MasterOnline.Controllers
                                         }
 
                                     }
+                                    //add 15 april 2019
+                                    else //if (string.IsNullOrEmpty(stf02h_induk.BRG_MP))
+                                    {
+                                        if(tempBrgInduk != null)
+                                        {
+                                            stf02h_induk.HJUAL = tempBrgInduk.HJUAL;
+                                            stf02h_induk.BRG_MP = tempBrgInduk.BRG_MP;
+                                            stf02h_induk.DISPLAY = tempBrgInduk.DISPLAY;
+                                            ErasoftDbContext.STF02H.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP).Delete();
+                                        }
+                                    }
+                                    //end add 15 april 2019
                                 }
                                 else
                                 {
