@@ -1567,6 +1567,16 @@ namespace MasterOnline.Controllers
                 {
                     getQoo = 0;
                 }
+                //add by nurul 12/4/2019
+                //var cekQtySales = ErasoftDbContext.SIT01B.Where(b => b.BRG == barang.KodeBrg).ToList().Count();
+                double sales = 0;
+                var cekQtySales = ErasoftDbContext.Database.SqlQuery<SOT01B>("select * from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl between '" + drtanggal + "' and '" + sdtanggal + "' and b.brg = '" + barang.KodeBrg + "'").ToList();
+                //var cekQtySales = ErasoftDbContext.SIT01B.Where(b => b.BRG == barang.KodeBrg).ToList();
+                foreach (var jual in cekQtySales)
+                {
+                    sales = sales + jual.QTY;
+                }
+                //end add by nurul 12/4/2019
                 listBarangTidakLaku.Add(new PenjualanBarang
                 {
 
@@ -1576,7 +1586,10 @@ namespace MasterOnline.Controllers
                     Merk = barang.Merk,
                     HJual = barang.HJual,
                     Qoh = getQoh,
-                    Qoo = getQoo
+                    Qoo = getQoo,
+                    //add by nurul 12/4/2019
+                    QtySales = sales
+                    //end add by nurul 12/4/2019
                 });
             }
             //foreach (var barang in ErasoftDbContext.STF02.ToList())
@@ -1600,7 +1613,8 @@ namespace MasterOnline.Controllers
             //    }
             //}
 
-            return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderBy(b => b.NamaBrg).ToList());
+            //return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderBy(b => b.NamaBrg).ToList());
+            return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderByDescending(b => b.QtySales).ToList());
         }
 
         public ActionResult RefreshTableBarangDibawahMinimumStok()
@@ -1635,6 +1649,16 @@ namespace MasterOnline.Controllers
                     getQoo = 0;
                 }
 
+                //add by nurul 12/4/2019
+                //var cekQtySales = ErasoftDbContext.SIT01B.Where(b => b.BRG == barang.BRG).ToList().Count();
+                double sales = 0;
+                var cekQtySales = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
+                foreach (var jual in cekQtySales)
+                {
+                    sales = sales + jual.QTY;
+                }
+                //end add by nurul 12/4/2019
+
                 if (barangUtkCek != null)
                 {
                     //qtyOnHand = barangUtkCek.QAwal + barangUtkCek.QM1 + barangUtkCek.QM2 + barangUtkCek.QM3 + barangUtkCek.QM4
@@ -1642,7 +1666,7 @@ namespace MasterOnline.Controllers
                     //            + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
                     //            - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
                     //            - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
-                    qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");
+                    qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");                    
 
                     if (qtyOnHand < barang.MINI)
                     {
@@ -1657,13 +1681,17 @@ namespace MasterOnline.Controllers
                             //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                             Qoh = getQoh,
                             Qoo = getQoo,
-                            Min = barang.MINI
+                            Min = barang.MINI,
+                            //add by nurul 12/4/2019
+                            QtySales = sales
+                            //end add by nurul 12/4/2019
                         });
                     }
                 }
             }
 
-            return PartialView("TableBarangDibawahMinimumStokPartial", listBarangMiniStok.OrderBy(b => b.NamaBrg).ToList());
+            //return PartialView("TableBarangDibawahMinimumStokPartial", listBarangMiniStok.OrderBy(b => b.NamaBrg).ToList());
+            return PartialView("TableBarangDibawahMinimumStokPartial", listBarangMiniStok.OrderByDescending(b => b.QtySales).ToList());
         }
 
         public ActionResult RefreshTableBarangPalingLaku(string param)
@@ -1686,6 +1714,7 @@ namespace MasterOnline.Controllers
             //change by nurul 18/1/2019 -- var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl between '" + drtanggal + "' and '" + sdtanggal + "') b on c.brg = b.brg where isnull(b.brg, '') <> ''").ToList();
             var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.HJUAL as HJual from stf02 c left join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl between '" + drtanggal + "' and '" + sdtanggal + "') b on c.brg = b.brg where isnull(b.brg, '') <> '' and c.[type] = '3'").ToList();
             //end change 
+            
             foreach (var barang in stf02Filter)
             {
                 var getQoh = 0d;
@@ -1708,6 +1737,15 @@ namespace MasterOnline.Controllers
                 {
                     getQoo = 0;
                 }
+                //add by nurul 12/4/2019
+                double sales = 0;
+                var cekQtySales = ErasoftDbContext.Database.SqlQuery<SOT01B>("select * from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl between '" + drtanggal + "' and '" + sdtanggal + "' and b.brg = '" + barang.KodeBrg + "'").ToList();
+                //var cekQtySales = ErasoftDbContext.SIT01B.Where(b => b.BRG == barang.KodeBrg && ).ToList();
+                foreach (var jual in cekQtySales)
+                {
+                    sales = sales + jual.QTY;
+                }
+                //end add by nurul 12/4/2019
                 listBarangLaku.Add(new PenjualanBarang
                 {
 
@@ -1717,7 +1755,10 @@ namespace MasterOnline.Controllers
                     Merk = barang.Merk,
                     HJual = barang.HJual,
                     Qoh = getQoh,
-                    Qoo = getQoo
+                    Qoo = getQoo,
+                    //add by nurul 12/4/2019
+                    QtySales = sales
+                    //end add by nurul 12/4/2019
                 });
             }
 
@@ -1749,7 +1790,8 @@ namespace MasterOnline.Controllers
             //}
 
 
-            return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderBy(b => b.NamaBrg).ToList());
+            //return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderBy(b => b.NamaBrg).ToList());
+            return PartialView("TableBarangPalingLakuPartial", listBarangLaku.OrderByDescending(b => b.QtySales).ToList());
         }
 
         [HttpGet]
@@ -10893,6 +10935,29 @@ namespace MasterOnline.Controllers
             {
                 var pesananInDb = ErasoftDbContext.SOT01A.Single(p => p.RecNum == orderId);
 
+                //add by nurul 16/4/2019
+                var kota = "";
+                var provinsi = "";
+                var pos = "";
+                var al_buyer = "";
+                if (pesananInDb != null)
+                {
+                    if (pesananInDb.KOTA != null)
+                    {
+                        kota = pesananInDb.KOTA;
+                    }
+                    if (pesananInDb.PROPINSI != null)
+                    {
+                        provinsi = pesananInDb.PROPINSI;
+                    }
+                    if (pesananInDb.KODE_POS != null)
+                    {
+                        pos = pesananInDb.KODE_POS;
+                    }
+                    al_buyer = pesananInDb.ALAMAT_KIRIM + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                }
+                //end add by nurul 16/4/2019
+
                 var vm = new PesananViewModel()
                 {
                     Pesanan = pesananInDb,
@@ -10902,7 +10967,10 @@ namespace MasterOnline.Controllers
                     ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                     ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                     ListEkspedisi = MoDbContext.Ekspedisi.ToList(),
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList()
+                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                    //add by nurul 16/4/2019
+                    alamatPenerima = al_buyer,
+                    //end add by nurul 16/4/2019
                 };
 
                 return PartialView("BarangPesananSelesaiPartial", vm);
@@ -11847,7 +11915,7 @@ namespace MasterOnline.Controllers
             var cekMP = "";
             if (resi != "-")
             {
-                cekCust = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.TRACKING_SHIPMENT == resi).CUST;
+                cekCust = ErasoftDbContext.SOT01A.FirstOrDefault(a => a.TRACKING_SHIPMENT == resi).CUST;
                 cekMP = ErasoftDbContext.ARF01.SingleOrDefault(a => a.CUST == cekCust).NAMA;
             }
             var resiBr = "";
@@ -11867,6 +11935,13 @@ namespace MasterOnline.Controllers
         {
             string nobuk = noBukPesanan.Substring(0, 2);
             //string nobuk = noBukPesanan.Substring(1,1);
+
+            //add by nurul 16/4/2019
+            var kota = "";
+            var provinsi = "";
+            var pos = "";
+            var al_buyer = "";
+            //end add by nurul 16/4/2019
             try
             {
                 //change by nurul 3/12/2018
@@ -11890,7 +11965,27 @@ namespace MasterOnline.Controllers
                         }
                     }
 
-
+                    //add by nurul 16/4/2019
+                    var pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan);
+                    
+                    if (pesanan != null)
+                    {
+                        if (pesanan.KOTA != null)
+                        {
+                            kota = pesanan.KOTA;
+                        }
+                        if (pesanan.PROPINSI != null)
+                        {
+                            provinsi = pesanan.PROPINSI;
+                        }
+                        if (pesanan.KODE_POS != null)
+                        {
+                            pos = pesanan.KODE_POS;
+                        }
+                        al_buyer = pesanan.ALAMAT_KIRIM + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                    }
+                    //end add by nurul 16/4/2019
+                    
                     var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
                     var idMarket = Convert.ToInt32(cust.NAMA);
                     var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
@@ -11904,7 +11999,8 @@ namespace MasterOnline.Controllers
                     //end add 
                     //add by nurul 28/1/2019 
                     var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
-                    var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NAMAPENGIRIM;
+                    //var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NAMAPENGIRIM;
+                    var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).SHIPMENT;
                     var resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).TRACKING_SHIPMENT;
 
                     //end add by nurul 28/1/2019 
@@ -11929,9 +12025,11 @@ namespace MasterOnline.Controllers
                         //add by nurul 28/1/2019 
                         Kurir = kurir,
                         Marketplace = market,
-                        NoResi = resi
+                        NoResi = resi,
                         //end add by nurul 28/1/2019 
-
+                        //add by nurul 16/4/2019
+                        alamatPenerima = al_buyer,
+                        //end add by nurul 16/4/2019
                     };
 
                     return View(vm);
@@ -11955,6 +12053,26 @@ namespace MasterOnline.Controllers
                         }
                     }
 
+                    //add by nurul 16/4/2019
+                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.CUST);
+
+                    if (buyer != null)
+                    {
+                        if (buyer.NAMA_KABKOT != null)
+                        {
+                            kota = buyer.NAMA_KABKOT;
+                        }
+                        if (buyer.NAMA_PROV != null)
+                        {
+                            provinsi = buyer.NAMA_PROV;
+                        }
+                        if (buyer.KODEPOS != null)
+                        {
+                            pos = buyer.KODEPOS;
+                        }
+                        al_buyer = buyer.AL + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                    }
+                    //end add by nurul 16/4/2019
 
                     var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
                     var idMarket = Convert.ToInt32(cust.NAMA);
@@ -11977,7 +12095,8 @@ namespace MasterOnline.Controllers
                     else
                     {
                         noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
-                        kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NAMAPENGIRIM;
+                        //kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NAMAPENGIRIM;
+                        kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).SHIPMENT;
                         resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).TRACKING_SHIPMENT;
                     }
                     //end add 
@@ -12030,8 +12149,11 @@ namespace MasterOnline.Controllers
                         //add by nurul 28/1/2019 
                         Kurir = kurir,
                         Marketplace = market,
-                        NoResi = resi
+                        NoResi = resi,
                         //end add by nurul 28/1/2019 
+                        //add by nurul 16/4/2019
+                        alamatPenerima = al_buyer,
+                        //end add by nurul 16/4/2019
                     };
 
                     return View(vm);

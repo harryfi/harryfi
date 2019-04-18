@@ -430,7 +430,14 @@
         var tableKosong = $('#datatable_kosong').DataTable();
         var tableTidakLaku = $('#datatable_tidaklaku').DataTable();
         var tableMinimumStok = $('#datatable_minimumstok').DataTable();
-        var tablePalingLaku = $('#datatable_palinglaku').DataTable();
+        //var tablePalingLaku = $('#datatable_palinglaku').DataTable();
+
+        //add by nurul 18/4/2019
+        var tablePalingLaku = $('#datatable_palinglaku').DataTable({
+            "order": [[9, "desc"]], //or asc
+            //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        });
+        //end add by nurul 18/4/2019
 
         $('#search_barang').keyup(function () {
             table.search($(this).val()).draw();
@@ -606,9 +613,13 @@
                 },
                 success: function (response) {
                     $('#table-barang-paling-laku-partial').html(response);
-                    var table = $('#datatable_palinglaku').DataTable();
+                    //var table = $('#datatable_palinglaku').DataTable();
+                    var tablePalingLaku = $('#datatable_palinglaku').DataTable({
+                        "order": [[9, "desc"]], //or asc
+                        //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    });
                     $('#search_palinglaku').keyup(function () {
-                        table.search($(this).val()).draw();
+                        tablePalingLaku.search($(this).val()).draw();
                     });
                     $('#loading_palinglaku_tab').hide();
                     $('#datatable_palinglaku').show();

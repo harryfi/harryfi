@@ -37,6 +37,7 @@ namespace MasterOnline.ViewModels
         //add by nurul 8/3/2019
         public List<QOH_PER_GD> ListQOHPerGD { get; set; } = new List<QOH_PER_GD>();
         public string setGd { get; set; }
+        public string alamatPenerima { get; set; }
         //end add by nurul 8/3/2019
     }
 }
