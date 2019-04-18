@@ -1136,14 +1136,50 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
             }
-            
+
         }
 
+        public List<long> GetOrderList(JDIDAPIData data, string status, int page)
+        {
+            var ret = new List<long>();
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.popOrder.getOrderIdListByCondition";
+            mgrApiManager.ParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
+                + DateTimeOffset.Now.AddDays(-14).ToUnixTimeSeconds() + "}";
+
+            try
+            {
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderIds)) as Data_OrderIds;
+                    if (listOrderId.success)
+                    {
+                        ret = listOrderId.model;
+                        if (listOrderId.model.Count == 20)
+                        {
+                            var nextOrders = GetOrderList(data, status, page + 1);
+                            ret.AddRange(nextOrders);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
         protected enum api_status
         {
             Pending = 1,
@@ -1224,6 +1260,15 @@ namespace MasterOnline.Controllers
     }
 
     #region jdid data class
+
+    public class Data_OrderIds
+    {
+        public string message { get; set; }
+        public List<long> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
     public class Data_Detail_Product
     {
         public int code { get; set; }
@@ -1268,7 +1313,7 @@ namespace MasterOnline.Controllers
         public dynamic model { get; set; }
         public bool success { get; set; }
     }
-    
+
 
     public class Data_Brand
     {
