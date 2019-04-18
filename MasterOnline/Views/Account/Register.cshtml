@@ -3,7 +3,6 @@
     ViewBag.Title = "Register";
     var referral = Request.Params["ref"];
 }
-
 @section styles
 {
     <style>
@@ -15,7 +14,6 @@
         }
     </style>
 }
-
 <div class="loginColumns" id="loginColumns">
     <div class="row m-t">
         <div class="col-md-6">
@@ -48,18 +46,18 @@
         <div class="col-md-6">
             <div class="ibox-content">
                 <div>
-                    @if (ViewData["SuccessMessage"] != null)
-                    {
-                        <div class="alert alert-success">
-                            @Html.Raw(ViewData["SuccessMessage"])
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <a onclick="return gtag_report_conversion('https://masteronline.co.id/login');" href="https://masteronline.co.id/login">
-                                Klik di sini untuk LOGIN!
-                            </a>
-                        </div>
-                    }
+                    @*@if (ViewData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success">
+                                @Html.Raw(ViewData["SuccessMessage"])
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <a onclick="return gtag_report_conversion('https://masteronline.co.id/login');" href="https://masteronline.co.id/login">
+                                    Klik di sini untuk LOGIN!
+                                </a>
+                            </div>
+                        }*@
                     @if (referral == null && ViewData.ModelState.Any(x => x.Value.Errors.Any()))
                     {
                         foreach (var modelError in ViewData.ModelState.SelectMany(x => x.Value.Errors))
@@ -72,7 +70,6 @@
                             </div>
                         }
                     }
-
                     @using (Html.BeginForm("SaveAccount", "Account", FormMethod.Post, new { enctype = "multipart/form-data" }))
                     {
                         @Html.AntiForgeryToken()
@@ -135,6 +132,26 @@
 <div style="visibility:hidden">
     <input id="txtSnapToken" />
 </div>
+
+@if (ViewData["SuccessMessage"] != null)
+{
+    <div class="modal fade" id="modalSuccessMessage" tabindex="-1" role="dialog" aria-labelledby="successMessageLabel" style="-webkit-text-stroke-width:0pt">
+        <div class="modal-dialog" id="modal-success-message" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px;padding:0px">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Master Online</h4>
+            </div>
+            <div class="alert alert-success">
+                @Html.Raw(ViewData["SuccessMessage"])
+            </div>
+            <div class="modal-footer" style="padding:15px">
+                <div>
+                    @*<button onclick="openMidtrans()" style="background-color:mediumblue;width:100%;color:white;border-radius:4px;border:1px solid #cccccc">Lanjut</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+}
 <div class="modal fade" id="modalTransfer" tabindex="-1" role="dialog" aria-labelledby="transferLabel" style="-webkit-text-stroke-width:0pt">
     <div class="modal-dialog" id="modal-transfer" role="document" style="margin-top:10px ;width:35%;background-color:white;border-radius:5px;padding:0px">
         <div class="modal-header">
@@ -249,7 +266,6 @@
         display: none;
     }
 </style>
-
 @section scripts
 {
     @*add by Tri snap js*@
@@ -262,14 +278,20 @@
 
             initRequired();
 
-            $('#btn-submit-daftar').click(function() {
+            if ($('#modalSuccessMessage').length > 0) {
+                $('#modalSuccessMessage').modal('show');
+            }
+
+            $('#btn-submit-daftar').click(function () {
+                $('#btn-submit-daftar').attr("disabled", true);
+
                 if ($('#Password').val() !== $('#ConfirmPassword').val()) {
                     $('#alert-error-section #message').text('Password tidak sama!');
                     $("#alert-error-section").show();
                     setTimeout(function () {
                         $("#alert-error-section").slideUp(500);
                     }, 2000);
-
+                    $('#btn-submit-daftar').attr("disabled", false);
                     return;
                 }
 
@@ -284,9 +306,12 @@
                     processData: false,  // tell jQuery not to process the data
                     contentType: false,  // tell jQuery not to set contentType
                     beforeSend: function () {
-                        //$('#loading_spinner').show();
+                        $('#loading_spinner').show();
                     },
                     success: function (response) {
+                        $('#btn-submit-daftar').attr("disabled", false);
+                        $('#loading_spinner').hide();
+
                         if (response.error == null) {
                             if (response.token != null) {
                                 //snap.pay(response.token, { skipOrderSummary: true });
@@ -302,8 +327,9 @@
                         }
                     },
                     error: function (xhr, status, error) {
+                        $('#btn-submit-daftar').attr("disabled", false);
                         console.log(error);
-                        //$('#loading_spinner').hide();
+                        $('#loading_spinner').hide();
                     }
                 });
             });
@@ -344,7 +370,7 @@
 
         function initRequired() {
             $('#Email').on('change',
-                function() {
+                function () {
                     cekEmail($(this));
                 });
 
