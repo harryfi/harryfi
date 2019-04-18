@@ -113,7 +113,10 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.NAMAPEMESAN, "Pembeli", new { @class = "col-md-4 col-sm-4 col-xs-12 control-label" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextBox("see_pembeli_pesanan", Model?.Pesanan?.PEMESAN, new { @class = "form-control", disabled = "disabled" })
+                    @*//change by nurul 15/4/2019*@
+                    @*@Html.TextBox("see_pembeli_pesanan", Model?.Pesanan?.PEMESAN, new { @class = "form-control", disabled = "disabled" })*@
+                    @Html.TextBox("see_pembeli_pesanan", Model?.Pesanan?.NAMAPEMESAN, new { @class = "form-control", disabled = "disabled" })
+                    @*//end change by nurul 15/4/2019*@
                 </div>
             </div>
         </div>
@@ -145,7 +148,8 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.ALAMAT_KIRIM, "Alamat Kirim", new { @class = "control-label col-md-4 col-sm-4 col-xs-12" })
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    @Html.TextAreaFor(m => m.Pesanan.ALAMAT_KIRIM, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled" })
+                    @*@Html.TextAreaFor(m => m.Pesanan.ALAMAT_KIRIM, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled" })*@
+                    @Html.TextArea("see_alamat_pembeli", Model?.alamatPenerima, new { @class = "form-control", style = "resize: none; overflow-y: scroll; height: 80px;", disabled = "disabled" })
                 </div>
             </div>
         </div>

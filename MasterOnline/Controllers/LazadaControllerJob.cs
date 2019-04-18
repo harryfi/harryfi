@@ -1571,6 +1571,8 @@ namespace MasterOnline.Controllers
                                     //    listOrderId += "]";
                                     //}
                                     //i = i + 1;
+                                    if (!OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                        jmlhNewOrder++;
                                 }
                             }
                             if (adaInsert)
@@ -1610,7 +1612,7 @@ namespace MasterOnline.Controllers
                                 //getMultiOrderItems(listOrderId, accessToken, connectionID);
                                 getMultiOrderItems2(listOrderId, accessToken, connectionID);
                                 //change 12 Maret 2019, handle record > 100
-                                jmlhNewOrder++;
+                                //jmlhNewOrder++;
                             }
                             manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
 
