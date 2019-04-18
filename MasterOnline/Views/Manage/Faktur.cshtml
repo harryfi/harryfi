@@ -3588,7 +3588,11 @@
                         "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
-                    Initialize();
+                    //CHANGE BY NURUL 16/4/2019
+                    //Initialize();
+                    $('.faktur_table_section').show();
+                    $('.faktur_editor_section').hide();
+                    //END CHANGE BY NURUL 16/4/2019
                     $('#loading_spinner').hide();
                     $('#konfHapusFaktur').modal('hide');
                 },

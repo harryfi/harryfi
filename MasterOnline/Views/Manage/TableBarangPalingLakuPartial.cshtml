@@ -32,6 +32,7 @@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>
             @*end add by nurul*@
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Sales</th>
         </tr>
     </thead>
     <tbody>
@@ -57,12 +58,13 @@
             <td>@barang.Merk</td>
             @*<td>@barang.ISI</td>
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
-            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
             @*add by nurul 16/11/2018*@
             <td>@barang.Qoh</td>
             <td>@barang.Qoo</td>
             <td>@(barang.Qoh - barang.Qoo)</td>
             @*end add by nurul*@
+            <td>@barang.QtySales</td>
         </tr>
         }
     </tbody>

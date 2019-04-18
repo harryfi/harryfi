@@ -2818,6 +2818,10 @@
             $('#sudahkirim-tab').click(function () {
                 $TabAktif = 3;
                 refreshTableSudahKirim();
+                $('#datatable_sudahkirim').on('page.dt', function () {
+                    $page = $('#datatable_sudahkirim').DataTable().page.info().page;
+                });
+                $('#datatable_sudahkirim').DataTable().page($page).draw(false);
             });
 
             $('#selesai-tab').click(function () {
@@ -5094,6 +5098,7 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     tableNunggu.search($('#search_nunggu').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -5184,6 +5189,10 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     table.search($('#search_sudahkirim').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+                    $('#datatable_sudahkirim').on('page.dt', function () {
+                        $page = $('#datatable_sudahkirim').DataTable().page.info().page;
+                    });
+                    $('#datatable_sudahkirim').DataTable().page($page).draw(false);
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -6223,9 +6232,10 @@
             var rows_selected = [];
             if ($TabAktif == 1) {
                 $('.checkbox_gntstatus_sudahdibayar').each(function (i, item) {
-                    if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
-                        rows_selected.push($(item).attr("data-recnum"));
-                    } else if ($(item).is(":checked")) {
+                    //if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
+                    //    rows_selected.push($(item).attr("data-recnum"));
+                    //} else 
+                    if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
@@ -6262,9 +6272,10 @@
             });
             } else if ($TabAktif == 2) {
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
-                    if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
-                        rows_selected.push($(item).attr("data-recnum"));
-                    } else if ($(item).is(":checked")) {
+                    //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
+                    //    rows_selected.push($(item).attr("data-recnum"));
+                    //} else 
+                    if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
@@ -6401,7 +6412,7 @@
                 '@Html.Raw(Url.Action("GenerateFaktur", "Manage", new {recNumPesanan = "replaceRecNum", uname = "replaceUname"}))';
             link = link.replace("replaceRecNum", rec);
             link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
-
+            
             $.ajax({
                 type: "GET",
                 url: link,
@@ -6415,6 +6426,7 @@
                     refreshTableSudahKirim();
                     $('#loading_spinner').hide();
                     lihatFaktur(response); // No Faktur as Response
+                    
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -6529,6 +6541,9 @@
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
                     $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    //ADD BY NURUL 16/4/2019
+                    //$('#see_alamat_pembeli').val(al_lengkap).show();
+                    //END ADD BY NURUL 16/4/2019
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
                     $('.pesanan_editor_selesai_section').show();
@@ -6577,6 +6592,9 @@
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
                     $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    //ADD BY NURUL 16/4/2019
+                    //$('#see_alamat_pembeli').val().show();
+                    //END ADD BY NURUL 16/4/2019
                     $('#TGL').parent().hide();
                     $('.pesanan_sudah_dibayar_section').hide();
                     $('.pesanan_editor_sudah_dibayar_section').show();
