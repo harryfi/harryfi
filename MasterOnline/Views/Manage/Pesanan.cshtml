@@ -4266,18 +4266,26 @@
                         });
 
                     var expedisiSelect = $('#EXPEDISI').selectize({
+                        id:'cbExpedisi',
                         valueField: 'id',
                         searchField: 'text',
                         options: listEkspedisi,
                         onChange: function(value) {
                             $('#Pesanan_EXPEDISI').val(value);
-                            $('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            //change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            //$('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            $('#SHIPMENT').val($("#EXPEDISI option:selected").text());
+                            //end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
                             $('#btn-simpan-perubahan-row').show();
                         }
                     });
 
                     expedisiSelect[0].selectize.setValue($('#Pesanan_EXPEDISI').val());
                     $('#btn-simpan-perubahan-row').hide();
+                    //add 16 April 2019
+                    //$('#EXPEDISI').show();
+                    $('#cbExpedisi').show();
+                    //end add 16 April 2019
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -4719,7 +4727,14 @@
                     getBuyer();
                     getDataBarang();
                     getMarketplaceSOT01A();
-                    getExpedisi();
+                    //change 16 April
+                    //getExpedisi();
+                    $('#txtShipment').remove();
+                    var txtShipmentProv = '<div id="txtShipment"><input class="form-control" data-val="true" type="text" value="' + $('#Pesanan_SHIPMENT').val() + '" maxlength="50"></div>';
+                    $('#divShipment').append(txtShipmentProv);
+                    $('#EXPEDISI').hide();
+                    $('#cbExpedisi').hide();
+                    //end change 16 April
                     //change by nurul 19/2/2019
                     //$('#tambah_pesanan').click();
                     $('.pesanan_table_section').hide();
@@ -6539,7 +6554,7 @@
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
+                    //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     //ADD BY NURUL 16/4/2019
                     //$('#see_alamat_pembeli').val(al_lengkap).show();
@@ -6590,7 +6605,7 @@
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
+                    //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
                     //ADD BY NURUL 16/4/2019
                     //$('#see_alamat_pembeli').val().show();
@@ -6771,7 +6786,32 @@
                         }
                     });
                 } else {
-                    alert('Silakan isi semua field terlebih dahulu!');
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    //if ($('#Pesanan_TGL').val() != '' &&
+                    //    $('#Pesanan_CUST').val() != '' &&
+                    //    $('#Pesanan_TERM').val() != '' &&
+                    //    $('#Pesanan_EXPEDISI').val() != '' &&
+                    //    $('#Pesanan_NAMAPEMESAN').val() != ''
+                    var messageErrorKosong = "";
+                    if ($('#Pesanan_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Pesanan_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Pesanan_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Pesanan_EXPEDISI').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Pesanan_NAMAPEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
                 }
             }
         }

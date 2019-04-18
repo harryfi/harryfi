@@ -700,12 +700,15 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $modeEdit = 1;
 
                     $('#form-partial').html(response);
                     Initialize();
-                    getDataBarang();//test remark
+                    getDataBarang();
                     //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
@@ -714,10 +717,12 @@
                         $(this).attr('disabled', 'disabled');
                     });
                     $('tr[data-stok-id="0"]').remove();
+                    $('#loading_spinner').hide();
 
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -729,18 +734,23 @@
             $.ajax({
                 type: "GET",
                 url: link,
+                beforeSend: function () {
+                    $('#loading_spinner').show();
+                },
                 success: function (response) {
                     $modeEdit = 1;
 
                     $('#form-partial').html(response);
                     Initialize();
-                    getDataBarang();//test remark
+                    getDataBarang();
                     //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
+                    $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
+                    $('#loading_spinner').hide();
                 }
             });
         }
@@ -785,7 +795,7 @@
                 },
                 success: function (response) {
                     $('#form-partial').html(response);
-                    getDataBarang();//test remark
+                    getDataBarang();
                     Initialize();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
@@ -953,7 +963,7 @@
                                 $modeEdit == 0
                                 $('#form-partial').html(response);
                                 widthBrg()
-                                //getDataBarang();//test remark
+                                getDataBarang();
                                 getGudang();
                                 getTanggal();
                                 $('#loading_spinner').hide();

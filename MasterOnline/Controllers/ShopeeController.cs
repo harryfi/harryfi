@@ -2978,8 +2978,9 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi)
+        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation)
         {
+            var MOVariationNew = MOVariation.ToList();
 
             string ret = "";
             string brg = brgInDb.BRG;
@@ -3043,27 +3044,111 @@ namespace MasterOnline.Controllers
                         key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
                     }
                     int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+
                     //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
                     //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                     //ErasoftDbContext.SaveChanges();
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    mapSTF02HRecnum_IndexVariasi.Remove(key_map_tier_index_recnum);
+                    foreach (var item in MOVariation)
+                    {
+                        var isiTier_Index = "";
+                        foreach (var indexes in item.tier_index)
+                        {
+                            isiTier_Index = isiTier_Index + Convert.ToString(indexes) + ";";
+                        }
+                        if (isiTier_Index == key_map_tier_index_recnum)
+                        {
+                            MOVariationNew.Remove(item);
+                        }
+                    }
                 }
-                //if (resServer.variation_id_list.Count() > 0)
-                //{
-                //    foreach (var variasi in resServer.variation_id_list)
-                //    {
-                //        string key_map_tier_index_recnum = "";
-                //        foreach (var indexes in variasi.tier_index)
-                //        {
-                //            key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
-                //        }
-                //int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
-                //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
-                //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
-                //ErasoftDbContext.SaveChanges();
-                //var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
-                //    }
-                //}
+                if (MOVariationNew.Count() > 0)
+                {
+                    foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
+                    {
+                        await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew);
+                    }
+                }
+            }
+
+            return ret;
+        }
+        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation)
+        {
+            string ret = "";
+            string brg = brgInDb.BRG;
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/add";
+
+            ShopeeAddTierVariation HttpBody = new ShopeeAddTierVariation
+            {
+                partner_id = MOPartnerID,
+                item_id = item_id,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                variation = MOVariation.ToArray()
+            };
+
+            string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+
+
+            if (responseFromServer != null)
+            {
+                var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
+                if (resServer.variation_id_list != null)
+                {
+                    if (resServer.variation_id_list.Count() > 0)
+                    {
+                        foreach (var variasi in resServer.variation_id_list)
+                        {
+                            string key_map_tier_index_recnum = "";
+                            foreach (var indexes in variasi.tier_index)
+                            {
+                                key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                            }
+                            int recnum_stf02h_var = mapSTF02HRecnum_IndexVariasi.Where(p => p.Key == key_map_tier_index_recnum).Select(p => p.Value).SingleOrDefault();
+                            //var var_item = ErasoftDbContext.STF02H.Where(b => b.RecNum == recnum_stf02h_var).SingleOrDefault();
+                            //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
+                            //ErasoftDbContext.SaveChanges();
+                            var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "'");
+                        }
+                    }
+                }
             }
 
             return ret;
@@ -3284,7 +3369,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi);
+                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi,variation);
                 }
             }
 
@@ -5470,5 +5555,14 @@ namespace MasterOnline.Controllers
             public int[] tier_index { get; set; }
         }
 
+        public class ShopeeAddTierVariation
+        {
+            public long item_id { get; set; }
+            public ShopeeVariation[] variation { get; set; }
+            public int shopid { get; set; }
+            public int partner_id { get; set; }
+            public long timestamp { get; set; }
+
+        }
     }
 }

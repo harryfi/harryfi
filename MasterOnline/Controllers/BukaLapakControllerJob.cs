@@ -768,8 +768,8 @@ namespace MasterOnline.Controllers
                                         //    namaBrg = ds.Tables[0].Rows[0]["NAMA_BRG"].ToString();
                                         //}
                                         //END CHANGE BY CALVIN 19 DESEMBER 2018, NAMA BARANG DIISI DARI MARKETPLACE, UNTUK DISIMPAN DI CATATAN
-                                        namaBrg = items.name;
-                                        insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + items.id + "','" + items.category + "'," + items.category_id + ",'" + namaBrg.Replace('\'', '`') + "',";
+                                        namaBrg = items.name + " " + items.current_variant_name;
+                                        insertOrderItems += "(" + order.id + ", '" + order.transaction_id + "','" + (string.IsNullOrEmpty(items.current_product_sku_id.ToString()) ? items.id.ToString() : items.current_product_sku_id.ToString()) + "','" + items.category + "'," + items.category_id + ",'" + namaBrg.Replace('\'', '`') + "',";
                                         insertOrderItems += items.accepted_price + "," + items.weight + ",'" + items.desc + "','" + items.condition.Replace('\'', '`') + "'," + items.stock + "," + items.order_quantity + ",'" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + username + "','" + connectionID + "')";
                                         insertOrderItems += " ,";
                                     }

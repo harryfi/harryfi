@@ -1077,6 +1077,109 @@ namespace MasterOnline.Controllers
 
             }
         }
+
+        public void UpdateStock(JDIDAPIData data, string id, int stok)
+        {
+            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            {
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+                REQUEST_ACTION = "Update Stock",
+                REQUEST_DATETIME = DateTime.Now,
+                REQUEST_ATTRIBUTE_1 = id,
+                REQUEST_ATTRIBUTE_2 = stok.ToString(),
+                REQUEST_STATUS = "Pending",
+            };
+            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data, currentLog);
+            var mgrApiManager = new JDIDController();
+
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+            mgrApiManager.Method = "epi.ware.openapi.warestock.updateWareStock";
+            mgrApiManager.ParamJson = "{\"jsonStr\":[{\"skuId\":" + id + ", \"realNum\": " + stok + "}]}";
+            try
+            {
+                var response = mgrApiManager.Call();
+                var ret = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (ret != null)
+                {
+                    if (ret.openapi_msg.ToLower() == "success")
+                    {
+                        var retStok = JsonConvert.DeserializeObject(ret.openapi_data, typeof(Data_UpStok)) as Data_UpStok;
+                        if (retStok != null)
+                        {
+                            if (retStok.success)
+                            {
+
+                            }
+                            else
+                            {
+                                currentLog.REQUEST_EXCEPTION = retStok.message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                            }
+                        }
+                        else
+                        {
+                            currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                            manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                        }
+                    }
+                    else
+                    {
+                        currentLog.REQUEST_EXCEPTION = ret.openapi_data;
+                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                    }
+                }
+                else
+                {
+                    currentLog.REQUEST_EXCEPTION = response;
+                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
+                }
+            }
+            catch (Exception ex)
+            {
+                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
+            }
+
+        }
+
+        public List<long> GetOrderList(JDIDAPIData data, string status, int page)
+        {
+            var ret = new List<long>();
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.popOrder.getOrderIdListByCondition";
+            mgrApiManager.ParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"createdTimeBegin\": "
+                + DateTimeOffset.Now.AddDays(-14).ToUnixTimeSeconds() + "}";
+
+            try
+            {
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderIds)) as Data_OrderIds;
+                    if (listOrderId.success)
+                    {
+                        ret = listOrderId.model;
+                        if (listOrderId.model.Count == 20)
+                        {
+                            var nextOrders = GetOrderList(data, status, page + 1);
+                            ret.AddRange(nextOrders);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
         protected enum api_status
         {
             Pending = 1,
@@ -1157,6 +1260,15 @@ namespace MasterOnline.Controllers
     }
 
     #region jdid data class
+
+    public class Data_OrderIds
+    {
+        public string message { get; set; }
+        public List<long> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
     public class Data_Detail_Product
     {
         public int code { get; set; }
@@ -1191,6 +1303,15 @@ namespace MasterOnline.Controllers
         public string appKey { get; set; }
         public string appSecret { get; set; }
         public string accessToken { get; set; }
+    }
+
+
+    public class Data_UpStok
+    {
+        public int code { get; set; }
+        public string message { get; set; }
+        public dynamic model { get; set; }
+        public bool success { get; set; }
     }
 
 

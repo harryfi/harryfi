@@ -4583,22 +4583,24 @@ namespace MasterOnline.Controllers
                                                 //Task.Run(() => shoAPI.GetVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
                                                 Task.Run(() => shoAPI.InitTierVariation(iden, barangInDb, Convert.ToInt64(stf02h.BRG_MP.Split(';')[0]), tblCustomer).Wait());
 
-                                                Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
-                                                string[] brg_mp = stf02h.BRG_MP.Split(';');
-                                                if (updateHarga)
-                                                {
-                                                    if (brg_mp.Count() == 2)
-                                                    {
-                                                        if (brg_mp[1] == "0")
-                                                        {
-                                                            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                        }
-                                                        else if (brg_mp[1] != "")
-                                                        {
-                                                            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
-                                                        }
-                                                    }
-                                                }
+                                                //remark by calvin 12 april 2019, untuk tes
+                                                //Task.Run(() => shoAPI.UpdateImage(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                //string[] brg_mp = stf02h.BRG_MP.Split(';');
+                                                //if (updateHarga)
+                                                //{
+                                                //    if (brg_mp.Count() == 2)
+                                                //    {
+                                                //        if (brg_mp[1] == "0")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdatePrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //        else if (brg_mp[1] != "")
+                                                //        {
+                                                //            Task.Run(() => shoAPI.UpdateVariationPrice(iden, stf02h.BRG_MP, (float)stf02h.HJUAL)).Wait();
+                                                //        }
+                                                //    }
+                                                //}
+                                                //end remark by calvin 12 april 2019, untuk tes
                                             }
                                             else
                                             {
@@ -10181,7 +10183,7 @@ namespace MasterOnline.Controllers
                     string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
                     var accControl = new AccountController();
-                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username).Wait());
+                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username,5).Wait());
                 }
 
                 var vm = new PesananViewModel()
@@ -17451,6 +17453,18 @@ namespace MasterOnline.Controllers
                                         }
 
                                     }
+                                    //add 15 april 2019
+                                    else //if (string.IsNullOrEmpty(stf02h_induk.BRG_MP))
+                                    {
+                                        if(tempBrgInduk != null)
+                                        {
+                                            stf02h_induk.HJUAL = tempBrgInduk.HJUAL;
+                                            stf02h_induk.BRG_MP = tempBrgInduk.BRG_MP;
+                                            stf02h_induk.DISPLAY = tempBrgInduk.DISPLAY;
+                                            ErasoftDbContext.STF02H.Where(m => m.BRG_MP == tempBrgInduk.BRG_MP).Delete();
+                                        }
+                                    }
+                                    //end add 15 april 2019
                                 }
                                 else
                                 {
