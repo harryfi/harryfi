@@ -1144,6 +1144,45 @@ namespace MasterOnline.Controllers
 
         }
 
+        public void Order_JD(JDIDAPIData data, string cust)
+        {
+            //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
+            var listOrderId = new List<long>();
+
+            listOrderId.AddRange(GetOrderList(data, "1", 1));
+            listOrderId.AddRange(GetOrderList(data, "2", 1));
+            listOrderId.AddRange(GetOrderList(data, "6", 1));
+
+            if (listOrderId.Count > 0)
+            {
+                var ord = new List_Order_JD { orderIds = new List<string>() };
+                string order_10 = "";
+                int i = 1;
+                foreach (var id in listOrderId)
+                {
+                    order_10 += id.ToString() + ",";
+                    i++;
+                    if (i >= 10)
+                    {
+                        i = 0;
+                        order_10 = order_10.Substring(0, order_10.Length - 1);
+                        ord.orderIds.Add(order_10);
+                        order_10 = "";
+                    }
+                }
+                if (!string.IsNullOrEmpty(order_10))
+                {
+                    order_10 = order_10.Substring(0, order_10.Length - 1);
+                    ord.orderIds.Add(order_10);
+                }
+
+                foreach (var listOrder in ord.orderIds)
+                {
+
+                }
+            }
+        }
+
         public List<long> GetOrderList(JDIDAPIData data, string status, int page)
         {
             var ret = new List<long>();
@@ -1180,6 +1219,47 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
+
+        public List<long> GetOrderDetail(JDIDAPIData data, string listOrderIds, string cust)
+        {
+            var ret = new List<long>();
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.popOrder.getOrderInfoListForBatch";
+            mgrApiManager.ParamJson = "[" + listOrderIds + "]";
+
+            try
+            {
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderDetail)) as Data_OrderDetail;
+                    if (listOrderId.success)
+                    {
+                        var str = "{\"data\":" + listOrderId.model + "}";
+                        var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrder)) as ModelOrder;
+                        if(listDetails != null)
+                        {
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+                            foreach (var order in listDetails.data)
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+
         protected enum api_status
         {
             Pending = 1,
@@ -1260,6 +1340,72 @@ namespace MasterOnline.Controllers
     }
 
     #region jdid data class
+    public class Data_OrderDetail
+    {
+        public string message { get; set; }
+        public string model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class ModelOrder
+    {
+        public List<DetailOrder_JD> data { get; set; }
+    }
+
+    public class DetailOrder_JD
+    {
+        public string address { get; set; }
+        public string area { get; set; }
+        public long bookTime { get; set; }
+        public string city { get; set; }
+        public float couponAmount { get; set; }
+        public string customerName { get; set; }
+        public string deliveryAddr { get; set; }
+        public int deliveryType { get; set; }
+        public string email { get; set; }
+        public float freightAmount { get; set; }
+        public float fullCutAmount { get; set; }
+        public float installmentFee { get; set; }
+        public long orderCompleteTime { get; set; }
+        public int orderId { get; set; }
+        public int orderSkuNum { get; set; }
+        public Orderskuinfo[] orderSkuinfos { get; set; }
+        public int orderState { get; set; }
+        public int orderType { get; set; }
+        public float paySubtotal { get; set; }
+        public int paymentType { get; set; }
+        public string phone { get; set; }
+        public string postCode { get; set; }
+        public float promotionAmount { get; set; }
+        public string sendPay { get; set; }
+        public string state { get; set; }
+        public float totalPrice { get; set; }
+        public string userPin { get; set; }
+    }
+
+    public class Orderskuinfo
+    {
+        public float commission { get; set; }
+        public float costPrice { get; set; }
+        public float couponAmount { get; set; }
+        public float fullCutAmount { get; set; }
+        public int hasPromo { get; set; }
+        public float jdPrice { get; set; }
+        public float promotionAmount { get; set; }
+        public int skuId { get; set; }
+        public string skuName { get; set; }
+        public int skuNumber { get; set; }
+        public int spuId { get; set; }
+        public int weight { get; set; }
+        public string popSkuId { get; set; }
+    }
+
+
+    public class List_Order_JD
+    {
+        public List<string> orderIds { get; set; }
+    }
 
     public class Data_OrderIds
     {

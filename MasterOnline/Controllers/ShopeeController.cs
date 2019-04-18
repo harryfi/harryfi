@@ -118,8 +118,8 @@ namespace MasterOnline.Controllers
                 partner_id = MOPartnerID, //MasterOnline Partner ID
                 shopid = Convert.ToInt32(iden.merchant_code),
                 timestamp = seconds,
-                pagination_offset = page * 100,
-                pagination_entries_per_page = 100,
+                pagination_offset = page * 10,
+                pagination_entries_per_page = 10,
 
             };
 
@@ -167,7 +167,7 @@ namespace MasterOnline.Controllers
                     var tempBrg_local = ErasoftDbContext.TEMP_BRG_MP.Where(m => m.IDMARKET == IdMarket).ToList();
                     //end add 13 Feb 2019, tuning
                     ret.status = 1;
-                    if (listBrg.items.Length == 100)
+                    if (listBrg.items.Length == 10)
                         ret.message = (page + 1).ToString();
                     foreach (var item in listBrg.items)
                     {

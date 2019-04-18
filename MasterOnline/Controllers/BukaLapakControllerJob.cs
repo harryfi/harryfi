@@ -749,7 +749,7 @@ namespace MasterOnline.Controllers
                                             statusEra = currentStatus;
                                 }
                                 //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                jmlhNewOrder++;
+                                //jmlhNewOrder++;
 
                                 insertQ += "(" + order.id + "," + order.invoice_id + ",'" + statusEra + "','" + order.transaction_id + "'," + order.amount + "," + order.quantity + ",'" + order.courier.Replace('\'', '`') + "','" + order.buyer_notes.Replace('\'', '`') + "'," + order.shipping_fee + ",";
                                 insertQ += order.shipping_id + ",'" + order.shipping_code + "','" + order.shipping_service.Replace('\'', '`') + "'," + order.subtotal_amount + "," + order.total_amount + "," + order.payment_amount + ",'" + /*Convert.ToDateTime(order.created_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + /*Convert.ToDateTime(order.updated_at).ToString("yyyy-MM-dd HH:mm:ss")*/ order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','";
@@ -793,6 +793,9 @@ namespace MasterOnline.Controllers
                                 //if (i < bindOrder.transactions.Length)
                                 insertQ += " ,";
                                 insertPembeli += " ,";
+
+                                if (!OrderNoInDb.Contains(Convert.ToString(order.id)))
+                                    jmlhNewOrder++;
                             }
                         }
 
