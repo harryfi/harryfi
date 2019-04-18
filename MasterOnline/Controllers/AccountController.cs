@@ -427,6 +427,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                accFromDb.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
                 //end add by calvin 1 april 2019
             }
@@ -437,6 +439,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                accFromUser.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }

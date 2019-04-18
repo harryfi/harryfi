@@ -2395,6 +2395,13 @@ namespace MasterOnline.Controllers
             {
                 insert = true;
 
+                if (ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == dataBarang.Stf02.BRG.ToUpper()).FirstOrDefault() != null)
+                {
+                    List<string> listError = new List<string>();
+                    listError.Add("Kode " + dataBarang.Stf02.BRG + " sudah digunakan oleh barang lain.");
+                    dataBarang.Errors = listError;
+                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                }
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
                     List<string> listError = new List<string>();
@@ -3435,6 +3442,13 @@ namespace MasterOnline.Controllers
             {
                 insert = true;
                 KodeBarang = dataBarang.Stf02.BRG;
+                if (ErasoftDbContext.STF02.Where(p => p.BRG.ToUpper() == KodeBarang.ToUpper()).FirstOrDefault() != null)
+                {
+                    List<string> listError = new List<string>();
+                    listError.Add("Kode " + KodeBarang + " sudah digunakan oleh barang lain.");
+                    dataBarang.Errors = listError;
+                    return Json(dataBarang, JsonRequestBehavior.AllowGet);
+                }
                 if (dataBarang.ListHargaJualPermarket?.Count > 0)
                 {
                     List<string> listError = new List<string>();
@@ -10141,7 +10155,7 @@ namespace MasterOnline.Controllers
                     string username = sessionData.Account != null ? sessionData.Account.Username : sessionData.User.Username;
 
                     var accControl = new AccountController();
-                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username,5).Wait());
+                    Task.Run(() => accControl.SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsaha.JTRAN_RETUR, username, 5).Wait());
                 }
 
                 var vm = new PesananViewModel()
@@ -17334,7 +17348,7 @@ namespace MasterOnline.Controllers
                                     //add 15 april 2019
                                     else //if (string.IsNullOrEmpty(stf02h_induk.BRG_MP))
                                     {
-                                        if(tempBrgInduk != null)
+                                        if (tempBrgInduk != null)
                                         {
                                             stf02h_induk.HJUAL = tempBrgInduk.HJUAL;
                                             stf02h_induk.BRG_MP = tempBrgInduk.BRG_MP;

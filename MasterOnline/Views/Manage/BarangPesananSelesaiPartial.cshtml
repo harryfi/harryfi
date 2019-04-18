@@ -279,7 +279,7 @@
                 {
                     <tr data-barang-id="brg-@pesanan.NO_URUT">
                         @{
-                            var barang = listBarang.SingleOrDefault(b => b.BRG == pesanan.BRG);
+                            var barang = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == pesanan.BRG.ToUpper());
                             var stnBarang = barang == null ? "" : barang.STN2;
 
                             var catatan_split = pesanan.CATATAN.Split(new string[] { "_;_" }, StringSplitOptions.None);
