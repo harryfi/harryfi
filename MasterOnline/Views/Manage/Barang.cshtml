@@ -14,6 +14,7 @@
     <link href="~/Content/selectize.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <style>
+
         .disabled-tab {
             cursor: not-allowed;
             background-color: #999 !important;
@@ -219,7 +220,7 @@
                             <div class="input-group">
                                 <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_barang_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -241,11 +242,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_barang_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_barang_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
-                            @Html.Partial("TableBarang1Partial")
+                            @*@Html.Partial("TableBarang1Partial")*@
                         </div>
                     </div>
                     <div class="row barang_editor_section" style="display: none;">
@@ -271,7 +272,7 @@
                                 @using (Html.BeginForm("SaveBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("FormBarangPartial")
+                                        @*@Html.Partial("FormBarangPartial")*@
                                     </div>
                                 }
                             </div>
@@ -426,7 +427,7 @@
         //add by nurul 12/2/2019
         var $page = window.text;
         //end add by nurul 12/2/2019
-        var table = $('#datatable').DataTable();
+        //var table = $('#datatable').DataTable(); //remark by calvin 22 april 2019, tidak pakai datatable lagi
         var tableKosong = $('#datatable_kosong').DataTable();
         var tableTidakLaku = $('#datatable_tidaklaku').DataTable();
         var tableMinimumStok = $('#datatable_minimumstok').DataTable();
@@ -439,9 +440,22 @@
         });
         //end add by nurul 18/4/2019
 
-        $('#search_barang').keyup(function () {
-            table.search($(this).val()).draw();
+        //change by calvin 22 april 2019
+        //$('#search_barang').keyup(function () {
+        //    table.search($(this).val()).draw();
+        //});
+        $('#search_barang').keypress(function (e) {
+            var key = e.which;
+            if(key == 13)// the enter key code
+            {
+                searchTableBarang();
+                return false;
+            }
         });
+        $('#search_barang_click').click(function () {
+            searchTableBarang();
+        });
+        //end change by calvin 22 april 2019
 
         $('#search_palinglaku').keyup(function () {
             tablePalingLaku.search($(this).val()).draw();
@@ -463,29 +477,34 @@
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
-            var tableSiapProses = $('#datatable_siapproses').DataTable({
-                columnDefs: [{
-                    orderable: false,
-                    className: 'select-checkbox',
-                    targets: 0
-                }],
-                select: {
-                    style: 'os',
-                    selector: 'td:first-child'
-                }
-            });
+
+            //remark by calvin 23 april 2019
+            //var tableSiapProses = $('#datatable_siapproses').DataTable({
+            //    columnDefs: [{
+            //        orderable: false,
+            //        className: 'select-checkbox',
+            //        targets: 0
+            //    }],
+            //    select: {
+            //        style: 'os',
+            //        selector: 'td:first-child'
+            //    }
+            //});
+            //end remark by calvin 23 april 2019
 
             refreshTableBarang();
 
             $('#barang-tab').click(function () {
                 refreshTableBarang();
-                //add by nurul 12/2/2019
-                $page = 0;
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
-                //end add by nurul 12/2/2019
+                //change by calvin 22 april 2019, paging
+                ////add by nurul 12/2/2019
+                //$page = 0;
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
+                ////end add by nurul 12/2/2019
+                //end change by calvin 22 april 2019, paging
             });
 
             $('#kosong-tab').click(function () {
@@ -504,19 +523,57 @@
                 refreshTableMinimumStok();
             });
 
-            Initialize();
+            //Initialize();//remark by calvin 23 april 2019
 
             $(function () {
                 $('#setting-detail-market-tabs a:first').tab('show');
             });
-            //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
-            //end add by nurul 12/2/2019
-        });
+            //remark by calvin 23 april 2019
+            ////add by nurul 12/2/2019
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
+            ////end add by nurul 12/2/2019
+            //end remark by calvin 23 april 2019
 
+            //add by calvin 23 april 2019
+            $('#tambah_barang').off('click').on('click', function () {
+                tambahBaruBarang();
+            });
+            $('#close-editor-1').off('click').on('click', function () {
+                $('#close-editor-1')[0].disabled = true;
+                $('.barang_table_section').show();
+                $('.barang_editor_section').hide();
+                $('#form-partial').html('');
+            });
+            //end add by calvin 23 april 2019
+
+        });
+        function searchTableBarang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBarang", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_barang').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    //$('#table-barang-1-partial').hide();
+                    $('#search_barang_click')[0].disabled = true;
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_barang_click')[0].disabled = false;
+                    $('#table-barang-1-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    //$('#table-barang-1-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_barang_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableBarang() {
             var link = '@Url.Action("RefreshTableBarang", "Manage")';
 
@@ -524,26 +581,30 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable').hide();
+                    $('#table-barang-1-partial').hide();
                     $('#loading_barang_tab').show();
                 },
                 success: function (response) {
-                    $('#table-barang-partial').html(response);
-                    var table = $('#datatable').DataTable();
-                    $('#search_barang').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
+                    $('#table-barang-1-partial').html(response);
                     $('#loading_barang_tab').hide();
-                    $('#datatable').show();
-                    //add by calvin 23 nov 2018, setelah di close, search lg
-                    table.search($('#search_barang').val()).draw();
-                    //end add by calvin 23 nov 2018, setelah di close, search lg
-                    //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                    $('#table-barang-1-partial').show();
+
+                    //remark by calvin 22 april 2019
+                    //var table = $('#datatable').DataTable();
+                    //$('#search_barang').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
+                    //$('#datatable').show();
+                    ////add by calvin 23 nov 2018, setelah di close, search lg
+                    //table.search($('#search_barang').val()).draw();
+                    ////end add by calvin 23 nov 2018, setelah di close, search lg
+                    ////add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    ////end add by nurul 12/2/2019
+                    //end remark by calvin 22 april 2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -742,61 +803,63 @@
                         $('input[name="data-2"]').attr('checked', 'checked');
                     }
                 });
+            //remark by calvin 23 april 2019
+            //$('#tambah_barang').off('click').on('click', function () {
+            //    $('.barang_table_section').hide();
+            //    $('.barang_editor_section').show();
+            //    $('#close-editor-1')[0].disabled = false;
+            //    $('#variant-induk-tab').removeAttr('data-toggle');
+            //    $('#variant-induk-tab').addClass('disabled-tab');
 
-            $('#tambah_barang').off('click').on('click', function () {
-                $('.barang_table_section').hide();
-                $('.barang_editor_section').show();
-                $('#close-editor-1')[0].disabled = false;
-                $('#variant-induk-tab').removeAttr('data-toggle');
-                $('#variant-induk-tab').addClass('disabled-tab');
+            //    if ($('#Stf02_BRG').val() == '') {
+            //        $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
+            //            $(this).val(convertToRupiah(0));
+            //        });
+            //    }
 
-                if ($('#Stf02_BRG').val() == '') {
-                    $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
-                        $(this).val(convertToRupiah(0));
-                    });
-                }
+            //    //add by nruul 18/10/2018
+            //    $("#Stf02_MINI").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    $("#Stf02_MAXI").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    $("#Stf02_BERAT").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    $("#Stf02_PANJANG").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    $("#Stf02_LEBAR").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    $("#Stf02_TINGGI").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            //    //end add
+            //});
 
-                //add by nruul 18/10/2018
-                $("#Stf02_MINI").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                $("#Stf02_MAXI").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                $("#Stf02_BERAT").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                $("#Stf02_PANJANG").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                $("#Stf02_LEBAR").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                $("#Stf02_TINGGI").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-                //end add
-            });
+            ////$('#close-editor-1').on('click', function () {
+            //$('#close-editor-1').off('click').on('click', function () {
+            //    $('#close-editor-1')[0].disabled = true;
+            //    $('.barang_table_section').show();
+            //    $('.barang_editor_section').hide();
+            //    refreshFormBarang();
+            //    //add by nurul 12/2/2019
+            //    $('#datatable').on('page.dt', function () {
+            //        $page = $('#datatable').DataTable().page.info().page;
+            //    });
+            //    $('#datatable').DataTable().page($page).draw(false);
+            //    //end add by nurul 12/2/2019
+            //});
+            //end remark by calvin 23 april 2019
 
-            //$('#close-editor-1').on('click', function () {
-            $('#close-editor-1').off('click').on('click', function () {
-                $('#close-editor-1')[0].disabled = true;
-                $('.barang_table_section').show();
-                $('.barang_editor_section').hide();
-                refreshFormBarang();
-                //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
-                //end add by nurul 12/2/2019
-            });
             getKategoriPertamaLazada(-1);//add by Tri
             getKategoriPertamaBlibli(-1);
             getKategoriPertamaElevenia(-1);
@@ -1071,12 +1134,15 @@
                     validateInput($(this), 'ANGKA');
                 });
             //end add
-            //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
-            //end add by nurul 12/2/2019
+
+            //remark by calvin 23 april 2019
+            ////add by nurul 12/2/2019
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
+            ////end add by nurul 12/2/2019
+            //end remark by calvin 23 april 2019
         }
         function ClearCategoryLazada(divIDpertama, divIDselanjutnya, divIDattribute, i, undoing) {
             var fieldCategoryCode = '#ListHargaJualPermarket_' + i + '__CATEGORY_CODE';
@@ -1104,7 +1170,7 @@
             @*@{
                 var context_ = new MoDbContext();
             }*@
-            var idMarketLazada = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("LAZADA")).IdMarket));
+            var idMarketLazada = "7";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketLazada.toString() && (spec < 0 || spec == i)) {
@@ -1278,7 +1344,11 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_attribute_' + listMarketRecNum).show();
+                },
                 success: function (data) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -1465,7 +1535,7 @@
             @*@{
                 var context_ = new MoDbContext();
             }*@
-            var idMarketJD = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("JD.ID")).IdMarket));
+            var idMarketJD = "19";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketJD.toString() && (spec < 0 || spec == i)) {
@@ -1639,7 +1709,11 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_attribute_' + listMarketRecNum).show();
+                },
                 success: function (data) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -1656,7 +1730,7 @@
 
                                         var label = '<label class="control-label">' + ANAME;
                                         //if (AMANDATORY == "1") {
-                                            //label += '*';
+                                        //label += '*';
                                         //}
                                         label += '</label>';
                                         var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_' + listmarket_i + '__ACODE_' + (i + 1) + '" name="ListHargaJualPermarket[' + listmarket_i + '].ACODE_' + (i + 1) + '" type="hidden" value="' + ACODE + '" maxlength="50">';
@@ -1675,21 +1749,21 @@
                                         }
 
                                         //if (AINPUT_TYPE.toUpperCase().includes("MULTI") || AINPUT_TYPE.toUpperCase().includes("SELECT")) {
-                                            //hidden
-                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
+                                        //hidden
+                                        fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="' + fieldAVALUE_ID + '" name="ListHargaJualPermarket[' + listmarket_i + '].AVALUE_' + (i + 1) + '" value="' + adaValue + '" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
 
-                                            //select
-                                            var selectID = 'attribute_select_JD_' + listMarketRecNum + '_' + (i + 1);
+                                        //select
+                                        var selectID = 'attribute_select_JD_' + listMarketRecNum + '_' + (i + 1);
                                         SelectList.push(ACODE, listMarketRecNum, selectID, fieldAVALUE_ID, adaValue, listmarket_i);
-                                            //change by calvin 1 maret 2019
-                                            //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
-                                            //if (AMANDATORY == "1") {
+                                        //change by calvin 1 maret 2019
+                                        //fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div>';
+                                        //if (AMANDATORY == "1") {
                                         fieldAVALUE += '<div id="parent_' + selectID + '"><div id="div_' + selectID + '" class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih" data-valid-toggle-required="1" required="required"></select></div></div>';
-                                            //}
-                                            //else {
-                                            //    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
-                                            //}
-                                            //end change by calvin 1 maret 2019
+                                        //}
+                                        //else {
+                                        //    fieldAVALUE += '<div class="col-md-4"><select id="' + selectID + '" placeholder="Harap pilih"></select></div>';
+                                        //}
+                                        //end change by calvin 1 maret 2019
                                         //}
                                         //else {
                                         //    //textbox
@@ -1835,7 +1909,7 @@
             @*@{
                 var context_ = new MoDbContext();
             }*@
-            var idMarketBlibli = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("BLIBLI")).IdMarket));
+            var idMarketBlibli = "16";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketBlibli.toString() && (spec < 0 || spec == i)) {
@@ -2011,7 +2085,11 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_attribute_' + listMarketRecNum).show();
+                },
                 success: function (data) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2133,7 +2211,7 @@
                         var adaValues = adaValue.split(',');
                         AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
                     }
-                }                
+                }
             }
             else {
                 var AttributeOptSelect = $('#' + selectID).selectize({
@@ -2182,7 +2260,7 @@
             @*@{
                 var context_ = new MoDbContext();
         }*@
-            var idMarketElevenia = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("ELEVENIA")).IdMarket));
+            var idMarketElevenia = "9";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketElevenia.toString() && (spec < 0 || spec == i)) {
@@ -2356,7 +2434,11 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_attribute_' + listMarketRecNum).show();
+                },
                 success: function (data) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     var loop = 0;
                     var fieldAVALUE = "";
                     var SelectList = [];
@@ -2465,7 +2547,7 @@
             }
         }
         function getKategoriPertamaShopee(spec) {
-            var idMarketShopee = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("SHOPEE")).IdMarket));
+            var idMarketShopee = "17";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketShopee.toString() && (spec < 0 || spec == i)) {
@@ -2643,7 +2725,11 @@
                 url: link,
                 contentType: 'application/json',
                 cache: false,
+                beforeSend: function () {
+                    $('#loading_attribute_' + listMarketRecNum).show();
+                },
                 success: function (data) {
+                    $('#loading_attribute_' + listMarketRecNum).hide();
                     //debugger;
                     var loop = 0;
                     var fieldAVALUE = "";
@@ -2843,7 +2929,7 @@
             }
         }
         function getKategoriPertamaTokped(spec) {
-            var idMarketTokped = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("TOKOPEDIA")).IdMarket));
+            var idMarketTokped = "15";
             var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
             for (var i = 0; i < listMarket.length; i++) {
                 if (listMarket[i].NAMA == idMarketTokped.toString() && (spec < 0 || spec == i)) {
@@ -3274,7 +3360,37 @@
                 addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
                 ret = false;
             }
-            //add by Tri 08-10-2018, validasi category per marketplace blm dipilih
+
+            //add by calvin 23 april 2019
+            var belumSetFocus = true;
+            if (errorShopee == 1) {
+                belumSetFocus = false;
+                $('#shopee_detail_tab_focus').click();
+            }
+            if (errorTokped == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#tokped_detail_tab_focus').click();
+            }
+            if (errorLazada == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#lazada_detail_tab_focus').click();
+            }
+            if (errorBlibli == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#blibli_detail_tab_focus').click();
+            }
+            if (errorElevenia == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#elevenia_detail_tab_focus').click();
+            }
+            if (errorJDID == 1 && belumSetFocus) {
+                belumSetFocus = false;
+                $('#JD_detail_tab_focus').click();
+            }
+            //end add by calvin 23 april 2019
+
+            @*  remark by calvin 23 april 2019, pindah ke toggleRequiredDetailPerMarketplace
+                //add by Tri 08-10-2018, validasi category per marketplace blm dipilih
             var jmlMarket = @Model.ListMarket.ToList().Count;
             var jmlPricePerMarket = @Model.ListHargaJualPermarketView.ToList().Count;
 
@@ -3295,11 +3411,10 @@
                         validCategory = false;
                     }
                 }
-
             }
             if (!validCategory)
                 alert('Anda belum memilih Kategori barang di tab per marketplace.');
-            //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih
+            //end add by Tri 08-10-2018, validasi category per marketplace blm dipilih*@
             return ret;
         }
         function addError(obj, msg) {
@@ -3309,7 +3424,21 @@
                 $this.closest('div').append('<span class="text-danger">'+msg+'</span>');
             }
         }
+
+        var errorShopee = 0;
+        var errorTokped= 0;
+        var errorLazada = 0;
+        var errorBlibli = 0;
+        var errorElevenia= 0;
+        var errorJDID= 0;
+
         function toggleRequiredDetailPerMarketplace(){
+            errorShopee = 0;
+            errorTokped= 0;
+            errorLazada = 0;
+            errorBlibli = 0;
+            errorElevenia = 0;
+            errorJDID = 0;
             $('.cbxTarget').each(function () {
                 var $this = $(this);
 
@@ -3320,6 +3449,34 @@
                 else {
                     var data_ar_recnum = $this.attr("data-ar-recnum");
                     $('#div_detail_' + data_ar_recnum + ' :input[data-valid-toggle-required="1"]').attr('required', 'required');
+
+                    var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
+                    for (var i = 0; i < listMarket.length; i++) {
+                        if (listMarket[i].RecNum == data_ar_recnum) {
+                            if ($('#ListHargaJualPermarket_' + i + '__CATEGORY_CODE').val() == "") {
+                                switch (listMarket[i].NAMA) {
+                                    case "17":
+                                        errorShopee = 1;
+                                        break;
+                                    case "15":
+                                        errorTokped = 1;
+                                        break;
+                                    case "7":
+                                        errorLazada = 1;
+                                        break;
+                                    case "16":
+                                        errorBlibli = 1;
+                                        break;
+                                    case "9":
+                                        errorElevenia = 1;
+                                        break;
+                                    case "19":
+                                        errorJDID = 1;
+                                        break;
+                                }
+                            }
+                        }
+                    }
                 }
             });
         }
@@ -3389,12 +3546,12 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        $('#table-barang-1-partial').html(response);
-                        Initialize();
-                        refreshTableBarang();
+                        //$('#table-barang-1-partial').html(response);
+                        //Initialize(); //remark by calvin 23 april 2019
                         $('#close-editor-1').click();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
+                        refreshTableBarang();
                     } else {
                         if (response.errorHargaPerMP == null) {
                             console.log(response.Errors);
@@ -3450,8 +3607,11 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        $('#var-structure-partial').html('');
-                        $('#var-detail-variant-partial').html('');
+                        //change by calvin 23 april 2019
+                        //$('#var-structure-partial').html('');
+                        //$('#var-detail-variant-partial').html('');
+                        CekTabVariant();
+                        //end change by calvin 23 april 2019
 
                         $('#loading_structure_partial').hide();
                         $('#loading_detail_variant_partial').hide();
@@ -3507,7 +3667,9 @@
 
         $idBarang = "";
 
-        function refreshFormBarang() {
+
+        //function refreshFormBarang() {
+        function tambahBaruBarang() {
             var link = '@Url.Action("RefreshFormBarang", "Manage")';
 
             $.ajax({
@@ -3517,9 +3679,24 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $('#close-editor-1')[0].disabled = false;
+                    $('.barang_table_section').hide();
+                    $('.barang_editor_section').show();
                     $('#form-partial').html(response);
-                    Initialize();
-                    initRequired();
+
+                    $('#variant-induk-tab').removeAttr('data-toggle');
+                    $('#variant-induk-tab').addClass('disabled-tab');
+                    if ($('#Stf02_BRG').val() == '') {
+                        $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
+                            $(this).val(convertToRupiah(0));
+                        });
+                    }
+
+                    //remark by calvin 23 april 2019
+                    //Initialize();
+                    //initRequired();
+                    //end remark by calvin 23 april 2019
+
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -3528,6 +3705,7 @@
                 }
             });
         }
+
         var model_listhargajualpermarketview = "";
         function editBarang(idBarang) {
             var link = '@Url.Action("EditBarang", "Manage", new { barangId = "replaceId" })';
@@ -3540,12 +3718,19 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $('.barang_table_section').hide();
+                    $('.barang_editor_section').show();
+                    $('#close-editor-1')[0].disabled = false;
                     $('#form-partial').html(response);
 
                     $('#Stf02_BRG').attr('disabled', 'disabled');
-                    Initialize();
-                    initRequired();
-                    $('#tambah_barang').click();
+
+                    //remark by calvin 23 april 2019
+                    //Initialize();
+                    //initRequired();
+                    //$('#tambah_barang').click();
+                    //end remark by calvin 23 april 2019
+
                     $('#loading_spinner').hide();
                     CekTabVariant();
                 },
@@ -3663,7 +3848,7 @@
                         $('#konfHapusBarang').modal('hide');
                         alert(response.Errors[0]);
                     } else {
-                        $('#table-barang-1-partial').html(response);
+                        //$('#table-barang-1-partial').html(response); //remark by calvin 22 april 2019
                         //Initialize();
                         refreshTableBarang();
                         $('#konfHapusBarang').modal('hide');
@@ -3805,7 +3990,7 @@
                 function (resolve, reject) {
                     bucket.deleteObject({ Key: fileName }, function (err, data) {
                         if (err) console.log(err, err.stack); // an error occurred
-                        else console.log(data);           // successful response
+                        else console.log(data);// successful response
                     });
                 }
             );
