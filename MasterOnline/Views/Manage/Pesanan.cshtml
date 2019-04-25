@@ -1323,31 +1323,9 @@
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
-                    <div class="row pesanan_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="row pesanan_table_section">
-                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-                    </div>*@
                     <div class="row pesanan_table_section form-group">
                         @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
-                        <div class="col-md-2 col-sm-2 col-xs-12" >
+                        <div class="col-md-2 col-sm-2 col-xs-12">
                             @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
                             <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
                                 @*<option value="default">Harap pilih</option>*@
@@ -1373,6 +1351,30 @@
                         </div>
                         <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
                     </div>
+                    <div class="row pesanan_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right" id="tambah_baru_tombol_section">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row pesanan_table_section">
+            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+        </div>*@
+
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         <div id="loading_pesanan_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
@@ -4274,7 +4276,7 @@
                             $('#Pesanan_EXPEDISI').val(value);
                             //change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
                             //$('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
-                            $('#SHIPMENT').val($("#EXPEDISI option:selected").text());
+                            $('#Pesanan_SHIPMENT').val($("#EXPEDISI option:selected").text());
                             //end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
                             $('#btn-simpan-perubahan-row').show();
                         }
@@ -6555,7 +6557,7 @@
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
                     //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
-                    //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    //$('#see_pembeli_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
                     //ADD BY NURUL 16/4/2019
                     //$('#see_alamat_pembeli').val(al_lengkap).show();
                     //END ADD BY NURUL 16/4/2019

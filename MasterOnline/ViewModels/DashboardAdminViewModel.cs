@@ -14,6 +14,8 @@ namespace MasterOnline.ViewModels
         public int? Three { get; set; }
         public int? Twelve { get; set; }
         public double Bayar { get; set; }
-        
+
+        public List<Account> ListAccountCS { get; set; } = new List<Account>();
+        public List<Account> ListAccounteX { get; set; } = new List<Account>();
     }
 }
