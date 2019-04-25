@@ -329,7 +329,7 @@ namespace MasterOnline.Controllers
             //    xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
             //    xmlString += "</" + dsNormal[i].ToString() + ">";                
             //}
-            foreach(var lzdAttr in lzdAttrWithVal)
+            foreach (var lzdAttr in lzdAttrWithVal)
             {
                 xmlString += "<" + lzdAttr.Key + ">";
                 xmlString += lzdAttr.Value.ToString();
@@ -3973,6 +3973,62 @@ namespace MasterOnline.Controllers
             }
             return new List<ATTRIBUTE_OPT_LAZADA>();
         }
+
+        public void GetCategoryLzd()
+        {
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/category/tree/get");
+            request.SetHttpMethod("GET");
+            LazopResponse response = client.Execute(request);
+
+            if (response != null)
+            {
+                var bindData = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(CategoryResponse)) as CategoryResponse;
+                if (bindData != null)
+                {
+                    //return data;
+                    foreach (CategoryNew cat in bindData.data)
+                    {
+                        var tblCategory = new CATEGORY_LAZADA();
+                        tblCategory.CATEGORY_ID = cat.category_id.ToString();
+                        tblCategory.NAME = cat.Name.Replace('\'', '_');
+                        tblCategory.LEAF = cat.leaf;
+                        tblCategory.PARENT_ID = "";
+
+                        MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
+                        MoDbContext.SaveChanges();
+
+                        if (cat.Children != null)
+                            recursiveCategory(cat.category_id.ToString(), cat.Children);
+                    }
+                }
+            }
+            //return null;
+        }
+        public void recursiveCategory(string parentId, List<CategoryNew> data)
+        {
+            foreach (CategoryNew cat in data)
+            {
+                var tblCategory = new CATEGORY_LAZADA();
+                tblCategory.CATEGORY_ID = cat.category_id.ToString();
+                tblCategory.NAME = cat.Name.Replace('\'', '_');
+                tblCategory.LEAF = cat.leaf;
+                tblCategory.PARENT_ID = parentId;
+                try
+                {
+                    MoDbContext.CATEGORY_LAZADA.Add(tblCategory);
+                    MoDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    var a = ex;
+                }
+                if (cat.Children != null)
+                    recursiveCategory(cat.category_id.ToString(), cat.Children);
+            }
+        }
+
         public ATTRIBUTE_LAZADA getAttrLzd(string code)
         {
             var retAttr = new ATTRIBUTE_LAZADA();
@@ -4253,5 +4309,20 @@ namespace MasterOnline.Controllers
                     break;
             }
         }
+    }
+
+    public class CategoryResponse : LazadaCommonRes
+    {
+        //public string code { get; set; }
+        public List<CategoryNew> data { get; set; }
+
+    }
+    public class CategoryNew
+    {
+        public long category_id { get; set; }
+        public string Name { get; set; }
+        public List<CategoryNew> Children { get; set; }
+        public bool leaf { get; set; }
+        public bool var { get; set; }
     }
 }

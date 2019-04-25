@@ -208,7 +208,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, int item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
+        public async Task<BindingBase> GetItemDetail(ShopeeAPIData iden, long item_id, List<TEMP_BRG_MP> tempBrg_local, List<STF02H> stf02h_local, int IdMarket)
         {
             //    int MOPartnerID = 841371;
             //    string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1249,7 +1249,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        protected void RecursiveInsertCategory(SqlCommand oCommand, ShopeeGetCategoryCategory[] categories, int parent, int master_category_code)
+        protected void RecursiveInsertCategory(SqlCommand oCommand, ShopeeGetCategoryCategory[] categories, long parent, long master_category_code)
         {
             foreach (var child in categories.Where(p => p.parent_id == parent))
             {
@@ -4854,7 +4854,7 @@ namespace MasterOnline.Controllers
             public int partner_id { get; set; }
             public int shopid { get; set; }
             public long timestamp { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
         }
 
         public class ShopeeGetItemListResult
@@ -4867,11 +4867,11 @@ namespace MasterOnline.Controllers
         public class ShopeeGetItemListItem
         {
             public string status { get; set; }
-            public int update_time { get; set; }
+            public long update_time { get; set; }
             public string item_sku { get; set; }
             public ShopeeGetItemListVariation[] variations { get; set; }
-            public int shopid { get; set; }
-            public int item_id { get; set; }
+            public long shopid { get; set; }
+            public long item_id { get; set; }
         }
 
         public class ShopeeGetItemListVariation
@@ -4894,22 +4894,22 @@ namespace MasterOnline.Controllers
             public float package_width { get; set; }
             public int cmt_count { get; set; }
             public float weight { get; set; }
-            public int shopid { get; set; }
+            public long shopid { get; set; }
             public string currency { get; set; }
-            public int create_time { get; set; }
+            public long create_time { get; set; }
             public int likes { get; set; }
             public string[] images { get; set; }
             public int days_to_ship { get; set; }
             public float package_length { get; set; }
             public int stock { get; set; }
             public string status { get; set; }
-            public int update_time { get; set; }
+            public long update_time { get; set; }
             public string description { get; set; }
-            public int views { get; set; }
+            public long views { get; set; }
             public float price { get; set; }
             public int sales { get; set; }
-            public int discount_id { get; set; }
-            public int item_id { get; set; }
+            public long discount_id { get; set; }
+            public long item_id { get; set; }
             public object[] wholesales { get; set; }
             public string condition { get; set; }
             public float package_height { get; set; }
@@ -4920,7 +4920,7 @@ namespace MasterOnline.Controllers
             public string size_chart { get; set; }
             public bool has_variation { get; set; }
             public ShopeeGetItemDetailAttribute[] attributes { get; set; }
-            public int category_id { get; set; }
+            public long category_id { get; set; }
         }
 
         public class ShopeeGetItemDetailLogistic
@@ -4928,7 +4928,7 @@ namespace MasterOnline.Controllers
             public string logistic_name { get; set; }
             public bool is_free { get; set; }
             public float estimated_shipping_fee { get; set; }
-            public int logistic_id { get; set; }
+            public long logistic_id { get; set; }
             public bool enabled { get; set; }
         }
 
@@ -4936,8 +4936,8 @@ namespace MasterOnline.Controllers
         {
             public string status { get; set; }
             public float original_price { get; set; }
-            public int update_time { get; set; }
-            public int create_time { get; set; }
+            public long update_time { get; set; }
+            public long create_time { get; set; }
             public string name { get; set; }
             public float price { get; set; }
             public string variation_sku { get; set; }
@@ -4949,7 +4949,7 @@ namespace MasterOnline.Controllers
         {
             public string attribute_name { get; set; }
             public bool is_mandatory { get; set; }
-            public int attribute_id { get; set; }
+            public long attribute_id { get; set; }
             public string attribute_value { get; set; }
             public string attribute_type { get; set; }
         }
@@ -4963,9 +4963,9 @@ namespace MasterOnline.Controllers
 
         public class ShopeeGetCategoryCategory
         {
-            public int parent_id { get; set; }
+            public long parent_id { get; set; }
             public bool has_children { get; set; }
-            public int category_id { get; set; }
+            public long category_id { get; set; }
             public string category_name { get; set; }
         }
 
@@ -4980,7 +4980,7 @@ namespace MasterOnline.Controllers
             public string attribute_name { get; set; }
             public string input_type { get; set; }
             public ShopeeGetAttributeValue[] values { get; set; }
-            public int attribute_id { get; set; }
+            public long attribute_id { get; set; }
             public string attribute_type { get; set; }
             public bool is_mandatory { get; set; }
             public string[] options { get; set; }
@@ -5004,7 +5004,7 @@ namespace MasterOnline.Controllers
         {
             public string ordersn { get; set; }
             public string order_status { get; set; }
-            public int update_time { get; set; }
+            public long update_time { get; set; }
         }
 
         public class ShopeeGetOrderDetailsResult
@@ -5023,14 +5023,14 @@ namespace MasterOnline.Controllers
             public string message_to_seller { get; set; }
             public string shipping_carrier { get; set; }
             public string currency { get; set; }
-            public int create_time { get; set; }
+            public long create_time { get; set; }
             public int? pay_time { get; set; }
             public ShopeeGetOrderDetailsResultRecipient_Address recipient_address { get; set; }
             public int days_to_ship { get; set; }
             public string tracking_no { get; set; }
             public string order_status { get; set; }
-            public int note_update_time { get; set; }
-            public int update_time { get; set; }
+            public long note_update_time { get; set; }
+            public long update_time { get; set; }
             public bool goods_to_declare { get; set; }
             public string total_amount { get; set; }
             public string service_code { get; set; }
@@ -5065,7 +5065,7 @@ namespace MasterOnline.Controllers
             public string variation_discounted_price { get; set; }
             public long variation_id { get; set; }
             public string variation_name { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public int variation_quantity_purchased { get; set; }
             public string variation_sku { get; set; }
             public string variation_original_price { get; set; }
@@ -5080,24 +5080,24 @@ namespace MasterOnline.Controllers
 
         public class ShopeeInitLogisticDropOffData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
             public object dropoff { get; set; }
         }
         public class ShopeeInitLogisticPickupData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
             public object pickup { get; set; }
         }
         public class ShopeeInitLogisticNonIntegratedData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
             public object non_integrated { get; set; }
@@ -5128,17 +5128,17 @@ namespace MasterOnline.Controllers
 
         public class ShopeeUpdateStockData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long item_id { get; set; }
-            public int stock { get; set; }
+            public long stock { get; set; }
         }
 
         public class ShopeeUpdateVariationStockData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long item_id { get; set; }
             public long variation_id { get; set; }
@@ -5152,8 +5152,8 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeGetLogisticsData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
         }
 
@@ -5171,7 +5171,7 @@ namespace MasterOnline.Controllers
             public object[] sizes { get; set; }
             public string logistic_name { get; set; }
             public bool enabled { get; set; }
-            public int logistic_id { get; set; }
+            public long logistic_id { get; set; }
             public string fee_type { get; set; }
         }
 
@@ -5190,15 +5190,15 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeCancelOrderData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
             public string cancel_reason { get; set; }
         }
         public class ShopeeCancelOrderResult
         {
-            public int modified_time { get; set; }
+            public long modified_time { get; set; }
             public string request_id { get; set; }
             public string msg { get; set; }
             public string error { get; set; }
@@ -5206,8 +5206,8 @@ namespace MasterOnline.Controllers
         public class ShopeeGetVariation
         {
             public long item_id { get; set; }
-            public int shopid { get; set; }
-            public int partner_id { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
             public long timestamp { get; set; }
         }
         public class ShopeeInitTierVariation
@@ -5215,8 +5215,8 @@ namespace MasterOnline.Controllers
             public long item_id { get; set; }
             public ShopeeTierVariation[] tier_variation { get; set; }
             public ShopeeVariation[] variation { get; set; }
-            public int shopid { get; set; }
-            public int partner_id { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
             public long timestamp { get; set; }
 
         }
@@ -5318,7 +5318,7 @@ namespace MasterOnline.Controllers
 
         public class ShopeeCreatePromoRes : ShopeeError
         {
-            public int discount_id { get; set; }
+            public long discount_id { get; set; }
             public int count { get; set; }
         }
         public class ShopeeDeletePromo : ShopeeError
@@ -5333,21 +5333,21 @@ namespace MasterOnline.Controllers
             public double package_width { get; set; }
             public int cmt_count { get; set; }
             public double weight { get; set; }
-            public int shopid { get; set; }
+            public long shopid { get; set; }
             public string currency { get; set; }
-            public int create_time { get; set; }
+            public long create_time { get; set; }
             public int likes { get; set; }
             public List<string> images { get; set; }
             public int days_to_ship { get; set; }
             public double package_length { get; set; }
             public int stock { get; set; }
             public string status { get; set; }
-            public int update_time { get; set; }
+            public long update_time { get; set; }
             public string description { get; set; }
             public int views { get; set; }
             public double price { get; set; }
             public int sales { get; set; }
-            public int discount_id { get; set; }
+            public long discount_id { get; set; }
             public object[] wholesales { get; set; }
             public string condition { get; set; }
             public double package_height { get; set; }
@@ -5372,31 +5372,31 @@ namespace MasterOnline.Controllers
 
         public class ShopeeAcceptBuyerCancelOrderData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
         }
         public class ShopeeUpdatePriceData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long item_id { get; set; }
             public float price { get; set; }
         }
         public class ShopeeUpdateImageData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long item_id { get; set; }
             public string[] images { get; set; }
         }
         public class ShopeeUpdateVariantionPriceData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long item_id { get; set; }
             public long variation_id { get; set; }
@@ -5404,8 +5404,8 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeAddDiscountData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string discount_name { get; set; }
             public long start_time { get; set; }
@@ -5427,16 +5427,16 @@ namespace MasterOnline.Controllers
 
         public class ShopeeAddDiscountItemData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long discount_id { get; set; }
             public List<ShopeeAddDiscountDataItems> items { get; set; }
         }
         public class ShopeeDeleteDiscountItemData : ShopeeError
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long discount_id { get; set; }
             public long item_id { get; set; }
@@ -5444,30 +5444,30 @@ namespace MasterOnline.Controllers
         }
         public class ShopeeDeleteDiscountData : ShopeeError
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long discount_id { get; set; }
         }
 
         public class ShopeeGetAddressData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
         }
         public class ShopeeGetTimeSlotData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public long address_id { get; set; }
             public string ordersn { get; set; }
         }
         public class ShopeeGetBranchData
         {
-            public int partner_id { get; set; }
-            public int shopid { get; set; }
+            public long partner_id { get; set; }
+            public long shopid { get; set; }
             public long timestamp { get; set; }
             public string ordersn { get; set; }
         }
@@ -5482,7 +5482,7 @@ namespace MasterOnline.Controllers
         {
             public string town { get; set; }
             public string city { get; set; }
-            public int address_id { get; set; }
+            public long address_id { get; set; }
             public string district { get; set; }
             public string country { get; set; }
             public string zipcode { get; set; }
@@ -5498,7 +5498,7 @@ namespace MasterOnline.Controllers
 
         public class ShopeeGetTimeSlotResultPickup_Time
         {
-            public int date { get; set; }
+            public long date { get; set; }
             public string date_string { get; set; }
             public string pickup_time_id { get; set; }
             public string time_text { get; set; }
@@ -5515,9 +5515,9 @@ namespace MasterOnline.Controllers
         {
             public string status { get; set; }
             public float original_price { get; set; }
-            public int update_time { get; set; }
-            public int create_time { get; set; }
-            public int discount_id { get; set; }
+            public long update_time { get; set; }
+            public long create_time { get; set; }
+            public long discount_id { get; set; }
             public string name { get; set; }
             public float price { get; set; }
             public string variation_sku { get; set; }
@@ -5527,7 +5527,7 @@ namespace MasterOnline.Controllers
 
         public class InitTierVariationResult
         {
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public Variation_Id_List[] variation_id_list { get; set; }
             public string request_id { get; set; }
         }
@@ -5540,7 +5540,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariationResult
         {
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public GetVariationResultTier_Variation[] tier_variation { get; set; }
             public GetVariationResultVariation[] variations { get; set; }
             public string request_id { get; set; }
@@ -5562,8 +5562,8 @@ namespace MasterOnline.Controllers
         {
             public long item_id { get; set; }
             public ShopeeVariation[] variation { get; set; }
-            public int shopid { get; set; }
-            public int partner_id { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
             public long timestamp { get; set; }
 
         }

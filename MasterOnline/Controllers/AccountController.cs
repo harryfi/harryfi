@@ -458,6 +458,16 @@ namespace MasterOnline.Controllers
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+
+                //var jdapi = new JDIDController();
+                //var data3 = new JDIDAPIData
+                //{
+                //    accessToken = "4304bd28315728067f7db7e6ff8cc015",
+                //    appKey = "86b082cb8d3436bb340739a90d953ec7",
+                //    appSecret = "1bcda1dca02339e049cb26c5b4c7da12"
+                //};
+                //jdapi.Order_JD(data3, "000025");
+
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");

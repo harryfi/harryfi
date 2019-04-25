@@ -325,7 +325,7 @@ namespace MasterOnline.Models
     {
         //public Deal_Info deal_info { get; set; }
         public string deal_request_state { get; set; }
-        public int price { get; set; }
+        public double price { get; set; }
         public long category_id { get; set; }
         public string category { get; set; }
         public string[] category_structure { get; set; }

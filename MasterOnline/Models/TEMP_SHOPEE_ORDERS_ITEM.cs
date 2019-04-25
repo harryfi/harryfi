@@ -21,7 +21,7 @@ namespace MasterOnline
         public long variation_id { get; set; }
         public string variation_name { get; set; }
         [Key, Column(Order = 1)]
-        public int item_id { get; set; }
+        public long item_id { get; set; }
         public int variation_quantity_purchased { get; set; }
         public string variation_sku { get; set; }
         public string variation_original_price { get; set; }

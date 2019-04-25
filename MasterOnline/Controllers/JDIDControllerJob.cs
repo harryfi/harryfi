@@ -1,4 +1,5 @@
 ﻿using Erasoft.Function;
+using Hangfire;
 using MasterOnline.Models;
 using MasterOnline.ViewModels;
 using Newtonsoft.Json;
@@ -17,23 +18,22 @@ using System.Web.Http;
 
 namespace MasterOnline.Controllers
 {
-    public class JDIDController : ApiController
+    public class JDIDControllerJob : ApiController
     {
-
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
         public string imageUrl = "https://img20.jd.id/Indonesia/s300x300_/";
-        public string ServerUrl = "https://open.jd.id/api";
-        public string AccessToken = "";
-        public string AppKey = "";
-        public string AppSecret = "";
-        public string Version = "1.0";
-        public string Format = "json";
-        public string SignMethod = "md5";
-        private string Charset_utf8 = "UTF-8";
-        public string Method;
-        public string ParamJson;
-        public string ParamFile;
+        //public string ServerUrl = "https://open.jd.id/api";
+        //public string AccessToken = "";
+        //public string AppKey = "";
+        //public string AppSecret = "";
+        //public string Version = "1.0";
+        //public string Format = "json";
+        //public string SignMethod = "md5";
+        //private string Charset_utf8 = "UTF-8";
+        //public string Method;
+        //public string ParamJson;
+        //public string ParamFile;
         protected List<long> listCategory = new List<long>();
         public List<Model_Brand> listBrand = new List<Model_Brand>();
 
@@ -41,256 +41,43 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         string username;
 
-        public JDIDController()
+        public JDIDControllerJob()
+        {
+            //MoDbContext = new MoDbContext();
+            //var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+            //if (sessionData?.Account != null)
+            //{
+            //    if (sessionData.Account.UserId == "admin_manage")
+            //        ErasoftDbContext = new ErasoftContext();
+            //    else
+            //        ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
+
+            //    EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+            //    username = sessionData.Account.Username;
+            //}
+            //else
+            //{
+            //    if (sessionData?.User != null)
+            //    {
+            //        var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+            //        ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+            //        EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+            //        username = accFromUser.Username;
+            //    }
+            //}
+        }
+
+        protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext();
-            var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
-            if (sessionData?.Account != null)
-            {
-                if (sessionData.Account.UserId == "admin_manage")
-                    ErasoftDbContext = new ErasoftContext();
-                else
-                    ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
-
-                EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
-                username = sessionData.Account.Username;
-            }
-            else
-            {
-                if (sessionData?.User != null)
-                {
-                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
-                    ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
-                    EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                    username = accFromUser.Username;
-                }
-            }
+            ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
+            EDB = new DatabaseSQL(DatabasePathErasoft);
+            username = uname;
         }
-
-        #region jdid tools
-        private string getCurrentTimeFormatted()
-        {
-            var dt = System.DateTime.Now.ToLocalTime();
-            return dt.ToString("yyyy-MM-dd HH:mm:ss.fff") + dt.ToString("zzzz").Replace(":", "");
-        }
-
-        public string Call()
-        {
-            //construct system parameters
-            var sysParams = new Dictionary<string, string>();
-            sysParams.Add("app_key", this.AppKey);
-            sysParams.Add("v", this.Version);
-            sysParams.Add("format", this.Format);
-            sysParams.Add("sign_method", this.SignMethod);
-            sysParams.Add("method", this.Method);
-            sysParams.Add("timestamp", this.getCurrentTimeFormatted());
-            sysParams.Add("access_token", this.AccessToken);
-
-            //get business parameters
-            if (null != this.ParamJson && this.ParamJson.Length > 0)
-            {
-                sysParams.Add("param_json", this.ParamJson);
-            }
-            else
-            {
-                sysParams.Add("param_json", "{}");
-            }
-            //sign
-            sysParams.Add("sign", this.generateSign(sysParams));
-
-            //send http post request
-            var content = this.curl(this.ServerUrl, null, sysParams);
-            return content;
-        }
-
-        public string Call4BigData()
-        {
-            //construct system parameters
-            var sysParams = new Dictionary<string, string>();
-            sysParams.Add("app_key", this.AppKey);
-            sysParams.Add("v", this.Version);
-            sysParams.Add("format", this.Format);
-            sysParams.Add("sign_method", this.SignMethod);
-            sysParams.Add("method", this.Method);
-            sysParams.Add("timestamp", this.getCurrentTimeFormatted());
-            sysParams.Add("access_token", this.AccessToken);
-
-            //get business parameters
-            if (null != this.ParamJson && this.ParamJson.Length > 0)
-            {
-                sysParams.Add("param_json", this.ParamJson);
-            }
-            else
-            {
-                sysParams.Add("param_json", "{}");
-            }
-
-            //get business file which would upload
-            if (null != this.ParamFile && this.ParamFile.Length > 0)
-            {
-                sysParams.Add("param_file_md5", this.GetMD5HashFromFile(this.ParamFile));
-            }
-            else
-            {
-                throw new ArgumentException("paramter ParamFile is required");
-            }
-
-            //sign
-            sysParams.Add("sign", this.generateSign(sysParams));
-
-            //send http post request
-            var postDatas = new NameValueCollection();
-            foreach (var item in sysParams)
-            {
-                postDatas.Add(item.Key, item.Value);
-            }
-            var content = this.curl(this.ServerUrl, new string[] { this.ParamFile }, sysParams);
-            return content;
-        }
-
-        private string GetMD5HashFromFile(string fileName)
-        {
-            using (var md5 = MD5.Create())
-            {
-                using (var stream = File.OpenRead(fileName))
-                {
-                    return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
-                }
-            }
-        }
-
-        public string curl(string url, string[] files, Dictionary<string, string> formFields = null)
-        {
-            string boundary = "----------------------------" + DateTime.Now.Ticks.ToString("x");
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-            request.ContentType = "multipart/form-data; boundary=" +
-                                    boundary;
-            request.Method = "POST";
-            request.KeepAlive = true;
-
-            Stream memStream = new System.IO.MemoryStream();
-
-            var boundarybytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" +
-                                                                    boundary + "\r\n");
-            var endBoundaryBytes = System.Text.Encoding.ASCII.GetBytes("\r\n--" +
-                                                                        boundary + "--");
-
-
-            string formdataTemplate = "\r\n--" + boundary +
-                                        "\r\nContent-Disposition: form-data; name=\"{0}\";\r\n\r\n{1}";
-            try
-            {
-                if (formFields != null)
-                {
-                    foreach (string key in formFields.Keys)
-                    {
-                        string formitem = string.Format(formdataTemplate, key, formFields[key]);
-                        byte[] formitembytes = System.Text.Encoding.UTF8.GetBytes(formitem);
-                        memStream.Write(formitembytes, 0, formitembytes.Length);
-                    }
-                }
-
-
-                //file
-                if (files != null)
-                {
-                    string headerTemplate =
-                        "Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\n" +
-                        "Content-Type: application/octet-stream\r\n\r\n";
-                    for (int i = 0; i < files.Length; i++)
-                    {
-                        memStream.Write(boundarybytes, 0, boundarybytes.Length);
-                        var header = string.Format(headerTemplate, "param_file", files[i]);
-                        var headerbytes = System.Text.Encoding.UTF8.GetBytes(header);
-
-                        memStream.Write(headerbytes, 0, headerbytes.Length);
-
-                        using (var fileStream = new FileStream(files[i], FileMode.Open, FileAccess.Read))
-                        {
-                            var buffer = new byte[1024];
-                            var bytesRead = 0;
-                            while ((bytesRead = fileStream.Read(buffer, 0, buffer.Length)) != 0)
-                            {
-                                memStream.Write(buffer, 0, bytesRead);
-                            }
-                        }
-                    }
-                }
-                //~:end file
-
-
-                memStream.Write(endBoundaryBytes, 0, endBoundaryBytes.Length);
-                request.ContentLength = memStream.Length;
-
-                using (Stream requestStream = request.GetRequestStream())
-                {
-                    memStream.Position = 0;
-                    byte[] tempBuffer = new byte[memStream.Length];
-                    memStream.Read(tempBuffer, 0, tempBuffer.Length);
-                    memStream.Close();
-                    requestStream.Write(tempBuffer, 0, tempBuffer.Length);
-                }
-
-                using (var response = request.GetResponse())
-                {
-                    Stream stream2 = response.GetResponseStream();
-                    StreamReader reader2 = new StreamReader(stream2);
-                    return reader2.ReadToEnd();
-                }
-            }
-            catch (Exception ex)
-            {
-                return ex.InnerException == null ? ex.Message : ex.InnerException.Message;
-            }
-
-        }
-
-        private string generateSign(Dictionary<string, string> sysDataDictionary)
-        {
-            var dic = sysDataDictionary.OrderBy(key => key.Key).ToDictionary((keyItem) => keyItem.Key, (valueItem) => valueItem.Value);
-            var sb = new System.Text.StringBuilder();
-            foreach (var item in dic)
-            {
-                if (!"".Equals(item.Key) && !"".Equals(item.Value))
-                {
-                    sb.Append(item.Key).Append(item.Value);
-                }
-
-            }
-            //prepend and append appsecret   
-            sb.Insert(0, this.AppSecret);
-            sb.Append(this.AppSecret);
-            var signValue = this.calculateMD5Hash(sb.ToString());
-            //Console.WriteLine("raw string=" + sb.ToString());
-            //Console.WriteLine("signValue=" + signValue);
-            return signValue;
-        }
-
-
-        private string calculateMD5Hash(string input)
-        {
-            // step 1, calculate MD5 hash from input
-            MD5 md5 = System.Security.Cryptography.MD5.Create();
-            byte[] inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
-            byte[] hash = md5.ComputeHash(inputBytes);
-
-            // step 2, convert byte array to hex string
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hash.Length; i++)
-            {
-                sb.Append(hash[i].ToString("X2"));
-            }
-
-            return sb.ToString();
-
-        }
-        #endregion
 
         [System.Web.Mvc.HttpGet]
         public void getCategory(JDIDAPIData data)
         {
-
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -343,7 +130,7 @@ namespace MasterOnline.Controllers
 #elif Debug_AWS
                                 string con = "Data Source=13.250.232.74;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #else
-                        string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
+                                string con = "Data Source=13.251.222.53;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
 #endif
                                 #endregion
                                 using (SqlConnection oConnection = new SqlConnection(con))
@@ -1144,13 +931,18 @@ namespace MasterOnline.Controllers
 
         }
 
-        public void Order_JD(JDIDAPIData data, string cust)
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public void Order_JD(JDIDAPIData data, string cust, string dbPathEra, string uname)
         {
             //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
             var listOrderId = new List<long>();
-
+            SetupContext(dbPathEra, uname);
             listOrderId.AddRange(GetOrderList(data, "1", 1));
             listOrderId.AddRange(GetOrderList(data, "2", 1));
+            listOrderId.AddRange(GetOrderList(data, "3", 1));
+            listOrderId.AddRange(GetOrderList(data, "4", 1));
+            listOrderId.AddRange(GetOrderList(data, "5", 1));
             listOrderId.AddRange(GetOrderList(data, "6", 1));
             string connectionID = Guid.NewGuid().ToString();
 
@@ -1178,7 +970,7 @@ namespace MasterOnline.Controllers
                 }
 
                 bool callSP = false;
-                bool pesananBaru = false;
+                int newRecord = 0;
                 foreach (var listOrder in ord.orderIds)
                 {
                     var insertTemp = GetOrderDetail(data, listOrder, cust, connectionID);
@@ -1186,7 +978,7 @@ namespace MasterOnline.Controllers
                     {
                         callSP = true;
                         if (insertTemp.recordCount > 0)
-                            pesananBaru = true;
+                            newRecord += insertTemp.recordCount;
                     }
                 }
 
@@ -1217,6 +1009,14 @@ namespace MasterOnline.Controllers
                     CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
 
                     EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+
+                    if (newRecord > 0)
+                    {
+                        var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                        contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(newRecord) + " Pesanan baru dari Lazada.");
+
+                        new StokControllerJob().updateStockMarketPlace(connectionID, dbPathEra, uname);
+                    }
                 }
             }
         }
@@ -1323,6 +1123,13 @@ namespace MasterOnline.Controllers
                                         doInsert = false;
                                     }
                                 }
+                                else if (order.orderState.ToString() == "3" || order.orderState.ToString() == "4")
+                                {
+                                    if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
+                                    {
+                                        doInsert = false;
+                                    }
+                                }
 
                                 if (doInsert)
                                 {
@@ -1351,7 +1158,7 @@ namespace MasterOnline.Controllers
                                             break;
                                     }
 
-                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime/1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
+                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
                                     insertQ += order.deliveryAddr.Replace('\'', '`') + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
                                     insertQ += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
                                     insertQ += order.sendPay + "','" + order.state.Replace('\'', '`') + "'," + order.totalPrice + ",'" + order.userPin + "','" + cust + "','" + username + "','" + conn_id + "') ,";
@@ -1491,317 +1298,6 @@ namespace MasterOnline.Controllers
                     break;
             }
         }
+
     }
-
-    #region jdid data class
-    public class Data_OrderDetail
-    {
-        public string message { get; set; }
-        public string model { get; set; }
-        public int code { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class ModelOrder
-    {
-        public List<DetailOrder_JD> data { get; set; }
-    }
-
-    public class DetailOrder_JD
-    {
-        public string address { get; set; }
-        public string area { get; set; }
-        public long bookTime { get; set; }
-        public string city { get; set; }
-        public float couponAmount { get; set; }
-        public string customerName { get; set; }
-        public string deliveryAddr { get; set; }
-        public int deliveryType { get; set; }
-        public string email { get; set; }
-        public float freightAmount { get; set; }
-        public float fullCutAmount { get; set; }
-        public float installmentFee { get; set; }
-        public long orderCompleteTime { get; set; }
-        public long orderId { get; set; }
-        public long orderSkuNum { get; set; }
-        public Orderskuinfo[] orderSkuinfos { get; set; }
-        public int orderState { get; set; }
-        public int orderType { get; set; }
-        public float paySubtotal { get; set; }
-        public int paymentType { get; set; }
-        public string phone { get; set; }
-        public string postCode { get; set; }
-        public float promotionAmount { get; set; }
-        public string sendPay { get; set; }
-        public string state { get; set; }
-        public float totalPrice { get; set; }
-        public string userPin { get; set; }
-    }
-
-    public class Orderskuinfo
-    {
-        public float commission { get; set; }
-        public float costPrice { get; set; }
-        public float couponAmount { get; set; }
-        public float fullCutAmount { get; set; }
-        public int hasPromo { get; set; }
-        public float jdPrice { get; set; }
-        public float promotionAmount { get; set; }
-        public long skuId { get; set; }
-        public string skuName { get; set; }
-        public int skuNumber { get; set; }
-        public long spuId { get; set; }
-        public int weight { get; set; }
-        public string popSkuId { get; set; }
-    }
-
-
-    public class List_Order_JD
-    {
-        public List<string> orderIds { get; set; }
-    }
-
-    public class Data_OrderIds
-    {
-        public string message { get; set; }
-        public List<long> model { get; set; }
-        public int code { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Data_Detail_Product
-    {
-        public int code { get; set; }
-        public string message { get; set; }
-        public List<Model_Detail_Product> model { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Detail_Product
-    {
-        public string skuName { get; set; }
-        public long skuId { get; set; }
-        public object upc { get; set; }
-        public object sellerSkuId { get; set; }
-        public string weight { get; set; }
-        public string netWeight { get; set; }
-        public string packLong { get; set; }
-        public string packWide { get; set; }
-        public string packHeight { get; set; }
-        public int piece { get; set; }
-        public string mainImgUri { get; set; }
-        public int status { get; set; }
-        public long spuId { get; set; }
-        public string saleAttributeIds { get; set; }
-        public dynamic saleAttributeNameMap { get; set; }
-        public float jdPrice { get; set; }
-        public object maxQuantity { get; set; }
-    }
-
-    public class JDIDAPIData
-    {
-        public string appKey { get; set; }
-        public string appSecret { get; set; }
-        public string accessToken { get; set; }
-    }
-
-
-    public class Data_UpStok
-    {
-        public int code { get; set; }
-        public string message { get; set; }
-        public dynamic model { get; set; }
-        public bool success { get; set; }
-    }
-
-
-    public class Data_Brand
-    {
-        public List<Model_Brand> model { get; set; }
-        public int code { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Brand
-    {
-        public long id { get; set; }
-        public int isForever { get; set; }
-        public string logo { get; set; }
-        public long shopId { get; set; }
-        public int state { get; set; }
-        public int brandState { get; set; }
-        public long brandId { get; set; }
-        public string brandName { get; set; }
-    }
-
-
-    public class JDID_RES
-    {
-        public string openapi_data { get; set; }
-        public string error { get; set; }
-        public int openapi_code { get; set; }
-        public string openapi_msg { get; set; }
-    }
-
-
-    public class DATA_CAT
-    {
-        public List<Model_Cat> model { get; set; }
-        public int code { get; set; }
-        public bool sucess { get; set; }
-    }
-    public class Model_Cat
-    {
-        public long id { get; set; }
-        public int cateState { get; set; }
-        public Model_Cat parentCateVo { get; set; }
-        public long cate1Id { get; set; }
-        public string cateNameEn { get; set; }
-        public long shopId { get; set; }
-        public int state { get; set; }
-        public long cate3Id { get; set; }
-        public int type { get; set; }
-        public long cate2Id { get; set; }
-        public long cateId { get; set; }
-        public string cateName { get; set; }
-    }
-
-
-    public class AttrData
-    {
-        public int code { get; set; }
-        public string message { get; set; }
-        public List<Model_Attr> model { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Attr
-    {
-        public long propertyId { get; set; }
-        public int type { get; set; }
-        public string name { get; set; }
-        public string nameEn { get; set; }
-    }
-
-    public class JDID_ATTRIBUTE_OPT
-    {
-        public int code { get; set; }
-        public string message { get; set; }
-        public Model_Opt model { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Opt
-    {
-        public int pageSize { get; set; }
-        public int totalCount { get; set; }
-        public List<JDOpt> data { get; set; }
-    }
-
-    public class JDOpt
-    {
-        public long attributeValueId { get; set; }
-        public string name { get; set; }
-        public string nameEn { get; set; }
-        public long attributeId { get; set; }
-    }
-
-    public class Data_ListProd
-    {
-        public Model_ListProd model { get; set; }
-        public int code { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_ListProd
-    {
-        public int totalNum { get; set; }
-        public string _class { get; set; }
-        public List<Spuinfovolist> spuInfoVoList { get; set; }
-        public int pageNum { get; set; }
-    }
-
-    public class Spuinfovolist
-    {
-        public long transportId { get; set; }
-        public string mainImgUri { get; set; }
-        public long spuId { get; set; }
-        public string fullCategoryId { get; set; }
-        public string _class { get; set; }
-        public string fullCategoryName { get; set; }
-        public long brandId { get; set; }
-        public long warrantyPeriod { get; set; }
-        public string description { get; set; }
-        public long shopId { get; set; }
-        //public int afterSale { get; set; }
-        public string spuName { get; set; }
-        //public string appDescription { get; set; }
-        public int wareStatus { get; set; }
-    }
-    public class ProductData
-    {
-        public List<Model_Product> model { get; set; }
-        public int code { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Product
-    {
-        public string packWide { get; set; }
-        public string weight { get; set; }
-        public string mainImgUri { get; set; }
-        public long spuId { get; set; }
-        public float jdPrice { get; set; }
-        public string skuName { get; set; }
-        public dynamic saleAttributeNameMap { get; set; }
-        public string saleAttributeIds { get; set; }
-        public string netWeight { get; set; }
-        public long skuId { get; set; }
-        public string packHeight { get; set; }
-        public string packLong { get; set; }
-        public int piece { get; set; }
-    }
-    public class DataProd
-    {
-        public int code { get; set; }
-        public object message { get; set; }
-        public List<Model_Product_2> model { get; set; }
-        public bool success { get; set; }
-    }
-
-    public class Model_Product_2
-    {
-        public object wareTypeId { get; set; }
-        //public object sellerType { get; set; }
-        public object catId { get; set; }
-        public object wareStatus { get; set; }
-        public string mainImgUri { get; set; }
-        //public int shopId { get; set; }
-        public long spuId { get; set; }
-        public string spuName { get; set; }
-        public string fullCategoryId { get; set; }
-        public string fullCategoryName { get; set; }
-        public string shopName { get; set; }
-        public long transportId { get; set; }
-        public object propertyRight { get; set; }
-        public string brandName { get; set; }
-        public string brandLogo { get; set; }
-        public List<long> skuIds { get; set; }
-        public string appDescription { get; set; }
-        public string commonAttributeIds { get; set; }
-        public dynamic commonAttributeNameMap { get; set; }
-        public long modified { get; set; }
-        public object imgUris { get; set; }
-        public long brandId { get; set; }
-        public object productArea { get; set; }
-        public string description { get; set; }
-        public int auditStatus { get; set; }
-        public int minQuantity { get; set; }
-        public int afterSale { get; set; }
-        public object crossProductType { get; set; }
-        public object clearanceType { get; set; }
-        public object taxesType { get; set; }
-        public object countryId { get; set; }
-    }
-    #endregion
 }

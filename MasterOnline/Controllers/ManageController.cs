@@ -17415,6 +17415,17 @@ namespace MasterOnline.Controllers
             return PartialView("TableUploadBarangPartial", barangVm);
         }
 
+        private void CreateSTF02HOffline(string brg, double hjual, int idOffline)
+        {
+            string sSQL = "insert into stf02h (brg, idmarket, akunmarket, username, hjual, display) ";
+            sSQL += "select '" + brg + "' , a.recnum, a.perso , 'auto_create', " + hjual + ", 1 ";
+            sSQL += "from arf01 a left join ";
+            sSQL += "(select * from stf02h where brg = '" + brg + "') As qry on a.recnum = qry.idmarket ";
+            sSQL += "where isnull(qry.brg, '') = '' and nama = '" + idOffline + "' ";
+
+            EDB.ExecuteSQL("CString", CommandType.Text, sSQL);
+        }
+
         public ActionResult UploadSatuBarang(UploadBarangViewModel data)
         {
             if (!ModelState.IsValid)
@@ -17500,6 +17511,7 @@ namespace MasterOnline.Controllers
                 {
                     if (data.Stf02 != null)
                     {
+                        var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                         data.Stf02.Deskripsi = HttpUtility.HtmlDecode(data.Stf02.Deskripsi);
                         var tokped = MoDbContext.Marketplaces.Where(a => a.NamaMarket.ToUpper() == "TOKOPEDIA").FirstOrDefault().IdMarket;
 
@@ -17701,6 +17713,13 @@ namespace MasterOnline.Controllers
                                                 if (tempBrginDB.KODE_BRG_INDUK != data.TempBrg.KODE_BRG_INDUK)//user input baru kode brg MO -> update kode brg induk pada brg varian
                                                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + data.TempBrg.KODE_BRG_INDUK + "' WHERE KODE_BRG_INDUK = '" + tempBrginDB.KODE_BRG_INDUK + "' AND CUST = '" + data.TempBrg.CUST + "'");
                                                 ErasoftDbContext.SaveChanges();
+
+                                                //add 25 April 2019, create stf02h untuk mp offline
+                                                if (offlineId != null)
+                                                {
+                                                    CreateSTF02HOffline(data.TempBrg.KODE_BRG_INDUK, data.TempBrg.HJUAL, offlineId.IdMarket.Value);
+                                                }
+                                                //end add 25 April 2019, create stf02h untuk mp offline
                                             }
                                             else
                                             {
@@ -18322,6 +18341,13 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
                         }
+
+                        //add 25 April 2019, create stf02h untuk mp offline
+                        if (offlineId != null)
+                        {
+                            CreateSTF02HOffline(data.Stf02.BRG, data.Stf02.HJUAL, offlineId.IdMarket.Value);
+                        }
+                        //end add 25 April 2019, create stf02h untuk mp offline
                     }
                     else
                     {
@@ -18624,6 +18650,14 @@ namespace MasterOnline.Controllers
                     EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE TEMP_BRG_MP SET KODE_BRG_INDUK = '" + kdBrgMO + "' WHERE KODE_BRG_INDUK = '" + tempBrg.BRG_MP + "' AND CUST = '" + tempBrg.CUST + "'");
                 ErasoftDbContext.SaveChanges();
 
+                //add 25 April 2019, create stf02h untuk mp offline
+                var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
+                if (offlineId != null)
+                {
+                    CreateSTF02HOffline(kdBrgMO, data.HJUAL, offlineId.IdMarket.Value);
+                }
+                //end add 25 April 2019, create stf02h untuk mp offline
+
                 ret.status = 1;
             }
             catch (Exception ex)
@@ -18703,6 +18737,7 @@ namespace MasterOnline.Controllers
                     var tempBrgInduktemp = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.IDMARKET == customer.RecNum).ToList();
                     var stf02htemp = ErasoftDbContext.STF02H.Where(t => t.IDMARKET == customer.RecNum).ToList();
 
+                    var offlineId = MoDbContext.Marketplaces.Where(m => m.NamaMarket.ToLower().Contains("offline")).FirstOrDefault();
                     foreach (var item in dataBrg)
                     {
                         //string brgBlibli = "";
@@ -18942,6 +18977,13 @@ namespace MasterOnline.Controllers
                                     #endregion
                                     ErasoftDbContext.SaveChanges();
                                     listBrgSuccess.Add(item.BRG_MP);
+
+                                    //add 25 April 2019, create stf02h untuk mp offline
+                                    if (offlineId != null)
+                                    {
+                                        CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                                    }
+                                    //end add 25 April 2019, create stf02h untuk mp offline
                                 }
                             }
                             else
@@ -19120,6 +19162,12 @@ namespace MasterOnline.Controllers
                                 ErasoftDbContext.SaveChanges();
                                 listBrgSuccess.Add(item.BRG_MP);
 
+                                //add 25 April 2019, create stf02h untuk mp offline
+                                if (offlineId != null)
+                                {
+                                    CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                                }
+                                //end add 25 April 2019, create stf02h untuk mp offline
                             }
                         }
                         else
@@ -19391,6 +19439,13 @@ namespace MasterOnline.Controllers
                             ErasoftDbContext.STF02H.Add(brgMp);
                             ErasoftDbContext.SaveChanges();
                             listBrgSuccess.Add(item.BRG_MP);
+
+                            //add 25 April 2019, create stf02h untuk mp offline
+                            if (offlineId != null)
+                            {
+                                CreateSTF02HOffline(brgMp.BRG, item.HJUAL, offlineId.IdMarket.Value);
+                            }
+                            //end add 25 April 2019, create stf02h untuk mp offline
                         }
                     }
                     if (listBrgSuccess.Count > 0)
