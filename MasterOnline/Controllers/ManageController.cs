@@ -5284,7 +5284,31 @@ namespace MasterOnline.Controllers
             }
             //end add
 
-            ErasoftDbContext.STF02H.RemoveRange(ErasoftDbContext.STF02H.Where(h => h.BRG == barangId));
+            var stf02hh = ErasoftDbContext.STF02H.Where(h => h.BRG == barangId).ToList();
+            if (stf02hh.Count > 0)
+            {
+                ErasoftDbContext.STF02H.RemoveRange(stf02hh);
+            }
+
+            //add by calvin 25 april 2019
+            var variasi = ErasoftDbContext.STF02.Where(p => p.PART == barangId).ToList();
+            var variasi_brg_list = variasi.Select(p => p.BRG).ToList();
+            if (variasi_brg_list.Count > 0)
+            {
+                var STF02H_Variasi = ErasoftDbContext.STF02H.Where(p => variasi_brg_list.Contains(p.BRG)).ToList();
+                if (STF02H_Variasi.Count > 0)
+                {
+                    ErasoftDbContext.STF02H.RemoveRange(STF02H_Variasi);
+                }
+                ErasoftDbContext.STF02.RemoveRange(variasi);
+            }
+            var strukturVar = ErasoftDbContext.STF02I.Where(p => p.BRG == barangId).ToList();
+            if (strukturVar.Count > 0)
+            {
+                ErasoftDbContext.STF02I.RemoveRange(strukturVar);
+            }
+            //end add by calvin 25 april 2019
+
             ErasoftDbContext.STF02.Remove(barangInDb);
             ErasoftDbContext.SaveChanges();
 
@@ -5295,8 +5319,9 @@ namespace MasterOnline.Controllers
                 //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList()
                 //end remark by calvin 23 april 2019
             };
-
-            return PartialView("TableBarang1Partial", partialVm);
+           
+            partialVm.Errors = null;
+            return Json(partialVm, JsonRequestBehavior.AllowGet);
         }
 
         [Route("manage/promptdeliverytempelevenia")]

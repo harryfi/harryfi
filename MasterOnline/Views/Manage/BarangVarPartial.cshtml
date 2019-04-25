@@ -1508,8 +1508,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             shopeeCategoryCodeFound = i;
@@ -1527,8 +1527,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             tokpedCategoryCodeFound = i;
@@ -1546,8 +1546,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             blibliCategoryCodeFound = i;
@@ -1568,8 +1568,8 @@
                                         if (Convert.ToString(listMarket[i].STATUS_API) == "1")
                                         {
                                             //add by calvin 24 april 2019
-                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                            if (cekDisplay)
+                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                            if (cekDisplay ?? false)
                                             {
                                                 //end add by calvin 24 april 2019
                                                 lazadaCategoryCodeFound = i;
