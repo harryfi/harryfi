@@ -2,18 +2,18 @@
 @using MasterOnline.ViewModels
 @model MasterOnline.ViewModels.BarangStrukturVarViewModel
 @{
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-    var username = "";
-    var context = new MoDbContext();
-    if (dataSession?.User != null)
-    {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
-    }
-    else
-    {
-        username = dataSession?.Account.Username;
-    }
+//var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+//var username = "";
+//var context = new MoDbContext();
+//if (dataSession?.User != null)
+//{
+//    var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+//    username = context.Account.Single(a => a.AccountId == accId).Username;
+//}
+//else
+//{
+//    username = dataSession?.Account.Username;
+//}
 }
 @Html.AntiForgeryToken()
 <script type="text/javascript">
@@ -132,7 +132,7 @@
                 $('#txtNamaKategoriTokped').val($(fieldCategoryName).val());
             });
 
-            if ($('#selectJudulVariantTokpedLv1').length > 0) {
+            if ($('#selectJudulVariantTokpedLv1').length > 0 || $('#selectJudulVariantTokpedLv2').length > 0 || $('#selectJudulVariantTokpedLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeTokped", "Manage", new { code = "replaceCode" })';
                 link = link.replace("replaceCode", $(fieldCategoryCode).val());
                 $.ajax({
@@ -175,35 +175,38 @@
                                 }
                             });
                         var len = SelectList.length;
-                        var attributeSelect = $('#selectJudulVariantTokpedLv1').selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: SelectList,
-                            onChange: function (value) {
-                                var values = value.split('|;|');
-                                $('#txtJudulVariantTokpedLv1').val(values[0]);
-                                SearchOptVariantTokped(1, values[0], values[1]);
-                            }
-                        });
-                        attributeSelect[0].selectize.clearOptions();
-                        attributeSelect[0].selectize.renderCache = {};
-                        attributeSelect[0].selectize.load(function (callback) {
-                            callback(SelectList);
 
-                            if ($('#txtJudulVariantTokpedLv1').val() != "") {
-                                var FoundValue = "";
-                                for (var d = 0; d < len; d++) {
-                                    if (FoundValue == "") {
-                                        var value = SelectList[d].id;
-                                        var values = value.split('|;|');
-                                        if ($('#txtJudulVariantTokpedLv1').val() == values[0]) {
-                                            FoundValue = SelectList[d].id;
-                                            attributeSelect[0].selectize.setValue(FoundValue, false);
+                        if ($('#selectJudulVariantTokpedLv1').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantTokpedLv1').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    var values = value.split('|;|');
+                                    $('#txtJudulVariantTokpedLv1').val(values[0]);
+                                    SearchOptVariantTokped(1, values[0], values[1]);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
+
+                                if ($('#txtJudulVariantTokpedLv1').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            var values = value.split('|;|');
+                                            if ($('#txtJudulVariantTokpedLv1').val() == values[0]) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }
 
                         if ($('#selectJudulVariantTokpedLv2').length > 0) {
                             var attributeSelect = $('#selectJudulVariantTokpedLv2').selectize({
@@ -348,7 +351,7 @@
                 $('#txtNamaKategoriBlibli').val($(fieldCategoryName).val());
             });
 
-            if ($('#selectJudulVariantBlibliLv1').length > 0) {
+            if ($('#selectJudulVariantBlibliLv1').length > 0 || $('#selectJudulVariantBlibliLv2').length > 0 || $('#selectJudulVariantBlibliLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeBlibliVar", "Manage", new { code = "replaceCode" })';
                 link = link.replace("replaceCode", $(fieldCategoryCode).val() + ';' + $('#txtBlibliMarketRecnumFound').val());
                 $.ajax({
@@ -379,34 +382,35 @@
                             });
 
                         var len = SelectList.length;
-                        var attributeSelect = $('#selectJudulVariantBlibliLv1').selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: SelectList,
-                            onChange: function (value) {
-                                $('#txtJudulVariantBlibliLv1').val(value);
-                                SearchOptVariantBlibli(1, value, data.attribute_opt);
-                            }
-                        });
-                        attributeSelect[0].selectize.clearOptions();
-                        attributeSelect[0].selectize.renderCache = {};
-                        attributeSelect[0].selectize.load(function (callback) {
-                            callback(SelectList);
+                        if ($('#selectJudulVariantBlibliLv1').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantBlibliLv1').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    $('#txtJudulVariantBlibliLv1').val(value);
+                                    SearchOptVariantBlibli(1, value, data.attribute_opt);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
 
-                            if ($('#txtJudulVariantBlibliLv1').val() != "") {
-                                var FoundValue = "";
-                                for (var d = 0; d < len; d++) {
-                                    if (FoundValue == "") {
-                                        var value = SelectList[d].id;
-                                        if ($('#txtJudulVariantBlibliLv1').val() == value) {
-                                            FoundValue = SelectList[d].id;
-                                            attributeSelect[0].selectize.setValue(FoundValue, false);
+                                if ($('#txtJudulVariantBlibliLv1').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            if ($('#txtJudulVariantBlibliLv1').val() == value) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
-
+                            });
+                        }
                         if ($('#selectJudulVariantBlibliLv2').length > 0) {
                             var attributeSelect = $('#selectJudulVariantBlibliLv2').selectize({
                                 valueField: 'id',
@@ -545,7 +549,7 @@
                 $('#txtNamaKategoriLazada').val($(fieldCategoryName).val());
             });
 
-            if ($('#selectJudulVariantLazadaLv1').length > 0) {
+            if ($('#selectJudulVariantLazadaLv1').length > 0 || $('#selectJudulVariantLazadaLv2').length > 0 || $('#selectJudulVariantLazadaLv3').length > 0) {
                 var link = '@Url.Action("GetAttributeLazadaVar", "Manage", new { code = "replaceCode" })';
                 link = link.replace("replaceCode", $(fieldCategoryCode).val());
                 $.ajax({
@@ -578,33 +582,35 @@
                             });
 
                         var len = SelectList.length;
-                        var attributeSelect = $('#selectJudulVariantLazadaLv1').selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: SelectList,
-                            onChange: function (value) {
-                                $('#txtJudulVariantLazadaLv1').val(value);
-                                SearchOptVariantLazada(1, value);
-                            }
-                        });
-                        attributeSelect[0].selectize.clearOptions();
-                        attributeSelect[0].selectize.renderCache = {};
-                        attributeSelect[0].selectize.load(function (callback) {
-                            callback(SelectList);
+                        if ($('#selectJudulVariantLazadaLv1').length > 0) {
+                            var attributeSelect = $('#selectJudulVariantLazadaLv1').selectize({
+                                valueField: 'id',
+                                searchField: 'text',
+                                options: SelectList,
+                                onChange: function (value) {
+                                    $('#txtJudulVariantLazadaLv1').val(value);
+                                    SearchOptVariantLazada(1, value);
+                                }
+                            });
+                            attributeSelect[0].selectize.clearOptions();
+                            attributeSelect[0].selectize.renderCache = {};
+                            attributeSelect[0].selectize.load(function (callback) {
+                                callback(SelectList);
 
-                            if ($('#txtJudulVariantLazadaLv1').val() != "") {
-                                var FoundValue = "";
-                                for (var d = 0; d < len; d++) {
-                                    if (FoundValue == "") {
-                                        var value = SelectList[d].id;
-                                        if ($('#txtJudulVariantLazadaLv1').val() == value) {
-                                            FoundValue = SelectList[d].id;
-                                            attributeSelect[0].selectize.setValue(FoundValue, false);
+                                if ($('#txtJudulVariantLazadaLv1').val() != "") {
+                                    var FoundValue = "";
+                                    for (var d = 0; d < len; d++) {
+                                        if (FoundValue == "") {
+                                            var value = SelectList[d].id;
+                                            if ($('#txtJudulVariantLazadaLv1').val() == value) {
+                                                FoundValue = SelectList[d].id;
+                                                attributeSelect[0].selectize.setValue(FoundValue, false);
+                                            }
                                         }
                                     }
                                 }
-                            }
-                        });
+                            });
+                        }
 
                         if ($('#selectJudulVariantLazadaLv2').length > 0) {
                             var attributeSelect = $('#selectJudulVariantLazadaLv2').selectize({
@@ -1419,6 +1425,7 @@
                         <li><a data-toggle="tab" href="#masteronline_detail_tab_variant">Master Online</a></li>
                         @{
                             var listMarket = Model.ListMarket;
+                            var settingBarangPerAkun = Model.BarangPerMP;
                             var adaElevenia_variant = 0;
                             var adaBlibli_variant = 0;
                             var adaBukalapak_variant = 0;
@@ -1429,27 +1436,27 @@
                         @for (var i = 0; i < listMarket.ToList().Count; i++)
             {
                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                if (idMarket == 9)
                 {
                     adaElevenia_variant = 1;
                 }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                else if (idMarket == 16)
                 {
                     adaBlibli_variant = 1;
                 }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
+                else if (idMarket == 8)
                 {
                     adaBukalapak_variant = 1;
                 }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                else if (idMarket == 7)
                 {
                     adaLazada_variant = 1;
                 }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                else if (idMarket == 17)
                 {
                     adaShopee_variant = 1;
                 }
-                else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                else if (idMarket == 15)
                 {
                     adaTokped_variant = 1;
                 }
@@ -1496,12 +1503,18 @@
                             {
                                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                 var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                                if (idMarket == 17)
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        shopeeCategoryCodeFound = i;
-                                        @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            shopeeCategoryCodeFound = i;
+                                            @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1509,12 +1522,18 @@
                             {
                                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                 var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                                if (idMarket == 15)
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        tokpedCategoryCodeFound = i;
-                                        @Html.TextBox("txtTokpedCategoryCodeFound", @tokpedCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            tokpedCategoryCodeFound = i;
+                                            @Html.TextBox("txtTokpedCategoryCodeFound", @tokpedCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1522,13 +1541,19 @@
                             {
                                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                 var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                if (idMarket == 16)
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        blibliCategoryCodeFound = i;
-                                        @Html.TextBox("txtBlibliCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
-                                        @Html.TextBox("txtBlibliMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            blibliCategoryCodeFound = i;
+                                            @Html.TextBox("txtBlibliCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txtBlibliMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1536,14 +1561,20 @@
                             {
                                 var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                 var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                if (idMarket == 7)
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].STATUS_API))
                                     {
                                         if (Convert.ToString(listMarket[i].STATUS_API) == "1")
                                         {
-                                            lazadaCategoryCodeFound = i;
-                                            @Html.TextBox("txtLazadaCategoryCodeFound", @lazadaCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            //add by calvin 24 april 2019
+                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                            if (cekDisplay)
+                                            {
+                                                //end add by calvin 24 april 2019
+                                                lazadaCategoryCodeFound = i;
+                                                @Html.TextBox("txtLazadaCategoryCodeFound", @lazadaCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            }
                                         }
                                     }
                                 }
@@ -1630,7 +1661,7 @@
                                 <div class="form-group">
                                     <div class="col-md-3 col-sm-12 col-xs-12" style="padding-right:5px">
                                         <b>2.</b>
-                                        <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" disabled="disabled" style="width:78px; margin:0px;padding-left:10px;padding-right:10px" value="Mapping" onclick="prosesBarangVarPartial()" />
+                                        <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" style="width:78px; margin:0px;padding-left:10px;padding-right:10px" value="Mapping" onclick="prosesBarangVarPartial()" />
                                     </div>
                                     <label class="col-md-9 col-sm-9 col-xs-12">
                                         @($"Cocokkan variasi barang di Master Online dengan variasi yang tersedia di masing-masing Marketplace.")
@@ -1689,52 +1720,52 @@
                                 {
                                     textJudulVar1 = judulVar1.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOBlibliLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpBlibliLv1.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv1", textJudulVar1)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv1.Count(); i++)
                                                             {
                                                                 var textKetVar1 = "";
                                                                 var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpBlibliLv1[i].KODE_VAR).FirstOrDefault();
@@ -1742,30 +1773,30 @@
                                                                 {
                                                                     textKetVar1 = KetVar1.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
-                                                                        <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv1_@(VariantPerMpBlibliLv1[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM" class="selectVariantBlibliLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv1_" + VariantPerMpBlibliLv1[i].RECNUM, VariantPerMpBlibliLv1[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv1_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpBlibliLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "BLIBLI").OrderBy(p => p.RECNUM).ToList();
@@ -1778,52 +1809,52 @@
                                 {
                                     textJudulVar2 = judulVar2.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOBlibliLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpBlibliLv2.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv2", textJudulVar2)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv2.Count(); i++)
                                                             {
                                                                 var textKetVar2 = "";
                                                                 var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpBlibliLv2[i].KODE_VAR).FirstOrDefault();
@@ -1831,30 +1862,30 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
-                                                                        <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv2_@(VariantPerMpBlibliLv2[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM" class="selectVariantBlibliLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv2_" + VariantPerMpBlibliLv2[i].RECNUM, VariantPerMpBlibliLv2[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv2_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpBlibliLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori && p.MARKET == "BLIBLI").OrderBy(p => p.RECNUM).ToList();
@@ -1867,52 +1898,52 @@
                                 {
                                     textJudulVar3 = judulVar3.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOBlibliLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOBlibliLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantBlibliLv3" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantBlibliLv3", textJudulVar3)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Blibli</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpBlibliLv3.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantBlibliLv3" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantBlibliLv3", textJudulVar3)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Blibli</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpBlibliLv3.Count(); i++)
                                                             {
                                                                 var textKetVar3 = "";
                                                                 var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpBlibliLv3[i].KODE_VAR).FirstOrDefault();
@@ -1920,45 +1951,44 @@
                                                                 {
                                                                     textKetVar3 = KetVar3.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOBlibliLv3", textKetVar3, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOBlibliLv3", textKetVar3, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM">
-                                                                        <select id="selectVariantBlibliLv3_@(VariantPerMpBlibliLv3[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM" class="selectVariantBlibliLv3_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantBlibliLv3_" + VariantPerMpBlibliLv3[i].RECNUM, VariantPerMpBlibliLv3[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv3_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM">
+                                                                            <select id="selectVariantBlibliLv3_@(VariantPerMpBlibliLv3[i].RECNUM)" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM" class="selectVariantBlibliLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantBlibliLv3_" + VariantPerMpBlibliLv3[i].RECNUM, VariantPerMpBlibliLv3[i].MP_VALUE_VAR, new { @class = "txtVariantBlibliLv3_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
                             if (adaSettingBlibli)
                             {
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
-                                <input type="button" class="btn btn-primary pull-right" id="save_map_var_blibli" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarBlibli()" />
-                            </div>
-                        </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_blibli" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarBlibli()" />
+                                    </div>
+                                </div>
                             }
                         }
                     </div>
                 </div>
             </div>
             <div id="lazada_detail_tab_variant" class="tab-pane fade in">
-
                 <div class="row" style="padding-top:10px">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="form-group" style="display:none">
@@ -2288,55 +2318,55 @@
                                 {
                                     textJudulVar1 = judulVar1.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOShopeeLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOShopeeLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulVariantShopeeLv1", textJudulVar1, new
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantShopeeLv1", textJudulVar1, new
                                                                {
                                                                    @class = "form-control txtJudulVariantShopeeLv",
                                                                    placeholder = "Nama Variasi"
                                                                })
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpShopeeLv1.Count(); i++)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpShopeeLv1.Count(); i++)
                                                             {
                                                                 var textKetVar1 = "";
                                                                 var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpShopeeLv1[i].KODE_VAR).FirstOrDefault();
@@ -2344,31 +2374,31 @@
                                                                 {
                                                                     textKetVar1 = KetVar1.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOShopeeLv1", textKetVar1, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOShopeeLv1", textKetVar1, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    @Html.TextBox("txtVariantShopeeLv1_" + VariantPerMpShopeeLv1[i].RECNUM, VariantPerMpShopeeLv1[i].MP_VALUE_VAR, new
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantShopeeLv1_" + VariantPerMpShopeeLv1[i].RECNUM, VariantPerMpShopeeLv1[i].MP_VALUE_VAR, new
                                                                    {
                                                                        @class = "form-control txtVariantShopeeLv1_",
                                                                        placeholder = "Nama Opsi"
                                                                    })
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpShopeeLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "SHOPEE").OrderBy(p => p.RECNUM).ToList();
@@ -2381,55 +2411,55 @@
                                 {
                                     textJudulVar2 = judulVar2.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOShopeeLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOShopeeLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulVariantShopeeLv2", textJudulVar2, new
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantShopeeLv2", textJudulVar2, new
                                                                {
                                                                    @class = "form-control txtJudulVariantShopeeLv",
                                                                    placeholder = "Nama Variasi"
                                                                })
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpShopeeLv2.Count(); i++)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpShopeeLv2.Count(); i++)
                                                             {
                                                                 var textKetVar2 = "";
                                                                 var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpShopeeLv2[i].KODE_VAR).FirstOrDefault();
@@ -2437,31 +2467,31 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOShopeeLv2", textKetVar2, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOShopeeLv2", textKetVar2, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    @Html.TextBox("txtVariantShopeeLv2_" + VariantPerMpShopeeLv2[i].RECNUM, VariantPerMpShopeeLv2[i].MP_VALUE_VAR, new
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantShopeeLv2_" + VariantPerMpShopeeLv2[i].RECNUM, VariantPerMpShopeeLv2[i].MP_VALUE_VAR, new
                                                                    {
                                                                        @class = "form-control txtVariantShopeeLv2_",
                                                                        placeholder = "Nama Opsi"
                                                                    })
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpShopeeLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori && p.MARKET == "SHOPEE").OrderBy(p => p.RECNUM).ToList();
@@ -2474,55 +2504,55 @@
                                 {
                                     textJudulVar3 = judulVar3.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOShopeeLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOShopeeLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulVariantShopeeLv3", textJudulVar3, new
+                                                                </td>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulVariantShopeeLv3", textJudulVar3, new
                                                                {
                                                                    @class = "form-control txtJudulVariantShopeeLv",
                                                                    placeholder = "Nama Variasi"
                                                                })
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Shopee</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpShopeeLv3.Count(); i++)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Shopee</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpShopeeLv3.Count(); i++)
                                                             {
                                                                 var textKetVar3 = "";
                                                                 var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpShopeeLv3[i].KODE_VAR).FirstOrDefault();
@@ -2530,39 +2560,39 @@
                                                                 {
                                                                     textKetVar3 = KetVar3.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOShopeeLv3", textKetVar3, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOShopeeLv3", textKetVar3, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    @Html.TextBox("txtVariantShopeeLv3_" + VariantPerMpShopeeLv3[i].RECNUM, VariantPerMpShopeeLv3[i].MP_VALUE_VAR, new
+                                                                    </td>
+                                                                    <td>
+                                                                        @Html.TextBox("txtVariantShopeeLv3_" + VariantPerMpShopeeLv3[i].RECNUM, VariantPerMpShopeeLv3[i].MP_VALUE_VAR, new
                                                                    {
                                                                        @class = "form-control txtVariantShopeeLv3_",
                                                                        placeholder = "Nama Opsi"
                                                                    })
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
                             if (adaSettingShopee)
                             {
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
-                                <input type="button" class="btn btn-primary pull-right" id="save_map_var_shopee" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarShopee()" />
-                            </div>
-                        </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_shopee" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarShopee()" />
+                                    </div>
+                                </div>
                             }
                         }
                     </div>
@@ -2599,52 +2629,52 @@
                                 {
                                     textJudulVar1 = judulVar1.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOTokpedLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOTokpedLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantTokpedLv1" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantTokpedLv1", textJudulVar1)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpTokpedLv1.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantTokpedLv1" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantTokpedLv1", textJudulVar1)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpTokpedLv1.Count(); i++)
                                                             {
                                                                 var textKetVar1 = "";
                                                                 var KetVar1 = VariantOptMasterLv1.Where(p => p.KODE_VAR == VariantPerMpTokpedLv1[i].KODE_VAR).FirstOrDefault();
@@ -2652,30 +2682,30 @@
                                                                 {
                                                                     textKetVar1 = KetVar1.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOTokpedLv1", textKetVar1, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOTokpedLv1", textKetVar1, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
-                                                                        <select id="selectVariantTokpedLv1_@(VariantPerMpTokpedLv1[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM" class="selectVariantTokpedLv1_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv1_" + VariantPerMpTokpedLv1[i].RECNUM, VariantPerMpTokpedLv1[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv1_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv1_@(VariantPerMpTokpedLv1[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM" class="selectVariantTokpedLv1_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv1_" + VariantPerMpTokpedLv1[i].RECNUM, VariantPerMpTokpedLv1[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv1_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpTokpedLv2 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 2 && p.CATEGORY_MO == code_kategori && p.MARKET == "TOKPED").OrderBy(p => p.RECNUM).ToList();
@@ -2688,52 +2718,52 @@
                                 {
                                     textJudulVar2 = judulVar2.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOTokpedLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none;text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOTokpedLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantTokpedLv2" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantTokpedLv2", textJudulVar2)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpTokpedLv2.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantTokpedLv2" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantTokpedLv2", textJudulVar2)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpTokpedLv2.Count(); i++)
                                                             {
                                                                 var textKetVar2 = "";
                                                                 var KetVar2 = VariantOptMasterLv2.Where(p => p.KODE_VAR == VariantPerMpTokpedLv2[i].KODE_VAR).FirstOrDefault();
@@ -2741,30 +2771,30 @@
                                                                 {
                                                                     textKetVar2 = KetVar2.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOTokpedLv2", textKetVar2, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOTokpedLv2", textKetVar2, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM">
-                                                                        <select id="selectVariantTokpedLv2_@(VariantPerMpTokpedLv2[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM" class="selectVariantTokpedLv2_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv2_" + VariantPerMpTokpedLv2[i].RECNUM, VariantPerMpTokpedLv2[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv2_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv2_@(VariantPerMpTokpedLv2[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM" class="selectVariantTokpedLv2_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv2_" + VariantPerMpTokpedLv2[i].RECNUM, VariantPerMpTokpedLv2[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv2_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
 
                             var VariantPerMpTokpedLv3 = Model.VariantPerMP.Where(p => p.LEVEL_VAR == 3 && p.CATEGORY_MO == code_kategori && p.MARKET == "TOKPED").OrderBy(p => p.RECNUM).ToList();
@@ -2777,52 +2807,52 @@
                                 {
                                     textJudulVar3 = judulVar3.MP_JUDUL_VAR;
                                 }
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12">
-                                <table style="width:100%">
-                                    <tr>
-                                        <td style="width:50%; vertical-align:top !important;">
-                                            <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            @Html.TextBox("txtJudulMOTokpedLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12">
+                                        <table style="width:100%">
+                                            <tr>
+                                                <td style="width:50%; vertical-align:top !important;">
+                                                    <table class="table table-bordered" style="width:100%;border-right:none" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="border-right:none; text-align:center">Judul Variasi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    @Html.TextBox("txtJudulMOTokpedLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
                                                                {
                                                                    @class = "form-control",
                                                                    disabled = "disabled",
                                                                    @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                })
-                                                        </td>
-                                                        <td>
-                                                            <select id="selectJudulVariantTokpedLv3" placeholder="Nama Variasi" required="required"></select>
-                                                            @Html.Hidden("txtJudulVariantTokpedLv3", textJudulVar3)
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                        <td style="width:50%; vertical-align:top !important">
-                                            <table class="table table-bordered" style="width:100%" role="grid">
-                                                <thead>
-                                                    <tr>
-                                                        <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th width="50%" style="border-right:none">Master Online</th>
-                                                        <th width="50%" style="border-right:none">Tokopedia</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < VariantPerMpTokpedLv3.Count(); i++)
+                                                                </td>
+                                                                <td>
+                                                                    <select id="selectJudulVariantTokpedLv3" placeholder="Nama Variasi" required="required"></select>
+                                                                    @Html.Hidden("txtJudulVariantTokpedLv3", textJudulVar3)
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                                <td style="width:50%; vertical-align:top !important">
+                                                    <table class="table table-bordered" style="width:100%" role="grid">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="2" width="100%" style="text-align:center">Nama Opsi</th>
+                                                            </tr>
+                                                            <tr>
+                                                                <th width="50%" style="border-right:none">Master Online</th>
+                                                                <th width="50%" style="border-right:none">Tokopedia</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < VariantPerMpTokpedLv3.Count(); i++)
                                                             {
                                                                 var textKetVar3 = "";
                                                                 var KetVar3 = VariantOptMasterLv3.Where(p => p.KODE_VAR == VariantPerMpTokpedLv3[i].KODE_VAR).FirstOrDefault();
@@ -2830,38 +2860,38 @@
                                                                 {
                                                                     textKetVar3 = KetVar3.KET_VAR;
                                                                 }
-                                                            <tr>
-                                                                <td>
-                                                                    @Html.TextBox("txtOpsiMOTokpedLv3", textKetVar3, new
+                                                                <tr>
+                                                                    <td>
+                                                                        @Html.TextBox("txtOpsiMOTokpedLv3", textKetVar3, new
                                                                    {
                                                                        @class = "form-control",
                                                                        disabled = "disabled",
                                                                        @style = "border:none;background-color:#fff;box-shadow:none;"
                                                                    })
-                                                                </td>
-                                                                <td>
-                                                                    <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
-                                                                        <select id="selectVariantTokpedLv3_@(VariantPerMpTokpedLv3[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM" class="selectVariantTokpedLv3_" placeholder="Nama Variasi" required="required"></select>
-                                                                        @Html.Hidden("txtVariantTokpedLv3_" + VariantPerMpTokpedLv3[i].RECNUM, VariantPerMpTokpedLv3[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv3_" })
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
+                                                                            <select id="selectVariantTokpedLv3_@(VariantPerMpTokpedLv3[i].RECNUM)" data-recnum="@VariantPerMpTokpedLv3[i].RECNUM" class="selectVariantTokpedLv3_" placeholder="Nama Variasi" required="required"></select>
+                                                                            @Html.Hidden("txtVariantTokpedLv3_" + VariantPerMpTokpedLv3[i].RECNUM, VariantPerMpTokpedLv3[i].MP_VALUE_VAR, new { @class = "txtVariantTokpedLv3_" })
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
                                                             }
-                                                </tbody>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
+                                                        </tbody>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             }
                             if (adaSettingTokped)
                             {
-                        <div class="form-group">
-                            <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
-                                <input type="button" class="btn btn-primary pull-right" id="save_map_var_tokped" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarTokped()" />
-                            </div>
-                        </div>
+                                <div class="form-group">
+                                    <div class="col-md-12 col-sm-12 col-xs-12" style="margin: auto;display: flex;flex-direction: row;justify-content: center;">
+                                        <input type="button" class="btn btn-primary pull-right" id="save_map_var_tokped" disabled="disabled" style="margin:0px;padding-left:10px;padding-right:10px" value="Simpan" onclick="SaveMapVarTokped()" />
+                                    </div>
+                                </div>
                             }
                         }
                     </div>

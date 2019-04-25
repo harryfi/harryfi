@@ -257,7 +257,11 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+                bool cekSyncMarketplace = false;
+                if (cekSyncMarketplace)
+                {
+                    Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+                }
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
@@ -427,6 +431,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                accFromDb.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
                 //end add by calvin 1 april 2019
             }
@@ -437,6 +443,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                accFromUser.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
@@ -979,7 +987,8 @@ namespace MasterOnline.Controllers
 
                 if (file != null && file.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
+                    //var fileName = Path.GetFileName(file.FileName);
+                    var fileName = account.Email.Replace(".", "_");
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);
@@ -1388,10 +1397,17 @@ namespace MasterOnline.Controllers
             }
 
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.Email == partner.Email);
+            var cekKodeRefPilihan = MoDbContext.Partner.SingleOrDefault(a => a.KodeRefPilihan.ToUpper() == partner.KodeRefPilihan.ToUpper());
 
             if (partnerInDb != null)
             {
                 ModelState.AddModelError("", @"Email sudah terdaftar!");
+                return View("Partner", partner);
+            }
+
+            if (cekKodeRefPilihan != null)
+            {
+                ModelState.AddModelError("", @"Kode Referal sudah terdaftar!");
                 return View("Partner", partner);
             }
 
@@ -1401,7 +1417,8 @@ namespace MasterOnline.Controllers
 
                 if (file != null && file.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
+                    //var fileName = Path.GetFileName(file.FileName);
+                    var fileName = partner.Email.Replace(".", "_");
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     partner.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);

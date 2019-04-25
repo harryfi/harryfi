@@ -83,5 +83,6 @@ namespace MasterOnline.Models
         //add by nurul 12/3/2019
         public DateTime? tgl_approve { get; set; }
         //end add by nurul 12/3/2019
+        public DateTime? LAST_LOGIN_DATE { get; set; }
     }
 }

@@ -3300,8 +3300,11 @@ namespace MasterOnline.Controllers
                     mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
                     variation.Add(adaVariant);
                 }
-                tier1.options = tier1_options.ToArray();
-                tier_variation.Add(tier1);
+                if (!string.IsNullOrWhiteSpace(tier1.name))
+                {
+                    tier1.options = tier1_options.ToArray();
+                    tier_variation.Add(tier1);
+                }
                 if (!string.IsNullOrWhiteSpace(tier2.name))
                 {
                     tier2.options = tier2_options.ToArray();

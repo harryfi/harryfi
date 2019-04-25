@@ -2,18 +2,18 @@
 @using MasterOnline.ViewModels
 @model MasterOnline.ViewModels.BarangDetailVarViewModel
 @{
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-    var username = "";
-    var context = new MoDbContext();
-    if (dataSession?.User != null)
-    {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
-    }
-    else
-    {
-        username = dataSession?.Account.Username;
-    }
+//var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+//var username = "";
+//var context = new MoDbContext();
+//if (dataSession?.User != null)
+//{
+//    var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+//    username = context.Account.Single(a => a.AccountId == accId).Username;
+//}
+//else
+//{
+//    username = dataSession?.Account.Username;
+//}
 }
 @Html.AntiForgeryToken()
 <style>
@@ -423,27 +423,27 @@
                         @for (var i = 0; i < listMarket.ToList().Count; i++)
                         {
                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                            if (idMarket == 9)
                             {
                                 adaElevenia_variant = 1;
                             }
-                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                            else if (idMarket == 16)
                             {
                                 adaBlibli_variant = 1;
                             }
-                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
+                            else if (idMarket == 8)
                             {
                                 adaBukalapak_variant = 1;
                             }
-                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                            else if (idMarket == 7)
                             {
                                 adaLazada_variant = 1;
                             }
-                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                            else if (idMarket == 17)
                             {
                                 adaShopee_variant = 1;
                             }
-                            else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                            else if (idMarket == 15)
                             {
                                 adaTokped_variant = 1;
                             }
@@ -514,11 +514,11 @@
                 {
                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                     var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                    if (idMarket == 16)
                     {
                         <div>
                             <h2 style="font-size: 14px">
-                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                @($"Blibli ({listMarket[i].PERSO})")
                             </h2>
                         </div>
                         <div class="row" style="padding-top:10px">
@@ -583,11 +583,11 @@
                 {
                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                     var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                    if (idMarket == 7)
                     {
                         <div>
                             <h2 style="font-size: 14px">
-                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                @($"Lazada ({listMarket[i].PERSO})")
                             </h2>
                         </div>
                         <div class="row" style="padding-top:10px">
@@ -641,11 +641,11 @@
                 {
                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                     var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                    if (idMarket == 17)
                     {
                         <div>
                             <h2 style="font-size: 14px">
-                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                @($"Shopee ({listMarket[i].PERSO})")
                             </h2>
                         </div>
                         <div class="row" style="padding-top:10px">
@@ -699,11 +699,11 @@
                 {
                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                     var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                    if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                    if (idMarket == 15)
                     {
                         <div>
                             <h2 style="font-size: 14px">
-                                @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                @($"Tokopedia ({listMarket[i].PERSO})")
                             </h2>
                         </div>
                         <div class="row" style="padding-top:10px">
