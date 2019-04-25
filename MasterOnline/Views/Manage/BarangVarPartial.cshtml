@@ -2,18 +2,18 @@
 @using MasterOnline.ViewModels
 @model MasterOnline.ViewModels.BarangStrukturVarViewModel
 @{
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-    var username = "";
-    var context = new MoDbContext();
-    if (dataSession?.User != null)
-    {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
-    }
-    else
-    {
-        username = dataSession?.Account.Username;
-    }
+//var dataSession = Session["SessionInfo"] as AccountUserViewModel;
+//var username = "";
+//var context = new MoDbContext();
+//if (dataSession?.User != null)
+//{
+//    var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
+//    username = context.Account.Single(a => a.AccountId == accId).Username;
+//}
+//else
+//{
+//    username = dataSession?.Account.Username;
+//}
 }
 @Html.AntiForgeryToken()
 <script type="text/javascript">
@@ -1425,6 +1425,7 @@
                         <li><a data-toggle="tab" href="#masteronline_detail_tab_variant">Master Online</a></li>
                         @{
                             var listMarket = Model.ListMarket;
+                            var settingBarangPerAkun = Model.BarangPerMP;
                             var adaElevenia_variant = 0;
                             var adaBlibli_variant = 0;
                             var adaBukalapak_variant = 0;
@@ -1506,8 +1507,14 @@
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        shopeeCategoryCodeFound = i;
-                                        @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            shopeeCategoryCodeFound = i;
+                                            @Html.TextBox("txtShopeeCategoryCodeFound", @shopeeCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1519,8 +1526,14 @@
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        tokpedCategoryCodeFound = i;
-                                        @Html.TextBox("txtTokpedCategoryCodeFound", @tokpedCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            tokpedCategoryCodeFound = i;
+                                            @Html.TextBox("txtTokpedCategoryCodeFound", @tokpedCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1532,9 +1545,15 @@
                                 {
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
-                                        blibliCategoryCodeFound = i;
-                                        @Html.TextBox("txtBlibliCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
-                                        @Html.TextBox("txtBlibliMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        //add by calvin 24 april 2019
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                        if (cekDisplay)
+                                        {
+                                            //end add by calvin 24 april 2019
+                                            blibliCategoryCodeFound = i;
+                                            @Html.TextBox("txtBlibliCategoryCodeFound", @blibliCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            @Html.TextBox("txtBlibliMarketRecnumFound", @recnumArf01, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                        }
                                     }
                                 }
                             }
@@ -1548,8 +1567,14 @@
                                     {
                                         if (Convert.ToString(listMarket[i].STATUS_API) == "1")
                                         {
-                                            lazadaCategoryCodeFound = i;
-                                            @Html.TextBox("txtLazadaCategoryCodeFound", @lazadaCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            //add by calvin 24 april 2019
+                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
+                                            if (cekDisplay)
+                                            {
+                                                //end add by calvin 24 april 2019
+                                                lazadaCategoryCodeFound = i;
+                                                @Html.TextBox("txtLazadaCategoryCodeFound", @lazadaCategoryCodeFound, new { @class = "form-control", disabled = "disabled", @style = "display:none;" })
+                                            }
                                         }
                                     }
                                 }
@@ -1636,7 +1661,7 @@
                                 <div class="form-group">
                                     <div class="col-md-3 col-sm-12 col-xs-12" style="padding-right:5px">
                                         <b>2.</b>
-                                        <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" disabled="disabled" style="width:78px; margin:0px;padding-left:10px;padding-right:10px" value="Mapping" onclick="prosesBarangVarPartial()" />
+                                        <input type="button" class="btn btn-primary pull-right" id="proses_var_btn" style="width:78px; margin:0px;padding-left:10px;padding-right:10px" value="Mapping" onclick="prosesBarangVarPartial()" />
                                     </div>
                                     <label class="col-md-9 col-sm-9 col-xs-12">
                                         @($"Cocokkan variasi barang di Master Online dengan variasi yang tersedia di masing-masing Marketplace.")
@@ -1714,11 +1739,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOBlibliLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv1" placeholder="Nama Variasi" required="required"></select>
@@ -1751,11 +1776,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOBlibliLv1", textKetVar1, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv1[i].RECNUM">
@@ -1803,11 +1828,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOBlibliLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv2" placeholder="Nama Variasi" required="required"></select>
@@ -1840,11 +1865,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOBlibliLv2", textKetVar2, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv2[i].RECNUM">
@@ -1892,11 +1917,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOBlibliLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantBlibliLv3" placeholder="Nama Variasi" required="required"></select>
@@ -1929,11 +1954,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOBlibliLv3", textKetVar3, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpBlibliLv3[i].RECNUM">
@@ -1964,7 +1989,6 @@
                 </div>
             </div>
             <div id="lazada_detail_tab_variant" class="tab-pane fade in">
-
                 <div class="row" style="padding-top:10px">
                     <div class="col-md-12 col-sm-12 col-xs-12">
                         <div class="form-group" style="display:none">
@@ -2313,18 +2337,18 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOShopeeLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulVariantShopeeLv1", textJudulVar1, new
-                                                       {
-                                                           @class = "form-control txtJudulVariantShopeeLv",
-                                                           placeholder = "Nama Variasi"
-                                                       })
+                                                               {
+                                                                   @class = "form-control txtJudulVariantShopeeLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2353,18 +2377,18 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOShopeeLv1", textKetVar1, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         @Html.TextBox("txtVariantShopeeLv1_" + VariantPerMpShopeeLv1[i].RECNUM, VariantPerMpShopeeLv1[i].MP_VALUE_VAR, new
-                                                               {
-                                                                   @class = "form-control txtVariantShopeeLv1_",
-                                                                   placeholder = "Nama Opsi"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control txtVariantShopeeLv1_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -2406,18 +2430,18 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOShopeeLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulVariantShopeeLv2", textJudulVar2, new
-                                                       {
-                                                           @class = "form-control txtJudulVariantShopeeLv",
-                                                           placeholder = "Nama Variasi"
-                                                       })
+                                                               {
+                                                                   @class = "form-control txtJudulVariantShopeeLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2446,18 +2470,18 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOShopeeLv2", textKetVar2, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         @Html.TextBox("txtVariantShopeeLv2_" + VariantPerMpShopeeLv2[i].RECNUM, VariantPerMpShopeeLv2[i].MP_VALUE_VAR, new
-                                                               {
-                                                                   @class = "form-control txtVariantShopeeLv2_",
-                                                                   placeholder = "Nama Opsi"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control txtVariantShopeeLv2_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -2499,18 +2523,18 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOShopeeLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulVariantShopeeLv3", textJudulVar3, new
-                                                       {
-                                                           @class = "form-control txtJudulVariantShopeeLv",
-                                                           placeholder = "Nama Variasi"
-                                                       })
+                                                               {
+                                                                   @class = "form-control txtJudulVariantShopeeLv",
+                                                                   placeholder = "Nama Variasi"
+                                                               })
                                                                 </td>
                                                             </tr>
                                                         </tbody>
@@ -2539,18 +2563,18 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOShopeeLv3", textKetVar3, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         @Html.TextBox("txtVariantShopeeLv3_" + VariantPerMpShopeeLv3[i].RECNUM, VariantPerMpShopeeLv3[i].MP_VALUE_VAR, new
-                                                               {
-                                                                   @class = "form-control txtVariantShopeeLv3_",
-                                                                   placeholder = "Nama Opsi"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control txtVariantShopeeLv3_",
+                                                                       placeholder = "Nama Opsi"
+                                                                   })
                                                                     </td>
                                                                 </tr>
                                                             }
@@ -2624,11 +2648,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOTokpedLv1", Model.Variant_Level_1.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantTokpedLv1" placeholder="Nama Variasi" required="required"></select>
@@ -2661,11 +2685,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOTokpedLv1", textKetVar1, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">
@@ -2713,11 +2737,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOTokpedLv2", Model.Variant_Level_2.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantTokpedLv2" placeholder="Nama Variasi" required="required"></select>
@@ -2750,11 +2774,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOTokpedLv2", textKetVar2, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv2[i].RECNUM">
@@ -2802,11 +2826,11 @@
                                                             <tr>
                                                                 <td>
                                                                     @Html.TextBox("txtJudulMOTokpedLv3", Model.Variant_Level_3.VALUE_JUDUL_VAR, new
-                                                       {
-                                                           @class = "form-control",
-                                                           disabled = "disabled",
-                                                           @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                       })
+                                                               {
+                                                                   @class = "form-control",
+                                                                   disabled = "disabled",
+                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                               })
                                                                 </td>
                                                                 <td>
                                                                     <select id="selectJudulVariantTokpedLv3" placeholder="Nama Variasi" required="required"></select>
@@ -2839,11 +2863,11 @@
                                                                 <tr>
                                                                     <td>
                                                                         @Html.TextBox("txtOpsiMOTokpedLv3", textKetVar3, new
-                                                               {
-                                                                   @class = "form-control",
-                                                                   disabled = "disabled",
-                                                                   @style = "border:none;background-color:#fff;box-shadow:none;"
-                                                               })
+                                                                   {
+                                                                       @class = "form-control",
+                                                                       disabled = "disabled",
+                                                                       @style = "border:none;background-color:#fff;box-shadow:none;"
+                                                                   })
                                                                     </td>
                                                                     <td>
                                                                         <div class="tampungdatarecnum" data-recnum="@VariantPerMpTokpedLv1[i].RECNUM">

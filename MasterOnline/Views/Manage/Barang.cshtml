@@ -7,7 +7,7 @@
     Layout = "~/Views/Shared/_LayoutManage.cshtml";
 }
 @{
-    var context_ = new MoDbContext();
+//var context_ = new MoDbContext();
 }
 @section styles
 {
@@ -3615,7 +3615,13 @@
 
                         $('#loading_structure_partial').hide();
                         $('#loading_detail_variant_partial').hide();
-                        $('#var-structure-partial').html(response);
+                        
+                        //remark by calvin 24 april 2019
+                        //$('#var-structure-partial').html(response);
+                        
+                        GetStrukturVariant();
+                        GetDetailBarangVariant();
+
                         $("html, body").animate({ scrollTop: 0 }, "slow");
                         $('#loading_spinner').hide();
                         $('#Stf02_BRG').attr('disabled', 'disabled');

@@ -24,6 +24,7 @@ namespace MasterOnline.ViewModels
     {
         public STF02 Barang { get; set; }
         public STF02E Kategori { get; set; }
+        public List<STF02H> BarangPerMP { get; set; }
         public STF20 Variant_Level_1 { get; set; }
         public STF20 Variant_Level_2 { get; set; }
         public STF20 Variant_Level_3 { get; set; }
