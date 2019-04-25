@@ -22,7 +22,7 @@ namespace MasterOnline
 
         [Key]
         [Column(Order = 1)]
-        public int product_id { get; set; }
+        public long product_id { get; set; }
 
         public string product_name { get; set; }
 
@@ -34,15 +34,15 @@ namespace MasterOnline
 
         public double? product_total_weight { get; set; }
 
-        public int? product_price { get; set; }
+        public double? product_price { get; set; }
 
-        public int? product_total_price { get; set; }
+        public double? product_total_price { get; set; }
 
         public string product_currency { get; set; }
 
         public string product_sku { get; set; }
 
-        public int? products_fulfilled_product_id { get; set; }
+        public long? products_fulfilled_product_id { get; set; }
 
         public int? products_fulfilled_quantity_deliver { get; set; }
 
@@ -50,7 +50,7 @@ namespace MasterOnline
 
         public string device_type { get; set; }
 
-        public int? buyer_id { get; set; }
+        public long? buyer_id { get; set; }
 
         public string buyer_name { get; set; }
 
@@ -58,9 +58,9 @@ namespace MasterOnline
 
         public string buyer_email { get; set; }
 
-        public int? shop_id { get; set; }
+        public long? shop_id { get; set; }
 
-        public int? payment_id { get; set; }
+        public long? payment_id { get; set; }
 
         public string recipient_name { get; set; }
 
@@ -76,33 +76,33 @@ namespace MasterOnline
 
         public string recipient_address_postal_code { get; set; }
 
-        public int? recipient_address_district_id { get; set; }
+        public long? recipient_address_district_id { get; set; }
 
-        public int? recipient_address_city_id { get; set; }
+        public long? recipient_address_city_id { get; set; }
 
-        public int? recipient_address_province_id { get; set; }
+        public long? recipient_address_province_id { get; set; }
 
         public string recipient_address_geo { get; set; }
 
         public string recipient_phone { get; set; }
 
-        public int? logistics_shipping_id { get; set; }
+        public long? logistics_shipping_id { get; set; }
 
         public string logistics_shipping_agency { get; set; }
 
         public string logistics_service_type { get; set; }
 
-        public int? amt_ttl_product_price { get; set; }
+        public double? amt_ttl_product_price { get; set; }
 
-        public int? amt_shipping_cost { get; set; }
+        public double? amt_shipping_cost { get; set; }
 
-        public int? amt_insurance_cost { get; set; }
+        public double? amt_insurance_cost { get; set; }
 
-        public int? amt_ttl_amount { get; set; }
+        public double? amt_ttl_amount { get; set; }
 
-        public int? amt_voucher_amount { get; set; }
+        public double? amt_voucher_amount { get; set; }
 
-        public int? amt_toppoints_amount { get; set; }
+        public double? amt_toppoints_amount { get; set; }
 
         public string dropshipper_info_name { get; set; }
 

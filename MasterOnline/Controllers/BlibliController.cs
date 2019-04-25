@@ -6248,8 +6248,8 @@ namespace MasterOnline.Controllers
         {
             public string upcCode { get; set; }
             public string merchantSku { get; set; }
-            public int price { get; set; }
-            public int salePrice { get; set; }
+            public double price { get; set; }
+            public double salePrice { get; set; }
             public int stock { get; set; }
             public int minimumStock { get; set; }
             public bool displayable { get; set; }

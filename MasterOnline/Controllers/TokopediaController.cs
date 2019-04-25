@@ -3035,7 +3035,7 @@ namespace MasterOnline.Controllers
             public string access_token { get; set; }
             public string token_type { get; set; }
             public string refresh_token { get; set; }
-            public int expires_in { get; set; }
+            public long expires_in { get; set; }
             public string scope { get; set; }
             public string error { get; set; }
             public string error_description { get; set; }
@@ -3086,28 +3086,28 @@ namespace MasterOnline.Controllers
         public class TokopediaOrder
         {
             public string fs_id { get; set; }
-            public int order_id { get; set; }
+            public long order_id { get; set; }
             public bool accept_partial { get; set; }
             public string invoice_ref_num { get; set; }
             public Products[] products { get; set; }
             public Products_Fulfilled[] products_fulfilled { get; set; }
             public string device_type { get; set; }
             public Buyer buyer { get; set; }
-            public int shop_id { get; set; }
-            public int payment_id { get; set; }
+            public long shop_id { get; set; }
+            public long payment_id { get; set; }
             public Recipient recipient { get; set; }
             public Logistics logistics { get; set; }
             public Amt amt { get; set; }
             public Dropshipper_Info dropshipper_info { get; set; }
             public Voucher_Info voucher_info { get; set; }
             public int order_status { get; set; }
-            public int create_time { get; set; }
+            public long create_time { get; set; }
             public Custom_Fields custom_fields { get; set; }
         }
 
         public class Buyer
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string phone { get; set; }
             public string email { get; set; }
@@ -3128,27 +3128,27 @@ namespace MasterOnline.Controllers
             public string province { get; set; }
             public string country { get; set; }
             public string postal_code { get; set; }
-            public int district_id { get; set; }
-            public int city_id { get; set; }
-            public int province_id { get; set; }
+            public long district_id { get; set; }
+            public long city_id { get; set; }
+            public long province_id { get; set; }
             public string geo { get; set; }
         }
 
         public class Logistics
         {
-            public int shipping_id { get; set; }
+            public long shipping_id { get; set; }
             public string shipping_agency { get; set; }
             public string service_type { get; set; }
         }
 
         public class Amt
         {
-            public int ttl_product_price { get; set; }
-            public int shipping_cost { get; set; }
-            public int insurance_cost { get; set; }
-            public int ttl_amount { get; set; }
-            public int voucher_amount { get; set; }
-            public int toppoints_amount { get; set; }
+            public double ttl_product_price { get; set; }
+            public double shipping_cost { get; set; }
+            public double insurance_cost { get; set; }
+            public double ttl_amount { get; set; }
+            public double voucher_amount { get; set; }
+            public double toppoints_amount { get; set; }
         }
 
         public class Dropshipper_Info
@@ -3170,29 +3170,29 @@ namespace MasterOnline.Controllers
 
         public class Products
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int quantity { get; set; }
             public string notes { get; set; }
             public float weight { get; set; }
             public float total_weight { get; set; }
-            public int price { get; set; }
-            public int total_price { get; set; }
+            public double price { get; set; }
+            public double total_price { get; set; }
             public string currency { get; set; }
             public string sku { get; set; }
         }
 
         public class Products_Fulfilled
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int quantity_deliver { get; set; }
             public int quantity_reject { get; set; }
         }
 
         public class RequestPickup
         {
-            public int order_id { get; set; }
-            public int shop_id { get; set; }
+            public long order_id { get; set; }
+            public long shop_id { get; set; }
             public string request_time { get; set; }
         }
 
@@ -3265,7 +3265,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string uri { get; set; }
             public string location { get; set; }
@@ -3273,7 +3273,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultProduct
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public int[] childs { get; set; }
             public string url { get; set; }
@@ -3284,10 +3284,10 @@ namespace MasterOnline.Controllers
             public object[] wholesale_price { get; set; }
             public int courier_count { get; set; }
             public int condition { get; set; }
-            public int category_id { get; set; }
+            public long category_id { get; set; }
             public string category_name { get; set; }
             public string category_breadcrumb { get; set; }
-            public int department_id { get; set; }
+            public long department_id { get; set; }
             public object[] labels { get; set; }
             public ActiveProductListResultBadge[] badges { get; set; }
             public int is_featured { get; set; }
@@ -3302,7 +3302,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductListResultShop1
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string url { get; set; }
             public bool is_gold { get; set; }
@@ -3334,7 +3334,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductVariantResultData
         {
-            public int parent_id { get; set; }
+            public long parent_id { get; set; }
             public int default_child { get; set; }
             public string sizechart { get; set; }
             public ActiveProductVariantResultDataVariant[] variant { get; set; }
@@ -3352,7 +3352,7 @@ namespace MasterOnline.Controllers
 
         public class ActiveProductVariantResultDataVariantOption
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string value { get; set; }
             public string hex { get; set; }
         }
@@ -3361,8 +3361,8 @@ namespace MasterOnline.Controllers
         {
             public string name { get; set; }
             public string url { get; set; }
-            public int product_id { get; set; }
-            public int price { get; set; }
+            public long product_id { get; set; }
+            public double price { get; set; }
             public string price_fmt { get; set; }
             public int stock { get; set; }
             public string sku { get; set; }
@@ -3388,7 +3388,7 @@ namespace MasterOnline.Controllers
         {
             public bool is_active { get; set; }
             public int discounted_percentage { get; set; }
-            public int discounted_price { get; set; }
+            public double discounted_price { get; set; }
             public string discounted_price_fmt { get; set; }
             public int campaign_type { get; set; }
             public string campaign_type_name { get; set; }
@@ -3406,20 +3406,20 @@ namespace MasterOnline.Controllers
 
         public class ItemListResultData
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string name { get; set; }
-            public int shop_id { get; set; }
+            public long shop_id { get; set; }
             public string shop_name { get; set; }
-            public int category_id { get; set; }
+            public long category_id { get; set; }
             public string desc { get; set; }
             public int stock { get; set; }
-            public int price { get; set; }
+            public double price { get; set; }
             public string status { get; set; }
         }
         public class UpdateStockData
         {
             public string sku { get; set; }
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public int new_stock { get; set; }
 
         }
@@ -3433,8 +3433,8 @@ namespace MasterOnline.Controllers
         public class ProductList
         {
             public string name { get; set; }
-            public int category_id { get; set; }
-            public int price { get; set; }
+            public long category_id { get; set; }
+            public double price { get; set; }
             public int status { get; set; }
             public int minimum_order { get; set; }
             public int weight { get; set; }
@@ -3455,14 +3455,14 @@ namespace MasterOnline.Controllers
 
         public class Product_Etalase
         {
-            public int etalase_id { get; set; }
+            public long etalase_id { get; set; }
             public string etalase_name { get; set; }
         }
 
         public class Product_Preorder
         {
-            public int preorder_process_time { get; set; }
-            public int preorder_time_unit { get; set; }
+            public long preorder_process_time { get; set; }
+            public long preorder_time_unit { get; set; }
             public int preorder_status { get; set; }
         }
 
@@ -3541,7 +3541,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultData
         {
-            public int variant_id { get; set; }
+            public long variant_id { get; set; }
             public string name { get; set; }
             public string identifier { get; set; }
             public int status { get; set; }
@@ -3551,7 +3551,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultHeaderDataUnit
         {
-            public int unit_id { get; set; }
+            public long unit_id { get; set; }
             public string name { get; set; }
             public string short_name { get; set; }
             public GetVariantResultHeaderDataUnitValue[] values { get; set; }
@@ -3559,7 +3559,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariantResultHeaderDataUnitValue
         {
-            public int value_id { get; set; }
+            public long value_id { get; set; }
             public string value { get; set; }
             public string hex_code { get; set; }
             public string icon { get; set; }
@@ -3572,7 +3572,7 @@ namespace MasterOnline.Controllers
 
         public class EditProduct_Product
         {
-            public int product_id { get; set; }
+            public long product_id { get; set; }
             public string name { get; set; }
             public int? category_id { get; set; }
             public int price { get; set; }
@@ -3602,7 +3602,7 @@ namespace MasterOnline.Controllers
         public class CreateProduct_Product
         {
             public string name { get; set; }
-            public int category_id { get; set; }
+            public long category_id { get; set; }
             public int price { get; set; }
             public int status { get; set; }
             public int minimum_order { get; set; }
@@ -3624,14 +3624,14 @@ namespace MasterOnline.Controllers
 
         public class CreateProduct_Etalase
         {
-            public int etalase_id { get; set; }
+            public long etalase_id { get; set; }
             public string etalase_name { get; set; }
         }
 
         public class CreateProduct_Product_Preorder
         {
-            public int preorder_process_time { get; set; }
-            public int preorder_time_unit { get; set; }
+            public long preorder_process_time { get; set; }
+            public long preorder_time_unit { get; set; }
             public int preorder_status { get; set; }
         }
 
@@ -3716,7 +3716,7 @@ namespace MasterOnline.Controllers
 
         public class GetEtalaseReturnShop
         {
-            public int id { get; set; }
+            public long id { get; set; }
             public string name { get; set; }
             public string uri { get; set; }
             public string location { get; set; }
@@ -3724,7 +3724,7 @@ namespace MasterOnline.Controllers
 
         public class GetEtalaseReturnEtalase
         {
-            public int etalase_id { get; set; }
+            public long etalase_id { get; set; }
             public string etalase_name { get; set; }
             public string url { get; set; }
         }
