@@ -83,5 +83,16 @@ namespace MasterOnline.Models
         //add by nurul 12/3/2019
         public DateTime? tgl_approve { get; set; }
         //end add by nurul 12/3/2019
+
+        //add by Iman 15/04/2019
+        [Column(TypeName = "date")]
+        public DateTime? tgl_email1 { get; set; }
+        //end add by Iman 15/04/2019
+
+        //add by Iman 15/04/2019
+        [Column(TypeName = "date")]
+        public DateTime? tgl_email2 { get; set; }
+        
+        
     }
 }
