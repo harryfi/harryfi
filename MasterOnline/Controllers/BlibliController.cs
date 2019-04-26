@@ -270,7 +270,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -523,7 +523,7 @@ namespace MasterOnline.Controllers
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(BlibliGetOrderDetail)) as BlibliGetOrderDetail;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
@@ -836,7 +836,7 @@ namespace MasterOnline.Controllers
         //        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
         //    }
 
-        //    if (responseFromServer != null)
+        //    if (responseFromServer != "")
         //    {
         //        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
         //        if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -1004,7 +1004,7 @@ namespace MasterOnline.Controllers
             {
 
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 //perlu tes item tanpa varian
                 var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ProductInReviewListResult)) as ProductInReviewListResult;
@@ -1372,7 +1372,7 @@ namespace MasterOnline.Controllers
         //        currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
         //        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
         //    }
-        //    if (responseFromServer != null)
+        //    if (responseFromServer != "")
         //    {
         //        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
         //        if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -1631,7 +1631,7 @@ namespace MasterOnline.Controllers
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -1789,7 +1789,7 @@ namespace MasterOnline.Controllers
                                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
                             }
-                            if (responseFromServer != null)
+                            if (responseFromServer != "")
                             {
                                 dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                                 if (string.IsNullOrEmpty(result2.errorCode.Value))
@@ -1879,7 +1879,7 @@ namespace MasterOnline.Controllers
 
         //    // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
         //    //cek refreshToken
-        //    if (responseFromServer != null)
+        //    if (responseFromServer != "")
         //    {
         //        dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
         //        if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -2013,7 +2013,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var listBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ListProductBlibli)) as ListProductBlibli;
                 if (listBrg != null)
@@ -2127,7 +2127,7 @@ namespace MasterOnline.Controllers
                 ret.message = ex.Message;
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 //var brg = JsonConvert.DeserializeObject(responseFromServer, typeof(DetailBrgBlibli)) as DetailBrgBlibli;
 
@@ -4338,7 +4338,7 @@ namespace MasterOnline.Controllers
 
             }
 
-            if (responseFromServer != null && responseFromServer != "")
+            if (responseFromServer != "" && responseFromServer != "")
             {
                 MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
                 {
@@ -4466,7 +4466,7 @@ namespace MasterOnline.Controllers
             {
 
             }
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -4575,7 +4575,7 @@ namespace MasterOnline.Controllers
 
             // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
             //cek refreshToken
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                 if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -4639,7 +4639,7 @@ namespace MasterOnline.Controllers
                             }
                             //}
                         }
-                        await GetAttributeList(data);
+                        //await GetAttributeList(data);
                     }
                 }
             }
@@ -4732,7 +4732,7 @@ namespace MasterOnline.Controllers
 
                 // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
                 //cek refreshToken
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                     if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -4965,7 +4965,7 @@ namespace MasterOnline.Controllers
 
             // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
             //cek refreshToken
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(GetAttributeBlibliResult)) as GetAttributeBlibliResult;
                 if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
@@ -5068,7 +5068,7 @@ namespace MasterOnline.Controllers
 
                 // nilai token yg diambil adalah access-token. setelah 24jam biasanya harus masuk ke refresh token. dan harus diambil lagi acces token yg baru
                 //cek refreshToken
-                if (responseFromServer != null)
+                if (responseFromServer != "")
                 {
                     dynamic result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
                     if (string.IsNullOrEmpty(result.errorCode.Value))
@@ -6248,8 +6248,8 @@ namespace MasterOnline.Controllers
         {
             public string upcCode { get; set; }
             public string merchantSku { get; set; }
-            public int price { get; set; }
-            public int salePrice { get; set; }
+            public double price { get; set; }
+            public double salePrice { get; set; }
             public int stock { get; set; }
             public int minimumStock { get; set; }
             public bool displayable { get; set; }

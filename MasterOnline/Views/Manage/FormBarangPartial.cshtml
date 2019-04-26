@@ -9,7 +9,6 @@
     {
         var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
         username = context.Account.Single(a => a.AccountId == accId).Username;
-
         //remark by calvin 3 desember 2018
         //context.Dispose();
         //end remark by calvin 3 desember 2018
@@ -79,6 +78,8 @@
     var model_listhargajualpermarketview = @Html.Raw(Json.Encode(model_listhargajualpermarketview));
 
     $(document).ready(function () {
+        Initialize();
+        initRequired();
         $(function () {
             $('#setting-detail-market-tabs a:first').tab('show');
         });
@@ -435,7 +436,7 @@
                                         <div class="form-group">
                                             @Html.LabelFor(m => m.Stf02.HJUAL, "Harga Jual *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                             <div class="col-md-4 col-sm-4 col-xs-12">
-                                                @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12" , @style = "text-align:right" }))
+                                                @(Model?.Stf02 != null ? Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", @style = "text-align:right", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model.Stf02.HJUAL), required = "required", maxlength = "12" }) : Html.TextBoxFor(m => m.Stf02.HJUAL, new { @class = "form-control", Value = "0,00", required = "required", maxlength = "12", @style = "text-align:right" }))
                                             </div>
                                         </div>
                                         @{
@@ -457,6 +458,9 @@
                                                 </div>
                                             </div>
                                             <div id="hjualmarket-section">
+                                                @{ 
+                                                    var context_Marketplaces = context.Marketplaces.ToList();
+                                                }
                                                 @for (var i = 0; i < listMarket.ToList().Count; i++)
                                                 {
                                                     var idMarket = Convert.ToInt32(listMarket[i].NAMA);
@@ -475,7 +479,7 @@
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].IDMARKET, new { Value = listMarket[i].RecNum })
                                                         @Html.HiddenFor(m => m.ListHargaJualPermarket[i].AKUNMARKET, new { Value = listMarket[i].PERSO })
                                                         <label class="control-label col-md-3 col-sm-3 col-xs-12" style="font-size: 11px;">
-                                                            @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                            @context_Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
                                                         </label>
                                                         <div class="col-md-4 col-sm-4 col-xs-12">
                                                             @if (Model.ListHargaJualPermarketView.Count > 0)
@@ -484,7 +488,7 @@
                                                             }
                                                             else
                                                             {
-                                                                @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0) , @style = "text-align:right" })
+                                                                @Html.TextBoxFor(m => m.ListHargaJualPermarket[i].HJUAL, new { data_jenis = "hjual", @class = "form-control", @onblur = "ConvertToAngkaRupiah(this);", Value = String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", 0), @style = "text-align:right" })
                                                             }
                                                         </div>
                                                         <div class="col-md-1 col-sm-1 col-xs-12" style="text-align:center">
@@ -568,58 +572,58 @@
                                                     @for (var i = 0; i < listMarket.ToList().Count; i++)
                                                     {
                                                         var idMarket = Convert.ToInt32(listMarket[i].NAMA);
-                                                        if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                                                        if (idMarket == 9)
                                                         {
                                                             adaElevenia = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                                        else if (idMarket == 16)
                                                         {
                                                             adaBlibli = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BUKALAPAK"))
+                                                        else if (idMarket == 8)
                                                         {
                                                             adaBukalapak = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                                        else if (idMarket == 7)
                                                         {
                                                             adaLazada = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                                                        else if (idMarket == 17)
                                                         {
                                                             adaShopee = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                                                        else if (idMarket == 15)
                                                         {
                                                             adaTokped = 1;
                                                         }
-                                                        else if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("JD.ID"))
+                                                        else if (idMarket == 19)
                                                         {
                                                             adaJD = 1;
                                                         }
                                                     }
                                                     @if (adaShopee == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#shopee_detail_tab">Shopee</a></li>
+                                                        <li><a data-toggle="tab" id="shopee_detail_tab_focus" href="#shopee_detail_tab">Shopee</a></li>
                                                     }
                                                     @if (adaTokped == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#tokped_detail_tab">Tokopedia</a></li>
+                                                        <li><a data-toggle="tab" id="tokped_detail_tab_focus" href="#tokped_detail_tab">Tokopedia</a></li>
                                                     }
                                                     @if (adaLazada == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#lazada_detail_tab">Lazada</a></li>
+                                                        <li><a data-toggle="tab" id="lazada_detail_tab_focus" href="#lazada_detail_tab">Lazada</a></li>
                                                     }
                                                     @if (adaBlibli == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#blibli_detail_tab">Blibli</a></li>
+                                                        <li><a data-toggle="tab" id="blibli_detail_tab_focus" href="#blibli_detail_tab">Blibli</a></li>
                                                     }
                                                     @if (adaElevenia == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#elevenia_detail_tab">Elevenia</a></li>
+                                                        <li><a data-toggle="tab" id="elevenia_detail_tab_focus" href="#elevenia_detail_tab">Elevenia</a></li>
                                                     }
                                                     @if (adaJD == 1)
                                                     {
-                                                        <li><a data-toggle="tab" href="#JD_detail_tab">JD.ID</a></li>
+                                                        <li><a data-toggle="tab" id="JD_detail_tab_focus" href="#JD_detail_tab">JD.ID</a></li>
                                                     }
                                                 </ul>
                                                 <div class="tab-content">
@@ -628,11 +632,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("BLIBLI"))
+                                                            if (idMarket == 16)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"Blibli ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -722,6 +726,9 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
+                                                                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                </div>
                                                                                 <div id="attribute_blibli_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
@@ -764,11 +771,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("ELEVENIA"))
+                                                            if (idMarket == 9)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"Elevenia ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -792,6 +799,9 @@
                                                                             </div>
                                                                         </div>
                                                                         <div class="row">
+                                                                            <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                            </div>
                                                                             <div id="attribute_elevenia_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                             </div>
                                                                         </div>
@@ -829,11 +839,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("LAZADA"))
+                                                            if (idMarket == 7)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"Lazada ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -863,6 +873,9 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
+                                                                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                </div>
                                                                                 <div id="attribute_lazada_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
@@ -880,11 +893,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("SHOPEE"))
+                                                            if (idMarket == 17)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"Shopee ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -914,6 +927,9 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
+                                                                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                </div>
                                                                                 <div id="attribute_shopee_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>
@@ -928,11 +944,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("TOKOPEDIA"))
+                                                            if (idMarket == 15)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.SingleOrDefault(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"Tokopedia ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -996,11 +1012,11 @@
                                                         {
                                                             var idMarket = Convert.ToInt32(listMarket[i].NAMA);
                                                             var recnumArf01 = Convert.ToInt32(listMarket[i].RecNum);
-                                                            if (context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket.ToUpper().Equals("JD.ID"))
+                                                            if (idMarket == 19)
                                                             {
                                                                 <div>
                                                                     <h2 style="font-size: 14px">
-                                                                        @context.Marketplaces.Single(m => m.IdMarket == idMarket).NamaMarket @($"({listMarket[i].PERSO})")
+                                                                        @($"JD.ID ({listMarket[i].PERSO})")
                                                                     </h2>
                                                                 </div>
                                                                 <div class="form-group">
@@ -1030,6 +1046,9 @@
                                                                                 </div>
                                                                             </div>
                                                                             <div class="row">
+                                                                                <div id="loading_attribute_@Convert.ToString(recnumArf01)" style="display:none" class="text-center">
+                                                                                    <img src="~/Content/Images/spinner.gif" width="100" />
+                                                                                </div>
                                                                                 <div id="attribute_JD_@Convert.ToString(recnumArf01)" class="col-md-12" style="margin-top:10px">
                                                                                 </div>
                                                                             </div>

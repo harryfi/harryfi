@@ -30,6 +30,7 @@ namespace MasterOnline.ViewModels
         //end add by nurul 11/3/2019
         //add by nurul 10/4/2019
         public SIFSY DataUsaha { get; set; } = new SIFSY();
+        public string alamatPenerima { get; set; }
         //end add by nurul 10/4/2019
     }
 }

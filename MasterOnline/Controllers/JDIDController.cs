@@ -22,7 +22,7 @@ namespace MasterOnline.Controllers
 
         AccountUserViewModel sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
         public MoDbContext MoDbContext { get; set; }
-        public string imageUrl = "https://img20.jd.id/Indonesia/s70x70_/";
+        public string imageUrl = "https://img20.jd.id/Indonesia/s300x300_/";
         public string ServerUrl = "https://open.jd.id/api";
         public string AccessToken = "";
         public string AppKey = "";
@@ -1136,12 +1136,282 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data, currentLog);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data, currentLog);
             }
-            
+
+        }
+
+        public void Order_JD(JDIDAPIData data, string cust)
+        {
+            //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
+            var listOrderId = new List<long>();
+
+            listOrderId.AddRange(GetOrderList(data, "1", 1));
+            listOrderId.AddRange(GetOrderList(data, "2", 1));
+            listOrderId.AddRange(GetOrderList(data, "6", 1));
+            string connectionID = Guid.NewGuid().ToString();
+
+            if (listOrderId.Count > 0)
+            {
+                var ord = new List_Order_JD { orderIds = new List<string>() };
+                string order_10 = "";
+                int i = 1;
+                foreach (var id in listOrderId)
+                {
+                    order_10 += id.ToString() + ",";
+                    i++;
+                    if (i >= 10)
+                    {
+                        i = 0;
+                        order_10 = order_10.Substring(0, order_10.Length - 1);
+                        ord.orderIds.Add(order_10);
+                        order_10 = "";
+                    }
+                }
+                if (!string.IsNullOrEmpty(order_10))
+                {
+                    order_10 = order_10.Substring(0, order_10.Length - 1);
+                    ord.orderIds.Add(order_10);
+                }
+
+                bool callSP = false;
+                bool pesananBaru = false;
+                foreach (var listOrder in ord.orderIds)
+                {
+                    var insertTemp = GetOrderDetail(data, listOrder, cust, connectionID);
+                    if (insertTemp.status == 1)
+                    {
+                        callSP = true;
+                        if (insertTemp.recordCount > 0)
+                            pesananBaru = true;
+                    }
+                }
+
+                if (callSP)
+                {
+                    SqlCommand CommandSQL = new SqlCommand();
+
+                    //add by Tri call sp to insert buyer data
+                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+
+                    EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+                    //end add by Tri call sp to insert buyer data
+
+                    CommandSQL = new SqlCommand();
+                    CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+
+                    CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                    CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = DateTime.Now.AddDays(-14).ToString("yyyy-MM-dd HH:mm:ss");
+                    CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                    CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Elevenia", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                    CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 1;
+                    CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
+
+                    EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+                }
+            }
+        }
+
+        public List<long> GetOrderList(JDIDAPIData data, string status, int page)
+        {
+            var ret = new List<long>();
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.popOrder.getOrderIdListByCondition";
+            mgrApiManager.ParamJson = "{\"orderStatus\":" + status + ", \"startRow\": " + page * 20 + ", \"bookTimeBegin\": "
+                + DateTimeOffset.Now.AddDays(-14).ToUnixTimeSeconds() + "}";
+
+            try
+            {
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderIds)) as Data_OrderIds;
+                    if (listOrderId.success)
+                    {
+                        ret = listOrderId.model;
+                        if (listOrderId.model.Count == 20)
+                        {
+                            var nextOrders = GetOrderList(data, status, page + 1);
+                            ret.AddRange(nextOrders);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return ret;
+        }
+
+        public BindingBase GetOrderDetail(JDIDAPIData data, string listOrderIds, string cust, string conn_id)
+        {
+            //var ret = new List<long>();
+            var ret = new BindingBase();
+            ret.status = 0;
+            bool adaInsert = false;
+            var mgrApiManager = new JDIDController();
+            mgrApiManager.AppKey = data.appKey;
+            mgrApiManager.AppSecret = data.appSecret;
+            mgrApiManager.AccessToken = data.accessToken;
+
+            mgrApiManager.Method = "epi.popOrder.getOrderInfoListForBatch";
+            mgrApiManager.ParamJson = "[" + listOrderIds + "]";
+            var jmlhNewOrder = 0;
+            try
+            {
+                var response = mgrApiManager.Call();
+                var retData = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retData.openapi_code == 0)
+                {
+                    var listOrderId = JsonConvert.DeserializeObject(retData.openapi_data, typeof(Data_OrderDetail)) as Data_OrderDetail;
+                    if (listOrderId.success)
+                    {
+                        var str = "{\"data\":" + listOrderId.model + "}";
+                        var listDetails = JsonConvert.DeserializeObject(str, typeof(ModelOrder)) as ModelOrder;
+                        if (listDetails != null)
+                        {
+
+                            string insertQ = "INSERT INTO TEMP_ORDER_JD ([ADDRESS],[AREA],[BOOKTIME],[CITY],[COUPON_AMOUNT],[CUSTOMER_NAME],";
+                            insertQ += "[DELIVERY_ADDR],[DELIVERY_TYPE],[EMAIL],[FREIGHT_AMOUNT],[FULL_CUT_AMMOUNT],[INSTALLMENT_FEE],[ORDER_COMPLETE_TIME],";
+                            insertQ += "[ORDER_ID],[ORDER_SKU_NUM],[ORDER_STATE],[ORDER_TYPE],[PAY_SUBTOTAL],[PAYMENT_TYPE],[PHONE],[POSTCODE],[PROMOTION_AMOUNT],";
+                            insertQ += "[SENDPAY],[STATE],[TOTAL_PRICE],[USER_PIN],[CUST],[USERNAME],[CONN_ID]) VALUES ";
+
+                            string insertOrderItems = "INSERT INTO TEMP_ORDERITEMS_JD ([ORDER_ID],[COMMISSION],[COST_PRICE],[COUPON_AMOUNT],[FULL_CUT_AMMOUNT]";
+                            insertOrderItems += ",[HAS_PROMO],[JDPRICE],[PROMOTION_AMOUNT],[SKUID],[SKU_NAME],[SKU_NUMBER],[SPUID],[WEIGHT],[USERNAME],[CONN_ID]) VALUES ";
+
+                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+                            foreach (var order in listDetails.data)
+                            {
+                                bool doInsert = true;
+                                if (OrderNoInDb.Contains(Convert.ToString(order.orderId)) && order.orderState.ToString() == "1")
+                                {
+                                    doInsert = false;
+                                }
+                                else if (order.orderState.ToString() == "5" || order.orderState.ToString() == "6")
+                                {
+                                    if (OrderNoInDb.Contains(Convert.ToString(order.orderId)))
+                                    {
+                                        //tidak ubah status menjadi selesai jika belum diisi faktur
+                                        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.orderId + "'");
+                                        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                        {
+                                            doInsert = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //tidak diinput jika order sudah selesai sebelum masuk MO
+                                        doInsert = false;
+                                    }
+                                }
+
+                                if (doInsert)
+                                {
+                                    var dtNow = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                                    adaInsert = true;
+                                    var statusEra = "";
+                                    switch (order.orderState.ToString())
+                                    {
+                                        //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
+                                        case "1":
+                                            statusEra = "01";
+                                            break;
+                                        case "2":
+                                            statusEra = "03";
+                                            break;
+                                        case "3":
+                                        case "4":
+                                        case "5":
+                                            statusEra = "11";
+                                            break;
+                                        case "6":
+                                            statusEra = "04";
+                                            break;
+                                        default:
+                                            statusEra = "99";
+                                            break;
+                                    }
+
+                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime/1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
+                                    insertQ += order.deliveryAddr.Replace('\'', '`') + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
+                                    insertQ += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
+                                    insertQ += order.sendPay + "','" + order.state.Replace('\'', '`') + "'," + order.totalPrice + ",'" + order.userPin + "','" + cust + "','" + username + "','" + conn_id + "') ,";
+
+                                    if (order.orderSkuinfos != null)
+                                    {
+                                        foreach (var ordItem in order.orderSkuinfos)
+                                        {
+                                            insertOrderItems += "('" + order.orderId + "'," + ordItem.commission + "," + ordItem.costPrice + "," + ordItem.couponAmount + "," + ordItem.fullCutAmount + ",";
+                                            insertOrderItems += ordItem.hasPromo + "," + ordItem.jdPrice + "," + ordItem.promotionAmount + ",'" + ordItem.skuId + "','" + ordItem.skuName + "',";
+                                            insertOrderItems += ordItem.skuNumber + ",'" + ordItem.spuId + "'," + ordItem.weight + ",'" + username + "','" + conn_id + "') ,";
+                                        }
+                                    }
+
+                                    var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.city + "%'");
+                                    var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.state + "%'");
+
+                                    var kabKot = "3174";//set default value jika tidak ada di db
+                                    var prov = "31";//set default value jika tidak ada di db
+
+                                    if (tblProv.Tables[0].Rows.Count > 0)
+                                        prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                    if (tblKabKot.Tables[0].Rows.Count > 0)
+                                        kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                    insertPembeli += "('" + order.customerName.Replace('\'', '`') + "','" + order.address.Replace('\'', '`') + "','" + order.phone + "','" + order.email.Replace('\'', '`') + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + order.address.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    insertPembeli += "'FP', '" + dtNow + "', '" + username + "', '" + order.postCode.Replace('\'', '`') + "', '" + order.email.Replace('\'', '`') + "', '" + kabKot + "', '" + prov + "', '" + order.city.Replace('\'', '`') + "', '" + order.state.Replace('\'', '`') + "', '" + conn_id + "') ,";
+
+                                    if (!OrderNoInDb.Contains(Convert.ToString(order.orderId)))
+                                        jmlhNewOrder++;
+                                }
+                            }
+
+                            if (adaInsert)
+                            {
+                                ret.status = 1;
+                                insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                                EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+
+                                insertOrderItems = insertOrderItems.Substring(0, insertOrderItems.Length - 2);
+                                EDB.ExecuteSQL(username, CommandType.Text, insertOrderItems);
+
+
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                                EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+            //return adaInsert;
+            ret.recordCount = jmlhNewOrder;
+            return ret;
         }
 
         protected enum api_status
@@ -1224,6 +1494,81 @@ namespace MasterOnline.Controllers
     }
 
     #region jdid data class
+    public class Data_OrderDetail
+    {
+        public string message { get; set; }
+        public string model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
+    public class ModelOrder
+    {
+        public List<DetailOrder_JD> data { get; set; }
+    }
+
+    public class DetailOrder_JD
+    {
+        public string address { get; set; }
+        public string area { get; set; }
+        public long bookTime { get; set; }
+        public string city { get; set; }
+        public float couponAmount { get; set; }
+        public string customerName { get; set; }
+        public string deliveryAddr { get; set; }
+        public int deliveryType { get; set; }
+        public string email { get; set; }
+        public float freightAmount { get; set; }
+        public float fullCutAmount { get; set; }
+        public float installmentFee { get; set; }
+        public long orderCompleteTime { get; set; }
+        public long orderId { get; set; }
+        public long orderSkuNum { get; set; }
+        public Orderskuinfo[] orderSkuinfos { get; set; }
+        public int orderState { get; set; }
+        public int orderType { get; set; }
+        public float paySubtotal { get; set; }
+        public int paymentType { get; set; }
+        public string phone { get; set; }
+        public string postCode { get; set; }
+        public float promotionAmount { get; set; }
+        public string sendPay { get; set; }
+        public string state { get; set; }
+        public float totalPrice { get; set; }
+        public string userPin { get; set; }
+    }
+
+    public class Orderskuinfo
+    {
+        public float commission { get; set; }
+        public float costPrice { get; set; }
+        public float couponAmount { get; set; }
+        public float fullCutAmount { get; set; }
+        public int hasPromo { get; set; }
+        public float jdPrice { get; set; }
+        public float promotionAmount { get; set; }
+        public long skuId { get; set; }
+        public string skuName { get; set; }
+        public int skuNumber { get; set; }
+        public long spuId { get; set; }
+        public int weight { get; set; }
+        public string popSkuId { get; set; }
+    }
+
+
+    public class List_Order_JD
+    {
+        public List<string> orderIds { get; set; }
+    }
+
+    public class Data_OrderIds
+    {
+        public string message { get; set; }
+        public List<long> model { get; set; }
+        public int code { get; set; }
+        public bool success { get; set; }
+    }
+
     public class Data_Detail_Product
     {
         public int code { get; set; }
@@ -1268,7 +1613,7 @@ namespace MasterOnline.Controllers
         public dynamic model { get; set; }
         public bool success { get; set; }
     }
-    
+
 
     public class Data_Brand
     {
@@ -1358,7 +1703,7 @@ namespace MasterOnline.Controllers
         public long attributeValueId { get; set; }
         public string name { get; set; }
         public string nameEn { get; set; }
-        public int attributeId { get; set; }
+        public long attributeId { get; set; }
     }
 
     public class Data_ListProd

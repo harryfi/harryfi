@@ -1323,31 +1323,9 @@
             </ul>
             <div id="myTabContent" class="tab-content">
                 <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="pesanan-tab">
-                    <div class="row pesanan_table_section">
-                        <div class="col-lg-4 col-sm-6">
-                            <div class="input-group">
-                                <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
-                                <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
-                                        <i class="fa fa-search"></i>
-                                    </button>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-lg-8 col-sm-6">
-                            <div class="pull-right" id="tambah_baru_tombol_section">
-                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
-                                    <span>Refresh</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    @*<div class="row pesanan_table_section">
-                        @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-                    </div>*@
                     <div class="row pesanan_table_section form-group">
                         @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
-                        <div class="col-md-2 col-sm-2 col-xs-12" >
+                        <div class="col-md-2 col-sm-2 col-xs-12">
                             @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
                             <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
                                 @*<option value="default">Harap pilih</option>*@
@@ -1373,6 +1351,30 @@
                         </div>
                         <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
                     </div>
+                    <div class="row pesanan_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right" id="tambah_baru_tombol_section">
+                                <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    @*<div class="row pesanan_table_section">
+            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+        </div>*@
+
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         <div id="loading_pesanan_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
@@ -2818,6 +2820,10 @@
             $('#sudahkirim-tab').click(function () {
                 $TabAktif = 3;
                 refreshTableSudahKirim();
+                $('#datatable_sudahkirim').on('page.dt', function () {
+                    $page = $('#datatable_sudahkirim').DataTable().page.info().page;
+                });
+                $('#datatable_sudahkirim').DataTable().page($page).draw(false);
             });
 
             $('#selesai-tab').click(function () {
@@ -4262,18 +4268,26 @@
                         });
 
                     var expedisiSelect = $('#EXPEDISI').selectize({
+                        id:'cbExpedisi',
                         valueField: 'id',
                         searchField: 'text',
                         options: listEkspedisi,
                         onChange: function(value) {
                             $('#Pesanan_EXPEDISI').val(value);
-                            $('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            //change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
+                            //$('#Pesanan_NAMAPENGIRIM').val($("#EXPEDISI option:selected").text());
+                            $('#Pesanan_SHIPMENT').val($("#EXPEDISI option:selected").text());
+                            //end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment
                             $('#btn-simpan-perubahan-row').show();
                         }
                     });
 
                     expedisiSelect[0].selectize.setValue($('#Pesanan_EXPEDISI').val());
                     $('#btn-simpan-perubahan-row').hide();
+                    //add 16 April 2019
+                    //$('#EXPEDISI').show();
+                    $('#cbExpedisi').show();
+                    //end add 16 April 2019
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -4715,7 +4729,14 @@
                     getBuyer();
                     getDataBarang();
                     getMarketplaceSOT01A();
-                    getExpedisi();
+                    //change 16 April
+                    //getExpedisi();
+                    $('#txtShipment').remove();
+                    var txtShipmentProv = '<div id="txtShipment"><input class="form-control" data-val="true" type="text" value="' + $('#Pesanan_SHIPMENT').val() + '" maxlength="50"></div>';
+                    $('#divShipment').append(txtShipmentProv);
+                    $('#EXPEDISI').hide();
+                    $('#cbExpedisi').hide();
+                    //end change 16 April
                     //change by nurul 19/2/2019
                     //$('#tambah_pesanan').click();
                     $('.pesanan_table_section').hide();
@@ -5094,6 +5115,7 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     tableNunggu.search($('#search_nunggu').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -5184,6 +5206,10 @@
                     //add by calvin 23 nov 2018, setelah di close, search lg
                     table.search($('#search_sudahkirim').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
+                    $('#datatable_sudahkirim').on('page.dt', function () {
+                        $page = $('#datatable_sudahkirim').DataTable().page.info().page;
+                    });
+                    $('#datatable_sudahkirim').DataTable().page($page).draw(false);
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -6223,9 +6249,10 @@
             var rows_selected = [];
             if ($TabAktif == 1) {
                 $('.checkbox_gntstatus_sudahdibayar').each(function (i, item) {
-                    if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
-                        rows_selected.push($(item).attr("data-recnum"));
-                    } else if ($(item).is(":checked")) {
+                    //if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
+                    //    rows_selected.push($(item).attr("data-recnum"));
+                    //} else 
+                    if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
@@ -6262,9 +6289,10 @@
             });
             } else if ($TabAktif == 2) {
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
-                    if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
-                        rows_selected.push($(item).attr("data-recnum"));
-                    } else if ($(item).is(":checked")) {
+                    //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
+                    //    rows_selected.push($(item).attr("data-recnum"));
+                    //} else 
+                    if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
                 });
@@ -6401,7 +6429,7 @@
                 '@Html.Raw(Url.Action("GenerateFaktur", "Manage", new {recNumPesanan = "replaceRecNum", uname = "replaceUname"}))';
             link = link.replace("replaceRecNum", rec);
             link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
-
+            
             $.ajax({
                 type: "GET",
                 url: link,
@@ -6415,6 +6443,7 @@
                     refreshTableSudahKirim();
                     $('#loading_spinner').hide();
                     lihatFaktur(response); // No Faktur as Response
+                    
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -6527,8 +6556,11 @@
                     $('#form-partial-selesai').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
-                    //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
+                    //$('#see_pembeli_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
+                    //ADD BY NURUL 16/4/2019
+                    //$('#see_alamat_pembeli').val(al_lengkap).show();
+                    //END ADD BY NURUL 16/4/2019
                     $('#TGL').parent().hide();
                     $('.pesanan_selesai_section').hide();
                     $('.pesanan_editor_selesai_section').show();
@@ -6575,8 +6607,11 @@
                     $('#form-partial-sudah-dibayar').html(response);
                     $('#see_tgl_pesanan').removeAttr('style');
                     //$('#see_marketplace_pesanan').val($('#Pesanan_CUST').val()).show();
-                    $('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();
+                    //$('#see_expedisi_pesanan').val($('#Pesanan_SHIPMENT').val()).show();//remark 15 april 2019
                     //$('#see_pembeli_pesanan').val($('#Pesanan_NAMAPEMESAN').val()).show();
+                    //ADD BY NURUL 16/4/2019
+                    //$('#see_alamat_pembeli').val().show();
+                    //END ADD BY NURUL 16/4/2019
                     $('#TGL').parent().hide();
                     $('.pesanan_sudah_dibayar_section').hide();
                     $('.pesanan_editor_sudah_dibayar_section').show();
@@ -6753,7 +6788,32 @@
                         }
                     });
                 } else {
-                    alert('Silakan isi semua field terlebih dahulu!');
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    //if ($('#Pesanan_TGL').val() != '' &&
+                    //    $('#Pesanan_CUST').val() != '' &&
+                    //    $('#Pesanan_TERM').val() != '' &&
+                    //    $('#Pesanan_EXPEDISI').val() != '' &&
+                    //    $('#Pesanan_NAMAPEMESAN').val() != ''
+                    var messageErrorKosong = "";
+                    if ($('#Pesanan_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Pesanan_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Pesanan_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Pesanan_EXPEDISI').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Kurir,";
+                    }
+                    if ($('#Pesanan_NAMAPEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
                 }
             }
         }

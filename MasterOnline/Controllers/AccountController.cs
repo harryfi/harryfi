@@ -257,7 +257,11 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                bool cekSyncMarketplace = false;
+                if (cekSyncMarketplace)
+                {
+                    Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+                }
                 //end change by calvin 1 april 2019
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
             }
@@ -427,6 +431,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(_viewModel.Account.DatabasePathErasoft);
                 dbPathEra = _viewModel.Account.DatabasePathErasoft;
+                accFromDb.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(_viewModel.Account.Email, _viewModel.Account.Username);
                 //end add by calvin 1 april 2019
             }
@@ -437,6 +443,8 @@ namespace MasterOnline.Controllers
                 //add by calvin 1 april 2019
                 EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                 dbPathEra = accFromUser.DatabasePathErasoft;
+                accFromUser.LAST_LOGIN_DATE = DateTime.UtcNow;
+                MoDbContext.SaveChanges();
                 //IdentitySignin(accFromUser.Email, accFromUser.Username);
                 //end add by calvin 1 april 2019
             }
@@ -449,7 +457,17 @@ namespace MasterOnline.Controllers
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
-                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username).Wait());
+                Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
+
+                //var jdapi = new JDIDController();
+                //var data3 = new JDIDAPIData
+                //{
+                //    accessToken = "4304bd28315728067f7db7e6ff8cc015",
+                //    appKey = "86b082cb8d3436bb340739a90d953ec7",
+                //    appSecret = "1bcda1dca02339e049cb26c5b4c7da12"
+                //};
+                //jdapi.Order_JD(data3, "000025");
+
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -460,28 +478,52 @@ namespace MasterOnline.Controllers
 
         //change by calvin 1 april 2019
         //protected void SyncMarketplace(ErasoftContext LocalErasoftDbContext, string jtran_retur)
-        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username)
+        public async Task<string> SyncMarketplace(string dbPathEra, string EDBConnID, string sync_pesanan_stok, string username, int recurr_interval)
         //end change by calvin 1 april 2019
         {
+            //catatan by calvin : jika developer sedang mau mengecek API, tidak perlu menggunakan backgroundjob untuk memanggil API
+            //-jika terjadi jobs nyangkut ( enqueued dan tidak di proses )
+            //maka lakukan :
+            //dari sisi developer: lakukanHapusServer = true;
+            //lalu pada masteronline.co.id lakukan login dengan login support
+            //atau minta user login ulang
+
             //MoDbContext = new MoDbContext();
+            bool lakukanHapusServer = false;
             ErasoftContext LocalErasoftDbContext = new ErasoftContext(dbPathEra);
             MoDbContext = new MoDbContext();
 
             var sqlStorage = new SqlServerStorage(EDBConnID);
             var monitoringApi = sqlStorage.GetMonitoringApi();
             var serverList = monitoringApi.Servers();
+
+            if (serverList.Count() > 0)
+            {
+#if Debug_AWS
+                if (lakukanHapusServer)
+                {
+                    foreach (var server in serverList)
+                    {
+                        var serverConnection = sqlStorage.GetConnection();
+                        serverConnection.RemoveServer(server.Name);
+                        serverConnection.Dispose();
+                    }
+                }
+#else
+                
+#endif
+            }
             if (serverList.Count() == 0)
             {
-                //foreach (var server in serverList)
-                //{
-                //    var serverConnection = sqlStorage.GetConnection();
-                //    serverConnection.RemoveServer(server.Name);
-                //}
+#if Debug_AWS
+
+#else
                 var optionsStatusResiServer = new BackgroundJobServerOptions
                 {
                     ServerName = "StatusResiPesanan",
                     Queues = new[] { "1_manage_pesanan" },
                     WorkerCount = 2,
+                    
                 };
                 var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
 
@@ -500,25 +542,9 @@ namespace MasterOnline.Controllers
                     WorkerCount = 3,
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
-            }
-            //else
-            //{
-            //    var options = new BackgroundJobServerOptions
-            //    {
-            //        ServerName = "Account",
-            //        Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
-            //        WorkerCount = 1,
-            //    };
-            //    var server = new BackgroundJobServer(options, sqlStorage);
+#endif
 
-            //    var optionsStokServer = new BackgroundJobServerOptions
-            //    {
-            //        ServerName = "Stok",
-            //        Queues = new[] { "1_update_stok" },
-            //        WorkerCount = 3,
-            //    };
-            //    var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
-            //}
+            }
 
             var client = new BackgroundJobClient(sqlStorage);
             RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
@@ -531,7 +557,7 @@ namespace MasterOnline.Controllers
             //{
             //    foreach (var recurringJob in connection.GetRecurringJobs())
             //    {
-            //        recurJobM.RemoveIfExists(recurringJob.Id);
+            //        recurJobM.AddOrUpdate(recurringJob.Id,recurringJob.Job, Cron.MinuteInterval(30),recurJobOpt);
             //    }
             //}
 
@@ -541,10 +567,8 @@ namespace MasterOnline.Controllers
             //recurJobM.RemoveIfExists("calvintesfailed");
             //recurJobM.RemoveIfExists("calvintesfailed2");
 
-            //var delaay = new TimeSpan(0, 1, 0);
-            //client.Schedule<StokControllerJob>(x => x.testFailedNotif(dbPathEra, "asd"), delaay);
-
-
+            //var delaay = new TimeSpan(0, 0, 0);
+            //client.Schedule<Hubs.MasterOnlineHub>(x => x.Announcement("Maaf, MasterOnline akan ditutup untuk sementara waktu untuk dilakukan maintenance pada jam 14:40 WIB"), delaay);
 
             //var test = new JDIDController();
             //var categoryJD = LocalErasoftDbContext.CATEGORY_JDID.Where(m => m.LEAF == "1").ToList();
@@ -621,6 +645,7 @@ namespace MasterOnline.Controllers
                         if (sync_pesanan_stok == "1")
                         {
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BukaLapakControllerJob>(x => x.cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                            //new BukaLapakControllerJob().cekTransaksi(tblCustomer.CUST, tblCustomer.EMAIL, tblCustomer.API_KEY, tblCustomer.TOKEN, dbPathEra, username);
                         }
                         else
                         {
@@ -674,6 +699,7 @@ namespace MasterOnline.Controllers
                         if (sync_pesanan_stok == "1")
                         {
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                         }
                         else
@@ -728,15 +754,15 @@ namespace MasterOnline.Controllers
                         client.Enqueue<BlibliControllerJob>(x => x.GetToken(data, true, false));
 
                         string connId_JobId = dbPathEra + "_blibli_get_queue_feed_detail_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(2), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetQueueFeedDetail(data, null)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         if (sync_pesanan_stok == "1")
                         {
                             connId_JobId = dbPathEra + "_blibli_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Paid, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                             connId_JobId = dbPathEra + "_blibli_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
-                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(5), recurJobOpt);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<BlibliControllerJob>(x => x.GetOrderList(data, BlibliControllerJob.StatusOrder.Completed, connId_JobId, tblCustomer.CUST, tblCustomer.NAMA)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                         }
                         else
                         {
@@ -770,13 +796,13 @@ namespace MasterOnline.Controllers
                     if (sync_pesanan_stok == "1")
                     {
                         connId_JobId = dbPathEra + "_elevenia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_elevenia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_elevenia_pesanan_confirmpurchase_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<EleveniaControllerJob>(x => x.GetOrder(tblCustomer.API_KEY, EleveniaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, dbPathEra, username)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                     }
                     else
                     {
@@ -824,7 +850,7 @@ namespace MasterOnline.Controllers
                             if (sync_pesanan_stok == "1")
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
-                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
                             }
                             else
                             {
@@ -832,6 +858,8 @@ namespace MasterOnline.Controllers
                                 recurJobM.RemoveIfExists(connId_JobId);
                             }
                             //end add by calvin 2 april 2019
+                            //new TokopediaControllerJob().GetToken(data);
+                            //await new TokopediaControllerJob().GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                         }
                     }
                 }
@@ -863,11 +891,20 @@ namespace MasterOnline.Controllers
                     if (sync_pesanan_stok == "1")
                     {
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(5), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                        //hanya untuk testing
+                        //await new ShopeeControllerJob().GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
                     else
                     {
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
+                        recurJobM.RemoveIfExists(connId_JobId);
+
+                        connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.RemoveIfExists(connId_JobId);
                     }
                 }
@@ -951,7 +988,8 @@ namespace MasterOnline.Controllers
 
                 if (file != null && file.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
+                    //var fileName = Path.GetFileName(file.FileName);
+                    var fileName = account.Email.Replace(".", "_");
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);
@@ -1017,69 +1055,113 @@ namespace MasterOnline.Controllers
             //    "<p>Best regards,</p>" +
             //    "<p>CS MasterOnline.</p>";
             //var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/ee23b210-cb3b-4796-9ad1-9ddf936a8e26.jpg\"  width=\"200\" height=\"150\"></p>" +
-            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
-                "<p>Hi {2},</p>" +
-                "<p>Selamat bergabung di Master Online.</p>" +
-                "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
-                "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
-                "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
-                "<p>&nbsp;</p>" +
-                "<p>Best regards,</p>" +
-                "<p>CS Master Online.</p>";
-            //end change by nurul 5/3/2019
 
-            var message = new MailMessage();
-            message.To.Add(email);
-            message.From = new MailAddress("csmasteronline@gmail.com");
-            message.Subject = "Pendaftaran Master Online berhasil!";
-            message.Body = string.Format(body, account.Email, originPassword, nama);
-            message.IsBodyHtml = true;
+            //remark by calvin 16 april 2019, pindah ke hangfire untuk kirim email nya
+            //            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+            //                "<p>Hi {2},</p>" +
+            //                "<p>Selamat bergabung di Master Online.</p>" +
+            //                "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
+            //                "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
+            //                "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+            //                "<p>&nbsp;</p>" +
+            //                "<p>Best regards,</p>" +
+            //                "<p>CS Master Online.</p>";
+            //            //end change by nurul 5/3/2019
+
+            //            var message = new MailMessage();
+            //            message.To.Add(email);
+            //            message.From = new MailAddress("csmasteronline@gmail.com");
+            //            message.Subject = "Pendaftaran Master Online berhasil!";
+            //            message.Body = string.Format(body, account.Email, originPassword, nama);
+            //            message.IsBodyHtml = true;
 #if AWS
-            //using (var smtp = new SmtpClient())
-            //{
-            //    var credential = new NetworkCredential
-            //    {
-            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
-            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
-            //    };
-            //    smtp.Credentials = credential;
-            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
-            //    smtp.Port = 587;
-            //    smtp.EnableSsl = true;
-            //    await smtp.SendMailAsync(message);
-            //}
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
-                {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+            //            //using (var smtp = new SmtpClient())
+            //            //{
+            //            //    var credential = new NetworkCredential
+            //            //    {
+            //            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //            //    };
+            //            //    smtp.Credentials = credential;
+            //            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //            //    smtp.Port = 587;
+            //            //    smtp.EnableSsl = true;
+            //            //    await smtp.SendMailAsync(message);
+            //            //}
+            //            using (var smtp = new SmtpClient())
+            //            {
+            //                var credential = new NetworkCredential
+            //                {
+            //                    UserName = "csmasteronline@gmail.com",
+            //                    Password = "erasoft123"
+            //                };
+            //                smtp.Credentials = credential;
+            //                smtp.Host = "smtp.gmail.com";
+            //                smtp.Port = 587;
+            //                smtp.EnableSsl = true;
+            //                await smtp.SendMailAsync(message);
+            //            }
 #else
-            using (var smtp = new SmtpClient())
-            {
-                var credential = new NetworkCredential
-                {
-                    UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
-                };
-                smtp.Credentials = credential;
-                smtp.Host = "smtp.gmail.com";
-                smtp.Port = 587;
-                smtp.EnableSsl = true;
-                await smtp.SendMailAsync(message);
-            }
+            //            using (var smtp = new SmtpClient())
+            //            {
+            //                var credential = new NetworkCredential
+            //                {
+            //                    UserName = "csmasteronline@gmail.com",
+            //                    Password = "erasoft123"
+            //                };
+            //                smtp.Credentials = credential;
+            //                smtp.Host = "smtp.gmail.com";
+            //                smtp.Port = 587;
+            //                smtp.EnableSsl = true;
+            //                await smtp.SendMailAsync(message);
+            //            }
+            //end remark by calvin 16 april 2019, pindah ke hangfire untuk kirim email nya
 #endif
-            //end remark by calvin 2 oktober 2018, untuk testing dlu
+
+            //var sqlStorage = new SqlServerStorage(System.Configuration.ConfigurationManager.ConnectionStrings["MoDbContext"].ConnectionString);
+            //var clientKirimEmail = new BackgroundJobClient(sqlStorage);
+            //var monitoringApi = sqlStorage.GetMonitoringApi();
+            //var serverList = monitoringApi.Servers();
+#if Debug_AWS
+            //if (serverList.Count() > 0)
+            //{
+            //    bool lakukanHapusServer = false;
+            //    if (lakukanHapusServer)
+            //    {
+            //        foreach (var server in serverList)
+            //        {
+            //            var serverConnection = sqlStorage.GetConnection();
+            //            serverConnection.RemoveServer(server.Name);
+            //            serverConnection.Dispose();
+            //        }
+
+            //        var options = new BackgroundJobServerOptions
+            //        {
+            //            ServerName = "Admin_Email",
+            //            Queues = new[] { "1_critical", "2_general" },
+            //            WorkerCount = 1,
+            //        };
+            //        var newserver = new BackgroundJobServer(options, sqlStorage);
+            //    }
+            //}
+#else
+#endif
+            //if (serverList.Count() == 0)
+            //{
+            //    var options = new BackgroundJobServerOptions
+            //    {
+            //        ServerName = "Admin_Email",
+            //        Queues = new[] { "1_critical", "2_general" },
+            //        WorkerCount = 1,
+            //    };
+            //    var newserver = new BackgroundJobServer(options, sqlStorage);
+            //}
+
+            //clientKirimEmail.Enqueue(() => TesSendEmail(email, account.Email, originPassword, nama));
+            Task.Run(() => TesSendEmail(email, account.Email, originPassword, nama));
 
             //ViewData["SuccessMessage"] = $"Selamat, akun Anda berhasil didaftarkan! Klik <a href=\"{Url.Action("Login")}\">di sini</a> untuk login!";
-            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> dari admin kami, terima kasih.";
+            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
 
             //if (account.KODE_SUBSCRIPTION != "01")
             //{
@@ -1102,8 +1184,47 @@ namespace MasterOnline.Controllers
                 return await midtrans.PaymentMidtrans(userSubs, account.DatabasePathMo, Convert.ToInt32(account.AccountId), account.jumlahUser);
             }
 
+            ViewData["SuccessMessage"] = $"Kami telah menerima pendaftaran Anda. Silakan menunggu <i>approval</i> melalui email dari admin kami, terima kasih.";
             return View("Register");
 
+        }
+
+        //[AutomaticRetry(Attempts = 2)]
+        //[Queue("2_general")]
+        protected async Task<string> TesSendEmail(MailAddress email, string account_Email, string originPassword, string nama)
+        {
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+               "<p>Hi {2},</p>" +
+               "<p>Selamat bergabung di Master Online.</p>" +
+               "<p>Master Online adalah Software Omnichannel management dimana anda dapat mengontrol dan mengelola bisnis anda di semua marketplace Indonesia dari 1 platfrom.</p>" +
+               "<p>Tunggu aktivasi akun anda dalam 1-2 hari ke depan.</p>" +
+               "<p>Cek Email anda dan Stay Tuned !&nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+               "<p>&nbsp;</p>" +
+               "<p>Best regards,</p>" +
+               "<p>CS Master Online.</p>";
+            //end change by nurul 5/3/2019
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Pendaftaran Master Online berhasil!";
+            message.Body = string.Format(body, account_Email, originPassword, nama);
+            message.IsBodyHtml = true;
+
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+            return "";
         }
         //function activate account
         public BindingBase ChangeStatusAcc(int? accId)
@@ -1201,17 +1322,33 @@ namespace MasterOnline.Controllers
 
                 string EDBConnID = EDB.GetConnectionString("ConnID");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
-                var monitoringApi = sqlStorage.GetMonitoringApi();
-                var serverList = monitoringApi.Servers();
-                if (serverList.Count() > 0)
+                //CHANGE by calvin 15 april 2019
+                //var monitoringApi = sqlStorage.GetMonitoringApi();
+                //var serverList = monitoringApi.Servers();
+                //if (serverList.Count() > 0)
+                //{
+                //    foreach (var server in serverList)
+                //    {
+                //        var serverConnection = sqlStorage.GetConnection();
+                //        serverConnection.RemoveServer(server.Name);
+                //        serverConnection.Dispose();
+                //    }
+                //}
+
+                RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                RecurringJobOptions recurJobOpt = new RecurringJobOptions()
                 {
-                    foreach (var server in serverList)
+                    QueueName = "3_general"
+                };
+
+                using (var connection = sqlStorage.GetConnection())
+                {
+                    foreach (var recurringJob in connection.GetRecurringJobs())
                     {
-                        var serverConnection = sqlStorage.GetConnection();
-                        serverConnection.RemoveServer(server.Name);
-                        serverConnection.Dispose();
+                        recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
                     }
                 }
+                //end CHANGE by calvin 15 april 2019
             }
 
             Session["SessionInfo"] = null;
@@ -1261,10 +1398,17 @@ namespace MasterOnline.Controllers
             }
 
             var partnerInDb = MoDbContext.Partner.SingleOrDefault(a => a.Email == partner.Email);
+            var cekKodeRefPilihan = MoDbContext.Partner.SingleOrDefault(a => a.KodeRefPilihan.ToUpper() == partner.KodeRefPilihan.ToUpper());
 
             if (partnerInDb != null)
             {
                 ModelState.AddModelError("", @"Email sudah terdaftar!");
+                return View("Partner", partner);
+            }
+
+            if (cekKodeRefPilihan != null)
+            {
+                ModelState.AddModelError("", @"Kode Referal sudah terdaftar!");
                 return View("Partner", partner);
             }
 
@@ -1274,7 +1418,8 @@ namespace MasterOnline.Controllers
 
                 if (file != null && file.ContentLength > 0)
                 {
-                    var fileName = Path.GetFileName(file.FileName);
+                    //var fileName = Path.GetFileName(file.FileName);
+                    var fileName = partner.Email.Replace(".", "_");
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     partner.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);

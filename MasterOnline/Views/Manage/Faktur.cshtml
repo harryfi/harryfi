@@ -3272,10 +3272,9 @@
                         } else if (link == true && listGd.length > 0) {
                             $(".selectize-input input[placeholder]").attr('placeholder', nama);
                             $('#gudang-kode').text(gudang);
-                            gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
                             //change by calvin 11 april 2019
                             //gudangSelect[0].selectize.setValue($('#FakturDetail_GUDANG').val(nama));
-                            gudangSelect[0].selectize.setValue(nama);
+                            gudangSelect[0].selectize.setValue(gudang);
                             $('#FakturDetail_GUDANG').val(gudang);
                             //end change by calvin 11 april 2019
                         }
@@ -3588,7 +3587,11 @@
                         "order": [[1, "desc"], [0, "desc"]], //or asc
                         "columnDefs": [{ "targets": 1, "type": "date-eu" }],
                     });
-                    Initialize();
+                    //CHANGE BY NURUL 16/4/2019
+                    //Initialize();
+                    $('.faktur_table_section').show();
+                    $('.faktur_editor_section').hide();
+                    //END CHANGE BY NURUL 16/4/2019
                     $('#loading_spinner').hide();
                     $('#konfHapusFaktur').modal('hide');
                 },
@@ -3811,7 +3814,24 @@
                         }
                     });
                 } else {
-                    alert('Silakan isi semua field terlebih dahulu!');
+                    //change by calvin 11 april 2019
+                    //alert('Silakan isi semua field terlebih dahulu!');
+                    var messageErrorKosong = "";
+                    if ($('#Faktur_TGL').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Tanggal,";
+                    }
+                    if ($('#Faktur_CUST').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Marketplace,";
+                    }
+                    if ($('#Faktur_TERM').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Term Of Payment (TOP),";
+                    }
+                    if ($('#Faktur_PEMESAN').val() == '') {
+                        messageErrorKosong = messageErrorKosong + "Pembeli,";
+                    }
+                    var messageErrorKosong = messageErrorKosong.substring(0, messageErrorKosong.length - 1);
+                    alert('Silakan isi field '+ messageErrorKosong +' terlebih dahulu!');
+                    //end change by calvin 11 april 2019
                 }
             }
         }

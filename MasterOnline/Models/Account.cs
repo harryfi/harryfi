@@ -86,13 +86,11 @@ namespace MasterOnline.Models
 
         //add by Iman 15/04/2019
         [Column(TypeName = "date")]
-        public DateTime? tgl_email1 { get; set; }
-        //end add by Iman 15/04/2019
+        public DateTime? tgl_email1 { get; set; }       
 
         //add by Iman 15/04/2019
         [Column(TypeName = "date")]
         public DateTime? tgl_email2 { get; set; }
-        
-        
+        //end add by Iman 15/04/2019
     }
 }

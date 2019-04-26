@@ -372,7 +372,8 @@
                                     </td>
                                     <td class="sub_title" style="width:550px">
                                         @*<span class="block_subtitle_label">Alamat</span> @(Model.Faktur.AL)*@
-                                        <span class="block_subtitle_label">Alamat Penerima</span> @(Model.ListPembeli.SingleOrDefault(a => a.BUYER_CODE == Model.Faktur.PEMESAN).AL)
+                                        @*<span class="block_subtitle_label">Alamat Penerima</span> @(Model.ListPembeli.SingleOrDefault(a => a.BUYER_CODE == Model.Faktur.PEMESAN).AL)*@
+                                        <span class="block_subtitle_label">Alamat Penerima</span> @(Model.alamatPenerima)
                                     </td>
                                 </tr>
                                 <tr>

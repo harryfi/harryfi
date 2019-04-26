@@ -285,7 +285,7 @@ namespace MasterOnline.Controllers
                         else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                         {
                             //lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN, uname, null));                            
                         }
                         else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
                         {
@@ -546,6 +546,23 @@ namespace MasterOnline.Controllers
                 return ret;
             }
 
+            //add 12-04-2019, cek qty on lazada
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/product/item/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("seller_sku", kdBrg);
+            LazopResponse response = client.Execute(request, token);
+            dynamic resStok = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body);
+            if (resStok.code == "0")
+            {
+                int stok = Convert.ToInt32(resStok.data.skus[0].quantity);
+                int stokAvaliable = Convert.ToInt32(resStok.data.skus[0].Available);
+                qty = (Convert.ToInt32(qty) + (stok - stokAvaliable)).ToString();
+            }
+
+            //end add 12-04-2019, cek qty on lazada
+
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?><Request><Product>";
             xmlString += "<Skus><Sku><SellerSku>" + kdBrg + "</SellerSku>";
             if (!string.IsNullOrEmpty(qty))
@@ -554,14 +571,14 @@ namespace MasterOnline.Controllers
                 xmlString += "<Price>" + harga + "</Price>";
             xmlString += "</Sku></Skus></Product></Request>";
 
-
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest();
+            //ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            //LazopRequest request = new LazopRequest();
             request.SetApiName("/product/price_quantity/update");
             request.AddApiParameter("payload", xmlString);
+            request.SetHttpMethod("POST");
             try
             {
-                LazopResponse response = client.Execute(request, token);
+                response = client.Execute(request, token);
                 var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaResponseObj)) as LazadaResponseObj;
                 if (res.code.Equals("0"))
                 {

@@ -18,5 +18,7 @@ namespace MasterOnline.Models
         public double Min { get; set; }
         public double Qoh { get; set; }
         public double Qoo { get; set; }
+        //add by nurul 12/4/2019
+        public double QtySales { get; set; }
     }
 }

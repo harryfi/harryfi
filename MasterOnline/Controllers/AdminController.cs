@@ -1273,13 +1273,22 @@ namespace MasterOnline.Controllers
             var date = DateTime.Today.AddMonths(-1);
             var Sale = MoDbContext.AktivitasSubscription.Where(a => a.TanggalBayar >= date && a.TanggalBayar <= DateTime.Today).ToList();
             double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            //add by nurul 24/4/2019
+            //var dateCS = DateTime.Today.AddMonths(1);
+            var accCS = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION > DateTime.Today).ToList();
+            var accex = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= DateTime.Today).ToList();
+            //end add by nurul 24/4/2019
             var vm = new DashboardAdminViewModel()
             {
                 ListAccount = MoDbContext.Account.ToList(),
                 ListSales = Sale,
                 Three = cekThree.Count(),
                 Twelve = cekTwelve.Count(),
-                Bayar = lengthSum
+                Bayar = lengthSum,
+                //add by nurul 24/4/2019
+                ListAccountCS = accCS,
+                ListAccounteX = accex,
+                //end add by nurul 24/4/2019
             };
             return View(vm);
         }
@@ -1341,6 +1350,55 @@ namespace MasterOnline.Controllers
             };
             return PartialView("TableDashboard", vm);
         }
+
+        //add by nurul 24/4/2019
+        [SessionAdminCheck]
+        public ActionResult RefreshDashboardCS(string param)
+        {
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }
+                    else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }
+            }
+
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            var accCS = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION > drTgl).ToList();
+            var accex = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= drTgl).ToList();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                ListAccountCS = accCS,
+                ListAccounteX = accex,
+            };
+            return PartialView("TableDashboardCS", vm);
+        }
+        //end add by nurul 24/4/2019
 
         // =============================================== Dashboard (END)
 
@@ -1755,19 +1813,26 @@ namespace MasterOnline.Controllers
             var date = DateTime.Today.AddMonths(-1);
             var Sale = MoDbContext.AktivitasSubscription.Where(a => a.TanggalBayar >= date && a.TanggalBayar <= DateTime.Today).ToList();
             double lengthSum = Sale.Select(a => a.Nilai).Sum();
+            //add by nurul 24/4/2019
+            //var dateCS = DateTime.Today.AddMonths(1);
+            var accCS = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION > DateTime.Today).ToList();
+            var accex = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= DateTime.Today).ToList();
+            //end add by nurul 24/4/2019
             var vm = new DashboardAdminViewModel()
             {
                 ListAccount = MoDbContext.Account.ToList(),
                 ListSales = Sale,
                 Three = cekThree.Count(),
                 Twelve = cekTwelve.Count(),
-                Bayar = lengthSum
+                Bayar = lengthSum,
+                ListAccountCS = accCS,
+                ListAccounteX = accex,
             };
             return View(vm);
         }
         
         [SessionAdminCheck]
-        public ActionResult RefreshDashboardCS(string param)
+        public ActionResult RefreshDashboardSalesCS(string param)
         {
             string dr = (param.Split(';')[param.Split(';').Length - 2]);
             string sd = (param.Split(';')[param.Split(';').Length - 1]);
@@ -1817,6 +1882,55 @@ namespace MasterOnline.Controllers
             };
             return PartialView("TableDashboardAdm", vm);
         }
+
+        //add by nurul 24/4/2019
+        [SessionAdminCheck]
+        public ActionResult RefreshDashboardCust(string param)
+        {
+            var x = MoDbContext.AktivitasSubscription.ToList();
+            var fromDate = new DateTime();
+            var toDate = new DateTime();
+            var getMonth = new Int32();
+            List<String> cekThree = new List<String>();
+            List<String> cekTwelve = new List<String>();
+            foreach (var item in x)
+            {
+                if (item.DrTGL != null && item.SdTGL != null)
+                {
+                    fromDate = Convert.ToDateTime(item.DrTGL);
+                    toDate = Convert.ToDateTime(item.SdTGL);
+                    getMonth = GetMonthDifference(fromDate, toDate);
+                    if (getMonth == 3)
+                    {
+                        cekThree.Add(item.Account);
+                    }
+                    else if (getMonth == 12)
+                    {
+                        cekTwelve.Add(item.Account);
+                    }
+                }
+            }
+
+            string tgl1 = (param.Split('/')[param.Split('/').Length - 3]);
+            string bln1 = (param.Split('/')[param.Split('/').Length - 2]);
+            string thn1 = (param.Split('/')[param.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+            var accCS = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION > drTgl).ToList();
+            var accex = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION <= drTgl).ToList();
+            var vm = new DashboardAdminViewModel()
+            {
+                ListAccount = MoDbContext.Account.ToList(),
+                Three = cekThree.Count(),
+                Twelve = cekTwelve.Count(),
+                ListAccountCS = accCS,
+                ListAccounteX = accex,
+            };
+            return PartialView("TableDashboardAdmCS", vm);
+        }
+        //end add by nurul 24/4/2019
 
         // =============================================== Dashboard (END)
 

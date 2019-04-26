@@ -296,6 +296,7 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\Api\MobileApiController.cs" />
     <Compile Include="Controllers\BCAController.cs" />
+    <Compile Include="Controllers\JDIDControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
     <Compile Include="Controllers\BlibliControllerJob.cs" />
     <Compile Include="Controllers\BlibliController.cs" />
@@ -6033,9 +6034,8 @@
     <Content Include="Views\Admin\TableDashboardAdm.cshtml" />
     <Content Include="Views\Admin\PartMenu.cshtml" />
     <Content Include="Views\Shared\_LayoutAdminCS.cshtml" />
-    <Content Include="Views\Admin\AccountReminderExpired.cshtml" />
-    <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
-    <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
+    <Content Include="Views\Admin\TableDashboardCS.cshtml" />
+    <Content Include="Views\Admin\TableDashboardAdmCS.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
