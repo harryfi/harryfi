@@ -382,18 +382,21 @@
             },
             success: function (response) {
                 if (response.Errors == null) {
-                    $('#table-barang-1-partial').html(response);
-                    Initialize();
-                    refreshTableBarang();
+                    //remark by calvin 26 april 2019
+                    //$('#table-barang-1-partial').html(response);
+                    //Initialize();
+                    //end remark by calvin 26 april 2019
                     $('#close-editor-1').click();
                     $("html, body").animate({ scrollTop: 0 }, "slow");
                     $('#loading_spinner').hide();
+                    refreshTableBarang();
                 } else {
                     if (response.errorHargaPerMP == null) {
                         console.log(response.Errors);
                     } else {
                         response.Errors.forEach(setErrorfield);
                     }
+                    alert('Ada data yang tidak valid!');
                 }
                 $('#loading_spinner').hide();
             },

@@ -1476,9 +1476,23 @@ namespace MasterOnline.Controllers
             ////change by nurul 18/1/2019 -- ListStf02S = ErasoftDbContext.STF02.ToList(),
             //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
             //};
+
+            //remark by calvin 26 april 2019
+            //var smartSearch = search.Split(' ');
+
             var Stf02S = (from p in ErasoftDbContext.STF02
                           where ((p.PART == null ? "" : p.PART) == "") &&
-                          ((p.NAMA + p.NAMA2).Contains(search) || p.BRG.Contains(search))
+                          (
+                            (
+                                (p.NAMA + " " + p.NAMA2).Contains(search) || p.BRG.Contains(search)
+                            ) 
+                            //remark by calvin 26 april 2019
+                            //||
+                            //(
+                            //    smartSearch.Any(val => (p.NAMA + " " + p.NAMA2).Contains(val))  || smartSearch.Any(val => p.BRG.Contains(val))
+                            //)
+                            //end remark by calvin 26 april 2019
+                          )
                           orderby p.NAMA
                           select p);
             var ListStf02S = Stf02S.Skip(pagenumber * 10).Take(10).ToList();
@@ -5959,13 +5973,21 @@ namespace MasterOnline.Controllers
                 saveBarangTokpedVariant(2, brg, false);
                 createBarangLazadaVariant(brg);
             }
+
+            //change by calvin 26 april 2019
+            //var partialVm = new BarangViewModel()
+            //{
+            //    ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+            //    ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
+            //};
+            //return PartialView("TableBarang1Partial", partialVm);
             var partialVm = new BarangViewModel()
             {
-                ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
-                ListHargaJualPermarketView = ErasoftDbContext.STF02H.Where(p => 0 == 1).OrderBy(p => p.IDMARKET).ToList(),
+              
             };
-
-            return PartialView("TableBarang1Partial", partialVm);
+            partialVm.Errors = null;
+            return Json(partialVm, JsonRequestBehavior.AllowGet);
+            //end change by calvin 26 april 2019
         }
         public ActionResult GetDetailBarangVar(string kode, string brg)
         {

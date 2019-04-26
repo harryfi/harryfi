@@ -5111,7 +5111,7 @@ namespace MasterOnline.Controllers
             public string variation_discounted_price { get; set; }
             public long variation_id { get; set; }
             public string variation_name { get; set; }
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public int variation_quantity_purchased { get; set; }
             public string variation_sku { get; set; }
             public string variation_original_price { get; set; }
@@ -5573,7 +5573,7 @@ namespace MasterOnline.Controllers
 
         public class InitTierVariationResult
         {
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public Variation_Id_List[] variation_id_list { get; set; }
             public string request_id { get; set; }
         }
@@ -5586,7 +5586,7 @@ namespace MasterOnline.Controllers
 
         public class GetVariationResult
         {
-            public int item_id { get; set; }
+            public long item_id { get; set; }
             public GetVariationResultTier_Variation[] tier_variation { get; set; }
             public GetVariationResultVariation[] variations { get; set; }
             public string request_id { get; set; }

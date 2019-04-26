@@ -896,7 +896,8 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        //hanya untuk testing
+                        //await new ShopeeControllerJob().GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
                     else
                     {
