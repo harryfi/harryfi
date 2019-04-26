@@ -92,5 +92,7 @@ namespace MasterOnline.Models
         [Column(TypeName = "date")]
         public DateTime? tgl_email2 { get; set; }
         //end add by Iman 15/04/2019
+
+        public DateTime? LAST_LOGIN_DATE { get; set; }
     }
 }
