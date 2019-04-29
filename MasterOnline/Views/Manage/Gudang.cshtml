@@ -122,7 +122,7 @@
                                             @Html.HiddenFor(m => m.Gudang.GD_KONSINYASI, new { Value = false })
                                             @Html.HiddenFor(m => m.Gudang.CUSTOMER, new { Value = " " })
                                             @Html.HiddenFor(m => m.Gudang.DISCOUNT, new { Value = false })
-                                            @Html.HiddenFor(m => m.Gudang.KD_HARGA_JUAL, new { Value = " " })
+                                            @*@Html.HiddenFor(m => m.Gudang.KD_HARGA_JUAL, new { Value = " " })*@
                                             @Html.HiddenFor(m => m.Gudang.USERNAME, new { Value = username })
                                             <div class="form-group">
                                                 @Html.LabelFor(m => m.Gudang.Kode_Gudang, "Kode Gudang *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
@@ -134,6 +134,26 @@
                                                 @Html.LabelFor(m => m.Gudang.Nama_Gudang, "Nama Gudang *", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-5 col-sm-5 col-xs-12">
                                                     @Html.TextBoxFor(m => m.Gudang.Nama_Gudang, new { @class = "form-control", required = "required" })
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                @Html.LabelFor(m => m.Gudang.KD_HARGA_JUAL, "Link Qty ke Marketplace", new { @class = "control-label control-label-bold col-md-3 col-sm-3 col-xs-12" })
+                                                <div class="col-md-5 col-sm-5 col-xs-12">
+                                                    @*@Html.DropDownListFor(m => m.Gudang.KD_HARGA_JUAL, new List<SelectListItem>()
+        {
+            new SelectListItem()
+            {
+                Text = @"Tidak Aktif",
+                Value = "0",
+            },
+            new SelectListItem()
+            {
+                Text = @"Aktif",
+                Value = "1"
+            }
+        }, new { @class = "form-control" })*@
+                                                    @Html.HiddenFor(m => m.Gudang.KD_HARGA_JUAL)
+                                                    @Html.CheckBox("linkMP", new { value = Model?.Gudang?.KD_HARGA_JUAL, @checked = true, @style = "width:30px; height:28px;" })
                                                 </div>
                                             </div>
                                             <input type="button" class="btn btn-primary pull-right" id="simpan_btn" value="Simpan" onclick="simpanGudang(this)" />
@@ -194,6 +214,10 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            //add by nurul 26/4/2019
+            $(".checkbox_linkMP").attr('disabled', 'disabled');
+            //end add by nurul 26/4/2019
         });
 
         function Initialize() {
@@ -225,6 +249,10 @@
                 });
                 $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+                //add by nurul 26/4/2019
+                $(".checkbox_linkMP").attr('disabled', 'disabled');
+            //end add by nurul 26/4/2019
             });
 
             if ($('.message-error').text() !== '') {
@@ -261,13 +289,25 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            //add by nurul 26/4/2019
+            $(".checkbox_linkMP").attr('disabled', 'disabled');
+            //end add by nurul 26/4/2019
         }
 
         function simpanGudang(btnClicked) {
             if (!validateForm()) return false;
 
             var $form = $(btnClicked).parents('form');
-
+            //add by nurul 26/4/2019
+            if ($("#linkMP").is(":checked") == true) {
+                $('#Gudang_KD_HARGA_JUAL').val("1");
+                $('#linkMP').val("1");
+            } else if ($("#linkMP").is(":checked") == false) {
+                $('#Gudang_KD_HARGA_JUAL').val("0");
+                $('#linkMP').val("0");
+            }
+            //end add by nurul 26/4/2019
             $.ajax({
                 type: "POST",
                 url: $form.attr('action'),
@@ -309,6 +349,13 @@
                     $('#Gudang_USERNAME').val(response.Gudang.USERNAME);
                     $('#Gudang_Kode_Gudang').val(response.Gudang.Kode_Gudang).attr('disabled', 'disabled');
                     $('#Gudang_Nama_Gudang').val(response.Gudang.Nama_Gudang);
+                    //add by nurul 26/4/2019
+                    if (response.Gudang.KD_HARGA_JUAL == "1") {
+                        $('#linkMP').attr('checked', true);
+                    } else {
+                        $('#linkMP').attr('checked', false);
+                    }
+                    //end add by nurul 26/4/2019
                     $('#tambah_gudang').click();
                 },
                 error: function (xhr, status, error) {
