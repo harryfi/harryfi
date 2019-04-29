@@ -74,6 +74,7 @@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 60px;">Status</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 70px;">Tipe Subs</th>
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 120px;">Tgl. Berakhir Subs</th>
+                            <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 160px;">Database Akun</th>
                             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Ubah</th> 'change by nurul 20/2/2019*@
                             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" style="width: 40px; max-width: 40px;">Hapus Akun</th>
                         </tr>
@@ -117,6 +118,7 @@
                                         }
                                     </td>
                                     <td class="text-center">@(user.TGL_SUBSCRIPTION?.ToString("dd/MM/yyyy"))</td>
+                                    <td class="text-center">@user.DatabasePathErasoft</td>
                                     <td class="edit-hapus-col">
                                         @{
                                             var status = 0;

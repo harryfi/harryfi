@@ -17,5 +17,8 @@ namespace MasterOnline.Models
         //add by nurul 1/3/2019
         public bool JumlahUserLebih { get; set; }
         //end add by nurul 1/3/2019
+        //add by nurul 29/4/2019
+        public bool adaTokped { get; set; }
+        //end add by nurul 29/4/2019
     }
 }

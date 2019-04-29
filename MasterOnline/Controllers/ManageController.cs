@@ -9851,7 +9851,10 @@ namespace MasterOnline.Controllers
         [HttpGet]
         public ActionResult GetPelangganAkunTokpedShopee()
         {
-            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15" || m.NAMA == "17").ToList();
+            //change by nurul 29/4/2019, filter hanya tokped 
+            //var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15" || m.NAMA == "17").ToList();
+            var listPelanggan = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList();
+            //end change by nurul 29/4/2019
 
             return Json(listPelanggan, JsonRequestBehavior.AllowGet);
         }
@@ -9979,14 +9982,17 @@ namespace MasterOnline.Controllers
 
             var accSubs = MoDbContext.Subscription.FirstOrDefault(s => s.KODE == accInDb.KODE_SUBSCRIPTION);
 
+            var cekTokped = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).Where(m => m.NAMA == "15").ToList().Count();
+
             var valSubs = new ValidasiSubs()
             {
                 JumlahPesananBulanIni = jumlahPesananBulanIni,
                 JumlahPesananMax = accSubs?.JUMLAH_PESANAN,
                 //change by nurul 8/2/2019
                 //SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date && accInDb.KODE_SUBSCRIPTION != "01")
-                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date)
+                SudahSampaiBatasTanggal = (accInDb?.TGL_SUBSCRIPTION <= DateTime.Today.Date),
                 //en change by nurul 8/2/2019
+                adaTokped = (cekTokped > 0),
             };
 
             return Json(valSubs, JsonRequestBehavior.AllowGet);
@@ -14447,6 +14453,7 @@ namespace MasterOnline.Controllers
                 var katInDb = ErasoftDbContext.STF18.Single(k => k.ID == dataGudang.Gudang.ID);
 
                 katInDb.Nama_Gudang = dataGudang.Gudang.Nama_Gudang;
+                katInDb.KD_HARGA_JUAL = dataGudang.Gudang.KD_HARGA_JUAL;
             }
 
             ErasoftDbContext.SaveChanges();

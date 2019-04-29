@@ -6036,6 +6036,9 @@
     <Content Include="Views\Shared\_LayoutAdminCS.cshtml" />
     <Content Include="Views\Admin\TableDashboardCS.cshtml" />
     <Content Include="Views\Admin\TableDashboardAdmCS.cshtml" />
+    <Content Include="Views\Admin\AccountReminderExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
