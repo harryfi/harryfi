@@ -1485,13 +1485,13 @@ namespace MasterOnline.Controllers
                           (
                             (
                                 (p.NAMA + " " + p.NAMA2).Contains(search) || p.BRG.Contains(search)
-                            ) 
-                            //remark by calvin 26 april 2019
-                            //||
-                            //(
-                            //    smartSearch.Any(val => (p.NAMA + " " + p.NAMA2).Contains(val))  || smartSearch.Any(val => p.BRG.Contains(val))
-                            //)
-                            //end remark by calvin 26 april 2019
+                            )
+                          //remark by calvin 26 april 2019
+                          //||
+                          //(
+                          //    smartSearch.Any(val => (p.NAMA + " " + p.NAMA2).Contains(val))  || smartSearch.Any(val => p.BRG.Contains(val))
+                          //)
+                          //end remark by calvin 26 april 2019
                           )
                           orderby p.NAMA
                           select p);
@@ -4465,7 +4465,14 @@ namespace MasterOnline.Controllers
                                                 }
                                                 else
                                                 {
-                                                    Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                    if (stf02h.BRG_MP.Contains("PEDITENDING"))
+                                                    {
+                                                        Task.Run(() => tokoAPI.EditProductGetStatus(iden, stf02h.BRG, Convert.ToInt32(stf02h.BRG_MP.Split(';')[1]), stf02h.BRG_MP.Split(';')[2], stf02h.BRG_MP.Split(';')[3]).Wait());
+                                                    }
+                                                    else
+                                                    {
+                                                        Task.Run(() => tokoAPI.EditProduct(iden, (string.IsNullOrEmpty(dataBarang_Stf02_BRG) ? barangInDb.BRG : dataBarang_Stf02_BRG), stf02h.BRG_MP).Wait());
+                                                    }
                                                 }
                                             }
                                             else
@@ -5333,7 +5340,7 @@ namespace MasterOnline.Controllers
                 //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList()
                 //end remark by calvin 23 april 2019
             };
-           
+
             partialVm.Errors = null;
             return Json(partialVm, JsonRequestBehavior.AllowGet);
         }
@@ -5956,23 +5963,24 @@ namespace MasterOnline.Controllers
 
             ModelState.Clear();
 
-            var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
-            bool doAPI = false;
-            if (DataUsaha != null)
-            {
-                if (DataUsaha.JTRAN_RETUR == "1")
-                {
-                    doAPI = true;
-                }
-            }
-            if (doAPI)
-            {
-                //ingat ganti saat publish, by calvin
-                saveBarangShopeeVariant(2, brg, false);
-                saveBarangBlibliVariant(2, brg);
-                saveBarangTokpedVariant(2, brg, false);
-                createBarangLazadaVariant(brg);
-            }
+            //remark by calvin 26 april 2019, create barang tetap jalan walaupun tidak link
+            //var DataUsaha = ErasoftDbContext.SIFSYS.FirstOrDefault();
+            //bool doAPI = false;
+            //if (DataUsaha != null)
+            //{
+            //    if (DataUsaha.JTRAN_RETUR == "1")
+            //    {
+            //        doAPI = true;
+            //    }
+            //}
+            //if (doAPI)
+            //{
+            //ingat ganti saat publish, by calvin
+            saveBarangShopeeVariant(2, brg, false);
+            saveBarangBlibliVariant(2, brg);
+            saveBarangTokpedVariant(2, brg, false);
+            createBarangLazadaVariant(brg);
+            //}
 
             //change by calvin 26 april 2019
             //var partialVm = new BarangViewModel()
@@ -5983,7 +5991,7 @@ namespace MasterOnline.Controllers
             //return PartialView("TableBarang1Partial", partialVm);
             var partialVm = new BarangViewModel()
             {
-              
+
             };
             partialVm.Errors = null;
             return Json(partialVm, JsonRequestBehavior.AllowGet);
@@ -6856,9 +6864,12 @@ namespace MasterOnline.Controllers
             var listStf02ToDelete = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == brg && !listStf02inDbCekDuplikat.Contains(p.BRG)).ToList();
             if (listStf02ToDelete.Count() > 0)
             {
-                var listStf02hToDelete = ErasoftDbContext.STF02H.Where(p => listBrgVariasiStf02.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) == "")).ToList();
-
                 ErasoftDbContext.STF02.RemoveRange(listStf02ToDelete);
+                ErasoftDbContext.SaveChanges();
+            }
+            var listStf02hToDelete = ErasoftDbContext.STF02H.Where(p => listBrgVariasiStf02.Contains(p.BRG) && ((p.BRG_MP == null ? "" : p.BRG_MP) == "")).ToList();
+            if (listStf02hToDelete.Count() > 0)
+            {
                 ErasoftDbContext.STF02H.RemoveRange(listStf02hToDelete);
                 ErasoftDbContext.SaveChanges();
             }

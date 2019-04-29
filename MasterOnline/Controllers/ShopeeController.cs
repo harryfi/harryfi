@@ -2813,7 +2813,7 @@ namespace MasterOnline.Controllers
                 category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
                 condition = "NEW",
                 name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim(),
-                description = brgInDb.Deskripsi,
+                description = brgInDb.Deskripsi.Replace("’","`"),
                 package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
                 package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
                 package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
