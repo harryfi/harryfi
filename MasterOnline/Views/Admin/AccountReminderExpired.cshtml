@@ -91,7 +91,7 @@
                         <div class="col-md-2">
                             @Html.Label("", "Dari Tanggal")
                             <div class="input-group date">
-                                @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true   })
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
@@ -100,7 +100,7 @@
                         <div class="col-md-2">
                             @Html.Label("", "S/d Tanggal")
                             <div class="input-group date">
-                                @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true  })
                                 <span class="input-group-addon">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </span>
@@ -114,7 +114,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-account-will-expired">
-                            @Html.Partial("TableAccountReminderExpired")
+                            @*@Html.Partial("TableAccountReminderExpired")*@
                         </div>
                     </div>
                     <div class="row WillExpired_detail_section" style="display: none;">
@@ -245,7 +245,28 @@
         });
         $(document).on('ready',
             function () {
-                
+
+                var d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                $('#DrTanggal').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    $('#DrTanggal').val($('#DrTanggal').val());
+                    $('#DrTanggal').datepicker('hide');
+                    refreshTableWillexpired();
+                });
+                $('#SdTanggal').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', d).change(function () {
+                    $('#SdTanggal').val($('#SdTanggal').val());
+                    $('#SdTanggal').datepicker('hide');
+                    refreshTableWillexpired();
+                });
+
+                refreshTableWillexpired();
+
 
                 $('#search_user').keyup(function () {
                     table.search($(this).val()).draw();
@@ -404,7 +425,7 @@
 
         
         function refreshTableWillexpired() {
-            var link = '@Url.Action("AccountReminderExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            var link = '@Url.Action("TAccountReminderExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
             link = link.replace("replacesdtgl", $('#SdTanggal').val());
 

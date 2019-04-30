@@ -36,5 +36,11 @@ namespace MasterOnline.Models
         public DateTime? SdTGL { get; set; }
 
         public int? jumlahUser { get; set; }
+
+        public DateTime? tgl_email { get; set; }
+
+        [MaxLength(50)]
+        public string Invoice_No { get; set; }
+
     }
 }
