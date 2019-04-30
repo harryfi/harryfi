@@ -1752,8 +1752,8 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-58).ToUnixTimeSeconds();
-            long timeStampTo = (long)DateTimeOffset.UtcNow.AddDays(-44).ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();
+            long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 

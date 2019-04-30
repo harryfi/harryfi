@@ -851,10 +851,18 @@ namespace MasterOnline.Controllers
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                                //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                             }
                             else
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
                             }
                             //end add by calvin 2 april 2019
@@ -896,8 +904,8 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        //hanya untuk testing
-                        //await new ShopeeControllerJob().GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        ////hanya untuk testing
+                        //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
                     else
                     {

@@ -1281,14 +1281,14 @@ namespace MasterOnline.Controllers
             string responseFromServer = "";
             //try
             //{
-                using (WebResponse response = await myReq.GetResponseAsync())
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
                 {
-                    using (Stream stream = response.GetResponseStream())
-                    {
-                        StreamReader reader = new StreamReader(stream);
-                        responseFromServer = reader.ReadToEnd();
-                    }
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
                 }
+            }
             //}
             //catch (Exception ex)
             //{
@@ -1303,7 +1303,11 @@ namespace MasterOnline.Controllers
                 var orderPaid = result.data.Where(p => p.order_status == 220).ToList();
                 var orderAccepted = result.data.Where(p => p.order_status == 400).ToList();
                 var orderTokpedInDb = ErasoftDbContext.TEMP_TOKPED_ORDERS.Where(p => p.fs_id == iden.merchant_code);
-                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST).Select(p => p.NO_REFERENSI).ToList();
+
+                var last21days = DateTimeOffset.UtcNow.AddHours(7).AddDays(-21).DateTime;
+                System.DateTime datetimeisnull = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+                var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == CUST && (p.TGL ?? datetimeisnull) > last21days).Select(p => p.NO_REFERENSI).ToList();
+
                 var connIdARF01C = Guid.NewGuid().ToString();
                 rowCount = result.data.Count();
                 foreach (var order in orderPaid)
@@ -1573,6 +1577,141 @@ namespace MasterOnline.Controllers
                     contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Tokopedia.");
 
                     new StokControllerJob().updateStockMarketPlace(connId, iden.DatabasePathErasoft, iden.username);
+                }
+                //end add by calvin 1 april 2019
+            }
+            return ret;
+        }
+
+
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public async Task<string> GetOrderListCompleted(TokopediaAPIData iden, StatusOrder stat, string CUST, string NAMA_CUST, int page, int jmlhOrderComplete)
+        {
+            //if merchant code diisi. barulah GetOrderList
+            string ret = "";
+            string connId = Guid.NewGuid().ToString();
+            var token = SetupContext(iden);
+            iden.token = token;
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+            string status = "";
+
+            //complete list of order status at https://fs.tokopedia.net/docs#order-status-codes
+            //400 seller accepted the order
+            //401 seller accepted the order, partially
+            //10  seller rejected the order
+            //500 seller confirm for shipment
+
+            switch (stat)
+            {
+                case StatusOrder.Cancel:
+                    //Cancel Order
+                    status = "0";
+                    break;
+                case StatusOrder.Paid:
+                    //paid
+                    status = "220";
+                    break;
+                //case StatusOrder.PackagingINP:
+                //    status = "500";
+                //    break;
+                case StatusOrder.ShippingINP:
+                    //Shipping in Progress
+                    status = "500";
+                    break;
+                case StatusOrder.Completed:
+                    //Completed (Shipping)
+                    status = "700";
+                    break;
+                default:
+                    break;
+            }
+            long unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds();
+            long unixTimestampTo = (long)DateTimeOffset.UtcNow.AddDays(1).ToUnixTimeSeconds();
+
+            ////untuk perbaiki data
+            //unixTimestampFrom = (long)DateTimeOffset.UtcNow.AddDays(-106).ToUnixTimeSeconds();
+
+            string urll = "https://fs.tokopedia.net/v1/order/list?fs_id=" + Uri.EscapeDataString(iden.merchant_code) + "&from_date=" + Convert.ToString(unixTimestampFrom) + "&to_date=" + Convert.ToString(unixTimestampTo) + "&page=" + Convert.ToString(page) + "&per_page=100&shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
+
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = milis.ToString(),
+            //    REQUEST_ACTION = "Get Order List",
+            //    REQUEST_DATETIME = milisBack,
+            //    REQUEST_ATTRIBUTE_1 = stat.ToString(),
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "GET";
+            myReq.Headers.Add("Authorization", ("Bearer " + iden.token));
+            //myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+            //myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+            myReq.Accept = "application/x-www-form-urlencoded";
+            myReq.ContentType = "application/json";
+            //myReq.Headers.Add("requestId", milis.ToString());
+            //myReq.Headers.Add("sessionId", milis.ToString());
+            //myReq.Headers.Add("username", userMTA);
+            string responseFromServer = "";
+            //try
+            //{
+            using (WebResponse response = await myReq.GetResponseAsync())
+            {
+                using (Stream stream = response.GetResponseStream())
+                {
+                    StreamReader reader = new StreamReader(stream);
+                    responseFromServer = reader.ReadToEnd();
+                }
+            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            //}
+            int rowCount = 0;
+            if (!string.IsNullOrWhiteSpace(responseFromServer))
+            {
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                TokopediaOrders result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer, typeof(TokopediaOrders)) as TokopediaOrders;
+                var orderCompleted = result.data.Where(p => p.order_status == 700).ToList();
+                var order701 = result.data.Where(p => p.order_status == 701).ToList(); // order yang dianggap selesai tetapi barang tidak sampai ke buyer
+                
+                var connIdARF01C = Guid.NewGuid().ToString();
+                rowCount = result.data.Count();
+
+                string ordersn = "";
+                foreach (var item in orderCompleted)
+                {
+                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                }
+                foreach (var item in order701)
+                {
+                    ordersn = ordersn + "'" + item.order_id + ";" + item.invoice_ref_num + "',";
+                }
+
+                if (ordersn != "")
+                {
+                    ordersn = ordersn.Substring(0, ordersn.Length - 1);
+                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '04' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '03'");
+                    jmlhOrderComplete = jmlhOrderComplete + rowAffected;
+                }
+            }
+            if (rowCount > 99)
+            {
+                await GetOrderListCompleted(iden, stat, CUST, NAMA_CUST, (page + 1), jmlhOrderComplete);
+            }
+            else
+            {
+                //add by calvin 1 april 2019
+                //notify user
+                if (jmlhOrderComplete > 0)
+                {
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(iden.DatabasePathErasoft).moNewOrder("" + Convert.ToString(jmlhOrderComplete) + " Pesanan dari Tokopedia sudah selesai.");
                 }
                 //end add by calvin 1 april 2019
             }
