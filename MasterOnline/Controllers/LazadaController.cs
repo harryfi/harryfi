@@ -41,6 +41,7 @@ namespace MasterOnline.Controllers
         DatabaseSQL EDB;
         MoDbContext MoDbContext;
         ErasoftContext ErasoftDbContext;
+        string DatabasePathErasoft;
 
         public LazadaController()
         {
@@ -52,6 +53,7 @@ namespace MasterOnline.Controllers
                 else
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
 
             }
             else
@@ -61,6 +63,7 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
                     ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
+                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                 }
             }
         }
@@ -342,9 +345,19 @@ namespace MasterOnline.Controllers
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             if (Convert.ToString(stf02.TYPE) == "3")
             {
+
                 xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
+
+                //add by calvin 1 mei 2019
+                //var qty_stock = new StokControllerJob(DatabasePathErasoft, "").GetQOHSTF08A(data.kdBrg, "ALL");
+                //if (qty_stock > 0)
+                //{
+                //xmlString += "<quantity>1</quantity>";
+                //}
+                //end add by calvin 1 mei 2019
+
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
                 //xmlString += "<size>Int: One size</size>";

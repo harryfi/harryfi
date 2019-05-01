@@ -997,7 +997,7 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     //var fileName = Path.GetFileName(file.FileName);
-                    var fileName = account.Email.Replace(".", "_");
+                    var fileName = account.Email.Replace(".", "_").Replace("@","_") + ".jpg";
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);

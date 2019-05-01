@@ -38,6 +38,7 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string username;
+        string DatabasePathErasoft;
         private static string ToLiteral(string input)
         {
             using (var writer = new StringWriter())
@@ -62,6 +63,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
                 username = sessionData.Account.Username;
             }
             else
@@ -71,6 +73,7 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                     username = accFromUser.Username;
                 }
             }
@@ -268,7 +271,7 @@ namespace MasterOnline.Controllers
                 try
                 {
                     var detailBrg = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetItemDetailResult)) as ShopeeGetItemDetailResult;
-                   
+
                     //string IdMarket = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust.Equals(iden.merchant_code)).FirstOrDefault().RecNum.ToString();
                     string cust = ErasoftDbContext.ARF01.Where(c => c.Sort1_Cust == iden.merchant_code).FirstOrDefault().CUST.ToString();
                     string categoryCode = detailBrg.item.category_id.ToString();
@@ -2813,7 +2816,7 @@ namespace MasterOnline.Controllers
                 category_id = Convert.ToInt64(detailBrg.CATEGORY_CODE),
                 condition = "NEW",
                 name = (brgInDb.NAMA + " " + brgInDb.NAMA2).Trim().Replace("’", "`"),
-                description = brgInDb.Deskripsi.Replace("’","`"),
+                description = brgInDb.Deskripsi.Replace("’", "`"),
                 package_height = Convert.ToInt32(brgInDb.TINGGI) == 0 ? 1 : Convert.ToInt32(brgInDb.TINGGI),
                 package_length = Convert.ToInt32(brgInDb.PANJANG) == 0 ? 1 : Convert.ToInt32(brgInDb.PANJANG),
                 package_width = Convert.ToInt32(brgInDb.LEBAR) == 0 ? 1 : Convert.ToInt32(brgInDb.LEBAR),
@@ -2825,6 +2828,14 @@ namespace MasterOnline.Controllers
                 variations = new List<ShopeeVariationClass>(),
                 logistics = logistics
             };
+
+            //add by calvin 1 mei 2019
+            var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+            if (qty_stock > 0)
+            {
+                HttpBody.stock = Convert.ToInt32(qty_stock);
+            }
+            //end add by calvin 1 mei 2019
 
             if (!string.IsNullOrEmpty(brgInDb.LINK_GAMBAR_1))
                 HttpBody.images.Add(new ShopeeImageClass { url = brgInDb.LINK_GAMBAR_1 });
@@ -3292,6 +3303,15 @@ namespace MasterOnline.Controllers
                         stock = 1,//create product min stock = 1
                         variation_sku = item.BRG
                     };
+
+                    //add by calvin 1 mei 2019
+                    var qty_stock = new StokControllerJob(DatabasePathErasoft,username).GetQOHSTF08A(item.BRG, "ALL");
+                    if (qty_stock > 0)
+                    {
+                        adaVariant.stock = Convert.ToInt32(qty_stock);
+                    }
+                    //end add by calvin 1 mei 2019
+
                     string key_map_tier_index_recnum = "";
                     foreach (var indexes in ListTierIndex)
                     {
@@ -3372,7 +3392,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi,variation);
+                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation);
                 }
             }
 
@@ -4737,7 +4757,7 @@ namespace MasterOnline.Controllers
             }
             catch (Exception ex)
             {
-                
+
             }
         }
         public static long CurrentTimeSecond()

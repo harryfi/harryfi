@@ -109,6 +109,12 @@ namespace MasterOnline.Controllers
             //Catatan by calvin :
             //untuk menghandle update stok semua marketplace
         }
+        public StokControllerJob(string DatabasePathErasoft, string uname)
+        {
+            //Catatan by calvin :
+            //untuk menghandle update stok semua marketplace
+            SetupContext(DatabasePathErasoft, uname);
+        }
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext();
@@ -207,7 +213,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        protected double GetQOHSTF08A(string Barang, string Gudang)
+        public double GetQOHSTF08A(string Barang, string Gudang)
         {
             double qtyOnHand = 0d;
             {
