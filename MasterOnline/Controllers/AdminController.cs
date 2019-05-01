@@ -872,8 +872,127 @@ namespace MasterOnline.Controllers
         [SessionAdminCheck]
         public ActionResult AccountReminderExpired(string param)    
         {
+            //if (param != null)
+            //{
+            //    string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            //    string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            //    string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            //    string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            //    string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            //    string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            //    string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            //    string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            //    string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            //    string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            //    var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            //    var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+
+
+            //    var vm = new MenuAccount()
+            //    {
+            //        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+            //        //ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date).ToList(),
+            //        ListPartner = MoDbContext.Partner.ToList()
+            //    };
+            //    return PartialView("TableAccountReminderExpired", vm);
+            //    //return View(vm);
+            //}
+            //else
+            //{
+
+            DateTime dateTime = DateTime.UtcNow.Date;
+            DateTime Nextmonth = dateTime.AddMonths(1);
+            param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
+            //param = "29/04/2019;29/05/2019";
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+            var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            var vm = new MenuAccount  
+            {
+                //ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+                ListPartner = MoDbContext.Partner.ToList()
+            };
+
+            return View("AccountReminderExpired",vm);
+
+                //var date = DateTime.Today.AddMonths(+1);
+                //var vm = new MenuAccount()
+                //{                    
+                //    ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date && a.Status == true).ToList(),
+                //    ListPartner = MoDbContext.Partner.ToList()
+                //};
+                //return View(vm);
+                //}
+        }
+        public ActionResult TAccountReminderExpired(string param)
+        {
             if (param != null)
             {
+                if (param.Length > 1)
+                {
+                   
+                    string dr = (param.Split(';')[param.Split(';').Length - 2]);
+                    string sd = (param.Split(';')[param.Split(';').Length - 1]);
+                    string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+                    string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+                    string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+                    string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+                    string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+                    string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+                    string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+                    string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+                    var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                    var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                    var vm = new MenuAccount()
+                    {
+                        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+                        ListPartner = MoDbContext.Partner.ToList()
+                    };
+                    return PartialView("TableAccountReminderExpired", vm);
+                    //return View(vm);
+                }
+                else
+                {
+                    DateTime dateTime = DateTime.UtcNow.Date;
+                    DateTime Nextmonth = dateTime.AddMonths(1);
+                    param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");
+                    string dr = (param.Split(';')[param.Split(';').Length - 2]);
+                    string sd = (param.Split(';')[param.Split(';').Length - 1]);
+                    string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+                    string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+                    string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+                    string drtanggal = tgl1 + '/' + bln1 + '/' + thn1;
+                    string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+                    string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+                    string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+                    string sdtanggal = tgl2 + '/' + bln2 + '/' + thn2;
+                    var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                    var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                    var vm = new MenuAccount()
+                    {
+                        ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
+                        ListPartner = MoDbContext.Partner.ToList()
+                    };
+                    return PartialView("TableAccountReminderExpired", vm);
+                    return View(vm);
+                }
+
+            }
+            else
+            {
+
+                DateTime dateTime = DateTime.UtcNow.Date;
+                DateTime Nextmonth = dateTime.AddMonths(1);
+                param = dateTime.ToString("dd/MM/yyyy") + ";" + Nextmonth.ToString("dd/MM/yyyy");          
                 string dr = (param.Split(';')[param.Split(';').Length - 2]);
                 string sd = (param.Split(';')[param.Split(';').Length - 1]);
                 string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
@@ -887,32 +1006,17 @@ namespace MasterOnline.Controllers
                 var drTgl = DateTime.ParseExact(drtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
                 var sdTgl = DateTime.ParseExact(sdtanggal, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
-
                 var vm = new MenuAccount()
                 {
                     ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= drTgl && a.TGL_SUBSCRIPTION <= sdTgl && a.Status == true).ToList(),
-                    //ListAccount = MoDbContext.Account.OrderByDescending(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date).ToList(),
                     ListPartner = MoDbContext.Partner.ToList()
                 };
                 return PartialView("TableAccountReminderExpired", vm);
-                //return View(vm);
             }
-            else
-            {
-                //var drTgl = DateTime.ParseExact(string(DateTime.Today) , "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                //var sdTgl = DateTime.ParseExact(string(DateTime.Today.AddMonths(+1)), "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                var date = DateTime.Today.AddMonths(+1);
-                var vm = new MenuAccount()
-                {                    
-                    ListAccount = MoDbContext.Account.Where(a => a.TGL_SUBSCRIPTION >= DateTime.Today && a.TGL_SUBSCRIPTION <= date && a.Status == true).ToList(),
-                    ListPartner = MoDbContext.Partner.ToList()
-                };
-                return View(vm);
-            }
-            
-            
-
         }
+
+
+
         [SessionAdminCheck]
         public ActionResult AccountMenuSudahExpired(string param)
         {
