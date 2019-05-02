@@ -17408,9 +17408,9 @@ namespace MasterOnline.Controllers
                 TempBrg = new TEMP_BRG_MP(),
             };
             barangVm.ListMarket = ErasoftDbContext.ARF01.ToList();
-            //add and remark by calvin, untuk excel
-            ProsesTempExcelAutoCompleteBrg("000005");
-            //end add and remark by calvin, untuk excel
+            ////add and remark by calvin, untuk excel
+            //ProsesTempExcelAutoCompleteBrg("000005");
+            ////end add and remark by calvin, untuk excel
 
             //List<string> listBrg = new List<string>();
             //var stt01b = ErasoftDbContext.STT01B.Select(p => p.Kobar).FirstOrDefault();
