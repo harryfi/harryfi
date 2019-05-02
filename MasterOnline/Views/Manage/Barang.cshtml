@@ -3754,6 +3754,8 @@
                 if ($('#Stf02_TYPE').val() == null || $('#Stf02_TYPE').val() == '' || $('#Stf02_TYPE').val() == '3') {
                     enableFotoProdukSection();
                 } else {
+                    $('#variant-induk-tab').attr('data-toggle', 'tab');
+                    $('#variant-induk-tab').removeClass('disabled-tab');
                     disableFotoProdukSection();
                 }
             }
@@ -3846,20 +3848,25 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    //change by nurul 30/7/2018
-                    //$('#table-barang-1-partial').html(response);
-                    //Initialize();
-                    //$('#konfHapusBarang').modal('hide');
-                    if (response.Errors != undefined) {
-                        $('#konfHapusBarang').modal('hide');
-                        alert(response.Errors[0]);
-                    } else {
-                        //$('#table-barang-1-partial').html(response); //remark by calvin 22 april 2019
-                        //Initialize();
+                    //change by calvin 25 april 2019
+                    ////change by nurul 30/7/2018
+                    ////$('#table-barang-1-partial').html(response);
+                    ////Initialize();
+                    ////$('#konfHapusBarang').modal('hide');
+                    //if (response.Errors != undefined) {
+                    //} else {
+                    //    //$('#table-barang-1-partial').html(response); //remark by calvin 22 april 2019
+                    //    //Initialize();
+                    //}
+                    ////end change
+                    if (response.Errors == null) {
                         refreshTableBarang();
                         $('#konfHapusBarang').modal('hide');
+                    }else {
+                        $('#konfHapusBarang').modal('hide');
+                        alert(response.Errors[0]);
                     }
-                    //end change
+                    //end change by calvin 25 april 2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

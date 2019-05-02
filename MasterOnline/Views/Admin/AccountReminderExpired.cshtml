@@ -1,0 +1,640 @@
+﻿@using System.Globalization
+@using MasterOnline.Models
+@model MenuAccount
+@*@using MasterOnline.ViewModels
+    @model MenuAccountViewModel*@
+@{
+    ViewBag.Title = "Reminder Expired";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    var context_ = new MoDbContext();
+}
+@section styles
+{
+    <link href="~/Content/build/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <link href="~/Content/selectize.css" rel="stylesheet" />
+    <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
+    <style>
+        .user-link {
+            text-decoration: underline;
+        }
+
+        #akun-section {
+            margin-top: 60px;
+            background: white;
+            padding: 20px;
+        }
+
+        .disabled-tab {
+            cursor: not-allowed;
+            background-color: #999 !important;
+            color: #fff;
+        }
+
+            .disabled-tab:hover,
+            .disabled-tab:active,
+            .disabled-tab:visited {
+                color: #fff;
+            }
+
+        .logo_perusahaan_section {
+            padding: 0 10px 10px 10px;
+        }
+
+            .logo_perusahaan_section > .box_upload {
+                width: 200px;
+                height: 200px;
+                border: dashed 1.5px #bbb;
+                border-radius: 10px;
+                background-color: #f7f7f7;
+                background-image: url('');
+                text-align: center;
+                display: table;
+                cursor: pointer;
+            }
+    </style>
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">      
+        <div class="" role="tabpanel" data-example-id="togglable-tabs">
+            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">                
+                <li role="presentation" class="active">
+                    <a href="#tab_content1" role="tab" id="willexpired-tab" data-toggle="tab" aria-expanded="true">Akan Expired</a>
+                </li>
+                <li role="presentation" class="">
+                    <a href="#tab_content2" role="tab" id="expired-tab" data-toggle="tab" aria-expanded="false">Sudah Expired</a>
+                </li>
+            </ul>
+            <div id="myTabContent" class="tab-content">
+                
+
+                <div role="tabpanel" class="tab-pane fade active in" id="tab_content1" aria-labelledby="willexpired-tab">
+                    <div class="row user_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_willexpired" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row user_table_section">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+                            <div class="input-group date">
+                                @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true   })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+                            <div class="input-group date">
+                                @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true  })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                        </div>
+                    </div>
+                    <div class="row user_table_section">
+                        <div id="loading_willexpired" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-account-will-expired">
+                            @*@Html.Partial("TableAccountReminderExpired")*@
+                        </div>
+                    </div>
+                    <div class="row WillExpired_detail_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Detail Account</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-2" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div id="form-partial-WillExpired">
+                                    @Html.Partial("AccountDetail")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="expired-tab">                    
+                    <div class="row user_table_section">
+                        <div class="col-lg-4 col-sm-6">
+                            <div class="input-group">
+                                <input id="search_expired" type="text" class="form-control" placeholder="Pencarian">
+                                <span class="input-group-btn">
+                                    <button type="button" class="btn btn-primary">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-lg-8 col-sm-6">
+                            <div class="pull-right">
+                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                    <span>Refresh</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row user_table_section">
+                        <div class="col-md-2">
+                            @Html.Label("", "Per Tanggal")
+                            <div class="input-group date">
+                                @Html.TextBox("PerTanggal", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                        </div>
+                    </div>
+                    <div class="row user_table_section">
+                        <div id="loading_expired" class="text-center">
+                            <img src="~/Content/Images/spinner.gif" width="100" />
+                        </div>
+                        <div class="col-sm-12" id="table-account-expired">
+                            @Html.Partial("TableAccountSudahExpired")
+                        </div>
+                    </div>
+                    <div class="row Expired_detail_section" style="display: none;">
+                        <div class="col-lg-12">
+                            <div class="page-editor">
+                                <h2 class="editor-title">Detail Account</h2>
+                                <span class="title-accent"></span>
+                                <button id="close-editor-3" type="button" class="pull-right page-close">
+                                    <span class="close-btn thick"></span>
+                                </button>
+                                <div id="form-partial-Expired">
+                                    @Html.Partial("AccountDetail")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="konfUbahStatus" tabindex="-1" role="dialog" aria-labelledby="konfUbahStatusLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="konfUbahStatusLabel">Konfirmasi</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row text-center">
+                    <h4>Apakah Anda yakin ingin <span id="will-change-to"></span> user ini?</h4>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Tidak</button>
+                <button type="button" class="btn btn-success" onclick="ubahStatusAcc()">Ya</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="//cdn.datatables.net/plug-ins/1.10.11/sorting/date-eu.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/bootstrap-datepicker.min.js" type="text/javascript"></script>
+    <script src="~/Content/selectize.js" type="text/javascript"></script>
+    <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        //var $page = window.text;
+        var $page = 0;
+        var $accId = 0;
+        var $status = 0;
+        var table = $('#datatable').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        var tableAktif = $('#datatable_aktif').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        var tableNonaktif = $('#datatable_nonaktif').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        var tableWillexpired = $('#datatable_willexpired').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        var tableExpired = $('#datatable_expired').DataTable({
+            "order": [[5, "desc"], [1, "asc"]], //or asc
+            "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+        });
+        $(document).on('ready',
+            function () {
+
+                var d = new Date();
+                d.setMonth(d.getMonth() + 1);
+                $('#DrTanggal').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    $('#DrTanggal').val($('#DrTanggal').val());
+                    $('#DrTanggal').datepicker('hide');
+                    refreshTableWillexpired();
+                });
+                $('#SdTanggal').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', d).change(function () {
+                    $('#SdTanggal').val($('#SdTanggal').val());
+                    $('#SdTanggal').datepicker('hide');
+                    refreshTableWillexpired();
+                });
+
+                refreshTableWillexpired();
+
+
+                $('#search_user').keyup(function () {
+                    table.search($(this).val()).draw();
+                });
+                
+                $('#search_aktif').keyup(function () {
+                    tableAktif.search($(this).val()).draw();
+                });
+                $('#search_nonaktif').keyup(function () {
+                    tableNonaktif.search($(this).val()).draw();
+                });
+                $('#search_willexpired').keyup(function () {
+                    tableWillexpired.search($(this).val()).draw();
+                });
+                $('#search_expired').keyup(function () {
+                    tableExpired.search($(this).val()).draw();
+                });
+
+                $('#account-tab').click(function () {
+                    refreshTableAccount();
+                });
+                $('#aktif-tab').click(function () {
+                    refreshTableAktif();
+                });
+                $('#nonaktif-tab').click(function () {
+                    refreshTableNonaktif();
+                });
+                $('#willexpired-tab').click(function () {
+                    var d = new Date();
+                    d.setMonth(d.getMonth() + 1);
+                    $('#DrTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#DrTanggal').val($('#DrTanggal').val());
+                        $('#DrTanggal').datepicker('hide');
+                        refreshTableWillexpired();
+                    });
+                    $('#SdTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', d).change(function () {
+                        $('#SdTanggal').val($('#SdTanggal').val());
+                        $('#SdTanggal').datepicker('hide');
+                        refreshTableWillexpired();
+                    });
+                    refreshTableWillexpired();
+                });
+                $('#expired-tab').click(function () {
+                    $('#PerTanggal').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        $('#PerTanggal').val($('#PerTanggal').val());
+                        $('#PerTanggal').datepicker('hide');
+                        refreshTableExpired();
+                    });
+                    refreshTableExpired();
+                });
+               
+                $('#close-editor').off('click').on('click', function () {
+                        $('.user_table_section').show();
+                    $('.account_detail_section').hide();
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                        refreshTableAccount();
+
+                        $('#datatable').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-4').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.aktif_detail_section').hide();
+                    $('#datatable_aktif').on('page.dt', function () {
+                        $page = $('#datatable_aktif').DataTable().page.info().page;
+                    });
+                    refreshTableAktif();
+
+                    $('#datatable_aktif').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-5').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.nonaktif_detail_section').hide();
+                    $('#datatable_nonaktif').on('page.dt', function () {
+                        $page = $('#datatable_nonaktif').DataTable().page.info().page;
+                    });
+                    refreshTableNonaktif();
+
+                    $('#datatable_nonaktif').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-2').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.WillExpired_detail_section').hide();
+                    $('#datatable_willexpired').on('page.dt', function () {
+                        $page = $('#datatable_willexpired').DataTable().page.info().page;
+                    });
+                    refreshTableWillexpired();
+
+                    $('#datatable_willexpired').DataTable().page($page).draw(false);
+                });
+                $('#close-editor-3').off('click').on('click', function () {
+                    $('.user_table_section').show();
+                    $('.Expired_detail_section').hide();
+                    $('#datatable_expired').on('page.dt', function () {
+                        $page = $('#datatable_expired').DataTable().page.info().page;
+                    });
+                    refreshTableExpired();
+
+                    $('#datatable_expired').DataTable().page($page).draw(false);
+                });
+
+                $('#datatable').on('page.dt', function () {
+                    $page = $('#datatable').DataTable().page.info().page;
+                });
+                $('#datatable').DataTable().page($page).draw(false);
+               
+                $('#close-form-1').off('click').on('click', function () {
+
+                    $('.user_table_section').show();
+                    $('.account_detail_section').hide();
+                    $('.account_editor_section_1').hide();
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    refreshTableAccount();
+
+                    $('#datatable').DataTable().page($page).draw(false);
+                });
+                if ($('.message-error').text() !== '') {
+                    $('.user_table_section').hide();
+                    $('.account_editor_section_1').show();
+                    $('.account_detail_section').hide();
+                    $('#photo_base').hide()
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+
+                  
+
+                    $('#datatable').on('page.dt', function () {
+                        $page = $('#datatable').DataTable().page.info().page;
+                    });
+                    $('#datatable').DataTable().page($page).draw(false);
+                }               
+
+            });
+
+        
+        function refreshTableWillexpired() {
+            var link = '@Url.Action("TAccountReminderExpired", "Admin", new { param = "replacedrtgl;replacesdtgl" })';
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#datatable_willexpired').hide();
+                    $('#loading_willexpired').show();
+                },
+                success: function (response) {
+                    $('#table-account-will-expired').html(response);
+                    var tableWillexpired = $('#datatable_willexpired').DataTable({
+                        "order": [[5, "desc"], [1, "asc"]], //or asc
+                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    });
+                    $('#search_willexpired').keyup(function () {
+                        tableWillexpired.search($(this).val()).draw();
+                    });
+                    $('#datatable_willexpired').show();
+                    $('#loading_willexpired').hide();
+                    tableWillexpired.search($('#search_willexpired').val()).draw();
+                    $('#datatable_willexpired').on('page.dt', function () {
+                        $page = $('#datatable_willexpired').DataTable().page.info().page;
+                    });
+                    $('#datatable_willexpired').DataTable().page($page).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_willexpired').hide();
+                }
+            });
+        }
+        function refreshTableExpired() {
+            var link = '@Url.Action("AccountMenuSudahExpired", "Admin", new { param = "replacepertgl" })';
+            link = link.replace("replacepertgl", $('#PerTanggal').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#datatable_expired').hide();
+                    $('#loading_expired').show();
+                },
+                success: function (response) {
+                    $('#table-account-expired').html(response);
+                    var tableExpired = $('#datatable_expired').DataTable({
+                        "order": [[5, "desc"], [1, "asc"]], //or asc
+                        "columnDefs": [{ "targets": 5, "type": "date-eu" }],
+                    });
+                    $('#search_expired').keyup(function () {
+                        tableExpired.search($(this).val()).draw();
+                    });
+                    $('#datatable_expired').show();
+                    $('#loading_expired').hide();
+                    tableExpired.search($('#search_expired').val()).draw();
+                    $('#datatable_expired').on('page.dt', function () {
+                        $page = $('#datatable_expired').DataTable().page.info().page;
+                    });
+                    $('#datatable_expired').DataTable().page($page).draw(false);
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    $('#loading_expired').hide();
+                }
+            });
+        }
+        function LihatAccount(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-detail').html(response);
+                    $('.user_table_section').hide();
+                    $('.account_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount4(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-aktif').html(response);
+                    $('.user_table_section').hide();
+                    $('.aktif_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount5(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-nonaktif').html(response);
+                    $('.user_table_section').hide();
+                    $('.nonaktif_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount2(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-WillExpired').html(response);
+                    $('.user_table_section').hide();
+                    $('.WillExpired_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function LihatAccount3(IdAccount) {
+            var link = '@Url.Action("AccountDetail", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", IdAccount);
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial-Expired').html(response);
+                    $('.user_table_section').hide();
+                    $('.Expired_detail_section').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        
+        function editAccount($Id) {
+            var link = '@Url.Action("EditAccountNew", "Admin", new { accountId = "replaceId" })';
+            link = link.replace("replaceId", $Id);
+            $.ajax({
+                async: true,
+                type: "GET",
+                url: link,
+                success: function (response) {
+                    $('#form-partial').html(response);
+
+                    $('.user_table_section').hide();
+                    $('.account_detail_section').hide();
+                    $('.account_editor_section_1').show();
+                    $('#photo_base').hide()
+                    $('#myTab li a').each(function () {
+                        $(this).removeAttr('data-toggle');
+
+                        if ($(this).attr('id') === 'account-tab') return;
+
+                        $(this).addClass('disabled-tab');
+
+                    });
+
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+
+        }
+
+        function simpanAccount($id)
+        {
+            var link = '@Url.Action("ChangeStatusAcc", "Admin", new { accId = "replaceId" })';
+            link = link.replace("replaceId", $id);
+
+            $.ajax({
+                        type: "POST",                       
+                        url: link,
+                        data: $('#form-account').serialize(),
+                success: function (response) {
+                    alert('Data berhasil tersimpan');
+                    $('#form-partial').html(response);
+                    $('#photo_base').hide()
+                    if ($('#Account_TGL_SUBSCRIPTION').val() != '') {
+                        $('#TGL').val($('#Account_TGL_SUBSCRIPTION').val());
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        
+    </script>
+}

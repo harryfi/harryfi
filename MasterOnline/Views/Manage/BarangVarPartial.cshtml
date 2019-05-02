@@ -119,6 +119,9 @@
                 });
             });
         }
+        else {
+            $('#shopee_detail_tab_variant_button').hide();
+        }
     }
 
     function InitSettingVariantTokped() {
@@ -277,6 +280,9 @@
                     }
                 });
             }
+        }
+        else {
+            $('#tokped_detail_tab_variant_button').hide();
         }
     }
     function SearchOptVariantTokped(level, variant_id, unit_id) {
@@ -476,6 +482,9 @@
                     }
                 });
             }
+        }
+        else {
+            $('#blibli_detail_tab_variant_button').hide();
         }
     }
     function SearchOptVariantBlibli(level, variant_id, optAttributes) {
@@ -677,6 +686,9 @@
                     }
                 });
             }
+        }
+        else {
+            $('#lazada_detail_tab_variant_button').hide();
         }
     }
     function SearchOptVariantLazada(level, variant_id) {
@@ -1463,23 +1475,23 @@
             }
                         @if (adaShopee_variant == 1)
             {
-                            <li><a data-toggle="tab" href="#shopee_detail_tab_variant">Shopee</a></li>
+                            <li><a data-toggle="tab" id="shopee_detail_tab_variant_button" href="#shopee_detail_tab_variant">Shopee</a></li>
                         }
                         @if (adaTokped_variant == 1)
             {
-                            <li><a data-toggle="tab" href="#tokped_detail_tab_variant">Tokopedia</a></li>
+                            <li><a data-toggle="tab" id="tokped_detail_tab_variant_button" href="#tokped_detail_tab_variant">Tokopedia</a></li>
                         }
                         @if (adaLazada_variant == 1)
             {
-                            <li><a data-toggle="tab" href="#lazada_detail_tab_variant">Lazada</a></li>
+                            <li><a data-toggle="tab" id="lazada_detail_tab_variant_button" href="#lazada_detail_tab_variant">Lazada</a></li>
                         }
                         @if (adaBlibli_variant == 1)
             {
-                            <li><a data-toggle="tab" href="#blibli_detail_tab_variant">Blibli</a></li>
+                            <li><a data-toggle="tab" id="blibli_detail_tab_variant_button" href="#blibli_detail_tab_variant">Blibli</a></li>
                         }
                         @if (adaElevenia_variant == 1)
             {
-                            <li><a data-toggle="tab" href="#elevenia_detail_tab_variant">Elevenia</a></li>
+                            <li><a data-toggle="tab" id="elevenia_detail_tab_variant_button" href="#elevenia_detail_tab_variant">Elevenia</a></li>
                         }
                     </ul>
                 </td>
@@ -1508,8 +1520,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             shopeeCategoryCodeFound = i;
@@ -1527,8 +1539,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             tokpedCategoryCodeFound = i;
@@ -1546,8 +1558,8 @@
                                     if (!string.IsNullOrEmpty(listMarket[i].Sort1_Cust))
                                     {
                                         //add by calvin 24 april 2019
-                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                        if (cekDisplay)
+                                        var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                        if (cekDisplay ?? false)
                                         {
                                             //end add by calvin 24 april 2019
                                             blibliCategoryCodeFound = i;
@@ -1568,8 +1580,8 @@
                                         if (Convert.ToString(listMarket[i].STATUS_API) == "1")
                                         {
                                             //add by calvin 24 april 2019
-                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault().DISPLAY;
-                                            if (cekDisplay)
+                                            var cekDisplay = settingBarangPerAkun.Where(p => p.IDMARKET == recnumArf01).SingleOrDefault()?.DISPLAY;
+                                            if (cekDisplay ?? false)
                                             {
                                                 //end add by calvin 24 april 2019
                                                 lazadaCategoryCodeFound = i;

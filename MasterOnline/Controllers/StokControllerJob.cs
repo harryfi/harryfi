@@ -109,6 +109,12 @@ namespace MasterOnline.Controllers
             //Catatan by calvin :
             //untuk menghandle update stok semua marketplace
         }
+        public StokControllerJob(string DatabasePathErasoft, string uname)
+        {
+            //Catatan by calvin :
+            //untuk menghandle update stok semua marketplace
+            SetupContext(DatabasePathErasoft, uname);
+        }
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext();
@@ -207,7 +213,7 @@ namespace MasterOnline.Controllers
             }
         }
 
-        protected double GetQOHSTF08A(string Barang, string Gudang)
+        public double GetQOHSTF08A(string Barang, string Gudang)
         {
             double qtyOnHand = 0d;
             {
@@ -269,7 +275,7 @@ namespace MasterOnline.Controllers
 
                 foreach (string kdBrg in listBrg)
                 {
-                    var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
+                    //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
                     var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
                     var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrg && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
                     var ListARF01 = ErasoftDbContext.ARF01.ToList();
@@ -280,12 +286,12 @@ namespace MasterOnline.Controllers
                         if (marketPlace.NAMA.Equals(kdBL.ToString()))
                         {
                             //blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.API_KEY, marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                         {
                             //lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN, uname, null));                            
+                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
                         {
@@ -314,7 +320,7 @@ namespace MasterOnline.Controllers
                                 berat = (barangInDb.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
                                 imgUrl = imgID,
                                 Keterangan = barangInDb.Deskripsi,
-                                Qty = Convert.ToString(qtyOnHand),
+                                Qty = "",
                                 DeliveryTempNo = stf02h.DeliveryTempElevenia,
                                 IDMarket = marketPlace.RecNum.ToString(),
                             };
@@ -343,7 +349,7 @@ namespace MasterOnline.Controllers
                                 {
                                     kode = kdBrg,
                                     kode_mp = stf02h.BRG_MP,
-                                    Qty = Convert.ToString(qtyOnHand),
+                                    Qty = "",
                                     MinQty = "0"
                                 };
                                 data.Price = stf02h.HJUAL.ToString();
@@ -386,7 +392,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         //Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand), uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
                                     }
                                 }
                             }
@@ -405,12 +411,12 @@ namespace MasterOnline.Controllers
                                     if (brg_mp[1] == "0")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
                                     }
                                     else if (brg_mp[1] != "")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
                                     }
                                 }
                             }
@@ -428,7 +434,7 @@ namespace MasterOnline.Controllers
                             if (stf02h.BRG_MP != "")
                             {
                                 //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand), null));
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
                             }
                         }
                         //end add by Tri 11 April 2019
@@ -446,6 +452,8 @@ namespace MasterOnline.Controllers
         {
             SetupContext(DatabasePathErasoft, uname);
 
+            var qtyOnHand = GetQOHSTF08A(brg, "ALL");
+            stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
             //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
@@ -522,6 +530,9 @@ namespace MasterOnline.Controllers
             string urlLazada = "https://api.lazada.co.id/rest";
             string eraAppKey = "101775";
             string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
 
             var ret = new BindingBase();
             ret.status = 0;
@@ -608,6 +619,10 @@ namespace MasterOnline.Controllers
         public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            string stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
+            data.Qty = stock;
 
             var ret = new ClientMessage();
             string auth = data.api_key;
@@ -728,7 +743,11 @@ namespace MasterOnline.Controllers
         public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
         {
             string ret = "";
-            //SetupContext(DatabasePathErasoft, uname);
+            SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            string stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
+            data.Qty = Convert.ToString(stock);
 
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
@@ -898,7 +917,11 @@ namespace MasterOnline.Controllers
         [NotifyOnFailed("Update Stock {obj} ke Tokopedia gagal.")]
         public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
         {
-            //SetupContext(DatabasePathErasoft, uname);
+            SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            stok = Convert.ToInt32(qtyOnHand);
+
             long milis = CurrentTimeMillis();
             DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
             string urll = "https://fs.tokopedia.net/inventory/v1/fs/" + Uri.EscapeDataString(iden.merchant_code) + "/stock/update?shop_id=" + Uri.EscapeDataString(iden.API_secret_key);
@@ -950,6 +973,11 @@ namespace MasterOnline.Controllers
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
+
+            SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            qty = Convert.ToInt32(qtyOnHand);
 
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
@@ -1031,6 +1059,11 @@ namespace MasterOnline.Controllers
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
             string ret = "";
 
+            SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            qty = Convert.ToInt32(qtyOnHand);
+
             long seconds = CurrentTimeSecond();
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
 
@@ -1106,8 +1139,13 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke JD.ID gagal.")]
-        public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, JDIDAPIData data, string id, int stok, PerformContext context)
+        public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
         {
+            SetupContext(DatabasePathErasoft, uname);
+
+            var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            stok = Convert.ToInt32(qtyOnHand);
+
             var mgrApiManager = new JDIDController();
 
             mgrApiManager.AppKey = data.appKey;

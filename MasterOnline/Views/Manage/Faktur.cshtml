@@ -1159,7 +1159,7 @@
                                 <div class="pull-right" id="tambah_baru_tombol_section">
                                     <button type="button" id="btn-upload-faktur" class="btn btn-primary" data-toggle="modal" data-style="expand-right"
                                             data-target="#modalUploadFaktur">
-                                        <span>Upload Faktur</span>
+                                        <span>Upload Faktur Tokopedia</span>
                                     </button>
                                     <button type="button" class="btn btn-default" data-style="expand-right">
                                         <span>Refresh</span>
@@ -1326,16 +1326,16 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia dan Shopee</h4>
+                <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
             </div>
             <div class="modal-body" id="modal-upload-faktur-body">
                 @*add by nurul 19/10/2018*@
                 <div class="row">
                     <div class="col-md-11">
-                        <h5>Proses ini hanya untuk anda yang Merchant Tokopedia atau Shoope, tetapi bukan Official Store, sehingga TIDAK MEMPUNYAI API KEY untuk koneksi ke Tokopedia/Shopee.</h5>
+                        <h5>Proses ini hanya untuk anda yang Merchant Tokopedia, tetapi bukan Official Store, sehingga TIDAK MEMPUNYAI API KEY untuk koneksi ke Tokopedia.</h5>
                         <h5>Anda bisa “UPLOAD” data penjualan (Faktur) ke MasterOnline (MO), tanpa harus input satu per satu, dengan cara:</h5>
-                        <h5>1. Lakukan “Download” data penjualan (faktur) dari aplikasi Tokopedia (menu "Penjualan") atau </h5>
-                        <h5>   dari aplikasi Shopee (menu "Penjualan Saya") dalam bentuk file excel.</h5>
+                        <h5>1. Lakukan “Download” data penjualan (faktur) dari aplikasi Tokopedia (menu "Penjualan") dalam bentuk file excel.</h5>
+                        @*<h5>   dalam bentuk file excel.</h5>*@
                         <h5>2. Lakukan proses “Upload” data tersebut ke MasterOnline, melalui menu ini.</h5>
                     </div>
                     @*<div class="col-md-11">
@@ -1972,6 +1972,14 @@
                         //add by nurul 11/2/2019
                         $jumlahPesanan = false;
                         //end add by nurul 11/2/2019
+
+                        //add by nurul 29/4/2019
+                        if (res.adaTokped) {
+                            $('#btn-upload-faktur').show();
+                        } else if (!res.adaTokped) {
+                            $('#btn-upload-faktur').hide();
+                        }
+                        //end add by nurul 29/4/2019
                     } else if (res.SudahSampaiBatasTanggal) {
                         //change by Tri 12 Feb 2019, 1 view subscribe
                         //$('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" data-toggle="modal" ' +
@@ -2007,6 +2015,15 @@
                         //add by nurul 11/2/2019
                         $jumlahPesanan = false;
                         //end add by nurul 11/2/2019
+
+                        //add by nurul 29/4/2019
+                        if (res.adaTokped) {
+                            $('#btn-upload-faktur').show();
+                        } else if (!res.adaTokped) {
+                            $('#btn-upload-faktur').hide();
+                        }
+                        //end add by nurul 29/4/2019
+                    
                     } else {
                         $('#tambah_faktur').remove();
                         $('#tambah_baru_tombol_section').append('<button class="btn btn-primary btn_tambah_data" id="tambah_faktur">Tambah Baru</button>');
@@ -2036,6 +2053,13 @@
                         //add by nurul 11/2/2019
                         $jumlahPesanan = true;
                         //end add by nurul 11/2/2019
+                        //add by nurul 29/4/2019
+                        if (res.adaTokped) {
+                            $('#btn-upload-faktur').show();
+                        } else if (!res.adaTokped) {
+                            $('#btn-upload-faktur').hide();
+                        }
+                        //end add by nurul 29/4/2019
                     }
                 },
                 error: function (xhr, status, error) {
@@ -2633,7 +2657,10 @@
 
                 $('#tambah_faktur').show();
                 $('#refresh_faktur').show();
-                $('#btn-upload-faktur').show();
+                //change by nurul 29/4/2019
+                $('#btn-upload-faktur').hide(); 
+                cekJumlahPesananBulanIni();
+                //end change by nurul 29/4/2019
                 //add by nurul 12/2/2019
                 $('#datatable').on('page.dt', function () {
                     $page = $('#datatable').DataTable().page.info().page;
