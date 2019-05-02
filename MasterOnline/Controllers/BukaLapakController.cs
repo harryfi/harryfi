@@ -935,7 +935,7 @@ namespace MasterOnline.Controllers
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
                 REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Item List " + (display ? "Active" : "Not Active") ,
+                REQUEST_ACTION = "Get Item List " + (display ? "Active" : "Not Active"),
                 REQUEST_DATETIME = DateTime.Now,
                 REQUEST_ATTRIBUTE_1 = token,
                 REQUEST_ATTRIBUTE_2 = cust,
@@ -1119,13 +1119,13 @@ namespace MasterOnline.Controllers
                     manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, userId, currentLog);
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
                 currentLog.REQUEST_EXCEPTION = ret.message;
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, userId, currentLog);
             }
-            
+
 
             return ret;
         }
@@ -1179,7 +1179,7 @@ namespace MasterOnline.Controllers
 
                 if (brg.images != null)
                 {
-                    if(type != 2)
+                    if (type != 2)
                     {
                         urlImage = brg.images[0];
                         if (brg.images.Length >= 2)
@@ -1193,7 +1193,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if(brg.product_sku[i].images != null)
+                        if (brg.product_sku[i].images != null)
                         {
                             urlImage = brg.product_sku[i].images[0];
                             if (brg.product_sku[i].images.Length >= 2)
@@ -1206,9 +1206,9 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-                    
+
                 }
-                if(type != 2)
+                if (type != 2)
                 {
                     sSQL_Value += "('" + brg.id + "' , '" + brg.id + "' , '";
                 }
@@ -1217,7 +1217,7 @@ namespace MasterOnline.Controllers
                     sSQL_Value += "('" + brg.product_sku[i].id + "' , '" + brg.product_sku[i].sku_name + "' , '";
                 }
                 string brand = "";
-                if(brg.specs != null)
+                if (brg.specs != null)
                 {
                     brand = brg.specs.merek;
                     if (string.IsNullOrEmpty(brand))
@@ -1225,7 +1225,7 @@ namespace MasterOnline.Controllers
                         brand = brg.specs.brand;
                     }
                 }
-                
+
                 sSQL_Value += nama.Replace('\'', '`') + "' , '" + nama2.Replace('\'', '`') + "' , '" + nama3.Replace('\'', '`') + "' ,";
                 sSQL_Value += brg.weight + " , 1, 1, 1, '" + cust + "' , '" + brg.desc.Replace("<br/>", "\r\n").Replace("<br />", "\r\n").Replace('\'', '`') + "' , " + idMarket;
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
@@ -1235,7 +1235,7 @@ namespace MasterOnline.Controllers
                 ret.status = 1;
                 ret.message = sSQL_Value;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
             }
@@ -1276,7 +1276,163 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
-        
+
+        public string CekKategory(string userId, string token)
+        {
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            try
+            {
+                BLKCategory ret = req.CallBukaLapakAPI("", "categories.json", "", userId, token, typeof(BLKCategory)) as BLKCategory;
+                if (ret != null)
+                {
+                    foreach (var data in ret.categories)
+                    {
+                        var cat = new CATEGORY_BUKALAPAK();
+                        cat.CATEGORY_ID = data.id.ToString();
+                        cat.NAME = data.name;
+                        cat.PARENT_ID = "";
+
+                        if (data.children != null)
+                        {
+                            cat.LEAF = false;
+                            MoDbContext.CATEGORY_BUKALAPAKs.Add(cat);
+                            MoDbContext.SaveChanges();
+                            foreach (var child in data.children)
+                            {
+                                var cat2 = new CATEGORY_BUKALAPAK();
+                                cat2.CATEGORY_ID = child.id.ToString();
+                                cat2.NAME = child.name;
+                                cat2.PARENT_ID = data.id.ToString();
+                                if (child.children != null)
+                                {
+                                    cat2.LEAF = false;
+                                    MoDbContext.CATEGORY_BUKALAPAKs.Add(cat2);
+                                    MoDbContext.SaveChanges();
+                                    foreach (var leafChild in child.children)
+                                    {
+                                        var cat3 = new CATEGORY_BUKALAPAK();
+                                        cat3.CATEGORY_ID = leafChild.id.ToString();
+                                        cat3.NAME = leafChild.name;
+                                        cat3.PARENT_ID = child.id.ToString();
+                                        cat3.LEAF = true;
+                                        MoDbContext.CATEGORY_BUKALAPAKs.Add(cat3);
+                                        MoDbContext.SaveChanges();
+                                    }
+                                }
+                                else
+                                {
+                                    cat2.LEAF = true;
+                                    MoDbContext.CATEGORY_BUKALAPAKs.Add(cat2);
+                                    MoDbContext.SaveChanges();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            cat.LEAF = true;
+                            MoDbContext.CATEGORY_BUKALAPAKs.Add(cat);
+                            MoDbContext.SaveChanges();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return ex.ToString();
+            }
+
+            return "finish";
+        }
+
+        public ATTRIBUTE_BL GetAttr(string userId, string token, string id)
+        {
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            var retAttr = new ATTRIBUTE_BL();
+
+            var ret = req.CallBukaLapakAPI("", "categories/" + id + "/attributes.json", "", userId, token, typeof(BLAttribute)) as BLAttribute;
+            if(ret.status.ToUpper() == "OK")
+            {
+                retAttr.CATEGORY_CODE = id;
+                try
+                {
+                    int i = 1;
+                    foreach(var attr in ret.attributes)
+                    {
+                        retAttr["FIELDNAME_" + i] = attr.fieldName;
+                        retAttr["DISPLAYNAME_" + i] = attr.displayName;
+                        retAttr["INPUTTYPE_" + i] = attr.inputType;
+                        retAttr["REQUIRED_" + i] = attr.required;
+                        i++;
+                    }
+
+                    for (int j = i; j <= 30; j++)
+                    {
+                        retAttr["FIELDNAME_" + j] = "";
+                        retAttr["DISPLAYNAME_" + j] = "";
+                        retAttr["INPUTTYPE_" + j] = "";
+                        retAttr["REQUIRED_" + j] = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return retAttr;
+        }
+
+        public List<ATTRIBUTE_OPT_BL> GetAttrOpt(string userId, string token, string id, string fieldName, bool variant)
+        {
+            Utils.HttpRequest req = new Utils.HttpRequest();
+            var retAttrOpt = new List<ATTRIBUTE_OPT_BL>();
+
+            var ret = req.CallBukaLapakAPI("", "categories/" + id + "/attributes.json", "", userId, token, typeof(BLAttribute)) as BLAttribute;
+            if (ret.status.ToUpper() == "OK")
+            {
+                try
+                {
+                    if (!variant)
+                    {
+                        var attrBrg = ret.attributes.Where(m => m.fieldName.ToUpper() == fieldName.ToUpper()).SingleOrDefault();
+                        if(attrBrg != null)
+                        {
+                            foreach(var opt in attrBrg.options)
+                            {
+                                var newOpt = new ATTRIBUTE_OPT_BL();
+                                newOpt.CATEGORY_CODE = id;
+                                newOpt.ID = opt;
+                                newOpt.VALUE = opt;
+                                retAttrOpt.Add(newOpt);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if(ret.variants.Length > 0)
+                        {
+                            var attrBrg = ret.variants.Where(m => m.name.ToUpper() == fieldName.ToUpper()).SingleOrDefault();
+                            if (attrBrg != null)
+                            {
+                                foreach (var opt in attrBrg.value)
+                                {
+                                    var newOpt = new ATTRIBUTE_OPT_BL();
+                                    newOpt.CATEGORY_CODE = id;
+                                    newOpt.ID = opt.id.ToString();
+                                    newOpt.VALUE = opt.value;
+                                    retAttrOpt.Add(newOpt);
+                                }
+                            }
+                        }
+                        
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return retAttrOpt;
+        }
 
         public enum api_status
         {
@@ -1356,4 +1512,69 @@ namespace MasterOnline.Controllers
             }
         }
     }
+
+    public class BLKCategory
+    {
+        public string status { get; set; }
+        public CategoryClass[] categories { get; set; }
+        public object message { get; set; }
+    }
+
+    public class CategoryClass
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+        public bool revamped { get; set; }
+        public SubCategory[] children { get; set; }
+    }
+
+    public class SubCategory
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+        public bool revamped { get; set; }
+        public EndCategory[] children { get; set; }
+    }
+
+    public class EndCategory
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public string url { get; set; }
+        public bool revamped { get; set; }
+    }
+
+
+    public class BLAttribute
+    {
+        public string status { get; set; }
+        public Attribute[] attributes { get; set; }
+        public Variant[] variants { get; set; }
+        public string message { get; set; }
+    }
+
+    public class Attribute
+    {
+        public string fieldName { get; set; }
+        public string displayName { get; set; }
+        public string inputType { get; set; }
+        public string[] options { get; set; }
+        public bool required { get; set; }
+    }
+
+    public class Variant
+    {
+        public long id { get; set; }
+        public string name { get; set; }
+        public Value[] value { get; set; }
+    }
+
+    public class Value
+    {
+        public long id { get; set; }
+        public string value { get; set; }
+    }
+
 }

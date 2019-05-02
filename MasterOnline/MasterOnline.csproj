@@ -678,6 +678,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
     <Compile Include="Models\ATTRIBUTE_UNIT_TOKPED.cs" />
@@ -685,6 +686,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\CATEGORY_BUKALAPAK.cs" />
     <Compile Include="Models\CATEGORY_JDID.cs" />
     <Compile Include="Models\CATEGORY_TOKPED.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
