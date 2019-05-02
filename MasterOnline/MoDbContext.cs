@@ -40,6 +40,7 @@ namespace MasterOnline
         public DbSet<ATTRIBUTE_TOKPED> AttributeTokped { get; set; }
         public DbSet<ATTRIBUTE_OPT_TOKPED> AttributeOptTokped { get; set; }
         public DbSet<ATTRIBUTE_UNIT_TOKPED> AttributeUnitTokped { get; set; }
+        public DbSet<CATEGORY_BUKALAPAK> CATEGORY_BUKALAPAKs { get; set; }
 
         public MoDbContext()
             : base("name=MoDbContext")
