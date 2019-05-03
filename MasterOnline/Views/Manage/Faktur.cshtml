@@ -1435,9 +1435,9 @@
                 <h5>Apakah Anda yakin ingin membuat Faktur dengan No. Faktur <span id="cetakfaktur_label"></span>?</h5>
                 <br />
                 <div class="row">
-                    <div class="col-md-2">
-                    </div>
-                    <div class="col-md-2" style="text-align:left">
+                    @*<div class="col-md-1">
+                    </div>*@
+                    <div class="col-md-4" style="text-align:left">
                         <label>Nama Toko </label>
                     </div>
                     <div class="col-md-6" style="text-align:left">
@@ -1446,54 +1446,119 @@
                     <div class="col-md-2"></div>
                 </div>
                 <br />
+                @*//add by nurul 2/5/2019*@
                 <div class="row">
-                    <div class="col-md-2">
+                    @*<div class="col-md-1">
+                    </div>*@
+                    <div class="col-md-4" style="text-align:left">
+                        <label>Pilih Format Kertas </label>
                     </div>
-                    <div class="col-md-2" style="padding-bottom:10px">
-                        <label class="checkbox-container">
-                            <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                            <span id="ctk_faktur" class="checkmark"></span>
-                        </label>
+                    <div class="col-md-6">
+                        <select class="form-control" id="LayoutSize" name="LayoutSize" required="required" style="padding-top:1px;padding-bottom:1px;height:27px">
+                            <option value="1">A4</option>
+                            <option value="2">A5</option>
+                        </select>
                     </div>
-                    <div class="col-md-1" style="padding-top: 7px;">
-                        Faktur
+                    <div class="col-md-2"></div>
+                </div>
+                @*//end add by nurul 2/5/2019*@
+                <div id="cetakA4Form">
+                    <div class="row">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-1" style="padding-top: 7px;">
+                            Faktur
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_alamat" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_alamat" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-4" style="padding-top: 7px;">
+                            Cetak Alamat Toko
+                        </div>
+                        <div class="col-md-1">
+                        </div>
                     </div>
-                    <div class="col-md-2" style="padding-bottom:10px">
-                        <label class="checkbox-container">
-                            <input id="ctk_alamat" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                            <span id="ctk_alamat" class="checkmark"></span>
-                        </label>
-                    </div>
-                    <div class="col-md-4" style="padding-top: 7px;">
-                        Cetak Alamat Toko
-                    </div>
-                    <div class="col-md-1">
+                    <div class="row" style="margin-top:5px">
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_label" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-1" style="padding-top: 7px;">
+                            Label
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_tlp" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_tlp" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-4" style="padding-top: 7px;">
+                            Cetak Telepon Toko
+                        </div>
+                        <div class="col-md-1">
+                        </div>
                     </div>
                 </div>
-                <div class="row" style="margin-top:5px">
-                    <div class="col-md-2">
+
+                @*//add by nurul 2/5/2019*@
+                <div id="cetakA5Form">
+                    <div class="row">
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
+                            <input id="ctk_A5" name="ctk_A5" type="radio" value="1" style="height:20px; width:20px;" checked="checked" />
+                        </div>
+                        <div class="col-md-1" style="padding-top: 7px;">
+                            Faktur
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_alamat1" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_alamat1" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-4" style="padding-top: 7px;">
+                            Cetak Alamat Toko
+                        </div>
+                        <div class="col-md-1">
+                        </div>
                     </div>
-                    <div class="col-md-2" style="padding-bottom:10px">
-                        <label class="checkbox-container">
-                            <input id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                            <span id="ctk_label" class="checkmark"></span>
-                        </label>
-                    </div>
-                    <div class="col-md-1" style="padding-top: 7px;">
-                        Label
-                    </div>
-                    <div class="col-md-2" style="padding-bottom:10px">
-                        <label class="checkbox-container">
-                            <input id="ctk_tlp" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                            <span id="ctk_tlp" class="checkmark"></span>
-                        </label>
-                    </div>
-                    <div class="col-md-4" style="padding-top: 7px;">
-                        Cetak Telepon Toko
-                    </div>
-                    <div class="col-md-1">
+                    <div class="row" style="margin-top:5px">
+                        <div class="col-md-3">
+                        </div>
+                        <div class="col-md-1" style="padding-bottom:10px">
+                            <input id="ctk_A5" name="ctk_A5" type="radio" value="2" style="height:20px; width:20px;" />
+                        </div>
+                        <div class="col-md-1" style="padding-top: 7px;">
+                            Label
+                        </div>
+                        <div class="col-md-2" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_tlp1" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_tlp1" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-4" style="padding-top: 7px;">
+                            Cetak Telepon Toko
+                        </div>
+                        <div class="col-md-1">
+                        </div>
                     </div>
                 </div>
+                @*//end add by nurul 2/5/2019*@
                 <div class="row">
                     <div class="col-md-2">
                     </div>
@@ -4114,6 +4179,30 @@
             //end add
 
             $('#modalPrintOption').modal('show');
+            //add by nurul 2/5/2019
+            $('#LayoutSize').val() == "1";
+            $('#cetakA4Form').show();
+            $('#cetakA5Form').hide();
+            $('#LayoutSize').change(function () {
+                if ($('#LayoutSize').val() == "1") {
+                    $('#cetakA4Form').show();
+                    $('#cetakA5Form').hide();
+                } else if ($('#LayoutSize').val() == "2") {
+                    $('#cetakA4Form').hide();
+                    $('#cetakA5Form').show();
+                }
+            });
+            if ($('#LayoutSize').val() == "1") {
+                $('#cetakA4Form').show();
+                $('#cetakA5Form').hide();
+            } else if ($('#LayoutSize').val() == "2") {
+                $('#cetakA4Form').hide();
+                $('#cetakA5Form').show();
+            }
+            $('#ctk_alamat1').attr('checked', true);
+            $('#ctk_tlp1').attr('checked', true);
+            //end add by nurul 2/5/2019
+
             //add by nurul 7/12/2018
             $('#ctk_faktur').attr('checked', true);
             $('#ctk_label').attr('checked', true);
@@ -4122,48 +4211,74 @@
             $('#nama_toko').val("");
             //end add
 
-            $('#btn-print-faktur').off('click').on('click', function() {
-                var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
-                link = link.replace('replaceNoBuk', nobuk);
-                //change by nurul 30/11/2018
-                //var win = window.open(link, '_blank');
+            $('#btn-print-faktur').off('click').on('click', function () {
                 var toko = $('#nama_toko').val();
-                if ($('#nama_toko').val() != "") {
-                    var $toko = '&' + toko;
-                } else {
-                    $('#nama_toko').val("");
-                    var $toko = '&' + toko;
-                }
+                var $toko = '&toko=' + encodeURIComponent(toko);
                 var faktur = 0;
                 var label = 0;
                 var alamat = 0;
                 var tlp = 0;
-                if ($("#ctk_faktur").is(":checked") == true) {
-                    faktur = 1;
-                } else if($("#ctk_faktur").is(":checked") == false) {
-                    faktur = 0;
-                }
-                if ($("#ctk_label").is(":checked") == true) {
-                    label = 1;
-                } else if($("#ctk_label").is(":checked") == false) {
-                    label = 0;
-                }
-                if ($("#ctk_alamat").is(":checked") == true) {
-                    alamat = 1;
-                } else if($("#ctk_alamat").is(":checked") == false) {
-                    alamat = 0;
-                }
-                if ($("#ctk_tlp").is(":checked") == true) {
-                    tlp = 1;
-                } else if($("#ctk_tlp").is(":checked") == false) {
-                    tlp = 0;
-                }
-                var $faktur = '&' + 'faktur='  + faktur;
-                var $label = '&' + 'label=' + label;
-                var $alamat = '&' + 'alamat=' + alamat;
-                var $tlp = '&' + 'tlp=' + tlp;
+                if ($('#LayoutSize').val() == "1") {
+                    var link = '@Url.Action("LihatFaktur", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                    link = link.replace('replaceNoBuk', nobuk);
 
-                var win = encodeURI(window.open(link += $faktur += $label += $alamat += $tlp += $toko, '_blank'));
+                    if ($("#ctk_faktur").is(":checked") == true) {
+                        faktur = 1;
+                    } else if ($("#ctk_faktur").is(":checked") == false) {
+                        faktur = 0;
+                    }
+                    if ($("#ctk_label").is(":checked") == true) {
+                        label = 1;
+                    } else if ($("#ctk_label").is(":checked") == false) {
+                        label = 0;
+                    }
+                    if ($("#ctk_alamat").is(":checked") == true ) {
+                        alamat = 1;
+                    } else if ($("#ctk_alamat").is(":checked") == false ) {
+                        alamat = 0;
+                    }
+                    if ($("#ctk_tlp").is(":checked") == true ) {
+                        tlp = 1;
+                    } else if ($("#ctk_tlp").is(":checked") == false ) {
+                        tlp = 0;
+                    }
+                //add by nurul 2/5/2019
+                } else if ($('#LayoutSize').val() == "2") {
+                    var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
+                    link = link.replace('replaceNoBuk', nobuk);
+
+                    if ($('[name="ctk_A5"]:radio:checked').val() == "1") {
+                        faktur = 1;
+                    } else if ($('[name="ctk_A5"]:radio:checked').val() == "2") {
+                        faktur = 0;
+                    }
+                    if ($('[name="ctk_A5"]:radio:checked').val() == "2") {
+                        label = 1;
+                    } else if ($('[name="ctk_A5"]:radio:checked').val() == "1") {
+                        label = 0;
+                    }
+                    if ($("#ctk_alamat1").is(":checked") == true) {
+                        alamat = 1;
+                    } else if ($("#ctk_alamat1").is(":checked") == false) {
+                        alamat = 0;
+                    }
+                    if ($("#ctk_tlp1").is(":checked") == true) {
+                        tlp = 1;
+                    } else if ($("#ctk_tlp1").is(":checked") == false) {
+                        tlp = 0;
+                    }
+                }
+                //end add by nurul 2/5/2019
+
+                //change by nurul 30/11/2018
+                //var win = window.open(link, '_blank');
+                
+                var $faktur = '&faktur='  + faktur;
+                var $label = '&label=' + label;
+                var $alamat = '&alamat=' + alamat;
+                var $tlp = '&tlp=' + tlp;
+
+                var win = encodeURIComponent(window.open(link += $faktur += $label += $alamat += $tlp += $toko, '_blank'));
                 $('#modalPrintOption').modal('hide');
                 //end add
                 if (win) {

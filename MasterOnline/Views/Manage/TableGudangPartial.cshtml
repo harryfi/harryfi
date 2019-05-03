@@ -16,7 +16,7 @@
             <td>@gudang.Kode_Gudang</td>
             <td>@gudang.Nama_Gudang</td>
             <td class="text-center" style="max-width: 200px; width: 200px;">
-                @if (gudang.KD_HARGA_JUAL == "1")
+                @if (gudang.KD_HARGA_JUAL == "0" || gudang.KD_HARGA_JUAL == " " || gudang.KD_HARGA_JUAL == null)
                 {
                     <input type="checkbox" class="dt-checkboxes center checkbox_linkMP" data-recnum="@gudang.ID" style="width:30px; height:28px;" checked="checked" />
                 }
