@@ -458,16 +458,7 @@ namespace MasterOnline.Controllers
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
-
-                //var jdapi = new JDIDController();
-                //var data3 = new JDIDAPIData
-                //{
-                //    accessToken = "4304bd28315728067f7db7e6ff8cc015",
-                //    appKey = "86b082cb8d3436bb340739a90d953ec7",
-                //    appSecret = "1bcda1dca02339e049cb26c5b4c7da12"
-                //};
-                //jdapi.Order_JD(data3, "000025");
-
+                
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -851,10 +842,18 @@ namespace MasterOnline.Controllers
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderList(data, TokopediaControllerJob.StatusOrder.Paid, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<TokopediaControllerJob>(x => x.GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+
+                                //await new TokopediaControllerJob().GetOrderListCompleted(data, TokopediaControllerJob.StatusOrder.Completed, tblCustomer.CUST, tblCustomer.PERSO, 1, 0);
                             }
                             else
                             {
                                 connId_JobId = dbPathEra + "_tokopedia_pesanan_paid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                                recurJobM.RemoveIfExists(connId_JobId);
+
+                                connId_JobId = dbPathEra + "_tokopedia_pesanan_completed_" + Convert.ToString(tblCustomer.RecNum.Value);
                                 recurJobM.RemoveIfExists(connId_JobId);
                             }
                             //end add by calvin 2 april 2019
@@ -896,8 +895,8 @@ namespace MasterOnline.Controllers
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
-                        //hanya untuk testing
-                        //await new ShopeeControllerJob().GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
+                        ////hanya untuk testing
+                        //await new ShopeeControllerJob().GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0);
                     }
                     else
                     {
@@ -989,7 +988,7 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     //var fileName = Path.GetFileName(file.FileName);
-                    var fileName = account.Email.Replace(".", "_");
+                    var fileName = account.Email.Replace(".", "_").Replace("@","_") + ".jpg";
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);

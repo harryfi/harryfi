@@ -89,9 +89,17 @@
       <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="EPPlus, Version=4.5.3.1, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.5.3.1\lib\net40\EPPlus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EraControls, Version=1.0.0.32194, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Content\ReferenceTambahan\EraControls.dll</HintPath>
+    </Reference>
+    <Reference Include="ExcelDataReader, Version=3.5.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExcelDataReader.3.5.0\lib\net45\ExcelDataReader.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Hangfire.Core, Version=1.7.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Hangfire.Core.1.7.0\lib\net46\Hangfire.Core.dll</HintPath>
@@ -195,10 +203,12 @@
     <Reference Include="PdfSharp.Charting, Version=1.32.3057.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
       <HintPath>..\packages\PDFsharp.1.32.3057.0\lib\net20\PdfSharp.Charting.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.6.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.6\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
@@ -297,6 +307,7 @@
     <Compile Include="Controllers\Api\MobileApiController.cs" />
     <Compile Include="Controllers\BCAController.cs" />
     <Compile Include="Controllers\JDIDControllerJob.cs" />
+    <Compile Include="Controllers\ExcelControllerJob.cs" />
     <Compile Include="Controllers\StokControllerJob.cs" />
     <Compile Include="Controllers\BlibliControllerJob.cs" />
     <Compile Include="Controllers\BlibliController.cs" />
@@ -678,6 +689,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
     <Compile Include="Models\ATTRIBUTE_UNIT_TOKPED.cs" />
@@ -685,6 +697,7 @@
     <Compile Include="Models\ATTRIBUTE_OPT_SHOPEE.cs" />
     <Compile Include="Models\ATTRIBUTE_SHOPEE.cs" />
     <Compile Include="Models\BarcodeResult.cs" />
+    <Compile Include="Models\CATEGORY_BUKALAPAK.cs" />
     <Compile Include="Models\CATEGORY_JDID.cs" />
     <Compile Include="Models\CATEGORY_TOKPED.cs" />
     <Compile Include="Models\CATEGORY_SHOPEE.cs" />
@@ -6036,6 +6049,9 @@
     <Content Include="Views\Shared\_LayoutAdminCS.cshtml" />
     <Content Include="Views\Admin\TableDashboardCS.cshtml" />
     <Content Include="Views\Admin\TableDashboardAdmCS.cshtml" />
+    <Content Include="Views\Admin\AccountReminderExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
+    <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
     <Content Include="Views\Manage\LihatFakturA5.cshtml" />
   </ItemGroup>
   <ItemGroup>

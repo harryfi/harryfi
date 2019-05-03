@@ -28,6 +28,7 @@ namespace MasterOnline.Controllers
         public ErasoftContext ErasoftDbContext { get; set; }
         DatabaseSQL EDB;
         string username;
+        string DatabasePathErasoft;
         public TokopediaController()
         {
             MoDbContext = new MoDbContext();
@@ -40,6 +41,7 @@ namespace MasterOnline.Controllers
                     ErasoftDbContext = new ErasoftContext(sessionData.Account.DatabasePathErasoft);
 
                 EDB = new DatabaseSQL(sessionData.Account.DatabasePathErasoft);
+                DatabasePathErasoft = sessionData.Account.DatabasePathErasoft;
                 username = sessionData.Account.Username;
             }
             else
@@ -49,6 +51,7 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
+                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                     username = accFromUser.Username;
                 }
             }
@@ -307,6 +310,14 @@ namespace MasterOnline.Controllers
                     product_video = null,
                     images = new List<CreateProduct_Images>()
                 };
+
+                //add by calvin 1 mei 2019
+                var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+                if (qty_stock > 0)
+                {
+                    newDataProduct.stock = Convert.ToInt32(qty_stock);
+                }
+                //end add by calvin 1 mei 2019
 
                 int etalase_id = Convert.ToInt32(brg_stf02h.PICKUP_POINT);
 
@@ -661,6 +672,14 @@ namespace MasterOnline.Controllers
                     product_video = null,
                     images = new List<CreateProduct_Images>()
                 };
+
+                //add by calvin 1 mei 2019
+                var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
+                if (qty_stock > 0)
+                {
+                    newDataProduct.stock = Convert.ToInt32(qty_stock);
+                }
+                //end add by calvin 1 mei 2019
 
                 int etalase_id = Convert.ToInt32(brg_stf02h.PICKUP_POINT);
 
