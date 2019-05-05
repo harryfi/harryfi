@@ -6052,6 +6052,7 @@
     <Content Include="Views\Admin\AccountReminderExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
+    <Content Include="Views\Manage\LihatFakturA5.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

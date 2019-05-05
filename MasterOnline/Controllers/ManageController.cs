@@ -874,9 +874,36 @@ namespace MasterOnline.Controllers
             return View(vm);
         }
 
+
         // =============================================== Menu Manage (END)
 
         // =============================================== Bagian Pembeli (START)
+
+        //add by nurul 30/4/2019
+        public ActionResult RefreshTableBuyer(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+
+            //change by calvin 22 april 2019
+            //var barangVm = new BarangViewModel()
+            //{
+            ////change by nurul 18/1/2019 -- ListStf02S = ErasoftDbContext.STF02.ToList(),
+            //ListStf02S = ErasoftDbContext.STF02.Where(p => (p.PART == null ? "" : p.PART) == "").ToList(),
+            //};
+            var arf01c = (from p in ErasoftDbContext.ARF01C
+                          where (p.NAMA.Contains(search) || p.EMAIL.Contains(search))
+                          orderby p.BUYER_CODE
+                          select p);
+            var ListArf01c = arf01c.Skip(pagenumber * 10).Take(10).ToList();
+            var totalCount = arf01c.Count();
+            //end change by calvin 22 april 2019
+
+            IPagedList<ARF01C> pageOrders = new StaticPagedList<ARF01C>(ListArf01c, pagenumber + 1, 10, totalCount);
+            //return PartialView("TableBarang1Partial", barangVm);
+            return PartialView("TableBuyerPartial", pageOrders);
+        }
+        //end add by nurul 30/4/2019
 
         [HttpPost]
         public ActionResult SavePembeli(BuyerViewModel dataBuyer)
@@ -925,12 +952,18 @@ namespace MasterOnline.Controllers
             ErasoftDbContext.SaveChanges();
             ModelState.Clear();
 
-            var partialVm = new BuyerViewModel()
-            {
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
-            };
+            //var partialVm = new BuyerViewModel()
+            //{
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
+            //};
 
-            return PartialView("TableBuyerPartial", partialVm);
+            //return PartialView("TableBuyerPartial", partialVm);
+
+            //change by nurul 30/4/2019
+            //return PartialView("TableBarang1Partial", partialVm);
+            dataBuyer.Errors = null;
+            return Json(dataBuyer, JsonRequestBehavior.AllowGet);
+            //end change by nurul 30/4/2019
         }
         //add by nurul 5/12/2018
         [HttpPost]
@@ -1062,8 +1095,8 @@ namespace MasterOnline.Controllers
 
         public ActionResult DeletePembeli(int buyerId)
         {
-            try
-            {
+            //try
+            //{
                 var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == buyerId);
                 //ADD BY NURUL 30/7/2018
                 var vmError = new StokViewModel() { };
@@ -1080,17 +1113,19 @@ namespace MasterOnline.Controllers
                 ErasoftDbContext.ARF01C.Remove(buyerInDb);
                 ErasoftDbContext.SaveChanges();
 
-                var partialVm = new BuyerViewModel()
-                {
-                    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
-                };
-
-                return PartialView("TableBuyerPartial", partialVm);
-            }
-            catch (Exception)
+            var partialVm = new BuyerViewModel()
             {
-                return View("Error");
-            }
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
+                Errors=null
+            };
+
+            //return PartialView("TableBuyerPartial", partialVm);
+            return Json(partialVm, JsonRequestBehavior.AllowGet);
+            //}
+            //catch (Exception)
+            //{
+            //    return View("Error");
+            //}
         }
 
         // =============================================== Bagian Pembeli (END)
@@ -12500,6 +12535,173 @@ namespace MasterOnline.Controllers
                 //};
 
                 //return View(vm);
+            }
+            catch (Exception)
+            {
+                return View("NotFoundPage");
+            }
+        }
+
+        [HttpGet]
+        public ActionResult LihatFakturA5(string noBukPesanan)
+        {
+            string nobuk = noBukPesanan.Substring(0, 2);
+            var kota = "";
+            var provinsi = "";
+            var pos = "";
+            var al_buyer = "";
+            try
+            {
+                if (nobuk == "SO")
+                {
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_SO == noBukPesanan);
+                    var namaToko = "";
+
+                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    if (sessionData?.Account != null)
+                    {
+                        namaToko = sessionData.Account.NamaTokoOnline;
+                    }
+                    else
+                    {
+                        if (sessionData?.User != null)
+                        {
+                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            namaToko = accFromUser.NamaTokoOnline;
+                        }
+                    }
+
+                    var pesanan = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan);
+
+                    if (pesanan != null)
+                    {
+                        if (pesanan.KOTA != null)
+                        {
+                            kota = pesanan.KOTA;
+                        }
+                        if (pesanan.PROPINSI != null)
+                        {
+                            provinsi = pesanan.PROPINSI;
+                        }
+                        if (pesanan.KODE_POS != null)
+                        {
+                            pos = pesanan.KODE_POS;
+                        }
+                        al_buyer = pesanan.ALAMAT_KIRIM + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                    }
+
+                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var idMarket = Convert.ToInt32(cust.NAMA);
+                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    var noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).NO_REFERENSI;
+                    var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
+                    var kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).SHIPMENT;
+                    var resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == noBukPesanan).TRACKING_SHIPMENT;
+
+                    var vm = new FakturViewModel()
+                    {
+                        NamaToko = namaToko,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = urlLogoMarket,
+                        Faktur = fakturInDb,
+                        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                        ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                        AlamatToko = alamat,
+                        TlpToko = tlp,
+                        noRef = noRef,
+                        Kurir = kurir,
+                        Marketplace = market,
+                        NoResi = resi,
+                        alamatPenerima = al_buyer,
+                    };
+
+                    return View(vm);
+                }
+                else
+                {
+                    var fakturInDb = ErasoftDbContext.SIT01A.Single(f => f.NO_BUKTI == noBukPesanan);
+                    var namaToko = "";
+
+                    var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                    if (sessionData?.Account != null)
+                    {
+                        namaToko = sessionData.Account.NamaTokoOnline;
+                    }
+                    else
+                    {
+                        if (sessionData?.User != null)
+                        {
+                            var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                            namaToko = accFromUser.NamaTokoOnline;
+                        }
+                    }
+
+                    var buyer = ErasoftDbContext.ARF01C.SingleOrDefault(a => a.BUYER_CODE == fakturInDb.CUST);
+
+                    if (buyer != null)
+                    {
+                        if (buyer.NAMA_KABKOT != null)
+                        {
+                            kota = buyer.NAMA_KABKOT;
+                        }
+                        if (buyer.NAMA_PROV != null)
+                        {
+                            provinsi = buyer.NAMA_PROV;
+                        }
+                        if (buyer.KODEPOS != null)
+                        {
+                            pos = buyer.KODEPOS;
+                        }
+                        al_buyer = buyer.AL + ' ' + kota + ' ' + provinsi + ' ' + pos;
+                    }
+
+                    var cust = ErasoftDbContext.ARF01.Single(c => c.CUST == fakturInDb.CUST);
+                    var idMarket = Convert.ToInt32(cust.NAMA);
+                    var urlLogoMarket = MoDbContext.Marketplaces.Single(m => m.IdMarket == idMarket).LokasiLogo;
+                    var namaPT = ErasoftDbContext.SIFSYS.Single(p => p.BLN == 1).NAMA_PT;
+                    var alamat = ErasoftDbContext.SIFSYS.Single(a => a.BLN == 1).ALAMAT_PT;
+                    var tlp = ErasoftDbContext.SIFSYS_TAMBAHAN.Single().TELEPON;
+                    var noRef = "";
+                    var kurir = "";
+                    var resi = "";
+                    if (fakturInDb.NO_SO == null || fakturInDb.NO_SO == "" || fakturInDb.NO_SO == "-")
+                    {
+                        noRef = "-";
+                        kurir = "-";
+                        resi = "-";
+                    }
+                    else
+                    {
+                        noRef = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).NO_REFERENSI;
+                        kurir = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).SHIPMENT;
+                        resi = ErasoftDbContext.SOT01A.SingleOrDefault(a => a.NO_BUKTI == fakturInDb.NO_SO).TRACKING_SHIPMENT;
+                    }
+                    var market = MoDbContext.Marketplaces.Single(a => a.IdMarket == idMarket).NamaMarket;
+
+                    var vm = new FakturViewModel()
+                    {
+                        NamaToko = namaToko,
+                        NamaPerusahaan = namaPT,
+                        LogoMarket = urlLogoMarket,
+                        Faktur = fakturInDb,
+                        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                        ListFakturDetail = ErasoftDbContext.SIT01B.Where(fd => fd.NO_BUKTI == fakturInDb.NO_BUKTI).ToList(),
+                        AlamatToko = alamat,
+                        TlpToko = tlp,
+                        noRef = noRef,
+                        Kurir = kurir,
+                        Marketplace = market,
+                        NoResi = resi,
+                        alamatPenerima = al_buyer,
+                    };
+
+                    return View(vm);
+                }
             }
             catch (Exception)
             {
