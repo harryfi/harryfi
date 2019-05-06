@@ -319,6 +319,32 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            @Html.Label("", "Dari Tanggal")
+
+                            <div class="input-group date">
+                                @*@Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("DrTanggal2", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            @Html.Label("", "S/d Tanggal")
+
+                            <div class="input-group date">
+                                @*@Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
+                                @Html.TextBox("SdTanggal2", null, new { @class = "form-control", @ReadOnly = true })
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                        </div>
+                    </div>
                     <div class="row" style="margin-top: 5px;">
                         <div id="loading_minimum_stok_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
@@ -506,6 +532,22 @@
             });
 
             $('#minimumstok-tab').click(function () {
+                var d = new Date();
+                d.setMonth(d.getMonth() - 3);
+                $('#DrTanggal2').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', d).change(function () {
+                    $('#DrTanggal2').val($('#DrTanggal2').val());
+                    $('#DrTanggal2').datepicker('hide');
+                });
+                $('#SdTanggal2').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    $('#SdTanggal2').val($('#SdTanggal2').val());
+                    $('#SdTanggal2').datepicker('hide');
+                });
                 refreshTableMinimumStok();
             });
 
@@ -621,7 +663,12 @@
         }
 
         function refreshTableMinimumStok() {
-            var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';
+            //change by nurul 6/5/2019
+            @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
+            var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { param = "replacedrtgl;replacesdtgl" })';
+            link = link.replace("replacedrtgl", $('#DrTanggal2').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal2').val());
+            //end add by nurul 6/5/2019
 
             $.ajax({
                 type: "GET",
@@ -978,7 +1025,31 @@
                 $('#SdTanggal1').val($('#SdTanggal1').val());
                 $('#SdTanggal1').datepicker('hide');
                 refreshTablePalingLaku();
-                });
+            });
+
+            //add by nurul 6/5/2019
+            var d = new Date();
+            d.setMonth(d.getMonth() - 3);
+            $('#DrTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', d);
+
+            $('#DrTanggal2').change(function () {
+                $('#DrTanggal2').val($('#DrTanggal2').val());
+                $('#DrTanggal2').datepicker('hide');
+                refreshTableMinimumStok();
+            });
+            $('#SdTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0');
+            $('#SdTanggal2').change(function () {
+                $('#SdTanggal2').val($('#SdTanggal2').val());
+                $('#SdTanggal2').datepicker('hide');
+                refreshTableMinimumStok();
+            });
+            //end add by nurul 6/5/2019
 
         }
 
