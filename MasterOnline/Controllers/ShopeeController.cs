@@ -3368,7 +3368,7 @@ namespace MasterOnline.Controllers
             }
 
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.variation_id_list != null)
@@ -3526,7 +3526,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -3628,7 +3628,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -3706,7 +3706,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
