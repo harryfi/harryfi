@@ -1,4 +1,5 @@
 ﻿@using MasterOnline.ViewModels
+@using PagedList
 @model BuyerViewModel
 @{
     ViewBag.Title = "Pembeli";
@@ -52,7 +53,7 @@
                 <div class="input-group">
                     <input id="search_pembeli" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_buyer_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -69,7 +70,7 @@
         </div>
         <div class="row pembeli_table_section">
             <div id="table-buyer-partial" class="col-sm-12">
-                @Html.Partial("TableBuyerPartial")
+                @*@Html.Partial("TableBuyerPartial")*@
             </div>
         </div>
         <div class="row pembeli_editor_section" style="display: none;">
@@ -143,7 +144,7 @@
                                                 @Html.LabelFor(m => m.Pembeli.EMAIL, "Email Akun  ", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*change by nurul 7/11/2018 -- @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control", type = "email", required = "required" })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control email_not_required", type="email"})
+                                                    @Html.TextBoxFor(m => m.Pembeli.EMAIL, new { @class = "form-control email_not_required", type = "email" })
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -170,7 +171,7 @@
                                                 @Html.LabelFor(m => m.Pembeli.KODEPOS, "Kode Pos *", new { @class = "control-label col-md-3 col-sm-3 col-xs-12" })
                                                 <div class="col-md-6 col-sm-6 col-xs-12">
                                                     @*@Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control limited_number_textbox", type = "number", required = "required", maxlength = 10 })*@
-                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control num-only", required = "required", maxlength = 5, max = 99999, @data_val_length_max=5 })
+                                                    @Html.TextBoxFor(m => m.Pembeli.KODEPOS, new { @class = "form-control num-only", required = "required", maxlength = 5, max = 99999, @data_val_length_max = 5 })
 
                                                 </div>
                                             </div>
@@ -231,21 +232,35 @@
                 //add by nurul 12/2/2019
                 $page = 0;
             //end add by nurul 12/2/2019
+                refreshTableBuyer();
                 Initialize();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
             });
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
 
-            $('#search_pembeli').keyup(function () {
-                table.search($(this).val()).draw();
+            //change by nurul 304/2019
+            //$('#search_pembeli').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_pembeli').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBuyer();
+                    return false;
+                }
             });
+            $('#search_buyer_click').click(function () {
+                searchTableBuyer();
+            });
+            //end add by nurul 30/4/2019
 
             $('#tambah_pembeli').on('click', function () {
                 $('.pembeli_table_section').hide();
@@ -273,20 +288,22 @@
                 $('#KODEPROV, #KODEKABKOT').selectivity('value', null);
                 resetError();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
             });
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_pembeli').click();
             }
-            
+
 
             getKabKot();
             resetKabKot();
+            refreshTableBuyer();
 
             $('#Pembeli_BUYER_CODE').on('change blur',
                 function () {
@@ -337,13 +354,13 @@
                 });
 
             //add by nurul 26 nov 2018, setelah di close, search lg
-            table.search($('#search_pembeli').val()).draw();
+            //table.search($('#search_pembeli').val()).draw();
             //end add by nurul 26 nov 2018, setelah di close, search lg
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
         function convertToAngka(rupiah) {
@@ -390,11 +407,12 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#table-buyer-partial').html(response);
-                    Initialize();
+                    //$('#table-buyer-partial').html(response);
+                    //Initialize();
                     $('#close-editor').click();
                     $("html, body").animate({ scrollTop: 0 }, "slow");
                     $('#loading_spinner').hide();
+                    refreshTableBuyer();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -565,8 +583,9 @@
                         $('#konfHapusPembeli').modal('hide');
                         alert(response.Errors[0]);
                     } else {
-                        $('#table-buyer-partial').html(response);
-                        Initialize();
+                        //$('#table-buyer-partial').html(response);
+                        //Initialize();
+                        refreshTableBuyer();
                         $('#konfHapusPembeli').modal('hide');
                     }
                     //end change
@@ -610,5 +629,50 @@
             return false;
         }
         //end add by nurul
+
+        //add by nurul 30/4/2019
+        function refreshTableBuyer() {
+            var link = '@Url.Action("RefreshTableBuyer", "Manage")';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-buyer-partial').hide();
+                    $('#loading_buyer_tab').show();
+                },
+                success: function (response) {
+                    $('#table-buyer-partial').html(response);
+                    $('#loading_buyer_tab').hide();
+                    $('#table-buyer-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableBuyer(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableBuyer", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_buyer_click')[0].disabled = true;
+                    $('#loading_buyer_tab').show();
+                },
+                success: function (response) {
+                    $('#search_buyer_click')[0].disabled = false;
+                    $('#table-buyer-partial').html(response);
+                    $('#loading_buyer_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_buyer_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 30/4/2019
     </script>
 }
