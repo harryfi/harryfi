@@ -27,13 +27,14 @@
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Qty</th>
         <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Pokok</th>*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Jual</th>
+            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Terjual</th>
             @*add by nurul 16/11/2018*@
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok Minimum</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
             <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>
             @*end add by nurul*@
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Sales</th>
+
         </tr>
     </thead>
     <tbody>
@@ -60,13 +61,14 @@
             @*<td>@barang.ISI</td>
         <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
             <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
+            <td>@barang.QtySales</td>
             @*add by nurul 16/11/2018*@
             <td>@barang.Min</td>
             <td>@barang.Qoh</td>
             <td>@barang.Qoo</td>
             <td>@(barang.Qoh - barang.Qoo)</td>
             @*end add by nurul*@
-            <td>@barang.QtySales</td>
+
         </tr>
         }
     </tbody>

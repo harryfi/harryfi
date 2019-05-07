@@ -1696,21 +1696,36 @@ namespace MasterOnline.Controllers
             return PartialView("TableBarangTidakLakuPartial", listBarangTidakLaku.OrderByDescending(b => b.QtySales).ToList());
         }
 
-        public ActionResult RefreshTableBarangDibawahMinimumStok()
+        public ActionResult RefreshTableBarangDibawahMinimumStok(string param)
         {
+            //add by nurul 6/5/2019
+            string dr = (param.Split(';')[param.Split(';').Length - 2]);
+            string sd = (param.Split(';')[param.Split(';').Length - 1]);
+            string tgl1 = (dr.Split('/')[dr.Split('/').Length - 3]);
+            string bln1 = (dr.Split('/')[dr.Split('/').Length - 2]);
+            string thn1 = (dr.Split('/')[dr.Split('/').Length - 1]);
+            string drtanggal = thn1 + '-' + bln1 + '-' + tgl1;
+            string tgl2 = (sd.Split('/')[sd.Split('/').Length - 3]);
+            string bln2 = (sd.Split('/')[sd.Split('/').Length - 2]);
+            string thn2 = (sd.Split('/')[sd.Split('/').Length - 1]);
+            string sdtanggal = thn2 + '-' + bln2 + '-' + tgl2;
+            //end add by nurul 
             var listBarangMiniStok = new List<PenjualanBarang>();
             var qohqoo = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList();
 
+            var stf02Filter = ErasoftDbContext.Database.SqlQuery<PenjualanBarang>("select c.brg as KodeBrg,isnull(c.nama, '') + ' ' + isnull(c.nama2, '') as NamaBrg,c.KET_SORT1 as Kategori,c.KET_SORT2 as Merk, c.MINI as Min, c.HJUAL as HJual from stf02 c right join (select distinct brg from sot01a a inner join sot01b b on a.no_bukti = b.no_bukti where a.tgl between '" + drtanggal + "' and '" + sdtanggal + "') b on c.brg = b.brg where c.[type] = '3'").ToList();
+
             //change by nurul 18/1/2019 -- foreach (var barang in ErasoftDbContext.STF02.ToList())
-            foreach (var barang in ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList())
+            //change by nurul 6/5/2019 -- foreach (var barang in ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList())
+            foreach (var barang in stf02Filter)
             {
 
-                var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.BRG);
+                var barangUtkCek = ErasoftDbContext.STF08A.ToList().FirstOrDefault(b => b.BRG == barang.KodeBrg);
                 var qtyOnHand = 0d;
                 var getQoh = 0d;
                 var getQoo = 0d;
-                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOH");
-                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.BRG && p.JENIS == "QOO");
+                var cekQoh = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOH");
+                var cekQoo = qohqoo.FirstOrDefault(p => p.BRG == barang.KodeBrg && p.JENIS == "QOO");
                 if (cekQoh != null)
                 {
                     getQoh = cekQoh.JUMLAH;
@@ -1731,7 +1746,7 @@ namespace MasterOnline.Controllers
                 //add by nurul 12/4/2019
                 //var cekQtySales = ErasoftDbContext.SIT01B.Where(b => b.BRG == barang.BRG).ToList().Count();
                 double sales = 0;
-                var cekQtySales = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.BRG).ToList();
+                var cekQtySales = ErasoftDbContext.SOT01B.Where(b => b.BRG == barang.KodeBrg).ToList();
                 foreach (var jual in cekQtySales)
                 {
                     sales = sales + jual.QTY;
@@ -1745,22 +1760,23 @@ namespace MasterOnline.Controllers
                     //            + barangUtkCek.QM10 + barangUtkCek.QM11 + barangUtkCek.QM12 - barangUtkCek.QK1 - barangUtkCek.QK2
                     //            - barangUtkCek.QK3 - barangUtkCek.QK4 - barangUtkCek.QK5 - barangUtkCek.QK6 - barangUtkCek.QK7
                     //            - barangUtkCek.QK8 - barangUtkCek.QK9 - barangUtkCek.QK10 - barangUtkCek.QK11 - barangUtkCek.QK12;
-                    qtyOnHand = GetQOHSTF08A(barang.BRG, "ALL");
+                    qtyOnHand = GetQOHSTF08A(barang.KodeBrg, "ALL");
 
-                    if (qtyOnHand < barang.MINI)
+                    if (qtyOnHand < barang.Min)
                     {
                         listBarangMiniStok.Add(new PenjualanBarang
                         {
-                            KodeBrg = barang.BRG,
-                            NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
-                            Kategori = barang.KET_SORT1,
-                            Merk = barang.KET_SORT2,
-                            HJual = barang.HJUAL,
+                            KodeBrg = barang.KodeBrg,
+                            //NamaBrg = $"{barang.NAMA} {barang.NAMA2}",
+                            NamaBrg = barang.NamaBrg,
+                            Kategori = barang.Kategori,
+                            Merk = barang.Merk,
+                            HJual = barang.HJual,
                             //add by nurul 21/11/2018
                             //Stok = ErasoftDbContext.Database.SqlQuery<QOH_QOO_ALL_ITEM>("SELECT * FROM [QOH_QOO_ALL_ITEM]").ToList(),
                             Qoh = getQoh,
                             Qoo = getQoo,
-                            Min = barang.MINI,
+                            Min = barang.Min,
                             //add by nurul 12/4/2019
                             QtySales = sales
                             //end add by nurul 12/4/2019
@@ -2377,6 +2393,81 @@ namespace MasterOnline.Controllers
         }
         #endregion
         //end add by calvin 6 februari 2019
+
+        //add by Tri, 6 Mei 2019
+        #region lzd
+        [HttpGet]
+        public ActionResult GetKategoriBukalapakByCode(/*string code*/)
+        {
+            //string[] codelist = code.Split(';');
+            //var listKategoriLazada = MoDbContext.CATEGORY_LAZADA.Where(k => codelist.Contains(k.CATEGORY_ID)).OrderBy(k => k.NAME).ToList();
+            var listKategoriBukalapak = MoDbContext.CATEGORY_BUKALAPAKs.Where(k => string.IsNullOrEmpty(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
+
+            return Json(listKategoriBukalapak, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriBukalapakByParentCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listKategoriBukalapak = MoDbContext.CATEGORY_BUKALAPAKs.Where(k => codelist.Contains(k.PARENT_ID)).OrderBy(k => k.NAME).ToList();
+
+            return Json(listKategoriBukalapak, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetKategoriBukalapakByChildCode(string code)
+        {
+            string[] codelist = code.Split(';');
+            List<CATEGORY_BUKALAPAK> listKategoriBukalapak = new List<CATEGORY_BUKALAPAK>();
+            var category = MoDbContext.CATEGORY_BUKALAPAKs.Where(k => codelist.Contains(k.CATEGORY_ID)).FirstOrDefault();
+            listKategoriBukalapak.Add(category);
+
+            if (category.PARENT_ID != "")
+            {
+                bool TopParent = false;
+                while (!TopParent)
+                {
+                    category = MoDbContext.CATEGORY_BUKALAPAKs.Where(k => k.CATEGORY_ID.Equals(category.PARENT_ID)).FirstOrDefault();
+                    listKategoriBukalapak.Add(category);
+                    if (string.IsNullOrEmpty(category.PARENT_ID))
+                    {
+                        TopParent = true;
+                    }
+                }
+            }
+
+            return Json(listKategoriBukalapak.OrderBy(p => p.RecNum), JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeBukalapak(string code)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeBukalapak = new List<ATTRIBUTE_BL>();
+            var BLApi = new BukaLapakController();
+            var BLCust = ErasoftDbContext.ARF01.Where(m => m.NAMA == "8" && m.TOKEN != "" && m.API_KEY != "").FirstOrDefault();
+            if (BLCust != null)
+            {
+                var attrBL = BLApi.GetAttr(BLCust.API_KEY, BLCust.TOKEN, code);
+                listAttributeBukalapak.Add(attrBL);
+            }
+
+            return Json(listAttributeBukalapak, JsonRequestBehavior.AllowGet);
+        }
+        [HttpGet]
+        public ActionResult GetAttributeOptBukalapak(string code, string kategoryCode)
+        {
+            string[] codelist = code.Split(';');
+            var listAttributeOptBukalapak = new List<ATTRIBUTE_OPT_BL>();
+            var BLApi = new BukaLapakController();
+            var BLCust = ErasoftDbContext.ARF01.Where(m => m.NAMA == "8" && m.TOKEN != "" && m.API_KEY != "").FirstOrDefault();
+            if (BLCust != null)
+            {
+                listAttributeOptBukalapak = BLApi.GetAttrOpt(BLCust.API_KEY, BLCust.TOKEN, kategoryCode, codelist[0], false);
+            }
+
+            return Json(listAttributeOptBukalapak, JsonRequestBehavior.AllowGet);
+        }
+        #endregion
+        //end add by Tri, 6 Mei 2019
         [HttpGet]
         public ActionResult GetMerkBarang()
         {
@@ -9971,25 +10062,29 @@ namespace MasterOnline.Controllers
         {
             //var listBarang = ErasoftDbContext.STF02.ToList(); 'change by nurul 21/1/2019 
             var listBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList();
+            //var listBarang = (from a in ErasoftDbContext.STF02
+            //                  where a.TYPE == "3"
+            //                  select new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL });
 
             if (promoId == null)
             {
-                return Json(listBarang, JsonRequestBehavior.AllowGet);
+                return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
             }
 
             var listBarangSesuaiPromo = ErasoftDbContext.DETAILPROMOSI.Where(dp => dp.RecNumPromosi == promoId).ToList();
-            List<STF02> listBarangUntukPromo = null;
+            //List<STF02> listBarangUntukPromo = null;
 
             if (listBarangSesuaiPromo != null && listBarangSesuaiPromo.Count > 0)
             {
-                listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
+                var listBarangUntukPromo = listBarang.Where(b => !listBarangSesuaiPromo.Any(bp => bp.KODE_BRG == b.BRG)).ToList();
+                return Json(listBarangUntukPromo.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
             }
             else
             {
-                return Json(listBarang, JsonRequestBehavior.AllowGet);
+                return Json(listBarang.Select(a => new { BRG = a.BRG, NAMA = a.NAMA, NAMA2 = a.NAMA2 == null ? "" : a.NAMA2, STN2 = a.STN2, HJUAL = a.HJUAL }), JsonRequestBehavior.AllowGet);
             }
 
-            return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
+            //return Json(listBarangUntukPromo, JsonRequestBehavior.AllowGet);
         }
 
         [HttpGet]
@@ -17035,7 +17130,16 @@ namespace MasterOnline.Controllers
                                 if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                 {
                                     var promoPrice = brgInDB.HJUAL;
-                                    lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
+                                    //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, DateTime.Today, DateTime.Today, customer.TOKEN);
+                                    PromoLazadaObj data = new PromoLazadaObj
+                                    {
+                                        fromDt = DateTime.Today.AddDays(-2).ToString("yyyy-MM-dd"),
+                                        toDt = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+                                        kdBrg = brgInDB.BRG_MP,
+                                        promoPrice = promoPrice,
+                                        token = customer.TOKEN
+                                    };
+                                    lazadaApi.setPromo(data);
                                 }
                             }
                         }
@@ -17111,7 +17215,16 @@ namespace MasterOnline.Controllers
                                 if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
                                 {
                                     //var promoPrice = brgInDB.HJUAL;
-                                    lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, barangPromosiInDb.HARGA_PROMOSI, DateTime.Today.AddDays(-2), DateTime.Today.AddDays(-1), customer.TOKEN);
+                                    //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, barangPromosiInDb.HARGA_PROMOSI, DateTime.Today.AddDays(-2), DateTime.Today.AddDays(-1), customer.TOKEN);
+                                    PromoLazadaObj data = new PromoLazadaObj
+                                    {
+                                        fromDt = DateTime.Today.AddDays(-2).ToString("yyyy-MM-dd"),
+                                        toDt = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd"),
+                                        kdBrg = brgInDB.BRG_MP,
+                                        promoPrice = barangPromosiInDb.HARGA_PROMOSI,
+                                        token = customer.TOKEN
+                                    };
+                                    lazadaApi.setPromo(data);
                                 }
                             }
 
@@ -17219,7 +17332,16 @@ namespace MasterOnline.Controllers
                                     {
                                         promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
                                     }
-                                    lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                                    //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                                    PromoLazadaObj data = new PromoLazadaObj
+                                    {
+                                        fromDt = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                        toDt = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                                        kdBrg = brgInDB.BRG_MP,
+                                        promoPrice = promoPrice,
+                                        token = customer.TOKEN
+                                    };
+                                    lazadaApi.setPromo(data);
                                 }
                             }
 
@@ -20268,7 +20390,7 @@ namespace MasterOnline.Controllers
                 {
                     if (!listKodeSudahDiproses.Contains(item.SELLER_SKU))
                     {
-    //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
+                        //var barangInDB = ErasoftDbContext.STF02.Where(b => b.BRG.ToUpper().Equals(string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP.ToUpper() : brgBlibli.ToUpper())).FirstOrDefault();
                         #region handle brg induk untuk brg varian
                         if (!string.IsNullOrEmpty(item.KODE_BRG_INDUK))//handle induk dari barang varian
                         {
@@ -20962,7 +21084,7 @@ namespace MasterOnline.Controllers
                             //end add 25 April 2019, create stf02h untuk mp offline
                         }
                     }
-                    
+
                 }
                 catch (Exception ex)
                 {
