@@ -2829,6 +2829,12 @@ namespace MasterOnline.Controllers
                 logistics = logistics
             };
 
+            ////add by calvin 8 mei 2019
+            //var deskripsiBytes = Encoding.Default.GetBytes(HttpUtility.HtmlEncode(brgInDb.Deskripsi));
+            //var deskripsiBytesResult = Encoding.UTF8.GetString(deskripsiBytes);
+            //HttpBody.description = deskripsiBytesResult;
+            ////end add by calvin 8 mei 2019
+
             //add by calvin 1 mei 2019
             var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
             if (qty_stock > 0)
@@ -2899,6 +2905,7 @@ namespace MasterOnline.Controllers
 
             try
             {
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -2912,7 +2919,6 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {

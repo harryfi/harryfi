@@ -39,7 +39,9 @@
     <link href="//fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
     <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
-    <link href="/path/to/print.css" media="print" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css" media="print">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.min.css" media="print">
 
     @*<style type="text\css" media="print">
             #myFooter, #myHeader {
@@ -147,48 +149,26 @@
     </style>
     <style type="text/css">
         @@media print {
-            /*header, footer {
-                display: none;
-            }*/
-            @@Page {
+            @@page {
                 size: A5 landscape;
                 margin: 0;
+                width: 210mm;
+                height: 148mm;
+            }
+
+            body * {
+                page: initial;
+                position: initial;
+                margin: 0;
                 padding: 0;
-                width: 210mm;
-                height: 148mm;
-            }
-
-            header {
-                display: none !important;
-            }
-
-            footer {
-                display: none !important;
-            }
-
-            html {
-                background-color: #FFFFFF;
-                margin: 0px; /* this affects the margin on the html before sending to printer */
-            }
-
-            body {
-                page:initial;
-                width: 210mm;
-                height: 148mm;
-            }
-            #fake_page, #fake_page * {
-                visibility: visible;
-            }
-
-            #fake_page {
-                position: absolute;
-                left: 50px;
-                top: 50px;
             }
         }
+        
     </style>
+
 </head>
-<body>
+<body class="A5 landscape">
+
     <div id="faktur_viewer">
         <div class="container-fluid">
             <div class="row">
@@ -201,8 +181,8 @@
                                 <button id="print-btn" class="btn btn-success pull-right">Cetak</button>
                             </div>
                         </div>
-                        <div hidden="hidden" >
-                            @Html.Label(Model.NamaToko, new { @id= "nm_toko" })
+                        <div hidden="hidden">
+                            @Html.Label(Model.NamaToko, new { @id = "nm_toko" })
                         </div>
                         //add by nurul 29/11/2018
                         <div id="div_faktur">
@@ -273,8 +253,8 @@
                                             </tr>
                                             <tr>
                                                 @*<td>
-                                        <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
-                                    </td>*@
+                                                        <span class="block_subtitle" style="margin-left:10px">Nomor</span> @(Model.Faktur.NO_BUKTI)
+                                                    </td>*@
                                                 <td style="text-align:left; background-color:lightskyblue; width:500px">
                                                     <span class="block_subtitle" style="color:white; width:100px; font-size:16px; text-decoration-line:underline; margin-left:10px">NO REFERENSI</span>
                                                 </td>
@@ -389,21 +369,21 @@
                             @*<div id="nama_label"><h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko @Model.NamaToko</h2></div>*@
                             @*<div id="nama_label"><h2 class="bold_title" style="padding-top: 0;">Detail Pengiriman dari Toko <span id="nama_toko_label"></span></h2></div>*@
                             @* change by nurul 30/11/2018 -- rubah susunan -- <p class="sub_title">
-                    <span class="block_subtitle">Penjual</span> @Model.NamaToko
-                </p>*@
+                                    <span class="block_subtitle">Penjual</span> @Model.NamaToko
+                                </p>*@
                             @*<p class="sub_title">
-                    //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
-                    <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                </p>*@
+                                    //<span class="block_subtitle">Pembeli</span> @pembeli.NAMA
+                                    <span class="block_subtitle">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                                </p>*@
                             @*<p class="sub_title">
-                    <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
-                </p>*@
+                                    <span class="block_subtitle">No. SO</span> @(Model.Faktur.NO_SO)
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle">Alamat</span> @(Model.Faktur.AL)
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle">No. Telepon</span> @(pembeli.TLP)
+                                </p>*@
                             @*add by nurul 28/1/2019*@
                             <div id="resiyes">
                                 <p class="sub_title">
@@ -504,14 +484,14 @@
                             @*end add by nurul 28/1/2019*@
                             <hr style="width:600px" />
                             @*<p class="sub_title">
-                    <span class="block_subtitle_label">Penerima</span> @Model.Faktur.NAMAPEMESAN
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle_label">Alamat</span> @(Model.Faktur.AL)
-                </p>
-                <p class="sub_title">
-                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
-                </p>*@
+                                    <span class="block_subtitle_label">Penerima</span> @Model.Faktur.NAMAPEMESAN
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">Alamat</span> @(Model.Faktur.AL)
+                                </p>
+                                <p class="sub_title">
+                                    <span class="block_subtitle_label">No. Telepon</span> @(pembeli == null ? "" : pembeli.TLP)
+                                </p>*@
                         </div>
                     }
                 </div>
@@ -572,7 +552,7 @@
                 $('#print-btn').show();
             }
             //add by nurul 29/4/2019
-            
+
 
             document.onkeydown = overrideKeyDown;
             //end add by nurul 29/4/2019
@@ -581,7 +561,7 @@
             //var url2 = window.location.search.split('&')[2]; //label
             //var url3 = window.location.search.split('&')[3]; //alamat
             //var url4 = window.location.search.split('&')[4]; //tlp
-            //var url5 = decodeURI(window.location.search.split('&')[5]); //nama toko            
+            //var url5 = decodeURI(window.location.search.split('&')[5]); //nama toko
             var query = window.location.search.substring(1);
             var qs = parse_query_string(query);
             var url1 = qs.faktur; // faktur
@@ -623,7 +603,7 @@
             }
 
             if (url5 == "") {
-                
+
                 @*$('#nama_toko').text('@Model.NamaToko');
                 $('#nama_toko_label').text('@Model.NamaToko');*@
                 $('#nama_toko').text($('#nm_toko').text());
@@ -648,6 +628,6 @@
             }*@
         });
     </script>
-    
+
 </body>
 </html>
