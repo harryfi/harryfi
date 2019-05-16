@@ -256,6 +256,20 @@ namespace MasterOnline.Controllers
             {
                 //change by calvin 1 april 2019
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
+                //var md = new MidtransController();
+                //MidtransTransactionData data = new MidtransTransactionData
+                //{
+                //    bank = "bni",
+                //    gross_amount = "9000000.00",
+                //    order_id = "190000009112",
+                //    payment_type = "credit_card",
+                //    signature_key = "test2",
+                //    status_code = "200",
+                //    transaction_id = "coba2",
+                //    transaction_status = "capture",
+                //    transaction_time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+                //};
+                //md.PostReceive(data);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 bool cekSyncMarketplace = false;
                 if (cekSyncMarketplace)
@@ -1240,8 +1254,10 @@ namespace MasterOnline.Controllers
                 var userId = Convert.ToString(accInDb.AccountId);
 
                 accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
-                //var path = "C:\\inetpub\\wwwroot\\MasterOnline\\Content\\admin\\";
-                var path = Server.MapPath("~/Content/admin/");
+                var path = "C:\\inetpub\\wwwroot\\MasterOnline\\Content\\admin\\";
+                //var path = Server.MapPath("~/Content/admin/");
+                //var path = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/admin/");
+
                 sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
                       $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
                       $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";

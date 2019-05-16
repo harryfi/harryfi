@@ -336,7 +336,11 @@ namespace MasterOnline.Controllers
                                         dbPath = accFromUser.DatabasePathErasoft;
                                     }
                                 }
-
+                                var listKtg = ErasoftDbContext.CATEGORY_JDID.ToList();
+                                if(listKtg.Count > 0)
+                                {
+                                    EDB.ExecuteSQL("CString", CommandType.Text, "DELETE FROM CATEGORY_JDID");
+                                }
                                 #region connstring
 #if AWS
                     string con = "Data Source=localhost;Initial Catalog=" + dbPath + ";Persist Security Info=True;User ID=sa;Password=admin123^";
@@ -1058,6 +1062,7 @@ namespace MasterOnline.Controllers
                 mgrApiManager.AppSecret = data.appSecret;
                 mgrApiManager.AccessToken = data.accessToken;
                 mgrApiManager.Method = "epi.popShop.getShopBrandList";
+
                 var response = mgrApiManager.Call();
                 var retBrand = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
                 if (retBrand != null)
@@ -1146,12 +1151,13 @@ namespace MasterOnline.Controllers
 
         public void Order_JD(JDIDAPIData data, string cust)
         {
-            //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
+            //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed, 7: Ready to ship
             var listOrderId = new List<long>();
 
             listOrderId.AddRange(GetOrderList(data, "1", 1));
             listOrderId.AddRange(GetOrderList(data, "2", 1));
             listOrderId.AddRange(GetOrderList(data, "6", 1));
+            listOrderId.AddRange(GetOrderList(data, "7", 1));
             string connectionID = Guid.NewGuid().ToString();
 
             if (listOrderId.Count > 0)
@@ -1331,9 +1337,12 @@ namespace MasterOnline.Controllers
                                     var statusEra = "";
                                     switch (order.orderState.ToString())
                                     {
-                                        //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed
+                                        //1: waiting for delivery, 2: shipped, 3: Waiting_Cancel, 4: Waiting_Refuse, 5: canceled, 6: Completed, 7: ready to ship
                                         case "1":
                                             statusEra = "01";
+                                            break;
+                                        case "7":
+                                            statusEra = "02";
                                             break;
                                         case "2":
                                             statusEra = "03";
@@ -1351,7 +1360,7 @@ namespace MasterOnline.Controllers
                                             break;
                                     }
 
-                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime/1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
+                                    insertQ += "('" + order.address.Replace('\'', '`') + "','" + order.area.Replace('\'', '`') + "','" + DateTimeOffset.FromUnixTimeSeconds(order.bookTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','" + order.city.Replace('\'', '`') + "'," + order.couponAmount + ",'" + order.customerName + "','";
                                     insertQ += order.deliveryAddr.Replace('\'', '`') + "'," + order.deliveryType + ",'" + order.email + "'," + order.freightAmount + "," + order.fullCutAmount + "," + order.installmentFee + ",'" + DateTimeOffset.FromUnixTimeSeconds(order.orderCompleteTime / 1000).UtcDateTime.AddHours(7).ToString("yyyy-MM-dd hh:mm:ss") + "','";
                                     insertQ += order.orderId + "'," + order.orderSkuNum + "," + statusEra + "," + order.orderType + "," + order.paySubtotal + "," + order.paymentType + ",'" + order.phone + "','" + order.postCode + "'," + order.promotionAmount + ",'";
                                     insertQ += order.sendPay + "','" + order.state.Replace('\'', '`') + "'," + order.totalPrice + ",'" + order.userPin + "','" + cust + "','" + username + "','" + conn_id + "') ,";
@@ -1412,6 +1421,49 @@ namespace MasterOnline.Controllers
             //return adaInsert;
             ret.recordCount = jmlhNewOrder;
             return ret;
+        }
+
+        public void CreatePromo(JDIDAPIData data, int recnumPromo, string kdBrg, double promoPrice)
+        {
+            try
+            {
+
+                var mgrApiManager = new JDIDController();
+                mgrApiManager.AppKey = data.appKey;
+                mgrApiManager.AppSecret = data.appSecret;
+                mgrApiManager.AccessToken = data.accessToken;
+                mgrApiManager.Method = "com.jd.eptid.promo.manager.sdk.service.CreatePromoService.singleCreatePlummetedPromo";
+
+
+                var promoInDB = ErasoftDbContext.PROMOSI.Where(m => m.RecNum == recnumPromo).FirstOrDefault();
+
+                mgrApiManager.ParamJson = "{\"plummetedInfoFormDTO\": {\"shopId\":";
+                mgrApiManager.ParamJson += "\"promoName\":\"" + promoInDB.NAMA_PROMOSI + "\", \"promoType\":1,";
+                mgrApiManager.ParamJson += "\"quota\":" + promoPrice + ",\"beginTime\":\"" + promoInDB.TGL_MULAI.Value.ToString("yyyy-MM-dd HH:mm:ss") + "\",";
+                mgrApiManager.ParamJson += "\"endTime\":\"" + promoInDB.TGL_AKHIR.Value.ToString("yyyy-MM-dd HH:mm:ss") + "\",";
+                mgrApiManager.ParamJson += "\"promoState\":1, \"createPin\":\"" + username + "\",";
+                mgrApiManager.ParamJson += "\"skuId\":" + kdBrg + ", \"limitBuyType\":0,";
+                mgrApiManager.ParamJson += "\"operator\":\"" + username + "\", \"childType\":1,";
+                mgrApiManager.ParamJson += "\"promoChannel\":\"1,4,5\", \"sourceFrom\":0} }";
+
+                var response = mgrApiManager.Call();
+                var retPromo = JsonConvert.DeserializeObject(response, typeof(JDID_RES)) as JDID_RES;
+                if (retPromo != null)
+                {
+                    if (retPromo.openapi_msg.ToLower() == "success")
+                    {
+                        var dataPromo = JsonConvert.DeserializeObject(retPromo.openapi_data, typeof(Model_Promo)) as Model_Promo;
+                        if (dataPromo.success)
+                        {
+                            EDB.ExecuteSQL("CString", CommandType.Text, "UPDATE PROMOSIS SET MP_PROMO_ID = '" + dataPromo.order_id + "' WHERE RECNUM = " + recnumPromo);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
         }
 
         protected enum api_status
@@ -1494,6 +1546,15 @@ namespace MasterOnline.Controllers
     }
 
     #region jdid data class
+
+    public class Model_Promo
+    {
+        public bool success { get; set; }
+        public int code { get; set; }
+        public string description { get; set; }
+        public string order_id { get; set; }
+    }
+
     public class Data_OrderDetail
     {
         public string message { get; set; }

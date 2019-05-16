@@ -123,46 +123,105 @@ namespace MasterOnline.Controllers
             var ret = new BindingBase();
             ret.status = 0;
             //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+            //change by Tri 7 Mei 2019
+            //var dataProduct = new BindingBukaLapakProduct
+            //{
+            //    images = data.imageId,
+            //    product = new ProductBukaLpk
+            //    {
+            //        category_id = "564",
+            //        name = data.nama,
+            //        @new = "true",
+            //        price = data.harga,
+            //        negotiable = "false",
+            //        weight = data.weight,//weight in gram
+            //        stock = data.qty,
+            //        description_bb = data.deskripsi,
+            //        product_detail_attributes = new Product_Detail_Attributes
+            //        {
+            //            bahan = "baku",
+            //            merek = data.merk,
+            //            tipe = "formal",
+            //            //type = "",
+            //            ukuran = "S",
+            //        }
+            //    }
+            //};
+            //if (!string.IsNullOrEmpty(data.nama2))
+            //{
+            //    dataProduct.product.name += " " + data.nama2;
+            //}
+            //if (!string.IsNullOrEmpty(data.imageId2))
+            //{
+            //    if (!string.IsNullOrEmpty(dataProduct.images))
+            //        dataProduct.images += ",";
+            //    dataProduct.images += data.imageId2;
+            //}
+            //if (!string.IsNullOrEmpty(data.imageId3))
+            //{
+            //    if (!string.IsNullOrEmpty(dataProduct.images))
+            //        dataProduct.images += ",";
+            //    dataProduct.images += "," + data.imageId3;
+            //}
+            var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == data.kdBrg && m.IDMARKET.ToString() == data.idMarket).FirstOrDefault();
+            var customer = ErasoftDbContext.ARF01.Where(m => m.RecNum.ToString() == data.idMarket).FirstOrDefault();
+            string dataBrg = "{ \"product\": { \"category_id\":\"" + brgInDB.CATEGORY_CODE + "\", ";
+            dataBrg += "\"name\":\"" + data.nama + (string.IsNullOrEmpty(data.nama2) ? "" : " " + data.nama2) + "\",";
+            dataBrg += "\"new\":\"true\", \"price\":" + data.harga + ", \"negotiable\":\"false\", \"weight\":" + data.weight + ", ";
+            dataBrg += "\"stock\":" + data.qty + ", \"description_bb\":\"" + data.deskripsi + "\", \"product_detail_attributes\":{";
 
-            var dataProduct = new BindingBukaLapakProduct
+            var attributeBL = GetAttr(customer.API_KEY, customer.TOKEN, brgInDB.CATEGORY_CODE);
+            List<string> dsAttr = new List<string>();
+            for (int i = 1; i <= 30; i++)
             {
-                images = data.imageId,
-                product = new ProductBukaLpk
+                string attribute_id = Convert.ToString(attributeBL["FIELDNAME_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    category_id = "564",
-                    name = data.nama,
-                    @new = "true",
-                    price = data.harga,
-                    negotiable = "false",
-                    weight = data.weight,//weight in gram
-                    stock = data.qty,
-                    description_bb = data.deskripsi,
-                    product_detail_attributes = new Product_Detail_Attributes
+                    dsAttr.Add(attribute_id);
+                }
+            }
+
+            Dictionary<string, string> BLAttrWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 30; i++)
+            {
+                string attribute_id = Convert.ToString(brgInDB["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(brgInDB["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (dsAttr.Contains(attribute_id))
                     {
-                        bahan = "baku",
-                        merek = data.merk,
-                        tipe = "formal",
-                        //type = "",
-                        ukuran = "S",
+                        //if (!lzdAttrWithVal.ContainsKey(attribute_id))
+                        //{
+                        BLAttrWithVal.Add(attribute_id, value.Trim());
+                        //}
                     }
                 }
-            };
-            if (!string.IsNullOrEmpty(data.nama2))
-            {
-                dataProduct.product.name += " " + data.nama2;
             }
+
+            foreach (var BLAttr in BLAttrWithVal)
+            {
+                dataBrg += "\"" + BLAttr.Key + "\":";
+                dataBrg += "\"" + BLAttr.Value.ToString() + "\"," ;
+            }
+            dataBrg = dataBrg.Substring(0, dataBrg.Length - 1);
+
+            string listImage = data.imageId;
             if (!string.IsNullOrEmpty(data.imageId2))
             {
-                if (!string.IsNullOrEmpty(dataProduct.images))
-                    dataProduct.images += ",";
-                dataProduct.images += data.imageId2;
+                if (!string.IsNullOrEmpty(listImage))
+                    listImage += ",";
+                listImage += data.imageId2;
             }
             if (!string.IsNullOrEmpty(data.imageId3))
             {
-                if (!string.IsNullOrEmpty(dataProduct.images))
-                    dataProduct.images += ",";
-                dataProduct.images += "," + data.imageId3;
+                if (!string.IsNullOrEmpty(listImage))
+                    listImage += ",";
+                listImage += "," + data.imageId3;
             }
+            dataBrg += "} }, \"images\":\"" + listImage + "\"}";
+
+            //end change by Tri 7 Mei 2019
+
             //string hargaMarket = EDB.GetFieldValue("", "STF02H", "BRG = '" + data.kdBrg + "' AND AKUNMARKET = '" + data.akunMarket + "'", "HJUAL").ToString();
             //if (!string.IsNullOrEmpty(hargaMarket))
             //    dataProduct.product.price = hargaMarket;
@@ -177,9 +236,9 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.key, currentLog);
 
-            string dataPost = JsonConvert.SerializeObject(dataProduct);
+            //string dataPost = JsonConvert.SerializeObject(dataProduct);
             Utils.HttpRequest req = new Utils.HttpRequest();
-            var bindResponse = req.CallBukaLapakAPI("POST", "products.json", dataPost, data.key, data.token, typeof(CreateProductBukaLapak)) as CreateProductBukaLapak;
+            var bindResponse = req.CallBukaLapakAPI("POST", "products.json", dataBrg, data.key, data.token, typeof(CreateProductBukaLapak)) as CreateProductBukaLapak;
             if (bindResponse != null)
             {
                 if (bindResponse.status.Equals("OK"))
@@ -983,9 +1042,9 @@ namespace MasterOnline.Controllers
 
                         string sSQL = "INSERT INTO TEMP_BRG_MP (BRG_MP, SELLER_SKU, NAMA, NAMA2, NAMA3, BERAT, PANJANG, LEBAR, TINGGI, CUST, ";
                         sSQL += "Deskripsi, IDMARKET, HJUAL, HJUAL_MP, DISPLAY, CATEGORY_CODE, CATEGORY_NAME, MEREK, IMAGE, IMAGE2, IMAGE3, KODE_BRG_INDUK, TYPE";
-                        //sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
-                        //sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
-                        //sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30, ";
+                        sSQL += ", ACODE_1, ANAME_1, AVALUE_1, ACODE_2, ANAME_2, AVALUE_2, ACODE_3, ANAME_3, AVALUE_3, ACODE_4, ANAME_4, AVALUE_4, ACODE_5, ANAME_5, AVALUE_5, ACODE_6, ANAME_6, AVALUE_6, ACODE_7, ANAME_7, AVALUE_7, ACODE_8, ANAME_8, AVALUE_8, ACODE_9, ANAME_9, AVALUE_9, ACODE_10, ANAME_10, AVALUE_10, ";
+                        sSQL += "ACODE_11, ANAME_11, AVALUE_11, ACODE_12, ANAME_12, AVALUE_12, ACODE_13, ANAME_13, AVALUE_13, ACODE_14, ANAME_14, AVALUE_14, ACODE_15, ANAME_15, AVALUE_15, ACODE_16, ANAME_16, AVALUE_16, ACODE_17, ANAME_17, AVALUE_17, ACODE_18, ANAME_18, AVALUE_18, ACODE_19, ANAME_19, AVALUE_19, ACODE_20, ANAME_20, AVALUE_20, ";
+                        sSQL += "ACODE_21, ANAME_21, AVALUE_21, ACODE_22, ANAME_22, AVALUE_22, ACODE_23, ANAME_23, AVALUE_23, ACODE_24, ANAME_24, AVALUE_24, ACODE_25, ANAME_25, AVALUE_25, ACODE_26, ANAME_26, AVALUE_26, ACODE_27, ANAME_27, AVALUE_27, ACODE_28, ANAME_28, AVALUE_28, ACODE_29, ANAME_29, AVALUE_29, ACODE_30, ANAME_30, AVALUE_30 ";
                         //sSQL += "ACODE_31, ANAME_31, AVALUE_31, ACODE_32, ANAME_32, AVALUE_32, ACODE_33, ANAME_33, AVALUE_33, ACODE_34, ANAME_34, AVALUE_34, ACODE_35, ANAME_35, AVALUE_35, ACODE_36, ANAME_36, AVALUE_36, ACODE_37, ANAME_37, AVALUE_37, ACODE_38, ANAME_38, AVALUE_38, ACODE_39, ANAME_39, AVALUE_39, ACODE_40, ANAME_40, AVALUE_40, ";
                         //sSQL += "ACODE_41, ANAME_41, AVALUE_41, ACODE_42, ANAME_42, AVALUE_42, ACODE_43, ANAME_43, AVALUE_43, ACODE_44, ANAME_44, AVALUE_44, ACODE_45, ANAME_45, AVALUE_45, ACODE_46, ANAME_46, AVALUE_46, ACODE_47, ANAME_47, AVALUE_47, ACODE_48, ANAME_48, AVALUE_48, ACODE_49, ANAME_49, AVALUE_49, ACODE_50, ANAME_50, AVALUE_50) VALUES ";
                         sSQL += ") VALUES ";
@@ -1176,6 +1235,15 @@ namespace MasterOnline.Controllers
                     nama2 = "";
                     nama3 = "";
                 }
+                //add 10 Mei 2019, handle harga promo
+                if(brg.deal_info != null)
+                {
+                    if(brg.deal_info.original_price > 0)
+                    {
+                        itemPrice = brg.deal_info.original_price;
+                    }
+                }
+                //end add 10 Mei 2019, handle harga promo
 
                 if (brg.images != null)
                 {
@@ -1231,7 +1299,542 @@ namespace MasterOnline.Controllers
                 sSQL_Value += " , " + itemPrice + " , " + itemPrice + " , " + (display ? "1" : "0") + ", '";
                 sSQL_Value += brg.category_id + "' , '" + brg.category + "' , '" + brand;
                 sSQL_Value += "' , '" + urlImage + "' , '" + urlImage2 + "' , '" + urlImage3 + "','";
-                sSQL_Value += (type == 2 ? kdBrgInduk : "") + "','" + (type == 1 ? "4" : "3") + "') ,";
+                sSQL_Value += (type == 2 ? kdBrgInduk : "") + "','" + (type == 1 ? "4" : "3") + /*"') ,"*/ "'";
+                #region attribute
+                var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
+                var listAttr = GetAttr(customer.API_KEY, customer.TOKEN, brg.category_id.ToString());
+                if(listAttr != null)
+                {
+                    var attrBL = new Dictionary<string, string>();
+                    string value = "";
+                    foreach (Newtonsoft.Json.Linq.JProperty property in brg.specs)
+                    {
+                        if (attrBL.ContainsKey(property.Name))
+                        {
+                            attrBL.Add(property.Name, property.Value.ToString());
+                        }
+                        else
+                        {
+                            attrBL.Add(property.Name + "2", property.Value.ToString());
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_1))
+                    {
+                        //sSQL_Value += ", '" + listAttr.FIELDNAME_1 + "','" + listAttr.DISPLAYNAME_1.Replace("\'", "\'\'") + "','" + (attrBL.TryGetValue(listAttr.FIELDNAME_1, out value) ? value.Replace("\'", "\'\'") : "") + "'";
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_1, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_1))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_1);
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_1 + "','" + listAttr.DISPLAYNAME_1.Replace("\'", "\'\'") + "','" + val + "'";
+
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_2))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_2, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_2))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_2);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_2 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_2 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_2 + "','" + listAttr.DISPLAYNAME_2.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_3))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_3, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_3))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_3);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_3 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_3 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_3 + "','" + listAttr.DISPLAYNAME_3.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_4))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_4, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_4))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_4);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_4 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_4 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_4 + "','" + listAttr.DISPLAYNAME_4.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_5))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_5, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_5))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_5);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_5 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_5 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_5 + "','" + listAttr.DISPLAYNAME_5.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_6))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_6, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_6))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_6);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_6 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_6 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_6 + "','" + listAttr.DISPLAYNAME_6.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_7))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_7, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_7))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_7);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_7 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_7 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_7 + "','" + listAttr.DISPLAYNAME_7.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_8))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_8, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_8))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_8);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_8 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_8 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_8 + "','" + listAttr.DISPLAYNAME_8.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_9))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_9, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_9))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_9);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_9 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_9 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_9 + "','" + listAttr.DISPLAYNAME_9.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_10))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_10, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_10))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_10);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_10 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_10 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_10 + "','" + listAttr.DISPLAYNAME_10.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_11))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_11, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_11))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_11);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_11 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_11 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_11 + "','" + listAttr.DISPLAYNAME_11.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_12))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_12, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_12))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_12);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_12 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_12 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_12 + "','" + listAttr.DISPLAYNAME_12.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_13))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_13, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_13))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_13);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_13 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_13 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_13 + "','" + listAttr.DISPLAYNAME_13.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_14))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_14, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_14))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_14);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_14 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_14 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_14 + "','" + listAttr.DISPLAYNAME_14.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_15))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_15, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_15))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_15);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_15 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_15 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_15 + "','" + listAttr.DISPLAYNAME_15.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_16))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_16, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_16))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_16);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_16 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_16 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_16 + "','" + listAttr.DISPLAYNAME_16.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_17))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_17, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_17))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_17);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_17 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_17 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_17 + "','" + listAttr.DISPLAYNAME_17.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_18))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_18, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_18))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_18);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_18 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_18 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_18 + "','" + listAttr.DISPLAYNAME_18.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_19))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_19, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_19))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_19);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_19 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_19 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_19 + "','" + listAttr.DISPLAYNAME_19.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_20))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_20, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_20))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_20);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_20 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_20 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_20 + "','" + listAttr.DISPLAYNAME_20.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_21))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_21, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_21))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_21);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_21 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_21 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_21 + "','" + listAttr.DISPLAYNAME_21.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_22))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_22, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_22))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_22);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_22 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_22 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_22 + "','" + listAttr.DISPLAYNAME_22.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_23))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_23, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_23))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_23);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_23 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_23 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_23 + "','" + listAttr.DISPLAYNAME_23.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_24))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_24, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_24))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_24);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_24 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_24 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_24 + "','" + listAttr.DISPLAYNAME_24.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_25))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_25, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_25))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_25);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_25 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_25 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_25 + "','" + listAttr.DISPLAYNAME_25.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_26))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_26, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_26))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_26);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_26 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_26 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_26 + "','" + listAttr.DISPLAYNAME_26.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_27))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_27, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_27))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_27);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_27 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_27 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_27 + "','" + listAttr.DISPLAYNAME_27.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_28))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_28, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_28))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_28);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_28 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_28 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_28 + "','" + listAttr.DISPLAYNAME_28.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_29))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_29, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_29))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_29);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_29 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_29 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_29 + "','" + listAttr.DISPLAYNAME_29.Replace("\'", "\'\'") + "','" + val + "'";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', ''";
+                    }
+                    if (!string.IsNullOrEmpty(listAttr.FIELDNAME_30))
+                    {
+                        string val = (attrBL.TryGetValue(listAttr.FIELDNAME_30, out value) ? value.Replace("\'", "\'\'") : "");
+                        if (attrBL.ContainsKey(listAttr.FIELDNAME_30))
+                        {
+                            attrBL.Remove(listAttr.FIELDNAME_30);
+                        }
+                        else if (attrBL.ContainsKey(listAttr.FIELDNAME_30 + "2"))
+                        {
+                            val = (attrBL.TryGetValue(listAttr.FIELDNAME_30 + "2", out value) ? value.Replace("\'", "\'\'") : "");
+                        }
+                        sSQL_Value += ", '" + listAttr.FIELDNAME_30 + "','" + listAttr.DISPLAYNAME_30.Replace("\'", "\'\'") + "','" + val + "') ,";
+                    }
+                    else
+                    {
+                        sSQL_Value += ", '', '', '') ,";
+                    }
+                }
+                else
+                {
+                    sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                    sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', ''";
+                    sSQL_Value += " , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '' , '', '', '') ,";
+                }
+                #endregion
                 ret.status = 1;
                 ret.message = sSQL_Value;
             }
@@ -1350,13 +1953,13 @@ namespace MasterOnline.Controllers
             var retAttr = new ATTRIBUTE_BL();
 
             var ret = req.CallBukaLapakAPI("", "categories/" + id + "/attributes.json", "", userId, token, typeof(BLAttribute)) as BLAttribute;
-            if(ret.status.ToUpper() == "OK")
+            if (ret.status.ToUpper() == "OK")
             {
                 retAttr.CATEGORY_CODE = id;
                 try
                 {
                     int i = 1;
-                    foreach(var attr in ret.attributes)
+                    foreach (var attr in ret.attributes)
                     {
                         retAttr["FIELDNAME_" + i] = attr.fieldName;
                         retAttr["DISPLAYNAME_" + i] = attr.displayName;
@@ -1394,9 +1997,9 @@ namespace MasterOnline.Controllers
                     if (!variant)
                     {
                         var attrBrg = ret.attributes.Where(m => m.fieldName.ToUpper() == fieldName.ToUpper()).SingleOrDefault();
-                        if(attrBrg != null)
+                        if (attrBrg != null)
                         {
-                            foreach(var opt in attrBrg.options)
+                            foreach (var opt in attrBrg.options)
                             {
                                 var newOpt = new ATTRIBUTE_OPT_BL();
                                 newOpt.CATEGORY_CODE = id;
@@ -1408,7 +2011,7 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        if(ret.variants.Length > 0)
+                        if (ret.variants.Length > 0)
                         {
                             var attrBrg = ret.variants.Where(m => m.name.ToUpper() == fieldName.ToUpper()).SingleOrDefault();
                             if (attrBrg != null)
@@ -1423,7 +2026,7 @@ namespace MasterOnline.Controllers
                                 }
                             }
                         }
-                        
+
                     }
                 }
                 catch (Exception ex)

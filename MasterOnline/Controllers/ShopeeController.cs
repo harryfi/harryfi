@@ -3833,10 +3833,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Add Discount",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = recNumPromosi.ToString(),
                 REQUEST_STATUS = "Pending",
             };
 
@@ -3990,10 +3992,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Add Discount Item",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -4136,10 +4140,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Delete Discount",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = discount_id.ToString(),
                 REQUEST_STATUS = "Pending",
             };
 
@@ -4226,10 +4232,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Delete Discount Item",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
                 REQUEST_STATUS = "Pending",
             };
 

@@ -218,6 +218,8 @@
             });
             $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+                
+            
         });
 
         function closeEditor() {
@@ -747,6 +749,28 @@
 
 
                     $('#btn-simpan-perubahan-row').hide();
+                    //add 15 mei 2019 by Tri, validasi jika promo lazada dan tgl mulai sudah lewat tidak bisa tambah barang baru
+                    if ($('#Promosi_RecNum').val() != null) {
+                        if ($('#Promosi_RecNum').val() != '' || $('#Promosi_RecNum').val() != '0') {
+                            if ($('#CUSTOMER').text().toUpperCase().includes('LAZADA (')) {
+                                var dtMonth = new Date().getMonth() + 1;
+                                var bln = "";
+                                if (dtMonth < 10) {
+                                    bln = '0' + dtMonth;
+                                } else {
+                                    bln += dtMonth;
+                                }
+                                if ($('#TGL_MULAI').val() != (new Date().getDate() + '/' + bln + '/' + new Date().getFullYear())) {
+                                    $('#trNewData').css('display', 'none');
+                                } else {
+                                    $('#trNewData').css('display', 'contents');
+                                }
+                            } else {
+                                $('#trNewData').css('display', 'contents');
+                            }
+                        }
+                    }
+                    //end add 15 mei 2019 by Tri, validasi jika promo lazada dan tgl mulai sudah lewat tidak bisa tambah barang baru
                 },
                 error: function (xhr) {
                     console.log(xhr);
@@ -899,7 +923,8 @@
                         .css('cursor', 'not-allowed');
                     $('#TGL_AKHIR').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-                                //END ADD
+
+                    //END ADD
                     //$('#tambah_promosi').click();
                     $('.promosi_table_section').hide();
                     $('.promosi_editor_section').show();
@@ -1047,7 +1072,19 @@
                     alert('Tanggal Akhir harus lebih besar dari Tanggal Mulai');
                     return false;
                 }
-
+                if ($('#CUSTOMER').text().toUpperCase().includes('LAZADA (')) {
+                    var dtMonth = new Date().getMonth() + 1;
+                    var bln = "";
+                    if (dtMonth < 10) {
+                        bln = '0' + dtMonth;
+                    } else {
+                        bln += dtMonth; 
+                    }
+                    if ($('#TGL_MULAI').val() != (new Date().getDate() + '/' + bln + '/' + new Date().getFullYear())) {
+                        alert('Tanggal Mulai untuk promo marketplace Lazada harus di set hari ini.');
+                        return false;
+                    }
+                }
             } else {
                 alert('Silakan isi semua field terlebih dahulu!');
                 return false;

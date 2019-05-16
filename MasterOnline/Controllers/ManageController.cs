@@ -17012,7 +17012,7 @@ namespace MasterOnline.Controllers
             {
                 ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
                 //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
                 ListPelanggan = ErasoftDbContext.ARF01.ToList(),
                 ListMarketplace = MoDbContext.Marketplaces.ToList()
             };
@@ -17201,6 +17201,27 @@ namespace MasterOnline.Controllers
                                     merchant_code = customer.Sort1_Cust,
                                 };
                                 Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
+
+                                var brgInDB = ErasoftDbContext.STF02.Where(m => m.BRG == barangPromosiInDb.KODE_BRG).FirstOrDefault();
+                                if(brgInDB != null)
+                                {
+                                    if (!string.IsNullOrEmpty(brgInDB.PART))
+                                    {
+                                        var listBrgPromo = ErasoftDbContext.DETAILPROMOSI.Where(m => m.RecNumPromosi == promosiInDb.RecNum).ToList();
+                                        if(listBrgPromo.Count > 0)
+                                        {
+                                            var tblSTF02 = ErasoftDbContext.STF02.Where(m => m.PART == brgInDB.PART).ToList();
+                                            foreach (var brg in listBrgPromo)
+                                            {
+                                                var otherItemPromo = tblSTF02.Where(m => m.BRG == brg.KODE_BRG).FirstOrDefault();
+                                                if(otherItemPromo != null)
+                                                {
+                                                    Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), brg)).Wait();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -17301,6 +17322,7 @@ namespace MasterOnline.Controllers
                     var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                     var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
                     var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
+                    //var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
 
                     if (customer.NAMA.Equals(kdShopee))
                     {
@@ -17348,6 +17370,46 @@ namespace MasterOnline.Controllers
                         }
                     }
                     //end add by calvin 26 desember 2018
+                    //else if (customer.NAMA.Equals(kdBlibli))
+                    //{
+                    //    if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                    //    {
+                    //        var blibliApi = new BlibliController();
+                    //        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataVm.PromosiDetail.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                    //        if (brgInDB != null)
+                    //        {
+                    //            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                    //            {
+                    //                var promoPrice = dataVm.PromosiDetail.HARGA_PROMOSI;
+                    //                if (promoPrice == 0)
+                    //                {
+                    //                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
+                    //                }
+                    //                //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                    //               BlibliController.BlibliProductData dataBrg = new BlibliController.BlibliProductData
+                    //                {
+                    //                    promoStart = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                    //                    promoEnd = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                    //                    kode_mp = brgInDB.BRG_MP,
+                    //                    promoPrice = promoPrice
+                    //                };
+
+                    //                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData
+                    //                {
+                    //                    API_client_password = customer.API_CLIENT_P,
+                    //                    API_client_username = customer.API_CLIENT_U,
+                    //                    API_secret_key = customer.API_KEY,
+                    //                    mta_username_email_merchant = customer.EMAIL,
+                    //                    mta_password_password_merchant = customer.PASSWORD,
+                    //                    merchant_code = customer.Sort1_Cust,
+                    //                    token = customer.TOKEN,
+                    //                };
+                    //                Task.Run(() => blibliApi.setPromoBlibli(data, dataBrg).Wait());
+                    //            }
+                    //        }
+
+                    //    }
+                    //}
                 }
             }
             else
@@ -17381,6 +17443,7 @@ namespace MasterOnline.Controllers
                         var customer = ErasoftDbContext.ARF01.SingleOrDefault(c => c.CUST == dataVm.Promosi.NAMA_MARKET);
                         var kdShopee = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "SHOPEE").IdMarket.ToString();
                         var kdLazada = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "LAZADA").IdMarket.ToString();
+                        //var kdBlibli = MoDbContext.Marketplaces.SingleOrDefault(m => m.NamaMarket.ToUpper() == "BLIBLI").IdMarket.ToString();
 
                         if (customer.NAMA.Equals(kdShopee))
                         {
@@ -17420,6 +17483,46 @@ namespace MasterOnline.Controllers
                             }
                         }
                         //end add by calvin 26 desember 2018
+                        //else if (customer.NAMA.Equals(kdBlibli))
+                        //{
+                        //    if (!string.IsNullOrWhiteSpace(customer.TOKEN))
+                        //    {
+                        //        var blibliApi = new BlibliController();
+                        //        var brgInDB = ErasoftDbContext.STF02H.Where(m => m.BRG == dataVm.PromosiDetail.KODE_BRG && m.IDMARKET == customer.RecNum).FirstOrDefault();
+                        //        if (brgInDB != null)
+                        //        {
+                        //            if (!string.IsNullOrEmpty(brgInDB.BRG_MP))
+                        //            {
+                        //                var promoPrice = dataVm.PromosiDetail.HARGA_PROMOSI;
+                        //                if (promoPrice == 0)
+                        //                {
+                        //                    promoPrice = brgInDB.HJUAL - (brgInDB.HJUAL * dataVm.PromosiDetail.PERSEN_PROMOSI / 100);
+                        //                }
+                        //                //lazadaApi.UpdatePromoPrice(brgInDB.BRG_MP, promoPrice, dataVm.Promosi.TGL_MULAI ?? DateTime.Today, dataVm.Promosi.TGL_AKHIR ?? DateTime.Today, customer.TOKEN);
+                        //                BlibliController.BlibliProductData dataBrg = new BlibliController.BlibliProductData
+                        //                {
+                        //                    promoStart = (dataVm.Promosi.TGL_MULAI ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                        //                    promoEnd = (dataVm.Promosi.TGL_AKHIR ?? DateTime.Today).ToString("yyyy-MM-dd"),
+                        //                    kode_mp = brgInDB.BRG_MP,
+                        //                    promoPrice = promoPrice
+                        //                };
+
+                        //                BlibliController.BlibliAPIData data = new BlibliController.BlibliAPIData
+                        //                {
+                        //                    API_client_password = customer.API_CLIENT_P,
+                        //                    API_client_username = customer.API_CLIENT_U,
+                        //                    API_secret_key = customer.API_KEY,
+                        //                    mta_username_email_merchant = customer.EMAIL,
+                        //                    mta_password_password_merchant = customer.PASSWORD,
+                        //                    merchant_code = customer.Sort1_Cust,
+                        //                    token = customer.TOKEN,
+                        //                };
+                        //                Task.Run(() => blibliApi.setPromoBlibli(data, dataBrg).Wait());
+                        //            }
+                        //        }
+
+                        //    }
+                        //}
                     }
                 }
             }
