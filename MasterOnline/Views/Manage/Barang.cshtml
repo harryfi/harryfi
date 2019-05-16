@@ -1382,7 +1382,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('ACODE_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -1745,7 +1750,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('ACODE_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -2123,7 +2133,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('FIELDNAME_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -2486,7 +2501,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_'+ (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('ACODE_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -2831,7 +2851,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_'+ (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('ACODE_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -3128,7 +3153,12 @@
                                         var adaValue = "";
                                         if (ListHargaJualPermarketView != null) {
                                             if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_'+ (i + 1)];
+                                                //change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
+                                                //adaValue = ListHargaJualPermarketView[0]['AVALUE_' + (i + 1)];
+                                                var keyName = getKeyByValue(ListHargaJualPermarketView[0],ANAME);
+                                                keyName = keyName.replace('ANAME_','AVALUE_');
+                                                adaValue = ListHargaJualPermarketView[0][keyName];
+                                                //end change by calvin 7 mei 2019, urutan attribute bisa berubah dan berbeda dengan yang sudah tersimpan di stf02h
                                             }
                                         }
 
@@ -4374,6 +4404,9 @@
                     });
                 }
             );
+        }
+        function getKeyByValue(object, value) {
+            return Object.keys(object).find(key => object[key] === value);
         }
     </script>
 }

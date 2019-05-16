@@ -39,57 +39,38 @@
     <link href="//fonts.googleapis.com/css?family=Josefin+Sans" rel="stylesheet">
     <link href='//fonts.googleapis.com/css?family=Roboto+Condensed:400,300,300italic,400italic,700,700italic' rel='stylesheet' type='text/css'>
     <!--[if lt IE 9]><script src="http://cdnjs.cloudflare.com/ajax/libs/es5-shim/2.0.8/es5-shim.min.js"></script><![endif]-->
-    @*<link type="text/css" rel="stylesheet" media="print" href="print.css">*@
-    <link rel="stylesheet" href="style-screen.css" type="text/css" media="screen">
-    <link rel="stylesheet" href="style-print.css" type="text/css" media="print">
-    <link href="/path/to/print.css" media="print" rel="stylesheet" />
-    <style type="text/css">
-        @@media print {
-            /*header, footer {
-                display: none;
-            }*/
-            @@Page {
-                size: A4 portrait !important;
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css" media="print">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.min.css" media="print">
+
+    @*<style type="text\css" media="print">
+            #myFooter, #myHeader {
+                display: none !important;
+            }
+
+            /*#page {
                 margin: 0;
             }
 
-            header {
-                display: none !important;
+            html {
+                background-color: #FFFFFF;
+                margin: 0px;
+            }*/
+
+            body * {
+                visibility: hidden;
             }
 
-            footer {
-                display: none !important;
+            #fake_page, #fake_page * {
+                visibility: visible;
             }
-        }
-    </style>
-    <style type="text\css" media="print">
-        #myFooter, #myHeader {
-            display: none !important;
-        }
 
-        /*#page {
-            margin: 0;
-        }
-
-        html {
-            background-color: #FFFFFF;
-            margin: 0px;
-        }*/
-
-        body * {
-            visibility: hidden;
-        }
-
-        #fake_page, #fake_page * {
-            visibility: visible;
-        }
-
-        #fake_page {
-            position: absolute;
-            left: 50px;
-            top: 50px;
-        }
-    </style>
+            #fake_page {
+                position: absolute;
+                left: 50px;
+                top: 50px;
+            }
+        </style>*@
 
     <style>
         body {
@@ -165,8 +146,25 @@
             border-top: none;
         }
     </style>
+    <style type="text/css">
+        @@media print {
+            @@page {
+                size: A4 portrait;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+            body * {
+                page: initial;
+                position: initial;
+                margin: 0;
+                padding: 0;
+            }
+        }
+    </style>
 </head>
-<body>
+<body class="A4">
     <div id="faktur_viewer">
         <div class="container-fluid">
             <div class="row">

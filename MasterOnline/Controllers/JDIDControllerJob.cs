@@ -106,7 +106,7 @@ namespace MasterOnline.Controllers
                         var listKategori = JsonConvert.DeserializeObject(ret.openapi_data, typeof(DATA_CAT)) as DATA_CAT;
                         if (listKategori != null)
                         {
-                            if (listKategori.sucess)
+                            if (listKategori.success)
                             {
                                 EDB.ExecuteSQL("CString", CommandType.Text, "Update ARF01 SET STATUS_API = '1' WHERE TOKEN = '" + data.accessToken + "' AND API_KEY = '" + data.appKey + "'");
                                 string dbPath = "";
