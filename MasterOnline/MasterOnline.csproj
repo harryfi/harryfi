@@ -1308,6 +1308,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
+    <Compile Include="ViewModels\mdlJurnal.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
     <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
@@ -1322,6 +1323,7 @@
     <Compile Include="ViewModels\SaHutangViewModel.cs" />
     <Compile Include="ViewModels\SaPiutangViewModel.cs" />
     <Compile Include="ViewModels\SecurityUserViewModel.cs" />
+    <Compile Include="ViewModels\mdlPesanan.cs" />
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
@@ -1470,6 +1472,8 @@
     <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PTDHE.jpg" />
     <Content Include="Content\ManageSite.css" />
     <Content Include="Content\PagedList.css" />
+    <Content Include="Content\paper.css" />
+    <Content Include="Content\paper.min.css" />
     <Content Include="Content\ReferenceTambahan\AKSHASP.dll" />
     <Content Include="Content\ReferenceTambahan\EAF.dll" />
     <Content Include="Content\ReferenceTambahan\EAP.dll" />

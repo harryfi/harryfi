@@ -1,28 +1,46 @@
 ﻿@using System.Globalization
-@model MasterOnline.ViewModels.PesananViewModel
-@*<div class="row pesanan_sudah_dibayar_section">
-    <div class="col-lg-4 col-sm-6">
-        <div class="input-group">
-            <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
-            <span class="input-group-btn">
-                <button type="button" class="btn btn-primary">
-                    <i class="fa fa-search"></i>
-                </button>
-            </span>
-        </div>
+@*@model MasterOnline.ViewModels.PesananViewModel*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<mdlPesanan>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_pesanan_nunggu_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_pesanan_nunggu_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_pesanan_nunggu_tab">
+    <div id="loading_pesanan_nunggu_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
     </div>
-    <div class="col-lg-8 col-sm-6">
-        <div class="pull-right">
-            <button type="button" id="btn_refresh_pesanan_dibayar" class="btn btn-default" data-style="expand-right">
-                <span>Refresh</span>
-            </button>
-            <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" onclick="passRecStatusMulti()">
-                <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
-            </button>
-        </div>
-    </div>
-</div>*@
-<table id="datatable_nunggu" class="table table-striped table-bordered dataTable display select" role="grid" aria-describedby="datatable_info">
+</div>
+<input id="txt_last_page_2" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+    @*<table id="datatable_nunggu" class="table table-striped table-bordered dataTable display select" role="grid" aria-describedby="datatable_info">*@
     <thead>
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Order</th>
@@ -33,6 +51,7 @@
             @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Siap Kirim</th>*@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px; border-right:hidden;">Ubah Status</th>
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="dt-checkboxes-select-all center" id="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" /></th>
+            @*<th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 40px; max-width: 40px; border-left:hidden; align-self:flex-start"><input type="checkbox" class="checkbox_all_gntstatus_sudahdibayar" name="checkbox_all_gntstatus_sudahdibayar" style="border-left:hidden; align-self:flex-start; width:30px; height:28px; align-content:center;" /></th>*@
             <th class="sorting text-center" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 80px; max-width: 50px;">Lihat Detail</th>
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Salary: activate to sort column ascending" style="width: 50px; max-width: 50px;">Edit</th>*@
             @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 50px; max-width: 50px;">Hapus</th>*@
@@ -40,47 +59,48 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var pesanan in Model.ListPesanan)
+        @*@foreach (var pesanan in Model.ListPesanan)*@
+        @foreach (var pesanan in Model)
         {
-            //change by Tri, buyer_code = pemesan
-            //var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.NAMAPEMESAN);
-            var buyer = Model.ListPembeli.FirstOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
-            //end change by Tri, buyer_code = pemesan
+            ////change by Tri, buyer_code = pemesan
+            ////var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == pesanan.NAMAPEMESAN);
+            //var buyer = Model.ListPembeli.FirstOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
+            ////end change by Tri, buyer_code = pemesan
 
-            var buyerNama = "";
-            var buyerPerso = "";
-            if (buyer != null)
-            {
-                buyerNama = buyer.NAMA;
-                buyerPerso = buyer.PERSO;
-            }
+            //var buyerNama = "";
+            //var buyerPerso = "";
+            //if (buyer != null)
+            //{
+            //    buyerNama = buyer.NAMA;
+            //    buyerPerso = buyer.PERSO;
+            //}
 
-            var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
-            var idMarket = 0;
-            var Perso = pesanan.CUST;
-            if (pelanggan != null)
-            {
-                idMarket = Convert.ToInt32(pelanggan.NAMA);
-                Perso = Convert.ToString(pelanggan.PERSO);
-            }
-            var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
-            var NamaMarket = "";
-            if (market != null)
-            {
-                NamaMarket = market.NamaMarket;
-            }
+            //var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
+            //var idMarket = 0;
+            //var Perso = pesanan.CUST;
+            //if (pelanggan != null)
+            //{
+            //    idMarket = Convert.ToInt32(pelanggan.NAMA);
+            //    Perso = Convert.ToString(pelanggan.PERSO);
+            //}
+            //var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+            //var NamaMarket = "";
+            //if (market != null)
+            //{
+            //    NamaMarket = market.NamaMarket;
+            //}
             <tr>
-                <td>@pesanan.NO_BUKTI</td>
+                <td>@pesanan.NOSO</td>
                 <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
                 @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
                 <td>
-                    @if (pelanggan?.PERSO != null)
+                    @if (pesanan?.PERSO != "")
                     {
-                        @(NamaMarket + " (" + pelanggan.PERSO + ")")
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
                     }
                     else
                     {
-                        @NamaMarket
+                        @pesanan.MARKET
                     }
                 </td>
                 <td>
@@ -88,26 +108,27 @@
                     @*remark by nurul 24/9/2018 @(buyerNama + " (" + buyerPerso + ")")*@
                     @*@(buyerNama + " (" + pelanggan.PERSO + ")")*@
                     @*@(buyer == null ? "" : buyer.NAMA)*@
-                    @pesanan.NAMAPEMESAN
+                    @pesanan.PEMBELI
                 </td>
-                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
-                <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;" >
-                    <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RecNum, '02', '@pesanan.NO_BUKTI')">
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td class="edit-hapus-col" style="border-right:hidden; width: 50px; max-width: 50px;">
+                    <button class="btn btn-success ubah-dibayar" data-toggle="modal" id="ubah1_dibayar" data-target="#konfUbahStatusDibayar" onclick="passRecStatus(@pesanan.RECNUM, '02', '@pesanan.NOSO')">
                         @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
                         @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
                         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                     </button>
                 </td>
                 <td style="width: 40px; max-width: 40px; align-self:flex-start; border-left:hidden">
-                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RecNum" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                    @*<input type="checkbox" class="checkbox_gntstatus_sudahdibayar" name="checkbox_gntstatus_sudahdibayar" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />*@
                 </td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RecNum))">
+                    <button class="btn btn-primary" onclick="lihatPesananSudahDibayar(@(pesanan.RECNUM))">
                         <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                     </button>
                 </td>
                 <td class="edit-hapus-col">
-                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RecNum, '11', '@pesanan.NO_BUKTI')">
+                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfBatalPesanan" onclick="passRecStatus(@pesanan.RECNUM, '11', '@pesanan.NOSO')">
                         <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                     </button>
                 </td>
@@ -115,4 +136,88 @@
         }
     </tbody>
 </table>
+
+@* add by nurul 7/5/2019, paging *@
+@if (Model.PageCount > 1)
+{
+    <div id="tabelpesanannunggupartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananSudahDibayar", new
+   {
+       page,
+       search = ViewData["searchParam"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelpesanannunggupartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_pesanan_nunggu_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-pesanan-sudah-dibayar-partial').html(response);
+                        $('#loading_pesanan_nunggu_tab').hide();
+                        //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
+                        //    $(this).closest('table').find('tbody :checkbox')
+                        //        .prop('checked', this.checked)
+                        //        .closest('tr').toggleClass('selected', this.checked);
+                        //});
+
+                        //$('tbody :checkbox').on('click', function () {
+                        //    $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+                        //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+                        //});
+                        $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                            $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                                $(this).prop('checked'));
+                            if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                $(".ubah-dibayar").removeAttr('disabled');
+                            }
+                        });
+                        $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            $(item).on('click', function () {
+                                //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                                if ($(item).prop('checked') == true) {
+                                    $(".ubah-dibayar").attr('disabled', 'disabled');
+                                } else {
+                                    var cekTrue = [];
+                                    $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                        if ($(chk).prop('checked') == true) {
+                                            cekTrue.push($(chk).attr("data-rec"));
+                                        }
+                                    });
+                                    if (cekTrue.length == 0) {
+                                        $(".ubah-dibayar").removeAttr('disabled');
+                                    }
+                                }
+                                //});
+                            });
+                        });
+
+
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
+@* end add by nurul 30/4/2019, paging *@
 

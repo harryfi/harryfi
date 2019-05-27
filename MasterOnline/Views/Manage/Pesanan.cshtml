@@ -1,4 +1,5 @@
-﻿@using System.Globalization
+﻿@using PagedList
+@using System.Globalization
 @using MasterOnline.ViewModels
 @model PesananViewModel
 @{
@@ -1356,13 +1357,13 @@
                             <div class="input-group">
                                 <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_pesanan_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
                             </div>
                         </div>
-                        
+
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right" id="tambah_baru_tombol_section">
                                 <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
@@ -1372,15 +1373,15 @@
                         </div>
                     </div>
                     @*<div class="row pesanan_table_section">
-            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
-        </div>*@
+                            @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
+                        </div>*@
 
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
-                        <div id="loading_pesanan_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_pesanan_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-partial">
-                            @Html.Partial("TablePesananPartial")
+                            @*@Html.Partial("TablePesananPartial")*@
                         </div>
                     </div>
                     <div class="row pesanan_editor_section" style="display: none;">
@@ -1406,7 +1407,7 @@
                                 @using (Html.BeginForm("SavePesanan", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-pesanan" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("BarangPesananPartial")
+                                        @*@Html.Partial("BarangPesananPartial")*@
                                     </div>
                                 }
                                 <div class="form-horizontal" id="form_subs">
@@ -1422,7 +1423,7 @@
                             <div class="input-group">
                                 <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_nunggu_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -1440,11 +1441,11 @@
                         </div>
                     </div>
                     <div class="row pesanan_sudah_dibayar_section" style="margin-top: 5px;">
-                        <div id="loading_sudah_dibayar_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_sudah_dibayar_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-dibayar-partial">
-                            @Html.Partial("TablePesananSudahDibayarPartial")
+                            @*@Html.Partial("TablePesananSudahDibayarPartial")*@
                         </div>
                     </div>
                     <div class="row pesanan_editor_sudah_dibayar_section" style="display: none;">
@@ -1468,7 +1469,7 @@
                                     }
                                 }
                                 <div id="form-partial-sudah-dibayar">
-                                    @Html.Partial("BarangPesananSudahDibayarPartial")
+                                    @*@Html.Partial("BarangPesananSudahDibayarPartial")*@
                                 </div>
                             </div>
                         </div>
@@ -1480,7 +1481,7 @@
                             <div class="input-group">
                                 <input id="search_sedangproses" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_packing_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -1498,11 +1499,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_siap_kirim_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_siap_kirim_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-siap-kirim-partial">
-                            @Html.Partial("TablePesananSiapKirimPartial")
+                            @*@Html.Partial("TablePesananSiapKirimPartial")*@
                         </div>
                     </div>
                 </div>
@@ -1512,7 +1513,7 @@
                             <div class="input-group">
                                 <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_invoicing_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -1527,11 +1528,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_sudah_kirim_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_sudah_kirim_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-sudah-kirim-partial">
-                            @Html.Partial("TablePesananSudahKirimPartial")
+                            @*@Html.Partial("TablePesananSudahKirimPartial")*@
                         </div>
                     </div>
                 </div>
@@ -1541,7 +1542,7 @@
                             <div class="input-group">
                                 <input id="search_selesai" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_selesai_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -1556,11 +1557,11 @@
                         </div>
                     </div>
                     <div class="row pesanan_selesai_section" style="margin-top: 5px;">
-                        <div id="loading_selesai_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_selesai_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-selesai-partial">
-                            @Html.Partial("TablePesananSelesaiPartial")
+                            @*@Html.Partial("TablePesananSelesaiPartial")*@
                         </div>
                     </div>
                     <div class="row pesanan_editor_selesai_section" style="display: none;">
@@ -1584,7 +1585,7 @@
                                     }
                                 }
                                 <div id="form-partial-selesai">
-                                    @Html.Partial("BarangPesananSelesaiPartial")
+                                    @*@Html.Partial("BarangPesananSelesaiPartial")*@
                                 </div>
                             </div>
                         </div>
@@ -1596,7 +1597,7 @@
                             <div class="input-group">
                                 <input id="search_cancel" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_cancel_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -1611,11 +1612,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_cancel_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @*<div id="loading_cancel_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12" id="table-pesanan-cancel-partial">
-                            @Html.Partial("TablePesananCancelPartial")
+                            @*@Html.Partial("TablePesananCancelPartial")*@
                         </div>
                     </div>
                 </div>
@@ -2380,38 +2381,38 @@
             </div>
             <div class="modal-body">
                 @*<div class="row">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-3" style="padding-bottom:10px">
-                <label class="checkbox-container">
-                    <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
-                    <span id="ctk_faktur" class="checkmark"></span>
-                </label>
-            </div>
-            <div class="col-md-5" style="padding-top: 7px;">
-                Faktur
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>*@
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-3" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input id="ctk_faktur" type="checkbox" class="cbx" name="cbx-print-faktur-only" />
+                                <span id="ctk_faktur" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-5" style="padding-top: 7px;">
+                            Faktur
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>*@
                 @*<div class="row" style="margin-top:5px">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-3" style="padding-bottom:10px">
-                <label class="checkbox-container">
-                    <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
-                    <span id="ctk_label" class="checkmark"></span>
-                </label>
-            </div>
-            <div class="col-md-5" style="padding-top: 7px;">
-                Label
-            </div>
-            <div class="col-md-2">
-            </div>
-        </div>*@
+                        <div class="col-md-2">
+                        </div>
+                        <div class="col-md-3" style="padding-bottom:10px">
+                            <label class="checkbox-container">
+                                <input  id="ctk_label" type="checkbox" class="cbx" name="cbx-print-label-only" />
+                                <span id="ctk_label" class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="col-md-5" style="padding-top: 7px;">
+                            Label
+                        </div>
+                        <div class="col-md-2">
+                        </div>
+                    </div>*@
                 <div class="row">
                     @*<div class="col-md-1">
-                    </div>*@
+                        </div>*@
                     <div class="col-md-4" style="text-align:left">
                         <label>Nama Toko </label>
                     </div>
@@ -2424,7 +2425,7 @@
                 @*//add by nurul 2/5/2019*@
                 <div class="row">
                     @*<div class="col-md-1">
-                    </div>*@
+                        </div>*@
                     <div class="col-md-4" style="padding-top: 7px; text-align:left">
                         <label>Pilih Format Kertas </label>
                     </div>
@@ -2653,6 +2654,7 @@
         //end add
         //add by nurul 12/2/2019
         var $page = window.text;
+        var $GetPage = window.text;
         //end add by nurul 12/2/2019
         var $bakalNetto = 0;
         var $jumlahPesananMax = 0;
@@ -2691,77 +2693,151 @@
             }
         });
 
-        var table = $('#datatable').DataTable({
-            //"order": [[0, 1, "desc"]], //or asc
-            "order": [[1, "desc"],[0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu"}],
-            //columnDefs: [
-            //    { type: 'date-uk', targets: 1 }
-            //],
-            responsive: true,
-        });
-        var tableNunggu = $('#datatable_nunggu').DataTable({
-            "order": [[1, "desc"], [0, "desc"]], //or asc
-            //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    //"order": [[0, 1, "desc"]], //or asc
+        //    "order": [[1, "desc"],[0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu"}],
+        //    //columnDefs: [
+        //    //    { type: 'date-uk', targets: 1 }
+        //    //],
+        //    responsive: true,
+        //});
+        //var tableNunggu = $('#datatable_nunggu').DataTable({
+        //    "order": [[1, "desc"], [0, "desc"]], //or asc
+        //    //"columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
-        var tableSedangProses = $('#datatable_sedangproses').DataTable({
-            //"order": [[0, 1, "desc"]], //or asc
-            "order": [[1, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
-        var tableSiapKirim = $('#datatable_siapkirim').DataTable({
-            //"order": [[0, 1, "desc"]], //or asc
-            "order": [[1, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
-        var tableSudahKirim = $('#datatable_sudahkirim').DataTable({
-            //"order": [[0, 2, "desc"]], //or asc
-            "order": [[2, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 2, "type": "date-eu" }],
-        });
-        var tableSelesai = $('#datatable_selesai').DataTable({
-            //"order": [[0, 2, "desc"]], //or asc
-            "order": [[2, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 2, "type": "date-eu" }],
-        });
-        var tableCancel = $('#datatable_cancel').DataTable({
-            //"order": [[0, 1, "desc"]], //or asc
-            "order": [[1, "desc"], [0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var tableSedangProses = $('#datatable_sedangproses').DataTable({
+        //    //"order": [[0, 1, "desc"]], //or asc
+        //    "order": [[1, "desc"], [0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
+        //var tableSiapKirim = $('#datatable_siapkirim').DataTable({
+        //    //"order": [[0, 1, "desc"]], //or asc
+        //    "order": [[1, "desc"], [0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
+        //var tableSudahKirim = $('#datatable_sudahkirim').DataTable({
+        //    //"order": [[0, 2, "desc"]], //or asc
+        //    "order": [[2, "desc"], [0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+        //});
+        //var tableSelesai = $('#datatable_selesai').DataTable({
+        //    //"order": [[0, 2, "desc"]], //or asc
+        //    "order": [[2, "desc"], [0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 2, "type": "date-eu" }],
+        //});
+        //var tableCancel = $('#datatable_cancel').DataTable({
+        //    //"order": [[0, 1, "desc"]], //or asc
+        //    "order": [[1, "desc"], [0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
         $('#search_siapproses').keyup(function() {
             tableSiapProses.search($(this).val()).draw();
         });
 
-        $('#search_pesanan').keyup(function() {
-            table.search($(this).val()).draw();
+
+        //change by nurul 8/5/2019
+        //$('#search_pesanan').keyup(function() {
+        //    table.search($(this).val()).draw();
+        //});
+        $('#search_pesanan').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesanan();
+                return false;
+            }
+        });
+        $('#search_pesanan_click').click(function () {
+            searchTablePesanan();
         });
 
-        $('#search_selesai').keyup(function() {
-            tableSelesai.search($(this).val()).draw();
+        $('#search_selesai').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesananSelesai();
+                return false;
+            }
+        });
+        $('#search_selesai_click').click(function () {
+            searchTablePesananSelesai();
         });
 
-        $('#search_cancel').keyup(function() {
-            tableCancel.search($(this).val()).draw();
+        $('#search_cancel').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesananCancel();
+                return false;
+            }
+        });
+        $('#search_cancel_click').click(function () {
+            searchTablePesananCancel();
         });
 
-        $('#search_nunggu').keyup(function() {
-            tableNunggu.search($(this).val()).draw();
+        $('#search_nunggu').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesananSudahDibayar();
+                return false;
+            }
+        });
+        $('#search_nunggu_click').click(function () {
+            searchTablePesananSudahDibayar();
         });
 
-        $('#search_sedangproses').keyup(function() {
-            tableSedangProses.search($(this).val()).draw();
+        $('#search_sedangproses').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesananPacking();
+                return false;
+            }
+        });
+        $('#search_packing_click').click(function () {
+            searchTablePesananPacking();
         });
 
-        $('#search_siapkirim').keyup(function() {
-            tableSiapKirim.search($(this).val()).draw();
+        $('#search_sudahkirim').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)// the enter key code
+            {
+                searchTablePesananInvoicing();
+                return false;
+            }
         });
+        $('#search_invoicing_click').click(function () {
+            searchTablePesananInvoicing();
+        });
+            //end add by nurul 8/5/2019
 
-        $('#search_sudahkirim').keyup(function() {
-            tableSudahKirim.search($(this).val()).draw();
-        });
+        //$('#search_selesai').keyup(function() {
+        //    tableSelesai.search($(this).val()).draw();
+        //});
+
+        //$('#search_cancel').keyup(function() {
+        //    tableCancel.search($(this).val()).draw();
+        //});
+
+        //$('#search_nunggu').keyup(function() {
+        //    tableNunggu.search($(this).val()).draw();
+        //});
+
+        //$('#search_sedangproses').keyup(function() {
+        //    tableSedangProses.search($(this).val()).draw();
+        //});
+
+        //$('#search_siapkirim').keyup(function() {
+        //    tableSiapKirim.search($(this).val()).draw();
+        //});
+
+        //$('#search_sudahkirim').keyup(function() {
+        //    tableSudahKirim.search($(this).val()).draw();
+        //});
 
         function showSubsMenu(type) {
             $('#divSubs').hide();
@@ -2857,10 +2933,10 @@
                 refreshTablePesanan();
                 //add by nurul 12/2/2019
                 $page = 0;
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                 //end add by nurul 12/2/2019
             });
             $('#pesanan-tab').click(function () {
@@ -2885,10 +2961,10 @@
             $('#sudahkirim-tab').click(function () {
                 $TabAktif = 3;
                 refreshTableSudahKirim();
-                $('#datatable_sudahkirim').on('page.dt', function () {
-                    $page = $('#datatable_sudahkirim').DataTable().page.info().page;
-                });
-                $('#datatable_sudahkirim').DataTable().page($page).draw(false);
+                //$('#datatable_sudahkirim').on('page.dt', function () {
+                //    $page = $('#datatable_sudahkirim').DataTable().page.info().page;
+                //});
+                //$('#datatable_sudahkirim').DataTable().page($page).draw(false);
             });
 
             $('#selesai-tab').click(function () {
@@ -2907,7 +2983,7 @@
                 }
             );
 
-            Initialize();
+            //Initialize();
 
             //add 09-10-2018, function button di subscription
             $('.btn-subs').click(function () {
@@ -2934,10 +3010,10 @@
             });
             //end add 09-10-2018, function button di subscription
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
 
             //add by nurul 19/3/2019
@@ -2967,6 +3043,17 @@
                         }
                 });
             });
+            //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
+            //    $(this).closest('table').find('tbody :checkbox')
+            //        .prop('checked', this.checked)
+            //        .closest('tr').toggleClass('selected', this.checked);
+            //});
+
+            //$('tbody :checkbox').on('click', function () {
+            //    $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+            //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+            //});
             $("#checkbox_all_gntstatus_packing").click(function () {
                 $(".checkbox_gntstatus_packing").prop('checked',
                     $(this).prop('checked'));
@@ -2993,8 +3080,154 @@
                     }
                 });
             });
+
             //end add by nurul 19/3/2019
 
+            //add by nurul 13/5/2019
+            //$('#close-editor-1').off('click').on('click', function () {
+
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $('#close-editor-1')[0].disabled = true;
+
+            //        $('.pesanan_table_section').show();
+            //        $('.pesanan_editor_section').hide();
+
+            //        $('#form-partial').html('');
+
+            //        $('#myTab li a').each(function (index) {
+            //            $(this).attr('data-toggle', 'tab');
+            //            $(this).removeClass('disabled-tab');
+            //        });
+            //        $('input, select, .btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        refreshForm1();
+            //        $modeEdit = 0;
+            //        $bakalNetto = 0;
+            //        $totalAwal = 0;
+            //        $nettoSebelumnya = 0;
+
+            //        if ($('#search_pesanan').val() != "") {
+            //            searchTablePesanan();
+            //        } else {
+            //            refreshTablePesanan();
+            //        }
+            //    }
+            //});
+
+            //$('#close-editor-2').off('click').on('click', function () {
+
+            //    $('.pesanan_selesai_section').show();
+            //    $('.pesanan_editor_selesai_section').hide();
+
+            //    $('#myTab li a').each(function (index) {
+            //        $(this).attr('data-toggle', 'tab');
+            //        $(this).removeClass('disabled-tab');
+            //    });
+
+            //    if ($('#search_selesai').val() != "") {
+            //        searchTablePesananSelesai();
+            //    } else {
+            //        refreshTableSelesai();
+            //    }
+            //});
+
+            //$('#close-editor-3').off('click').on('click', function () {
+            //    $('.pesanan_sudah_dibayar_section').show();
+            //    $('.pesanan_editor_sudah_dibayar_section').hide();
+
+            //    $('#myTab li a').each(function (index) {
+            //        $(this).attr('data-toggle', 'tab');
+            //        $(this).removeClass('disabled-tab');
+            //    });
+
+            //    //refreshTableSudahDibayar();
+            //    if ($('#search_nunggu').val() != "") {
+            //        searchTablePesananSudahDibayar();
+            //    } else {
+            //        refreshTableSudahDibayar();
+            //    }
+
+            //});
+            //end add by nurul 13/5/2019
+
+            $('#DataUsaha_JtranRetur').change(function () {
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    });
+                    $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+                .on('shown.bs.modal',
+                function () {
+                    //add by nurul 19/2/2019
+                    if ($TabAktif == 0) {
+                        cekJumlahPesananBulanIni();
+                        if ($jumlahPesanan == false) {
+                            $('#konfUbahStatus').modal('hide');
+                            $('#tambah_pesanan').click();
+                        }
+                    } else if ($TabAktif == 1) {
+                        cekJumlahPesananBulanIni();
+                        if ($jumlahPesanan == false) {
+                            $('#konfUbahStatusDibayar').modal('hide');
+                            $('#tambah_pesanan').click();
+                        }
+                    }
+                    //end add by nurul 19/2/2019
+                    //add by calvin 17 desember 2018
+                    $('#footer_info_pesananSudahBayar').hide();
+                    $('#SudahBayarKonfUbahStatusText').html("");
+                    //end add by calvin 17 desember 2018
+
+                    var link = '@Url.Action("GetPesananInfo", "Manage", new {nobuk = "replaceNoBuk"})';
+                    link = link.replace("replaceNoBuk", $nobukPesanan);
+
+                    $.ajax({
+                        type: "GET",
+                        url: link,
+                        success: function(response) {
+                            $('.no_pesanan').text(response.NoPesanan);
+                            $('.tgl_pesanan').text(response.TglPesanan);
+                            $('.market_pesanan').text(response.Marketplace);
+                            $('.buyer_pesanan').text(response.Pembeli);
+                            $('.total_pesanan').text(response.Total);
+                            //add by calvin 17 desember 2018
+                            if (response.allowContinue == 0) {
+                                $('#footer_info_pesananSudahBayar').hide();
+                                $('#SudahBayarKonfUbahStatusText').html("Ada kode barang yang belum terdaftar di Master Online, silahkan cek detail pesanan anda");
+                            }else {
+                                //$('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Siap Dikirim?");
+                                $('#SudahBayarKonfUbahStatusText').html("Apakah Anda yakin ingin mengubah status dari Sudah Dibayar menjadi Packing?");
+                                $('#footer_info_pesananSudahBayar').show();
+                            }
+                            //end add by calvin 17 desember 2018
+                        },
+                        error: function(xhr, status, error) {
+                            console.log(error);
+                        }
+                    });
+                });
+
+            //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
+            $(
+                    '#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+                .on('hidden.bs.modal',
+                    function() {
+                        $('.no_pesanan').text('-');
+                        $('.tgl_pesanan').text('-');
+                        $('.market_pesanan').text('-');
+                        $('.buyer_pesanan').text('-');
+                        $('.total_pesanan').text('0,00');
+                        //add by calvin 17 desember 2018
+                        $('#SudahBayarKonfUbahStatusText').html("");
+                        $('#footer_info_pesananSudahBayar').hide();
+                        //end add by calvin 17 desember 2018
+                    });
+
+            $('.modal').on('hidden.bs.modal',
+                function() {
+                    $(this).removeData('bs.modal');
+                });
         });
 
         //add by Tri, call midtrans api get token
@@ -3153,7 +3386,8 @@
             $('.pesanan_table_section').show();
             $('.pesanan_editor_section').hide();
             refreshForm1();
-            refreshTablePesanan();
+            //refreshTablePesanan();
+            
             //add by nurul 6/11/2018
             $('#myTab li a').each(function (index) {
                 $(this).attr('data-toggle', 'tab');
@@ -3172,11 +3406,12 @@
             $totalAwal = 0;
             $nettoSebelumnya = 0;
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+                refreshTablePesanan();
         }
 
         function Initialize() {
@@ -3193,72 +3428,137 @@
             //        }
             //    });
 
-            $('#tambah_pesanan').on('click',
-                function() {
-                    $('.pesanan_table_section').hide();
-                    $('.pesanan_editor_section').show();
-                });
+            //change by nurul 13/5/2019
+            //$('#tambah_pesanan').on('click',
+            //    function() {
+            //        $('.pesanan_table_section').hide();
+            //        $('.pesanan_editor_section').show();
+            //    });
 
-            $('#close-editor-1').on('click',
-                function() {
-                    if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                        $('#modalTutupEditor').modal('show');
-                    } else {
-                        $('.pesanan_table_section').show();
-                        $('.pesanan_editor_section').hide();
+            //$('#close-editor-1').on('click',
+            //    function() {
+            //        if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //            $('#modalTutupEditor').modal('show');
+            //        } else {
+            //            $('.pesanan_table_section').show();
+            //            $('.pesanan_editor_section').hide();
 
-                        $('#myTab li a').each(function (index) {
-                            $(this).attr('data-toggle', 'tab');
-                            $(this).removeClass('disabled-tab');
-                        });
-                        //add by nurul 23/1/2019
-                        $('input, select, .btn-danger').each(function () {
-                            $(this).removeAttr('disabled');
-                        });
-                        //end add by nurul 23/1/2019
-                        refreshForm1();
+            //            $('#myTab li a').each(function (index) {
+            //                $(this).attr('data-toggle', 'tab');
+            //                $(this).removeClass('disabled-tab');
+            //            });
+            //            //add by nurul 23/1/2019
+            //            $('input, select, .btn-danger').each(function () {
+            //                $(this).removeAttr('disabled');
+            //            });
+            //            //end add by nurul 23/1/2019
+            //            refreshForm1();
+            //            //refreshTablePesanan();
+            //            //add by nurul 1/11/2018
+            //            $modeEdit = 0;
+            //            //end add
+            //            $bakalNetto = 0;
+            //            $totalAwal = 0;
+            //            $nettoSebelumnya = 0;
+            //            //add by nurul 12/2/2019
+            //            //$('#datatable').on('page.dt', function () {
+            //            //    $page = $('#datatable').DataTable().page.info().page;
+            //            //});
+            //            //$('#datatable').DataTable().page($page).draw(false);
+            //            //end add by nurul 12/2/2019
+            //            if ($('#search_pesanan').val() != "") {
+            //                searchTablePesanan();
+            //            } else {
+            //                refreshTablePesanan();
+            //            }
+            //        }
+            //    });
+            
+
+            //end change by nurul 13/5/2019
+
+            //$('#close-editor-2').on('click',
+            //    function() {
+            //        $('.pesanan_selesai_section').show();
+            //        $('.pesanan_editor_selesai_section').hide();
+            //        //add by nurul 17/10/2018
+            //        $('#myTab li a').each(function (index) {
+            //            $(this).attr('data-toggle', 'tab');
+            //            $(this).removeClass('disabled-tab');
+            //        });
+            //        //end add
+            //    });
+
+            //$('#close-editor-3').on('click',
+            //    function() {
+            //        $('.pesanan_sudah_dibayar_section').show();
+            //        $('.pesanan_editor_sudah_dibayar_section').hide();
+            //        //add by nurul 17/10/2018
+            //        $('#myTab li a').each(function (index) {
+            //            $(this).attr('data-toggle', 'tab');
+            //            $(this).removeClass('disabled-tab');
+            //        });
+            //        //end add
+            //        //add by nurul 20/2/2019
+            //        refreshTableSudahDibayar();
+            //        //end add by nurul 20/2/2019
+            //    });
+
+            $('#close-editor-1').off('click').on('click', function () {
+
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    //$('#close-editor-1')[0].disabled = true;
+
+                    $('.pesanan_table_section').show();
+                    $('.pesanan_editor_section').hide();
+
+                    $('#form-partial').html('');
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    refreshForm1();
+                    $modeEdit = 0;
+                    $bakalNetto = 0;
+                    $totalAwal = 0;
+                    $nettoSebelumnya = 0;
+
                         refreshTablePesanan();
-                        //add by nurul 1/11/2018
-                        $modeEdit = 0;
-                        //end add
-                        $bakalNetto = 0;
-                        $totalAwal = 0;
-                        $nettoSebelumnya = 0;
-                        //add by nurul 12/2/2019
-                        $('#datatable').on('page.dt', function () {
-                            $page = $('#datatable').DataTable().page.info().page;
-                        });
-                        $('#datatable').DataTable().page($page).draw(false);
-                        //end add by nurul 12/2/2019
-                    }
+                }
+            });
+
+            $('#close-editor-2').off('click').on('click', function () {
+                //$('#close-editor-2')[0].disabled = true;
+                $('.pesanan_selesai_section').show();
+                $('.pesanan_editor_selesai_section').hide();
+
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
                 });
 
-            $('#close-editor-2').on('click',
-                function() {
-                    $('.pesanan_selesai_section').show();
-                    $('.pesanan_editor_selesai_section').hide();
-                    //add by nurul 17/10/2018
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    //end add
+                    refreshTableSelesai();
+            });
+
+            $('#close-editor-3').off('click').on('click', function () {
+                //$('#close-editor-3')[0].disabled = true;
+                $('.pesanan_sudah_dibayar_section').show();
+                $('.pesanan_editor_sudah_dibayar_section').hide();
+
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
                 });
 
-            $('#close-editor-3').on('click',
-                function() {
-                    $('.pesanan_sudah_dibayar_section').show();
-                    $('.pesanan_editor_sudah_dibayar_section').hide();
-                    //add by nurul 17/10/2018
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    //end add
-                    //add by nurul 20/2/2019
                     refreshTableSudahDibayar();
-                    //end add by nurul 20/2/2019
-                });
+
+            });
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_pesanan').click();
@@ -3267,7 +3567,7 @@
             //$('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getTanggal();
-            getMarketplace();
+            getMarketplace();            
             getExpedisi();
             getBuyer();
             getGudang();
@@ -3402,10 +3702,10 @@
                     $(this).removeData('bs.modal');
                 });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
             //add by nurul 10/4/2019
             $('#DataUsaha_JtranRetur').change(function () {
@@ -3496,19 +3796,39 @@
                                 '<button class="btn btn-primary btn_tambah_data" id="tambah_pesanan">Tambah Baru</button>');
                         $('#tambah_pesanan').on('click',
                             function() {
-                                $('.pesanan_table_section').hide();
-                                $('.pesanan_editor_section').show();
+                                var link = '@Url.Action("TambahBaruPesanan", "Manage")';
+                                $.ajax({
+                                    type: "GET",
+                                    url: link,
+                                    beforeSend: function () {
+                                        $('#loading_spinner').show();
+                                    },
+                                    success: function (response) {
+                                        //$('#close-editor-1')[0].disabled = false;
+                                        $('.pesanan_table_section').hide();
+                                        $('.pesanan_editor_section').show();
+                                        $('#form-partial').html(response);
 
-                                $('#form-partial').show();
-                                $('#form_subs').hide();
+                                        $('#form-partial').show();
+                                        $('#form_subs').hide();
 
-                                $('#myTab li a').each(function () {
-                                    $(this).removeAttr('data-toggle');
+                                        
+                                        $('#myTab li a').each(function () {
+                                            $(this).removeAttr('data-toggle');
 
-                                    if ($(this).attr('id') === 'pesanan-tab') return;
+                                            if ($(this).attr('id') === 'pesanan-tab') return;
 
-                                    $(this).addClass('disabled-tab');
+                                            $(this).addClass('disabled-tab');
+                                        });
+
+                                        $('#loading_spinner').hide();
+                                    },
+                                    error: function (xhr, status, error) {
+                                        $('#loading_spinner').hide();
+                                        console.log(error);
+                                    }
                                 });
+
                             });
                         $jumlahPesanan = true;
                     }
@@ -3622,6 +3942,7 @@
                         var $tglTop = $tgl.add($('#Pesanan_TERM').val(), 'days');
                         $('#Pesanan_TGL_JTH_TEMPO').val($tglTop.format('DD/MM/YYYY'));
                     }
+                    $modeEdit = 1;
                     $('#btn-simpan-perubahan-row').show();
                 });
             }
@@ -3830,11 +4151,67 @@
                     "width=850, height=400, scrollbars=yes, resizable=no");
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+
+            $('#close-editor-1').off('click').on('click', function () {
+
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    //$('#close-editor-1')[0].disabled = true;
+
+                    $('.pesanan_table_section').show();
+                    $('.pesanan_editor_section').hide();
+
+                    $('#form-partial').html('');
+
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    refreshForm1();
+                    $modeEdit = 0;
+                    $bakalNetto = 0;
+                    $totalAwal = 0;
+                    $nettoSebelumnya = 0;
+
+                        refreshTablePesanan();
+                }
+            });
+
+            $('#close-editor-2').off('click').on('click', function () {
+
+                $('.pesanan_selesai_section').show();
+                $('.pesanan_editor_selesai_section').hide();
+
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
+                });
+
+                    refreshTableSelesai();
+            });
+
+            $('#close-editor-3').off('click').on('click', function () {
+                $('.pesanan_sudah_dibayar_section').show();
+                $('.pesanan_editor_sudah_dibayar_section').hide();
+
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
+                });
+
+                //refreshTableSudahDibayar();
+                    refreshTableSudahDibayar();
+
+            });
         }
 
         function refreshNettoBarang($trId) {
@@ -4779,6 +5156,9 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
+                    $('.pesanan_table_section').hide();
+                    $('.pesanan_editor_section').show();
+                    //$('#close-editor-1')[0].disabled = false;
                     //add by nurul 1/11/2018
                     $modeEdit = 1;
                     //end add
@@ -4788,11 +5168,11 @@
                     $('#form_subs').hide();
                     //end add by Tri 11 Maret 2019
                     $totalAwal = convertToAngka($('#Pesanan_BRUTO').val());
-                    refreshInputan();
+                    ////refreshInputan();
 
-                    getTanggal();
-                    getBuyer();
-                    getDataBarang();
+                    ////getTanggal();
+                    ////getBuyer();
+                    ////getDataBarang();
                     getMarketplaceSOT01A();
                     //change 16 April
                     //getExpedisi();
@@ -4801,11 +5181,14 @@
                     $('#divShipment').append(txtShipmentProv);
                     $('#EXPEDISI').hide();
                     $('#cbExpedisi').hide();
+                    //add by nurul 16/5/2019
+                    $('#txtShipment').hide();
+                    //end add by nurul 16/5/2019
                     //end change 16 April
                     //change by nurul 19/2/2019
                     //$('#tambah_pesanan').click();
-                    $('.pesanan_table_section').hide();
-                    $('.pesanan_editor_section').show();
+                    ////$('.pesanan_table_section').hide();
+                    ////$('.pesanan_editor_section').show();
 
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
@@ -4825,8 +5208,8 @@
                         .css('cursor', 'not-allowed');
                     $('#Pesanan_ALAMAT_KIRIM').attr('readonly', 'readonly').css('background-color', '#eee')
                         .css('cursor', 'not-allowed');
-                    //$('#tambah-pembeli').attr('readonly', 'readonly').css('background-color', '#eee')
-                    //    .css('cursor', 'not-allowed');
+                    $('#tambah-pembeli').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
                     $('#Pesanan_NAMAPEMESAN').css('width', '225px');
                     $('#tambah-pembeli').hide();
                     //if ($jumlahPesanan == true) {
@@ -4875,9 +5258,12 @@
             $.ajax({
                 type: "GET",
                 url: link,
-                success: function() {
-                    refreshTablePesanan();
+                beforeSend: function () {
                     $('#konfHapusPesanan').modal('hide');
+                },
+                success: function() {
+                        refreshTablePesanan();
+                    //$('#konfHapusPesanan').modal('hide');
                 },
                 error: function(xhr, status, error) {
                     console.log(error);
@@ -4929,7 +5315,7 @@
             });
         }
 
-        function refreshTablePesanan() {
+        @*function refreshTablePesanan() {
             var link = '@Url.Action("RefreshTablePesanan", "Manage")';
 
             $.ajax({
@@ -4960,10 +5346,10 @@
                     table.search($('#search_pesanan').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                     //add by nurul 10/4/2019
                     $('#DataUsaha_JtranRetur').change(function () {
@@ -4975,7 +5361,65 @@
                     console.log(error);
                 }
             });
+        }*@
+
+        //add by nurul 7/5/2019
+        function refreshTablePesanan() {
+            //var link = '@Url.Action("RefreshTablePesanan", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pesanan').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_1').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-partial').hide();
+                    $('#loading_pesanan_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-partial').html(response);
+
+                    $('#table-pesanan-partial').show();
+
+                    cekJumlahPesananBulanIni();
+                    $('#DataUsaha_JtranRetur').change(function () {
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    });
+                    $('#loading_pesanan_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
+        function searchTablePesanan(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesanan", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pesanan').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_pesanan_click')[0].disabled = true;
+                    $('#loading_pesanan_tab').show();
+                },
+                success: function (response) {
+                    $('#search_pesanan_click')[0].disabled = false;
+                    $('#table-pesanan-partial').html(response);
+                    cekJumlahPesananBulanIni();
+                    $('#DataUsaha_JtranRetur').change(function () {
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    });
+                    $('#loading_pesanan_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_pesanan_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
 
         //add by nurul 14/3/2019
         function UbahStatusPesananDibayar() {
@@ -5038,7 +5482,7 @@
             $.ajax({
                 type: "POST",
                 url: link,
-                
+
                 data: JSON.stringify(get_selected),
                 contentType: 'application/json; charset=UTF-8',
                 cache: false,
@@ -5068,7 +5512,7 @@
             });
         }
         //end add by nurul 14/3/2019
-        function RefreshPesananDibayarMarketplace() {
+        @*function RefreshPesananDibayarMarketplace() {
             var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
 
             $.ajax({
@@ -5126,8 +5570,74 @@
                     console.log(error);
                 }
             });
+        }*@
+
+        function RefreshPesananDibayarMarketplace() {
+            //var link = '@Url.Action("RefreshPesananDibayarMarketplace", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshPesananDibayarMarketplace", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_2').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-sudah-dibayar-partial').hide();
+                    $('#loading_pesanan_nunggu_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+
+                    $('#table-pesanan-sudah-dibayar-partial').show();
+                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-dibayar").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                        $(item).on('click', function () {
+                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-dibayar").removeAttr('disabled');
+                                }
+                            }
+                            //});
+                        });
+                    });
+                    //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
+                    //    $(this).closest('table').find('tbody :checkbox')
+                    //        .prop('checked', this.checked)
+                    //        .closest('tr').toggleClass('selected', this.checked);
+                    //});
+
+                    //$('tbody :checkbox').on('click', function () {
+                    //    $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+                    //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+                    //});
+                    cekJumlahPesananBulanIni();
+                    $('#loading_pesanan_nunggu_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
-        function refreshTableSudahDibayar() {
+
+        @*function refreshTableSudahDibayar() {
             var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
 
             $.ajax({
@@ -5186,9 +5696,138 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
-        function refreshTableSiapKirim() {
+        //add by nurul 7/5/2019
+        function refreshTableSudahDibayar() {
+            //var link = '@Url.Action("RefreshTablePesananSudahDibayar", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_2').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-sudah-dibayar-partial').hide();
+                    $('#loading_pesanan_nunggu_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+
+                    $('#table-pesanan-sudah-dibayar-partial').show();
+                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-dibayar").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                        $(item).on('click', function () {
+                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-dibayar").removeAttr('disabled');
+                                }
+                            }
+                            //});
+                        });
+                    });
+                    //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
+                    //    $(this).closest('table').find('tbody :checkbox')
+                    //        .prop('checked', this.checked)
+                    //        .closest('tr').toggleClass('selected', this.checked);
+                    //});
+
+                    //$('tbody :checkbox').on('click', function () {
+                    //    $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+                    //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+                    //});
+                    cekJumlahPesananBulanIni();
+                    $('#loading_pesanan_nunggu_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePesananSudahDibayar(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahDibayar", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_nunggu').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_nunggu_click')[0].disabled = true;
+                    $('#loading_pesanan_nunggu_tab').show();
+                },
+                success: function (response) {
+                    $('#search_nunggu_click')[0].disabled = false;
+                    $('#table-pesanan-sudah-dibayar-partial').html(response);
+                    $("#checkbox_all_gntstatus_sudahdibayar").click(function () {
+                        $(".checkbox_gntstatus_sudahdibayar").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_sudahdibayar").prop('checked') == true) {
+                            $(".ubah-dibayar").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-dibayar").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                        $(item).on('click', function () {
+                            //$(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-dibayar").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-dibayar").removeAttr('disabled');
+                                }
+                            }
+                            //});
+                        });
+                    });
+                    //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
+                    //    $(this).closest('table').find('tbody :checkbox')
+                    //        .prop('checked', this.checked)
+                    //        .closest('tr').toggleClass('selected', this.checked);
+                    //});
+
+                    //$('tbody :checkbox').on('click', function () {
+                    //    $(this).closest('tr').toggleClass('selected', this.checked); //Classe de seleção na row
+
+                    //    $(this).closest('table').find('.checkbox_all_gntstatus_sudahdibayar').prop('checked', ($(this).closest('table').find('tbody :checkbox:checked').length == $(this).closest('table').find('tbody :checkbox').length)); //Tira / coloca a seleção no .checkAll
+                    //});
+                    cekJumlahPesananBulanIni();
+                    $('#loading_pesanan_nunggu_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_nunggu_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
+
+        @*function refreshTableSiapKirim() {
             var link = '@Url.Action("RefreshTablePesananSiapKirim", "Manage")';
 
             $.ajax({
@@ -5244,9 +5883,110 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
-        function refreshTableSudahKirim() {
+        //add by nurul 7/5/2019
+        function refreshTableSiapKirim() {
+            //var link = '@Url.Action("RefreshTablePesananSiapKirim", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_sedangproses').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_3').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-siap-kirim-partial').hide();
+                    $('#loading_pesanan_packing_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-siap-kirim-partial').html(response);
+
+                    $('#table-pesanan-siap-kirim-partial').show();
+                    $("#checkbox_all_gntstatus_packing").click(function () {
+                        $(".checkbox_gntstatus_packing").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                            $(".ubah-packing").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-packing").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_packing").each(function (i, item) {
+                        $(item).on('click', function () {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-packing").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-packing").removeAttr('disabled');
+                                }
+                            }
+                        });
+                    });
+                    $('#loading_pesanan_packing_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePesananPacking(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSiapKirim", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_sedangproses').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_packing_click')[0].disabled = true;
+                    $('#loading_pesanan_packing_tab').show();
+                },
+                success: function (response) {
+                    $('#search_packing_click')[0].disabled = false;
+                    $('#table-pesanan-siap-kirim-partial').html(response);
+                    $("#checkbox_all_gntstatus_packing").click(function () {
+                        $(".checkbox_gntstatus_packing").prop('checked',
+                            $(this).prop('checked'));
+                        if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                            $(".ubah-packing").attr('disabled', 'disabled');
+                        } else {
+                            $(".ubah-packing").removeAttr('disabled');
+                        }
+                    });
+                    $(".checkbox_gntstatus_packing").each(function (i, item) {
+                        $(item).on('click', function () {
+                            if ($(item).prop('checked') == true) {
+                                $(".ubah-packing").attr('disabled', 'disabled');
+                            } else {
+                                var cekTrue = [];
+                                $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                    if ($(chk).prop('checked') == true) {
+                                        cekTrue.push($(chk).attr("data-rec"));
+                                    }
+                                });
+                                if (cekTrue.length == 0) {
+                                    $(".ubah-packing").removeAttr('disabled');
+                                }
+                            }
+                        });
+                    });
+                    $('#loading_pesanan_packing_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_packing_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
+
+        @*function refreshTableSudahKirim() {
             var link = '@Url.Action("RefreshTablePesananSudahKirim", "Manage")';
 
             $.ajax({
@@ -5280,9 +6020,60 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
-        function refreshTableSelesai() {
+        //add by nurul 7/5/2019
+        function refreshTableSudahKirim() {
+            //var link = '@Url.Action("RefreshTablePesananSudahKirim", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_sudahkirim').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_4').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-sudah-kirim-partial').hide();
+                    $('#loading_pesanan_invoicing_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-sudah-kirim-partial').html(response);
+
+                    $('#table-pesanan-sudah-kirim-partial').show();
+
+                    $('#loading_pesanan_invoicing_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePesananInvoicing(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSudahKirim", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_sudahkirim').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_invoicing_click')[0].disabled = true;
+                    $('#loading_pesanan_invoicing_tab').show();
+                },
+                success: function (response) {
+                    $('#search_invoicing_click')[0].disabled = false;
+                    $('#table-pesanan-sudah-kirim-partial').html(response);
+
+                    $('#loading_pesanan_invoicing_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_invoicing_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
+
+        @*function refreshTableSelesai() {
             var link = '@Url.Action("RefreshTablePesananSelesai", "Manage")';
 
             $.ajax({
@@ -5312,9 +6103,60 @@
                     console.log(error);
                 }
             });
-        }
+        }*@
 
-        function refreshTableCancel() {
+        //add by nurul 7/5/2019
+        function refreshTableSelesai() {
+            //var link = '@Url.Action("RefreshTablePesananSelesai", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_selesai').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_5').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-selesai-partial').hide();
+                    $('#loading_pesanan_selesai_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-selesai-partial').html(response);
+
+                    $('#table-pesanan-selesai-partial').show();
+
+                    $('#loading_pesanan_selesai_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTablePesananSelesai(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananSelesai", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_selesai').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_selesai_click')[0].disabled = true;
+                    $('#loading_pesanan_selesai_tab').show();
+                },
+                success: function (response) {
+                    $('#search_selesai_click')[0].disabled = false;
+                    $('#table-pesanan-selesai-partial').html(response);
+
+                    $('#loading_pesanan_selesai_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_selesai_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
+
+        @*function refreshTableCancel() {
             var link = '@Url.Action("RefreshTablePesananCancel", "Manage")';
 
             $.ajax({
@@ -5344,7 +6186,58 @@
                     console.log(error);
                 }
             });
+        }*@
+
+        //add by nurul 7/5/2019
+        function refreshTableCancel() {
+            //var link = '@Url.Action("RefreshTablePesananCancel", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_cancel').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page_6').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-pesanan-cancel-partial').hide();
+                    $('#loading_pesanan_cancel_tab').show();
+                },
+                success: function (response) {
+                    $('#table-pesanan-cancel-partial').html(response);
+
+                    $('#table-pesanan-cancel-partial').show();
+
+                    $('#loading_pesanan_cancel_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
+        function searchTablePesananCancel(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePesananCancel", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_cancel').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_cancel_click')[0].disabled = true;
+                    $('#loading_pesanan_cancel_tab').show();
+                },
+                success: function (response) {
+                    $('#search_cancel_click')[0].disabled = false;
+                    $('#table-pesanan-cancel-partial').html(response);
+
+                    $('#loading_pesanan_cancel_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_cancel_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 7/5/2019
 
         function refreshForm1() {
             var link = '@Url.Action("RefreshPesananForm", "Manage")';
@@ -6316,7 +7209,7 @@
                 $('.checkbox_gntstatus_sudahdibayar').each(function (i, item) {
                     //if ($('#checkbox_all_gntstatus_sudahdibayar').is(":checked")) {
                     //    rows_selected.push($(item).attr("data-recnum"));
-                    //} else 
+                    //} else
                     if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
@@ -6356,7 +7249,7 @@
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
                     //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
                     //    rows_selected.push($(item).attr("data-recnum"));
-                    //} else 
+                    //} else
                     if ($(item).is(":checked")) {
                         rows_selected.push($(item).attr("data-recnum"));
                     }
@@ -6494,7 +7387,7 @@
                 '@Html.Raw(Url.Action("GenerateFaktur", "Manage", new {recNumPesanan = "replaceRecNum", uname = "replaceUname"}))';
             link = link.replace("replaceRecNum", rec);
             link = link.replace("replaceUname", $('#Pesanan_USER_NAME').val());
-            
+
             $.ajax({
                 type: "GET",
                 url: link,
@@ -6508,7 +7401,7 @@
                     refreshTableSudahKirim();
                     $('#loading_spinner').hide();
                     lihatFaktur(response); // No Faktur as Response
-                    
+
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -6907,7 +7800,8 @@
                         beforeSend: function() {
                             $('#loading_spinner').show();
                         },
-                        success: function(response) {
+                        success: function (response) {
+                            
                             console.log(response);
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
