@@ -2,9 +2,11 @@
 using MasterOnline.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
@@ -260,8 +262,11 @@ namespace MasterOnline.Controllers
                                     if (userData.KODE_SUBSCRIPTION == "01" && userData.Status == false)
                                     {
                                         //user baru daftar, langsung subscribe -> activate account
-                                        var accAPI = new AccountController();
-                                        var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
+                                        //change 14 may 2019, move function to midtranscontroller
+                                        //var accAPI = new AccountController();
+                                        //var retActivate = accAPI.ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
+                                        var retActivate = ChangeStatusAcc(Convert.ToInt32(userData.AccountId));
+                                        //end change 14 may 2019, move function to midtranscontroller
                                         if (retActivate.status == 0)
                                         {
                                             string path = @"C:\logs\MidtransErrorLog.txt";
@@ -280,6 +285,10 @@ namespace MasterOnline.Controllers
                                                 tw.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + " : " + retActivate.message);
                                                 tw.Close();
                                             }
+                                        }
+                                        else
+                                        {
+                                            userData.tgl_approve = DateTime.Now;
                                         }
 
                                     }
@@ -354,6 +363,156 @@ namespace MasterOnline.Controllers
                 }
             }
         }
+        //ADD 14 MAY 2019, ACTIVATE ACCOUNT
+        public BindingBase ChangeStatusAcc(int? accId)
+        {
+            var ret = new BindingBase
+            {
+                status = 0
+            };
+            try
+            {
+                var accInDb = MoDbContext.Account.Single(a => a.AccountId == accId);
+                accInDb.Status = !accInDb.Status;
+                string sql = "";
+                var userId = Convert.ToString(accInDb.AccountId);
+
+                accInDb.DatabasePathErasoft = "ERASOFT_" + userId;
+                //var path = "C:\\inetpub\\wwwroot\\MasterOnline\\Content\\admin\\";
+                var path = Server.MapPath("~/Content/admin/");
+                //var path = System.Web.Hosting.HostingEnvironment.MapPath("~/Content/admin/");
+
+                sql = $"RESTORE DATABASE {accInDb.DatabasePathErasoft} FROM DISK = '{path + "ERASOFT_backup_for_new_account.bak"}'" +
+                      $" WITH MOVE 'erasoft' TO '{path}/{accInDb.DatabasePathErasoft}.mdf'," +
+                      $" MOVE 'erasoft_log' TO '{path}/{accInDb.DatabasePathErasoft}.ldf';";
+#if AWS
+            SqlConnection con = new SqlConnection("Server=localhost;Initial Catalog=master;persist security info=True;" +
+                                "user id=masteronline;password=M@ster123;");
+#elif Debug_AWS
+                SqlConnection con = new SqlConnection("Server=13.250.232.74\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                      "user id=masteronline;password=M@ster123;");
+#else
+            SqlConnection con = new SqlConnection("Server=13.251.222.53\\SQLEXPRESS,1433;Initial Catalog=master;persist security info=True;" +
+                                                  "user id=masteronline;password=M@ster123;");
+#endif
+                SqlCommand command = new SqlCommand(sql, con);
+
+                con.Open();
+                command.ExecuteNonQuery();
+                con.Close();
+                con.Dispose();
+
+
+                //add by Tri 20-09-2018, save nama toko ke SIFSYS
+                //change by calvin 3 oktober 2018
+                //ErasoftContext ErasoftDbContext = new ErasoftContext(userId);
+                ErasoftContext ErasoftDbContext = new ErasoftContext(accInDb.DatabasePathErasoft);
+                //end change by calvin 3 oktober 2018
+                var dataPerusahaan = ErasoftDbContext.SIFSYS.FirstOrDefault();
+                if (string.IsNullOrEmpty(dataPerusahaan.NAMA_PT))
+                {
+                    dataPerusahaan.NAMA_PT = accInDb.NamaTokoOnline;
+                    ErasoftDbContext.SaveChanges();
+                }
+                //end add by Tri 20-09-2018, save nama toko ke SIFSYS
+
+                if (accInDb.Status == false)
+                {
+                    var listUserPerAcc = MoDbContext.User.Where(u => u.AccountId == accId).ToList();
+                    foreach (var user in listUserPerAcc)
+                    {
+                        user.Status = false;
+                    }
+                }
+
+                //ViewData["SuccessMessage"] = $"Akun {accInDb.Username} berhasil diubah statusnya dan dibuatkan database baru.";
+                MoDbContext.SaveChanges();
+
+                //var listAcc = MoDbContext.Account.ToList();
+                sendEmail(accInDb.Email, accInDb.Password, accInDb.Username);
+                //return View("AccountMenu", listAcc);
+                ret.status = 1;
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+            }
+
+            return ret;
+        }
+
+        public async void sendEmail(string emailUser, string pass, string user)
+        {
+            var email = new MailAddress(emailUser);
+            var originPassword = pass ;
+            var nama = user;
+            var body = "<p><img src=\"https://s3-ap-southeast-1.amazonaws.com//masteronlinebucket/uploaded-image/efd0f5b3-7862-4ee6-b796-6c5fc9c63d5f.jpeg\"  width=\"250\" height=\"100\"></p>" +
+                "<p>Hi {2},</p>" +
+                "<p>Selamat akun anda telah berhasil kami daftarkan.</p>" +
+                "<p>Login sekarang &nbsp;<b><a class=\"user-link\" href=\"https://masteronline.co.id/login\">Di Sini</a></b> dan kembangkan bisnis online anda bersama Master Online.</p>" +
+                "<p>Email akun anda ialah sebagai berikut :</p>" +
+                "<p>Email: {0}</p>" +
+                "<p>Fitur utama kami:</p>" +
+                "<p>1. Kelola pesanan di semua marketplace secara realtime di Master Online.</p>" +
+                "<p>2. Upload dan kelola inventory di semua marketplace real time.</p>" +
+                "<p>3. Analisa penjualan di semua marketplace.</p>" +
+                "<p>Nantikan perkembangan fitur - fitur kami berikut nya &nbsp;<img src=\"https://html-online.com/editor/tinymce4_6_5/plugins/emoticons/img/smiley-laughing.gif\" alt=\"laughing\" /></p>" +
+                "<p>Untuk informasi lebih detail dapat menghubungi customer service kami melalui telp +6221 6349318 atau email csmasteronline@gmail.com atau chat melalui website kami www.masteronline.co.id.</p>" +
+                "<p>Semoga sukses selalu dalam bisnis anda bersama Master Online.</p>" +
+                "<p>&nbsp;</p>" +
+                "<p>Best regards,</p>" +
+                "<p>CS Master Online.</p>";
+
+            var message = new MailMessage();
+            message.To.Add(email);
+            message.From = new MailAddress("csmasteronline@gmail.com");
+            message.Subject = "Akun Master Online Anda sudah aktif!";
+            message.Body = string.Format(body, email, originPassword, nama);
+            message.IsBodyHtml = true;
+#if AWS
+            //using (var smtp = new SmtpClient())
+            //{
+            //    var credential = new NetworkCredential
+            //    {
+            //        UserName = "AKIAIXN2D33JPSDL7WEQ",
+            //        Password = "ApBddkFZF8hwJtbo+s4Oq31MqDtWOpzYKDhyVGSHGCEl"
+            //    };
+            //    smtp.Credentials = credential;
+            //    smtp.Host = "email-smtp.us-east-1.amazonaws.com";
+            //    smtp.Port = 587;
+            //    smtp.EnableSsl = true;
+            //    await smtp.SendMailAsync(message);
+            //}
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#else
+            using (var smtp = new SmtpClient())
+            {
+                var credential = new NetworkCredential
+                {
+                    UserName = "csmasteronline@gmail.com",
+                    Password = "erasoft123"
+                };
+                smtp.Credentials = credential;
+                smtp.Host = "smtp.gmail.com";
+                smtp.Port = 587;
+                smtp.EnableSsl = true;
+                await smtp.SendMailAsync(message);
+            }
+#endif
+        }
+        //END ADD 14 MAY 2019, ACTIVATE ACCOUNT
 
         //public void AutoChargeCC()
         //{

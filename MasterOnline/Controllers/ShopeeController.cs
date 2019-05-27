@@ -2829,6 +2829,12 @@ namespace MasterOnline.Controllers
                 logistics = logistics
             };
 
+            ////add by calvin 8 mei 2019
+            //var deskripsiBytes = Encoding.Default.GetBytes(HttpUtility.HtmlEncode(brgInDb.Deskripsi));
+            //var deskripsiBytesResult = Encoding.UTF8.GetString(deskripsiBytes);
+            //HttpBody.description = deskripsiBytesResult;
+            ////end add by calvin 8 mei 2019
+
             //add by calvin 1 mei 2019
             var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
             if (qty_stock > 0)
@@ -2899,6 +2905,7 @@ namespace MasterOnline.Controllers
 
             try
             {
+                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
                 myReq.ContentLength = myData.Length;
                 using (var dataStream = myReq.GetRequestStream())
                 {
@@ -2912,7 +2919,6 @@ namespace MasterOnline.Controllers
                         responseFromServer = reader.ReadToEnd();
                     }
                 }
-                manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
             }
             catch (Exception ex)
             {
@@ -3368,7 +3374,7 @@ namespace MasterOnline.Controllers
             }
 
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(InitTierVariationResult)) as InitTierVariationResult;
                 if (resServer.variation_id_list != null)
@@ -3526,7 +3532,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -3628,7 +3634,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -3706,7 +3712,7 @@ namespace MasterOnline.Controllers
                 manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             }
 
-            if (responseFromServer != null)
+            if (responseFromServer != "")
             {
                 try
                 {
@@ -3833,10 +3839,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssffff"),
                 REQUEST_ACTION = "Add Discount",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = recNumPromosi.ToString(),
                 REQUEST_STATUS = "Pending",
             };
 
@@ -3990,10 +3998,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Add Discount Item",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
                 REQUEST_STATUS = "Pending",
             };
 
@@ -4136,10 +4146,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Delete Discount",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = discount_id.ToString(),
                 REQUEST_STATUS = "Pending",
             };
 
@@ -4226,10 +4238,12 @@ namespace MasterOnline.Controllers
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
-                REQUEST_ID = seconds.ToString(),
+                //REQUEST_ID = seconds.ToString(),
+                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
                 REQUEST_ACTION = "Delete Discount Item",
                 REQUEST_DATETIME = milisBack,
                 REQUEST_ATTRIBUTE_1 = iden.merchant_code,
+                REQUEST_ATTRIBUTE_2 = detilPromosi.KODE_BRG,
                 REQUEST_STATUS = "Pending",
             };
 

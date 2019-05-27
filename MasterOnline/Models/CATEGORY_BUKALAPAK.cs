@@ -18,7 +18,7 @@ namespace MasterOnline.Models
         public string PARENT_ID { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public string RecNum { get; set; }
+        public int RecNum { get; set; }
 
     }
 }

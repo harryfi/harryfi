@@ -18,7 +18,7 @@ namespace MasterOnline.Models
         public string kdBrg { get; set; }
         public string fromDt { get; set; }
         public string toDt { get; set; }
-        public string promoPrice { get; set; }
+        public double promoPrice { get; set; }
         public string token { get; set; }
     }
     public class LazadaCommonRes

@@ -1818,6 +1818,173 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        //add by Tri 8 Mei 2019 set harga promo
+        public async Task<string> setPromoBlibli(BlibliAPIData iden, BlibliProductData data)
+        {
+            //if merchant code diisi. barulah upload produk
+            string ret = "";
+
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            //string apiId = "mta-api-sandbox:sandbox-secret-key";//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+
+
+            #region Get Product List ( untuk dapatkan QOH di Blibi )
+            double QOHBlibli = 0;
+            //string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi-sandbox/api/businesspartner/v1/product/createProduct", iden.API_secret_key);
+            string signature_1 = CreateToken("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+            string[] brg_mp = data.kode_mp.Split(';');
+            if (brg_mp.Length == 2)
+            {
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
+
+                HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                myReq_1.Headers.Add("sessionId", milis.ToString());
+                myReq_1.Headers.Add("username", userMTA);
+                string responseFromServer_1 = "";
+                try
+                {
+                    using (WebResponse response = await myReq_1.GetResponseAsync())
+                    {
+                        using (Stream stream = response.GetResponseStream())
+                        {
+                            StreamReader reader = new StreamReader(stream);
+                            responseFromServer_1 = reader.ReadToEnd();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                }
+                if (responseFromServer_1 != null)
+                {
+                    milis = CurrentTimeMillis();
+                    milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+                    BlibliDetailProductResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1, typeof(BlibliDetailProductResult)) as BlibliDetailProductResult;
+                    if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                    {
+                        if (result.value.items.Count() > 0)
+                        {
+                            string myData = "{";
+                            myData += "\"merchantCode\": \"" + iden.merchant_code + "\", ";
+                            myData += "\"productDetailRequests\": ";
+                            myData += "[ ";  //MERCHANT ID ADA DI https://merchant.blibli.com/MTA/store-info/store-info
+                            {
+                                if (result.value.items.Count() > 0)
+                                {
+                                    myData += "{";
+                                    myData += "\"productSku\": \"" + result.value.productSku + "\",  ";
+                                    myData += "\"productCode\": \"" + result.value.productCode + "\",  ";
+                                    myData += "\"businessPartnerCode\": \"" + result.value.businessPartnerCode + "\",  ";
+                                    myData += "\"synchronize\": false, ";
+                                    myData += "\"items\": [ {";
+                                    myData += "\"itemSku\": \"" + result.value.items[0].itemSku + "\",  ";
+                                    myData += "\"skuCode\": \"" + result.value.items[0].skuCode + "\", ";
+                                    myData += "\"price\": [ {" ;
+                                    myData += "\"discountAmount\": " + data.promoPrice + ", ";
+                                    myData += "\"discountStartDate\": \"" + data.promoStart + "\", ";
+                                    myData += "\"discountEndDate\": \"" + data.promoEnd + "\", ";     
+                                    myData += "\"promotionName\": \"" + data.promoName + "\"} ] ";   
+                                    myData += "} ], \"attributes\" : null, \"images\" : null }";
+                                }
+                            }
+                            //myData = myData.Remove(myData.Length - 1);
+                            myData += "]";
+                            myData += "}";
+
+                            string signature = CreateToken("POST\n" + CalculateMD5Hash(myData) + "\napplication/json\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/updateDetailProduct", iden.API_secret_key);
+                            //string urll = "https://apisandbox.blibli.com/v2/proxy/mtaapi-sandbox/api/businesspartner/v1/product/createProduct";
+                            string urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateProduct";
+
+                            //add by calvin 15 nov 2018
+                            urll = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/updateDetailProduct?channelId=MasterOnline";
+                            //end add by calvin 15 nov 2018
+
+                            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+                            {
+                                REQUEST_ID = milis.ToString(),
+                                REQUEST_ACTION = "Set Promo",
+                                REQUEST_DATETIME = milisBack,
+                                REQUEST_ATTRIBUTE_1 = data.kode,
+                                REQUEST_ATTRIBUTE_2 = brg_mp[1], //product_code
+                                REQUEST_ATTRIBUTE_3 = brg_mp[0], //gdnsku
+                                REQUEST_STATUS = "Pending",
+                            };
+                            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+
+                            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+                            myReq.Method = "POST";
+                            myReq.Headers.Add("Authorization", ("bearer " + iden.token));
+                            myReq.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature));
+                            myReq.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                            myReq.Accept = "application/json";
+                            myReq.ContentType = "application/json";
+                            myReq.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                            myReq.Headers.Add("sessionId", milis.ToString());
+                            myReq.Headers.Add("username", userMTA);
+                            string responseFromServer = "";
+                            try
+                            {
+                                myReq.ContentLength = myData.Length;
+                                using (var dataStream = myReq.GetRequestStream())
+                                {
+                                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                                }
+                                using (WebResponse response = await myReq.GetResponseAsync())
+                                {
+                                    using (Stream stream = response.GetResponseStream())
+                                    {
+                                        StreamReader reader = new StreamReader(stream);
+                                        responseFromServer = reader.ReadToEnd();
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+                            }
+                            if (responseFromServer != "")
+                            {
+                                dynamic result2 = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer);
+                                if (string.IsNullOrEmpty(result2.errorCode.Value))
+                                {
+                                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
+                                    BlibliQueueFeedData queueData = new BlibliQueueFeedData
+                                    {
+                                        request_id = result2.requestId.Value,
+                                        log_request_id = currentLog.REQUEST_ID
+                                    };
+                                    await GetQueueFeedDetail(iden, queueData);
+                                }
+                                else
+                                {
+                                    currentLog.REQUEST_RESULT = Convert.ToString(result.errorCode);
+                                    currentLog.REQUEST_EXCEPTION = Convert.ToString(result.errorMessage);
+                                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, iden, currentLog);
+                                }
+                            }
+                        }
+                    }
+                }
+                #endregion
+            }
+
+            return ret;
+        }
+        //end add by Tri 8 Mei 2019 set harga promo
+
         public class ProductSummaryResult
         {
             public string gdnSku { get; set; }
@@ -5279,6 +5446,12 @@ namespace MasterOnline.Controllers
             public string PickupPoint { get; set; }
             public STF02 dataBarangInDb { get; set; }
 
+            //add by Tri 8 Mei 2019
+            public string promoStart { get; set; }
+            public string promoEnd { get; set; }
+            public double promoPrice { get; set; }
+            public string promoName { get; set; }
+            //end add by Tri 8 Mei 2019
 
         }
         public class BliBliToken
