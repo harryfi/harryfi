@@ -51,6 +51,16 @@
 @Html.HiddenFor(m => m.Pesanan.STATUS, new { Value = "0" })
 @Html.HiddenFor(m => m.Pesanan.USER_NAME, new { Value = username })
 @*Remark by nurul 28/8/2018 -- @Html.HiddenFor(m => m.Pesanan.NO_REFERENSI, new { Value = "" })*@
+
+@*//add by nurul 14/5/2019*@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        Initialize();
+        refreshInputan();
+    });
+</script>
+@*//end add by nurul 14/5/2019*@
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
@@ -101,7 +111,7 @@
                     @Html.HiddenFor(m => m.Pesanan.NAMAPENGIRIM)
                     @Html.HiddenFor(m => m.Pesanan.EXPEDISI)
                     @Html.HiddenFor(m => m.Pesanan.SHIPMENT)
-                    <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>                    
+                    <select id="EXPEDISI" placeholder="Harap Pilih" required="required"></select>
                 </div>
             </div>
         </div>

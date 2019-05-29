@@ -1,6 +1,46 @@
 ﻿@using System.Globalization
-@model MasterOnline.ViewModels.PesananViewModel
-<table id="datatable_sedangproses" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+@*@model MasterOnline.ViewModels.PesananViewModel*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<mdlPesanan>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_pesanan_packing_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_pesanan_packing_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_pesanan_packing_tab">
+    <div id="loading_pesanan_packing_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page_3" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+    @*<table id="datatable_sedangproses" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
     <thead>
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">No. Order</th>
@@ -17,68 +57,139 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var pesanan in Model.ListPesanan)
+        @*@foreach (var pesanan in Model.ListPesanan)*@
+        @foreach (var pesanan in Model)
         {
-            var buyer = Model.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
-            var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
-            var idMarket = 0;
-            if (pelanggan != null)
-            {
-                idMarket = Convert.ToInt32(pelanggan.NAMA);
-            }
-            var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
-            var NamaMarket = "";
-            if (market != null)
-            {
-                NamaMarket = market.NamaMarket;
-            }
-        <tr>
-            <td>@pesanan.NO_BUKTI</td>
-            <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
-            @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
-            <td>
-                @if (pelanggan?.PERSO != null)
-                {
-                    @(NamaMarket + " (" + pelanggan.PERSO + ")")
-                }
-                else
-                {
-                    @NamaMarket
-                }
-            </td>
-            <td>
-                @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
-                @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                @*@(buyer == null ? "" : buyer.NAMA)*@
-                @pesanan.NAMAPEMESAN
-            </td>
-            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.NETTO)</td>
-            <td class="edit-hapus-col">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#modalGudangDanQty" onclick="getBarangForGudangQty('@pesanan.NO_BUKTI', '@pesanan.RecNum')" >
-                    <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
-                </button>
-            </td>
-            <td class="edit-hapus-col" style="width: 50px; max-width: 50px;">
-                <button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RecNum, '03', '@pesanan.NO_BUKTI')">
-                    @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
-                    @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-            </td>
-            <td style="border-left:hidden; width: 40px; max-width: 40px; align-self:flex-start">
-                <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_packing" id="chekbox-@(pesanan.RecNum)" data-recnum="@pesanan.RecNum" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
-            </td>
-            <td class="edit-hapus-col">
-                <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSiapkirim" onclick="passRecStatus(@pesanan.RecNum, '01', '@pesanan.NO_BUKTI')">
-                    <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
-                </button>
-            </td>
-            @*<td class="edit-hapus-col">
-            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RecNum)">
-                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-            </button>
-        </td>*@
-        </tr>
+            //var buyer = Model.ListPembeli.SingleOrDefault(m => m.BUYER_CODE == pesanan.PEMESAN);
+            //var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == pesanan.CUST);
+            //var idMarket = 0;
+            //if (pelanggan != null)
+            //{
+            //    idMarket = Convert.ToInt32(pelanggan.NAMA);
+            //}
+            //var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+            //var NamaMarket = "";
+            //if (market != null)
+            //{
+            //    NamaMarket = market.NamaMarket;
+            //}
+            <tr>
+                <td>@pesanan.NOSO</td>
+                <td>@(pesanan.TGL?.ToString("dd/MM/yyyy"))</td>
+                @*<td>@NamaMarket</td> 'change by nurul 14/2/2019*@
+                <td>
+                    @if (pesanan?.PERSO != "")
+                    {
+                        @(pesanan.MARKET + " (" + pesanan.PERSO + ")")
+                    }
+                    else
+                    {
+                        @pesanan.MARKET
+                    }
+                </td>
+                <td>
+                    @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
+                    @*@(buyer == null ? "" : buyer.NAMA)*@
+                    @pesanan.PEMBELI
+                </td>
+                <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", pesanan.TOTAL)</td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#modalGudangDanQty" onclick="getBarangForGudangQty('@pesanan.NOSO', '@pesanan.RECNUM')">
+                        <span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>
+                    </button>
+                </td>
+                <td class="edit-hapus-col" style="width: 50px; max-width: 50px;">
+                    <button class="btn btn-success ubah-packing" id="ubah1_packing" data-toggle="modal" data-target="#konfUbahStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '03', '@pesanan.NOSO')">
+                        @*<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>*@
+                        @*<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>*@
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </button>
+                </td>
+                <td style="border-left:hidden; width: 40px; max-width: 40px; align-self:flex-start">
+                    <input type="checkbox" class="dt-checkboxes center checkbox_gntstatus_packing" id="chekbox-@(pesanan.RECNUM)" data-recnum="@pesanan.RECNUM" style="border-left:hidden; align-self:flex-start; width:30px; height:28px;" />
+                </td>
+                <td class="edit-hapus-col">
+                    <button class="btn btn-warning" data-toggle="modal" data-target="#konfUndoStatusSiapkirim" onclick="passRecStatus(@pesanan.RECNUM, '01', '@pesanan.NOSO')">
+                        <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
+                    </button>
+                </td>
+                @*<td class="edit-hapus-col">
+                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusPesanan" onclick="pass(@pesanan.RecNum)">
+                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                        </button>
+                    </td>*@
+            </tr>
         }
     </tbody>
 </table>
+
+@* add by nurul 7/5/2019, paging *@
+@if (Model.PageCount > 1)
+{
+    <div id="tabelpesananpackingpartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTablePesananSiapKirim", new
+   {
+       page,
+       search = ViewData["searchParam"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelpesananpackingpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_pesanan_packing_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-pesanan-siap-kirim-partial').html(response);
+                        $('#loading_pesanan_packing_tab').hide();
+
+                        $("#checkbox_all_gntstatus_packing").click(function () {
+                            $(".checkbox_gntstatus_packing").prop('checked',
+                                $(this).prop('checked'));
+                            if ($("#checkbox_all_gntstatus_packing").prop('checked') == true) {
+                                $(".ubah-packing").attr('disabled', 'disabled');
+                            } else {
+                                $(".ubah-packing").removeAttr('disabled');
+                            }
+                        });
+                        $(".checkbox_gntstatus_packing").each(function (i, item) {
+                            $(item).on('click', function () {
+                                if ($(item).prop('checked') == true) {
+                                    $(".ubah-packing").attr('disabled', 'disabled');
+                                } else {
+                                    var cekTrue = [];
+                                    $(".checkbox_gntstatus_packing").each(function (z, chk) {
+                                        if ($(chk).prop('checked') == true) {
+                                            cekTrue.push($(chk).attr("data-rec"));
+                                        }
+                                    });
+                                    if (cekTrue.length == 0) {
+                                        $(".ubah-packing").removeAttr('disabled');
+                                    }
+                                }
+                            });
+                        });
+                    }
+                });
+            }
+            return false;
+        });
+    });
+</script>
+@* end add by nurul 30/4/2019, paging *@

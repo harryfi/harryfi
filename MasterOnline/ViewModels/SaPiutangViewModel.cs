@@ -10,5 +10,8 @@ namespace MasterOnline.ViewModels
     {
         public ART01A Piutang { get; set; }
         public List<ART01A> ListPiutang { get; set; } = new List<ART01A>();
+
+        //add by nurul 15/5/2019
+        public List<string> Errors { get; set; } = new List<string>();
     }
 }

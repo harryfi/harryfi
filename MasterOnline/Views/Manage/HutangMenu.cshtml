@@ -35,7 +35,7 @@
                 <div class="input-group">
                     <input id="search_hutang" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_hutang_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -53,7 +53,7 @@
         <div class="row hutang_table_section" style="margin-top: 5px;">
             <div class="col-sm-12">
                 <div id="table-hutang-partial">
-                    @Html.Partial("TableHutangPartial")
+                    @*@Html.Partial("TableHutangPartial")*@
                 </div>
             </div>
         </div>
@@ -95,7 +95,7 @@
                                         @using (Html.BeginForm("SaveHutang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
                                         {
                                             <div id="form-partial">
-                                                @Html.Partial("FormHutangPartial")
+                                                @*@Html.Partial("FormHutangPartial")*@
                                             </div>
                                         }
                                     </div>
@@ -147,26 +147,68 @@
                 //add by nurul 12/2/2019
                 $page = 0;
             //end add by nurul 12/2/2019
-                Initialize();
-                //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
+                refreshTableHutang();
+                $('#tambah_hutang').on('click', function () {
+                    $('.hutang_table_section').hide();
+                    $('.hutang_editor_section').show();
+                    refreshForm();
+                    //add by nruul 18/10/2018
+                    
+                    $("#Hutang_TERM").keydown(
+                        function () {
+                            validateInput($(this), 'TOP');
+                        });
+                    $("#Hutang_TOTAL").keydown(
+                        function () {
+                            validateInput($(this), 'ANGKA');
+                        });
+                    //END ADD
+                    
                 });
-                $('#datatable').DataTable().page($page).draw(false);
+                //Initialize();
+                //add by nurul 12/2/2019
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+                $('#search_hutang').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableHutang();
+                        return false;
+                    }
+                });
+                $('#search_hutang_click').click(function () {
+                    searchTableHutang();
+                });
             });
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
 
-            $('#search_hutang').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_hutang').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_hutang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHutang();
+                    return false;
+                }
+            });
+            $('#search_hutang_click').click(function () {
+                searchTableHutang();
             });
 
             $('#tambah_hutang').on('click', function () {
                 $('.hutang_table_section').hide();
                 $('.hutang_editor_section').show();
+                refreshForm();
                 //add by nruul 18/10/2018
+                
                 $("#Hutang_TERM").keydown(
                     function () {
                         validateInput($(this), 'TOP');
@@ -188,13 +230,13 @@
                 $('input').each(function () {
                     $(this).removeAttr('disabled');
                 });
-                refreshForm();
+                //refreshForm();
                 refreshTableHutang();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
             });
 
@@ -216,11 +258,13 @@
                 });
             //END ADD
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            
         }
 
         function refreshInputan(value = '') {
@@ -229,7 +273,7 @@
             $('#Hutang_TGL').datepicker({
                 format: 'dd/mm/yyyy',
                 language: 'id'
-            }).datepicker('setDate', '0').change(function () {
+            }).change(function () {
                 if ($(this).val() == '') {
                     $('#Hutang_JTGL').val('Pilih tanggal dahulu');
                     return;
@@ -271,10 +315,10 @@
             $('#Hutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -386,10 +430,11 @@
                 },
                 success: function (response) {
                     if (response.Errors == null) {
-                        $('#table-akun-partial').html(response);
-                        Initialize();
+                        //$('#table-akun-partial').html(response);
+                        //Initialize();
                         $('#close-editor').click();
                         $("html, body").animate({ scrollTop: 0 }, "slow");
+                            refreshTableHutang();
                         $('#loading_spinner').hide();
                     } else {
                         console.log(response.Errors);
@@ -407,30 +452,62 @@
         }
 
         function refreshTableHutang() {
-            var link = '@Url.Action("RefreshTableHutang", "Manage")';
+            //var link = '@Url.Action("RefreshTableHutang", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTableHutang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hutang').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
 
             $.ajax({
                 type: "GET",
-                url: link,
+                url: $link,
+                beforeSend: function () {
+                    $('#table-hutang-partial').hide();
+                    $('#loading_hutang_tab').show();
+                },
                 success: function (response) {
                     $('#table-hutang-partial').html(response);
-                    var table = $('#datatable').DataTable();
-                    $('#search_hutang').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
-                    refreshInputan();
-                    getSupplier();
+                    
+                    $('#table-hutang-partial').show();
+                    $('#loading_hutang_tab').hide();
+                    //var table = $('#datatable').DataTable();
+                    //$('#search_hutang').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
+                    //refreshInputan();
+                    //getSupplier();
                     //add by nurul 26 nov 2018, setelah di close, search lg
-                    table.search($('#search_hutang').val()).draw();
+                    //table.search($('#search_hutang').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableHutang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHutang", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hutang').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_hutang_click')[0].disabled = true;
+                    $('#loading_hutang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_hutang_click')[0].disabled = false;
+                    $('#table-hutang-partial').html(response);
+                    $('#loading_hutang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_hutang_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -444,7 +521,53 @@
                 url: link,
                 success: function (response) {
                     $('#form-partial').html(response);
-                    refreshInputan();
+                    //refreshInputan();
+                    $('#SUPPNAME').hide();
+
+                    $('#Hutang_TGL').datepicker({
+                        format: 'dd/mm/yyyy',
+                        language: 'id'
+                    }).datepicker('setDate', '0').change(function () {
+                        if ($(this).val() == '') {
+                            $('#Hutang_JTGL').val('Pilih tanggal dahulu');
+                            return;
+                        }
+
+                        var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                        //add by nurul 31/10/2018
+                        $(this).datepicker('hide');
+                        //end add
+
+                        if ($('#Hutang_TERM').val() === '') {
+                            $('#Hutang_JTGL').val('Pilih TOP dahulu');
+                        } else {
+                            var $tglTop = $tgl.add($('#Hutang_TERM').val(), 'days');
+                            $('#Hutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                        }
+                    });
+
+                    $('#Hutang_TERM').change(function () {
+                        if ($(this).val() == '') {
+                            $('#Hutang_JTGL').val('Pilih supplier dahulu');
+                            return;
+                        }
+
+                        var $tgl = moment($('#Hutang_TGL').val(), "DD/MM/YYYY");
+
+                        if ($('#Hutang_TGL').val() === '') {
+                            $('#Hutang_JTGL').val('Pilih tanggal dahulu');
+                        } else {
+                            var $tglTop = $tgl.add($(this).val(), 'days');
+                            $('#Hutang_JTGL').val($tglTop.format('DD/MM/YYYY'));
+                        }
+                    });
+
+                    if (value != '') {
+                        $('#Hutang_TGL').val(value);
+                    }
+
+                    $('#Hutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
+                        .css('cursor', 'not-allowed');
                     getSupplier();
                 },
                 error: function (xhr, status, error) {
@@ -561,8 +684,9 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
-                    $('#table-hutang-partial').html(response);
-                    Initialize();
+                    //$('#table-hutang-partial').html(response);
+                    //Initialize();
+                        refreshTableHutang();
                     $('#konfHapusHutang').modal('hide');
                 },
                 error: function (xhr, status, error) {

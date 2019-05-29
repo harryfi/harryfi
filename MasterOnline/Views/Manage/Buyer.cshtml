@@ -632,11 +632,14 @@
 
         //add by nurul 30/4/2019
         function refreshTableBuyer() {
-            var link = '@Url.Action("RefreshTableBuyer", "Manage")';
+            //var link = '@Url.Action("RefreshTableBuyer", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTableBuyer", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_pembeli').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
 
             $.ajax({
                 type: "GET",
-                url: link,
+                url: $link,
                 beforeSend: function () {
                     $('#table-buyer-partial').hide();
                     $('#loading_buyer_tab').show();

@@ -33,6 +33,11 @@
 @{
     var listRekeningJurnal = Model.ListJurnalDetail.Where(b => b.bukti == Model?.Jurnal?.bukti).ToList();
 }
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
