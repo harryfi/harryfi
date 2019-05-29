@@ -1097,26 +1097,26 @@ namespace MasterOnline.Controllers
         {
             //try
             //{
-                var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == buyerId);
-                //ADD BY NURUL 30/7/2018
-                var vmError = new StokViewModel() { };
+            var buyerInDb = ErasoftDbContext.ARF01C.Single(c => c.RecNum == buyerId);
+            //ADD BY NURUL 30/7/2018
+            var vmError = new StokViewModel() { };
 
-                var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
-                var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+            var cekFaktur = ErasoftDbContext.SIT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
+            var cekPesanan = ErasoftDbContext.SOT01A.Count(k => k.PEMESAN == buyerInDb.BUYER_CODE);
 
-                if (cekFaktur > 0 || cekPesanan > 0)
-                {
-                    vmError.Errors.Add("Pembeli sudah dipakai di transaksi !");
-                    return Json(vmError, JsonRequestBehavior.AllowGet);
-                }
-                //END ADD                                
-                ErasoftDbContext.ARF01C.Remove(buyerInDb);
-                ErasoftDbContext.SaveChanges();
+            if (cekFaktur > 0 || cekPesanan > 0)
+            {
+                vmError.Errors.Add("Pembeli sudah dipakai di transaksi !");
+                return Json(vmError, JsonRequestBehavior.AllowGet);
+            }
+            //END ADD                                
+            ErasoftDbContext.ARF01C.Remove(buyerInDb);
+            ErasoftDbContext.SaveChanges();
 
             var partialVm = new BuyerViewModel()
             {
                 //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ThenByDescending(x => x.TGL_INPUT).ToList()
-                Errors=null
+                Errors = null
             };
 
             //return PartialView("TableBuyerPartial", partialVm);
@@ -17203,18 +17203,18 @@ namespace MasterOnline.Controllers
                                 Task.Run(() => ShopeeApi.DeleteDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), barangPromosiInDb)).Wait();
 
                                 var brgInDB = ErasoftDbContext.STF02.Where(m => m.BRG == barangPromosiInDb.KODE_BRG).FirstOrDefault();
-                                if(brgInDB != null)
+                                if (brgInDB != null)
                                 {
                                     if (!string.IsNullOrEmpty(brgInDB.PART))
                                     {
                                         var listBrgPromo = ErasoftDbContext.DETAILPROMOSI.Where(m => m.RecNumPromosi == promosiInDb.RecNum).ToList();
-                                        if(listBrgPromo.Count > 0)
+                                        if (listBrgPromo.Count > 0)
                                         {
                                             var tblSTF02 = ErasoftDbContext.STF02.Where(m => m.PART == brgInDB.PART).ToList();
                                             foreach (var brg in listBrgPromo)
                                             {
                                                 var otherItemPromo = tblSTF02.Where(m => m.BRG == brg.KODE_BRG).FirstOrDefault();
-                                                if(otherItemPromo != null)
+                                                if (otherItemPromo != null)
                                                 {
                                                     Task.Run(() => ShopeeApi.AddDiscountItem(data, Convert.ToInt64(promosiInDb.MP_PROMO_ID), brg)).Wait();
                                                 }
@@ -21470,6 +21470,39 @@ namespace MasterOnline.Controllers
             }
         }
         //end add by calvin 7 april 2019
+
+        [Route("manage/TransferExcel")]
+        public ActionResult TransferExcel()
+        {
+            var ret = new TransferExcelViewModel
+            {
+                Customer = new List<ARF01>()
+            };
+
+            //var tempMP = MoDbContext.Marketplaces.ToList();
+            //for(int i = 0; i < ret.Customer.Count; i++)
+            //{
+            //    ret.Customer[i].NAMA = tempMP.Where(m => m.IdMarket.ToString() == ret.Customer[i].NAMA).SingleOrDefault().NamaMarket;
+            //}
+
+            return View(ret);
+        }
+
+        public ActionResult GetCustomerData()
+        {
+            var ret = new TransferExcelViewModel
+            {
+                Customer = ErasoftDbContext.ARF01.OrderBy(m => m.NAMA).ToList()
+            };
+
+            var tempMP = MoDbContext.Marketplaces.ToList();
+            for (int i = 0; i < ret.Customer.Count; i++)
+            {
+                ret.Customer[i].NAMA = tempMP.Where(m => m.IdMarket.ToString() == ret.Customer[i].NAMA).SingleOrDefault().NamaMarket;
+            }
+
+            return Json(ret.Customer, JsonRequestBehavior.AllowGet);
+        }
     }
     public class smolSTF02
     {

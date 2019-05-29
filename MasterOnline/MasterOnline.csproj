@@ -326,6 +326,7 @@
     <Compile Include="Controllers\ShopeeController.cs" />
     <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
+    <Compile Include="Controllers\TransferExcelController.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
     <Compile Include="ErasoftContextMigrations\201804020753069_InitialCreate.cs" />
@@ -1032,6 +1033,7 @@
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
+    <Compile Include="Utils\XcelUtils.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
     <Compile Include="ViewModels\BayarPiutangViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
@@ -1325,6 +1327,7 @@
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
+    <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6053,6 +6056,7 @@
     <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
     <Content Include="Views\Manage\LihatFakturA5.cshtml" />
+    <Content Include="Views\Manage\TransferExcel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
