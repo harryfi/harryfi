@@ -10,5 +10,7 @@ namespace MasterOnline.ViewModels
     {
         public APF01 Supplier { get; set; }
         public List<APF01> ListSupplier { get; set; } = new List<APF01>();
+
+        public List<string> Errors { get; set; } = new List<string>();
     }
 }

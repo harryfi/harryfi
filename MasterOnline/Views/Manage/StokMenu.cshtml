@@ -82,7 +82,7 @@
                 <div class="input-group">
                     <input id="search_stok" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_stok_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -99,7 +99,7 @@
         </div>
         <div class="row stok_table_section" style="margin-top: 5px;">
             <div class="col-sm-12" id="table-stok-partial">
-                @Html.Partial("TableStokPartial")
+                @*@Html.Partial("TableStokPartial")*@
             </div>
         </div>
         <div class="row stok_editor_section" style="display: none;">
@@ -125,7 +125,7 @@
                     @using (Html.BeginForm("SaveStok", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-stok" }))
                     {
                         <div id="form-partial">
-                            @Html.Partial("BarangStokPartial")
+                            @*@Html.Partial("BarangStokPartial")*@
                         </div>
                     }
                 </div>
@@ -199,16 +199,18 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.js")' type='text/javascript'></script>
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
     <script type="text/javascript">
+        var $flagPerubahan = 0;
         var $modeEdit = 0; // 0 new, 1 edit
         //add by nurul 12/2/2019
         var $page = window.text;
         //end add by nurul 12/2/2019
 
         $(document).ready(function () {
+            refreshTableStok();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
-            Initialize();
+            //Initialize();
             var tableSiapProses = $('#datatable_siapproses').DataTable({
                 columnDefs: [{
                     orderable: false,
@@ -225,14 +227,68 @@
                 tableSiapProses.search($(this).val()).draw();
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+
+            $('#tambah_stok').on('click', function () {
+                refresh();
+                //$('.stok_table_section').hide();
+                //$('.stok_editor_section').show();
+            });
+
+            $('#close-editor').off('click').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $('#close-editor')[0].disabled = true;
+                    $modeEdit = 0;
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.stok_table_section').show();
+                    $('.stok_editor_section').hide();
+                    $('#form-partial').html('');
+                    //refresh();
+                    refreshTableStok();
+                    //if ($('#search_stok').val() != "") {
+                    //    searchTableStok();
+                    //} else {
+                    //    refreshTableStok();
+                    //}
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
+
+            if ($('.message-error').text() !== '') {
+                //$('#tambah_stok').click();
+                $('.stok_table_section').hide();
+                $('.stok_editor_section').show();
+            }
+
+            $('#search_stok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableStok();
+                    return false;
+                }
+            });
+            $('#search_stok_click').click(function () {
+                searchTableStok();
+            });
         });
 
         function closeEditor() {
+            $('#close-editor')[0].disabled = true;
             $('#modalTutupEditor').modal('hide');
             $modeEdit = 0;
             $('input, select, .btn-danger').each(function () {
@@ -240,27 +296,36 @@
             });
             $('.stok_table_section').show();
             $('.stok_editor_section').hide();
+            $('#form-partial').html('');
             //refresh();
             refreshTableStok();
+            //if ($('#search_stok').val() != "") {
+            //    searchTableStok();
+            //} else {
+            //    refreshTableStok();
+            //}
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
             var tableNunggu = $('#datatable_menipis').DataTable();
             var tableSedangProses = $('#datatable_kehabisan').DataTable();
             var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             var tableSudahKirim = $('#datatable_tidaklaku').DataTable();
             var tableSelesai = $('#datatable_promosi').DataTable();
 
-            $('#search_stok').keyup(function () {
-                table.search($(this).val()).draw();
-            });
+            //change by nurul 14/5/2019
+            //$('#search_stok').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            
+            //end change by nurul 14/5/2019
 
             $('#search_promosi').keyup(function () {
                 tableSelesai.search($(this).val()).draw();
@@ -282,44 +347,44 @@
                 tableSudahKirim.search($(this).val()).draw();
             });
 
-            $('#tambah_stok').on('click', function () {
-                refresh();
-                //$('.stok_table_section').hide();
-                //$('.stok_editor_section').show();
-            });
+            //$('#tambah_stok').on('click', function () {
+            //    refresh();
+            //    //$('.stok_table_section').hide();
+            //    //$('.stok_editor_section').show();
+            //});
 
-            $('#close-editor').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $modeEdit = 0;
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.stok_table_section').show();
-                    $('.stok_editor_section').hide();
-                    //refresh();
-                    refreshTableStok();
-                    //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $modeEdit = 0;
+            //        $('input, select, .btn-danger').each(function () {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.stok_table_section').show();
+            //        $('.stok_editor_section').hide();
+            //        //refresh();
+            //        refreshTableStok();
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //    }
+            //});
 
-            if ($('.message-error').text() !== '') {
-                //$('#tambah_stok').click();
-                $('.stok_table_section').hide();
-                $('.stok_editor_section').show();
-            }
+            //if ($('.message-error').text() !== '') {
+            //    //$('#tambah_stok').click();
+            //    $('.stok_table_section').hide();
+            //    $('.stok_editor_section').show();
+            //}
 
             $('#table_tambah_stok > tbody > tr > td.editable-kode').prop('contentEditable', true);
             widthBrg();
             //getDataBarang();test remark
             getGudang();
-            var $flagPerubahan = 0;
+            $flagPerubahan = 0;
 
             //$('#Stok_Tgl').datepicker({
             //    format: 'dd/mm/yyyy',
@@ -397,6 +462,7 @@
                     contentType: 'application/json; charset=UTF-8',
                     cache: false,
                     success: function () {
+                        $('#close-editor')[0].disabled = false;
                         alert('Data stok berhasil di-update');
                         $('#btn-simpan-perubahan-row').hide();
                     },
@@ -406,10 +472,10 @@
                 });
             });
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
         }
@@ -706,12 +772,16 @@
                 success: function (response) {
                     $modeEdit = 1;
 
-                    $('#form-partial').html(response);
-                    Initialize();
-                    getDataBarang();
-                    //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
+                    $('#close-editor')[0].disabled = false;
+
+                    $('#form-partial').html(response);
+                    ////Initialize();
+                    getDataBarang();
+                    //$('#tambah_stok').click();
+                    ////$('.stok_table_section').hide();
+                    ////$('.stok_editor_section').show();
 
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
@@ -740,12 +810,16 @@
                 success: function (response) {
                     $modeEdit = 1;
 
-                    $('#form-partial').html(response);
-                    Initialize();
-                    getDataBarang();
-                    //$('#tambah_stok').click();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
+                    $('#close-editor')[0].disabled = false;
+
+                    $('#form-partial').html(response);
+                    ////Initialize();
+                    getDataBarang();
+                    //$('#tambah_stok').click();
+                    ////$('.stok_table_section').hide();
+                    ////$('.stok_editor_section').show();
                     $('#loading_spinner').hide();
                 },
                 error: function (xhr, status, error) {
@@ -755,7 +829,7 @@
             });
         }
 
-        function refreshTableStok() {
+        @*function refreshTableStok() {
             var link = '@Url.Action("RefreshTableStok", "Manage")';
 
             $.ajax({
@@ -782,6 +856,53 @@
                 }
             });
 
+        }*@
+
+        function refreshTableStok() {
+            //var link = '@Url.Action("RefreshTableStok", "Manage")';
+            var $link = '@Html.Raw(Url.Action("RefreshTableStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_stok').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-stok-partial').hide();
+                    $('#loading_stok_tab').show();
+                },
+                success: function (response) {
+                    $('#table-stok-partial').html(response);
+                    $('#loading_stok_tab').hide();
+                    $('#table-stok-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableStok(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableStok", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_stok').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_stok_click')[0].disabled = true;
+                    $('#loading_stok_tab').show();
+                },
+                success: function (response) {
+                    $('#search_stok_click')[0].disabled = false;
+                    $('#table-stok-partial').html(response);
+                    $('#loading_stok_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_stok_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
         }
 
         function refresh() {
@@ -796,7 +917,7 @@
                 success: function (response) {
                     $('#form-partial').html(response);
                     getDataBarang();
-                    Initialize();
+                    //Initialize();
                     $('.stok_table_section').hide();
                     $('.stok_editor_section').show();
                     $('#loading_spinner').hide();
@@ -820,8 +941,11 @@
                 url: link,
                 success: function (response) {
                     if (response.Errors == null) {
-                        $('#table-stok-partial').html(response);
-                        Initialize();
+                        //change by nurul 14/5/2019
+                        //$('#table-stok-partial').html(response);
+                        //Initialize();
+                        refreshTableStok();
+                        //end change by nurul 14/5/2019
                         $('#konfHapusStok').modal('hide');
                     } else {
                         alert(response.Errors[0]);
@@ -960,12 +1084,13 @@
                         },
                         success: function (response) {
                             if (response.Errors == null) {
-                                $modeEdit == 0
+                                $('#close-editor')[0].disabled = false;
+                                $modeEdit = 1;
                                 $('#form-partial').html(response);
                                 widthBrg()
                                 getDataBarang();
                                 getGudang();
-                                getTanggal();
+                                //getTanggal();
                                 $('#loading_spinner').hide();
                             } else {
                                 alert('Ada data yang tidak valid!');
@@ -1029,6 +1154,7 @@
                     //end add
 
                     $flagPerubahan++;
+                    $modeEdit = 1;
                 });
             }
         }

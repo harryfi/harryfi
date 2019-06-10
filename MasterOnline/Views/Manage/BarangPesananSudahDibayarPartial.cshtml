@@ -50,6 +50,15 @@
 @Html.HiddenFor(m => m.Pesanan.N_KOMISI1, new { Value = 0 })
 @Html.HiddenFor(m => m.Pesanan.STATUS, new { Value = "0" })
 @Html.HiddenFor(m => m.Pesanan.USER_NAME, new { Value = username })
+@*//add by nurul 14/5/2019*@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        Initialize();
+        refreshInputan();
+    });
+</script>
+@*//end add by nurul 14/5/2019*@
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
@@ -92,7 +101,7 @@
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     @*change 15 april 2019, nama jasa pemgirim disimpan ke field shipment*@
                     @*@Html.HiddenFor(m => m.Pesanan.SHIPMENT)
-                    @Html.TextBox("see_expedisi_pesanan", Model?.Pesanan?.NAMAPENGIRIM, new { @class = "form-control", disabled = "disabled" })*@
+                        @Html.TextBox("see_expedisi_pesanan", Model?.Pesanan?.NAMAPENGIRIM, new { @class = "form-control", disabled = "disabled" })*@
                     @Html.TextBox("see_expedisi_pesanan", Model?.Pesanan?.SHIPMENT, new { @class = "form-control", disabled = "disabled" })
                     @*end change 15 april 2019, nama jasa pemgirim disimpan ke field shipment*@
                 </div>
@@ -189,7 +198,7 @@
             <div class="form-group">
                 @Html.LabelFor(m => m.Pesanan.ONGKOS_KIRIM, "Ongkos Kirim", new { @class = "col-md-4 control-label control-label-bold" })
                 <div class="col-md-8">
-                    @Html.TextBoxFor(m => m.Pesanan.ONGKOS_KIRIM, new { @class = "form-control num-only", disabled = "disabled", Value = (Model?.Pesanan?.ONGKOS_KIRIM > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.ONGKOS_KIRIM) : "0,00") , @style = "text-align:right" })
+                    @Html.TextBoxFor(m => m.Pesanan.ONGKOS_KIRIM, new { @class = "form-control num-only", disabled = "disabled", Value = (Model?.Pesanan?.ONGKOS_KIRIM > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", Model?.Pesanan?.ONGKOS_KIRIM) : "0,00"), @style = "text-align:right" })
                 </div>
             </div>
         </div>

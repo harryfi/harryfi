@@ -524,7 +524,7 @@ namespace MasterOnline.Models
     }
     public class ListProduct
     {
-        //public Deal_Info deal_info { get; set; }
+        public Deal_Info deal_info { get; set; }
         //public string deal_request_state { get; set; }
         public long price { get; set; }
         public long category_id { get; set; }
@@ -624,6 +624,12 @@ namespace MasterOnline.Models
 
     public class Deal_Info
     {
+        public long original_price { get; set; }
+        public long discount_price { get; set; }
+        public double discount_percentage { get; set; }
+        public DateTime discount_date { get; set; }
+        public DateTime discount_expired_date { get; set; }
+        public string state { get; set; }
     }
 
     public class Variant
@@ -664,6 +670,6 @@ namespace MasterOnline.Models
         public string name { get; set; }
         public List<Category> children { get; set; }
     }
-    
+
 
 }

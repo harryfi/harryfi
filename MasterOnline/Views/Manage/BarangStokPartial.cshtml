@@ -41,7 +41,11 @@
 @*add by nurul 9/11/2018*@
 @Html.HiddenFor(m => m.Stok.JAM, new { Value = 1 })
 @*end add*@
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">

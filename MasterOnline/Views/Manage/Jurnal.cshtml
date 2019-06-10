@@ -69,7 +69,7 @@
                             <div class="input-group">
                                 <input id="search_jurnal" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_jurnal_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -86,7 +86,7 @@
                     </div>
                     <div class="row jurnal_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-jurnal-partial">
-                            @Html.Partial("TableJurnalPartial")
+                            @*@Html.Partial("TableJurnalPartial")*@
                         </div>
                     </div>
                     <div class="row jurnal_editor_section" style="display: none;">
@@ -112,7 +112,7 @@
                                 @using (Html.BeginForm("SaveJurnal", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-jurnal" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("DetailJurnalPartial")
+                                        @*@Html.Partial("DetailJurnalPartial")*@
                                     </div>
                                 }
                             </div>
@@ -405,22 +405,73 @@
             $('#search_siapproses').keyup(function () {
                 tableSiapProses.search($(this).val()).draw();
             });
+            refreshTableJurnal1();
 
-            Initialize();
+            //Initialize();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            $('#search_jurnal').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableJurnal();
+                    return false;
+                }
+            });
+            $('#search_jurnal_click').click(function () {
+                searchTableJurnal();
+            });
+            $('#tambah_jurnal').on('click', function () {
+                //$('.jurnal_table_section').hide();
+                //$('.jurnal_editor_section').show();
+                refreshForm1();
+            });
+
+            $('#close-editor-1').off('click').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    //add by nurul 31/10/2018
+                    $saved = 1;
+                    //end add
+                    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+                        alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+                        //konfirmasiData();
+                        return;
+                    }
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.jurnal_table_section').show();
+                    $('.jurnal_editor_section').hide();
+                    //refreshForm1();
+                    refreshTableJurnal1();
+                    $saved = 0;
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
+
+            if ($('.message-error').text() !== '') {
+                $('#tambah_jurnal').click();
+            }
         });
 
         var $saved = 0;
 
-        var table = $('#datatable').DataTable({
-            "order": [[1,0, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    "order": [[1,0, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
@@ -437,27 +488,40 @@
             });
             $('.jurnal_table_section').show();
             $('.jurnal_editor_section').hide();
-            refreshForm1();
+            //refreshForm1();
             refreshTableJurnal1();
             $saved = 0;
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+
+            
         }
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
             //var tableNunggu = $('#datatable_nunggu').DataTable();
             //var tableSedangProses = $('#datatable_sedangproses').DataTable();
             //var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             //var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             //var tableSelesai = $('#datatable_selesai').DataTable();
 
-            $('#search_jurnal').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_jurnal').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_jurnal').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableJurnal();
+                    return false;
+                }
+            });
+            $('#search_jurnal_click').click(function () {
+                searchTableJurnal();
             });
 
             //$('#search_selesai').keyup(function () {
@@ -494,8 +558,9 @@
             //    });
 
             $('#tambah_jurnal').on('click', function () {
-                $('.jurnal_table_section').hide();
-                $('.jurnal_editor_section').show();
+                //$('.jurnal_table_section').hide();
+                //$('.jurnal_editor_section').show();
+                refreshForm1();
             });
 
             $('#close-editor-1').off('click').on('click', function () {
@@ -515,14 +580,14 @@
                     });
                     $('.jurnal_table_section').show();
                     $('.jurnal_editor_section').hide();
-                    refreshForm1();
+                    //refreshForm1();
                     refreshTableJurnal1();
                     $saved = 0;
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
                 }
             });
@@ -554,15 +619,10 @@
             //    return true;
             //});
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            //end add by nurul 12/2/2019
-            //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
         }
 
@@ -699,11 +759,23 @@
             //end remark 
 
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
+
+            //add by nurul 22/5/2019
+            $('#TGL').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).change(function () {
+                $('#Jurnal_tgl').val($(this).val());
+                $(this).datepicker('hide');
+                $('#btn-simpan-perubahan-row').show();
+            });
+            //end add by nurul 22/5/2019
+            
         }
 
         function getRekening() {
@@ -819,11 +891,14 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('.jurnal_table_section').hide();
+                    $('.jurnal_editor_section').show();
                     $('#form-partial').html(response);
-                    getTanggal();
+                    //getTanggal();
                     getRekening();
                     refreshInputan();
-                    $('#tambah_jurnal').click();
+                    //$('#tambah_jurnal').click();
+                    
                     $('input, select, .btn-danger').each(function () {
                         $(this).attr('disabled', 'disabled');
                     });
@@ -842,11 +917,14 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('.jurnal_table_section').hide();
+                    $('.jurnal_editor_section').show();
                     $('#form-partial').html(response);
-                    getTanggal();
+                    //getTanggal();
                     getRekening();
                     refreshInputan();
-                    $('#tambah_jurnal').click();
+                    //$('#tambah_jurnal').click();
+                    
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -867,11 +945,12 @@
                 url: link,
                 success: function (response) {
                     $('#table-jurnal-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[1, 0, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
-                    Initialize();
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[1, 0, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
+                    //Initialize();
+                    refreshTableJurnal1();
                     $('#konfHapusJurnal').modal('hide');
                 },
                 error: function (xhr, status, error) {
@@ -897,7 +976,7 @@
                 cache: false,
                 success: function (response) {
                     $('#form-partial').html(response);
-                    getTanggal();
+                    //getTanggal();
                     getRekening();
                     refreshInputan();
                     $('#konfHapusDetail').modal('hide');
@@ -908,7 +987,7 @@
             });
         }
 
-        function refreshTableJurnal1() {
+        @*function refreshTableJurnal1() {
             var link = '@Url.Action("RefreshTableJurnal1", "Manage")';
 
             $.ajax({
@@ -916,10 +995,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-jurnal-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[1,0, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[1,0, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
                     $('#search_jurnal').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -927,13 +1006,58 @@
                     table.search($('#search_jurnal').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
+        function refreshTableJurnal1() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableJurnal1", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_jurnal').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-jurnal-partial').hide();
+                    $('#loading_jurnal_tab').show();
+                },
+                success: function (response) {
+                    $('#table-jurnal-partial').html(response);
+                    $('#loading_jurnal_tab').hide();
+                    $('#table-jurnal-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableJurnal(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableJurnal1", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_jurnal').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_jurnal_click')[0].disabled = true;
+                    $('#loading_jurnal_tab').show();
+                },
+                success: function (response) {
+                    $('#search_jurnal_click')[0].disabled = false;
+                    $('#table-jurnal-partial').html(response);
+                    $('#loading_jurnal_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_jurnal_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -962,7 +1086,10 @@
                         });
                         $('.jurnal_table_section').show();
                         $('.jurnal_editor_section').hide();
-                        refreshForm1();
+                        //refreshForm1();
+                        getTanggal();
+                        getRekening();
+                        refreshInputan();
                         refreshTableJurnal1();
                         //end add by nurul 
                     },
@@ -983,6 +1110,9 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('.jurnal_table_section').hide();
+                    $('.jurnal_editor_section').show();
+
                     $('#form-partial').html(response);
                     getTanggal();
                     getRekening();
@@ -1037,8 +1167,11 @@
                         data: $('#form-jurnal').serialize(),
                         success: function (response) {
                             if (response.Errors == null) {
+                                
+                                //$('.jurnal_table_section').hide();
+                                //$('.jurnal_editor_section').show();
                                 $('#form-partial').html(response);
-                                getTanggal();
+                                //getTanggal();
                                 getRekening();
                                 refreshInputan();
                                 $('#btn-simpan-perubahan-row').hide();

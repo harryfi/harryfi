@@ -326,6 +326,7 @@
     <Compile Include="Controllers\ShopeeController.cs" />
     <Compile Include="Controllers\TokopediaControllerJob.cs" />
     <Compile Include="Controllers\TokopediaController.cs" />
+    <Compile Include="Controllers\TransferExcelController.cs" />
     <Compile Include="Controllers\WebApiController.cs" />
     <Compile Include="ErasoftContext.cs" />
     <Compile Include="ErasoftContextMigrations\201804020753069_InitialCreate.cs" />
@@ -1033,6 +1034,7 @@
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
+    <Compile Include="Utils\XcelUtils.cs" />
     <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
     <Compile Include="ViewModels\BayarPiutangViewModel.cs" />
@@ -1310,6 +1312,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
+    <Compile Include="ViewModels\mdlJurnal.cs" />
     <Compile Include="ViewModels\MerkBarangViewModel.cs" />
     <Compile Include="ViewModels\PartnerApprovalViewModel.cs" />
     <Compile Include="ViewModels\PartnerViewModel.cs" />
@@ -1324,9 +1327,11 @@
     <Compile Include="ViewModels\SaHutangViewModel.cs" />
     <Compile Include="ViewModels\SaPiutangViewModel.cs" />
     <Compile Include="ViewModels\SecurityUserViewModel.cs" />
+    <Compile Include="ViewModels\mdlPesanan.cs" />
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
+    <Compile Include="ViewModels\TransferExcelViewModel.cs" />
     <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
@@ -1473,6 +1478,8 @@
     <Content Include="Content\Logo_Perusahaan\LogoUsaha-nurul-PTDHE.jpg" />
     <Content Include="Content\ManageSite.css" />
     <Content Include="Content\PagedList.css" />
+    <Content Include="Content\paper.css" />
+    <Content Include="Content\paper.min.css" />
     <Content Include="Content\ReferenceTambahan\AKSHASP.dll" />
     <Content Include="Content\ReferenceTambahan\EAF.dll" />
     <Content Include="Content\ReferenceTambahan\EAP.dll" />
@@ -6060,6 +6067,7 @@
     <Content Include="Views\Manage\TableMarketPlaceLog.cshtml" />
     <Content Include="Views\Admin\HangfireServerStatus.cshtml" />
     <Content Include="Views\Admin\TableHangfireServerStatus.cshtml" />
+    <Content Include="Views\Manage\TransferExcel.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

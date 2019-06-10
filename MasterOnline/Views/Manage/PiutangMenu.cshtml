@@ -37,7 +37,7 @@
                 <div class="input-group">
                     <input id="search_piutang" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_piutang_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -55,7 +55,7 @@
         <div class="row piutang_table_section" style="margin-top: 5px;">
             <div class="col-sm-12">
                 <div id="table-piutang-partial">
-                    @Html.Partial("TablePiutangPartial")
+                    @*@Html.Partial("TablePiutangPartial")*@
                 </div>
             </div>
         </div>
@@ -97,7 +97,7 @@
                                         @using (Html.BeginForm("SavePiutang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data" }))
                                         {
                                             <div id="form-partial">
-                                                @Html.Partial("FormPiutangPartial")
+                                                @*@Html.Partial("FormPiutangPartial")*@
                                             </div>
                                         }
                                     </div>
@@ -150,25 +150,66 @@
                 //add by nurul 12/2/2019
                 $page = 0;
             //end add by nurul 12/2/2019
-                Initialize();
-                //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
+
+                //Initialize();
+                refreshTablePiutang();
+                $('#tambah_piutang').off('click').on('click', function () {
+                    $('.piutang_table_section').hide();
+                    $('.piutang_editor_section').show();
+                    refreshForm();
+                    //add by nruul 18/10/2018
+                    $("#Piutang_TERM").keydown(
+                        function () {
+                            validateInput($(this), 'TOP');
+                        });
+                    $("#Piutang_TOTAL").keydown(
+                        function () {
+                            validateInput($(this), 'ANGKA');
+                        });
+                    //END ADD
                 });
-                $('#datatable').DataTable().page($page).draw(false);
+                //add by nurul 12/2/2019
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+                $('#search_piutang').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTablePiutang();
+                        return false;
+                    }
+                });
+                $('#search_piutang_click').click(function () {
+                    searchTablePiutang();
+                });
             });
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
 
-            $('#search_piutang').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_piutang').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_piutang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePiutang();
+                    return false;
+                }
+            });
+            $('#search_piutang_click').click(function () {
+                searchTablePiutang();
             });
 
             $('#tambah_piutang').on('click', function () {
                 $('.piutang_table_section').hide();
                 $('.piutang_editor_section').show();
+                refreshForm();
                 //add by nruul 18/10/2018
                 $("#Piutang_TERM").keydown(
                     function () {
@@ -190,13 +231,13 @@
                 $('input').each(function () {
                     $(this).removeAttr('disabled');
                 });
-                refreshForm();
+                //refreshForm();
                 refreshTablePiutang();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
             });
 
@@ -216,12 +257,12 @@
                 function () {
                     validateInput($(this), 'ANGKA');
                 });
-            //END ADD 
+            //END ADD
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -272,10 +313,10 @@
             $('#Piutang_JTGL').attr('readonly', 'readonly').css('background-color', '#eee')
                 .css('cursor', 'not-allowed');
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -330,7 +371,7 @@
                         //                //change by nurul 3/10/2018
                         //                $("#Piutang_NCUST, #CUSTNAME").val($objSup[0].text);
                         //                $("#Piutang_TERM").val($objSup[0].term).change();
-                                    
+
                         //                //if ($("#Piutang_TERM").val() == "") {
                         //                //    $("#Piutang_TERM").val($objSup[0].term).change();
                         //                //} else {
@@ -435,10 +476,11 @@
                     },
                     success: function (response) {
                         if (response.Errors == null) {
-                            $('#table-akun-partial').html(response);
-                            Initialize();
+                            //$('#table-akun-partial').html(response);
+                            //Initialize();
                             $('#close-editor').click();
                             $("html, body").animate({ scrollTop: 0 }, "slow");
+                                refreshTablePiutang();
                             $('#loading_spinner').hide();
                         } else {
                             //add by nurul 27/9/2018
@@ -509,7 +551,7 @@
 
 
                         //                //end add
-                                        
+
                         //            }
                         //        }
                         //    }
@@ -543,7 +585,7 @@
                         if ($cust !== null) {
                             $('#CUSTOMER').selectivity('value', $cust);
                         }
-                        //end change by nurul 31/10/2018                    
+                        //end change by nurul 31/10/2018
 
                         if (value != '')
                             //$('#Piutang_TERM').val(value)
@@ -558,34 +600,66 @@
             }
 
             function refreshTablePiutang() {
-                var link = '@Url.Action("RefreshTablePiutang", "Manage")';
+                //var link = '@Url.Action("RefreshTablePiutang", "Manage")';
+                var $link = '@Html.Raw(Url.Action("RefreshTablePiutang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+                $link = $link.replace("replaceSearch", $('#search_piutang').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
 
                 $.ajax({
                     type: "GET",
-                    url: link,
+                    url: $link,
+                    beforeSend: function () {
+                        $('#table-piutang-partial').hide();
+                        $('#loading_piutang_tab').show();
+                    },
                     success: function (response) {
                         $('#table-piutang-partial').html(response);
-                        var table = $('#datatable').DataTable();
-                        $('#search_piutang').keyup(function () {
-                            table.search($(this).val()).draw();
-                        });
-                        refreshInputan();
-                        getCustomer();
+                        //var table = $('#datatable').DataTable();
+                        $('#loading_piutang_tab').hide();
+                        $('#table-piutang-partial').show();
+                        //$('#search_piutang').keyup(function () {
+                        //    table.search($(this).val()).draw();
+                        //});
+                        //refreshInputan();
+                        //getCustomer();
+
                         //add by nurul 26 nov 2018, setelah di close, search lg
-                        table.search($('#search_piutang').val()).draw();
+                        //table.search($('#search_piutang').val()).draw();
                     //end add by nurul 26 nov 2018, setelah di close, search lg
                         //add by nurul 12/2/2019
-                        $('#datatable').on('page.dt', function () {
-                            $page = $('#datatable').DataTable().page.info().page;
-                        });
-                        $('#datatable').DataTable().page($page).draw(false);
+                        //$('#datatable').on('page.dt', function () {
+                        //    $page = $('#datatable').DataTable().page.info().page;
+                        //});
+                        //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
                     }
                 });
-            }
+        }
+        function searchTablePiutang(){
+            var $link = '@Html.Raw(Url.Action("RefreshTablePiutang", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_piutang').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_piutang_click')[0].disabled = true;
+                    $('#loading_piutang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_piutang_click')[0].disabled = false;
+                    $('#table-piutang-partial').html(response);
+                    $('#loading_piutang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_piutang_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
 
             function refreshForm() {
                 var link = '@Url.Action("RefreshPiutangForm", "Manage")';
@@ -680,17 +754,17 @@
                         var term = $("#Piutang_TERM").val();
 
                         refreshInputan(tgl.substring(0, 10));
-                        
+
                         //change by nurul 31/10/2018   getCustomer(term);
                         getCustomerART01A(term);
 
-                        
+
 
                         //$('#tambah_piutang').click();
                         $('.piutang_table_section').hide();
                         $('.piutang_editor_section').show();
                         //add by nruul 18/10/2018
-                        
+
                         $("#Piutang_TERM").keydown(
                             function () {
                                 validateInput($(this), 'TOP');
@@ -722,8 +796,9 @@
                     type: "GET",
                     url: link,
                     success: function (response) {
-                        $('#table-piutang-partial').html(response);
-                        Initialize();
+                        //$('#table-piutang-partial').html(response);
+                        //Initialize();
+                            refreshTablePiutang();
                         $('#konfHapusPiutang').modal('hide');
                     },
                     error: function (xhr, status, error) {

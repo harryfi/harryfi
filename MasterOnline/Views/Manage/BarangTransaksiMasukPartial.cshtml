@@ -43,6 +43,11 @@
 @Html.HiddenFor(m => m.Stok.Terima_Penuh, new { Value = false })
 @Html.HiddenFor(m => m.Stok.TERIMA_PENUH_PO_QC, new { Value = false })
 @Html.HiddenFor(m => m.Stok.TglInput, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">

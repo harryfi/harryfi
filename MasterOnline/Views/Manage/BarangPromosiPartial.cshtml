@@ -5,6 +5,7 @@
 @Html.HiddenFor(m => m.Promosi.RecNum)
 @Html.HiddenFor(m => m.Promosi.MP_PROMO_ID)
 @Html.HiddenFor(m => m.Promosi.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
@@ -137,7 +138,7 @@
                         </td>
                     </tr>
                 }
-                <tr data-promosi-id="0">
+                <tr data-promosi-id="0" id="trNewData">
                     @Html.HiddenFor(m => m.PromosiDetail.RecNum)
                     <td style="width: 140px; max-width: 140px;">
                         @*<div id="BRG" class="selectivity-input" tabindex="0" style="width: 200px; max-width: 200px;"></div>*@
