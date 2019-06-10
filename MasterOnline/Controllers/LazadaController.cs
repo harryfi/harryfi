@@ -597,19 +597,42 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
-            string sSQL = "SELECT * FROM (";
+            //change by calvin 16 mei 2019
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 50; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
+            //    sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
+            //    if (i < 50)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
+
+            //DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kdBrg && p.IDMARKET.ToString() == data.idMarket).FirstOrDefault();
+            List<string> dsSku = new List<string>();
+            List<string> dsNormal = new List<string>();
+
+            var attributeLzd = getAttrLzd(stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 50; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
-                sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
-                if (i < 50)
+                string attribute_id = Convert.ToString(attributeLzd["ANAME" + i.ToString()]);
+                string attribute_type = Convert.ToString(attributeLzd["ATYPE" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    if (attribute_type != "normal")
+                    {
+                        dsSku.Add(attribute_id);
+                    }
+                    else
+                    {
+                        dsNormal.Add(attribute_id);
+                    }
                 }
             }
-
-            DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
-            DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //end change by calvin 16 mei 2019
 
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
@@ -621,12 +644,50 @@ namespace MasterOnline.Controllers
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
 
-            for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //change 16 Mei 2019, get attr from api
+            //for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //    xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
+            //    xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //}
+            Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
+            Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 50; i++)
             {
-                xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
-                xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (dsNormal.Contains(attribute_id))
+                    {
+                        if (!lzdAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                    else if (dsSku.Contains(attribute_id))
+                    {
+                        if (!lzdAttrSkuWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrSkuWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                }
             }
+            //for (int i = 0; i < lzdAttrWithVal.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal[i].ToString() + ">";
+            //    xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
+            //    xmlString += "</" + dsNormal[i].ToString() + ">";                
+            //}
+            foreach (var lzdAttr in lzdAttrWithVal)
+            {
+                xmlString += "<" + lzdAttr.Key + ">";
+                xmlString += lzdAttr.Value.ToString();
+                xmlString += "</" + lzdAttr.Key + ">";
+            }
+            //end change 16 Mei 2019, get attr from api
 
             xmlString += "</Attributes>";
 
@@ -650,12 +711,21 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
                 xmlString += "</Images>";
 
-                for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+
+                //change 16 Mei 2019, get attr from api
+                //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                //{
+                //    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                //    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //}
+                foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                    xmlString += "<" + lzdSkuAttr.Key + ">";
+                    xmlString += lzdSkuAttr.Value.ToString();
+                    xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
+                //end change 16 Mei 2019, get attr from api
                 xmlString += "</Sku></Skus>";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
@@ -722,15 +792,26 @@ namespace MasterOnline.Controllers
                         }
 
                         //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
-                        for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //change 16 Mei 2019, get attr from api
+                        //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //{
+                        //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                        //    {
+                        //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                        //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //    }
+                        //}
+                        for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
                         {
-                            if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            if (!attributesAdded.Contains(dsSku[i].ToString()))
                             {
-                                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                                xmlString += "<" + dsSku[i].ToString() + ">";
+                                xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                xmlString += "</" + dsSku[i].ToString() + ">";
                             }
                         }
+                        //end change 16 Mei 2019, get attr from api
 
                         xmlString += "<price>" + data.harga + "</price>";
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";

@@ -17,7 +17,7 @@ namespace MasterOnline.Hubs
         }
         public async Task Announcement(string Pengumuman)
         {
-            Clients.All.broadcastMessage(Pengumuman);
+            Clients.All.broadcastmessage(Pengumuman);
         }
 
         public async Task Notifikasi(string groupName, string message)

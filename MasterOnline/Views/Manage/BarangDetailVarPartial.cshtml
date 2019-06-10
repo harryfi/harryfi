@@ -361,7 +361,6 @@
     function UpdateHjualVariantBarang() {
         var newHjual = [];
         $('#variant-section input[data-jenis="hjual_var"]').each(function (i, item) {
-            console.log();
             newHjual[i] = {
                 recnum: $(item).attr("data-hjual-recnum"),
                 hjual: convertToAngka($(item).val())

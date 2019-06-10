@@ -689,6 +689,7 @@
     <Compile Include="Models\Api\ResultDataInvoice.cs" />
     <Compile Include="Models\Api\ResultDataJurnalAkunting.cs" />
     <Compile Include="Models\Api\ResultDataPesanan.cs" />
+    <Compile Include="Models\API_LOG_MARKETPLACE_HANGFIRE.cs" />
     <Compile Include="Models\ATTRIBUTE_BL.cs" />
     <Compile Include="Models\ATTRIBUTE_JDID_AND_OPT.cs" />
     <Compile Include="Models\ATTRIBUTE_OPT_TOKPED.cs" />
@@ -1032,6 +1033,7 @@
     <Compile Include="Utils\Helper.cs" />
     <Compile Include="Utils\HttpRequest.cs" />
     <Compile Include="Utils\MyLongRunningClass.cs" />
+    <Compile Include="ViewModels\MarketplaceLogViewModel.cs" />
     <Compile Include="ViewModels\BayarHutangViewModel.cs" />
     <Compile Include="ViewModels\BayarPiutangViewModel.cs" />
     <Compile Include="ViewModels\DashboardViewModel.cs" />
@@ -1325,6 +1327,7 @@
     <Compile Include="ViewModels\StokViewModel.cs" />
     <Compile Include="ViewModels\SubsViewModel.cs" />
     <Compile Include="ViewModels\SupplierViewModel.cs" />
+    <Compile Include="ViewModels\SettingKodeVariasiPartialViewModel.cs" />
     <Compile Include="ViewModels\UploadBarangViewModel.cs" />
     <Compile Include="ViewModels\DashboardAdminViewModel.cs" />
     <Compile Include="ViewModels\UserViewModel.cs" />
@@ -6053,6 +6056,10 @@
     <Content Include="Views\Admin\TableAccountReminderExpired.cshtml" />
     <Content Include="Views\Admin\TableAccountSudahExpired.cshtml" />
     <Content Include="Views\Manage\LihatFakturA5.cshtml" />
+    <Content Include="Views\Manage\SettingKodeVariasiPartial.cshtml" />
+    <Content Include="Views\Manage\TableMarketPlaceLog.cshtml" />
+    <Content Include="Views\Admin\HangfireServerStatus.cshtml" />
+    <Content Include="Views\Admin\TableHangfireServerStatus.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

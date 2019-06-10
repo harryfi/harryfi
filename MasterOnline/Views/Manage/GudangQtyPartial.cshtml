@@ -88,7 +88,7 @@
 <div id="scrollable_div">
     @foreach (var barang in Model.ListPesananDetail)
     {
-        var barangValid = listBarang.SingleOrDefault(b => b.BRG == barang.BRG);
+        var barangValid = listBarang.SingleOrDefault(b => b.BRG.ToUpper() == barang.BRG.ToUpper());
         //var namaBarang = barangValid == null ? "" : barangValid.NAMA;
         var namaBarang = barangValid == null ? "" : barangValid.NAMA + ' ' + barangValid.NAMA2;
 

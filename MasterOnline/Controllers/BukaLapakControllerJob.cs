@@ -900,7 +900,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Bukalapak Gagal.")]
-        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/string dbPathEra,string namaPemesan, string uname, string shipCode, string transId, string courier, string userId, string token)
+        public BindingBase KonfirmasiPengiriman(/*string noBukti,*/string dbPathEra,string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, string shipCode, string transId, string courier, string userId, string token)
         {
             var ret = new BindingBase();
             ret.status = 0;

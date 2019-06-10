@@ -249,35 +249,61 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
-        public BindingBase CreateProduct(BrgViewModel data)
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("1_create_product")]
+        [NotifyOnFailed("Create Product {obj} ke Lazada Gagal.")]
+        public BindingBase CreateProduct(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, BrgViewModel data)
         {
             var ret = new BindingBase();
             ret.status = 0;
+            SetupContext(dbPathEra, uname);
 
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Create Product",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = data.kdBrg,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
 
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Create Product",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = data.kdBrg,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, data.token, currentLog);
+            //change 8 Apriil 2019, get attr from api
+            //string sSQL = "SELECT * FROM (";
+            //for (int i = 1; i <= 50; i++)
+            //{
+            //    sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
+            //    sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
+            //    if (i < 50)
+            //    {
+            //        sSQL += "UNION ALL " + System.Environment.NewLine;
+            //    }
+            //}
 
-            string sSQL = "SELECT * FROM (";
+            //DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            var stf02h = ErasoftDbContext.STF02H.Where(p => p.BRG == data.kdBrg && p.IDMARKET.ToString() == data.idMarket).FirstOrDefault();
+            List<string> dsSku = new List<string>();
+            List<string> dsNormal = new List<string>();
+
+            var attributeLzd = getAttrLzd(stf02h.CATEGORY_CODE);
             for (int i = 1; i <= 50; i++)
             {
-                sSQL += "SELECT A.ACODE_" + i.ToString() + " AS CATEGORY_CODE,A.ANAME_" + i.ToString() + " AS CATEGORY_NAME,B.ATYPE" + i.ToString();
-                sSQL += " AS CATEGORY_TYPE,A.AVALUE_" + i.ToString() + " AS VALUE FROM STF02H A INNER JOIN MO.DBO.ATTRIBUTE_LAZADA B ON A.CATEGORY_CODE = B.CATEGORY_CODE WHERE A.BRG='" + data.kdBrg + "' " + System.Environment.NewLine;
-                if (i < 50)
+                string attribute_id = Convert.ToString(attributeLzd["ANAME" + i.ToString()]);
+                string attribute_type = Convert.ToString(attributeLzd["ATYPE" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(attribute_id))
                 {
-                    sSQL += "UNION ALL " + System.Environment.NewLine;
+                    if (attribute_type != "normal")
+                    {
+                        dsSku.Add(attribute_id);
+                    }
+                    else
+                    {
+                        dsNormal.Add(attribute_id);
+                    }
                 }
             }
-
-            DataSet dsSku = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE <> 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
-            DataSet dsNormal = EDB.GetDataSet("sCon", "STF02H", sSQL + ") ASD WHERE ISNULL(CATEGORY_CODE,'') <> '' AND CATEGORY_TYPE = 'normal' AND ISNULL(VALUE, 'NULL') <> 'NULL' ");
+            //end change 8 Apriil 2019, get attr from api
 
             string primCategory = EDB.GetFieldValue("MOConnectionString", "STF02H", "BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'", "category_code").ToString();
             string xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
@@ -289,21 +315,69 @@ namespace MasterOnline.Controllers
             //xmlString += "<model>" + data.kdBrg + "</model>";
             //xmlString += "<warranty_type>No Warranty</warranty_type>";
 
-            for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //change 8 Apriil 2019, get attr from api
+            //for (int i = 0; i < dsNormal.Tables[0].Rows.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //    xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
+            //    xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+            //}
+            Dictionary<string, string> lzdAttrWithVal = new Dictionary<string, string>();
+            Dictionary<string, string> lzdAttrSkuWithVal = new Dictionary<string, string>();
+            for (int i = 1; i <= 50; i++)
             {
-                xmlString += "<" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                xmlString += dsNormal.Tables[0].Rows[i]["VALUE"].ToString();
-                xmlString += "</" + dsNormal.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                string attribute_id = Convert.ToString(stf02h["ACODE_" + i.ToString()]);
+                string value = Convert.ToString(stf02h["AVALUE_" + i.ToString()]);
+                if (!string.IsNullOrWhiteSpace(value) && value != "null")
+                {
+                    if (dsNormal.Contains(attribute_id))
+                    {
+                        if (!lzdAttrWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                    else if (dsSku.Contains(attribute_id))
+                    {
+                        if (!lzdAttrSkuWithVal.ContainsKey(attribute_id))
+                        {
+                            lzdAttrSkuWithVal.Add(attribute_id, value.Trim());
+                        }
+                    }
+                }
             }
+            //for (int i = 0; i < lzdAttrWithVal.Count; i++)
+            //{
+            //    xmlString += "<" + dsNormal[i].ToString() + ">";
+            //    xmlString += lzdAttrWithVal[dsNormal[i].ToString()].ToString();
+            //    xmlString += "</" + dsNormal[i].ToString() + ">";                
+            //}
+            foreach (var lzdAttr in lzdAttrWithVal)
+            {
+                xmlString += "<" + lzdAttr.Key + ">";
+                xmlString += lzdAttr.Value.ToString();
+                xmlString += "</" + lzdAttr.Key + ">";
+            }
+            //end change 8 Apriil 2019, get attr from api
 
             xmlString += "</Attributes>";
 
             var stf02 = ErasoftDbContext.STF02.Where(p => p.BRG == data.kdBrg).FirstOrDefault();
             if (Convert.ToString(stf02.TYPE) == "3")
             {
+
                 xmlString += "<Skus><Sku><SellerSku>" + data.kdBrg + "</SellerSku>";
                 xmlString += "<active>" + (data.activeProd ? "true" : "false") + "</active>";
                 //xmlString += "<color_family>Not Specified</color_family>";
+
+                //add by calvin 1 mei 2019
+                //var qty_stock = new StokControllerJob(DatabasePathErasoft, "").GetQOHSTF08A(data.kdBrg, "ALL");
+                //if (qty_stock > 0)
+                //{
+                //xmlString += "<quantity>1</quantity>";
+                //}
+                //end add by calvin 1 mei 2019
+
                 //xmlString += "<quantity>1</quantity>";
                 xmlString += "<price>" + data.harga + "</price>";
                 //xmlString += "<size>Int: One size</size>";
@@ -318,12 +392,27 @@ namespace MasterOnline.Controllers
                     xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
                 xmlString += "</Images>";
 
-                for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                //change 8 Apriil 2019, get attr from api
+                //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                //{
+                //    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                //    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                //}
+                //for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
+                //{
+                //    xmlString += "<" + dsSku[i].ToString() + ">";
+                //    xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                //    xmlString += "</" + dsSku[i].ToString() + ">";
+                //}
+                foreach (var lzdSkuAttr in lzdAttrSkuWithVal)
                 {
-                    xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                    xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                    xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                    xmlString += "<" + lzdSkuAttr.Key + ">";
+                    xmlString += lzdSkuAttr.Value.ToString();
+                    xmlString += "</" + lzdSkuAttr.Key + ">";
                 }
+                //end change 8 Apriil 2019, get attr from api
+
                 xmlString += "</Sku></Skus>";
             }
             else if (Convert.ToString(stf02.TYPE) == "4")
@@ -390,15 +479,26 @@ namespace MasterOnline.Controllers
                         }
 
                         //CEK JIKA ADA ATTRIBUTE YANG KURANG DI STF02I ( MAPPING ATTRIBUTE ), MAKA AMBIL KE STF02H
-                        for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //change 8 Apriil 2019, get attr from api
+                        //for (int i = 0; i < dsSku.Tables[0].Rows.Count; i++)
+                        //{
+                        //    if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                        //    {
+                        //        xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //        xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
+                        //        xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                        //    }
+                        //}
+                        for (int i = 0; i < lzdAttrSkuWithVal.Count; i++)
                         {
-                            if (!attributesAdded.Contains(dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString()))
+                            if (!attributesAdded.Contains(dsSku[i].ToString()))
                             {
-                                xmlString += "<" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
-                                xmlString += dsSku.Tables[0].Rows[i]["VALUE"].ToString();
-                                xmlString += "</" + dsSku.Tables[0].Rows[i]["CATEGORY_CODE"].ToString() + ">";
+                                xmlString += "<" + dsSku[i].ToString() + ">";
+                                xmlString += lzdAttrSkuWithVal[dsSku[i].ToString()].ToString();
+                                xmlString += "</" + dsSku[i].ToString() + ">";
                             }
                         }
+                        //end change 8 Apriil 2019, get attr from api
 
                         xmlString += "<price>" + data.harga + "</price>";
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
@@ -424,32 +524,35 @@ namespace MasterOnline.Controllers
             request.AddApiParameter("payload", xmlString);
 
             //LazopResponse response = client.Execute(request, data.token);
-            try
+            //try
+            //{
+            LazopResponse response = client.Execute(request, data.token);
+
+            var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
+            if (res.code.Equals("0"))
             {
-                LazopResponse response = client.Execute(request, data.token);
-
-                var res = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaCreateBarangResponse)) as LazadaCreateBarangResponse;
-                if (res.code.Equals("0"))
+                ret.status = 1;
+                //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
+                var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
+                foreach (var item in res.data.sku_list)
                 {
-                    ret.status = 1;
-                    //DatabaseSQL EDB = new DatabaseSQL(sessionData.Account.UserId);
-                    var result = EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + res.data.item_id + "' WHERE BRG = '" + data.kdBrg + "' AND IDMARKET = '" + data.idMarket + "'");
-                    foreach (var item in res.data.sku_list)
-                    {
-                        EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
-                    }
+                    EDB.ExecuteSQL("MOConnectionString", CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + item.seller_sku + "' WHERE BRG = '" + item.seller_sku + "' AND IDMARKET = '" + data.idMarket + "'");
+                }
 
-                    if (result == 1)
-                    {
-                        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
-                    }
-                    else
-                    {
-                        currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
-                    }
+                if (result == 1)
+                {
+                    //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, data.key, currentLog);
                 }
                 else
+                {
+                    //currentLog.REQUEST_EXCEPTION = "failed to update brg_mp;execute result=" + result;
+                    //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                    throw new Exception("failed to update brg_mp;execute result=" + result);
+                }
+            }
+            else
+            {
+                if (res.detail != null)
                 {
                     if (res.detail.Length == 1)
                     {
@@ -479,17 +582,24 @@ namespace MasterOnline.Controllers
                             }
                         }
                     }
-
-                    currentLog.REQUEST_EXCEPTION = ret.message;
-                    manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                }
+                else
+                {
+                    ret.message = res.message;
                 }
 
+
+                //currentLog.REQUEST_EXCEPTION = ret.message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, data.token, currentLog);
+                throw new Exception(ret.message);
             }
-            catch (Exception ex)
-            {
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
-            }
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    currentLog.REQUEST_EXCEPTION = ex.Message;
+            //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, data.token, currentLog);
+            //}
             return ret;
         }
 
@@ -1184,7 +1294,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Lazada Gagal.")]
-        public LazadaToDeliver GetToDeliver(string dbPathEra, string namaPemesan, string uname, List<string> orderItemId, string shippingProvider, string trackingNumber, string accessToken)
+        public LazadaToDeliver GetToDeliver(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname, List<string> orderItemId, string shippingProvider, string trackingNumber, string accessToken)
         {
             var ret = new LazadaToDeliver();
             SetupContext(dbPathEra, uname);
@@ -1248,7 +1358,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Cancel Pesanan {obj} ke Lazada Gagal.")]
-        public BindingBase SetStatusToCanceled(string dbPathEra, string namaPemesan, string orderItemId, string accessToken, string uname)
+        public BindingBase SetStatusToCanceled(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string orderItemId, string accessToken, string uname)
         {
             var ret = new BindingBase();
             ret.status = 0;
@@ -1390,15 +1500,15 @@ namespace MasterOnline.Controllers
             var fromDt = DateTime.Now.AddDays(-14);
             var toDt = DateTime.Now.AddDays(1);
             SetupContext(dbPathEra, uname);
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Order",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = connectionID,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
             LazopRequest request = new LazopRequest();
@@ -1615,7 +1725,7 @@ namespace MasterOnline.Controllers
                                 //change 12 Maret 2019, handle record > 100
                                 //jmlhNewOrder++;
                             }
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
 
                             if (jmlhNewOrder > 0)
                             {
@@ -1632,8 +1742,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_EXCEPTION = bindOrder.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                        //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
                         ret.message = "lazada api return error";
                         if (string.IsNullOrEmpty(bindOrder.message))
                             ret.message += "\n" + bindOrder.message.ToString();
@@ -1648,269 +1758,12 @@ namespace MasterOnline.Controllers
             catch (Exception ex)
             {
                 ret.message = ex.ToString();
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
-            }
-            return ret;
-        }
-        public BindingBase getOrderItems(string orderId, string accessToken)
-        {
-            var ret = new BindingBase();
-            ret.status = 0;
-
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest();
-            request.SetApiName("/order/items/get");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("order_id", orderId);
-            LazopResponse response = client.Execute(request, accessToken);
-
-            var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LzdNewOrderItems)) as LzdNewOrderItems;
-            if (bindOrderItems != null)
-            {
-                if (bindOrderItems.code.Equals("0"))
-                {
-                    if (bindOrderItems.data.Count > 0)
-                    {
-                        string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
-                        insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
-                        insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
-                        insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
-                        insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
-
-                        int i = 1;
-                        var connectionID = Guid.NewGuid().ToString();
-                        //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-
-                        foreach (Orderitem items in bindOrderItems.data)
-                        {
-                            //var isDigital = (items.IsDigital == 1) ? 1 : 0;
-                            var statusEra = "";
-                            switch (items.Status.ToString())
-                            {
-                                case "processing":
-                                    statusEra = "01";
-                                    break;
-                                case "ready_to_ship":
-                                    statusEra = "02";
-                                    break;
-                                case "delivered":
-                                    statusEra = "03";
-                                    break;
-                                case "shipped":
-                                    statusEra = "04";
-                                    break;
-                                case "pending":
-                                    statusEra = "05";
-                                    break;
-                                case "returned":
-                                    statusEra = "06";
-                                    break;
-                                case "return_waiting_for_approval":
-                                    statusEra = "07";
-                                    break;
-                                case "return_shipped_by_customer":
-                                    statusEra = "08";
-                                    break;
-                                case "return_rejected":
-                                    statusEra = "09";
-                                    break;
-                                case "failed":
-                                    statusEra = "10";
-                                    break;
-                                case "canceled":
-                                    statusEra = "11";
-                                    break;
-                                default:
-                                    statusEra = "99";
-                                    break;
-                            }
-                            insertQ += "('" + items.OrderItemId + "','" + items.ShopId + "','" + items.OrderId + "','" + items.Name + "','" + items.Sku + "','" + items.ShopSku + "','" + items.ShippingType;
-                            insertQ += "'," + items.ItemPrice + "," + items.PaidPrice + ",'" + items.Currency + "'," + items.TaxAmount + "," + items.ShippingAmount + "," + items.ShippingServiceCost + "," + items.VoucherAmount;
-                            insertQ += ",'" + statusEra + "','" + items.ShipmentProvider + "'," + items.IsDigital + ",'" + items.TrackingCode + "','" + items.Reason + "','" + items.ReasonDetail + "','" + items.PurchaseOrderId;
-                            insertQ += "','" + items.PurchaseOrderNumber + "','" + items.PackageId + "','" + items.ExtraAttributes + "','" + items.ShippingProviderType + "','" + items.CreatedAt + "','" + items.UpdatedAt;
-                            insertQ += "','" + items.ReturnStatus + "','" + items.productMainImage + "','" + items.Variation + "','" + items.ProductDetailUrl + "','" + items.invoiceNumber + "','" + username + "','" + connectionID + "')";
-
-                            if (i < bindOrderItems.data.Count)
-                                insertQ += " , ";
-                            i = i + 1;
-                        }
-                        var a = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, insertQ);
-                        ret.status = 1;
-                        ret.message = a.ToString();
-
-                        SqlCommand CommandSQL = new SqlCommand();
-                        CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                        CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                        CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
-
-                        EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
-                    }
-                    else
-                    {
-                        ret.message = "no item";
-                    }
-                }
-                else
-                {
-                    ret.message = "lazada api return error";
-                    if (!string.IsNullOrEmpty(bindOrderItems.message))
-                        ret.message += "\n" + bindOrderItems.message;
-                }
-            }
-            else
-            {
-                ret.message = "failed to call lazada api";
+                //currentLog.REQUEST_EXCEPTION = ex.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
             }
             return ret;
         }
 
-        public BindingBase getMultiOrderItems(string orderIds, string accessToken, string connectionID)
-        {
-            var ret = new BindingBase();
-            ret.status = 0;
-
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Order Items",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = orderIds,
-                REQUEST_ATTRIBUTE_2 = connectionID,
-                REQUEST_STATUS = "Pending",
-            };
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
-
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest();
-            request.SetApiName("/orders/items/get");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("order_ids", orderIds);
-            try
-            {
-                LazopResponse response = client.Execute(request, accessToken);
-
-                var bindOrderItems = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(LazadaOrderItems)) as LazadaOrderItems;
-                if (bindOrderItems != null)
-                {
-                    if (bindOrderItems.code.Equals("0"))
-                    {
-                        if (bindOrderItems.data.Count > 0)
-                        {
-                            string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
-                            insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
-                            insertQ += ",[STATUS],[SHIPMENT_PROVIDER],[IS_DIGITAL],[TRACKING_CODE],[REASON],[REASON_DETAIL],[PURCHASE_ORDERID]";
-                            insertQ += ",[PURCHASE_ORDER_NUM],[PACKAGE_ID],[EXTRA_ATTRIBUTES],[SHIPPING_PROVIDER_TYPE],[CREATED_AT],[UPDATED_AT]";
-                            insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
-                            //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
-
-                            foreach (Datum order in bindOrderItems.data)
-                            {
-                                if (order.order_items.Count() > 0)
-                                {
-                                    //var connectionID = Guid.NewGuid().ToString();
-
-                                    foreach (Order_Items items in order.order_items)
-                                    {
-                                        //var isDigital = (items.IsDigital == 1) ? 1 : 0;
-                                        var statusEra = "";
-                                        switch (items.status.ToString())
-                                        {
-                                            case "processing":
-                                            case "pending":
-                                                statusEra = "01";
-                                                break;
-                                            case "ready_to_ship":
-                                                statusEra = "03";
-                                                break;
-                                            case "delivered":
-                                            //statusEra = "03";
-                                            //break;
-                                            case "shipped":
-                                                statusEra = "04";
-                                                break;
-                                            case "returned":
-                                                statusEra = "06";
-                                                break;
-                                            case "return_waiting_for_approval":
-                                                statusEra = "07";
-                                                break;
-                                            case "return_shipped_by_customer":
-                                                statusEra = "08";
-                                                break;
-                                            case "return_rejected":
-                                                statusEra = "09";
-                                                break;
-                                            case "failed":
-                                                statusEra = "10";
-                                                break;
-                                            case "canceled":
-                                                statusEra = "11";
-                                                break;
-                                            default:
-                                                statusEra = "99";
-                                                break;
-                                        }
-                                        //jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-                                        if (statusEra == "01")
-                                        {
-                                            var currentStatus = EDB.GetFieldValue("", "SOT01B", "ORDER_IEM_ID = '" + items.order_item_id + "'", "STATUS_BRG").ToString();
-                                            if (!string.IsNullOrEmpty(currentStatus))
-                                                if (currentStatus == "02" || currentStatus == "03")
-                                                    statusEra = currentStatus;
-                                        }
-                                        //end jika status pesanan sudah diubah di mo, dari 01 -> 02/03, status tidak dikembalikan ke 01
-
-                                        insertQ += "('" + items.order_item_id + "','" + items.shop_id + "','" + items.order_id + "','" + items.name.Replace('\'', '`') + "','" + items.sku.Replace('\'', '`') + "','" + items.shop_sku.Replace('\'', '`') + "','" + items.shipping_type;
-                                        insertQ += "'," + items.item_price + "," + items.paid_price + ",'" + items.currency + "'," + items.tax_amount + "," + items.shipping_amount + "," + items.shipping_service_cost + "," + items.voucher_amount;
-                                        insertQ += ",'" + statusEra + "','" + items.shipment_provider.Replace('\'', '`') + "'," + items.is_digital + ",'" + items.tracking_code + "','" + items.reason.Replace('\'', '`') + "','" + items.reason_detail.Replace('\'', '`') + "','" + items.purchase_order_id;
-                                        insertQ += "','" + items.purchase_order_number + "','" + items.package_id + "','" + items.extra_attributes.Replace('\'', '`') + "','" + items.shipping_provider_type + "','" + items.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + items.updated_at.ToString("yyyy-MM-dd HH:mm:ss");
-                                        insertQ += "','" + items.return_status + "','" + items.product_main_image + "','" + items.variation.Replace('\'', '`') + "','" + items.product_detail_url + "','" + items.invoice_number + "','" + username + "','" + connectionID + "')";
-
-                                        //if (i < bindOrderItems.data.Count)
-                                        insertQ += ",";
-                                        //i = i + 1;
-                                    }
-
-                                }
-                            }
-                            insertQ = insertQ.Substring(0, insertQ.Length - 1);
-                            var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
-
-                            SqlCommand CommandSQL = new SqlCommand();
-                            CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
-                            CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
-                            //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
-
-                            EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
-                            manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
-                        }
-                        else
-                        {
-                            ret.message = "no item";
-                        }
-                    }
-                    else
-                    {
-                        currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
-                        if (!string.IsNullOrEmpty(bindOrderItems.message))
-                            ret.message += "\n" + bindOrderItems.message;
-                    }
-                }
-                else
-                {
-                    ret.message = "failed to call lazada api";
-                }
-            }
-            catch (Exception ex)
-            {
-                ret.message = ex.ToString();
-                currentLog.REQUEST_EXCEPTION = ex.Message;
-                manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
-            }
-            return ret;
-        }
         public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID)
         {
             var ret = new BindingBase();
@@ -1936,27 +1789,27 @@ namespace MasterOnline.Controllers
             }
             else
             {
-                foreach(var ids in orderIds)
+                foreach (var ids in orderIds)
                 {
                     addOrderID += ids + ",";
                 }
                 addOrderID = addOrderID.Substring(0, addOrderID.Length - 1) + "]";
                 listID.Add(addOrderID);
             }
-            MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
-            {
-                REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                REQUEST_ACTION = "Get Order Items",
-                REQUEST_DATETIME = DateTime.Now,
-                REQUEST_ATTRIBUTE_1 = "",
-                REQUEST_ATTRIBUTE_2 = connectionID,
-                REQUEST_STATUS = "Pending",
-            };
-            foreach (var a in listID)
-            {
-                currentLog.REQUEST_ATTRIBUTE_1 += a;
-            }
-            manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order Items",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = "",
+            //    REQUEST_ATTRIBUTE_2 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //foreach (var a in listID)
+            //{
+            //    currentLog.REQUEST_ATTRIBUTE_1 += a;
+            //}
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
 
             string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERITEMS ([ORDER_ITEM_ID],[SHOP_ID],[ORDER_ID],[NAME],[SKU],[SHOP_SKU],[SHIPPING_TYPE]";
             insertQ += ",[ITEM_PRICE],[PAID_PRICE],[CURRENCY],[TAX_AMOUNT],[SHIPPING_AMOUNT],[SHIPPING_SERVICE_COST],[VOUCHER_AMOUNT]";
@@ -1965,7 +1818,7 @@ namespace MasterOnline.Controllers
             insertQ += ",[RETURN_STATUS],[PRODUCT_MAIN_IMAGE],[VARIATION],[PRODUCT_DETAIL_URL],[INVOICE_NUM],[USERNAME],[CONNECTION_ID]) VALUES ";
 
             string sSQL_Value = "";
-            foreach(var listOrderIds in listID)
+            foreach (var listOrderIds in listID)
             {
                 ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
                 LazopRequest request = new LazopRequest();
@@ -2051,7 +1904,7 @@ namespace MasterOnline.Controllers
                                     }
 
                                 }
-                            }                            
+                            }
                         }
                         else
                         {
@@ -2060,8 +1913,8 @@ namespace MasterOnline.Controllers
                     }
                     else
                     {
-                        currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
-                        manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
+                        //currentLog.REQUEST_EXCEPTION = bindOrderItems.message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog); ret.message = "lazada api return error";
                         if (!string.IsNullOrEmpty(bindOrderItems.message))
                             ret.message += "\n" + bindOrderItems.message;
                     }
@@ -2083,10 +1936,10 @@ namespace MasterOnline.Controllers
                 //CommandSQL.Parameters.Add("@NoBukti", SqlDbType.VarChar).Value = orderId;
 
                 EDB.ExecuteSQL("MOConnectionString", "MoveOrderItemsFromTempTable", CommandSQL);
-                manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+                //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
             }
-            
-            
+
+
             return ret;
         }
         public BindingBase GetBrgLazada(string cust, string accessToken, int page, int recordCount)
@@ -4037,40 +3890,69 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public List<ATTRIBUTE_OPT_LAZADA> getAttrLzd(string code, string aCode)
+        public ATTRIBUTE_LAZADA getAttrLzd(string code)
         {
-            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
-            LazopRequest request = new LazopRequest();
-            request.SetApiName("/category/attributes/get");
-            request.SetHttpMethod("GET");
-            request.AddApiParameter("primary_category_id", code);
-            LazopResponse response = client.Execute(request);
-            if (response != null)
-            {
-                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
-                if (bindAttr.code == "0")
-                {
-                    var attrBrg = bindAttr.data.Where(m => m.name.ToUpper() == aCode.ToUpper()).SingleOrDefault();
-                    var ret = new List<ATTRIBUTE_OPT_LAZADA>();
-                    if (attrBrg != null)
-                    {
-                        foreach (var opt in attrBrg.options)
-                        {
-                            var optAttrBrg = new ATTRIBUTE_OPT_LAZADA
-                            {
-                                A_NAME = attrBrg.name,
-                                CATEGORY_CODE = code,
-                                O_NAME = opt.name,
-                            };
-                            ret.Add(optAttrBrg);
-                        }
-                    }
+            var retAttr = new ATTRIBUTE_LAZADA();
 
-                    return ret;
+            var tbl = MoDbContext.CATEGORY_LAZADA.Where(c => c.CATEGORY_ID == code).FirstOrDefault();
+            if (tbl != null)
+            {
+                ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+                LazopRequest request = new LazopRequest();
+                request.SetApiName("/category/attributes/get");
+                request.SetHttpMethod("GET");
+                request.AddApiParameter("primary_category_id", code);
+                LazopResponse response = client.Execute(request);
+                //Console.WriteLine(response.IsError());
+                //Console.WriteLine(response.Body);
+                var bindAttr = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(AttributeBody)) as AttributeBody;
+                if (bindAttr != null)
+                {
+                    if (bindAttr.code == "0")
+                    {
+                        try
+                        {
+                            retAttr.CATEGORY_CODE = code;
+                            int i = 1;
+                            foreach (var attr in bindAttr.data)
+                            {
+                                if (attr.name != "name" && attr.name != "description" && attr.name != "brand" && attr.name != "SellerSku" && attr.name != "price"
+                                    && attr.name != "package_weight" && attr.name != "package_length" && attr.name != "package_width" && attr.name != "package_height"
+                                    && attr.name != "__images__" && attr.name != "color_thumbnail" && attr.name != "special_price" && attr.name != "special_from_date"
+                                    && attr.name != "special_to_date" && attr.name != "seller_promotion" && attr.name != "tax_class")
+                                {
+                                    retAttr["ALABEL" + i] = attr.label;
+                                    retAttr["ANAME" + i] = attr.name;
+                                    retAttr["ATYPE" + i] = attr.attribute_type;
+                                    retAttr["AINPUT_TYPE" + i] = attr.input_type;
+                                    retAttr["ASALE_PROP" + i] = attr.is_sale_prop.ToString();
+                                    retAttr["AMANDATORY" + i] = attr.is_mandatory.ToString();
+                                    i++;
+                                }
+
+                            }
+                            for (int j = i; j <= 50; j++)
+                            {
+                                retAttr["ALABEL" + j] = "";
+                                retAttr["ANAME" + j] = "";
+                                retAttr["ATYPE" + j] = "";
+                                retAttr["AINPUT_TYPE" + j] = "";
+                                retAttr["ASALE_PROP" + j] = "0";
+                                retAttr["AMANDATORY" + j] = "0";
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+
+                    }
                 }
             }
-            return new List<ATTRIBUTE_OPT_LAZADA>();
+
+            return retAttr;
         }
+
         public BindingBase getMissingAttr(string code)
         {
             var ret = new BindingBase();
