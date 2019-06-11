@@ -90,7 +90,7 @@
                             <div class="input-group">
                                 <input id="search_invoice" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_invoice_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -107,7 +107,7 @@
                     </div>
                     <div class="row invoice_table_section" style="margin-top: 5px;">
                         <div class="col-sm-12" id="table-invoice-partial">
-                            @Html.Partial("TableReturInvoicePartial")
+                            @*@Html.Partial("TableReturInvoicePartial")*@
                         </div>
                     </div>
                     <div class="row invoice_editor_section" style="display: none;">
@@ -133,7 +133,7 @@
                                 @using (Html.BeginForm("SaveInvoice", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-invoice" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("BarangReturInvoicePartial")
+                                        @*@Html.Partial("BarangReturInvoicePartial")*@
                                     </div>
                                 }
                             </div>
@@ -412,6 +412,7 @@
             //end add by nurul 12/2/2019
 
         $(document).ready(function () {
+            refreshTableInvoice1();
             //add by nurul 12/2/2019
             $page = 0;
             //end add by nurul 12/2/2019
@@ -431,19 +432,60 @@
                 tableSiapProses.search($(this).val()).draw();
             });
 
-            Initialize();
+            //Initialize();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            $('#search_invoice').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableInvoice1();
+                    return false;
+                }
+            });
+            $('#search_invoice_click').click(function () {
+                searchTableInvoice1();
+            });
+
+            $('#tambah_invoice').on('click', function () {
+                //$('.invoice_table_section').hide();
+                //$('.invoice_editor_section').show();
+
+                //$modeEdit = 0; // 0 new, 1 edit
+                refreshForm1();
+            });
+
+            $('#close-editor-1').on('click', function () {
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    $('.invoice_table_section').show();
+                    $('.invoice_editor_section').hide();
+                    //refreshForm1();
+                    refreshTableInvoice1();
+                    $modeEdit = 0; // 0 new, 1 edit
+                    //add by nurul 12/2/2019
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+                }
+            });
         });
 
-        var table = $('#datatable').DataTable({
-            "order": [[0,1, "desc"]], //or asc
-            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-        });
+        //var table = $('#datatable').DataTable({
+        //    "order": [[0,1, "desc"]], //or asc
+        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+        //});
 
         function closeEditor() {
             $('#modalTutupEditor').modal('hide');
@@ -452,27 +494,35 @@
             });
             $('.invoice_table_section').show();
             $('.invoice_editor_section').hide();
-            refreshForm1();
+            //refreshForm1();
             refreshTableInvoice1();
             $modeEdit = 0; // 0 new, 1 edit
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
             var tableNunggu = $('#datatable_nunggu').DataTable();
             var tableSedangProses = $('#datatable_sedangproses').DataTable();
             var tableSiapKirim = $('#datatable_siapkirim').DataTable();
             var tableSudahKirim = $('#datatable_sudahkirim').DataTable();
             var tableSelesai = $('#datatable_selesai').DataTable();
 
-            $('#search_invoice').keyup(function () {
-                table.search($(this).val()).draw();
+            $('#search_invoice').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableInvoice1();
+                    return false;
+                }
+            });
+            $('#search_invoice_click').click(function () {
+                searchTableInvoice1();
             });
 
             $('#search_selesai').keyup(function () {
@@ -509,10 +559,11 @@
             //    });
 
             $('#tambah_invoice').on('click', function () {
-                $('.invoice_table_section').hide();
-                $('.invoice_editor_section').show();
+                //$('.invoice_table_section').hide();
+                //$('.invoice_editor_section').show();
 
-                $modeEdit = 0; // 0 new, 1 edit
+                //$modeEdit = 0; // 0 new, 1 edit
+                refreshForm1();
             });
 
             $('#close-editor-1').on('click', function () {
@@ -524,14 +575,14 @@
                     });
                     $('.invoice_table_section').show();
                     $('.invoice_editor_section').hide();
-                    refreshForm1();
+                    //refreshForm1();
                     refreshTableInvoice1();
                     $modeEdit = 0; // 0 new, 1 edit
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 }
             });
@@ -543,7 +594,7 @@
             $('#table_tambah > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getTanggal();
-            $modeEdit = 0;
+            //$modeEdit = 0;
             getSupplier();
             getInvoice();
 
@@ -571,37 +622,89 @@
             refreshInputan();
             refreshNetto();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
         function getTanggal() {
-            $('#TGL').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0').change(function () {
-                if ($(this).val() == '') {
-                    $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
-                    return;
-                }
+            if ($modeEdit == 1) { // mode edit
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).change(function () {
+                    if ($(this).val() == '') {
+                        $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+                        return;
+                    }
 
-                var $tgl = moment($(this).val(), "DD/MM/YYYY");
-                $('#Invoice_TGL').val($(this).val());
-                //add by nurul 31/10/2018
-                $(this).datepicker('hide');
-                //end add
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Invoice_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $('#TGL').datepicker('hide');
+                    //end add
 
-                if ($('#Invoice_TERM').val() == '') {
-                    $('#Invoice_TGJT').val('Masukkan TOP dahulu');
-                } else {
-                    var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
-                    $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
-                }
-                //$('#btn-simpan-perubahan-row').show();
+
+                    if ($('#Invoice_TERM').val() == '') {
+                        $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
+                        $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $('#btn-simpan-perubahan-row').show();
                 });
+            }
+            else { //new
+                $('#TGL').datepicker({
+                    format: 'dd/mm/yyyy',
+                    language: 'id'
+                }).datepicker('setDate', '0').change(function () {
+                    if ($(this).val() == '') {
+                        $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+                        return;
+                    }
+
+                    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+                    $('#Invoice_TGL').val($(this).val());
+                    //add by nurul 31/10/2018
+                    $('#TGL').datepicker('hide');
+                    //end add
+
+                    if ($('#Invoice_TERM').val() == '') {
+                        $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+                    } else {
+                        var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
+                        $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
+                    }
+                    $modeEdit = 1;
+                    $('#btn-simpan-perubahan-row').show();
+                });
+            }
+            //$('#TGL').datepicker({
+            //    format: 'dd/mm/yyyy',
+            //    language: 'id'
+            //}).datepicker('setDate', '0').change(function () {
+            //    if ($(this).val() == '') {
+            //        $('#Invoice_TGJT').val('Pilih Tanggal dahulu');
+            //        return;
+            //    }
+
+            //    var $tgl = moment($(this).val(), "DD/MM/YYYY");
+            //    $('#Invoice_TGL').val($(this).val());
+            //    //add by nurul 31/10/2018
+            //    $(this).datepicker('hide');
+            //    //end add
+
+            //    if ($('#Invoice_TERM').val() == '') {
+            //        $('#Invoice_TGJT').val('Masukkan TOP dahulu');
+            //    } else {
+            //        var $tglTop = $tgl.add($('#Invoice_TERM').val(), 'days');
+            //        $('#Invoice_TGJT').val($tglTop.format('DD/MM/YYYY'));
+            //    }
+            //    //$('#btn-simpan-perubahan-row').show();
+            //    });
 
             if ($('#Invoice_TGL').val() != '') {
                 $('#TGL').val($('#Invoice_TGL').val().substr(0, 10));
@@ -740,11 +843,11 @@
             });
 
 
-            $('#btn-autoload').click(function () {
+            //$('#btn-autoload').click(function () {
 
-                autoloadInvoice();
+            //    autoloadInvoice();
 
-            });
+            //});
 
             //add by nurul 10/12/2018
             $('#Invoice_BIAYA_LAIN').change(function () {
@@ -762,10 +865,10 @@
             });
             //end add
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -821,9 +924,10 @@
                                 $nettoSebelumnya = parseInt(convertToAngka($('#Invoice_NETTO').val()));
                                 $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
                                 refreshInputan();
+                                //$('#Invoice_TGL').val($('#Invoice_TGL').val().format('DD/MM/YYYY'));
                                 getTanggal();
-                                getSupplier();
-                                getInvoice();
+                                //getSupplier();
+                                //getInvoice();
                                 //change by nurul 2/11/2018 -- $('#btn-simpan-perubahan-row').show();
                                 $('#btn-simpan-perubahan-row').hide();
                                 $('#btn-autoload-row').hide();
@@ -1376,15 +1480,15 @@
                 url: link,
                 success: function (response) {
                     $modeEdit = 1; // 0 new, 1 edit
-
+                    $('.invoice_table_section').hide();
+                    $('.invoice_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
                     getSupplier();
                     getInvoice();
                     //$('#tambah_invoice').click();\
-                    $('.invoice_table_section').hide();
-                    $('.invoice_editor_section').show();
+                    
 
                     $nettoSebelumnya += $bakalNetto;
 
@@ -1410,16 +1514,16 @@
                 },
                 success: function (response) {
                     $modeEdit = 1; // 0 new, 1 edit
-
+                    $('.invoice_table_section').hide();
+                    $('.invoice_editor_section').show();
                     $('#form-partial').html(response);
                     refreshInputan();
                     getTanggal();
-                    getSupplier();
+                    //getSupplier();
                     //getInvoice(false);
-                    getInvoice();
+                    //getInvoice();
                     //$('#tambah_invoice').click();
-                    $('.invoice_table_section').hide();
-                    $('.invoice_editor_section').show();
+                    
 
                     $nettoSebelumnya += $bakalNetto;
                     $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
@@ -1469,11 +1573,12 @@
                         alert(response.Errors[0]);
                     } else {
                         $('#table-invoice-partial').html(response);
-                        var table = $('#datatable').DataTable({
-                            "order": [[0, 1, "desc"]], //or asc
-                            "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                        });
-                        Initialize();
+                        //var table = $('#datatable').DataTable({
+                        //    "order": [[0, 1, "desc"]], //or asc
+                        //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                        //});
+                        //Initialize();
+                        refreshTableInvoice1();
                         $('#konfHapusInvoice').modal('hide');
                         $('#loading_spinner').hide();
                     }
@@ -1566,7 +1671,9 @@
                         getTanggal();
                         getSupplier();
                         getInvoice(false);
-                        $('#tambah_invoice').click();
+                        //$('#tambah_invoice').click();
+                        $('.invoice_table_section').hide();
+                        $('.invoice_editor_section').show();
                         $nettoSebelumnya += $bakalNetto;
                         $totalAwal = parseInt(convertToAngka($("#Invoice_BRUTO").val()));
                         //ADD BY NURUL 16/11/2018
@@ -1590,7 +1697,7 @@
             });
         }
 
-        function refreshTableInvoice1() {
+        @*function refreshTableInvoice1() {
             var link = '@Url.Action("RefreshTableReturInvoice", "Manage")';
 
             $.ajax({
@@ -1598,10 +1705,10 @@
                 url: link,
                 success: function (response) {
                     $('#table-invoice-partial').html(response);
-                    var table = $('#datatable').DataTable({
-                        "order": [[0,1, "desc"]], //or asc
-                        "columnDefs": [{ "targets": 1, "type": "date-eu" }],
-                    });
+                    //var table = $('#datatable').DataTable({
+                    //    "order": [[0,1, "desc"]], //or asc
+                    //    "columnDefs": [{ "targets": 1, "type": "date-eu" }],
+                    //});
                     $('#search_invoice').keyup(function () {
                         table.search($(this).val()).draw();
                     });
@@ -1609,13 +1716,60 @@
                     table.search($('#search_invoice').val()).draw();
                     //end add by calvin 23 nov 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }*@
+
+        function refreshTableInvoice1() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableReturInvoice", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_invoice').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-invoice-partial').hide();
+                    $('#loading_invoice_tab').show();
+                },
+                success: function (response) {
+                    $('#table-invoice-partial').html(response);
+                    //cekJumlahPesananBulanIni();
+                    $('#loading_invoice_tab').hide();
+                    $('#table-invoice-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableInvoice1(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableReturInvoice", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_invoice').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_invoice_click')[0].disabled = true;
+                    $('#loading_invoice_tab').show();
+                },
+                success: function (response) {
+                    $('#search_invoice_click')[0].disabled = false;
+                    $('#table-invoice-partial').html(response);
+                    $('#loading_invoice_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_invoice_click')[0].disabled = false;
                     console.log(error);
                 }
             });
@@ -1628,6 +1782,9 @@
                 type: "GET",
                 url: link,
                 success: function (response) {
+                    $('.invoice_table_section').hide();
+                    $('.invoice_editor_section').show();
+
                     $modeEdit = 0;
                     $('#form-partial').html(response);
                     refreshInputan();

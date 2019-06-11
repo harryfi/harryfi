@@ -8707,98 +8707,245 @@ namespace MasterOnline.Controllers
             return PartialView("BarangReturPartial", vm);
         }
 
-        public ActionResult RefreshTableFaktur1()
+        //public ActionResult RefreshTableFaktur1()
+        //{
+        //    var vm = new FakturViewModel()
+        //    {
+        //        ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
+        //        //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+        //        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+        //        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+        //        ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+        //        ListMarketplace = MoDbContext.Marketplaces.ToList(),
+        //        ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+        //        ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
+
+        //    };
+
+        //    return PartialView("TableFakturPartial", vm);
+        //}
+
+        public ActionResult RefreshTableFaktur1(int? page, string search = "")
         {
-            var vm = new FakturViewModel()
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(D.STATUS_TRANSAKSI,'') AS [STATUS], ISNULL(A.NO_SO,'') AS NOSO, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SIT01A A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN SOT01A D ON A.NO_SO = D.NO_BUKTI ";
+            sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            sSQL2 += "WHERE A.JENIS_FORM = '2' ";
+            if (search != "")
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.NO_REF LIKE '%" + search + "%') ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            };
-
-            return PartialView("TableFakturPartial", vm);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableFakturPartial", pageOrders);
         }
 
-        public ActionResult RefreshTableFakturLunas()
+        public ActionResult RefreshTableFakturLunas(int? page, string search = "")
         {
-            IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
-            var vm = new FakturViewModel()
+            //IEnumerable<ART01D> FakturSudahLunas = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
+            //var vm = new FakturViewModel()
+            //{
+            //    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
+            //                .ToList(),
+            //    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+            //    ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+            //    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
+            //};
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.TGL_JT_TEMPO AS TGLJTTEMPO ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SIT01A A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ART01D D ON A.NO_BUKTI = D.FAKTUR ";
+            sSQL2 += "WHERE A.JENIS_FORM = '2' AND (D.NETTO - D.KREDIT > 0) ";
+            if (search != "")
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && FakturSudahLunas.Any(a => a.FAKTUR == f.NO_BUKTI))
-                            .ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.TGL_JT_TEMPO LIKE '%" + search + "%') ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            };
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            return PartialView("TableFakturLunasPartial", vm);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableFakturLunasPartial", pageOrders);
+
+            //return PartialView("TableFakturLunasPartial", vm);
         }
-        public ActionResult RefreshTableFakturTempo(string tgl)
+        public ActionResult RefreshTableFakturTempo(string tgl, int? page, string search = "")
         {
-            //IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
-            //add by nurul 10/1/2019
-            var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            //end add
-            var vm = new FakturViewModel()
+            ////IEnumerable<ART01D> FakturJatuhTempo = ErasoftDbContext.ART01D.Where(a => a.NETTO.Value - a.KREDIT.Value > 0);
+            ////add by nurul 10/1/2019
+            //var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            ////end add
+            //var vm = new FakturViewModel()
+            //{
+            //    //change by nurul 10/1/2019 -- ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
+            //    ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= tanggal).ToList(),
+            //    //end change 
+            //    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+            //    ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+            //    ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+
+            //}; 
+            var tglNow = DateTime.Now.ToString("yyyy-MM-dd");
+            if (tgl != null)
             {
-                //change by nurul 10/1/2019 -- ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= DateTime.Now).ToList(),
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2" && f.TGL_JT_TEMPO <= tanggal).ToList(),
-                //end change 
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                tglNow = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd");
+            }
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.TGL_JT_TEMPO AS TGLJTTEMPO ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SIT01A A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "WHERE A.JENIS_FORM = '2' AND (A.TGL_JT_TEMPO <= '" + tglNow + "') ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.TGL_JT_TEMPO LIKE '%" + search + "%') ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            };
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
-            return PartialView("TableFakturLunasPartial", vm);
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableFakturTempoPartial", pageOrders);
+            //return PartialView("TableFakturLunasPartial", vm);
         }
 
 
-        public ActionResult RefreshTableRetur1()
-        {
-            var vm = new FakturViewModel()
-            {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList()
-            };
+        //public ActionResult RefreshTableRetur1()
+        //{
+        //    var vm = new FakturViewModel()
+        //    {
+        //        ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
+        //        //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+        //        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+        //        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+        //        ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+        //        ListMarketplace = MoDbContext.Marketplaces.ToList(),
+        //        ListNFaktur = ErasoftDbContext.ART03B.ToList()
+        //    };
 
-            return PartialView("TableReturPartial", vm);
+        //    return PartialView("TableReturPartial", vm);
+        //}
+        public ActionResult RefreshTableRetur1(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NO_BUKTI AS NO_FAKTUR, A.TGL AS TGL, ISNULL(C.NamaMarket,'') AS MARKET, ISNULL(B.PERSO,'') AS PERSO, A.NAMAPEMESAN AS PEMBELI, A.NETTO AS TOTAL, A.NO_REF AS REFERENSI, A.ST_POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM SIT01A A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.CUST = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN ART03B E ON A.NO_BUKTI = E.NFAKTUR ";
+            sSQL2 += "WHERE A.JENIS_FORM = '3' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.NO_BUKTI LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR C.NamaMarket LIKE '%" + search + "%' OR A.NAMAPEMESAN LIKE '%" + search + "%' OR B.PERSO LIKE '%" + search + "%' OR A.NO_REF LIKE '%" + search + "%') ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableReturPartial", pageOrders);
         }
 
-        public ActionResult RefreshTableReturInvoice()
-        {
-            var vm = new InvoiceViewModel()
-            {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList()
-            };
+        //public ActionResult RefreshTableReturInvoice()
+        //{
+        //    var vm = new InvoiceViewModel()
+        //    {
+        //        ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
+        //        //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+        //        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+        //        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+        //        ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+        //        ListMarketplace = MoDbContext.Marketplaces.ToList()
+        //    };
 
-            return PartialView("TableReturInvoicePartial", vm);
+        //    return PartialView("TableReturInvoicePartial", vm);
+        //}
+        public ActionResult RefreshTableReturInvoice(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN, A.REF AS REFERENSI ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PBT01A A ";
+            sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            sSQL2 += "WHERE A.JENISFORM = '2' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.INV LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR A.NAMA LIKE '%" + search + "%' OR A.REF LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableReturInvoicePartial", pageOrders);
         }
 
         public ActionResult RefreshFakturForm()
@@ -8923,18 +9070,20 @@ namespace MasterOnline.Controllers
 
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListPesanan = ErasoftDbContext.SOT01A.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "2").ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                //ListNFaktur = ErasoftDbContext.ART03B.ToList(),
+                Errors = null
 
             };
 
-            return PartialView("TableFakturPartial", vm);
+            //return PartialView("TableFakturPartial", vm);
+            return Json(fakturInDb, JsonRequestBehavior.AllowGet);
         }
 
         public ActionResult DeleteReturFaktur(int? orderId)
@@ -8977,16 +9126,19 @@ namespace MasterOnline.Controllers
 
             var vm = new FakturViewModel()
             {
-                ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNFaktur = ErasoftDbContext.ART03B.ToList()
+                //ListFaktur = ErasoftDbContext.SIT01A.Where(f => f.JENIS_FORM == "3").ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListNFaktur = ErasoftDbContext.ART03B.ToList()
+                Errors = null
             };
+            
+            return Json(returFakturInDb, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableReturPartial", vm);
+            //return PartialView("TableReturPartial", vm);
         }
 
         [HttpGet]
@@ -9160,6 +9312,31 @@ namespace MasterOnline.Controllers
             return Json(detail, JsonRequestBehavior.AllowGet);
         }
         //end add 
+
+        //add by nurul 27/5/2019
+        public ActionResult TambahBaruFaktur()
+        {
+            try
+            {
+                var fakturInDb = new SIT01A();
+
+                var vm = new FakturViewModel()
+                {
+                    Faktur = fakturInDb,
+                    //ListPesanan = ErasoftDbContext.SOT01A.ToList(),
+                    ListFakturDetail = ErasoftDbContext.SIT01B.Where(pd => 0 == 1).ToList(),
+                    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                    //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList()
+                };
+
+                return PartialView("BarangFakturPartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+        //end add by nurul 27/5/2019
 
         // =============================================== Bagian Faktur Penjualan (END)
 
@@ -9546,6 +9723,8 @@ namespace MasterOnline.Controllers
             }
             ModelState.Clear();
 
+            var cek = ErasoftDbContext.PBT01A.AsNoTracking().Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2");
+            var cek2 = ErasoftDbContext.PBT01B.AsNoTracking().Where(pd => pd.INV == dataVm.Invoice.INV && pd.JENISFORM == "2").ToList();
             var vm = new InvoiceViewModel()
             {
                 //Invoice = ErasoftDbContext.PBT01A.Single(p => p.INV == dataVm.Invoice.INV && p.JENISFORM == "2"),
@@ -9578,59 +9757,141 @@ namespace MasterOnline.Controllers
 
             return PartialView("BarangReturInvoicePartial", vm);
         }
-        public ActionResult RefreshTableInvoice1()
-        {
-            var vm = new InvoiceViewModel()
-            {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
-            };
+        //public ActionResult RefreshTableInvoice1()
+        //{
+        //    var vm = new InvoiceViewModel()
+        //    {
+        //        ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
+        //        //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+        //        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+        //        ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+        //        ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+        //        ListMarketplace = MoDbContext.Marketplaces.ToList(),
+        //        ListNInvoice = ErasoftDbContext.APT03B.ToList()
+        //    };
 
-            return PartialView("TableInvoicePartial", vm);
+        //    return PartialView("TableInvoicePartial", vm);
+        //}
+        public ActionResult RefreshTableInvoice1(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.POSTING AS POSTING, ISNULL(E.BUKTI,'') AS PEMBAYARAN ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PBT01A A ";
+            sSQL2 += "LEFT JOIN APT03B E ON A.INV = E.NINV ";
+            sSQL2 += "WHERE A.JENISFORM = '1' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.INV LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR A.NAMA LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableInvoicePartial", pageOrders);
         }
 
 
-        public ActionResult RefreshTableInvoiceLunas()
+        public ActionResult RefreshTableInvoiceLunas(int? page, string search = "")
         {
-            IEnumerable<APT01D> InvBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
-            var vm = new InvoiceViewModel()
+            //IEnumerable<APT01D> InvBelumLunas = ErasoftDbContext.APT01D.Where(a => a.NETTO - a.DEBET > 0);
+            //var vm = new InvoiceViewModel()
+            //{
+            //    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).ToList(),
+            //    //ListBarang = ErasoftDbContext.STF02.ToList(), change by nurul 21/1/2019
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+            //    ListNInvoice = ErasoftDbContext.APT03B.ToList()
+            //};
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.TGJT AS TGLJTTEMPO ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PBT01A A ";
+            sSQL2 += "LEFT JOIN APT01D D ON A.INV = D.INV ";
+            sSQL2 += "WHERE A.JENISFORM = '1' AND D.NETTO - D.DEBET > 0 ";
+            if (search != "")
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && InvBelumLunas.Any(a => a.INV == f.INV)).ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
-            };
+                sSQL2 += "AND (A.INV LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR A.NAMA LIKE '%" + search + "%' OR A.TGJT LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            return PartialView("TableInvoiceLunasPartial", vm);
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            //return PartialView("TableInvoiceLunasPartial", vm);
+            return PartialView("TableInvoiceLunasPartial", pageOrders);
         }
 
-        public ActionResult RefreshTableInvoiceTempo(string tgl)
+        public ActionResult RefreshTableInvoiceTempo(string tgl, int? page, string search = "")
         {
-            //add by nurul 10/1/2019
-            var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
-            //end add 
-            var vm = new InvoiceViewModel()
+            ////add by nurul 10/1/2019
+            //var tanggal = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+            ////end add 
+            //var vm = new InvoiceViewModel()
+            //{
+            //    //change by nurul 10/1/2019 -- ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
+            //    ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= tanggal).ToList(),
+            //    //end change 
+            //    //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //    ListMarketplace = MoDbContext.Marketplaces.ToList(),
+            //    ListNInvoice = ErasoftDbContext.APT03B.ToList()
+            //};
+            var tglNow = DateTime.Now.ToString("yyyy-MM-dd");
+            if (tgl != null)
             {
-                //change by nurul 10/1/2019 -- ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= DateTime.Now).ToList(),
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1" && f.TGJT <= tanggal).ToList(),
-                //end change 
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
-            };
+                tglNow = DateTime.ParseExact(tgl, "dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture).ToString("yyyy-MM-dd");
+            }
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.INV AS NO_FAKTUR, A.TGL AS TGL, A.NAMA AS SUPPLIER, A.NETTO AS TOTAL, A.TGJT AS TGLJTTEMPO ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PBT01A A ";
+            sSQL2 += "WHERE A.JENISFORM = '1' AND A.TGJT <= '" + tglNow + "' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.INV LIKE '%" + search + "%' OR A.TGL LIKE '%" + search + "%' OR A.NAMA LIKE '%" + search + "%' OR A.TGJT LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL DESC, A.INV DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
-            return PartialView("TableInvoiceLunasPartial", vm);
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+
+            //return PartialView("TableInvoiceLunasPartial", vm);
+            return PartialView("TableInvoiceTempoPartial", pageOrders);
         }
 
         public ActionResult RefreshTableReturInvoice1()
@@ -9648,7 +9909,7 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableReturInvoicePartial", vm);
         }
-
+        
         public ActionResult RefreshInvoiceForm()
         {
             try
@@ -9739,6 +10000,28 @@ namespace MasterOnline.Controllers
             }
         }
 
+        //add by nurul 28/5/2019
+        public ActionResult TambahBaruInvoice()
+        {
+            try
+            {
+                var invoiceInDb = new PBT01A();
+
+                var vm = new InvoiceViewModel()
+                {
+                    Invoice = invoiceInDb,
+                    ListInvoiceDetail = ErasoftDbContext.PBT01B.Where(pd => 0 == 1).ToList(),
+                };
+
+                return PartialView("BarangInvoicePartial", vm);
+            }
+            catch (Exception)
+            {
+                return View("Error");
+            }
+        }
+        //end add by nurul 28/5/2019
+
         public ActionResult DeleteInvoice(int? orderId)
         {
             var invoiceInDb = ErasoftDbContext.PBT01A.Single(p => p.RecNum == orderId && p.JENISFORM == "1");
@@ -9777,16 +10060,19 @@ namespace MasterOnline.Controllers
 
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "1").ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                Errors = null
             };
+            
+            return Json(invoiceInDb, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableInvoicePartial", vm);
+            //return PartialView("TableInvoicePartial", vm);
         }
 
         public ActionResult DeleteReturInvoice(int? orderId)
@@ -9811,16 +10097,19 @@ namespace MasterOnline.Controllers
 
             var vm = new InvoiceViewModel()
             {
-                ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
-                //ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-                ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                //ListInvoice = ErasoftDbContext.PBT01A.Where(f => f.JENISFORM == "2").ToList(),
+                ////ListBarang = ErasoftDbContext.STF02.ToList(), 'change by nurul 21/1/2019
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPembeli = ErasoftDbContext.ARF01C.OrderBy(x => x.NAMA).ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListNInvoice = ErasoftDbContext.APT03B.ToList()
+                Errors = null
             };
+            
+            return Json(invoiceInDb, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableReturInvoicePartial", vm);
+            //return PartialView("TableReturInvoicePartial", vm);
         }
 
         [HttpGet]
