@@ -1317,7 +1317,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Update Status Accept Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage AcceptOrder(string dbPathEra,string namaPemesan,string auth, string ordNo, string ordPrdSeq, string uname)
+        public ClientMessage AcceptOrder(string dbPathEra,string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string auth, string ordNo, string ordPrdSeq, string uname)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);
@@ -1375,7 +1375,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_manage_pesanan")]
         [NotifyOnFailed("Konfirmasi Pengiriman Pesanan {obj} ke Elevenia Gagal.")]
-        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan,string uname,string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
+        public ClientMessage UpdateAWBNumber(string dbPathEra, string namaPemesan, string log_CUST, string log_ActionCategory, string log_ActionName, string uname,string auth, string awb, string dlvNo, string dlvMthdCd, string dlvEtprsCd, string ordNo, string dlvEtprsNm, string ordPrdSeq)
         {
             var ret = new ClientMessage();
             SetupContext(dbPathEra, uname);

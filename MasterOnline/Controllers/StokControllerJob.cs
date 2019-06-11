@@ -26,7 +26,7 @@ using System.Security.Cryptography;
 namespace MasterOnline.Controllers
 {
     public class NotifyOnFailed : JobFilterAttribute,
-    IElectStateFilter
+    IElectStateFilter, IApplyStateFilter
     //IClientFilter, IServerFilter, IElectStateFilter, IApplyStateFilter
     {
         private string _deskripsi;
@@ -68,33 +68,113 @@ namespace MasterOnline.Controllers
 
         public void OnStateElection(ElectStateContext context)
         {
-            var failedState = context.CandidateState as FailedState;
-            if (failedState != null)
+            //move by calvin 15 mei 2019 from OnStateElection to OnStateApplied
+            //var failedState = context.CandidateState as FailedState;
+            //if (failedState != null)
+            //{
+            //    string dbPathEra = Convert.ToString(context.BackgroundJob.Job.Args[0]);// mengambil dbPathEra 
+            //    string subjectDescription = Convert.ToString(context.BackgroundJob.Job.Args[1]); //mengambil Subject
+
+            //    var jobId = context.BackgroundJob.Id;
+            //    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+            //    contextNotif.Clients.Group(dbPathEra).moFailedJobs(this._deskripsi, subjectDescription, jobId);
+            //    try
+            //    {
+            //        //add by calvin 14 mei 2019
+            //        string CUST = Convert.ToString(context.BackgroundJob.Job.Args[2]); //mengambil Cust
+            //        string ActionCategory = Convert.ToString(context.BackgroundJob.Job.Args[3]); //mengambil Kategori
+            //        string ActionName = Convert.ToString(context.BackgroundJob.Job.Args[4]); //mengambil Action
+            //        string exceptionMessage = failedState.Exception.InnerException == null ? failedState.Exception.Message : failedState.Exception.InnerException.Message;
+            //        var EDB = new DatabaseSQL(dbPathEra);
+            //        string sSQL = "INSERT INTO API_LOG_MARKETPLACE (CUST,MARKETPLACE,REQUEST_ID,";
+            //        sSQL += "REQUEST_ACTION,REQUEST_DATETIME,";
+            //        sSQL += "REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5,";
+            //        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) ";
+            //        sSQL += "VALUES ('" + CUST + "',(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "'), '" + jobId + "', ";
+            //        sSQL += "'" + ActionName + "', '" + context.BackgroundJob.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss") + "', ";
+            //        sSQL += "'" + ActionCategory + "','" + subjectDescription + "', 'HANGFIRE', ";
+            //        sSQL += "'"+ this._deskripsi.Replace("{obj}", subjectDescription) +"', '"+ exceptionMessage.Replace("'","`") + "')";
+            //        EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+            //        //end add by calvin 14 mei 2019
+            //    }
+            //    catch (Exception ex)
+            //    {
+
+            //    }
+            //}
+            //end move by calvin 15 mei 2019 from OnStateElection to OnStateApplied
+        }
+
+        public void OnStateApplied(ApplyStateContext context, Hangfire.Storage.IWriteOnlyTransaction transaction)
+        {
+            try
             {
-                string dbPathEra = Convert.ToString(context.BackgroundJob.Job.Args[0]);// mengambil dbPathEra 
-                string subjectDescription = Convert.ToString(context.BackgroundJob.Job.Args[1]); //mengambil Subject
-                var jobId = context.BackgroundJob.Id;
-                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
-                contextNotif.Clients.Group(dbPathEra).moFailedJobs(this._deskripsi, subjectDescription, jobId);
+                var failedState = context.NewState as FailedState;
+                if (failedState != null)
+                {
+                    string dbPathEra = Convert.ToString(context.BackgroundJob.Job.Args[0]);// mengambil dbPathEra 
+                    string subjectDescription = Convert.ToString(context.BackgroundJob.Job.Args[1]); //mengambil Subject
+
+                    var jobId = context.BackgroundJob.Id;
+                    var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                    contextNotif.Clients.Group(dbPathEra).moFailedJobs(this._deskripsi, subjectDescription, jobId);
+                    try
+                    {
+                        //add by calvin 14 mei 2019
+                        string CUST = Convert.ToString(context.BackgroundJob.Job.Args[2]); //mengambil Cust
+                        string ActionCategory = Convert.ToString(context.BackgroundJob.Job.Args[3]); //mengambil Kategori
+                        string ActionName = Convert.ToString(context.BackgroundJob.Job.Args[4]); //mengambil Action
+                        string exceptionMessage = failedState.Exception.InnerException == null ? failedState.Exception.Message : failedState.Exception.InnerException.Message;
+                        var EDB = new DatabaseSQL(dbPathEra);
+                        string sSQL = "INSERT INTO API_LOG_MARKETPLACE (REQUEST_STATUS,CUST_ATTRIBUTE_1,CUST_ATTRIBUTE_2,CUST,MARKETPLACE,REQUEST_ID,";
+                        sSQL += "REQUEST_ACTION,REQUEST_DATETIME,";
+                        sSQL += "REQUEST_ATTRIBUTE_3, REQUEST_ATTRIBUTE_4,REQUEST_ATTRIBUTE_5,";
+                        sSQL += "REQUEST_RESULT,REQUEST_EXCEPTION) ";
+                        sSQL += "SELECT 'FAILED',A.CUST_ATTRIBUTE_1, '1', A.CUST,A.MARKETPLACE,A.REQUEST_ID,A.REQUEST_ACTION,A.REQUEST_DATETIME,A.REQUEST_ATTRIBUTE_3,A.REQUEST_ATTRIBUTE_4,A.REQUEST_ATTRIBUTE_5,A.REQUEST_RESULT,A.REQUEST_EXCEPTION ";
+                        sSQL += "FROM ( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
+                        sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + context.BackgroundJob.CreatedAt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                        sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                        sSQL += "'" + this._deskripsi.Replace("{obj}", subjectDescription) + "' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                        sSQL += "LEFT JOIN API_LOG_MARKETPLACE B ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 WHERE ISNULL(B.RECNUM,0) = 0 ";
+                        int adaInsert = EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        if (adaInsert == 0) //JIKA 
+                        {
+                            //update REQUEST_STATUS = 'FAILED', DATE, FAIL COUNT
+                            sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            sSQL += "FROM API_LOG_MARKETPLACE B WHERE B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND B.REQUEST_STATUS = 'RETRYING' AND B.REQUEST_ID = '" + jobId + "'";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+
+                            //update JOBID MENJADI JOBID BARU JIKA TIDAK SEDANG RETRY,STATUS,DATE,FAIL COUNT
+                            sSQL = "UPDATE B SET REQUEST_STATUS = 'FAILED', REQUEST_ID = '" + jobId + "', REQUEST_DATETIME = '" + DateTime.UtcNow.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "', CUST_ATTRIBUTE_2 = CONVERT(INT,CUST_ATTRIBUTE_2) + 1 ";
+                            sSQL += "FROM API_LOG_MARKETPLACE B INNER JOIN ";
+                            sSQL += "( SELECT '" + subjectDescription + "' CUST_ATTRIBUTE_1,'" + CUST + "' CUST,(SELECT TOP 1 B.NAMAMARKET FROM ARF01 A INNER JOIN MO.DBO.MARKETPLACE B ON A.NAMA = B.IDMARKET AND A.CUST='" + CUST + "') MARKETPLACE, '" + jobId + "' REQUEST_ID, ";
+                            sSQL += "'" + ActionName + "' REQUEST_ACTION, '" + context.BackgroundJob.CreatedAt.AddHours(7).ToString("yyyy-MM-dd HH:mm:ss") + "' REQUEST_DATETIME, ";
+                            sSQL += "'" + ActionCategory + "' REQUEST_ATTRIBUTE_3,'" + subjectDescription + "' REQUEST_ATTRIBUTE_4, 'HANGFIRE' REQUEST_ATTRIBUTE_5, ";
+                            sSQL += "'" + this._deskripsi.Replace("{obj}", subjectDescription) + "' REQUEST_RESULT, '" + exceptionMessage.Replace("'", "`") + "' REQUEST_EXCEPTION ) A ";
+                            sSQL += "ON B.REQUEST_ATTRIBUTE_5 = 'HANGFIRE' AND A.REQUEST_ACTION = B.REQUEST_ACTION AND A.CUST_ATTRIBUTE_1 = B.CUST_ATTRIBUTE_1 AND B.REQUEST_STATUS = 'FAILED'";
+                            EDB.ExecuteSQL("sConn", CommandType.Text, sSQL);
+                        }
+                        //end add by calvin 14 mei 2019
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                }
+            }
+            catch (Exception)
+            {
+
             }
         }
 
-        //public void OnStateApplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
-        //{
-        //    Logger.InfoFormat(
-        //        "Job `{0}` state was changed from `{1}` to `{2}`",
-        //        context.BackgroundJob.Id,
-        //        context.OldStateName,
-        //        context.NewState.Name);
-        //}
-
-        //public void OnStateUnapplied(ApplyStateContext context, IWriteOnlyTransaction transaction)
-        //{
-        //    Logger.InfoFormat(
-        //        "Job `{0}` state `{1}` was unapplied.",
-        //        context.BackgroundJob.Id,
-        //        context.OldStateName);
-        //}
+        public void OnStateUnapplied(ApplyStateContext context, Hangfire.Storage.IWriteOnlyTransaction transaction)
+        {
+            //Logger.InfoFormat(
+            //    "Job `{0}` state `{1}` was unapplied.",
+            //    context.BackgroundJob.Id,
+            //    context.OldStateName);
+        }
     }
 
     public class StokControllerJob : Controller
@@ -115,6 +195,28 @@ namespace MasterOnline.Controllers
             //untuk menghandle update stok semua marketplace
             SetupContext(DatabasePathErasoft, uname);
         }
+
+        public string RemoveSpecialCharacters(string str)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (char c in str)
+            {
+                if ((c >= '0' && c <= '9')
+                    || (c >= 'A' && c <= 'Z')
+                    || (c >= 'a' && c <= 'z')
+                    || c == '`' || c == '!' || c == '@' || c == '#' || c == '$' || c == '%' || c == '^' || c == '&'
+                    || c == '(' || c == ')' || c == '-' || c == '=' || c == '_' || c == ',' || c == '.'
+                    || c == '?' || c == ';' || c == ':' || c == '\'' || c == '"' || c == '_' || c == '\\' || c == '|'
+                    || c == '[' || c == ']' || c == '{' || c == '}' || c == '<' || c == '>'
+                    || c == '/' || c == '*' || c == '-' || c == '+' || c == (char)13 || c == ' '
+                    )
+                {
+                    sb.Append(c);
+                }
+            }
+            return sb.ToString();
+        }
+
         protected void SetupContext(string DatabasePathErasoft, string uname)
         {
             MoDbContext = new MoDbContext();
@@ -138,9 +240,9 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 1)]
         [Queue("1_critical")]
         [NotifyOnFailed("Test notifikasi {obj} Gagal.")]
-        public void testFailedNotif(string dbPathEra, string namaObj)
+        public void testFailedNotif(string dbPathEra, string namaObj, string CUST, string category, string action_name)
         {
-            //var a = namaObj.Substring(0, 30);
+            var a = namaObj.Substring(0, 30);
         }
 
         protected void manageAPI_LOG_MARKETPLACE(api_status action, ErasoftContext db, string CUST, API_LOG_MARKETPLACE data, string Marketplace)
@@ -272,6 +374,15 @@ namespace MasterOnline.Controllers
                 {
                     listBrg.Add(item.BRG);
                 }
+                if (connId == "MANUAL")
+                {
+                    listBrg.Add("01.FDE00.03.3m");
+                    listBrg.Add("01.FDE00.03.6m");
+                    listBrg.Add("01.FDE00.03.9m");
+                    listBrg.Add("00.FDE00.01.3m");
+                    listBrg.Add("00.FDE00.01.6m");
+                    listBrg.Add("00.FDE00.01.9m");
+                }
 
                 foreach (string kdBrg in listBrg)
                 {
@@ -286,12 +397,12 @@ namespace MasterOnline.Controllers
                         if (marketPlace.NAMA.Equals(kdBL.ToString()))
                         {
                             //blApi.updateProduk(kdBrg, stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.API_KEY, marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Bukalapak_updateStock(DatabasePathErasoft, kdBrg, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.API_KEY, marketPlace.TOKEN, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdLazada.ToString()))
                         {
                             //lzdApi.UpdatePriceQuantity(stf02h.BRG_MP, "", (qtyOnHand > 0) ? qtyOnHand.ToString() : "0", marketPlace.TOKEN);
-                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Lazada_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", stf02h.BRG_MP, "", "", marketPlace.TOKEN, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdElevenia.ToString()))
                         {
@@ -328,7 +439,7 @@ namespace MasterOnline.Controllers
                             data.Price = stf02h.HJUAL.ToString();
                             data.kode_mp = stf02h.BRG_MP;
                             //eleApi.UpdateProductQOH_Price(data);
-                            client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, data, uname, null));
+                            client.Enqueue<StokControllerJob>(x => x.Elevenia_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, uname, null));
                         }
                         else if (marketPlace.NAMA.Equals(kdBli.ToString()))
                         {
@@ -358,7 +469,7 @@ namespace MasterOnline.Controllers
                                 data.display = display ? "true" : "false";
                                 var BliApi = new BlibliController();
                                 //Task.Run(() => BliApi.UpdateProdukQOH_Display(iden, data).Wait());
-                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, iden, data, uname, null));
+                                client.Enqueue<StokControllerJob>(x => x.Blibli_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, data, uname, null));
                             }
                         }
                         //add by calvin 18 desember 2018
@@ -392,7 +503,7 @@ namespace MasterOnline.Controllers
                                     else
                                     {
                                         //Task.Run(() => TokoAPI.UpdateStock(iden, Convert.ToInt32(stf02h.BRG_MP), Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Tokped_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", iden, Convert.ToInt32(stf02h.BRG_MP), 0, uname, null));
                                     }
                                 }
                             }
@@ -411,12 +522,13 @@ namespace MasterOnline.Controllers
                                     if (brg_mp[1] == "0")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
                                     }
                                     else if (brg_mp[1] != "")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
+                                        client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                                     }
                                 }
                             }
@@ -434,7 +546,7 @@ namespace MasterOnline.Controllers
                             if (stf02h.BRG_MP != "")
                             {
                                 //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
-                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, data, stf02h.BRG_MP, 0, uname, null));
+                                client.Enqueue<StokControllerJob>(x => x.JD_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
                             }
                         }
                         //end add by Tri 11 April 2019
@@ -448,7 +560,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Bukalapak gagal.")]
-        public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
+        public void Bukalapak_updateStock(string DatabasePathErasoft, string brg, string log_CUST, string log_ActionCategory, string log_ActionName, string brgMp, string price, string stock, string userId, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
 
@@ -524,7 +636,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Lazada gagal.")]
-        public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
+        public BindingBase Lazada_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, string kdBrg, string harga, string qty, string token, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
             string urlLazada = "https://api.lazada.co.id/rest";
@@ -616,7 +728,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Elevenia gagal.")]
-        public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, EleveniaProductData data, string uname, PerformContext context)
+        public ClientMessage Elevenia_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, EleveniaProductData data, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
 
@@ -740,7 +852,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Blibli gagal.")]
-        public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
+        public async Task<string> Blibli_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, BlibliAPIData iden, BlibliProductData data, string uname, PerformContext context)
         {
             string ret = "";
             SetupContext(DatabasePathErasoft, uname);
@@ -915,7 +1027,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Tokopedia gagal.")]
-        public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
+        public async Task<string> Tokped_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, TokopediaAPIData iden, int product_id, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
 
@@ -968,7 +1080,7 @@ namespace MasterOnline.Controllers
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Shopee gagal.")]
-        public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
+        public async Task<string> Shopee_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1050,10 +1162,18 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+
+        public class ShopeeUpdateVariationStockError
+        {
+            public string msg { get; set; }
+            public string request_id { get; set; }
+            public string error { get; set; }
+        }
+
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke Shopee gagal.")]
-        public async Task<string> Shopee_updateVariationStock(string DatabasePathErasoft, string stf02_brg, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
+        public async Task<string> Shopee_updateVariationStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, ShopeeAPIData iden, string brg_mp, int qty, string uname, PerformContext context)
         {
             int MOPartnerID = 841371;
             string MOPartnerKey = "94cb9bc805355256df8b8eedb05c941cb7f5b266beb2b71300aac3966318d48c";
@@ -1121,25 +1241,28 @@ namespace MasterOnline.Controllers
             //    manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
             //}
 
-            //if (responseFromServer != null)
-            //{
-            //    try
-            //    {
-            //        manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, iden, currentLog);
-            //    }
-            //    catch (Exception ex2)
-            //    {
-            //        currentLog.REQUEST_EXCEPTION = ex2.InnerException == null ? ex2.Message : ex2.InnerException.Message;
-            //        manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
-            //    }
-            //}
+            if (responseFromServer != "")
+            {
+                try
+                {
+                    var result = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeUpdateVariationStockError)) as ShopeeUpdateVariationStockError;
+                    if (!string.IsNullOrWhiteSpace(result.error))
+                    {
+                        throw new Exception(result.msg + ";request_id:" + result.request_id);
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
             return ret;
         }
 
         [AutomaticRetry(Attempts = 3)]
         [Queue("1_update_stok")]
         [NotifyOnFailed("Update Stock {obj} ke JD.ID gagal.")]
-        public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
+        public async Task<string> JD_updateStock(string DatabasePathErasoft, string stf02_brg, string log_CUST, string log_ActionCategory, string log_ActionName, JDIDAPIData data, string id, int stok, string uname, PerformContext context)
         {
             SetupContext(DatabasePathErasoft, uname);
 

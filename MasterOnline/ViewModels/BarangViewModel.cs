@@ -6,6 +6,34 @@ using MasterOnline.Models;
 
 namespace MasterOnline.ViewModels
 {
+    public class TableMenuBarang1PartialViewModel
+    {
+        public string BRG { get; set; }
+
+        public string NAMA { get; set; }
+
+        public string NAMA2 { get; set; }
+
+        public string KET_SORT1 { get; set; }
+
+        public string KET_SORT2 { get; set; }
+
+        public int? ID { get; set; }
+
+        public double HJUAL { get; set; }
+
+        public string LINK_GAMBAR_1 { get; set; }
+
+        public double MIN { get; set; }
+
+        public double QOH { get; set; }
+
+        public double QOO { get; set; }
+
+        public double QtySales { get; set; }
+
+    }
+
     public class BarangViewModel
     {
         public STF02 Stf02 { get; set; }

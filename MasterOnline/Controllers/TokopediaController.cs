@@ -644,8 +644,8 @@ namespace MasterOnline.Controllers
                     REQUEST_ID = milis.ToString(),
                     REQUEST_ACTION = "Create Product",
                     REQUEST_DATETIME = milisBack,
-                    REQUEST_ATTRIBUTE_1 = "fs : " + iden.merchant_code,
-                    REQUEST_ATTRIBUTE_2 = "brg : " + brg,
+                    REQUEST_ATTRIBUTE_1 = brg,
+                    REQUEST_ATTRIBUTE_2 = "fs : " + iden.merchant_code,
                     REQUEST_STATUS = "Pending",
                 };
                 CreateProductTokpedData newData = new CreateProductTokpedData()

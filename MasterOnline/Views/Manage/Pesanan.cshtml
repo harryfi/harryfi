@@ -1350,7 +1350,7 @@
                                 }
                             </select>
                         </div>
-                        <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />
+                        @* remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
                     </div>
                     <div class="row pesanan_table_section">
                         <div class="col-lg-4 col-sm-6">
@@ -2339,7 +2339,7 @@
                 <h4 class="modal-title" id="gudangQtyLabel">Konfirmasi Gudang dan Kuantitas</h4>
             </div>
             <div class="modal-body" id="modal-gudang-qty-body">
-                @Html.Partial("GudangQtyPartial")
+                @*@Html.Partial("GudangQtyPartial")*@
             </div>
             <div class="modal-footer">
                 <button onclick="saveGudangQty();" type="button" class="btn btn-success">Simpan</button>
@@ -3708,8 +3708,30 @@
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
             //add by nurul 10/4/2019
-            $('#DataUsaha_JtranRetur').change(function () {
-                $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+            $('#DataUsaha_JtranRetur').off('change').on('change', function () {
+                //change by calvin 22 mei 2019
+                //$('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                if ($(this).val() == "1") {
+                    if(confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")){
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                        simpanUpdate();
+                    }
+                    else {
+                        //return false;
+                        //$(this).val("",true);
+                    }
+                }
+                else {
+                    if(confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")){
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                        simpanUpdate();
+                    }
+                    else {
+                        //return false;
+                        //$(this).val("1",true);
+                    }
+                }
+                //end change by calvin 22 mei 2019
             });
             //end add by nurul 10/4/2019
         }
@@ -5352,8 +5374,28 @@
                     //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                     //add by nurul 10/4/2019
-                    $('#DataUsaha_JtranRetur').change(function () {
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    $('#DataUsaha_JtranRetur').off('change').on('change', function () {
+                        //change by calvin 22 mei 2019
+                        //$('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                        if ($(this).val() == "1") {
+                            if(confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")){
+                                $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                                simpanUpdate();
+                            }
+                            else {
+                                $(this).val("", true);
+                            }
+                        }
+                        else {
+                            if(confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")){
+                                $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                                simpanUpdate();
+                            }
+                            else {
+                                $(this).val("1", true);
+                            }
+                        }
+                        //end change by calvin 22 mei 2019
                     });
                     //end add by nurul 10/4/2019
                 },

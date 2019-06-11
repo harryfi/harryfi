@@ -73,7 +73,7 @@ namespace MasterOnline.Controllers
                     var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
                     ErasoftDbContext = new ErasoftContext(accFromUser.DatabasePathErasoft);
                     EDB = new DatabaseSQL(accFromUser.DatabasePathErasoft);
-                DatabasePathErasoft = accFromUser.DatabasePathErasoft;
+                    DatabasePathErasoft = accFromUser.DatabasePathErasoft;
                     username = accFromUser.Username;
                 }
             }
@@ -176,6 +176,10 @@ namespace MasterOnline.Controllers
                     {
                         if (item.status.ToUpper() != "BANNED" && item.status.ToUpper() != "DELETED")
                         {
+                            if (item.item_id == 2253878714 || item.item_id == 2253885754)
+                            {
+
+                            }
                             string kdBrg = string.IsNullOrEmpty(item.item_sku) ? item.item_id.ToString() : item.item_sku;
                             string brgMp = item.item_id.ToString() + ";0";
                             //change 13 Feb 2019, tuning
@@ -2829,11 +2833,9 @@ namespace MasterOnline.Controllers
                 logistics = logistics
             };
 
-            ////add by calvin 8 mei 2019
-            //var deskripsiBytes = Encoding.Default.GetBytes(HttpUtility.HtmlEncode(brgInDb.Deskripsi));
-            //var deskripsiBytesResult = Encoding.UTF8.GetString(deskripsiBytes);
-            //HttpBody.description = deskripsiBytesResult;
-            ////end add by calvin 8 mei 2019
+            //add by calvin 10 mei 2019
+            HttpBody.description = new StokControllerJob().RemoveSpecialCharacters(HttpBody.description);
+            //end add by calvin 10 mei 2019
 
             //add by calvin 1 mei 2019
             var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(brg, "ALL");
@@ -2995,7 +2997,7 @@ namespace MasterOnline.Controllers
             }
             return ret;
         }
-        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation)
+        public async Task<string> GetVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeTierVariation> tier_variation)
         {
             var MOVariationNew = MOVariation.ToList();
 
@@ -3052,6 +3054,7 @@ namespace MasterOnline.Controllers
             if (responseFromServer != null)
             {
                 var resServer = JsonConvert.DeserializeObject(responseFromServer, typeof(GetVariationResult)) as GetVariationResult;
+                var new_tier_variation = new List<ShopeeUpdateVariation>();
 
                 foreach (var variasi in resServer.variations)
                 {
@@ -3066,6 +3069,7 @@ namespace MasterOnline.Controllers
                     //var_item.BRG_MP = Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id);
                     //ErasoftDbContext.SaveChanges();
                     var result = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE STF02H SET BRG_MP = '" + Convert.ToString(resServer.item_id) + ";" + Convert.ToString(variasi.variation_id) + "' WHERE RECNUM = '" + Convert.ToString(recnum_stf02h_var) + "' AND ISNULL(BRG_MP,'') = '' ");
+                    //tes remark by calvin 16 mei
                     mapSTF02HRecnum_IndexVariasi.Remove(key_map_tier_index_recnum);
                     foreach (var item in MOVariation)
                     {
@@ -3077,21 +3081,31 @@ namespace MasterOnline.Controllers
                         if (isiTier_Index == key_map_tier_index_recnum)
                         {
                             MOVariationNew.Remove(item);
+                            new_tier_variation.Add(new ShopeeUpdateVariation()
+                            {
+                                price = item.price,
+                                stock = item.stock,
+                                tier_index = item.tier_index,
+                                variation_sku = item.variation_sku,
+                                variation_id = variasi.variation_id
+                            });
                         }
                     }
+                    //end tes remark by calvin 16 mei
                 }
                 if (MOVariationNew.Count() > 0)
                 {
-                    foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
-                    {
-                        await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew);
-                    }
+                    //foreach (var variasi in mapSTF02HRecnum_IndexVariasi)
+                    //{
+                    //await AddTierVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariation, MOVariationNew);
+                    //}
+                    await UpdateTierVariationList(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, MOVariationNew, tier_variation, new_tier_variation);
                 }
             }
 
             return ret;
         }
-        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation)
+        public async Task<string> AddTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariation, List<ShopeeVariation> MOVariationNew)
         {
             string ret = "";
             string brg = brgInDb.BRG;
@@ -3170,6 +3184,81 @@ namespace MasterOnline.Controllers
 
             return ret;
         }
+        public async Task<string> UpdateTierVariationList(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace, Dictionary<string, int> mapSTF02HRecnum_IndexVariasi, List<ShopeeVariation> MOVariationNew, List<ShopeeTierVariation> tier_variation, List<ShopeeUpdateVariation> new_tier_variation)
+        {
+            List<object> variation = new List<object>();
+            string ret = "";
+            string brg = brgInDb.BRG;
+
+            long seconds = CurrentTimeSecond();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);
+
+            string urll = "https://partner.shopeemobile.com/api/v1/item/tier_var/update";
+            foreach (var item in new_tier_variation)
+            {
+                variation.Add(new ShopeeUpdateVariation() {
+                    price = item.price,
+                    stock = item.stock,
+                    tier_index = item.tier_index,
+                    variation_sku = item.variation_sku,
+                    variation_id = item.variation_id
+                });
+            }
+            foreach (var item in MOVariationNew)
+            {
+                variation.Add(new ShopeeVariation()
+                {
+                    price = item.price,
+                    stock = item.stock,
+                    tier_index = item.tier_index,
+                    variation_sku = item.variation_sku
+                });
+            }
+
+            ShopeeUpdateTierVariationList HttpBody = new ShopeeUpdateTierVariationList
+            {
+                partner_id = MOPartnerID,
+                item_id = item_id,
+                shopid = Convert.ToInt32(iden.merchant_code),
+                timestamp = seconds,
+                tier_variation = tier_variation.ToArray(),
+                variation = variation.ToArray()
+            };
+
+        string myData = JsonConvert.SerializeObject(HttpBody);
+
+            string signature = CreateSign(string.Concat(urll, "|", myData), MOPartnerKey);
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
+            myReq.Method = "POST";
+            myReq.Headers.Add("Authorization", signature);
+            myReq.Accept = "application/json";
+            myReq.ContentType = "application/json";
+            string responseFromServer = "";
+            try
+            {
+                myReq.ContentLength = myData.Length;
+                using (var dataStream = myReq.GetRequestStream())
+                {
+                    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                }
+                using (WebResponse response = await myReq.GetResponseAsync())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer = reader.ReadToEnd();
+                    }
+                }
+                //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, iden, currentLog);
+            }
+            catch (Exception ex)
+            {
+                //currentLog.REQUEST_EXCEPTION = ex.InnerException == null ? ex.Message : ex.InnerException.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, iden, currentLog);
+            }
+            return ret;
+        }
         public async Task<string> InitTierVariation(ShopeeAPIData iden, STF02 brgInDb, long item_id, ARF01 marketplace)
         {
             string ret = "";
@@ -3221,110 +3310,112 @@ namespace MasterOnline.Controllers
                 foreach (var item in ListVariant.OrderBy(p => p.ID))
                 {
                     var stf02h = ListStf02hVariasi.Where(p => p.BRG.ToUpper() == item.BRG.ToUpper() && p.IDMARKET == marketplace.RecNum).FirstOrDefault();
-
-                    string namaVariasiLV1 = "";
-                    if ((item.Sort8 == null ? "" : item.Sort8) != "")
+                    if (stf02h != null)
                     {
-                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
-                        if (getNamaVar != null)
+                        string namaVariasiLV1 = "";
+                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
                         {
-                            namaVariasiLV1 = getNamaVar.MP_JUDUL_VAR;
-                        }
-                    }
-
-                    string namaVariasiLV2 = "";
-                    if ((item.Sort9 == null ? "" : item.Sort9) != "")
-                    {
-                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                        if (getNamaVar != null)
-                        {
-                            namaVariasiLV2 = getNamaVar.MP_JUDUL_VAR;
-                        }
-                    }
-
-                    List<string> DuplikatNamaVariasi = tier_variation.Select(p => p.name).ToList();
-                    if (!DuplikatNamaVariasi.Contains(namaVariasiLV1))
-                    {
-                        if (namaVariasiLV1 != "")
-                        {
-                            tier1.name = namaVariasiLV1;
-                        }
-                    }
-                    if (!DuplikatNamaVariasi.Contains(namaVariasiLV2))
-                    {
-                        if (namaVariasiLV2 != "")
-                        {
-                            tier2.name = namaVariasiLV2;
-                        }
-                    }
-
-                    string nama_var1 = "";
-                    if ((item.Sort8 == null ? "" : item.Sort8) != "")
-                    {
-                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
-                        if (getNamaVar != null)
-                        {
-                            nama_var1 = getNamaVar.MP_VALUE_VAR;
-                            if (!mapIndexVariasi1.ContainsKey(nama_var1))
+                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
+                            if (getNamaVar != null)
                             {
-                                mapIndexVariasi1.Add(nama_var1, index_var_1);
-                                tier1_options.Add(nama_var1);
-                                index_var_1++;
+                                namaVariasiLV1 = getNamaVar.MP_JUDUL_VAR;
                             }
                         }
-                    }
-                    string nama_var2 = "";
-                    if ((item.Sort9 == null ? "" : item.Sort9) != "")
-                    {
-                        var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
-                        if (getNamaVar != null)
+
+                        string namaVariasiLV2 = "";
+                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
                         {
-                            nama_var2 = getNamaVar.MP_VALUE_VAR;
-                            if (!mapIndexVariasi2.ContainsKey(nama_var2))
+                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                            if (getNamaVar != null)
                             {
-                                mapIndexVariasi2.Add(nama_var2, index_var_2);
-                                tier2_options.Add(nama_var2);
-                                index_var_2++;
+                                namaVariasiLV2 = getNamaVar.MP_JUDUL_VAR;
                             }
                         }
-                    }
-                    int getIndexVar1 = 0;
-                    int getIndexVar2 = 0;
-                    List<int> ListTierIndex = new List<int>();
-                    if (mapIndexVariasi1.ContainsKey(nama_var1))
-                    {
-                        getIndexVar1 = mapIndexVariasi1[nama_var1];
-                        ListTierIndex.Add(getIndexVar1);
-                    }
-                    if (mapIndexVariasi2.ContainsKey(nama_var2))
-                    {
-                        getIndexVar2 = mapIndexVariasi2[nama_var2];
-                        ListTierIndex.Add(getIndexVar2);
-                    }
 
-                    ShopeeVariation adaVariant = new ShopeeVariation()
-                    {
-                        tier_index = ListTierIndex.ToArray(),
-                        price = (float)stf02h.HJUAL,
-                        stock = 1,//create product min stock = 1
-                        variation_sku = item.BRG
-                    };
+                        List<string> DuplikatNamaVariasi = tier_variation.Select(p => p.name).ToList();
+                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV1))
+                        {
+                            if (namaVariasiLV1 != "")
+                            {
+                                tier1.name = namaVariasiLV1;
+                            }
+                        }
+                        if (!DuplikatNamaVariasi.Contains(namaVariasiLV2))
+                        {
+                            if (namaVariasiLV2 != "")
+                            {
+                                tier2.name = namaVariasiLV2;
+                            }
+                        }
 
-                    //add by calvin 1 mei 2019
-                    var qty_stock = new StokControllerJob(DatabasePathErasoft,username).GetQOHSTF08A(item.BRG, "ALL");
-                    if (qty_stock > 0)
-                    {
-                        adaVariant.stock = Convert.ToInt32(qty_stock);
-                    }
-                    //end add by calvin 1 mei 2019
+                        string nama_var1 = "";
+                        if ((item.Sort8 == null ? "" : item.Sort8) != "")
+                        {
+                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 1 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort8).FirstOrDefault();
+                            if (getNamaVar != null)
+                            {
+                                nama_var1 = getNamaVar.MP_VALUE_VAR;
+                                if (!mapIndexVariasi1.ContainsKey(nama_var1))
+                                {
+                                    mapIndexVariasi1.Add(nama_var1, index_var_1);
+                                    tier1_options.Add(nama_var1);
+                                    index_var_1++;
+                                }
+                            }
+                        }
+                        string nama_var2 = "";
+                        if ((item.Sort9 == null ? "" : item.Sort9) != "")
+                        {
+                            var getNamaVar = ListSettingVariasi.Where(p => p.LEVEL_VAR == 2 && p.MARKET == "SHOPEE" && p.KODE_VAR == item.Sort9).FirstOrDefault();
+                            if (getNamaVar != null)
+                            {
+                                nama_var2 = getNamaVar.MP_VALUE_VAR;
+                                if (!mapIndexVariasi2.ContainsKey(nama_var2))
+                                {
+                                    mapIndexVariasi2.Add(nama_var2, index_var_2);
+                                    tier2_options.Add(nama_var2);
+                                    index_var_2++;
+                                }
+                            }
+                        }
+                        int getIndexVar1 = 0;
+                        int getIndexVar2 = 0;
+                        List<int> ListTierIndex = new List<int>();
+                        if (mapIndexVariasi1.ContainsKey(nama_var1))
+                        {
+                            getIndexVar1 = mapIndexVariasi1[nama_var1];
+                            ListTierIndex.Add(getIndexVar1);
+                        }
+                        if (mapIndexVariasi2.ContainsKey(nama_var2))
+                        {
+                            getIndexVar2 = mapIndexVariasi2[nama_var2];
+                            ListTierIndex.Add(getIndexVar2);
+                        }
 
-                    string key_map_tier_index_recnum = "";
-                    foreach (var indexes in ListTierIndex)
-                    {
-                        key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                        ShopeeVariation adaVariant = new ShopeeVariation()
+                        {
+                            tier_index = ListTierIndex.ToArray(),
+                            price = (float)stf02h.HJUAL,
+                            stock = 1,//create product min stock = 1
+                            variation_sku = item.BRG
+                        };
+
+                        //add by calvin 1 mei 2019
+                        var qty_stock = new StokControllerJob(DatabasePathErasoft, username).GetQOHSTF08A(item.BRG, "ALL");
+                        if (qty_stock > 0)
+                        {
+                            adaVariant.stock = Convert.ToInt32(qty_stock);
+                        }
+                        //end add by calvin 1 mei 2019
+
+                        string key_map_tier_index_recnum = "";
+                        foreach (var indexes in ListTierIndex)
+                        {
+                            key_map_tier_index_recnum = key_map_tier_index_recnum + Convert.ToString(indexes) + ";";
+                        }
+                        mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
+                        variation.Add(adaVariant);
                     }
-                    mapSTF02HRecnum_IndexVariasi.Add(key_map_tier_index_recnum, stf02h.RecNum.Value);
-                    variation.Add(adaVariant);
                 }
                 if (!string.IsNullOrWhiteSpace(tier1.name))
                 {
@@ -3398,7 +3489,7 @@ namespace MasterOnline.Controllers
                 }
                 else
                 {
-                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation);
+                    await GetVariation(iden, brgInDb, item_id, marketplace, mapSTF02HRecnum_IndexVariasi, variation, tier_variation);
                 }
             }
 
@@ -5255,6 +5346,27 @@ namespace MasterOnline.Controllers
 
         }
 
+        public class ShopeeUpdateTierVariationList
+        {
+            public long item_id { get; set; }
+            public ShopeeTierVariation[] tier_variation { get; set; }
+            //public ShopeeUpdateVariation[] variation { get; set; }
+            //public ShopeeVariation[] variation { get; set; }
+            public object[] variation { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
+            public long timestamp { get; set; }
+        }
+        public class ShopeeUpdateTierVariationIndex
+        {
+            public long item_id { get; set; }
+            //public ShopeeTierVariation[] tier_variation { get; set; }
+            public ShopeeVariation[] variation { get; set; }
+            public long shopid { get; set; }
+            public long partner_id { get; set; }
+            public long timestamp { get; set; }
+        }
+
         public class ShopeeTierVariation
         {
             public string name { get; set; }
@@ -5266,6 +5378,14 @@ namespace MasterOnline.Controllers
             public int stock { get; set; }
             public float price { get; set; }
             public string variation_sku { get; set; }
+        }
+        public class ShopeeUpdateVariation
+        {
+            public int[] tier_index { get; set; }
+            public int stock { get; set; }
+            public float price { get; set; }
+            public string variation_sku { get; set; }
+            public long? variation_id { get; set; }
         }
 
         public class ShopeeProductData

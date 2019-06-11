@@ -472,7 +472,7 @@ namespace MasterOnline.Controllers
                 //SyncMarketplace(erasoftContext, dataUsahaInDb.JTRAN_RETUR);
                 string username = _viewModel.Account != null ? _viewModel.Account.Username : _viewModel.User.Username;
                 Task.Run(() => SyncMarketplace(dbPathEra, EDB.GetConnectionString("ConnID"), dataUsahaInDb.JTRAN_RETUR, username, 5).Wait());
-                
+
                 //end change by calvin 1 april 2019
 
                 return RedirectToAction("Index", "Manage", "SyncMarketplace");
@@ -521,8 +521,42 @@ namespace MasterOnline.Controllers
             if (serverList.Count() == 0)
             {
 #if Debug_AWS
+                //note by calvin 18 mei 2019 : ingat jika ada perubahan, ubah juga di adminController AdminStartHangfireServer
+                //var optionsStatusResiServer = new BackgroundJobServerOptions
+                //{
+                //    ServerName = "StatusResiPesanan",
+                //    Queues = new[] { "1_manage_pesanan" },
+                //    WorkerCount = 2,
+
+                //};
+                //var newStatusResiServer = new BackgroundJobServer(optionsStatusResiServer, sqlStorage);
+
+                //var options = new BackgroundJobServerOptions
+                //{
+                //    ServerName = "Account",
+                //    Queues = new[] { "1_critical", "2_get_token", "3_general", "4_tokped_cek_pending" },
+                //    WorkerCount = 1,
+                //};
+                //var newserver = new BackgroundJobServer(options, sqlStorage);
+
+                //var optionsStokServer = new BackgroundJobServerOptions
+                //{
+                //    ServerName = "Stok",
+                //    Queues = new[] { "1_update_stok" },
+                //    WorkerCount = 3,
+                //};
+                //var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+
+                //var optionsBarangServer = new BackgroundJobServerOptions
+                //{
+                //    ServerName = "Product",
+                //    Queues = new[] { "1_create_product" },
+                //    WorkerCount = 2,
+                //};
+                //var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 
 #else
+                //note by calvin 18 mei 2019 : ingat jika ada perubahan, ubah juga di adminController AdminStartHangfireServer
                 var optionsStatusResiServer = new BackgroundJobServerOptions
                 {
                     ServerName = "StatusResiPesanan",
@@ -547,6 +581,14 @@ namespace MasterOnline.Controllers
                     WorkerCount = 3,
                 };
                 var newStokServer = new BackgroundJobServer(optionsStokServer, sqlStorage);
+
+                var optionsBarangServer = new BackgroundJobServerOptions
+                {
+                    ServerName = "Product",
+                    Queues = new[] { "1_create_product" },
+                    WorkerCount = 2,
+                };
+                var newProductServer = new BackgroundJobServer(optionsBarangServer, sqlStorage);
 #endif
 
             }
@@ -904,7 +946,7 @@ namespace MasterOnline.Controllers
                     if (sync_pesanan_stok == "1")
                     {
                         connId_JobId = dbPathEra + "_shopee_pesanan_rts_" + Convert.ToString(tblCustomer.RecNum.Value);
-                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
+                        recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatus(iden, ShopeeControllerJob.StatusOrder.READY_TO_SHIP, tblCustomer.CUST, tblCustomer.PERSO, 0, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
 
                         connId_JobId = dbPathEra + "_shopee_pesanan_complete_" + Convert.ToString(tblCustomer.RecNum.Value);
                         recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<ShopeeControllerJob>(x => x.GetOrderByStatusCompleted(iden, ShopeeControllerJob.StatusOrder.COMPLETED, tblCustomer.CUST, tblCustomer.PERSO, 0, 0)), Cron.MinuteInterval(recurr_interval), recurJobOpt);
@@ -1002,7 +1044,7 @@ namespace MasterOnline.Controllers
                 if (file != null && file.ContentLength > 0)
                 {
                     //var fileName = Path.GetFileName(file.FileName);
-                    var fileName = account.Email.Replace(".", "_").Replace("@","_") + ".jpg";
+                    var fileName = account.Email.Replace(".", "_").Replace("@", "_") + ".jpg";
                     var path = Path.Combine(Server.MapPath("~/Content/Uploaded/"), fileName);
                     account.PhotoKtpUrl = "~/Content/Uploaded/" + fileName;
                     file.SaveAs(path);
@@ -1320,6 +1362,45 @@ namespace MasterOnline.Controllers
         // Proses Logging Out + Hapus Session
         public ActionResult LoggingOut()
         {
+#if Debug_AWS
+            var doSyncMarketplace = false;
+            if (doSyncMarketplace)
+            {
+                var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
+                string dbPathEra = "";
+                if (sessionData?.Account != null)
+                {
+                    dbPathEra = sessionData.Account.DatabasePathErasoft;
+                }
+                else
+                {
+                    var accFromUser = MoDbContext.Account.Single(a => a.AccountId == sessionData.User.AccountId);
+                    dbPathEra = accFromUser.DatabasePathErasoft;
+                }
+                if (dbPathEra != "")
+                {
+                    var EDB = new DatabaseSQL(dbPathEra);
+
+                    string EDBConnID = EDB.GetConnectionString("ConnID");
+                    var sqlStorage = new SqlServerStorage(EDBConnID);
+
+                    RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
+                    RecurringJobOptions recurJobOpt = new RecurringJobOptions()
+                    {
+                        QueueName = "3_general"
+                    };
+
+                    using (var connection = sqlStorage.GetConnection())
+                    {
+                        foreach (var recurringJob in connection.GetRecurringJobs())
+                        {
+                            recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
+                        }
+                    }
+                }
+            }
+
+#else
             var sessionData = System.Web.HttpContext.Current.Session["SessionInfo"] as AccountUserViewModel;
             string dbPathEra = "";
             if (sessionData?.Account != null)
@@ -1337,18 +1418,6 @@ namespace MasterOnline.Controllers
 
                 string EDBConnID = EDB.GetConnectionString("ConnID");
                 var sqlStorage = new SqlServerStorage(EDBConnID);
-                //CHANGE by calvin 15 april 2019
-                //var monitoringApi = sqlStorage.GetMonitoringApi();
-                //var serverList = monitoringApi.Servers();
-                //if (serverList.Count() > 0)
-                //{
-                //    foreach (var server in serverList)
-                //    {
-                //        var serverConnection = sqlStorage.GetConnection();
-                //        serverConnection.RemoveServer(server.Name);
-                //        serverConnection.Dispose();
-                //    }
-                //}
 
                 RecurringJobManager recurJobM = new RecurringJobManager(sqlStorage);
                 RecurringJobOptions recurJobOpt = new RecurringJobOptions()
@@ -1363,8 +1432,8 @@ namespace MasterOnline.Controllers
                         recurJobM.AddOrUpdate(recurringJob.Id, recurringJob.Job, Cron.MinuteInterval(30), recurJobOpt);
                     }
                 }
-                //end CHANGE by calvin 15 april 2019
             }
+#endif
 
             Session["SessionInfo"] = null;
             //add by Tri, clear session id from cookies

@@ -63,6 +63,9 @@
                     <button type="button" class=" btn btn-default" data-style="expand-right">
                         <span>Refresh</span>
                     </button>
+                    <button type="button" onclick="exportExcel()" class=" btn btn-primary" data-style="expand-right">
+                        <span>Export ke Excel</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -153,6 +156,101 @@
                 $('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
             });
+        //add by Tri, 27 Mei 2019
+        function exportExcel() {
+            var link = '@Html.Raw(Url.Action("HargaJualtoExcel", "TransferExcel"))';
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                contentType: 'application/json',
+                cache: false,
+                async: false,
+                beforeSend: function () {
+                    $('#loading_spinner_btn').show();
+                },
+                success: function (response) {
+                    $('#loading_spinner_btn').hide();
+                    if (response.Errors.length == 0) {
+                       
+                        @*var url2 = '@Url.Action("DownloadFileExcel", "TransferExcel", new { file = "replace1", fileName = "replace2" })';
+                        url2 = url2.replace("replace1", response.byteExcel);
+                        url2 = url2.replace("replace2", response.namaFile);
+
+                        window.location = url2;*@
+                        //downloadXcel(response);
+                        //var sampleArr = base64ToArrayBuffer(response.byteExcel);
+                        var bytes = new Uint8Array(response.byteExcel);
+                        saveByteArray(response.namaFile, bytes);
+
+                    } else {
+                        alert(response.Errors[0]);
+                    }
+                    //var response = JSON.parse(data);
+                    //window.location = '/Download?fileGuid=' + response.FileGuid
+                    //    + '&filename=' + response.FileName;
+                    //window.location = '/Download?file=' + data;
+                },
+                error: function (xhr) {
+                    $('#loading_spinner_btn').hide();
+                    console.log(xhr);
+                }
+            });
+
+        }
+
+        function base64ToArrayBuffer(base64) {
+            var binaryString = window.atob(base64);
+            var binaryLen = binaryString.length;
+            var bytes = new Uint8Array(binaryLen);
+            for (var i = 0; i < binaryLen; i++) {
+                var ascii = binaryString.charCodeAt(i);
+                bytes[i] = ascii;
+            }
+            return bytes;
+        }
+
+        function saveByteArray(reportName, byte) {
+            var blob = new Blob([byte], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            var link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            var fileName = reportName;
+            link.download = fileName;
+            link.click();
+        };
+
+        function downloadXcel(value) {
+            //var dataPost = new FormData();
+            //dataPost.append("data", value);
+            var dataPost = {
+                data: JSON.stringify(value)
+            }
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DownloadFileExcel", "TransferExcel")',
+                contentType:"application/json;charset=utf-8",
+                data: dataPost,
+                //dataType: "json",
+                async:true,
+                //processData: false,  // tell jQuery not to process the data
+                //contentType: false,  // tell jQuery not to set contentType
+                beforeSend: function () {
+                    //$('#loading_spinner').show();
+                },
+                success: function (response) {
+                    if (response.Errors == null) {
+                        
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                    //$('#loading_spinner').hide();
+                }
+            });
+            return null
+        }
+        //end add by Tri, 27 Mei 2019
 
         function Initialize() {
             var table = $('#datatable').DataTable();
@@ -205,7 +303,7 @@
                     } else {
                         alert(res.message);
                     }
-                    
+
                 },
                 error: function (xhr) {
                     $('#btnUbahHJual').show();

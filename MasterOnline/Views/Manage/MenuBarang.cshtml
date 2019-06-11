@@ -155,7 +155,7 @@
                             <div class="input-group">
                                 <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_barang_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -163,7 +163,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
@@ -177,11 +177,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_barang_tab" class="text-center">
-                            <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        @* remark by calvin 24 mei 2019 <div id="loading_barang_tab" class="text-center">
+                                <img src="~/Content/Images/spinner.gif" width="100" />
+                            </div>*@
                         <div class="col-sm-12 barang_table_section" id="table-barang-1-partial">
-                            @Html.Partial("TableMenuBarang1Partial")
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableMenuBarang1Partial")*@
                         </div>
                     </div>
                     <div class="row barang_editor_section" style="display: none;">
@@ -207,7 +207,7 @@
                                 @using (Html.BeginForm("SaveBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
                                 {
                                     <div id="form-partial">
-                                        @Html.Partial("FormBarangPartial")
+                                        @* remark by calvin 24 mei 2019 @Html.Partial("FormBarangPartial")*@
                                     </div>
                                 }
                             </div>
@@ -220,7 +220,7 @@
                             <div class="input-group">
                                 <input id="search_kosong" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_kosong_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -228,18 +228,18 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_kosong_tab" class="text-center">
+                        @*<div id="loading_kosong_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-barang-kosong-partial">
-                            @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangKosongPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -249,16 +249,15 @@
                             <div class="input-group">
                                 <input id="search_tidaklaku" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_tidaklaku_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
                             </div>
                         </div>
-
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -267,7 +266,6 @@
                     <div class="row">
                         <div class="col-md-2">
                             @Html.Label("", "Dari Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("DrTanggal", null, new { @class = "form-control", @ReadOnly = true })
@@ -278,7 +276,6 @@
                         </div>
                         <div class="col-md-2">
                             @Html.Label("", "S/d Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("SdTanggal", null, new { @class = "form-control", @ReadOnly = true })
@@ -291,11 +288,11 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_tidak_laku_tab" class="text-center">
+                        @*<div id="loading_tidak_laku_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-barang-tidak-laku-partial">
-                            @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangTidakLakuPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -305,7 +302,7 @@
                             <div class="input-group">
                                 <input id="search_minimumstok" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_minimumstok_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -313,7 +310,7 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
@@ -322,7 +319,6 @@
                     <div class="row">
                         <div class="col-md-2">
                             @Html.Label("", "Dari Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("DrTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("DrTanggal2", null, new { @class = "form-control", @ReadOnly = true })
@@ -333,7 +329,6 @@
                         </div>
                         <div class="col-md-2">
                             @Html.Label("", "S/d Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("SdTanggal", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("SdTanggal2", null, new { @class = "form-control", @ReadOnly = true })
@@ -350,7 +345,7 @@
                             <img src="~/Content/Images/spinner.gif" width="100" />
                         </div>
                         <div class="col-sm-12" id="table-barang-minimum-stok-partial">
-                            @Html.Partial("TableBarangDibawahMinimumStokPartial", new List<PenjualanBarang>())
+                            @* remark by calvin 24 mei 2019 @Html.Partial("TableBarangDibawahMinimumStokPartial", new List<PenjualanBarang>())*@
                         </div>
                     </div>
                 </div>
@@ -360,7 +355,7 @@
                             <div class="input-group">
                                 <input id="search_palinglaku" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
-                                    <button type="button" class="btn btn-primary">
+                                    <button type="button" id="search_palinglaku_click" class="btn btn-primary">
                                         <i class="fa fa-search"></i>
                                     </button>
                                 </span>
@@ -371,17 +366,15 @@
                             </div>*@
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>
                             </div>
                         </div>
-
                     </div>
                     <div class="row">
                         <div class="col-md-2">
                             @Html.Label("", "Dari Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("DrTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.AddMonths(-3).ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("DrTanggal1", null, new { @class = "form-control", @ReadOnly = true })
@@ -392,7 +385,6 @@
                         </div>
                         <div class="col-md-2">
                             @Html.Label("", "S/d Tanggal")
-
                             <div class="input-group date">
                                 @*@Html.TextBox("SdTanggal1", null, new { @class = "form-control", @disabled = "disable", Value = DateTime.Now.ToString("dd/MM/yyyy") })*@
                                 @Html.TextBox("SdTanggal1", null, new { @class = "form-control", @ReadOnly = true })
@@ -405,9 +397,9 @@
                         </div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div id="loading_palinglaku_tab" class="text-center">
+                        @*<div id="loading_palinglaku_tab" class="text-center">
                             <img src="~/Content/Images/spinner.gif" width="100" />
-                        </div>
+                        </div>*@
                         <div class="col-sm-12" id="table-barang-paling-laku-partial">
                         </div>
                     </div>
@@ -442,137 +434,178 @@
     <script src="~/Content/selectize.js" type="text/javascript"></script>
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-        var table = $('#datatable').DataTable();
-        var tableKosong = $('#datatable_kosong').DataTable();
-        var tableTidakLaku = $('#datatable_tidaklaku').DataTable();
-        var tableMinimumStok = $('#datatable_minimumstok').DataTable();
-        var tablePalingLaku = $('#datatable_palinglaku').DataTable();
+        //remark by calvin 24 mei 2019
+        //var table = $('#datatable').DataTable();
+        //var tableKosong = $('#datatable_kosong').DataTable();
+        //var tableTidakLaku = $('#datatable_tidaklaku').DataTable();
+        //var tableMinimumStok = $('#datatable_minimumstok').DataTable();
+        //var tablePalingLaku = $('#datatable_palinglaku').DataTable();
 
-        $('#search_barang').keyup(function () {
-            table.search($(this).val()).draw();
-        });
+        //$('#search_barang').keyup(function () {
+        //    table.search($(this).val()).draw();
+        //});
 
-        $('#search_palinglaku').keyup(function () {
-            tablePalingLaku.search($(this).val()).draw();
-        });
+        //$('#search_palinglaku').keyup(function () {
+        //    tablePalingLaku.search($(this).val()).draw();
+        //});
 
-        $('#search_kosong').keyup(function () {
-            tableKosong.search($(this).val()).draw();
-        });
+        //$('#search_kosong').keyup(function () {
+        //    tableKosong.search($(this).val()).draw();
+        //});
 
-        $('#search_tidaklaku').keyup(function () {
-            tableTidakLaku.search($(this).val()).draw();
-        });
+        //$('#search_tidaklaku').keyup(function () {
+        //    tableTidakLaku.search($(this).val()).draw();
+        //});
 
-        $('#search_minimumstok').keyup(function () {
-            tableMinimumStok.search($(this).val()).draw();
-        });
+        //$('#search_minimumstok').keyup(function () {
+        //    tableMinimumStok.search($(this).val()).draw();
+        //});
+        //end remark by calvin 24 mei 2019
+
 
         $(document).ready(function () {
-            var tableSiapProses = $('#datatable_siapproses').DataTable({
-                columnDefs: [{
-                    orderable: false,
-                    className: 'select-checkbox',
-                    targets: 0
-                }],
-                select: {
-                    style: 'os',
-                    selector: 'td:first-child'
-                }
+            var d = new Date();
+            d.setMonth(d.getMonth() - 3);
+            //tidaklaku-tab
+            $('#DrTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', d).change(function () {
+                $('#DrTanggal').val($('#DrTanggal').val());
+                $('#DrTanggal').datepicker('hide');
+            });
+            $('#SdTanggal').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0').change(function () {
+                $('#SdTanggal').val($('#SdTanggal').val());
+                $('#SdTanggal').datepicker('hide');
+            });
+            //palinglaku-tab
+            $('#DrTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', d).change(function () {
+                $('#DrTanggal1').val($('#DrTanggal1').val());
+                $('#DrTanggal1').datepicker('hide');
+            });
+            $('#SdTanggal1').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0').change(function () {
+                $('#SdTanggal1').val($('#SdTanggal1').val());
+                $('#SdTanggal1').datepicker('hide');
+            });
+            //minimumstok-tab
+            $('#DrTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', d).change(function () {
+                $('#DrTanggal2').val($('#DrTanggal2').val());
+                $('#DrTanggal2').datepicker('hide');
+            });
+            $('#SdTanggal2').datepicker({
+                format: 'dd/mm/yyyy',
+                language: 'id'
+            }).datepicker('setDate', '0').change(function () {
+                $('#SdTanggal2').val($('#SdTanggal2').val());
+                $('#SdTanggal2').datepicker('hide');
             });
 
-            refreshTableBarang();
-
+            $('#search_barang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarang();
+                    return false;
+                }
+            });
+            $('#search_barang_click').click(function () {
+                searchTableBarang();
+            });
             $('#barang-tab').click(function () {
                 refreshTableBarang();
             });
 
+            $('#search_kosong').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarangKosong();
+                    return false;
+                }
+            });
+            $('#search_kosong_click').click(function () {
+                searchTableBarangKosong();
+            });
             $('#kosong-tab').click(function () {
                 refreshTableBarangKosong();
             });
 
+            $('#search_tidaklaku').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarangTidakLaku();
+                    return false;
+                }
+            });
+            $('#search_tidaklaku_click').click(function () {
+                searchTableBarangTidakLaku();
+            });
             $('#tidaklaku-tab').click(function () {
-                var d = new Date();
-                d.setMonth(d.getMonth() - 3);
-                $('#DrTanggal').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', d).change(function () {
-                    $('#DrTanggal').val($('#DrTanggal').val());
-                    $('#DrTanggal').datepicker('hide');
-                });
-                $('#SdTanggal').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', '0').change(function () {
-                    $('#SdTanggal').val($('#SdTanggal').val());
-                    $('#SdTanggal').datepicker('hide');
-                });
                 refreshTableBarangTidakLaku();
             });
 
+
+            $('#search_palinglaku').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTablePalingLaku();
+                    return false;
+                }
+            });
+            $('#search_palinglaku_click').click(function () {
+                searchTablePalingLaku();
+            });
             $('#palinglaku-tab').click(function () {
-                var d = new Date();
-                d.setMonth(d.getMonth() - 3);
-                $('#DrTanggal1').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', d).change(function () {
-                    $('#DrTanggal1').val($('#DrTanggal1').val());
-                    $('#DrTanggal1').datepicker('hide');
-                    });
-                $('#SdTanggal1').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', '0').change(function () {
-                    $('#SdTanggal1').val($('#SdTanggal1').val());
-                    $('#SdTanggal1').datepicker('hide');
-                });
                 refreshTablePalingLaku();
             });
 
+            $('#search_minimumstok').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableMinimumStok();
+                    return false;
+                }
+            });
+            $('#search_minimumstok_click').click(function () {
+                searchTableMinimumStok();
+            });
             $('#minimumstok-tab').click(function () {
-                var d = new Date();
-                d.setMonth(d.getMonth() - 3);
-                $('#DrTanggal2').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', d).change(function () {
-                    $('#DrTanggal2').val($('#DrTanggal2').val());
-                    $('#DrTanggal2').datepicker('hide');
-                });
-                $('#SdTanggal2').datepicker({
-                    format: 'dd/mm/yyyy',
-                    language: 'id'
-                }).datepicker('setDate', '0').change(function () {
-                    $('#SdTanggal2').val($('#SdTanggal2').val());
-                    $('#SdTanggal2').datepicker('hide');
-                });
                 refreshTableMinimumStok();
             });
 
-
-            Initialize();
+            $('#barang-tab').click();
         });
 
-        function refreshTableBarang() {
-            var link = '@Url.Action("RefreshTableBarang", "Manage")';
+        function searchTableBarang() {
+            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", $('#search_barang').val());
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable').hide();
+                    $('#table-barang-1-partial').hide();
                     $('#loading_barang_tab').show();
                 },
                 success: function (response) {
-                    $('#table-barang-partial').html(response);
-                    var table = $('#datatable').DataTable();
-                    $('#search_barang').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
+                    $('#table-barang-1-partial').html(response);
                     $('#loading_barang_tab').hide();
-                    $('#datatable').show();
+                    $('#table-barang-1-partial').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -580,24 +613,66 @@
             });
         }
 
-        function refreshTableBarangKosong() {
-            var link = '@Url.Action("RefreshTableBarangKosong", "Manage")';
+        function refreshTableBarang() {
+            var link = '@Html.Raw(Url.Action("RefreshTableMenuBarang", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", $('#search_barang').val());
+            link = link.replace("replaceLastPage", $('#txt_last_page_tmb1p').val());
 
             $.ajax({
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_kosong').hide();
+                    $('#table-barang-1-partial').hide();
+                    $('#loading_barang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-1-partial').html(response);
+                    $('#loading_barang_tab').hide();
+                    $('#table-barang-1-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        function searchTableBarangKosong() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", $('#search_barang').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-kosong-partial').hide();
                     $('#loading_kosong_tab').show();
                 },
                 success: function (response) {
                     $('#table-barang-kosong-partial').html(response);
-                    var table = $('#datatable_kosong').DataTable();
-                    $('#search_kosong').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
                     $('#loading_kosong_tab').hide();
-                    $('#datatable_kosong').show();
+                    $('#table-barang-kosong-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableBarangKosong() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangKosong", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            link = link.replace("replaceSearch", $('#search_kosong').val());
+            link = link.replace("replaceLastPage", $('#txt_last_page_tbkp').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-kosong-partial').hide();
+                    $('#loading_kosong_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-kosong-partial').html(response);
+                    $('#loading_kosong_tab').hide();
+                    $('#table-barang-kosong-partial').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -605,9 +680,10 @@
             });
         }
 
-        function refreshTableBarangTidakLaku() {
+        function searchTableBarangTidakLaku() {
             @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
-            var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage", new { param = "replacedrtgl;replacesdtgl" })';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_tidaklaku').val());
             link = link.replace("replacedrtgl", $('#DrTanggal').val());
             link = link.replace("replacesdtgl", $('#SdTanggal').val());
 
@@ -615,18 +691,38 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_tidaklaku').hide();
+                    $('#table-barang-tidak-laku-partial').hide();
                     $('#loading_tidak_laku_tab').show();
                 },
                 success: function (response) {
                     $('#table-barang-tidak-laku-partial').html(response);
-                    var table = $('#datatable_tidaklaku').DataTable();
-                    $('#search_tidaklaku').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
-
                     $('#loading_tidak_laku_tab').hide();
-                    $('#datatable_tidaklaku').show();
+                    $('#table-barang-tidak-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTableBarangTidakLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangTidakLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_tidaklaku').val());
+            link = link.replace("replaceLastPage", $('#txt_last_page_tbtlp').val());
+            link = link.replace("replacedrtgl", $('#DrTanggal').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-tidak-laku-partial').hide();
+                    $('#loading_tidak_laku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-tidak-laku-partial').html(response);
+                    $('#loading_tidak_laku_tab').hide();
+                    $('#table-barang-tidak-laku-partial').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -634,9 +730,10 @@
             });
         }
 
-        function refreshTablePalingLaku() {
-            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage")'; 'change by nurul 15/1/2019*@
-            var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage", new { param = "replacedrtgl;replacesdtgl" })';
+        function searchTablePalingLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangTidakLaku", "Manage")'; 'change by nurul 15/1/2019 *@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_palinglaku').val());
             link = link.replace("replacedrtgl", $('#DrTanggal1').val());
             link = link.replace("replacesdtgl", $('#SdTanggal1').val());
 
@@ -644,17 +741,38 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_palinglaku').hide();
+                    $('#table-barang-paling-laku-partial').hide();
                     $('#loading_palinglaku_tab').show();
                 },
                 success: function (response) {
                     $('#table-barang-paling-laku-partial').html(response);
-                    var table = $('#datatable_palinglaku').DataTable();
-                    $('#search_palinglaku').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
                     $('#loading_palinglaku_tab').hide();
-                    $('#datatable_palinglaku').show();
+                    $('#table-barang-paling-laku-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function refreshTablePalingLaku() {
+            @*change by nurul 16/1/2019 -- var link = '@Url.Action("RefreshTableBarangPalingLaku", "Manage")'; 'change by nurul 15/1/2019*@
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangPalingLaku", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_palinglaku').val());
+            link = link.replace("replaceLastPage", $('#txt_last_page_tbpl').val());
+            link = link.replace("replacedrtgl", $('#DrTanggal1').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal1').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-paling-laku-partial').hide();
+                    $('#loading_palinglaku_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-paling-laku-partial').html(response);
+                    $('#loading_palinglaku_tab').hide();
+                    $('#table-barang-paling-laku-partial').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -662,10 +780,35 @@
             });
         }
 
+        function searchTableMinimumStok() {
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_minimumstok').val());
+            link = link.replace("replacedrtgl", $('#DrTanggal2').val());
+            link = link.replace("replacesdtgl", $('#SdTanggal2').val());
+
+            $.ajax({
+                type: "GET",
+                url: link,
+                beforeSend: function () {
+                    $('#table-barang-minimum-stok-partial').hide();
+                    $('#loading_minimum_stok_tab').show();
+                },
+                success: function (response) {
+                    $('#table-barang-minimum-stok-partial').html(response);
+                    $('#loading_minimum_stok_tab').hide();
+                    $('#table-barang-minimum-stok-partial').show();
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
         function refreshTableMinimumStok() {
             //change by nurul 6/5/2019
             @*var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage")';*@
-            var link = '@Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { param = "replacedrtgl;replacesdtgl" })';
+            var link = '@Html.Raw(Url.Action("RefreshTableBarangDibawahMinimumStok", "Manage", new { page = "replaceLastPage", search = "replaceSearch", param = "replacedrtgl;replacesdtgl" }))';
+            link = link.replace("replaceSearch", $('#search_minimumstok').val());
+            link = link.replace("replaceLastPage", $('#txt_last_page_tbms').val());
             link = link.replace("replacedrtgl", $('#DrTanggal2').val());
             link = link.replace("replacesdtgl", $('#SdTanggal2').val());
             //end add by nurul 6/5/2019
@@ -674,17 +817,13 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable_minimumstok').hide();
+                    $('#table-barang-minimum-stok-partial').hide();
                     $('#loading_minimum_stok_tab').show();
                 },
                 success: function (response) {
                     $('#table-barang-minimum-stok-partial').html(response);
-                    var table = $('#datatable_minimumstok').DataTable();
-                    $('#search_minimumstok').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
                     $('#loading_minimum_stok_tab').hide();
-                    $('#datatable_minimumstok').show();
+                    $('#table-barang-minimum-stok-partial').show();
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -692,1071 +831,6 @@
             });
         }
 
-        function Initialize() {
-            $('.cbx').each(function () {
-                var $this = $(this);
-                $this.click(function () {
-                    var name = $this.attr('name');
-                    var $cbxTarget = $('.cbxTarget[data-cbx="' + name + '"]');
-                    if ($cbxTarget.val() == 'False' || $cbxTarget.val() == 'false') {
-                        $cbxTarget.val(true);
-                    } else {
-                        $cbxTarget.val(false);
-                    }
-                });
-            });
-
-            $('.collapse-link').on('click', function () {
-                var $BOX_PANEL = $(this).closest('.x_panel'),
-                    $ICON = $(this).find('i'),
-                    $BOX_CONTENT = $BOX_PANEL.find('.x_content');
-
-                // fix for some div with hardcoded fix class
-                if ($BOX_PANEL.attr('style')) {
-                    $BOX_CONTENT.slideToggle(200, function () {
-                        $BOX_PANEL.removeAttr('style');
-                    });
-                } else {
-                    $BOX_CONTENT.slideToggle(200);
-                    $BOX_PANEL.css('height', 'auto');
-                }
-
-                $ICON.toggleClass('fa-chevron-up fa-chevron-down');
-            });
-
-            $('input[name="select_all"]').on('click',
-                function () {
-                    var attr = $(this).attr('checked');
-
-                    if (typeof attr !== typeof undefined && attr !== false) {
-                        $('input[name="data-1"]').removeAttr('checked');
-                        $('input[name="data-2"]').removeAttr('checked');
-                    } else {
-                        $('input[name="data-1"]').attr('checked', 'checked');
-                        $('input[name="data-2"]').attr('checked', 'checked');
-                    }
-                });
-
-            $('#tambah_barang').on('click', function () {
-                $('.barang_table_section').hide();
-                $('.barang_editor_section').show();
-                $('#close-editor-1')[0].disabled = false;
-
-                if ($('#Stf02_BRG').val() == '') {
-                    $('#hjualmarket-section input[data-jenis="hjual"]').each(function () {
-                        $(this).val(convertToRupiah(0));
-                    });
-                }
-            });
-
-            $('#close-editor-1').on('click', function () {
-                $('#close-editor-1')[0].disabled = true;
-                $('.barang_table_section').show();
-                $('.barang_editor_section').hide();
-                refreshFormBarang();
-            });
-
-            getKategoriPertamaBlibli();
-            getKategori();
-            getMerk();
-
-            $("#Stf02_HJUAL").focus(function () {
-                $(this).val(convertToAngka($(this).val()));
-            });
-
-            $('#hjualmarket-section input[data-jenis="hjual"]').focus(function () {
-                $(this).val(convertToAngka($(this).val()));
-            });
-
-            $("#Stf02_HJUAL").on('keydown',
-                function (e) {
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-                        // Allow: Ctrl+A, Command+A
-                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-                        // Allow: home, end, left, right, down, up
-                        (e.keyCode >= 35 && e.keyCode <= 40)) {
-                        // let it happen, don't do anything
-                        return;
-                    }
-                    // Ensure that it is a number and stop the keypress
-                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                        e.preventDefault();
-                    }
-                });
-
-            $("#hjualmarket-section input").on('keydown',
-                function (e) {
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-                        // Allow: Ctrl+A, Command+A
-                        (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) ||
-                        // Allow: home, end, left, right, down, up
-                        (e.keyCode >= 35 && e.keyCode <= 40)) {
-                        // let it happen, don't do anything
-                        return;
-                    }
-                    // Ensure that it is a number and stop the keypress
-                    if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                        e.preventDefault();
-                    }
-                });
-
-            $('#hjualmarket-section input[data-jenis="hjual"]').on('change', function () {
-                var input = $(this).val();
-                var rupiah = convertToRupiah(input);
-                $(this).val(rupiah);
-            });
-
-            $("#Stf02_HJUAL").on('change', function () {
-                if ($(this).val() == '') {
-                    $(this).val(0);
-                }
-                $(this).val(convertToAngka($(this).val()));
-
-                var $input = $(this).val();
-                var $rupiah = convertToRupiah($input);
-                $(this).val($rupiah);
-
-                applyHargaPerMarket($rupiah);
-            });
-
-            $('#Stf02_BRG').on('change blur',
-                function () {
-                    if (!$(this).is(':disabled')) {
-                        cekKode($(this), 'brg');
-                    }
-                });
-
-            $("input[type=file]").on("click",
-                function (e) {
-                    e.stopPropagation();
-                });
-
-            $('#foto_produk_1, #foto_produk_2, #foto_produk_3').hide();
-            $('#btn_hapus_1, #btn_hapus_2, #btn_hapus_3').hide();
-
-            $('#btn_hapus_1').click(function () {
-                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 1);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
-
-                $.ajax({
-                    url: $link,
-                    type: 'GET',
-                    success: function () {
-                        $('#foto_produk_1').val(null);
-                        $('#box_upload_1').css('background-image', '');
-                        $('#box_upload_1 span').show();
-                        $('#btn_hapus_1').hide();
-                    },
-                    error: function () {
-                    }
-                });
-
-                return;
-            });
-
-            $('#btn_hapus_2').click(function () {
-                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 2);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
-
-                $.ajax({
-                    url: $link,
-                    type: 'GET',
-                    success: function () {
-                        $('#foto_produk_2').val(null);
-                        $('#box_upload_2').css('background-image', '');
-                        $('#box_upload_2 span').show();
-                        $('#btn_hapus_2').hide();
-                    },
-                    error: function () {
-                    }
-                });
-
-                return;
-            });
-
-            $('#btn_hapus_3').click(function () {
-                var $link = '@Html.Raw(Url.Action("DeleteFotoProduk", "Manage", new { kodeBarang = "replaceKode", urutan = "replaceUrutan", uname = "replaceUsername" }))';
-                $link = $link.replace("replaceKode", $('#Stf02_BRG').val());
-                $link = $link.replace("replaceUrutan", 3);
-                $link = $link.replace("replaceUsername", $('#Stf02_USERNAME').val());
-
-                $.ajax({
-                    url: $link,
-                    type: 'GET',
-                    success: function () {
-                        $('#foto_produk_3').val(null);
-                        $('#box_upload_3').css('background-image', '');
-                        $('#box_upload_3 span').show();
-                        $('#btn_hapus_3').hide();
-                    },
-                    error: function () {
-                    }
-                });
-
-                return;
-            });
-
-            var validImage = ["image/jpeg"];
-
-            $('#foto_produk_1').change(function () {
-                var file = this.files[0];
-                var fileType = file["type"];
-                if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    $('#box_upload_1').css('background-image', 'url("' + reader.result + '")')
-                        .css('background-size', 'cover');
-                    $('#box_upload_1 span').hide();
-                    $('#btn_hapus_1').show();
-                }
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            $('#foto_produk_2').change(function () {
-                var file = this.files[0];
-                var fileType = file["type"];
-                if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    $('#box_upload_2').css('background-image', 'url("' + reader.result + '")')
-                        .css('background-size', 'cover');
-                    $('#box_upload_2 span').hide();
-                    $('#btn_hapus_2').show();
-                }
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            $('#foto_produk_3').change(function () {
-                var file = this.files[0];
-                var fileType = file["type"];
-                if ($.inArray(fileType, validImage) < 0) {
-                    alert('Hanya boleh file berformat .jpg!');
-                    return;
-                }
-                var reader = new FileReader();
-                reader.onloadend = function () {
-                    $('#box_upload_3').css('background-image', 'url("' + reader.result + '")')
-                        .css('background-size', 'cover');
-                    $('#box_upload_3 span').hide();
-                    $('#btn_hapus_3').show();
-                }
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            $('#box_upload_1').on('click', function () {
-            });
-
-            $('#box_upload_2').on('click', function () {
-            });
-
-            $('#box_upload_3').on('click', function () {
-
-            });
-            $('#box_upload_1').on('click', function () {
-                $('#foto_produk_1').click();
-            });
-
-            $('#box_upload_2').on('click', function () {
-                $('#foto_produk_2').click();
-            });
-
-            $('#box_upload_3').on('click', function () {
-                $('#foto_produk_3').click();
-            });
-
-            if ($('#Stf02_ID').val() != '') {
-                getFotoProduk();
-            }
-
-            //add by nurul 15/1/2019
-            var d = new Date();
-            d.setMonth(d.getMonth() - 3);
-            $('#DrTanggal').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', d);
-
-            $('#DrTanggal').change(function () {
-                $('#DrTanggal').val($('#DrTanggal').val());
-                $('#DrTanggal').datepicker('hide');
-                refreshTableBarangTidakLaku();
-            });
-            $('#SdTanggal').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0');
-            $('#SdTanggal').change(function () {
-                $('#SdTanggal').val($('#SdTanggal').val());
-                $('#SdTanggal').datepicker('hide');
-                refreshTableBarangTidakLaku();
-                });
-            var d = new Date();
-            d.setMonth(d.getMonth() - 3);
-            $('#DrTanggal1').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', d);
-            $('#DrTanggal1').change(function () {
-                $('#DrTanggal1').val($('#DrTanggal1').val());
-                $('#DrTanggal1').datepicker('hide');
-                refreshTablePalingLaku();
-            });
-            $('#SdTanggal1').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0');
-            $('#SdTanggal1').change(function () {
-                $('#SdTanggal1').val($('#SdTanggal1').val());
-                $('#SdTanggal1').datepicker('hide');
-                refreshTablePalingLaku();
-            });
-
-            //add by nurul 6/5/2019
-            var d = new Date();
-            d.setMonth(d.getMonth() - 3);
-            $('#DrTanggal2').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', d);
-
-            $('#DrTanggal2').change(function () {
-                $('#DrTanggal2').val($('#DrTanggal2').val());
-                $('#DrTanggal2').datepicker('hide');
-                refreshTableMinimumStok();
-            });
-            $('#SdTanggal2').datepicker({
-                format: 'dd/mm/yyyy',
-                language: 'id'
-            }).datepicker('setDate', '0');
-            $('#SdTanggal2').change(function () {
-                $('#SdTanggal2').val($('#SdTanggal2').val());
-                $('#SdTanggal2').datepicker('hide');
-                refreshTableMinimumStok();
-            });
-            //end add by nurul 6/5/2019
-
-        }
-
-        function ClearCategoryBlibli(divIDpertama,divIDselanjutnya,divIDattribute,i,undoing){
-            var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
-            var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
-            var msg = "Kosongkan Kategori & Attribute ?";
-            if (undoing) {
-                msg = "Kembalikan Seperti Semula ?";
-            }
-            if (confirm(msg)) {
-                $('#' + divIDpertama).html('');
-                $('#' + divIDselanjutnya).html('');
-                $('#' + divIDattribute).html('');
-                if (!undoing) {
-                    $(fieldCategoryCode).val('');
-                    $(fieldCategoryName).val('');
-                }
-                getKategoriPertamaBlibli();
-            }
-        }
-        function getKategoriPertamaBlibli() {
-            @{
-                var context_ = new MoDbContext();
-            }
-            var idMarketBlibli = @Html.Raw(Json.Encode(context_.Marketplaces.FirstOrDefault(m => m.NamaMarket.ToUpper().Equals("BLIBLI")).IdMarket));
-            var listMarket = @Html.Raw(Json.Encode(Model.ListMarket));
-            for (var i = 0; i < listMarket.length; i++) {
-                if (listMarket[i].NAMA == idMarketBlibli.toString()) {
-                    if (listMarket[i].Kode != null) {
-
-                        var selectCategoryBlibliID = 'Category_Blibli_' + listMarket[i].RecNum;
-                        var fieldCategoryCode = '#ListHargaJualPermarket_'+ i +'__CATEGORY_CODE';
-                        var fieldCategoryName = '#ListHargaJualPermarket_'+ i +'__CATEGORY_NAME';
-                        var nextselectID = "Category_Blibli_2_" + listMarket[i].RecNum;
-                        var categoryBlibliSelanjutnya =  '#category_blibli_selanjutnya_' + listMarket[i].RecNum;
-                        var listMarketRecNum = listMarket[i].RecNum;
-
-                        if ($(fieldCategoryCode).val() != "" && $(fieldCategoryCode).val() != null) {
-                            //edit
-                            var ListHargaJualPermarketView = @Html.Raw(Json.Encode(Model.ListHargaJualPermarketView));
-                            ListHargaJualPermarketView = $.grep( ListHargaJualPermarketView, function( n, i ) {
-                                return n.BRG===$('#Stf02_BRG').val()  && n.IDMARKET === listMarketRecNum;
-                            });
-
-                            if (ListHargaJualPermarketView[0] != undefined) {
-
-                                $(fieldCategoryCode).val(ListHargaJualPermarketView[0]['CATEGORY_CODE']);
-
-                                var fieldCategoryCodeValue = $(fieldCategoryCode).val();
-                                var link = '@Url.Action("GetKategoriBlibliByChildCode", "Manage", new { code = "replaceCode" })';
-                                link = link.replace("replaceCode", fieldCategoryCodeValue);
-
-                                $.ajax({
-                                    type: "GET",
-                                    url: link,
-                                    contentType: 'application/json',
-                                    cache: false,
-                                    success: function (data) {
-                                        var listKategori = [];
-
-                                        //generate category
-                                        $.each(data,
-                                            function (i, item) {
-                                                if (i == 0) {
-                                                    var textbox = '<input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'">';
-                                                    $('#category_blibli_pertama_' + listMarketRecNum).append(textbox);
-                                                }
-                                                else {
-                                                    var textbox = '<div class="col-md-3 col-sm-3 col-xs-12"><input type="text" data-val="true" disabled="disabled" class="form-control" value="'+ item.CATEGORY_NAME +'"></div>';
-                                                    $('#category_blibli_selanjutnya_' + listMarketRecNum).append(textbox);
-                                                }
-                                            });
-
-                                        //generate attribute
-                                        getAttributeBlibli(fieldCategoryCodeValue,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView);
-
-                                    },
-                                    error: function (xhr) {
-                                        console.log(xhr);
-                                    }
-                                });
-                            }
-
-                        }
-                        else {
-                            //new
-                            var link = '@Url.Action("GetKategoriBlibliByCode", "Manage", new { code = "replaceCode" })';
-                            link = link.replace("replaceCode", listMarket[i].Kode);
-
-                            //buat select pertama
-                            var nextselect = '<select id="'+ selectCategoryBlibliID +'" placeholder="Harap pilih" required="required"></select>';
-                            $('#category_blibli_pertama_' + listMarket[i].RecNum).append(nextselect);
-                            //end buat select pertama
-
-                            $.ajax({
-                                type: "GET",
-                                url: link,
-                                contentType: 'application/json',
-                                cache: false,
-                                success: function (data) {
-                                    var listKategori = [];
-
-                                    $.each(data,
-                                        function (i, item) {
-                                            listKategori[i] = {
-                                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
-                                                text: item.CATEGORY_NAME
-                                            };
-                                        });
-
-                                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
-                                        valueField: 'id',
-                                        searchField: 'text',
-                                        options: listKategori,
-                                        onChange: function (value) {
-                                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,2,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
-                                        }
-                                    });
-                                },
-                                error: function (xhr) {
-                                    console.log(xhr);
-                                }
-                            });
-                        }
-                    }
-                }
-            }
-        }
-        function KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,s){
-            s.disable();
-            var values = value.split('|;|');
-            $('#' + nextselectID).remove();
-            if (values[1] == "0") {
-                var nextselect = '<div class="col-md-3 col-sm-3 col-xs-12"><select id="'+ nextselectID +'" placeholder="Harap pilih" required="required"></select></div>';
-                $(categoryBlibliSelanjutnya).append(nextselect);
-                getKategoriSelanjutnyaBlibli(values[0],listMarketRecNum,nextselectID,next + 1,fieldCategoryCode,fieldCategoryName);
-            }
-            else if (values[1] == "1") {
-                $(fieldCategoryCode).val(values[0]);
-                $(fieldCategoryName).val($('#' + selectCategoryBlibliID + " option:selected").text());
-                getAttributeBlibli(values[0],listMarketRecNum,fieldCategoryCode,null);
-            }
-        }
-        function getKategoriSelanjutnyaBlibli(categoryCode,listMarketRecNum,SelectID,next,fieldCategoryCode,fieldCategoryName){
-            var link = '@Url.Action("GetKategoriBlibliByParentCode", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
-
-            var nextselectID = "Category_Blibli_"+ next +"_" + listMarketRecNum;
-            var categoryBlibliSelanjutnya =  '#category_blibli_selanjutnya_' + listMarketRecNum;
-            var selectCategoryBlibliID = SelectID;
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKategori = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listKategori[i] = {
-                                id: item.CATEGORY_CODE + '|;|' + item.IS_LAST_NODE,
-                                text: item.CATEGORY_NAME
-                            };
-                        });
-
-                    var kategoriSelect = $('#' + selectCategoryBlibliID).selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listKategori,
-                        onChange: function (value) {
-                            KategoriBlibliOnChange(value,nextselectID,selectCategoryBlibliID,categoryBlibliSelanjutnya,next,fieldCategoryCode,fieldCategoryName,listMarketRecNum,this);
-                        }
-                    });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-        function getAttributeBlibli(categoryCode,listMarketRecNum,fieldCategoryCode,ListHargaJualPermarketView){
-            var listmarket_i = fieldCategoryCode.replace("#ListHargaJualPermarket_","").replace("__CATEGORY_CODE","")
-
-            var link = '@Url.Action("GetAttributeBlibli", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", categoryCode);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var loop = 0;
-                    var fieldAVALUE = "";
-                    var SelectList = [];
-                    $.each(data,
-                        function (i, item) {
-                            for (var i = 0; i < 30; i++) {
-                                var ACODE = item["ACODE_" + (i + 1)];
-                                var ATYPE = item["ATYPE_" + (i + 1)];
-                                var ANAME = item["ANAME_" + (i + 1)];
-                                var AOPTIONS = item["AOPTIONS_" + (i + 1)];
-                                if (ACODE != null) {
-                                    if (ACODE != "") {
-
-                                        var label = '<label class="control-label">'+ ANAME +'</label>';
-                                        var fieldACODE = '<input data-val="true" class="form-control" data-val-length-max="50" id="ListHargaJualPermarket_'+ listmarket_i +'__ACODE_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ACODE_'+ (i + 1) + '" type="hidden" value="'+ ACODE +'" maxlength="50">';
-                                        var fieldANAME = '<input data-val="true" class="form-control" data-val-length-max="250" id="ListHargaJualPermarket_'+ listmarket_i +'__ANAME_'+ (i + 1) + '" name="ListHargaJualPermarket['+ listmarket_i +'].ANAME_'+ (i + 1) + '" type="hidden" value="'+ ANAME +'" maxlength="250">';
-
-                                        fieldAVALUE += '<div class="col-md-2">' + label + fieldACODE + fieldANAME + '</div>'
-                                        //$('#attribute_blibli_' + listMarketRecNum).append('<div class="col-md-2" style="margin-top:10px;">' + label + fieldACODE + fieldANAME + '</div>');
-
-                                        var fieldAVALUE_ID = 'ListHargaJualPermarket_'+ listmarket_i +'__AVALUE_'+ (i + 1);
-
-                                        var adaValue = "";
-                                        if (ListHargaJualPermarketView != null) {
-                                            if (ListHargaJualPermarketView.length > 0) {
-                                                adaValue = ListHargaJualPermarketView[0]['AVALUE_'+ (i + 1)];
-                                            }
-                                        }
-
-                                        if (AOPTIONS == "1")
-                                        {
-                                            //hidden
-                                            fieldAVALUE += '<input type="hidden" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID + '" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250.">';
-
-                                            //select
-                                            var selectID = 'attribute_select_blibli_'+ listMarketRecNum +'_'+ (i + 1);
-                                            SelectList.push(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                            fieldAVALUE += '<div class="col-md-4"><select id="'+ selectID +'" placeholder="Harap pilih" required="required"></select></div>';
-
-                                            //getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue, ATYPE);
-                                        }
-                                        else
-                                        {
-                                            //textbox
-                                            fieldAVALUE += '<div class="col-md-4"><input type="text" data-val="true" class="form-control" data-val-length-max="250" id="'+ fieldAVALUE_ID +'" name="ListHargaJualPermarket['+ listmarket_i +'].AVALUE_'+ (i + 1) + '" value="'+ adaValue +'" maxlength="250" data-val-length="The field must be a string with a maximum length of 250."></div>';
-                                        }
-
-
-                                        if (loop == 0) {
-
-                                            loop = 1;
-                                        }
-                                        else if (loop == 1) {
-                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
-
-                                            fieldAVALUE = "";
-                                            loop = 0;
-                                        }
-                                    }
-                                    else {
-                                        if (loop == 1) {
-                                            $('#attribute_blibli_' + listMarketRecNum).append('<div class="row" style="padding-top:5px">' + fieldAVALUE + '</div>');
-                                            fieldAVALUE = "";
-                                            loop = 2;
-                                            for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
-                                            }
-                                        }
-                                        else if (loop == 0) {
-                                            loop = 2;
-                                            for (var i = 0; i < (SelectList.length / 6); i++) {
-                                                getAttributeOptionBlibli(SelectList[(i * 6) + 0],SelectList[(i * 6) + 1],SelectList[(i * 6) + 2],SelectList[(i * 6) + 3],SelectList[(i * 6) + 4], SelectList[(i * 6) + 5]);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-        function getAttributeOptionBlibli(ACODE,listMarketRecNum,selectID,fieldAVALUE_ID,adaValue,ATYPE){
-            var link = '@Url.Action("GetAttributeOptBlibli", "Manage", new { code = "replaceCode" })';
-            link = link.replace("replaceCode", ACODE);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listAttributeOpt = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listAttributeOpt[i] = {
-                                id: item.OPTION_VALUE,
-                                text: item.OPTION_VALUE
-                            };
-                        });
-
-                    if (ATYPE == "DEFINING_ATTRIBUTE") {
-
-                        var AttributeOptSelectMultiple = $('#' + selectID).selectize({
-                            maxItems : 7,
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
-
-                        if (adaValue != ""){
-                            var adaValues = adaValue.split(',');
-                            AttributeOptSelectMultiple[0].selectize.setValue(adaValues, true);
-                        }
-                    }
-                    else {
-                        var AttributeOptSelect = $('#' + selectID).selectize({
-                            valueField: 'id',
-                            searchField: 'text',
-                            options: listAttributeOpt,
-                            onChange: function (value) {
-                                $('#' + fieldAVALUE_ID).val(value);
-                            }
-                        });
-
-                        if (adaValue != "") {
-                            AttributeOptSelect[0].selectize.setValue(adaValue, true);
-                        }
-                    }
-
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-
-        function getKategori() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetKategoriBarang", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listKategori = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listKategori[i] = {
-                                id: item.KODE,
-                                text: item.KET
-                            };
-                        });
-
-                    var kategoriSelect = $('#KATEGORI').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listKategori,
-                        onChange: function (value) {
-                            $('#Stf02_Sort1').val(value);
-                            $('#Stf02_KET_SORT1').val($("#KATEGORI option:selected").text());
-                        }
-                    });
-
-                    kategoriSelect[0].selectize.setValue($('#Stf02_Sort1').val());
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-
-        function GetCategoryBlibli(){
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetCategoryBlibli", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-        function getFotoProduk() {
-            //var $link1 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            //var $link2 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            //var $link3 = '/Content/Barang_Images/FotoProduk-' + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-            //var namaFile = $"FotoProduk-{dataBarang.Stf02.USERNAME}-{dataBarang.Stf02.BRG}-foto-{i + 1}{fileExtension}";
-            var path = "/Content/Uploaded/FotoProduk-";
-            var $link1 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-1' + '.jpg';
-            var $link2 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-2' + '.jpg';
-            var $link3 = path + $('#Stf02_USERNAME').val() + '-' + $('#Stf02_BRG').val() + '-foto-3' + '.jpg';
-
-            $.ajax({
-                url: $link1,
-                type: 'GET',
-                success: function () {
-                    $('#box_upload_1').css({
-                        'background-image': 'url("' + $link1 + '")',
-                        'background-size': 'cover'
-                    });
-                    $('#box_upload_1 span').hide();
-                    $('#btn_hapus_1').show();
-                },
-                error: function () {
-                }
-            });
-
-            $.ajax({
-                url: $link2,
-                type: 'GET',
-                success: function () {
-                    $('#box_upload_2').css({
-                        'background-image': 'url("' + $link2 + '")',
-                        'background-size': 'cover'
-                    });
-                    $('#box_upload_2 span').hide();
-                    $('#btn_hapus_2').show();
-                },
-                error: function () {
-                }
-            });
-
-            $.ajax({
-                url: $link3,
-                type: 'GET',
-                success: function () {
-                    $('#box_upload_3').css({
-                        'background-image': 'url("' + $link3 + '")',
-                        'background-size': 'cover'
-                    });
-                    $('#box_upload_3 span').hide();
-                    $('#btn_hapus_3').show();
-                },
-                error: function () {
-                }
-            });
-        }
-
-        function getMerk() {
-            $.ajax({
-                type: "GET",
-                url: '@Url.Action("GetMerkBarang", "Manage")',
-                contentType: 'application/json',
-                cache: false,
-                success: function (data) {
-                    var listMerk = [];
-
-                    $.each(data,
-                        function (i, item) {
-                            listMerk[i] = {
-                                id: item.KODE,
-                                text: item.KET
-                            };
-                        });
-
-                    var merkSelect = $('#MERK').selectize({
-                        valueField: 'id',
-                        searchField: 'text',
-                        options: listMerk,
-                        onChange: function (value) {
-                            $('#Stf02_Sort2').val(value);
-                            $('#Stf02_KET_SORT2').val($("#MERK option:selected").text());
-                        }
-                    });
-
-                    merkSelect[0].selectize.setValue($('#Stf02_Sort2').val());
-                },
-                error: function (xhr) {
-                    console.log(xhr);
-                }
-            });
-        }
-
-        function applyHargaPerMarket($harga) {
-            $('input[data-jenis="hjual"]').each(function () {
-                $(this).val($harga);
-            });
-        }
-
-        function cekValidasi() {
-            var ret = true;
-            if ($("#Stf02_Deskripsi").val().length < 30) {
-                addError($("#Stf02_Deskripsi").parent().parent(), "Deskripsi barang minimal 30 karakter.");
-                ret = false;
-            }
-            if (convertToAngka($("#Stf02_HJUAL").val()) <= 0) {
-                addError($("#Stf02_HJUAL").parent().parent(), "Harga Jual harus lebih dari 0.");
-                ret = false;
-            }
-            return ret;
-        }
-        function addError(obj, msg) {
-            $this = obj;
-            $this.closest('.form-group').addClass('has-error');
-            if (!$this.closest('div').find('.text-danger').length) {
-                $this.closest('div').append('<span class="text-danger">'+msg+'</span>');
-            }
-        }
-        function simpanBarang1(btnClicked) {
-
-            var valid = validateForm();
-            var valid2 = cekValidasi();
-
-            if (!valid || !valid2) return false;
-            if (!valid || !valid2) return false;
-
-
-            //$('form .selectized[required="required"]').each(function () {
-            //    var $this = $(this);
-            //    var $inputSelectize = $this.parent().find('.item');
-
-            //    if ($inputSelectize.length == 0) {
-            //        $this.parent().parent('.form-group').addClass('has-error');
-            //        $this.parent().find('.selectize-input').css('border', 'solid 1px #a94442');
-
-            //        if (!$this.closest('div').find('.text-danger').length) {
-            //            if ($this.closest('div').hasClass('input-group')) {
-            //                $this.parent().parent().append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
-            //            } else {
-            //                $this.closest('div').append('<span class="text-danger">Kolom ini tidak boleh kosong!</span>');
-            //            }
-            //        }
-
-            //        $isValid = false;
-            //    }
-            //});
-
-
-            var input = $("#Stf02_HJUAL").val();
-            var angka = convertToAngka(input);
-            $("#Stf02_HJUAL").val(angka);
-            $('#Stf02_STN').val($('#Stf02_STN2').val());
-
-            $.each($("#hjualmarket-section input.form-control"),
-                function () {
-                    var inputJual = $(this).val();
-                    var angkaJual = convertToAngka(inputJual);
-                    $(this).val(angkaJual);
-                });
-
-            var $form = $(btnClicked).parents('form');
-            var $formData = new FormData($('form')[0]);
-
-            $.ajax({
-                type: "POST",
-                url: $form.attr('action'),
-                data: $formData,
-                processData: false,  // tell jQuery not to process the data
-                contentType: false,  // tell jQuery not to set contentType
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
-                success: function (response) {
-                    if (response.Errors == null) {
-                        $('#table-barang-1-partial').html(response);
-                        Initialize();
-                        refreshTableBarang();
-                        $('#close-editor-1').click();
-                        $("html, body").animate({ scrollTop: 0 }, "slow");
-                        $('#loading_spinner').hide();
-                    } else {
-                        console.log(response.Errors);
-                        alert('Ada data yang tidak valid!');
-                        $('#loading_spinner').hide();
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                    $('#loading_spinner').hide();
-                }
-            });
-
-            return false;
-        }
-
-        function convertToRupiah(angka) {
-            //change by calvin 26 september 2018
-            //var rupiah = '';
-            //var angkarev = angka.toString().split('').reverse().join('');
-            //for (var i = 0; i < angkarev.length; i++) if (i % 3 === 0) rupiah += angkarev.substr(i, 3) + '.';
-            //return rupiah.split('', rupiah.length - 1).reverse().join('') + ',00';
-            return $.number(angka, 2, ',', '.');
-            //end change by calvin 26 september 2018
-        }
-
-        function convertToAngka(rupiah) {
-
-            //change by calvin 26 september 2018
-            //return parseInt(rupiah.replace(/,.*|[^0-9]/g, ''), 10);
-            return parseFloat(rupiah.replaceAll('.', '').replaceAll(',', '.'));
-            //end change by calvin 26 september 2018
-        }
-
-        $idBarang = "";
-
-        function refreshFormBarang() {
-            var link = '@Url.Action("RefreshFormBarang", "Manage")';
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    $('#form-partial').html(response);
-                    Initialize();
-                    initRequired();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-        function editBarang(idBarang) {
-            var link = '@Url.Action("EditBarang", "Manage", new { barangId = "replaceId" })';
-            link = link.replace("replaceId", idBarang);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                beforeSend: function () {
-                    $('#loading_spinner').show();
-                },
-                success: function (response) {
-                    $('#form-partial').html(response);
-                    $('#Stf02_BRG').attr('disabled', 'disabled');
-                    Initialize();
-                    initRequired();
-                    $('#tambah_barang').click();
-                    $('#loading_spinner').hide();
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-        function pass(idBarang, namaBarang) {
-            this.$idBarang = idBarang;
-            $('#hapus_label').text(namaBarang);
-        }
-
-        function deleteBarang() {
-            var link = '@Url.Action("DeleteBarang", "Manage", new { barangId = "replaceId" })';
-            link = link.replace("replaceId", this.$idBarang);
-
-            $.ajax({
-                type: "GET",
-                url: link,
-                success: function (response) {
-                    //change by nurul 30/7/2018
-                    //$('#table-barang-1-partial').html(response);
-                    //Initialize();
-                    //$('#konfHapusBarang').modal('hide');
-                    if (response.Errors != undefined) {
-                        $('#konfHapusBarang').modal('hide');
-                        alert(response.Errors[0]);
-                    } else {
-                        $('#table-barang-1-partial').html(response);
-                        //Initialize();
-                        refreshTableBarang();
-                        $('#konfHapusBarang').modal('hide');
-                    }
-                    //end change
-                },
-                error: function (xhr, status, error) {
-                    console.log(error);
-                }
-            });
-        }
-
-        //ADD BY CALVIN 8 JULY 2018, PROMPT
-        var PromptDeliveryTempEleveniaTextBox = "";
-        function PromptDeliveryTempElevenia(i, r) {
-            PromptDeliveryTempEleveniaTextBox = i;
-            showPromptDeliveryTempEleveniaTextBoxWindow(r);
-        }
-
-        function showPromptDeliveryTempEleveniaTextBoxWindow(val) {
-            var $link = '@Url.Action("PromptDeliveryTempElevenia", "Manage",new { recnum = "replaceRecnum"})';
-            $link = $link.replace("replaceRecnum", val);
-            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
-        }
-        function afterPromptDelTempEl(val) {
-            $('#DeliveryTempElevenia' + PromptDeliveryTempEleveniaTextBox + 'Box').val(val);
-            $('#ListHargaJualPermarket_' + PromptDeliveryTempEleveniaTextBox + '__DeliveryTempElevenia').val(val);
-        }
-
-        var PromptPickupPointBlibliTextBox = "";
-        function PromptPickupPointBlibli(i, r) {
-            PromptPickupPointBlibliTextBox = i;
-            showPromptPickupPointBlibliTextBoxWindow(r);
-        }
-
-        function showPromptPickupPointBlibliTextBoxWindow(val) {
-            var $link = '@Url.Action("PromptPickupPointBlibli", "Manage",new { merchant_code = "replaceKodeMerchant"})';
-            $link = $link.replace("replaceKodeMerchant", val);
-            window.open($link, "popupWindow", "width=600, height=400, scrollbars=yes");
-        }
-        function afterPromptPickupPointBlibli(val) {
-            $('#PickupPoint' + PromptPickupPointBlibliTextBox + 'Blibli').val(val);
-            $('#ListHargaJualPermarket_' + PromptPickupPointBlibliTextBox + '__PICKUP_POINT').val(val);
-        }
-        //END ADD BY CALVIN 8 JULY 2018, PROMPT
         function ConvertToAngkaRupiah(source) {
             if (source.value == '') {
                 source.value = 0;

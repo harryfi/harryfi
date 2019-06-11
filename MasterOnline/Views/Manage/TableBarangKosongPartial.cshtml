@@ -1,36 +1,59 @@
 ﻿@using System.Globalization
+@using PagedList.Mvc
 @using MasterOnline.ViewModels
-@model List<MasterOnline.Models.PenjualanBarang>
+
+@model PagedList.IPagedList<TableMenuBarang1PartialViewModel>
 @{
-    var dataSession = Session["SessionInfo"] as AccountUserViewModel;
-    var username = "";
-    var context = new MoDbContext();
-    if (dataSession?.User != null)
-    {
-        var accId = context.User.Single(u => u.Username == dataSession.User.Username).AccountId;
-        username = context.Account.Single(a => a.AccountId == accId).Username;
-        context.Dispose();
-    }
-    else
-    {
-        username = dataSession?.Account.Username;
-    }
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
 }
-<table id="datatable_kosong" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+<style>
+    #loading_kosong_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_kosong_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_kosong_tab" class="text-center">
+    <div id="loading_kosong_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page_tbkp" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
     <thead>
         <tr role="row">
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Picture: activate to sort column descending" style="width: 50px;">Gambar</th>
-            <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 90px;">Kode</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150px;">Nama</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 117px;">Kategori</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 85px;">Merk</th>
-            @*<th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Qty</th>
-        <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Pokok</th>*@
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Jual</th>
+            <th class="sorting_asc" rowspan="1" colspan="1" aria-sort="ascending" style="width: 50px;">Gambar</th>
+            <th class="sorting_asc" rowspan="1" colspan="1" aria-sort="ascending" style="width: 90px;">Kode</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 150px;">Nama</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 117px;">Kategori</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 85px;">Merk</th>
+            @*<th class="sorting"  rowspan="1" colspan="1" aria-label="Start date: activate to sort column ascending" style="width: 60px;">Qty</th>
+                <th class="sorting"  rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 110px;">Harga Pokok</th>*@
+            <th class="sorting" rowspan="1" colspan="1" style="width: 110px;">Harga Jual</th>
             @*add by nurul 16/11/2018*@
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Stok</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Qty Pesanan</th>
-            <th class="sorting" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 60px;">Sisa Qty</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 60px;">Stok</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 60px;">Qty Pesanan</th>
+            <th class="sorting" rowspan="1" colspan="1" style="width: 60px;">Sisa Qty</th>
             @*end add by nurul*@
         </tr>
     </thead>
@@ -49,22 +72,67 @@
             //{
             //    QOO = getQOO.JUMLAH;
             //}
-        <tr>
-            <td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>
-            <td>@barang.KodeBrg</td>
-            <td>@barang.NamaBrg</td>
-            <td>@barang.Kategori</td>
-            <td>@barang.Merk</td>
-            @*<td>@barang.ISI</td>
-        <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
-            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJual)</td>
-            @*add by nurul 16/11/2018*@
-            <td>@barang.Qoh</td>
-            <td>@barang.Qoo</td>
-            <td>@(barang.Qoh - barang.Qoo)</td>
-            @*end add by nurul*@
-        </tr>
+            <tr>
+                @*<td class="text-center"><img width="50" height="50" src="@Url.Content($"/Content/Uploaded/FotoProduk-{username}-{barang.KodeBrg}-foto-1.jpg")" /></td>*@
+                <td class="text-center"><img width="50" height="50" src="@barang.LINK_GAMBAR_1" /></td>
+                <td>@barang.BRG</td>
+                <td>@barang.NAMA @barang.NAMA2</td>
+                <td>@barang.KET_SORT1</td>
+                <td>@barang.KET_SORT2</td>
+                @*<td>@barang.ISI</td>
+                    <td>@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HBELI)</td>*@
+                @*<td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL)</td>*@
+                <td style="text-align:right">@(barang.HJUAL > 0 ? String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", barang.HJUAL) : "---")</td>
+                @*add by nurul 16/11/2018*@
+                <td>@barang.QOH</td>
+                <td>@barang.QOO</td>
+                <td>@(barang.QOH - barang.QOO)</td>
+                @*end add by nurul*@
+            </tr>
         }
     </tbody>
 </table>
-
+@* add by calvin 24 mei 2019, paging *@
+@if (Model.PageCount > 1)
+{
+    <div id="tabelbarangkosongpartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTableBarangKosong", new
+   {
+       page,
+       search = ViewData["searchParam"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelbarangkosongpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        //$('#table-barang-1-partial').hide();
+                        $('#loading_kosong_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-barang-kosong-partial').html(response);
+                        $('#loading_kosong_tab').hide();
+                        //$('#table-barang-1-partial').show();
+                    }
+                });
+                return false;
+            }
+        });
+    });
+</script>
+@* end add by calvin 24 mei 2019, paging *@
