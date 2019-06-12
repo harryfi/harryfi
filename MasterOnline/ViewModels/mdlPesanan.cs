@@ -34,6 +34,11 @@ namespace MasterOnline
         public string NO_FAKTUR { get; set; }
         public string PERSO { get; set; }
         public string CUST { get; set; }
+        public string REFERENSI { get; set; }
+        public string POSTING { get; set; }
+        public DateTime? TGLJTTEMPO { get; set; }
+        public string PEMBAYARAN { get; set; }
+        public string SUPPLIER { get; set; }
         //[Key]
         //[StringLength(15)]
         //public string NO_BUKTI { get; set; }

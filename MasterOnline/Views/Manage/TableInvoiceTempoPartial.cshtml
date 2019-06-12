@@ -8,7 +8,7 @@
 
 }
 <style>
-    #loading_invoice_lunas_tab {
+    #loading_invoice_tempo_tab {
         display: none;
         width: 100%;
         height: 100%;
@@ -21,7 +21,7 @@
         background-color: rgba(0,0,0,0);
     }
 
-    #loading_invoice_lunas_tab_image {
+    #loading_invoice_tempo_tab_image {
         width: 20px;
         height: 20px;
         margin-top: -90px;
@@ -33,12 +33,12 @@
         border-radius: 50%;
     }
 </style>
-<div id="loading_invoice_lunas_tab">
-    <div id="loading_invoice_lunas_tab_image">
+<div id="loading_invoice_tempo_tab">
+    <div id="loading_invoice_tempo_tab_image">
         <img src="~/Content/Images/spinner.gif" />
     </div>
 </div>
-<input id="txt_last_page2" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<input id="txt_last_page3" type="hidden" class="form-control" value="@ViewData["LastPage"]">
 <table class="table table-striped table-bordered table-hover">
     @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
     <thead>
@@ -66,34 +66,34 @@
                 <td>@invoice.SUPPLIER</td>
                 <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", invoice.TOTAL)</td>
                 @*<td>@(Convert.ToString(invoice.POSTING) == "Y" ? "Sudah" : "Belum")</td>
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)
-                    {
-                        <button class="btn btn-primary" onclick="lihatInvoice(@invoice.RecNum)">
-                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" onclick="editInvoice1(@invoice.RecNum)">
-                            <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>
-                <td class="edit-hapus-col">
-                    @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)
-                    {
-                        <button class="btn btn-danger" onclick="undeleteable()">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusInvoice" onclick="pass(@invoice.RecNum)">
-                            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                        </button>
-                    }
-                </td>*@
+                    <td class="edit-hapus-col">
+                        @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)
+                        {
+                            <button class="btn btn-primary" onclick="lihatInvoice(@invoice.RecNum)">
+                                <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-primary" onclick="editInvoice1(@invoice.RecNum)">
+                                <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </td>
+                    <td class="edit-hapus-col">
+                        @if (Convert.ToString(invoice.POSTING) == "Y" || nInvoice != null)
+                        {
+                            <button class="btn btn-danger" onclick="undeleteable()">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-danger" data-toggle="modal" data-target="#konfHapusInvoice" onclick="pass(@invoice.RecNum)">
+                                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </td>*@
             </tr>
         }
     </tbody>
@@ -102,8 +102,8 @@
 @* add by nurul 15/5/2019, paging *@
 @if (Model.PageCount > 1)
 {
-    <div id="tabelinvoicelunaspartialpager" class="pager">
-        @Html.PagedListPager(Model, page => Url.Action("RefreshTableInvoiceLunas", new
+    <div id="tabelinvoicetempopartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTableInvoiceTempo", new
    {
        page,
        search = ViewData["searchParam"]
@@ -122,18 +122,18 @@
 }
 <script type="text/javascript">
     $(function () {
-        $('#tabelinvoicelunaspartialpager').on('click', 'a', function () {
+        $('#tabelinvoicetempopartialpager').on('click', 'a', function () {
             if (this.href != "") {
                 $.ajax({
                     url: this.href,
                     type: 'GET',
                     cache: false,
                     beforeSend: function () {
-                        $('#loading_invoice_lunas_tab').show();
+                        $('#loading_invoice_tempo_tab').show();
                     },
                     success: function (response) {
-                        $('#table-invoice-lunas-partial').html(response);
-                        $('#loading_invoice_lunas_tab').hide();
+                        $('#table-invoice-tempo-partial').html(response);
+                        $('#loading_invoice_tempo_tab').hide();
                     }
                 });
             }

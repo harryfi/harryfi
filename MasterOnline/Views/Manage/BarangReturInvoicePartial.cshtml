@@ -37,6 +37,11 @@
 @Html.HiddenFor(m => m.Invoice.VLT, new { Value = "IDR" })
 @Html.HiddenFor(m => m.Invoice.JENIS, new { Value = "1" })
 @Html.HiddenFor(m => m.Invoice.TGLINPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
@@ -206,7 +211,7 @@
             <div class="form-group">
                 <div class="col-md-4"></div>
                 <div class="col-md-8">
-                    <button id="btn-autoload" type="button" class="btn btn-primary btn-block">Autoload</button>
+                    <button id="btn-autoload" type="button" class="btn btn-primary btn-block" onclick="autoloadInvoice()">Autoload</button>
                 </div>
             </div>
         </div>

@@ -46,7 +46,11 @@
 @Html.HiddenFor(m => m.Faktur.NO_REF, new { Value = "" })
 @Html.HiddenFor(m => m.Faktur.NILAI_PPNBM, new { Value = 0 })
 @*@Html.HiddenFor(m => m.Faktur.NAMAPEMESAN, new { Value = "" })*@
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 
 <div class="form-horizontal">
     <div class="row">

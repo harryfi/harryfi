@@ -1,6 +1,46 @@
 ﻿@using System.Globalization
-@model MasterOnline.ViewModels.FakturViewModel
-<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">
+@*@model MasterOnline.ViewModels.FakturViewModel*@
+@using PagedList.Mvc
+@model PagedList.IPagedList<mdlPesanan>
+@{
+    string currentFilter = ViewBag.CurrentFilter;
+    string currentSort = ViewBag.CurrentSort;
+
+}
+<style>
+    #loading_returfaktur_tab {
+        display: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0);
+    }
+
+    #loading_returfaktur_tab_image {
+        width: 20px;
+        height: 20px;
+        margin-top: -90px;
+        margin-left: -90px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        border-width: 30px;
+        border-radius: 50%;
+    }
+</style>
+<div id="loading_returfaktur_tab">
+    <div id="loading_returfaktur_tab_image">
+        <img src="~/Content/Images/spinner.gif" />
+    </div>
+</div>
+<input id="txt_last_page" type="hidden" class="form-control" value="@ViewData["LastPage"]">
+<table class="table table-striped table-bordered table-hover">
+    @*<table id="datatable" class="table table-striped table-bordered dataTable" role="grid" aria-describedby="datatable_info">*@
     <thead>
         <tr role="row">
             <th class="sorting_asc" tabindex="0" aria-controls="datatable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 130px;">No. Bukti</th>
@@ -15,36 +55,38 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var faktur in Model.ListFaktur)
+        @*@foreach (var faktur in Model.ListFaktur)*@
+        @foreach (var faktur in Model)
         {
-            var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == faktur.PEMESAN);
-            var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
-            var idMarket = 0;
-            if (pelanggan != null)
-            {
-                idMarket = Convert.ToInt32(pelanggan.NAMA);
-            }
-            var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
-            var NamaMarket = "";
-            if (market != null)
-            {
-                NamaMarket = market.NamaMarket;
-            }
-            var nFaktur = Model.ListNFaktur.SingleOrDefault(n => n.NFAKTUR == faktur.NO_BUKTI);
+            //var buyer = Model.ListPembeli.Single(m => m.BUYER_CODE == faktur.PEMESAN);
+            //var pelanggan = Model.ListPelanggan.FirstOrDefault(m => m.CUST == faktur.CUST);
+            //var idMarket = 0;
+            //if (pelanggan != null)
+            //{
+            //    idMarket = Convert.ToInt32(pelanggan.NAMA);
+            //}
+            //var market = Model.ListMarketplace.FirstOrDefault(m => m.IdMarket == idMarket);
+            //var NamaMarket = "";
+            //if (market != null)
+            //{
+            //    NamaMarket = market.NamaMarket;
+            //}
+            //var nFaktur = Model.ListNFaktur.SingleOrDefault(n => n.NFAKTUR == faktur.NO_BUKTI);
         <tr>
-            <td>@faktur.NO_BUKTI</td>
-            <td>@(faktur.TGL.ToString("dd/MM/yyyy"))</td>
-            <td>@faktur.NO_REF</td>
+            <td>@faktur.NO_FAKTUR</td>
+            <td>@(faktur.TGL?.ToString("dd/MM/yyyy"))</td>
+            <td>@faktur.REFERENSI</td>
             @*<td>@NamaMarket</td>*@
-            <td>@(NamaMarket + " (" + pelanggan.PERSO + ")")</td>
+            @*<td>@(NamaMarket + " (" + pelanggan.PERSO + ")")</td>*@
+            <td>@(faktur.MARKET + " (" + faktur.PERSO + ")")</td>
             <td>
                 @*remark by nurul 24/9/2018 @(buyer.NAMA + " (" + buyer.PERSO + ")")*@
                 @*@(buyer.NAMA + " (" + pelanggan.PERSO + ")")*@
-                @*@buyer.NAMA*@ 
-                @faktur.NAMAPEMESAN
+                @*@buyer.NAMA*@
+                @faktur.PEMBELI
             </td>
-            <td style = "text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.NETTO)</td>
-            @if (Convert.ToString(faktur.ST_POSTING) == "Y")
+            <td style="text-align:right">@String.Format(CultureInfo.CreateSpecificCulture("id-id"), "{0:N}", faktur.TOTAL)</td>
+            @if (Convert.ToString(faktur.POSTING) == "Y")
             {
                 <td>
                     Sudah
@@ -57,22 +99,22 @@
                 </td>
             }
             <td class="edit-hapus-col">
-                @if (Convert.ToString(faktur.ST_POSTING) == "Y")
+                @if (Convert.ToString(faktur.POSTING) == "Y")
                 {
                     <!-- Kalau faktur hasil generate dari pesanan tidak boleh diubah -->
-                    <button class="btn btn-primary" onclick="lihatFaktur(@faktur.RecNum)">
+                    <button class="btn btn-primary" onclick="lihatFaktur(@faktur.RECNUM)">
                         <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
                     </button>
                 }
                 else
                 {
-                    <button class="btn btn-primary" disabled="@(nFaktur != null)" onclick="editFaktur1(@faktur.RecNum)">
+                    <button class="btn btn-primary" disabled="@(faktur.PEMBAYARAN != "")" onclick="editFaktur1(@faktur.RECNUM)">
                         <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
                     </button>
                 }
             </td>
             <td class="edit-hapus-col">
-                @if (Convert.ToString(faktur.ST_POSTING) == "Y")
+                @if (Convert.ToString(faktur.POSTING) == "Y")
                 {
                     <button class="btn btn-danger" onclick="undeleteableFaktur()">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
@@ -80,7 +122,7 @@
                 }
                 else
                 {
-                    <button class="btn btn-danger" disabled="@(nFaktur != null)" data-toggle="modal" data-target="#konfHapusFaktur" onclick="pass(@faktur.RecNum)">
+                    <button class="btn btn-danger" disabled="@(faktur.PEMBAYARAN != "")" data-toggle="modal" data-target="#konfHapusFaktur" onclick="pass(@faktur.RECNUM)">
                         <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                     </button>
                 }
@@ -90,3 +132,48 @@
         }
     </tbody>
 </table>
+
+@* add by nurul 11/6/2019, paging *@
+@if (Model.PageCount > 1)
+{
+    <div id="tabelreturfakturpartialpager" class="pager">
+        @Html.PagedListPager(Model, page => Url.Action("RefreshTableRetur1", new
+   {
+       page,
+       search = ViewData["searchParam"]
+   }),
+        new PagedListRenderOptions
+        {
+            LinkToFirstPageFormat = "<<",
+            LinkToPreviousPageFormat = "prev",
+            LinkToNextPageFormat = "next",
+            LinkToLastPageFormat = ">>",
+            DisplayEllipsesWhenNotShowingAllPageNumbers = false
+        })
+        Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+    </div>
+}
+<script type="text/javascript">
+    $(function () {
+        $('#tabelreturfakturpartialpager').on('click', 'a', function () {
+            if (this.href != "") {
+                $.ajax({
+                    url: this.href,
+                    type: 'GET',
+                    cache: false,
+                    beforeSend: function () {
+                        $('#loading_returfaktur_tab').show();
+                    },
+                    success: function (response) {
+                        $('#table-faktur-partial').html(response);
+                        $('#loading_returfaktur_tab').hide();
+                    }
+                });
+            }
+            return false;
+
+        });
+    });
+</script>
+@* end add by nurul 11/6/2019, paging *@
