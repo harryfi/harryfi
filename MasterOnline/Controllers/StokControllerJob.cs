@@ -184,6 +184,7 @@ namespace MasterOnline.Controllers
         private ErasoftContext ErasoftDbContext { get; set; }
         private DatabaseSQL EDB;
         private string username;
+        private string dbPathEra;
         public StokControllerJob()
         {
             //Catatan by calvin :
@@ -194,6 +195,7 @@ namespace MasterOnline.Controllers
             //Catatan by calvin :
             //untuk menghandle update stok semua marketplace
             SetupContext(DatabasePathErasoft, uname);
+            dbPathEra = DatabasePathErasoft;
         }
 
         public string RemoveSpecialCharacters(string str)
@@ -222,6 +224,7 @@ namespace MasterOnline.Controllers
             MoDbContext = new MoDbContext();
             ErasoftDbContext = new ErasoftContext(DatabasePathErasoft);
             EDB = new DatabaseSQL(DatabasePathErasoft);
+            dbPathEra = DatabasePathErasoft;
             username = uname;
         }
 
@@ -315,6 +318,19 @@ namespace MasterOnline.Controllers
             }
         }
 
+        public class mp_and_item_data
+        {
+            public string SORT1_CUST { get; set; }
+            public string API_CLIENT_P { get; set; }
+            public string API_CLIENT_U { get; set; }
+            public string API_KEY { get; set; }
+            public string TOKEN { get; set; }
+            public string EMAIL { get; set; }
+            public string PASSWORD { get; set; }
+            public int RECNUM { get; set; }
+            public string KODE_BRG_MP { get; set; }
+        }
+
         public double GetQOHSTF08A(string Barang, string Gudang)
         {
             double qtyOnHand = 0d;
@@ -335,6 +351,38 @@ namespace MasterOnline.Controllers
 
             double qtySO = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND B.LOKASI = CASE '" + Gudang + "' WHEN 'ALL' THEN B.LOKASI ELSE '" + Gudang + "' END AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + Barang + "'").FirstOrDefault();
             qtyOnHand = qtyOnHand - qtySO;
+
+            #region Hitung Qty Reserved Blibli
+            {
+                var list_brg_mp = ErasoftDbContext.Database.SqlQuery<mp_and_item_data>("SELECT SORT1_CUST,API_CLIENT_P,API_CLIENT_U,API_KEY,TOKEN,EMAIL,PASSWORD,A.RECNUM,ISNULL(B.BRG_MP,'') KODE_BRG_MP FROM ARF01 (NOLOCK) A INNER JOIN STF02H (NOLOCK) B ON A.RECNUM = B.IDMARKET WHERE B.BRG = '" + Barang +"' AND B.DISPLAY = '1' AND A.NAMA='16' AND A.STATUS_API='1'").ToList();
+                
+                foreach (var item in list_brg_mp)
+                {
+                    BlibliAPIData iden = new BlibliAPIData
+                    {
+                        merchant_code = item.SORT1_CUST,
+                        API_client_password = item.API_CLIENT_P,
+                        API_client_username = item.API_CLIENT_U,
+                        API_secret_key = item.API_KEY,
+                        token = item.TOKEN,
+                        mta_username_email_merchant = item.EMAIL,
+                        mta_password_password_merchant = item.PASSWORD,
+                        idmarket = item.RECNUM,
+                        DatabasePathErasoft = dbPathEra
+                    };
+                    double qtyBlibliReserved = 0;
+                    try
+                    {
+                        qtyBlibliReserved = Blibli_getReservedStockLv2(iden, item.KODE_BRG_MP);
+                    }
+                    catch (Exception ex)
+                    {
+
+                    }
+                    qtyOnHand -= qtyBlibliReserved;
+                }
+            }
+            #endregion
             return qtyOnHand;
         }
 
@@ -644,6 +692,14 @@ namespace MasterOnline.Controllers
             string eraAppSecret = "QwUJjjtZ3eCy2qaz6Rv1PEXPyPaPkDSu";
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+
+            //add by calvin 11 juni 2019
+            //get QOO_lazada
+            double qtySOLazada = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.CUST = '"+ log_CUST + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + stf02_brg + "'").FirstOrDefault();
+            //rumus qoh lazada = qtyOnHand ( dari QOH - QOO_semua_mp - ReservedStokBlibliLv2 + QOO_lazada ), karena lazada menghitung ulang stok nya.
+            qtyOnHand = qtyOnHand + qtySOLazada;
+            //end add by calvin 11 juni 2019
+
             qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
 
             var ret = new BindingBase();
@@ -1022,6 +1078,59 @@ namespace MasterOnline.Controllers
             }
 
             return ret;
+        }
+
+        public double Blibli_getReservedStockLv2(BlibliAPIData iden, string kode_mp)
+        {
+            long milis = CurrentTimeMillis();
+            DateTime milisBack = DateTimeOffset.FromUnixTimeMilliseconds(milis).UtcDateTime.AddHours(7);
+
+            string apiId = iden.API_client_username + ":" + iden.API_client_password;//<-- diambil dari profil API
+            string userMTA = iden.mta_username_email_merchant;//<-- email user merchant
+            string passMTA = iden.mta_password_password_merchant;//<-- pass merchant
+            
+            double QOHBlibli = 0;
+            string signature_1 = CreateTokenBlibli("GET\n\n\n" + milisBack.ToString("ddd MMM dd HH:mm:ss WIB yyyy") + "\n/mtaapi/api/businesspartner/v1/product/detailProduct", iden.API_secret_key);
+            string[] brg_mp = kode_mp.Split(';');
+            if (brg_mp.Length == 2)
+            {
+                string urll_1 = "https://api.blibli.com/v2/proxy/mta/api/businesspartner/v1/product/detailProduct?requestId=" + Uri.EscapeDataString("MasterOnline-" + milis.ToString()) + "&businessPartnerCode=" + Uri.EscapeDataString(iden.merchant_code) + "&gdnSku=" + Uri.EscapeDataString(brg_mp[0]) + "&channelId=MasterOnline";
+
+                HttpWebRequest myReq_1 = (HttpWebRequest)WebRequest.Create(urll_1);
+                myReq_1.Method = "GET";
+                myReq_1.Headers.Add("Authorization", ("bearer " + iden.token));
+                myReq_1.Headers.Add("x-blibli-mta-authorization", ("BMA " + userMTA + ":" + signature_1));
+                myReq_1.Headers.Add("x-blibli-mta-date-milis", (milis.ToString()));
+                myReq_1.Accept = "application/json";
+                myReq_1.ContentType = "application/json";
+                myReq_1.Headers.Add("requestId", "MasterOnline-" + milis.ToString());
+                myReq_1.Headers.Add("sessionId", milis.ToString());
+                myReq_1.Headers.Add("username", userMTA);
+                string responseFromServer_1 = "";
+
+                using (WebResponse response = myReq_1.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        responseFromServer_1 = reader.ReadToEnd();
+                    }
+                }
+
+                if (responseFromServer_1 != null)
+                {
+                    BlibliDetailProductResult result = Newtonsoft.Json.JsonConvert.DeserializeObject(responseFromServer_1, typeof(BlibliDetailProductResult)) as BlibliDetailProductResult;
+                    if (string.IsNullOrEmpty(Convert.ToString(result.errorCode)))
+                    {
+                        if (result.value.items.Count() > 0)
+                        {
+                            QOHBlibli = result.value.items[0].reservedStockLevel2;
+                        }
+                    }
+                }
+            }
+
+            return QOHBlibli;
         }
 
         [AutomaticRetry(Attempts = 3)]

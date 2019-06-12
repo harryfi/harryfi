@@ -53,7 +53,7 @@ namespace MasterOnline.Controllers
 
             var urll = ("https://api.bukalapak.com/v2/authenticate.json");
 
-            var myReq = HttpWebRequest.Create(urll);
+            //var myReq = HttpWebRequest.Create(urll);
 
             MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             {
@@ -66,15 +66,45 @@ namespace MasterOnline.Controllers
             };
             manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, "", currentLog);
 
+            //myReq.Method = "POST";
+            //myReq.ContentType = "application/json";
+            //myReq.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(email + ":" + password)));
+            //var myData = "{\"version\":\"1.1\",\"method\":\"\",\"params\":{\"account\":{\"type\":\"\",\"value\":\"0\"}}}";
+            //myReq.GetRequestStream().Write(Encoding.UTF8.GetBytes(myData), 0, Encoding.UTF8.GetBytes(myData).Count());
+            //var myResp = myReq.GetResponse();
+            //var myreader = new System.IO.StreamReader(myResp.GetResponseStream());
+            ////Dim myText As String;
+            //var stringRet = myreader.ReadToEnd();
+
+            HttpWebRequest myReq = (HttpWebRequest)WebRequest.Create(urll);
             myReq.Method = "POST";
-            myReq.ContentType = "application/json";
-            myReq.Headers.Add("Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(email + ":" + password)));
-            var myData = "{\"version\":\"1.1\",\"method\":\"\",\"params\":{\"account\":{\"type\":\"\",\"value\":\"0\"}}}";
-            myReq.GetRequestStream().Write(Encoding.UTF8.GetBytes(myData), 0, Encoding.UTF8.GetBytes(myData).Count());
-            var myResp = myReq.GetResponse();
-            var myreader = new System.IO.StreamReader(myResp.GetResponseStream());
-            //Dim myText As String;
-            var stringRet = myreader.ReadToEnd();
+            myReq.Headers.Add("Authorization", ("Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(email + ":" + password))));
+            //myReq.Credentials = new NetworkCredential(email, password);
+            myReq.ContentType = "application/x-www-form-urlencoded";
+            myReq.Accept = "application/json";
+            myReq.UserAgent = "curl/7.37.0";
+            string stringRet = "";
+            try
+            {
+                //myReq.ContentLength = myData.Length;
+                //using (var dataStream = myReq.GetRequestStream())
+                //{
+                //    dataStream.Write(System.Text.Encoding.UTF8.GetBytes(myData), 0, myData.Length);
+                //}
+                using (WebResponse response = myReq.GetResponse())
+                {
+                    using (Stream stream = response.GetResponseStream())
+                    {
+                        StreamReader reader = new StreamReader(stream);
+                        stringRet = reader.ReadToEnd();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+
+            }
+
             if (!string.IsNullOrEmpty(stringRet))
             {
                 AccessKeyBL retObj = JsonConvert.DeserializeObject(stringRet, typeof(AccessKeyBL)) as AccessKeyBL;
@@ -201,7 +231,7 @@ namespace MasterOnline.Controllers
             foreach (var BLAttr in BLAttrWithVal)
             {
                 dataBrg += "\"" + BLAttr.Key + "\":";
-                dataBrg += "\"" + BLAttr.Value.ToString() + "\"," ;
+                dataBrg += "\"" + BLAttr.Value.ToString() + "\",";
             }
             dataBrg = dataBrg.Substring(0, dataBrg.Length - 1);
 
@@ -1236,9 +1266,9 @@ namespace MasterOnline.Controllers
                     nama3 = "";
                 }
                 //add 10 Mei 2019, handle harga promo
-                if(brg.deal_info != null)
+                if (brg.deal_info != null)
                 {
-                    if(brg.deal_info.original_price > 0)
+                    if (brg.deal_info.original_price > 0)
                     {
                         itemPrice = brg.deal_info.original_price;
                     }
@@ -1303,7 +1333,7 @@ namespace MasterOnline.Controllers
                 #region attribute
                 var customer = ErasoftDbContext.ARF01.Where(m => m.CUST == cust).FirstOrDefault();
                 var listAttr = GetAttr(customer.API_KEY, customer.TOKEN, brg.category_id.ToString());
-                if(listAttr != null)
+                if (listAttr != null)
                 {
                     var attrBL = new Dictionary<string, string>();
                     string value = "";

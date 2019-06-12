@@ -504,12 +504,38 @@ namespace MasterOnline.Controllers
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                         xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
                         xmlString += "<Images>";
-                        if (!string.IsNullOrEmpty(data.imageUrl))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                        if (!string.IsNullOrEmpty(data.imageUrl2))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                        if (!string.IsNullOrEmpty(data.imageUrl3))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        //CHANGE BY CALVIN 10 JUNI 2019
+                        //if (!string.IsNullOrEmpty(data.imageUrl))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl2))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl3))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        //END CHANGE BY CALVIN 10 JUNI 2019
                         xmlString += "</Images>";
                         xmlString += "</Sku>";
                     }
@@ -758,12 +784,38 @@ namespace MasterOnline.Controllers
                         xmlString += "<package_length>" + data.length + "</package_length><package_height>" + data.height + "</package_height>";
                         xmlString += "<package_width>" + data.width + "</package_width><package_weight>" + Convert.ToDouble(data.weight) / 1000 + "</package_weight>";//weight in kg
                         xmlString += "<Images>";
-                        if (!string.IsNullOrEmpty(data.imageUrl))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
-                        if (!string.IsNullOrEmpty(data.imageUrl2))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
-                        if (!string.IsNullOrEmpty(data.imageUrl3))
-                            xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        //CHANGE BY CALVIN 10 JUNI 2019
+                        //if (!string.IsNullOrEmpty(data.imageUrl))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl2))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl2 + "]]></Image>";
+                        //if (!string.IsNullOrEmpty(data.imageUrl3))
+                        //    xmlString += "<Image><![CDATA[" + data.imageUrl3 + "]]></Image>";
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_1))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_1, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_2))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_2, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        if (!string.IsNullOrEmpty(item.LINK_GAMBAR_3))
+                        {
+                            var uploadImg = UploadImage(item.LINK_GAMBAR_3, data.token);
+                            if (uploadImg.status == 1)
+                            {
+                                xmlString += "<Image><![CDATA[" + uploadImg.message + "]]></Image>";
+                            }
+                        }
+                        //END CHANGE BY CALVIN 10 JUNI 2019
                         xmlString += "</Images>";
                         xmlString += "</Sku>";
                     }
@@ -1558,9 +1610,18 @@ namespace MasterOnline.Controllers
                             foreach (Order order in bindOrder.data.orders)
                             {
                                 bool doInsert = true;
-                                if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing"))
+                                if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing" || order.statuses[0].ToString() == "canceled"))
                                 {
                                     doInsert = false;
+                                    if (order.statuses[0].ToString() == "pending")
+                                    {
+                                        //tidak perlu insert karena pesanan sudah ada di MO pada saat statusnya masih unpaid, update status transaksi jadi 01 dan bila perlu update juga ongkir dll
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN ('" + order.order_id + "') AND STATUS_TRANSAKSI = '0'");
+                                    }
+                                    if (order.statuses[0].ToString() == "canceled")
+                                    {
+                                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '11' WHERE NO_REFERENSI IN ('" + order.order_id + "')");
+                                    }
                                 }
                                 //add 19 Feb 2019
                                 else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
@@ -1764,6 +1825,275 @@ namespace MasterOnline.Controllers
             return ret;
         }
 
+        [AutomaticRetry(Attempts = 2)]
+        [Queue("3_general")]
+        public BindingBase GetOrdersUnpaid(string cust, string accessToken, string dbPathEra, string uname)
+        {
+            var ret = new BindingBase();
+            ret.status = 0;
+            var jmlhNewOrder = 0;//add by calvin 1 april 2019
+            string connectionID = Guid.NewGuid().ToString();
+            var fromDt = DateTime.Now.AddDays(-14);
+            var toDt = DateTime.Now.AddDays(1);
+            SetupContext(dbPathEra, uname);
+            //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
+            //{
+            //    REQUEST_ID = DateTime.Now.ToString("yyyyMMddHHmmssfff"),
+            //    REQUEST_ACTION = "Get Order",
+            //    REQUEST_DATETIME = DateTime.Now,
+            //    REQUEST_ATTRIBUTE_1 = connectionID,
+            //    REQUEST_STATUS = "Pending",
+            //};
+            //manageAPI_LOG_MARKETPLACE(api_status.Pending, ErasoftDbContext, accessToken, currentLog);
+
+            ILazopClient client = new LazopClient(urlLazada, eraAppKey, eraAppSecret);
+            LazopRequest request = new LazopRequest();
+            request.SetApiName("/orders/get");
+            request.SetHttpMethod("GET");
+            request.AddApiParameter("created_before", toDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            request.AddApiParameter("created_after", fromDt.ToString("yyyy-MM-ddTHH:mm:ss") + "+07:00");
+            request.AddApiParameter("sort_direction", "DESC");
+            request.AddApiParameter("offset", "0");
+            request.AddApiParameter("limit", "100");
+            request.AddApiParameter("sort_by", "updated_at");
+            request.AddApiParameter("status", "unpaid");
+            try
+            {
+                LazopResponse response = client.Execute(request, accessToken);
+                var bindOrder = Newtonsoft.Json.JsonConvert.DeserializeObject(response.Body, typeof(NewLzdOrders)) as NewLzdOrders;
+                if (bindOrder != null)
+                {
+                    //ret = bindOrder;
+                    if (bindOrder.code.Equals("0"))
+                    {
+                        //change 12 Maret 2019, handle record > 100
+                        //string listOrderId = "[";
+                        List<string> listOrderId = new List<string>();
+                        //end change 12 Maret 2019, handle record > 100
+
+                        if (bindOrder.data.orders.Count > 0)
+                        {
+                            var OrderNoInDb = ErasoftDbContext.SOT01A.Where(p => p.CUST == cust).Select(p => p.NO_REFERENSI).ToList();
+                            bool adaInsert = false;
+
+                            string insertQ = "INSERT INTO TEMP_LAZADA_GETORDERS ([ORDERID],[CUST_FIRSTNAME],[CUST_LASTNAME],[ORDER_NUMBER],[PAYMENT_METHOD],[REMARKS]";
+                            insertQ += ",[DELIVERY_INFO],[PRICE],[GIFT_OPTION],[GIFT_MESSAGE],[VOUCHER_CODE],[CREATED_AT],[UPDATED_AT],[BILLING_FIRSTNAME],[BILLING_LASTNAME]";
+                            insertQ += ",[BILLING_PHONE],[BILLING_PHONE2],[BILLING_ADDRESS],[BILLING_ADDRESS2],[BILLING_ADDRESS3],[BILLING_ADDRESS4],[BILLING_ADDRESS5]";
+                            insertQ += ",[BILLING_EMAIL],[BILLING_CITY],[BILLING_POSTCODE],[BILLING_COUNTRY],[SHIPPING_FIRSTNAME],[SHIPPING_LASTNAME],[SHIPPING_PHONE],[SHIPPING_PHONE2]";
+                            insertQ += ",[SHIPPING_ADDRESS],[SHIPPING_ADDRESS2],[SHIPPING_ADDRESS3],[SHIPPING_ADDRESS4],[SHIPPING_ADDRESS5],[SHIPPING_EMAIL],[SHIPPING_CITY]";
+                            insertQ += ",[SHIPPING_POSTCODE],[SHIPPING_COUNTRY],[NATIONAL_REGISTRASION_NUM],[ITEM_COUNT],[PROMISED_SHIPPING_TIME],[EXTRA_ATTRIBUTES],[STATUSES]";
+                            insertQ += ",[VOUCHER],[SHIPPING_FEE],[TAXCODE],[BRANCH_NUMBER],[CUST],[USERNAME],[CONNECTION_ID]) VALUES ";
+
+                            string insertPembeli = "INSERT INTO TEMP_ARF01C (NAMA, AL, TLP, PERSO, TERM, LIMIT, PKP, KLINK, ";
+                            insertPembeli += "KODE_CABANG, VLT, KDHARGA, AL_KIRIM1, DISC_NOTA, NDISC_NOTA, DISC_ITEM, NDISC_ITEM, STATUS, LABA, TIDAK_HIT_UANG_R, ";
+                            insertPembeli += "No_Seri_Pajak, TGL_INPUT, USERNAME, KODEPOS, EMAIL, KODEKABKOT, KODEPROV, NAMA_KABKOT, NAMA_PROV, CONNECTION_ID) VALUES ";
+
+                            //int i = 1;
+                            var connIDARF01C = Guid.NewGuid().ToString();
+                            //string username = sessionData?.Account != null ? sessionData.Account.Username : sessionData.User.Username;
+
+                            foreach (Order order in bindOrder.data.orders)
+                            {
+                                bool doInsert = true;
+                                //if (OrderNoInDb.Contains(Convert.ToString(order.order_id)) && (order.statuses[0].ToString() == "unpaid" || order.statuses[0].ToString() == "pending" || order.statuses[0].ToString() == "processing"))
+                                //{
+                                //    doInsert = false;
+                                //}
+                                ////add 19 Feb 2019
+                                //else if (order.statuses[0].ToString() == "delivered" || order.statuses[0].ToString() == "shipped")
+                                //{
+                                //    if (OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                //    {
+                                //        //tidak ubah status menjadi selesai jika belum diisi faktur
+                                //        var dsSIT01A = EDB.GetDataSet("CString", "SIT01A", "SELECT NO_REFERENSI, O.NO_BUKTI, O.STATUS_TRANSAKSI FROM SIT01A I INNER JOIN SOT01A O ON I.NO_SO = O.NO_BUKTI WHERE NO_REFERENSI = '" + order.order_id + "'");
+                                //        if (dsSIT01A.Tables[0].Rows.Count == 0)
+                                //        {
+                                //            doInsert = false;
+                                //        }
+                                //    }
+                                //    else
+                                //    {
+                                //        //tidak diinput jika order sudah selesai sebelum masuk MO
+                                //        doInsert = false;
+                                //    }
+                                //}
+                                ////end add 19 Feb 2019
+
+                                if (doInsert)
+                                {
+                                    adaInsert = true;
+                                    var giftOptionBit = (order.gift_option.Equals("")) ? 1 : 0;
+                                    var price = order.price.Split('.');
+                                    var statusEra = "";
+                                    #region convert status
+                                    switch (order.statuses[0].ToString())
+                                    {
+                                        case "unpaid":
+                                            statusEra = "0";
+                                            break;
+                                        case "processing":
+                                        case "pending":
+                                            statusEra = "01";
+                                            break;
+                                        case "ready_to_ship":
+                                            statusEra = "03";
+                                            break;
+                                        case "delivered":
+                                        //statusEra = "03";
+                                        //break;
+                                        case "shipped":
+                                            statusEra = "04";
+                                            break;
+                                        case "returned":
+                                            statusEra = "06";
+                                            break;
+                                        case "return_waiting_for_approval":
+                                            statusEra = "07";
+                                            break;
+                                        case "return_shipped_by_customer":
+                                            statusEra = "08";
+                                            break;
+                                        case "return_rejected":
+                                            statusEra = "09";
+                                            break;
+                                        case "failed":
+                                            statusEra = "10";
+                                            break;
+                                        case "canceled":
+                                            statusEra = "11";
+                                            break;
+                                        default:
+                                            statusEra = "99";
+                                            break;
+                                    }
+                                    #endregion convert status
+                                    insertQ += "('" + order.order_id + "','" + order.customer_first_name.Replace('\'', '`') + "','" + order.customer_last_name.Replace('\'', '`') + "','" + order.order_number + "','" + order.payment_method + "','" + order.remarks;
+                                    insertQ += "','" + order.delivery_info + "','" + price[0].Replace(",", "") + "'," + giftOptionBit + ",'" + order.gift_message + "','" + order.voucher_code + "','" + order.created_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.updated_at.ToString("yyyy-MM-dd HH:mm:ss") + "','" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.last_name.Replace('\'', '`');
+                                    insertQ += "','" + order.address_billing.phone + "','" + order.address_billing.phone2 + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.address2.Replace('\'', '`') + "','" + order.address_billing.address3.Replace('\'', '`') + "','" + order.address_billing.address4.Replace('\'', '`') + "','" + order.address_billing.address5.Replace('\'', '`');
+                                    insertQ += "','" + order.address_billing.customer_email + "','" + order.address_billing.city.Replace('\'', '`') + "','" + order.address_billing.post_code.Replace('\'', '`') + "','" + order.address_billing.country.Replace('\'', '`') + "','" + order.address_shipping.first_name.Replace('\'', '`') + "','" + order.address_shipping.last_name.Replace('\'', '`') + "','" + order.address_shipping.phone + "','" + order.address_shipping.phone2;
+                                    insertQ += "','" + order.address_shipping.address1.Replace('\'', '`') + "','" + order.address_shipping.address2.Replace('\'', '`') + "','" + order.address_shipping.address3.Replace('\'', '`') + "','" + order.address_shipping.address4.Replace('\'', '`') + "','" + order.address_shipping.address5.Replace('\'', '`') + "','" + order.address_shipping.customer_email + "','" + order.address_shipping.city.Replace('\'', '`');
+                                    insertQ += "','" + order.address_shipping.post_code + "','" + order.address_shipping.country.Replace('\'', '`') + "','" + order.national_registration_number + "'," + order.items_count + ",'" + order.promised_shipping_times + "','" + order.extra_attributes + "','" + statusEra;
+                                    insertQ += "'," + order.voucher + "," + order.shipping_fee + ",'" + order.tax_code + "','" + order.branch_number + "','" + cust + "','" + username + "','" + connectionID + "')";
+
+                                    var tblKabKot = EDB.GetDataSet("MOConnectionString", "KabupatenKota", "SELECT TOP 1 * FROM KabupatenKota WHERE NamaKabKot LIKE '%" + order.address_billing.address4 + "%'");
+                                    var tblProv = EDB.GetDataSet("MOConnectionString", "Provinsi", "SELECT TOP 1 * FROM Provinsi WHERE NamaProv LIKE '%" + order.address_billing.address5 + "%'");
+
+                                    var kabKot = "3174";//set default value jika tidak ada di db
+                                    var prov = "31";//set default value jika tidak ada di db
+
+                                    if (tblProv.Tables[0].Rows.Count > 0)
+                                        prov = tblProv.Tables[0].Rows[0]["KodeProv"].ToString();
+                                    if (tblKabKot.Tables[0].Rows.Count > 0)
+                                        kabKot = tblKabKot.Tables[0].Rows[0]["KodeKabKot"].ToString();
+
+                                    insertPembeli += "('" + order.address_billing.first_name.Replace('\'', '`') + "','" + order.address_billing.address1.Replace('\'', '`') + "','" + order.address_billing.phone + "','" + order.address_billing.customer_email + "',0,0,'0','01',";
+                                    insertPembeli += "1, 'IDR', '01', '" + order.address_billing.address1.Replace('\'', '`') + "', 0, 0, 0, 0, '1', 0, 0, ";
+                                    //change by calvin 12 desember 2018, ada data dari lazada yang order.address_billing.post_code nya diisi "Bekasi Timur"
+                                    //insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4 + "', '" + order.address_billing.address5 + "', '" + connIDARF01C + "')";
+                                    insertPembeli += "'FP', '" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "', '" + username + "', '" + order.address_billing.post_code.Substring(0, order.address_billing.post_code.Length > 5 ? 5 : order.address_billing.post_code.Length).Replace('\'', '`') + "', '" + order.address_billing.customer_email + "', '" + kabKot + "', '" + prov + "', '" + order.address_billing.address4.Replace('\'', '`') + "', '" + order.address_billing.address5.Replace('\'', '`') + "', '" + connIDARF01C + "')";
+                                    //end change by calvin 12 desember 2018
+
+                                    //change 12 Maret 2019, handle record > 100
+                                    //listOrderId += order.order_id;
+                                    listOrderId.Add(order.order_id);
+                                    //end change 12 Maret 2019, handle record > 100
+
+                                    insertQ += " , ";
+                                    insertPembeli += " , ";
+
+                                    //if (i < bindOrder.data.orders.Count)
+                                    //{
+                                    //remark 12 Maret 2019, handle record > 100
+                                    //listOrderId += ",";
+                                    //remark 12 Maret 2019, handle record > 100
+                                    //}
+                                    //else
+                                    //{
+                                    //    listOrderId += "]";
+                                    //}
+                                    //i = i + 1;
+                                    if (!OrderNoInDb.Contains(Convert.ToString(order.order_id)))
+                                        jmlhNewOrder++;
+                                }
+                            }
+                            if (adaInsert)
+                            {
+                                insertQ = insertQ.Substring(0, insertQ.Length - 2);
+                                var a = EDB.ExecuteSQL(username, CommandType.Text, insertQ);
+
+                                insertPembeli = insertPembeli.Substring(0, insertPembeli.Length - 2);
+                                a = EDB.ExecuteSQL(username, CommandType.Text, insertPembeli);
+
+                                ret.status = 1;
+                                //ret.message = a.ToString();
+
+                                SqlCommand CommandSQL = new SqlCommand();
+
+                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connIDARF01C;
+                                EDB.ExecuteSQL("MOConnectionString", "MoveARF01CFromTempTable", CommandSQL);
+
+                                CommandSQL = new SqlCommand();
+                                CommandSQL.Parameters.Add("@Username", SqlDbType.VarChar, 50).Value = username;
+                                CommandSQL.Parameters.Add("@Conn_id", SqlDbType.VarChar, 50).Value = connectionID;
+                                CommandSQL.Parameters.Add("@DR_TGL", SqlDbType.DateTime).Value = fromDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@SD_TGL", SqlDbType.DateTime).Value = toDt.ToString("yyyy-MM-dd HH:mm:ss");
+                                CommandSQL.Parameters.Add("@Lazada", SqlDbType.Int).Value = 1;
+                                CommandSQL.Parameters.Add("@bukalapak", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@elevenia", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Blibli", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Tokped", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Shopee", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@JD", SqlDbType.Int).Value = 0;
+                                CommandSQL.Parameters.Add("@Cust", SqlDbType.VarChar, 50).Value = cust;
+
+                                EDB.ExecuteSQL("MOConnectionString", "MoveOrderFromTempTable", CommandSQL);
+
+                                //change 12 Maret 2019, handle record > 100
+                                //listOrderId = listOrderId.Substring(0, listOrderId.Length - 1) + "]";
+                                //getMultiOrderItems(listOrderId, accessToken, connectionID);
+                                getMultiOrderItems2(listOrderId, accessToken, connectionID);
+                                //change 12 Maret 2019, handle record > 100
+                                //jmlhNewOrder++;
+                            }
+                            //manageAPI_LOG_MARKETPLACE(api_status.Success, ErasoftDbContext, accessToken, currentLog);
+
+                            if (jmlhNewOrder > 0)
+                            {
+                                var contextNotif = Microsoft.AspNet.SignalR.GlobalHost.ConnectionManager.GetHubContext<MasterOnline.Hubs.MasterOnlineHub>();
+                                contextNotif.Clients.Group(dbPathEra).moNewOrder("Terdapat " + Convert.ToString(jmlhNewOrder) + " Pesanan baru dari Lazada.");
+
+                                new StokControllerJob().updateStockMarketPlace(connectionID, dbPathEra, uname);
+                            }
+                        }
+                        else
+                        {
+                            ret.message = "no order";
+                        }
+                    }
+                    else
+                    {
+                        //currentLog.REQUEST_EXCEPTION = bindOrder.message;
+                        //manageAPI_LOG_MARKETPLACE(api_status.Failed, ErasoftDbContext, accessToken, currentLog);
+                        ret.message = "lazada api return error";
+                        if (string.IsNullOrEmpty(bindOrder.message))
+                            ret.message += "\n" + bindOrder.message.ToString();
+
+                    }
+                }
+                else
+                {
+                    ret.message = "failed to call lazada api";
+                }
+            }
+            catch (Exception ex)
+            {
+                ret.message = ex.ToString();
+                //currentLog.REQUEST_EXCEPTION = ex.Message;
+                //manageAPI_LOG_MARKETPLACE(api_status.Exception, ErasoftDbContext, accessToken, currentLog);
+            }
+            return ret;
+        }
         public BindingBase getMultiOrderItems2(List<string> orderIds, string accessToken, string connectionID)
         {
             var ret = new BindingBase();
