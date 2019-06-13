@@ -1695,7 +1695,7 @@ namespace MasterOnline.Controllers
                 //try
                 //{
                 var listOrder = JsonConvert.DeserializeObject(responseFromServer, typeof(ShopeeGetOrderByStatusResult)) as ShopeeGetOrderByStatusResult;
-                if (stat == StatusOrder.READY_TO_SHIP)
+                if (stat == StatusOrder.READY_TO_SHIP || stat == StatusOrder.UNPAID)
                 {
                     string[] ordersn_list = listOrder.orders.Select(p => p.ordersn).ToArray();
                     //add by calvin 4 maret 2019, filter
@@ -1710,17 +1710,25 @@ namespace MasterOnline.Controllers
                     }
 
                     //add by calvin 29 mei 2019
-                    string ordersn = "";
-                    foreach (var item in ordersn_list)
+                    if (stat == StatusOrder.READY_TO_SHIP)
                     {
-                        ordersn = ordersn + "'" + item + "',";
+                        string ordersn = "";
+                        var filteredSudahAda = ordersn_list.Where(p => SudahAdaDiMO.Contains(p));
+                        foreach (var item in filteredSudahAda)
+                        {
+                            ordersn = ordersn + "'" + item + "',";
+                        }
+                        var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
+                        if (rowAffected > 0)
+                        {
+                            jmlhPesananDibayar += rowAffected;
+                        }
                     }
-                    var rowAffected = EDB.ExecuteSQL("MOConnectionString", System.Data.CommandType.Text, "UPDATE SOT01A SET STATUS_TRANSAKSI = '01' WHERE NO_REFERENSI IN (" + ordersn + ") AND STATUS_TRANSAKSI = '0'");
                     //end add by calvin 29 mei 2019
 
                     if (listOrder.more)
                     {
-                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, rowAffected);
+                        await GetOrderByStatus(iden, stat, CUST, NAMA_CUST, page + 50, jmlhNewOrder, jmlhPesananDibayar);
                     }
                     else
                     {
@@ -1756,7 +1764,7 @@ namespace MasterOnline.Controllers
             SetupContext(iden);
 
             long seconds = CurrentTimeSecond();
-            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-14).ToUnixTimeSeconds();
+            long timeStampFrom = (long)DateTimeOffset.UtcNow.AddDays(-10).ToUnixTimeSeconds();
             long timeStampTo = (long)DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             DateTime milisBack = DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime.AddHours(7);

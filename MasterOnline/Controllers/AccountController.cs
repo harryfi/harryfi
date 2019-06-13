@@ -521,7 +521,7 @@ namespace MasterOnline.Controllers
             if (serverList.Count() == 0)
             {
 #if Debug_AWS
-                //note by calvin 18 mei 2019 : ingat jika ada perubahan, ubah juga di adminController AdminStartHangfireServer
+                ////note by calvin 18 mei 2019 : ingat jika ada perubahan, ubah juga di adminController AdminStartHangfireServer
                 //var optionsStatusResiServer = new BackgroundJobServerOptions
                 //{
                 //    ServerName = "StatusResiPesanan",
@@ -748,6 +748,10 @@ namespace MasterOnline.Controllers
                             string connId_JobId = dbPathEra + "_lazada_pesanan_" + Convert.ToString(tblCustomer.RecNum.Value);
                             //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
                             recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
+
+                            connId_JobId = dbPathEra + "_lazada_pesanan_unpaid_" + Convert.ToString(tblCustomer.RecNum.Value);
+                            //new LazadaControllerJob().GetOrders(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username);
+                            recurJobM.AddOrUpdate(connId_JobId, Hangfire.Common.Job.FromExpression<LazadaControllerJob>(x => x.GetOrdersUnpaid(tblCustomer.CUST, tblCustomer.TOKEN, dbPathEra, username)), Cron.MinuteInterval(5), recurJobOpt);
                         }
                         else
                         {
@@ -1271,7 +1275,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
+                    Password = "erasoft1988MO"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1586,7 +1590,7 @@ namespace MasterOnline.Controllers
                 var credential = new NetworkCredential
                 {
                     UserName = "csmasteronline@gmail.com",
-                    Password = "erasoft123"
+                    Password = "erasoft1988MO"
                 };
                 smtp.Credentials = credential;
                 smtp.Host = "smtp.gmail.com";
@@ -1600,7 +1604,7 @@ namespace MasterOnline.Controllers
                     var credential = new NetworkCredential
                     {
                         UserName = "csmasteronline@gmail.com",
-                        Password = "erasoft123"
+                        Password = "erasoft1988MO"
                     };
                     smtp.Credentials = credential;
                     smtp.Host = "smtp.gmail.com";
