@@ -42,6 +42,11 @@
 @{
     var listPiutangDetail = Model.ListPiutangDetail.Where(b => b.BUKTI == Model?.Piutang?.BUKTI).ToList();
 }
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">
