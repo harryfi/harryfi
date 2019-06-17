@@ -52,7 +52,7 @@
                 <div class="input-group">
                     <input id="search_hargaJual" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_hargaJual_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -71,7 +71,7 @@
         </div>
         <div class="row hargaJual_table_section">
             <div class="col-sm-12" id="table-hargaJual-partial">
-                @Html.Partial("TableHargaJualPartial")
+                @*@Html.Partial("TableHargaJualPartial")*@
             </div>
         </div>
     </div>
@@ -148,13 +148,26 @@
                 //add by nurul 12/2/2019
                 $page = 0;
             //end add by nurul 12/2/2019
-                Initialize();
+                //Initialize();
+                refreshTableHargaJual();
                 //add by nurul 12/2/2019
-                $('#datatable').on('page.dt', function () {
-                    $page = $('#datatable').DataTable().page.info().page;
-                });
-                $('#datatable').DataTable().page($page).draw(false);
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+                $('#search_hargaJual').keypress(function (e) {
+                    var key = e.which;
+                    if (key == 13)// the enter key code
+                    {
+                        searchTableHargaJual();
+                        return false;
+                    }
+                });
+                $('#search_hargaJual_click').click(function () {
+                    searchTableHargaJual();
+                });
             });
         //add by Tri, 27 Mei 2019
         function exportExcel() {
@@ -253,19 +266,31 @@
         //end add by Tri, 27 Mei 2019
 
         function Initialize() {
-            var table = $('#datatable').DataTable();
+            //var table = $('#datatable').DataTable();
 
-            $('#search_hargaJual').keyup(function () {
-                table.search($(this).val()).draw();
+            //$('#search_hargaJual').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
+            $('#search_hargaJual').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableHargaJual();
+                    return false;
+                }
             });
+            $('#search_hargaJual_click').click(function () {
+                searchTableHargaJual();
+            });
+
             //add by nurul 26 nov 2018, setelah di close, search lg
-            table.search($('#search_hargaJual').val()).draw();
+            //table.search($('#search_hargaJual').val()).draw();
             //end add by nurul 26 nov 2018, setelah di close, search lg
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
         }
 
@@ -296,9 +321,11 @@
                     $('#btnUbahHJual').show();
                     $('#loading_spinner_btn').hide();
                     if (res.message == null) {
+                        refreshTableHargaJual();
                         alert("Harga jual berhasil diubah");
                         $('#table-hargaJual-partial').html(res);
-                        Initialize();
+                        //Initialize();
+                        
                         $('#modalEditHargaJual').modal('hide');
                     } else {
                         alert(res.message);
@@ -339,5 +366,53 @@
             }
             //end change by calvin 26 september 2018
         }
+
+        //add by nurul 13/6/2019
+        function refreshTableHargaJual() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-hargaJual-partial').hide();
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#table-hargaJual-partial').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                    $('#table-hargaJual-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
+        }
+        function searchTableHargaJual(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableHargaJual", "Manage", new { search = "replaceSearch" }))';
+            $link = $link.replace("replaceSearch", $('#search_hargaJual').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_hargaJual_click')[0].disabled = true;
+                    $('#loading_hargaJual_tab').show();
+                },
+                success: function (response) {
+                    $('#search_hargaJual_click')[0].disabled = false;
+                    $('#table-hargaJual-partial').html(response);
+                    $('#loading_hargaJual_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_hargaJual_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end add by nurul 13/6/2019
     </script>
 }

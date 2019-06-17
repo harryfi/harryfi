@@ -557,40 +557,40 @@
             //        }
             //    });
 
-            $('#tambah_jurnal').on('click', function () {
-                //$('.jurnal_table_section').hide();
-                //$('.jurnal_editor_section').show();
-                refreshForm1();
-            });
+            //$('#tambah_jurnal').on('click', function () {
+            //    //$('.jurnal_table_section').hide();
+            //    //$('.jurnal_editor_section').show();
+            //    refreshForm1();
+            //});
 
-            $('#close-editor-1').off('click').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    //add by nurul 31/10/2018
-                    $saved = 1;
-                    //end add
-                    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
-                        alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
-                        //konfirmasiData();
-                        return;
-                    }
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.jurnal_table_section').show();
-                    $('.jurnal_editor_section').hide();
-                    //refreshForm1();
-                    refreshTableJurnal1();
-                    $saved = 0;
-                    //add by nurul 12/2/2019
-                    //$('#datatable').on('page.dt', function () {
-                    //    $page = $('#datatable').DataTable().page.info().page;
-                    //});
-                    //$('#datatable').DataTable().page($page).draw(false);
-            //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor-1').off('click').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        //add by nurul 31/10/2018
+            //        $saved = 1;
+            //        //end add
+            //        if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
+            //            alert('Total debet dan total kredit tidak balance! Silakan masukkan data kembali sampai balance!');
+            //            //konfirmasiData();
+            //            return;
+            //        }
+            //        $('input, select, .btn-danger').each(function() {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.jurnal_table_section').show();
+            //        $('.jurnal_editor_section').hide();
+            //        //refreshForm1();
+            //        refreshTableJurnal1();
+            //        $saved = 0;
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            ////end add by nurul 12/2/2019
+            //    }
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_jurnal').click();
@@ -598,16 +598,16 @@
 
             $('#table_tambah_jurnal > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getRekening();
+            //getTanggal();
+            //getRekening();
+
+            //refreshInputan();
 
             if ($('#Jurnal_tgl').val() != '') {
                 $('#TGL').val($('#Jurnal_tgl').val());
             } else {
                 $('#Jurnal_tgl').val($('#TGL').val());
             }
-
-            refreshInputan();
 
             //$('a').click(function () {
             //    if ($('#DEBET').val() != $('#KREDIT').val() && $saved == 1) {
@@ -1117,6 +1117,7 @@
                     getTanggal();
                     getRekening();
                     refreshInputan();
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);

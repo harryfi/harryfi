@@ -530,11 +530,11 @@
             //        }
             //    });
 
-            $('#tambah_hutang').on('click', function () {
-                //$('.hutang_table_section').hide();
-                //$('.hutang_editor_section').show();
-                refreshForm1();
-            });
+            //$('#tambah_hutang').on('click', function () {
+            //    //$('.hutang_table_section').hide();
+            //    //$('.hutang_editor_section').show();
+            //    refreshForm1();
+            //});
 
             //$('#close-editor-1').on('click', function () {
             //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
@@ -562,9 +562,11 @@
 
             $('#table_tambah_hutang > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getSupplier();
-            getInvoice(null);
+            //getTanggal();
+            //getSupplier();
+            //getInvoice(null);
+
+            //refreshInputan();
 
             if ($('#Hutang_TGL').val() != '') {
                 $('#TGL').val($('#Hutang_TGL').val());
@@ -572,7 +574,7 @@
                 $('#Hutang_TGL').val($('#TGL').val());
             }
 
-            refreshInputan();
+            
             //add by nurul 12/2/2019
             //$('#datatable').on('page.dt', function () {
             //    $page = $('#datatable').DataTable().page.info().page;
