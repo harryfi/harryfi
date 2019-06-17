@@ -476,7 +476,44 @@
                     padding: 15px 10px;
                 }
 
+        @@media only screen and (min-width: 768px) {
+            .checkmark {
+                left: 53px;
+            }
+        }
+
         @@media only screen and (max-width: 767px) {
+            .checkmark {
+                left: -9px;
+            }
+
+            #modal-print-option {
+                margin-top: 21px;
+                /* margin: auto; */
+                margin-left: -86px;
+            }
+
+            .addpixel {
+                width: 850px;
+            }
+
+            .addmarginleftfaktur {
+                margin-left: -69px;
+            }
+
+            .addpixeltfaktur {
+                width: 334px;
+            }
+            
+            .modalresponsive {
+                width: 400px;
+                
+            }
+
+            .addmarginleftfaktur2 {
+                margin-left: -91px;
+            }
+
             .snip1404 .plan {
                 width: 50%;
             }
@@ -610,7 +647,6 @@
     }
 </style>
 <style type="text/css">
-
     .bar {
         font-size: 30px;
         color: #ed1338;
@@ -1114,11 +1150,10 @@
         color: #891539;
     }
 </style>
-
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="faktur-tab" role="tab" data-toggle="tab" aria-expanded="true">Faktur</a>
                 </li>
@@ -1161,9 +1196,9 @@
                                             data-target="#modalUploadFaktur">
                                         <span>Upload Faktur Tokopedia</span>
                                     </button>
-                                    <button type="button" class="btn btn-default" data-style="expand-right">
+                                    @*<button type="button" class="btn btn-default" data-style="expand-right">
                                         <span>Refresh</span>
-                                    </button>
+                                    </button>*@
                                 </div>
                             </div>
                         </div>
@@ -1188,7 +1223,7 @@
                         </div>
                     </div>
                     <div class="row faktur_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Faktur</h2>
                                 <span class="title-accent"></span>
@@ -1338,7 +1373,7 @@
 </div>
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1357,7 +1392,7 @@
 </div>
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive addmarginleftfaktur2">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -1391,7 +1426,7 @@
 </div>
 <div class="modal fade" id="modalUploadFaktur" tabindex="-1" role="dialog">
     <div class="modal-dialog" id="modal-upload-faktur" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="uploadFakturlabel">Upload Faktur Tokopedia</h4>
@@ -1494,7 +1529,7 @@
 @*add by nurul 3/12/2018 - tambah cetak faktur*@
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content" style="width:550px;margin:auto">
+        <div class="modal-content modalresponsive" style="margin:auto">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
@@ -1580,7 +1615,6 @@
                         </div>
                     </div>
                 </div>
-
                 @*//add by nurul 2/5/2019*@
                 <div id="cetakA5Form">
                     <div class="row">
@@ -1686,7 +1720,7 @@
         //$('#search_faktur').keyup(function () {
         //    table.search($(this).val()).draw();
         //});
-        
+
 
         function showSubsMenu(type) {
             $('#divSubs').hide();
@@ -1740,7 +1774,7 @@
                 searchTableFakturTempo();
             });
             //$('#div_tgl_Tempo').hide();
-                    //end add
+            //end add
             $('#Tanggal').change(function () {
                 $('#Tanggal').val($(this).val());
                 $(this).datepicker('hide');
@@ -1790,7 +1824,7 @@
                 $TabAktif = 0;
                 //add by nurul 10/1/2019
                 //$('#div_tgl_Tempo').hide();
-                    //end add
+                //end add
                 refreshTableFaktur1();
 
                 $('#tambah_faktur').show();
@@ -1802,14 +1836,14 @@
                 //    $page = $('#datatable').DataTable().page.info().page;
                 //});
                 //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                //end add by nurul 12/2/2019
             });
 
             $('#faktur-lunas-tab').click(function () {
                 $TabAktif = 1;
                 //add by nurul 10/1/2019
                 //$('#div_tgl_Tempo').hide();
-                    //end add
+                //end add
                 refreshTableFakturLunas();
 
                 $('#tambah_faktur').hide();
@@ -1876,7 +1910,7 @@
             //    $page = $('#datatable').DataTable().page.info().page;
             //});
             //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
 
             $('#close-editor-1').on('click', function () {
                 if ($('#btn-simpan-perubahan-row').is(':visible')) {
@@ -1971,30 +2005,30 @@
                 //        bln = txtBln_03.value;
                 //        break;
                 //}
-            @{
+                @{
                 var accountId = accId;
                 var account = context.Account.Where(p => p.AccountId == accountId).SingleOrDefault();
             }
-            //moment.locale('id');
-            var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
-            var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
-            var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
-            var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
-            //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
+                //moment.locale('id');
+                var tglSubThn = @account.TGL_SUBSCRIPTION.Value.Year;
+                var tglSubBln = @account.TGL_SUBSCRIPTION.Value.Month;
+                var tglSubHari = @account.TGL_SUBSCRIPTION.Value.Day;
+                var tglSub = new Date(tglSubThn, parseInt(tglSubBln) - 1, tglSubHari);
+                //var tglSub2 = moment(tglSubThn + '-' + tglSubBln + '-' + tglSubHari, 'yyyy-MM-dd');
 
                 $('#txtCode').val(kode);
                 $('#txtBulan').val(bln);
-            if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
+                if ('@account.KODE_SUBSCRIPTION' != '01' && tglSub >= Date.today()) {
 
-                //tglSub.setMonth(tglSub.getMonth() + bln);
-                var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
-                if (confirm(msg))
-                {
-                    //alert('kode:' + kode + '\nbln:' + bln);
-                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
+                    //tglSub.setMonth(tglSub.getMonth() + bln);
+                    var msg = "Masa berlangganan anda s/d " + tglSub.format("d-M-Y") + "\nApakah Anda ingin melakukan perpanjangan s/d : " + tglSub.addMonths(bln).format("d-M-Y") + "?";
+                    if (confirm(msg))
+                    {
+                        //alert('kode:' + kode + '\nbln:' + bln);
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans", new { code = "replaceCode", bulan = "replaceBulan" })';
                 link = link.replace("replaceCode", kode);
                 link = link.replace("replaceBulan", String(bln));*@
-                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                        @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                     link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                     $.ajax({
@@ -2018,12 +2052,12 @@
                             console.log(error);
                         }
                     });*@
-                    $('#modalTransfer').modal('show');
+                        $('#modalTransfer').modal('show');
+                    }
                 }
-            }
-            else
-            {
-                @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
+                else
+                {
+                    @*var link = '@Url.Action("PaymentMidtrans", "Midtrans")';
                 link += '?code=' + kode + '&bulan=' + bln + '&accId=0';
 
                 $.ajax({
@@ -2046,8 +2080,8 @@
                         console.log(error);
                     }
                 });*@
-                $('#modalTransfer').modal('show');
-             }
+                    $('#modalTransfer').modal('show');
+                }
 
             } else {
                 alert('Anda harus menyetujui Syarat & Ketentuan');
@@ -2345,42 +2379,42 @@
                         $('#tambah_faktur').on('click', function () {
                             //add by nurul 27/5/2019
                             var link = '@Url.Action("TambahBaruFaktur", "Manage")';
-                                $.ajax({
-                                    type: "GET",
-                                    url: link,
-                                    beforeSend: function () {
-                                        $('#loading_spinner').show();
-                                    },
-                                    success: function (response) {
-                            //end add by nurul 27/5/2019
-                                        $('.faktur_table_section').hide();
-                                        $('.faktur_editor_section').show();
-                                        $('#form-partial').html(response);
+                            $.ajax({
+                                type: "GET",
+                                url: link,
+                                beforeSend: function () {
+                                    $('#loading_spinner').show();
+                                },
+                                success: function (response) {
+                                    //end add by nurul 27/5/2019
+                                    $('.faktur_table_section').hide();
+                                    $('.faktur_editor_section').show();
+                                    $('#form-partial').html(response);
 
-                                        $('#form-partial').show();
-                                        $('#form_subs').hide();
-                                        
-                                        //add by nurul 17/10/2018
-                                        $('#myTab li a').each(function () {
+                                    $('#form-partial').show();
+                                    $('#form_subs').hide();
+
+                                    //add by nurul 17/10/2018
+                                    $('#myTab li a').each(function () {
                                         $(this).removeAttr('data-toggle');
 
                                         if ($(this).attr('id') === 'faktur-tab') return;
 
                                         $(this).addClass('disabled-tab');
-                                        });
-                                        //$modeEdit = 0;
-                                        getTanggal();
+                                    });
+                                    //$modeEdit = 0;
+                                    getTanggal();
 
                                     $('#faktur-tempo-tab').off('click').on('click', function () {
-                                    $('#div_tgl_Tempo').hide();
-                                        });
-                                        $('#loading_spinner').hide();
-                                    },
-                                    error: function (xhr, status, error) {
-                                        $('#loading_spinner').hide();
-                                        console.log(error);
-                                    }
-                                });
+                                        $('#div_tgl_Tempo').hide();
+                                    });
+                                    $('#loading_spinner').hide();
+                                },
+                                error: function (xhr, status, error) {
+                                    $('#loading_spinner').hide();
+                                    console.log(error);
+                                }
+                            });
                             //end add
                         });
                         //add by nurul 11/2/2019
@@ -2444,7 +2478,7 @@
             //    $page = $('#datatable').DataTable().page.info().page;
             //});
             //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
 
         function Initialize() {
@@ -3001,7 +3035,7 @@
                 //    $page = $('#datatable').DataTable().page.info().page;
                 //});
                 //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+                //end add by nurul 12/2/2019
             });
 
             $('#faktur-lunas-tab').click(function () {
@@ -3021,7 +3055,7 @@
             //    $page = $('#datatable').DataTable().page.info().page;
             //});
             //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
+            //end add by nurul 12/2/2019
         }
 
         function refreshNettoBarang($trId) {
@@ -3820,7 +3854,7 @@
                                 refreshNettoBarang('0');
                                 //end add
                             }
-                            });
+                        });
 
                         //add by nurul 1/10/2018
                         if ($('#BRG').selectivity('value') != null) {
@@ -3957,7 +3991,7 @@
                     //END CHANGE BY NURUL 16/4/2019
                     refreshTableFaktur1();
                     $('#loading_spinner').hide();
-                    
+
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
@@ -4560,7 +4594,7 @@
                     } else if ($("#ctk_tlp").is(":checked") == false ) {
                         tlp = 0;
                     }
-                //add by nurul 2/5/2019
+                    //add by nurul 2/5/2019
                 } else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', nobuk);

@@ -32,7 +32,6 @@
     <link href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.dataTables.min.css" rel="stylesheet" />
     <link href="~/Content/build/css/selectivity-jquery.min.css" rel="stylesheet" />
     <link href="~/Content/selectize.css" rel="stylesheet" />
-
     <link type="text/css" href="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/css/dataTables.checkboxes.css" rel="stylesheet" />
     @*<link href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />*@
     <link href="https://cdn.datatables.net/select/1.3.0/css/select.dataTables.min.css" rel="stylesheet" />
@@ -617,13 +616,60 @@
             .snip1404 .featured {
                 margin-top: 0;
             }
+
+            /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            .modalresponsive {
+                width: 309px;
+            }
+
+            .modal-dialog {
+                width: 52%;
+                margin: 0;
+            }
+
+            .modal-content {
+                width: 400px;
+            }
+
+            #modal-print-option {
+                margin-top: 21px;
+                /* margin: auto; */
+                margin-left: -22px;
+            }
+
+            .dataTables_paginate {
+                text-align: right;
+                float: none !important;
+            }
+
+            .checkmark {
+                left: -9px;
+            }
+
+            .addpixeltpesanan {
+                width: 710px;
+            }
+            /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         }
 
         @@media only screen and (max-width: 440px) {
             .snip1404 .plan {
                 width: 100%;
             }
+            /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+            .modal-dialog {
+                width: 52%;
+                margin: 0;
+            }
+            /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         }
+
+        /*add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        .dataTables_paginate {
+            text-align: right;
+            float: none !important;
+        }
+        /*end add by calvin 17 juni 2019, perbaikan tampilan suryadi*/
 
         body {
             background-color: #212121;
@@ -689,7 +735,9 @@
     .checkmark {
         position: absolute;
         top: 0;
-        left: 18px;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*left: 18px;*/
+        /*end remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
         height: 25px;
         width: 25px;
         background-color: #eee;
@@ -985,9 +1033,11 @@
         }
 
     .modal-dialog {
-        width: 75%;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*width: 75%;*/
         height: 75%;
-        margin: 0 auto;
+        /*remark by calvin 17 juni 2019, perbaikan tampilan suryadi*/
+        /*margin: 0 auto;*/
         padding: 0;
     }
 
@@ -1300,7 +1350,7 @@
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="pesanan-tab" role="tab" data-toggle="tab" aria-expanded="true">Pesanan</a>
                 </li>
@@ -1313,7 +1363,7 @@
                 </li>
                 <li role="presentation" class="">
                     @*<a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Sudah Dikirim</a>*@
-                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Invoicing</a>
+                    <a href="#tab_content6" role="tab" id="sudahkirim-tab" data-toggle="tab" aria-expanded="false">Faktur</a>
                 </li>
                 <li role="presentation" class="">
                     <a href="#tab_content7" role="tab" id="selesai-tab" data-toggle="tab" aria-expanded="false">Selesai</a>
@@ -1328,7 +1378,7 @@
                         @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12", @style = "padding-top:15px; width:315px;" })
                         <div class="col-md-2 col-sm-2 col-xs-12">
                             @Html.HiddenFor(m => m.DataUsaha.JTRAN_RETUR)
-                            <select class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
+                            <select style="margin-top: 13px;" class="form-control" id="DataUsaha_JtranRetur" name="DataUsaha.JtranRetur" required="required">
                                 @*<option value="default">Harap pilih</option>*@
                                 @if (Model?.DataUsaha != null)
                                 {
@@ -1352,8 +1402,8 @@
                         </div>
                         @* remark by calvin 22 mei 2019 <input type="button" class="btn btn-primary" value="Simpan" id="simpan_btn" onclick="simpanUpdate();" />*@
                     </div>
-                    <div class="row pesanan_table_section">
-                        <div class="col-lg-4 col-sm-6">
+                    <div class="row pesanan_table_section" style="margin-top:5px;">
+                        <div class="col-lg-4 col-sm-6" style="padding-bottom:13px;padding-top:13px;">
                             <div class="input-group">
                                 <input id="search_pesanan" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1363,7 +1413,6 @@
                                 </span>
                             </div>
                         </div>
-
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right" id="tambah_baru_tombol_section">
                                 <button type="button" id="btn_refresh_pesanan" class="btn btn-default" data-style="expand-right">
@@ -1375,7 +1424,6 @@
                     @*<div class="row pesanan_table_section">
                             @Html.LabelFor(m => m.DataUsaha.JTRAN_RETUR, "Update Pesanan dan Stok Ke Marketplace", new { @class = "col-md-4 col-sm-4 col-xs-12"})
                         </div>*@
-
                     <div class="row pesanan_table_section" style="margin-top: 5px;">
                         @*<div id="loading_pesanan_tab" class="text-center">
                                 <img src="~/Content/Images/spinner.gif" width="100" />
@@ -1385,7 +1433,7 @@
                         </div>
                     </div>
                     <div class="row pesanan_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Pesanan</h2>
                                 <span class="title-accent"></span>
@@ -1419,7 +1467,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content2" aria-labelledby="nunggu-tab">
                     <div class="row pesanan_sudah_dibayar_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6"style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_nunggu" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1429,7 +1477,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-8 col-sm-6"style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_dibayar" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiDibayar" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
@@ -1449,7 +1497,7 @@
                         </div>
                     </div>
                     <div class="row pesanan_editor_sudah_dibayar_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Pesanan</h2>
                                 <span class="title-accent"></span>
@@ -1477,7 +1525,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content4" aria-labelledby="sedangproses-tab">
                     <div class="row">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_sedangproses" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1487,7 +1535,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-8 col-sm-6"style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" id="btn_ubahStatusmulti_pesanan_packing" class="btn btn-success" data-style="expand-right" data-toggle="modal" data-target="#modalUbahStatusMultiPacking" onclick="passRecStatusMultiDibayar()">
                                     <span class="glyphicon glyphicon-edit" aria-hidden="true" style="width:100px; max-width:100px"> Ubah Status</span>
@@ -1509,7 +1557,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content6" aria-labelledby="sudahkirim-tab">
                     <div class="row">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6"style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_sudahkirim" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1519,7 +1567,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-8 col-sm-6"style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -1538,7 +1586,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content7" aria-labelledby="selesai-tab">
                     <div class="row pesanan_selesai_section">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6"style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_selesai" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1548,7 +1596,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-8 col-sm-6"style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -1565,7 +1613,7 @@
                         </div>
                     </div>
                     <div class="row pesanan_editor_selesai_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Pesanan</h2>
                                 <span class="title-accent"></span>
@@ -1593,7 +1641,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane fade" id="tab_content8" aria-labelledby="cancel-tab">
                     <div class="row">
-                        <div class="col-lg-4 col-sm-6">
+                        <div class="col-lg-4 col-sm-6" style="margin-top:13px;">
                             <div class="input-group">
                                 <input id="search_cancel" type="text" class="form-control" placeholder="Pencarian">
                                 <span class="input-group-btn">
@@ -1603,7 +1651,7 @@
                                 </span>
                             </div>
                         </div>
-                        <div class="col-lg-8 col-sm-6">
+                        <div class="col-lg-8 col-sm-6" style="margin-top:13px;">
                             <div class="pull-right">
                                 <button type="button" class="btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
@@ -2240,7 +2288,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modalIsiResiTokped" tabindex="-1" role="dialog" aria-labelledby="isiResiLabelTokped">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -2319,8 +2366,8 @@
     </div>
 </div>
 <div class="modal fade" id="modalFixNotFound" tabindex="-1" role="dialog" aria-labelledby="fixNotFoundLabel">
-    <div class="modal-dialog" id="fix-not-found" role="document" style="height:600px;width:900px">
-        <div class="modal-content" style="height:610px;width:900px">
+    <div class="modal-dialog" id="fix-not-found" role="document">
+        <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="fixNotFoundLabel">Perbaikan data barang</h4>
@@ -2364,7 +2411,7 @@
 </div>
 <div class="modal fade" id="modalPrintOption" tabindex="-1" role="dialog" aria-labelledby="printOptionLabel">
     <div class="modal-dialog" id="modal-print-option" role="document">
-        <div class="modal-content" style="width:550px;margin:auto;height:400px;">
+        <div class="modal-content" style="margin:auto;height:400px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="printOptionLabel">Cetak Faktur / Label</h4>
@@ -2411,10 +2458,10 @@
                         </div>
                     </div>*@
                 <div class="row">
-                    @*<div class="col-md-1">
-                        </div>*@
-                    <div class="col-md-4" style="text-align:left">
-                        <label>Nama Toko </label>
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-2" style="text-align:left"> 
+                        <label>Nama Toko(Dropship) </label>
                     </div>
                     <div class="col-md-6" style="text-align:left">
                         <input id="nama_toko" type="text" maxlength="30" style="width:250px;align-self:flex-end;" />
@@ -2488,7 +2535,6 @@
                         </div>
                     </div>
                 </div>
-
                 @*//add by nurul 2/5/2019*@
                 <div id="cetakA5Form">
                     <div class="row">
@@ -2630,7 +2676,6 @@
     <script src='@Url.Content("~/Scripts/jquery.validate.unobtrusive.js")' type='text/javascript'></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
     <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js" type="text/javascript"></script>
-
     <script type="text/javascript" src="//gyrocode.github.io/jquery-datatables-checkboxes/1.2.11/js/dataTables.checkboxes.min.js"></script>
     <script src="https://cdn.datatables.net/select/1.3.0/js/dataTables.select.min.js" type="text/javascript"></script>
     <script src="//cdn.datatables.net/plug-ins/1.10.19/sorting/date-uk.js" type="text/javascript"></script>
@@ -2813,7 +2858,7 @@
         $('#search_invoicing_click').click(function () {
             searchTablePesananInvoicing();
         });
-            //end add by nurul 8/5/2019
+        //end add by nurul 8/5/2019
 
         //$('#search_selesai').keyup(function() {
         //    tableSelesai.search($(this).val()).draw();
@@ -2985,6 +3030,36 @@
 
             //Initialize();
 
+            //pindah by calvin 17 juni 2019, dari initialize pindah ke document ready karena initialize dipanggil hanya saat buka form
+            //add by nurul 10/4/2019
+            $('#DataUsaha_JtranRetur').off('change').on('change', function () {
+                //change by calvin 22 mei 2019
+                //$('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                if ($(this).val() == "1") {
+                    if(confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")){
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                        simpanUpdate();
+                    }
+                    else {
+                        //return false;
+                        $(this).val("0",true);
+                    }
+                }
+                else {
+                    if(confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")){
+                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                        simpanUpdate();
+                    }
+                    else {
+                        //return false;
+                        $(this).val("1",true);
+                    }
+                }
+                //end change by calvin 22 mei 2019
+            });
+            //end add by nurul 10/4/2019
+            //end pindah by calvin 17 juni 2019
+
             //add 09-10-2018, function button di subscription
             $('.btn-subs').click(function () {
 
@@ -3028,19 +3103,19 @@
             });
             $(".checkbox_gntstatus_sudahdibayar").each(function (i, item) {
                 $(item).on('click', function () {
-                        if ($(item).prop('checked') == true) {
-                            $(".ubah-dibayar").attr('disabled', 'disabled');
-                        } else {
-                            var cekTrue = [];
-                            $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
-                                if ($(chk).prop('checked') == true) {
-                                    cekTrue.push($(chk).attr("data-rec"));
-                                }
-                            });
-                            if (cekTrue.length == 0) {
-                                $(".ubah-dibayar").removeAttr('disabled');
+                    if ($(item).prop('checked') == true) {
+                        $(".ubah-dibayar").attr('disabled', 'disabled');
+                    } else {
+                        var cekTrue = [];
+                        $(".checkbox_gntstatus_sudahdibayar").each(function (z, chk) {
+                            if ($(chk).prop('checked') == true) {
+                                cekTrue.push($(chk).attr("data-rec"));
                             }
+                        });
+                        if (cekTrue.length == 0) {
+                            $(".ubah-dibayar").removeAttr('disabled');
                         }
+                    }
                 });
             });
             //$('.checkbox_all_gntstatus_sudahdibayar').on('click', function () {
@@ -3153,10 +3228,13 @@
             //});
             //end add by nurul 13/5/2019
 
-            $('#DataUsaha_JtranRetur').change(function () {
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                    });
-                    $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+            //remark by calvin 17 juni 2019
+            //$('#DataUsaha_JtranRetur').change(function () {
+            //            $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+            //        });
+            //end remark by calvin 17 juni 2019
+
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .on('shown.bs.modal',
                 function () {
                     //add by nurul 19/2/2019
@@ -3209,8 +3287,7 @@
                 });
 
             //change by nurul 8/10/2018   $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus').on('hidden.bs.modal',
-            $(
-                    '#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
+            $('#konfHapusPesanan, #konfBatalPesanan, #konfUbahStatus, #konfUbahStatusDibayar, #konfUbahStatusSiapkirim, #konfUbahStatusSudahkirim, #konfUndoStatusSiapkirim, #konfUndoStatusSudahkirim, #konfUndoStatusSelesai, #konfUndoStatusBatal')
                 .on('hidden.bs.modal',
                     function() {
                         $('.no_pesanan').text('-');
@@ -3387,7 +3464,7 @@
             $('.pesanan_editor_section').hide();
             refreshForm1();
             //refreshTablePesanan();
-            
+
             //add by nurul 6/11/2018
             $('#myTab li a').each(function (index) {
                 $(this).attr('data-toggle', 'tab');
@@ -3411,7 +3488,7 @@
             //});
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
-                refreshTablePesanan();
+            refreshTablePesanan();
         }
 
         function Initialize() {
@@ -3473,7 +3550,7 @@
             //            }
             //        }
             //    });
-            
+
 
             //end change by nurul 13/5/2019
 
@@ -3529,7 +3606,7 @@
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
 
-                        refreshTablePesanan();
+                    refreshTablePesanan();
                 }
             });
 
@@ -3543,7 +3620,7 @@
                     $(this).removeClass('disabled-tab');
                 });
 
-                    refreshTableSelesai();
+                refreshTableSelesai();
             });
 
             $('#close-editor-3').off('click').on('click', function () {
@@ -3556,7 +3633,7 @@
                     $(this).removeClass('disabled-tab');
                 });
 
-                    refreshTableSudahDibayar();
+                refreshTableSudahDibayar();
 
             });
 
@@ -3567,7 +3644,7 @@
             //$('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
             getTanggal();
-            getMarketplace();            
+            getMarketplace();
             getExpedisi();
             getBuyer();
             getGudang();
@@ -3707,33 +3784,6 @@
             //});
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
-            //add by nurul 10/4/2019
-            $('#DataUsaha_JtranRetur').off('change').on('change', function () {
-                //change by calvin 22 mei 2019
-                //$('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                if ($(this).val() == "1") {
-                    if(confirm("Stok barang yang memiliki pesanan akan terupdate dengan stok yang ada di MasterOnline, pastikan anda telah mengisi stok yang sesuai.\n\nLanjutkan ?")){
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                        simpanUpdate();
-                    }
-                    else {
-                        //return false;
-                        //$(this).val("",true);
-                    }
-                }
-                else {
-                    if(confirm("Anda tidak akan menerima pesanan, dan stok yang ada di MasterOnline tidak akan terupdate ke marketplace.\n\nLanjutkan ?")){
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                        simpanUpdate();
-                    }
-                    else {
-                        //return false;
-                        //$(this).val("1",true);
-                    }
-                }
-                //end change by calvin 22 mei 2019
-            });
-            //end add by nurul 10/4/2019
         }
 
         function cekJumlahPesananBulanIni() {
@@ -3834,7 +3884,7 @@
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
 
-                                        
+
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
 
@@ -4204,7 +4254,7 @@
                     $totalAwal = 0;
                     $nettoSebelumnya = 0;
 
-                        refreshTablePesanan();
+                    refreshTablePesanan();
                 }
             });
 
@@ -4218,7 +4268,7 @@
                     $(this).removeClass('disabled-tab');
                 });
 
-                    refreshTableSelesai();
+                refreshTableSelesai();
             });
 
             $('#close-editor-3').off('click').on('click', function () {
@@ -4231,7 +4281,7 @@
                 });
 
                 //refreshTableSudahDibayar();
-                    refreshTableSudahDibayar();
+                refreshTableSudahDibayar();
 
             });
         }
@@ -5284,7 +5334,7 @@
                     $('#konfHapusPesanan').modal('hide');
                 },
                 success: function() {
-                        refreshTablePesanan();
+                    refreshTablePesanan();
                     //$('#konfHapusPesanan').modal('hide');
                 },
                 error: function(xhr, status, error) {
@@ -5425,9 +5475,13 @@
                     $('#table-pesanan-partial').show();
 
                     cekJumlahPesananBulanIni();
-                    $('#DataUsaha_JtranRetur').change(function () {
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                    });
+
+                    //remark by calvin 17 juni 2019
+                    //$('#DataUsaha_JtranRetur').change(function () {
+                    //    $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    //});
+                    //end remark by calvin 17 juni 2019
+
                     $('#loading_pesanan_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -5450,9 +5504,11 @@
                     $('#search_pesanan_click')[0].disabled = false;
                     $('#table-pesanan-partial').html(response);
                     cekJumlahPesananBulanIni();
-                    $('#DataUsaha_JtranRetur').change(function () {
-                        $('#DataUsaha_JTRAN_RETUR').val($(this).val());
-                    });
+                    //remark by calvin 17 juni 2019
+                    //$('#DataUsaha_JtranRetur').change(function () {
+                    //    $('#DataUsaha_JTRAN_RETUR').val($(this).val());
+                    //});
+                    //end remark by calvin 17 juni 2019
                     $('#loading_pesanan_tab').hide();
                 },
                 error: function (xhr, status, error) {
@@ -5480,10 +5536,10 @@
                 cache: false,
                 success: function(response) {
                     if (response.Errors == null) {
-                            refreshTableSiapKirim();
-                            refreshTablePesanan();
-                            refreshTableCancel();
-                            refreshTableSudahDibayar();
+                        refreshTableSiapKirim();
+                        refreshTablePesanan();
+                        refreshTableCancel();
+                        refreshTableSudahDibayar();
                         alert('Semua kode pesanan berhasil ubah status');
                     } else {
                         refreshTableSiapKirim();
@@ -5530,9 +5586,9 @@
                 cache: false,
                 success: function(response) {
                     if (response.Errors == null) {
-                            refreshTableSiapKirim();
-                            refreshTablePesanan();
-                            refreshTableSudahKirim();
+                        refreshTableSiapKirim();
+                        refreshTablePesanan();
+                        refreshTableSudahKirim();
                         refreshTableSudahDibayar();
                         alert('Semua kode pesanan berhasil ubah status');
                     } else {
@@ -6484,7 +6540,7 @@
                         }).click(function() {
                             var $offsetTop = $this.offset().top;
                             $this.find('.selectivity-dropdown').css('top', $offsetTop + 10);
-                            }).change();
+                        }).change();
 
                         //add by nurul 13/3/2019
                         if (link == true && temp_listQOHPerGD.length > 0) {
@@ -7120,7 +7176,7 @@
                     refreshTableSiapKirim();
                     //add by nurul 19/3/2019
                     refreshTableSudahKirim();
-                        //end add by nurul 19/3/2019
+                    //end add by nurul 19/3/2019
                 },
                 error: function(xhr) {
                     console.log(xhr);
@@ -7257,36 +7313,36 @@
                     }
                 });
                 var link = '@Url.Action("RefreshUbahStatusDibayar", "Manage")';
-            $.ajax({
-                type: "POST",
-                url: link,
-                // The key needs to match your method's input parameter (case-sensitive).
-                beforeSend: function () {
-                    $('#datatable_ubahstatus_dibayar').hide();
-                    $('#loading_ubahstatus_dibayar').show();
-                },
-                data: JSON.stringify(rows_selected),
-                contentType: "application/json; charset=UTF-8",
-                cache: false,
-                success: function (response) {
-                    if (response.Errors == null) {
-                        $('#modal-status-multi-body').html(response);
-                        $('#datatable_ubahstatus_dibayar').show();
-                        $('#loading_ubahstatus_dibayar').hide();
-                    } else {
-                        $('#modalUbahStatusMultiDibayar').modal('hide');
-                        $('#datatable_ubahstatus_dibayar').show();
-                        $('#loading_ubahstatus_dibayar').hide();
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    beforeSend: function () {
+                        $('#datatable_ubahstatus_dibayar').hide();
+                        $('#loading_ubahstatus_dibayar').show();
+                    },
+                    data: JSON.stringify(rows_selected),
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#modal-status-multi-body').html(response);
+                            $('#datatable_ubahstatus_dibayar').show();
+                            $('#loading_ubahstatus_dibayar').hide();
+                        } else {
+                            $('#modalUbahStatusMultiDibayar').modal('hide');
+                            $('#datatable_ubahstatus_dibayar').show();
+                            $('#loading_ubahstatus_dibayar').hide();
                             alert(response.Errors[0]);
-                    }
-                },
-                error: function (errMsg) {
-                    $('#datatable_ubahstatus_dibayar').show();
-                    $('#loading_ubahstatus_dibayar').hide();
-                    alert(errMsg);
+                        }
+                    },
+                    error: function (errMsg) {
+                        $('#datatable_ubahstatus_dibayar').show();
+                        $('#loading_ubahstatus_dibayar').hide();
+                        alert(errMsg);
 
-                },
-            });
+                    },
+                });
             } else if ($TabAktif == 2) {
                 $('.checkbox_gntstatus_packing').each(function (i, item) {
                     //if ($('#checkbox_all_gntstatus_packing').is(":checked")) {
@@ -7297,37 +7353,37 @@
                     }
                 });
                 var link = '@Url.Action("RefreshUbahStatusPacking", "Manage")';
-            $.ajax({
-                type: "POST",
-                url: link,
-                beforeSend: function () {
-                    $('#datatable_ubahstatus_packing').hide();
-                    $('#loading_ubahstatus_packing').show();
-                },
-                // The key needs to match your method's input parameter (case-sensitive).
-                data: JSON.stringify(rows_selected),
-                contentType: "application/json; charset=UTF-8",
-                cache: false,
-                success: function (response) {
-                    if (response.Errors == null) {
-                        $('#modal-status-multi-packing-body').html(response);
-                        $('#datatable_ubahstatus_packing').show();
-                        $('#loading_ubahstatus_packing').hide();
-                    } else {
-                        $('#modalUbahStatusMultiPacking').modal('hide');
-                        $('#datatable_ubahstatus_packing').show();
-                        $('#loading_ubahstatus_packing').hide();
-                        alert(response.Errors[0]);
+                $.ajax({
+                    type: "POST",
+                    url: link,
+                    beforeSend: function () {
+                        $('#datatable_ubahstatus_packing').hide();
+                        $('#loading_ubahstatus_packing').show();
+                    },
+                    // The key needs to match your method's input parameter (case-sensitive).
+                    data: JSON.stringify(rows_selected),
+                    contentType: "application/json; charset=UTF-8",
+                    cache: false,
+                    success: function (response) {
+                        if (response.Errors == null) {
+                            $('#modal-status-multi-packing-body').html(response);
+                            $('#datatable_ubahstatus_packing').show();
+                            $('#loading_ubahstatus_packing').hide();
+                        } else {
+                            $('#modalUbahStatusMultiPacking').modal('hide');
+                            $('#datatable_ubahstatus_packing').show();
+                            $('#loading_ubahstatus_packing').hide();
+                            alert(response.Errors[0]);
 
-                    }
-                },
-                error: function (errMsg) {
-                    $('#loading_ubahstatus_packing').hide();
-                    $('#datatable_ubahstatus_packing').show();
-                    $('#loading_ubahstatus_packing').hide();
-                    alert(errMsg);
-                },
-            });
+                        }
+                    },
+                    error: function (errMsg) {
+                        $('#loading_ubahstatus_packing').hide();
+                        $('#datatable_ubahstatus_packing').show();
+                        $('#loading_ubahstatus_packing').hide();
+                        alert(errMsg);
+                    },
+                });
             }
 
 
@@ -7564,7 +7620,7 @@
                     } else if ($("#ctk_tlp").is(":checked") == false ) {
                         tlp = 0;
                     }
-                //add by nurul 2/5/2019
+                    //add by nurul 2/5/2019
                 } else if ($('#LayoutSize').val() == "2") {
                     var link = '@Url.Action("LihatFakturA5", "Manage", new {noBukPesanan = "replaceNoBuk"})';
                     link = link.replace('replaceNoBuk', nobuk);
@@ -7843,7 +7899,7 @@
                             $('#loading_spinner').show();
                         },
                         success: function (response) {
-                            
+
                             console.log(response);
                             $('#form-partial').html(response);
                             $nettoSebelumnya = parseInt(convertToAngka($('#Pesanan_NETTO').val()));
@@ -7919,9 +7975,9 @@
                 //},
                 success: function (response) {
                     if (response.Errors == null) {
-                            alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
-                            //refreshTablePesanan();
-                            $('#pesanan-tab').click();
+                        alert('Status Update Pesanan dan Stok Ke Marketplace berhasil disimpan!');
+                        //refreshTablePesanan();
+                        $('#pesanan-tab').click();
 
                         //$('#loading_spinner').hide();
                     } else {

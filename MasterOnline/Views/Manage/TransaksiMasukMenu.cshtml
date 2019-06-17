@@ -71,13 +71,39 @@
         #GUDANG .selectivity-single-select-input {
             width: 100px !important;
         }
+
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 42%;
+            }
+
+            .addpixel {
+                width: 850px;
+            }
+
+            .addpixeltmsuk{
+                width: 334px;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .modalresponsive {
+                width: 400px;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
     </style>
 }
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="stok-tab" role="tab" data-toggle="tab" aria-expanded="true">Transaksi Masuk</a>
                 </li>
@@ -109,9 +135,9 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                <button type="button" class=" btn btn-default" data-style="expand-right">
+                                @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
-                                </button>
+                                </button>*@
                                 <button class="btn btn-primary btn_tambah_data" id="tambah_stok">Tambah Baru</button>
                             </div>
                         </div>
@@ -337,7 +363,7 @@
 
 <div class="modal fade" id="konfHapusStok" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -357,7 +383,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -377,7 +403,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>

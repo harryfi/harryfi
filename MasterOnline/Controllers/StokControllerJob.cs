@@ -424,19 +424,14 @@ namespace MasterOnline.Controllers
                 }
                 if (connId == "MANUAL")
                 {
-                    listBrg.Add("01.FDE00.03.3m");
-                    listBrg.Add("01.FDE00.03.6m");
-                    listBrg.Add("01.FDE00.03.9m");
-                    listBrg.Add("00.FDE00.01.3m");
-                    listBrg.Add("00.FDE00.01.6m");
-                    listBrg.Add("00.FDE00.01.9m");
+                    listBrg.Add("303");
                 }
 
                 foreach (string kdBrg in listBrg)
                 {
                     //var qtyOnHand = GetQOHSTF08A(kdBrg, "ALL");
-                    var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG == kdBrg);
-                    var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG == kdBrg && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
+                    var barangInDb = ErasoftDbContext.STF02.SingleOrDefault(b => b.BRG.Equals(kdBrg));
+                    var brgMarketplace = ErasoftDbContext.STF02H.Where(p => p.BRG.Equals(kdBrg) && !string.IsNullOrEmpty(p.BRG_MP)).ToList();
                     var ListARF01 = ErasoftDbContext.ARF01.ToList();
 
                     foreach (var stf02h in brgMarketplace)
@@ -571,12 +566,13 @@ namespace MasterOnline.Controllers
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
                                         client.Enqueue<StokControllerJob>(x => x.Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
+                                        //Task.Run(() => Shopee_updateStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                                     }
                                     else if (brg_mp[1] != "")
                                     {
                                         //Task.Run(() => ShopeeApi.UpdateVariationStock(data, stf02h.BRG_MP, Convert.ToInt32(qtyOnHand))).Wait();
                                         client.Enqueue<StokControllerJob>(x => x.Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null));
-                                        Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
+                                        //Task.Run(() => Shopee_updateVariationStock(DatabasePathErasoft, stf02h.BRG, marketPlace.CUST, "Stock", "Update Stock", data, stf02h.BRG_MP, 0, uname, null)).Wait();
                                     }
                                 }
                             }
@@ -613,6 +609,13 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
             stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
             //MasterOnline.API_LOG_MARKETPLACE currentLog = new API_LOG_MARKETPLACE
             //{
@@ -700,6 +703,12 @@ namespace MasterOnline.Controllers
             qtyOnHand = qtyOnHand + qtySOLazada;
             //end add by calvin 11 juni 2019
 
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
             qty = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
 
             var ret = new BindingBase();
@@ -789,6 +798,13 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
             string stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
             data.Qty = stock;
 
@@ -914,6 +930,14 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
             string stock = (qtyOnHand > 0) ? qtyOnHand.ToString() : "0";
             data.Qty = Convert.ToString(stock);
 
@@ -1141,6 +1165,12 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
             stok = Convert.ToInt32(qtyOnHand);
 
             long milis = CurrentTimeMillis();
@@ -1198,6 +1228,13 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
+
             qty = Convert.ToInt32(qtyOnHand);
 
             long seconds = CurrentTimeSecond();
@@ -1291,6 +1328,12 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
             qty = Convert.ToInt32(qtyOnHand);
 
             long seconds = CurrentTimeSecond();
@@ -1376,6 +1419,12 @@ namespace MasterOnline.Controllers
             SetupContext(DatabasePathErasoft, uname);
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
+            //add by calvin 17 juni 2019
+            if (qtyOnHand < 0)
+            {
+                qtyOnHand = 0;
+            }
+            //end add by calvin 17 juni 2019
             stok = Convert.ToInt32(qtyOnHand);
 
             var mgrApiManager = new JDIDController();

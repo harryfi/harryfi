@@ -66,20 +66,20 @@
             </div>
             <div class="col-lg-8 col-sm-6">
                 <div class="pull-right">
-                    <button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
+                    @*<button type="button" class="btn btn-default" id="refresh_promosi" data-style="expand-right">
                         <span>Refresh</span>
-                    </button>
+                    </button>*@
                     <button class="btn btn-primary btn_tambah_data" id="tambah_promosi">Tambah Baru</button>
                 </div>
             </div>
         </div>
         <div class="row promosi_table_section" style="margin-top: 5px;">
-            <div class="col-sm-12" id="table-promosi-partial">
+            <div class="col-sm-12 addpixel" id="table-promosi-partial">
                 @Html.Partial("TablePromosiPartial")
             </div>
         </div>
         <div class="row promosi_editor_section" style="display: none;">
-            <div class="col-lg-12">
+            <div class="col-lg-12 modalresponsive">
                 <div class="page-editor">
                     <h2 class="editor-title">Promosi</h2>
                     <span class="title-accent"></span>
@@ -112,7 +112,7 @@
 
 <div class="modal fade" id="konfHapusPromosi" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -132,7 +132,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -152,7 +152,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalphapus">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>

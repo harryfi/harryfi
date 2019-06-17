@@ -5888,24 +5888,28 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
-                                    EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                                    var stf02h = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum);
+                                    if (stf02h != null)
                                     {
-                                        api_key = tblCustomer.API_KEY,
-                                        kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                        nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
-                                        berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgPath,
-                                        Keterangan = dataBarang.Stf02.Deskripsi,
-                                        Qty = "1",
-                                        DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
-                                        IDMarket = tblCustomer.RecNum.ToString(),
-                                    };
-                                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                    data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                                    var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
-                                    if (display)
-                                    {
-                                        var result = new EleveniaController().CreateProduct(data, display);
+                                        var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                        if (display)
+                                        {
+                                            EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                                            {
+                                                api_key = tblCustomer.API_KEY,
+                                                kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
+                                                nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
+                                                berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                                imgUrl = imgPath,
+                                                Keterangan = dataBarang.Stf02.Deskripsi,
+                                                Qty = "1",
+                                                DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
+                                                IDMarket = tblCustomer.RecNum.ToString(),
+                                            };
+                                            data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                                            data.Price = stf02h.HJUAL.ToString();
+                                            var result = new EleveniaController().CreateProduct(data, display);
+                                        }
                                     }
                                 }
                             }
@@ -5941,44 +5945,48 @@ namespace MasterOnline.Controllers
                                 #endregion
                                 foreach (ARF01 tblCustomer in listElShop)
                                 {
-                                    var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
+                                    var stf02h = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum);
+                                    if (stf02h != null)
+                                    {
+                                        var qtyOnHand = GetQOHSTF08A(string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG, "ALL");
 
-                                    EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
-                                    {
-                                        api_key = tblCustomer.API_KEY,
-                                        kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
-                                        nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
-                                        berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
-                                        imgUrl = imgPath,
-                                        Keterangan = dataBarang.Stf02.Deskripsi,
-                                        Qty = Convert.ToString(qtyOnHand),
-                                        DeliveryTempNo = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DeliveryTempElevenia.ToString(),
-                                        IDMarket = tblCustomer.RecNum.ToString(),
-                                    };
-                                    data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
-                                    data.Price = ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).HJUAL.ToString();
-                                    data.kode_mp = Convert.ToString(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).BRG_MP);
+                                        EleveniaController.EleveniaProductData data = new EleveniaController.EleveniaProductData
+                                        {
+                                            api_key = tblCustomer.API_KEY,
+                                            kode = string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG,
+                                            nama = dataBarang.Stf02.NAMA + ' ' + dataBarang.Stf02.NAMA2 + ' ' + dataBarang.Stf02.NAMA3,
+                                            berat = (dataBarang.Stf02.BERAT / 1000).ToString(),//MO save dalam Gram, Elevenia dalam Kilogram
+                                            imgUrl = imgPath,
+                                            Keterangan = dataBarang.Stf02.Deskripsi,
+                                            Qty = Convert.ToString(qtyOnHand),
+                                            IDMarket = tblCustomer.RecNum.ToString(),
+                                        };
+                                        data.Brand = ErasoftDbContext.STF02E.SingleOrDefault(m => m.KODE == dataBarang.Stf02.Sort2 && m.LEVEL == "2").KET;
+                                        data.Price = stf02h.HJUAL.ToString();
+                                        data.DeliveryTempNo = string.IsNullOrEmpty(stf02h.DeliveryTempElevenia) ? "" : stf02h.DeliveryTempElevenia;
+                                        data.kode_mp = Convert.ToString(stf02h.BRG_MP);
 
-                                    var display = Convert.ToBoolean(ErasoftDbContext.STF02H.SingleOrDefault(m => m.BRG == (string.IsNullOrEmpty(dataBarang.Stf02.BRG) ? barangInDb.BRG : dataBarang.Stf02.BRG) && m.IDMARKET == tblCustomer.RecNum).DISPLAY);
-                                    if (string.IsNullOrEmpty(data.kode_mp) && display)
-                                    {
-                                        var result = new EleveniaController().CreateProduct(data, display);
+                                        var display = Convert.ToBoolean(stf02h.DISPLAY);
+                                        if (string.IsNullOrEmpty(data.kode_mp) && display)
+                                        {
+                                            var result = new EleveniaController().CreateProduct(data, display);
+                                        }
+                                        else if (!string.IsNullOrEmpty(data.kode_mp))
+                                        {
+                                            var result = new EleveniaController().UpdateProduct(data);
+                                        }
+                                        //if (result.resultCode.Equals("200"))
+                                        //{
+                                        //    #region Hide Item
+                                        //    EleveniaController.EleveniaProductData data2 = new EleveniaController.EleveniaProductData
+                                        //    {
+                                        //        api_key = tblCustomer.TOKEN,
+                                        //        kode = Convert.ToString(result.productNo)
+                                        //    };
+                                        //    var resultHide = new EleveniaController().HideItem(data2);
+                                        //    #endregion
+                                        //}
                                     }
-                                    else if (!string.IsNullOrEmpty(data.kode_mp))
-                                    {
-                                        var result = new EleveniaController().UpdateProduct(data);
-                                    }
-                                    //if (result.resultCode.Equals("200"))
-                                    //{
-                                    //    #region Hide Item
-                                    //    EleveniaController.EleveniaProductData data2 = new EleveniaController.EleveniaProductData
-                                    //    {
-                                    //        api_key = tblCustomer.TOKEN,
-                                    //        kode = Convert.ToString(result.productNo)
-                                    //    };
-                                    //    var resultHide = new EleveniaController().HideItem(data2);
-                                    //    #endregion
-                                    //}
                                 }
                             }
                             break;
@@ -10140,7 +10148,7 @@ namespace MasterOnline.Controllers
                 //ListNFaktur = ErasoftDbContext.ART03B.ToList()
                 Errors = null
             };
-            
+
             return Json(returFakturInDb, JsonRequestBehavior.AllowGet);
 
             //return PartialView("TableReturPartial", vm);
@@ -10914,7 +10922,7 @@ namespace MasterOnline.Controllers
 
             return PartialView("TableReturInvoicePartial", vm);
         }
-        
+
         public ActionResult RefreshInvoiceForm()
         {
             try
@@ -11074,7 +11082,7 @@ namespace MasterOnline.Controllers
                 //ListNInvoice = ErasoftDbContext.APT03B.ToList()
                 Errors = null
             };
-            
+
             return Json(invoiceInDb, JsonRequestBehavior.AllowGet);
 
             //return PartialView("TableInvoicePartial", vm);
@@ -11111,7 +11119,7 @@ namespace MasterOnline.Controllers
                 //ListNInvoice = ErasoftDbContext.APT03B.ToList()
                 Errors = null
             };
-            
+
             return Json(invoiceInDb, JsonRequestBehavior.AllowGet);
 
             //return PartialView("TableReturInvoicePartial", vm);
@@ -12511,7 +12519,8 @@ namespace MasterOnline.Controllers
             //end change by nurul 8/5/2019, paging 
         }
 
-        public class getTotalCount {
+        public class getTotalCount
+        {
             public int JUMLAH { get; set; }
         }
 
@@ -12573,12 +12582,12 @@ namespace MasterOnline.Controllers
             }
             string sSQLSelect2 = "";
             sSQLSelect2 += "ORDER BY A.TGL DESC, A.NO_BUKTI DESC ";
-            sSQLSelect2 += "OFFSET "+ Convert.ToString(pagenumber * 10) +" ROWS ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
             sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
 
             var listOrderNew = ErasoftDbContext.Database.SqlQuery<mdlPesanan>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
             var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
-            
+
             //IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listPesanan, pagenumber + 1, 10, totalCount);
             IPagedList<mdlPesanan> pageOrders = new StaticPagedList<mdlPesanan>(listOrderNew, pagenumber + 1, 10, totalCount.JUMLAH);
             return PartialView("TablePesananSelesaiPartial", pageOrders);
@@ -13155,7 +13164,7 @@ namespace MasterOnline.Controllers
 
             //return PartialView("TablePesananPartial", vm);
             return Json(pesananInDb, JsonRequestBehavior.AllowGet);
-    }
+        }
 
         [HttpGet]
         public ActionResult DeleteBarangPesanan(int noUrut)
@@ -14596,9 +14605,9 @@ namespace MasterOnline.Controllers
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
             var apf01 = (from p in ErasoftDbContext.APF01
-                          where (p.NAMA.Contains(search) || p.SUPP.Contains(search) || p.PERSO.Contains(search))
-                          orderby p.SUPP
-                          select p);
+                         where (p.NAMA.Contains(search) || p.SUPP.Contains(search) || p.PERSO.Contains(search))
+                         orderby p.SUPP
+                         select p);
             var ListApf01 = apf01.Skip(pagenumber * 10).Take(10).ToList();
             var totalCount = apf01.Count();
 
@@ -15733,8 +15742,8 @@ namespace MasterOnline.Controllers
             //}
             //end add by calvin 1 maret 2019, tes resize image
             //clientJobServer.Enqueue<StokControllerJob>(x => x.testFailedNotif("ERASOFT_80068", "Master Online", "000004","Test","Testing by calvin"));
-            //new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_80069", "Calvin");
-             
+            new StokControllerJob().updateStockMarketPlace("MANUAL", "ERASOFT_100144", "Calvin");
+
             return View();
         }
 
@@ -17789,7 +17798,7 @@ namespace MasterOnline.Controllers
             };
 
             //return PartialView("TableTransaksiPindahPartial", vm);
-            
+
             return Json(stokInDb, JsonRequestBehavior.AllowGet);
         }
 
@@ -21253,17 +21262,20 @@ namespace MasterOnline.Controllers
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                         dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Skip(skipDataError).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                     else
                     {
                         //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                         dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
+                        //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").OrderBy(b => b.RecNum).Take(Convert.ToInt32(dataPerPage)).ToList();
                     }
                 }
                 else
                 {
                     //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
                     dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper()).ToList();
+                    //dataBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.ToUpper() == cust.ToUpper() && b.AVALUE_36 == "Auto Process").ToList();
                 }
                 if (dataBrg.Count > 0)
                 {
@@ -21753,6 +21765,7 @@ namespace MasterOnline.Controllers
                             //change stf02 brg = seller sku
                             //stf02.BRG = string.IsNullOrEmpty(brgBlibli) ? item.BRG_MP : brgBlibli;
                             stf02.BRG = item.SELLER_SKU;
+
                             //end change stf02 brg = seller sku
                             //var marketplace = MoDbContext.Marketplaces.Where(m => m.IdMarket.ToString().Equals(customer.NAMA)).FirstOrDefault();
                             //if (marketplace != null)
@@ -23442,6 +23455,7 @@ namespace MasterOnline.Controllers
                     }
                 }
                 var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper())).ToList();
+                //var listTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(t => t.CUST.ToUpper().Equals(cust.ToUpper()) && t.AVALUE_36 == "Auto Process").ToList();
                 if (listTempBrg != null)
                 {
                     ret.Total = listTempBrg.Count();
