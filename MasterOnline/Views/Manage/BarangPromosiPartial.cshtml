@@ -5,7 +5,11 @@
 @Html.HiddenFor(m => m.Promosi.RecNum)
 @Html.HiddenFor(m => m.Promosi.MP_PROMO_ID)
 @Html.HiddenFor(m => m.Promosi.TGL_INPUT, new { Value = DateTime.Now.ToString("dd/MM/yyyy") })
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        Initialize();
+    });
+</script>
 <div class="form-horizontal">
     <div class="row">
         <div class="col-md-6">

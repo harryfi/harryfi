@@ -16008,10 +16008,10 @@ namespace MasterOnline.Controllers
             int pagenumber = (page ?? 1) - 1;
             ViewData["searchParam"] = search;
             ViewData["LastPage"] = page;
-            var Glftran = (from p in ErasoftDbContext.GLFTRAN1
-                           where (p.bukti.Contains(search) || Convert.ToString(p.tgl).Contains(search))
-                           orderby p.tgl descending, p.bukti descending
-                           select p);
+            //var Glftran = (from p in ErasoftDbContext.GLFTRAN1
+            //               where (p.bukti.Contains(search) || Convert.ToString(p.tgl).Contains(search))
+            //               orderby p.tgl descending, p.bukti descending
+            //               select p);
             //var cekGlftran = (from p in ErasoftDbContext.GLFTRAN1
             //               join q in ErasoftDbContext.GLFTRAN2
             //               on new { p.bukti, p.lks } equals new { q.bukti, q.lks }
@@ -16020,22 +16020,39 @@ namespace MasterOnline.Controllers
             //               where (a.BUKTI.Contains(search) || Convert.ToString(a.TGL).Contains(search) || a.DK.Contains(search) || a.POSTING.Contains(search))
             //               orderby a.TGL descending, a.BUKTI descending
             //               select a);
-            var ListGlftran = Glftran.Skip(pagenumber * 10).Take(10).ToList();
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT RECNUM AS RECNUM, BUKTI AS BUKTI, TGL AS TGL, POSTING AS POSTING, LKS AS LKS, TDEBET AS DEBET, TKREDIT AS KREDIT ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM GLFTRAN1 ";
+            if (search != "")
+            {
+                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListStt01a = ErasoftDbContext.Database.SqlQuery<mdlJurnal>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            
+            //var ListGlftran = Glftran.Skip(pagenumber * 10).Take(10).ToList();
 
             var pageContent = new List<mdlJurnal>();
-            foreach (var item in ListGlftran)
+            foreach (var item in ListStt01a)
             {
-                var listJurnalDetail = ErasoftDbContext.GLFTRAN2.Where(a => a.bukti == item.bukti && a.lks == item.lks).ToList();
+                var listJurnalDetail = ErasoftDbContext.GLFTRAN2.Where(a => a.bukti == item.BUKTI && a.lks == item.LKS).ToList();
 
                 pageContent.Add(new mdlJurnal()
                 {
-                    RECNUM = item.RecNum,
-                    BUKTI = item.bukti,
-                    TGL = item.tgl,
-                    POSTING = item.posting,
+                    RECNUM = item.RECNUM,
+                    BUKTI = item.BUKTI,
+                    TGL = item.TGL,
+                    POSTING = item.POSTING,
                     DEBET = listJurnalDetail.Where(a => a.dk == "D").Sum(a => a.nilai),
                     KREDIT = listJurnalDetail.Where(a => a.dk == "K").Sum(a => a.nilai),
-                    LKS = item.lks
+                    LKS = item.LKS
                 });
             }
 
@@ -16044,11 +16061,13 @@ namespace MasterOnline.Controllers
             //                   orderby a.TGL descending, a.BUKTI descending
             //                   select a);
 
-            var totalCount = Glftran.Count();
+            //var totalCount = Glftran.Count();
             //var totalCount = cobaGlftran.Count();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
 
+            IPagedList<mdlJurnal> pageOrders = new StaticPagedList<mdlJurnal>(pageContent, pagenumber + 1, 10, totalCount.JUMLAH);
             //IPagedList<mdlJurnal> pageOrders = new StaticPagedList<mdlJurnal>(ListGlftran, pagenumber + 1, 10, totalCount);
-            IPagedList<mdlJurnal> pageOrders = new StaticPagedList<mdlJurnal>(pageContent, pagenumber + 1, 10, totalCount);
+            //IPagedList<mdlJurnal> pageOrders = new StaticPagedList<mdlJurnal>(pageContent, pagenumber + 1, 10, totalCount);
             //IPagedList<mdlJurnal> pageOrders = new StaticPagedList<mdlJurnal>(cobaGlftran, pagenumber + 1, 10, totalCount);
             return PartialView("TableJurnalPartial", pageOrders);
         }
@@ -16365,11 +16384,14 @@ namespace MasterOnline.Controllers
 
             var vm = new BayarPiutangViewModel()
             {
-                ListPiutang = ErasoftDbContext.ART03A.ToList(),
-                ListPiutangDetail = ErasoftDbContext.ART03B.ToList()
+                //ListPiutang = ErasoftDbContext.ART03A.ToList(),
+                //ListPiutangDetail = ErasoftDbContext.ART03B.ToList()
+                Errors = null
             };
+            
+            return Json(piutangInDb, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableBayarPiutangPartial", vm);
+            //return PartialView("TableBayarPiutangPartial", vm);
         }
 
         [HttpGet]
@@ -16401,14 +16423,48 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult RefreshTableBayarPiutang1()
-        {
-            var vm = new BayarPiutangViewModel()
-            {
-                ListPiutang = ErasoftDbContext.ART03A.ToList()
-            };
+        //public ActionResult RefreshTableBayarPiutang1()
+        //{
+        //    var vm = new BayarPiutangViewModel()
+        //    {
+        //        ListPiutang = ErasoftDbContext.ART03A.ToList()
+        //    };
 
-            return PartialView("TableBayarPiutangPartial", vm);
+        //    return PartialView("TableBayarPiutangPartial", vm);
+        //}
+        public ActionResult RefreshTableBayarPiutang1(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            //var art03a = (from p in ErasoftDbContext.ART03A
+            //             where (p.BUKTI.Contains(search) || Convert.ToString(p.TGL).Contains(search) )
+            //             orderby p.TGL descending, p.BUKTI descending
+            //             select p);
+            //var ListArt03a = art03a.Skip(pagenumber * 10).Take(10).ToList();
+            //var totalCount = art03a.Count();
+
+            //IPagedList<ART03A> pageOrders = new StaticPagedList<ART03A>(ListArt03a, pagenumber + 1, 10, totalCount);
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM ART03A ";
+            if (search != "")
+            {
+                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArt03a = ErasoftDbContext.Database.SqlQuery<ART03A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<ART03A> pageOrders = new StaticPagedList<ART03A>(ListArt03a, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableBayarPiutangPartial", pageOrders);
         }
 
         public ActionResult RefreshBayarPiutangForm()
@@ -16572,11 +16628,14 @@ namespace MasterOnline.Controllers
 
             var vm = new BayarHutangViewModel()
             {
-                ListHutang = ErasoftDbContext.APT03A.ToList(),
-                ListHutangDetail = ErasoftDbContext.APT03B.ToList()
+                //ListHutang = ErasoftDbContext.APT03A.ToList(),
+                //ListHutangDetail = ErasoftDbContext.APT03B.ToList()
+                Errors = null
             };
+            
+            return Json(hutangInDb, JsonRequestBehavior.AllowGet);
 
-            return PartialView("TableBayarHutangPartial", vm);
+            //return PartialView("TableBayarHutangPartial", vm);
         }
 
         [HttpGet]
@@ -16609,14 +16668,48 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult RefreshTableBayarHutang1()
-        {
-            var vm = new BayarHutangViewModel()
-            {
-                ListHutang = ErasoftDbContext.APT03A.ToList()
-            };
+        //public ActionResult RefreshTableBayarHutang1()
+        //{
+        //    var vm = new BayarHutangViewModel()
+        //    {
+        //        ListHutang = ErasoftDbContext.APT03A.ToList()
+        //    };
 
-            return PartialView("TableBayarHutangPartial", vm);
+        //    return PartialView("TableBayarHutangPartial", vm);
+        //}
+        public ActionResult RefreshTableBayarHutang1(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            //var apt03a = (from p in ErasoftDbContext.APT03A
+            //              where (p.BUKTI.Contains(search) || Convert.ToString(p.TGL).Contains(search) )
+            //              orderby p.TGL descending, p.BUKTI descending
+            //              select p);
+            //var ListApt03a = apt03a.Skip(pagenumber * 10).Take(10).ToList();
+            //var totalCount = apt03a.Count();
+
+            //IPagedList<APT03A> pageOrders = new StaticPagedList<APT03A>(ListApt03a, pagenumber + 1, 10, totalCount);
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT * ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM APT03A ";
+            if (search != "")
+            {
+                sSQL2 += "AND (BUKTI LIKE '%" + search + "%' OR TGL LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY TGL DESC, BUKTI DESC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var ListArt01a = ErasoftDbContext.Database.SqlQuery<APT03A>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<APT03A> pageOrders = new StaticPagedList<APT03A>(ListArt01a, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableBayarHutangPartial", pageOrders);
         }
 
         public ActionResult RefreshBayarHutangForm()
@@ -19131,18 +19224,47 @@ namespace MasterOnline.Controllers
             }
         }
 
-        public ActionResult RefreshTablePromosi()
-        {
-            var vm = new PromosiViewModel()
-            {
-                ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
-            };
+        //public ActionResult RefreshTablePromosi()
+        //{
+        //    var vm = new PromosiViewModel()
+        //    {
+        //        ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
+        //        //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+        //        ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+        //        ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+        //        ListMarketplace = MoDbContext.Marketplaces.ToList(),
+        //    };
 
-            return PartialView("TablePromosiPartial", vm);
+        //    return PartialView("TablePromosiPartial", vm);
+        //}
+
+        public ActionResult RefreshTablePromosi(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.NAMA_PROMOSI AS NAMA, ISNULL(C.NamaMarket,'') AS NAMAMARKET, A.TGL_MULAI AS TGL_MULAI, A.TGL_AKHIR AS TGL_AKHIR ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM PROMOSIS A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.NAMA_MARKET = B.CUST ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.NAMA_PROMOSI LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.TGL_AKHIR DESC, A.NAMA_PROMOSI DESC  ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listPromosi = ErasoftDbContext.Database.SqlQuery<mdlPromosi>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlPromosi> pageOrders = new StaticPagedList<mdlPromosi>(listPromosi, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TablePromosiPartial", pageOrders);
         }
 
         public ActionResult EditPromosi(int? orderId)
@@ -19240,14 +19362,17 @@ namespace MasterOnline.Controllers
 
             var vm = new PromosiViewModel()
             {
-                ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-                ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                //ListPromosi = ErasoftDbContext.PROMOSI.ToList(),
+                ////change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+                //ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+                //ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+                //ListMarketplace = MoDbContext.Marketplaces.ToList(),
+                Errors = null
             };
-
-            return PartialView("TablePromosiPartial", vm);
+            
+            
+            return Json(promosiInDb, JsonRequestBehavior.AllowGet);
+            //return PartialView("TablePromosiPartial", vm);
         }
 
         [HttpGet]
@@ -19652,6 +19777,7 @@ namespace MasterOnline.Controllers
 
         [Route("manage/master/harga-jual-barang")]
         public ActionResult HargaJual()
+        //public ActionResult HargaJualMenu()
         {
             var vm = new HargaJualViewModel()
             {
@@ -19664,7 +19790,42 @@ namespace MasterOnline.Controllers
             };
 
             return View("HargaJualMenu", vm);
+            //return View(vm);
         }
+        
+        //add by nurul 13/6/2019
+        public ActionResult RefreshTableHargaJual(int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT A.RECNUM AS RECNUM, A.BRG AS BRG, ISNULL(C.NamaMarket,'') AS NAMAMARKET, ISNULL(B.NAMA,'') AS IDMARKET, D.NAMA AS NAMA, D.NAMA2 AS NAMA2, A.AKUNMARKET AS AKUNMARKET, A.HJUAL AS HJUAL, ISNULL(E.HPOKOK,'') AS HPOKOK ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(A.RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM STF02H A ";
+            sSQL2 += "LEFT JOIN ARF01 B ON A.IDMARKET = B.RecNum ";
+            sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            sSQL2 += "LEFT JOIN STF02 D ON A.BRG = D.BRG ";
+            sSQL2 += "LEFT JOIN STF10 E ON A.BRG = E.BRG ";
+            sSQL2 += "WHERE D.TYPE = '3' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (A.BRG LIKE '%" + search + "%' OR D.NAMA LIKE '%" + search + "%' OR D.NAMA2 LIKE '%" + search + "%' OR A.AKUNMARKET LIKE '%" + search + "%' OR C.NAMAMARKET LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY A.BRG ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlHargaJual>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlHargaJual> pageOrders = new StaticPagedList<mdlHargaJual>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableHargaJualPartial", pageOrders);
+        }
+        //end add by nurul 13/6/2019
 
         [HttpGet]
         public ActionResult UbahHargaJual(int? recNum, double hargaJualBaru)
@@ -19860,16 +20021,21 @@ namespace MasterOnline.Controllers
                 //end add by calvin 18 desember 2018
             }
 
-            var vm = new HargaJualViewModel()
-            {
-                //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
-                ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
-                ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
-                ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
-                ListPelanggan = ErasoftDbContext.ARF01.ToList(),
-            };
+            //change by nurul 13/6/2019
+            //var vm = new HargaJualViewModel()
+            //{
+            //    //change by nurul 18/1/2019 -- ListBarang = ErasoftDbContext.STF02.ToList(),
+            //    ListBarang = ErasoftDbContext.STF02.Where(a => a.TYPE == "3").ToList(),
+            //    ListHargaJualPerMarket = ErasoftDbContext.STF02H.ToList(),
+            //    ListHargaTerakhir = ErasoftDbContext.STF10.ToList(),
+            //    ListPelanggan = ErasoftDbContext.ARF01.ToList(),
+            //};
 
-            return PartialView("TableHargaJualPartial", vm);
+            //return PartialView("TableHargaJualPartial", vm);
+            return new EmptyResult();
+            //hJualInDb.Errors = null;
+            //return Json(hJualInDb, JsonRequestBehavior.AllowGet);
+            //end change by nurul 13/6/2019
         }
 
         public class ReturnJson

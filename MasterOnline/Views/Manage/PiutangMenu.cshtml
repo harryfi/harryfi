@@ -154,8 +154,7 @@
                 //Initialize();
                 refreshTablePiutang();
                 $('#tambah_piutang').off('click').on('click', function () {
-                    $('.piutang_table_section').hide();
-                    $('.piutang_editor_section').show();
+
                     refreshForm();
                     //add by nruul 18/10/2018
                     $("#Piutang_TERM").keydown(
@@ -186,6 +185,25 @@
                 $('#search_piutang_click').click(function () {
                     searchTablePiutang();
                 });
+
+                $('#close-editor').on('click', function () {
+                $('input, select, .btn-danger').each(function() {
+                    $(this).removeAttr('disabled');
+                });
+                $('.piutang_table_section').show();
+                $('.piutang_editor_section').hide();
+                $('input').each(function () {
+                    $(this).removeAttr('disabled');
+                });
+                //refreshForm();
+                refreshTablePiutang();
+                //add by nurul 12/2/2019
+                //$('#datatable').on('page.dt', function () {
+                //    $page = $('#datatable').DataTable().page.info().page;
+                //});
+                //$('#datatable').DataTable().page($page).draw(false);
+                    //end add by nurul 12/2/2019
+            });
             });
 
         function Initialize() {
@@ -206,47 +224,47 @@
                 searchTablePiutang();
             });
 
-            $('#tambah_piutang').on('click', function () {
-                $('.piutang_table_section').hide();
-                $('.piutang_editor_section').show();
-                refreshForm();
-                //add by nruul 18/10/2018
-                $("#Piutang_TERM").keydown(
-                    function () {
-                        validateInput($(this), 'TOP');
-                    });
-                $("#Piutang_TOTAL").keydown(
-                    function () {
-                        validateInput($(this), 'ANGKA');
-                    });
-            //END ADD
-            });
+            //$('#tambah_piutang').on('click', function () {
+            //    $('.piutang_table_section').hide();
+            //    $('.piutang_editor_section').show();
+            //    refreshForm();
+            //    //add by nruul 18/10/2018
+            //    $("#Piutang_TERM").keydown(
+            //        function () {
+            //            validateInput($(this), 'TOP');
+            //        });
+            //    $("#Piutang_TOTAL").keydown(
+            //        function () {
+            //            validateInput($(this), 'ANGKA');
+            //        });
+            ////END ADD
+            //});
 
-            $('#close-editor').on('click', function () {
-                $('input, select, .btn-danger').each(function() {
-                    $(this).removeAttr('disabled');
-                });
-                $('.piutang_table_section').show();
-                $('.piutang_editor_section').hide();
-                $('input').each(function () {
-                    $(this).removeAttr('disabled');
-                });
-                //refreshForm();
-                refreshTablePiutang();
-                //add by nurul 12/2/2019
-                //$('#datatable').on('page.dt', function () {
-                //    $page = $('#datatable').DataTable().page.info().page;
-                //});
-                //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-            });
+            //$('#close-editor').on('click', function () {
+            //    $('input, select, .btn-danger').each(function() {
+            //        $(this).removeAttr('disabled');
+            //    });
+            //    $('.piutang_table_section').show();
+            //    $('.piutang_editor_section').hide();
+            //    $('input').each(function () {
+            //        $(this).removeAttr('disabled');
+            //    });
+            //    //refreshForm();
+            //    refreshTablePiutang();
+            //    //add by nurul 12/2/2019
+            //    //$('#datatable').on('page.dt', function () {
+            //    //    $page = $('#datatable').DataTable().page.info().page;
+            //    //});
+            //    //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_piutang').click();
             }
 
-            refreshInputan();
-            getCustomer();
+            //refreshInputan();
+            //getCustomer();
 
             //add by nruul 18/10/2018
             $("#Piutang_TERM").keydown(
@@ -668,6 +686,8 @@
                     type: "GET",
                     url: link,
                     success: function (response) {
+                        $('.piutang_table_section').hide();
+                        $('.piutang_editor_section').show();
                         $('#form-partial').html(response);
                         refreshInputan();
                         getCustomer();

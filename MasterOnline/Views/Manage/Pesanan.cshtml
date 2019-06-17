@@ -3158,72 +3158,61 @@
 
             //end add by nurul 19/3/2019
 
-            //add by nurul 13/5/2019
-            //$('#close-editor-1').off('click').on('click', function () {
+            $('#close-editor-1').off('click').on('click', function () {
 
-            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
-            //        $('#modalTutupEditor').modal('show');
-            //    } else {
-            //        $('#close-editor-1')[0].disabled = true;
+                if ($('#btn-simpan-perubahan-row').is(':visible')) {
+                    $('#modalTutupEditor').modal('show');
+                } else {
+                    //$('#close-editor-1')[0].disabled = true;
 
-            //        $('.pesanan_table_section').show();
-            //        $('.pesanan_editor_section').hide();
+                    $('.pesanan_table_section').show();
+                    $('.pesanan_editor_section').hide();
 
-            //        $('#form-partial').html('');
+                    $('#form-partial').html('');
 
-            //        $('#myTab li a').each(function (index) {
-            //            $(this).attr('data-toggle', 'tab');
-            //            $(this).removeClass('disabled-tab');
-            //        });
-            //        $('input, select, .btn-danger').each(function () {
-            //            $(this).removeAttr('disabled');
-            //        });
-            //        refreshForm1();
-            //        $modeEdit = 0;
-            //        $bakalNetto = 0;
-            //        $totalAwal = 0;
-            //        $nettoSebelumnya = 0;
+                    $('#myTab li a').each(function (index) {
+                        $(this).attr('data-toggle', 'tab');
+                        $(this).removeClass('disabled-tab');
+                    });
+                    $('input, select, .btn-danger').each(function () {
+                        $(this).removeAttr('disabled');
+                    });
+                    refreshForm1();
+                    $modeEdit = 0;
+                    $bakalNetto = 0;
+                    $totalAwal = 0;
+                    $nettoSebelumnya = 0;
 
-            //        if ($('#search_pesanan').val() != "") {
-            //            searchTablePesanan();
-            //        } else {
-            //            refreshTablePesanan();
-            //        }
-            //    }
-            //});
+                    refreshTablePesanan();
+                }
+            });
 
-            //$('#close-editor-2').off('click').on('click', function () {
+            $('#close-editor-2').off('click').on('click', function () {
+                //$('#close-editor-2')[0].disabled = true;
+                $('.pesanan_selesai_section').show();
+                $('.pesanan_editor_selesai_section').hide();
 
-            //    $('.pesanan_selesai_section').show();
-            //    $('.pesanan_editor_selesai_section').hide();
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
+                });
 
-            //    $('#myTab li a').each(function (index) {
-            //        $(this).attr('data-toggle', 'tab');
-            //        $(this).removeClass('disabled-tab');
-            //    });
+                refreshTableSelesai();
+            });
 
-            //    if ($('#search_selesai').val() != "") {
-            //        searchTablePesananSelesai();
-            //    } else {
-            //        refreshTableSelesai();
-            //    }
-            //});
+            $('#close-editor-3').off('click').on('click', function () {
+                //$('#close-editor-3')[0].disabled = true;
+                $('.pesanan_sudah_dibayar_section').show();
+                $('.pesanan_editor_sudah_dibayar_section').hide();
 
-            //$('#close-editor-3').off('click').on('click', function () {
-            //    $('.pesanan_sudah_dibayar_section').show();
-            //    $('.pesanan_editor_sudah_dibayar_section').hide();
+                $('#myTab li a').each(function (index) {
+                    $(this).attr('data-toggle', 'tab');
+                    $(this).removeClass('disabled-tab');
+                });
 
-            //    $('#myTab li a').each(function (index) {
-            //        $(this).attr('data-toggle', 'tab');
-            //        $(this).removeClass('disabled-tab');
-            //    });
+                refreshTableSudahDibayar();
 
-            //    //refreshTableSudahDibayar();
-            //    if ($('#search_nunggu').val() != "") {
-            //        searchTablePesananSudahDibayar();
-            //    } else {
-            //        refreshTableSudahDibayar();
-            //    }
+            });
 
             //});
             //end add by nurul 13/5/2019
@@ -3581,61 +3570,61 @@
             //        //end add by nurul 20/2/2019
             //    });
 
-            $('#close-editor-1').off('click').on('click', function () {
+            ////$('#close-editor-1').off('click').on('click', function () {
 
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    //$('#close-editor-1')[0].disabled = true;
+            ////    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            ////        $('#modalTutupEditor').modal('show');
+            ////    } else {
+            ////        //$('#close-editor-1')[0].disabled = true;
 
-                    $('.pesanan_table_section').show();
-                    $('.pesanan_editor_section').hide();
+            ////        $('.pesanan_table_section').show();
+            ////        $('.pesanan_editor_section').hide();
 
-                    $('#form-partial').html('');
+            ////        $('#form-partial').html('');
 
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    refreshForm1();
-                    $modeEdit = 0;
-                    $bakalNetto = 0;
-                    $totalAwal = 0;
-                    $nettoSebelumnya = 0;
+            ////        $('#myTab li a').each(function (index) {
+            ////            $(this).attr('data-toggle', 'tab');
+            ////            $(this).removeClass('disabled-tab');
+            ////        });
+            ////        $('input, select, .btn-danger').each(function () {
+            ////            $(this).removeAttr('disabled');
+            ////        });
+            ////        refreshForm1();
+            ////        $modeEdit = 0;
+            ////        $bakalNetto = 0;
+            ////        $totalAwal = 0;
+            ////        $nettoSebelumnya = 0;
 
-                    refreshTablePesanan();
-                }
-            });
+            ////            refreshTablePesanan();
+            ////    }
+            ////});
 
-            $('#close-editor-2').off('click').on('click', function () {
-                //$('#close-editor-2')[0].disabled = true;
-                $('.pesanan_selesai_section').show();
-                $('.pesanan_editor_selesai_section').hide();
+            ////$('#close-editor-2').off('click').on('click', function () {
+            ////    //$('#close-editor-2')[0].disabled = true;
+            ////    $('.pesanan_selesai_section').show();
+            ////    $('.pesanan_editor_selesai_section').hide();
 
-                $('#myTab li a').each(function (index) {
-                    $(this).attr('data-toggle', 'tab');
-                    $(this).removeClass('disabled-tab');
-                });
+            ////    $('#myTab li a').each(function (index) {
+            ////        $(this).attr('data-toggle', 'tab');
+            ////        $(this).removeClass('disabled-tab');
+            ////    });
 
-                refreshTableSelesai();
-            });
+            ////        refreshTableSelesai();
+            ////});
 
-            $('#close-editor-3').off('click').on('click', function () {
-                //$('#close-editor-3')[0].disabled = true;
-                $('.pesanan_sudah_dibayar_section').show();
-                $('.pesanan_editor_sudah_dibayar_section').hide();
+            ////$('#close-editor-3').off('click').on('click', function () {
+            ////    //$('#close-editor-3')[0].disabled = true;
+            ////    $('.pesanan_sudah_dibayar_section').show();
+            ////    $('.pesanan_editor_sudah_dibayar_section').hide();
 
-                $('#myTab li a').each(function (index) {
-                    $(this).attr('data-toggle', 'tab');
-                    $(this).removeClass('disabled-tab');
-                });
+            ////    $('#myTab li a').each(function (index) {
+            ////        $(this).attr('data-toggle', 'tab');
+            ////        $(this).removeClass('disabled-tab');
+            ////    });
 
-                refreshTableSudahDibayar();
+            ////        refreshTableSudahDibayar();
 
-            });
+            ////});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_pesanan').click();
@@ -3643,12 +3632,15 @@
 
             //$('#table_tambah_pesanan > tbody > tr > td.editable-kode').prop('contentEditable', true);
 
-            getTanggal();
-            getMarketplace();
-            getExpedisi();
-            getBuyer();
-            getGudang();
-            getDataBarang();
+            //getTanggal();
+            //getMarketplace();            
+            //getExpedisi();
+            //getBuyer();
+            //getGudang();
+            //getDataBarang();
+
+            //refreshInputan();
+            //refreshNetto();
 
             if ($('#Pesanan_TGL').val() != '') {
                 $('#TGL').val($('#Pesanan_TGL').val());
@@ -3688,8 +3680,7 @@
             });
             //end add
 
-            refreshInputan();
-            refreshNetto();
+            
 
             $('#tambah-pembeli').click(function() {
                 @*window.open('@Url.Action("BuyerPopup", "Manage")',*@
@@ -3883,8 +3874,16 @@
 
                                         $('#form-partial').show();
                                         $('#form_subs').hide();
+                                        getTanggal();
+                                        getMarketplace();
+                                        getExpedisi();
+                                        getBuyer();
+                                        getGudang();
+                                        getDataBarang();
 
-
+                                        refreshInputan();
+                                        refreshNetto();
+                                        
                                         $('#myTab li a').each(function () {
                                             $(this).removeAttr('data-toggle');
 
@@ -4229,61 +4228,61 @@
             //$('#datatable').DataTable().page($page).draw(false);
             //end add by nurul 12/2/2019
 
-            $('#close-editor-1').off('click').on('click', function () {
+            ////$('#close-editor-1').off('click').on('click', function () {
 
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    //$('#close-editor-1')[0].disabled = true;
+            ////    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            ////        $('#modalTutupEditor').modal('show');
+            ////    } else {
+            ////        //$('#close-editor-1')[0].disabled = true;
 
-                    $('.pesanan_table_section').show();
-                    $('.pesanan_editor_section').hide();
+            ////        $('.pesanan_table_section').show();
+            ////        $('.pesanan_editor_section').hide();
 
-                    $('#form-partial').html('');
+            ////        $('#form-partial').html('');
 
-                    $('#myTab li a').each(function (index) {
-                        $(this).attr('data-toggle', 'tab');
-                        $(this).removeClass('disabled-tab');
-                    });
-                    $('input, select, .btn-danger').each(function () {
-                        $(this).removeAttr('disabled');
-                    });
-                    refreshForm1();
-                    $modeEdit = 0;
-                    $bakalNetto = 0;
-                    $totalAwal = 0;
-                    $nettoSebelumnya = 0;
+            ////        $('#myTab li a').each(function (index) {
+            ////            $(this).attr('data-toggle', 'tab');
+            ////            $(this).removeClass('disabled-tab');
+            ////        });
+            ////        $('input, select, .btn-danger').each(function () {
+            ////            $(this).removeAttr('disabled');
+            ////        });
+            ////        refreshForm1();
+            ////        $modeEdit = 0;
+            ////        $bakalNetto = 0;
+            ////        $totalAwal = 0;
+            ////        $nettoSebelumnya = 0;
 
-                    refreshTablePesanan();
-                }
-            });
+            ////            refreshTablePesanan();
+            ////    }
+            ////});
 
-            $('#close-editor-2').off('click').on('click', function () {
+            ////$('#close-editor-2').off('click').on('click', function () {
 
-                $('.pesanan_selesai_section').show();
-                $('.pesanan_editor_selesai_section').hide();
+            ////    $('.pesanan_selesai_section').show();
+            ////    $('.pesanan_editor_selesai_section').hide();
 
-                $('#myTab li a').each(function (index) {
-                    $(this).attr('data-toggle', 'tab');
-                    $(this).removeClass('disabled-tab');
-                });
+            ////    $('#myTab li a').each(function (index) {
+            ////        $(this).attr('data-toggle', 'tab');
+            ////        $(this).removeClass('disabled-tab');
+            ////    });
 
-                refreshTableSelesai();
-            });
+            ////        refreshTableSelesai();
+            ////});
 
-            $('#close-editor-3').off('click').on('click', function () {
-                $('.pesanan_sudah_dibayar_section').show();
-                $('.pesanan_editor_sudah_dibayar_section').hide();
+            ////$('#close-editor-3').off('click').on('click', function () {
+            ////    $('.pesanan_sudah_dibayar_section').show();
+            ////    $('.pesanan_editor_sudah_dibayar_section').hide();
 
-                $('#myTab li a').each(function (index) {
-                    $(this).attr('data-toggle', 'tab');
-                    $(this).removeClass('disabled-tab');
-                });
+            ////    $('#myTab li a').each(function (index) {
+            ////        $(this).attr('data-toggle', 'tab');
+            ////        $(this).removeClass('disabled-tab');
+            ////    });
 
-                //refreshTableSudahDibayar();
-                refreshTableSudahDibayar();
+            ////    //refreshTableSudahDibayar();
+            ////        refreshTableSudahDibayar();
 
-            });
+            ////});
         }
 
         function refreshNettoBarang($trId) {
@@ -5254,7 +5253,7 @@
                     $('#EXPEDISI').hide();
                     $('#cbExpedisi').hide();
                     //add by nurul 16/5/2019
-                    $('#txtShipment').hide();
+                    //$('#txtShipment').hide();
                     //end add by nurul 16/5/2019
                     //end change 16 April
                     //change by nurul 19/2/2019

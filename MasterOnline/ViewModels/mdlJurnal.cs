@@ -26,8 +26,7 @@ namespace MasterOnline
         public string POSTING { get; set; }
         public double DEBET { get; set; }
         public double KREDIT { get; set; }
-        public int? LKS { get; set; }
-        public double NILAI { get; set; }
+        public short LKS { get; set; }
         
     }
 }

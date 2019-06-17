@@ -2391,11 +2391,16 @@
                                     $('.faktur_editor_section').show();
                                     $('#form-partial').html(response);
 
-                                    $('#form-partial').show();
-                                    $('#form_subs').hide();
+                                        $('#form-partial').show();
+                                        $('#form_subs').hide();
+                                        getTanggal();
+                                        getMarketplace();
+                                        getBuyer();
 
-                                    //add by nurul 17/10/2018
-                                    $('#myTab li a').each(function () {
+                                        refreshInputan();
+                                        refreshNetto();
+                                        //add by nurul 17/10/2018
+                                        $('#myTab li a').each(function () {
                                         $(this).removeAttr('data-toggle');
 
                                         if ($(this).attr('id') === 'faktur-tab') return;
@@ -2583,9 +2588,12 @@
                 $('#tambah_faktur').click();
             }
 
-            getTanggal();
-            getMarketplace();
-            getBuyer();
+            //getTanggal();
+            //getMarketplace();
+            //getBuyer();
+
+            //refreshInputan();
+            //refreshNetto();
             //getDataBarang();
             //getGudang();
             //getGudangForBarang();
@@ -2613,8 +2621,7 @@
                 }
             });
 
-            refreshInputan();
-            refreshNetto();
+           
         }
 
         function getTanggal() {

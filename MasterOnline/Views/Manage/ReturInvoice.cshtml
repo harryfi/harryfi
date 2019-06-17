@@ -591,34 +591,34 @@
             //        }
             //    });
 
-            $('#tambah_invoice').on('click', function () {
-                //$('.invoice_table_section').hide();
-                //$('.invoice_editor_section').show();
+            //$('#tambah_invoice').on('click', function () {
+            //    //$('.invoice_table_section').hide();
+            //    //$('.invoice_editor_section').show();
 
-                //$modeEdit = 0; // 0 new, 1 edit
-                refreshForm1();
-            });
+            //    //$modeEdit = 0; // 0 new, 1 edit
+            //    refreshForm1();
+            //});
 
-            $('#close-editor-1').on('click', function () {
-                if ($('#btn-simpan-perubahan-row').is(':visible')) {
-                    $('#modalTutupEditor').modal('show');
-                } else {
-                    $('input, select, .btn-danger').each(function() {
-                        $(this).removeAttr('disabled');
-                    });
-                    $('.invoice_table_section').show();
-                    $('.invoice_editor_section').hide();
-                    //refreshForm1();
-                    refreshTableInvoice1();
-                    $modeEdit = 0; // 0 new, 1 edit
-                    //add by nurul 12/2/2019
-                    //$('#datatable').on('page.dt', function () {
-                    //    $page = $('#datatable').DataTable().page.info().page;
-                    //});
-                    //$('#datatable').DataTable().page($page).draw(false);
-                    //end add by nurul 12/2/2019
-                }
-            });
+            //$('#close-editor-1').on('click', function () {
+            //    if ($('#btn-simpan-perubahan-row').is(':visible')) {
+            //        $('#modalTutupEditor').modal('show');
+            //    } else {
+            //        $('input, select, .btn-danger').each(function() {
+            //            $(this).removeAttr('disabled');
+            //        });
+            //        $('.invoice_table_section').show();
+            //        $('.invoice_editor_section').hide();
+            //        //refreshForm1();
+            //        refreshTableInvoice1();
+            //        $modeEdit = 0; // 0 new, 1 edit
+            //        //add by nurul 12/2/2019
+            //        //$('#datatable').on('page.dt', function () {
+            //        //    $page = $('#datatable').DataTable().page.info().page;
+            //        //});
+            //        //$('#datatable').DataTable().page($page).draw(false);
+            //        //end add by nurul 12/2/2019
+            //    }
+            //});
 
             if ($('.message-error').text() !== '') {
                 $('#tambah_invoice').click();
@@ -630,6 +630,9 @@
             //$modeEdit = 0;
             getSupplier();
             getInvoice();
+
+            refreshInputan();
+            refreshNetto();
 
             if ($('#Invoice_TGL').val() != '') {
                 $('#TGL').val($('#Invoice_TGL').val());
@@ -652,8 +655,7 @@
             //    }
             //});
 
-            refreshInputan();
-            refreshNetto();
+            
             //add by nurul 12/2/2019
             //$('#datatable').on('page.dt', function () {
             //    $page = $('#datatable').DataTable().page.info().page;
@@ -1824,6 +1826,8 @@
                     getTanggal();
                     getSupplier();
                     getInvoice();
+
+                    //refreshNetto();
                     $nobuk = 0;
                 },
                 error: function (xhr, status, error) {
