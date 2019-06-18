@@ -60,13 +60,46 @@
         #BRG {
             width: 150px !important;
         }
+
+        @@media screen and (max-width: 767px) {
+
+            .modalresponsive {
+                width: 400px;
+            }
+            
+            .table-responsive {
+                width: 44%;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .addpixelinvoicee {
+                width: 800px;
+            }
+
+            .addmarginleftin{
+                margin-left: -25px;
+            }
+        }
+
+        @@media screen and (max-width: 325px) {
+            .table-responsive {
+                width: 35%;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
     </style>
 }
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="invoice-tab" role="tab" data-toggle="tab" aria-expanded="true">Retur Pembelian</a>
                 </li>
@@ -98,7 +131,6 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>*@
@@ -107,12 +139,12 @@
                         </div>
                     </div>
                     <div class="row invoice_table_section" style="margin-top: 5px;">
-                        <div class="col-sm-12" id="table-invoice-partial">
+                        <div class="col-sm-12 addpixelinvoicee" id="table-invoice-partial">
                             @*@Html.Partial("TableReturInvoicePartial")*@
                         </div>
                     </div>
                     <div class="row invoice_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Retur Pembelian</h2>
                                 <span class="title-accent"></span>
@@ -332,7 +364,7 @@
 
 <div class="modal fade" id="konfHapusInvoice" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -352,7 +384,7 @@
 
 <div class="modal fade" id="konfHapusBarang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -372,7 +404,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>

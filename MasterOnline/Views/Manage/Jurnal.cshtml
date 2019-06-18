@@ -39,6 +39,35 @@
         #REK {
             width: 150px !important;
         }
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 42%;
+            }
+
+            .addpixeljurnal {
+                width: 850px;
+            }
+
+            .addpixelbhutang {
+                width: 808px;
+            }
+
+            .addpixeltpiutangg {
+                width: 334px;
+            }
+
+            .addpixeldjurnal {
+                width: 800px;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .modalresponsive {
+                width: 400px;
+            }
+        }
     </style>
 }
 
@@ -77,7 +106,6 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>*@
@@ -311,7 +339,7 @@
 
 <div class="modal fade" id="konfHapusJurnal" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -331,7 +359,7 @@
 
 <div class="modal fade" id="konfHapusDetail" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -351,7 +379,7 @@
 
 <div class="modal fade" id="modalTutupEditor" tabindex="-1" role="dialog" aria-labelledby="labelModalTutupEditor">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content modalresponsive">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="labelModalTutupEditor">Konfirmasi</h4>

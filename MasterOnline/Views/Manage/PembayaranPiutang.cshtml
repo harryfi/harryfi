@@ -41,13 +41,48 @@
         #FAKTUR {
             width: 120px !important;
         }
+        @@media screen and (max-width: 767px) {
+            .table-responsive {
+                width: 44%;
+            }
+
+            .dataTables_paginate a {
+                padding: 3px !important;
+            }
+
+            .addpixeltpiutang {
+                width: 813px;
+            }
+
+            .addpixeltpiutangbyr {
+                width: 780px;
+            }
+
+            .addpixelmodaltpiutang {
+                width: 393px;
+            }
+
+            .modalresponsive {
+                width: 400px;
+            }
+        }
+
+        @@media screen and (max-width: 325px) {
+            .table-responsive {
+                width: 35%;
+            }
+        }
+
+        .hscroll {
+            overflow-x: auto; /* Horizontal */
+        }
     </style>
 }
 
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
         <div class="" role="tabpanel" data-example-id="togglable-tabs">
-            <ul id="myTab" class="nav nav-tabs bar_tabs" role="tablist">
+            <ul id="myTab" class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active">
                     <a href="#tab_content1" id="piutang-tab" role="tab" data-toggle="tab" aria-expanded="true">Pembayaran Piutang</a>
                 </li>
@@ -79,7 +114,6 @@
                         </div>
                         <div class="col-lg-8 col-sm-6">
                             <div class="pull-right">
-                                @*//remark by nurul 17/6/2019*@
                                 @*<button type="button" class=" btn btn-default" data-style="expand-right">
                                     <span>Refresh</span>
                                 </button>*@
@@ -88,12 +122,12 @@
                         </div>
                     </div>
                     <div class="row piutang_table_section" style="margin-top: 5px;">
-                        <div class="col-sm-12" id="table-piutang-partial">
+                        <div class="col-sm-12 addpixeltpiutang" id="table-piutang-partial">
                             @*@Html.Partial("TableBayarPiutangPartial")*@
                         </div>
                     </div>
                     <div class="row piutang_editor_section" style="display: none;">
-                        <div class="col-lg-12">
+                        <div class="col-lg-12 modalresponsive">
                             <div class="page-editor">
                                 <h2 class="editor-title">Pembayaran Piutang</h2>
                                 <span class="title-accent"></span>
@@ -313,7 +347,7 @@
 
 <div class="modal fade" id="konfHapusPiutang" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -333,7 +367,7 @@
 
 <div class="modal fade" id="konfHapusFaktur" tabindex="-1" role="dialog" aria-labelledby="konfirmasiHapusLabel">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiHapusLabel">Konfirmasi</h4>
@@ -353,7 +387,7 @@
 
 <div class="modal fade" id="konfAutoload" tabindex="-1" role="dialog" aria-labelledby="konfirmasiAutoload">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content addpixelmodaltpiutang">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="konfirmasiAutoload">Autoload Pembayaran Piutang</h4>
