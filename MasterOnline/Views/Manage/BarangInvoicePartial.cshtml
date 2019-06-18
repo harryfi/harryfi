@@ -319,13 +319,15 @@
                                 //change by nurul 26/7/2018
                                 //@(listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA)
                                 var nm = "";
+                                var nm2 = "";
                                 if (listBarang.SingleOrDefault(b => b.BRG == invoice.BRG) != null)
                                 {
                                     nm = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA;
+                                    nm2 = listBarang.SingleOrDefault(b => b.BRG == invoice.BRG)?.NAMA2;
                                 }
                                 //end change
                             }
-                            @nm
+                            @nm @nm2
                         </td>
                         <td class="stn-barang">
                             @stnBarang

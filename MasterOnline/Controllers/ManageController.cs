@@ -20103,18 +20103,52 @@ namespace MasterOnline.Controllers
             return View(barangVm);
         }
 
-        public ActionResult RefreshTableUploadBarang(string cust)
-        {
-            var barangVm = new UploadBarangViewModel()
-            {
-                ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
-                ListMarket = ErasoftDbContext.ARF01.ToList(),
-                Stf02 = new STF02(),
-                TempBrg = new TEMP_BRG_MP(),
-            };
+        //change by nurul 17/6/2019, paging
+        //public ActionResult RefreshTableUploadBarang(string cust)
+        //{
+        //    var barangVm = new UploadBarangViewModel()
+        //    {
+        //        ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+        //        ListMarket = ErasoftDbContext.ARF01.ToList(),
+        //        Stf02 = new STF02(),
+        //        TempBrg = new TEMP_BRG_MP(),
+        //    };
 
-            return PartialView("TableUploadBarangPartial", barangVm);
+        //    return PartialView("TableUploadBarangPartial", barangVm);
+        //}
+
+        public ActionResult RefreshTableUploadBarang(string cust, int? page, string search = "")
+        {
+            int pagenumber = (page ?? 1) - 1;
+            ViewData["searchParam"] = search;
+            ViewData["LastPage"] = page;
+            string sSQLSelect = "";
+            sSQLSelect += "SELECT RECNUM AS RECNUM, BRG_MP AS BRG_MP, SELLER_SKU AS SELLER_SKU, MEREK AS MEREK, NAMA AS NAMA, NAMA2 AS NAMA2, CATEGORY_NAME AS CATEGORY_NAME, HJUAL AS HJUAL ";
+            string sSQLCount = "";
+            sSQLCount += "SELECT COUNT(RECNUM) AS JUMLAH ";
+            string sSQL2 = "";
+            sSQL2 += "FROM TEMP_BRG_MP ";
+            //sSQL2 += "LEFT JOIN ARF01 B ON A.IDMARKET = B.RecNum ";
+            //sSQL2 += "LEFT JOIN MO.dbo.MARKETPLACE C ON B.NAMA = C.IdMarket ";
+            //sSQL2 += "LEFT JOIN STF02 D ON A.BRG = D.BRG ";
+            //sSQL2 += "LEFT JOIN STF10 E ON A.BRG = E.BRG ";
+            sSQL2 += "WHERE CUST = '" + cust + "' ";
+            if (search != "")
+            {
+                sSQL2 += "AND (BRG_MP LIKE '%" + search + "%' OR NAMA LIKE '%" + search + "%' OR NAMA2 LIKE '%" + search + "%' OR SELLER_SKU LIKE '%" + search + "%' OR MEREK LIKE '%" + search + "%' OR CATEGORY_NAME LIKE '%" + search + "%' ) ";
+            }
+            string sSQLSelect2 = "";
+            sSQLSelect2 += "ORDER BY SELLER_SKU ASC ";
+            sSQLSelect2 += "OFFSET " + Convert.ToString(pagenumber * 10) + " ROWS ";
+            sSQLSelect2 += "FETCH NEXT 10 ROWS ONLY ";
+
+            var listFakturNew = ErasoftDbContext.Database.SqlQuery<mdlUploadBarang>(sSQLSelect + sSQL2 + sSQLSelect2).ToList();
+            var totalCount = ErasoftDbContext.Database.SqlQuery<getTotalCount>(sSQLCount + sSQL2).Single();
+
+            IPagedList<mdlUploadBarang> pageOrders = new StaticPagedList<mdlUploadBarang>(listFakturNew, pagenumber + 1, 10, totalCount.JUMLAH);
+            return PartialView("TableUploadBarangPartial", pageOrders);
         }
+        //end change by nurul 17/6/2019, paging 
 
         public ActionResult RefreshFormUploadBarang()
         {
@@ -22234,13 +22268,17 @@ namespace MasterOnline.Controllers
                 //return Json(barangVm, JsonRequestBehavior.AllowGet);
                 var barangVm = new UploadBarangViewModel()
                 {
-                    ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
-                    ListMarket = ErasoftDbContext.ARF01.ToList(),
-                    Stf02 = new STF02(),
-                    TempBrg = new TEMP_BRG_MP(),
+                    //change by nurul 17/6/2019, paging
+                    //ListTempBrg = ErasoftDbContext.TEMP_BRG_MP.Where(b => b.CUST.Equals(cust)).ToList(),
+                    //ListMarket = ErasoftDbContext.ARF01.ToList(),
+                    //Stf02 = new STF02(),
+                    //TempBrg = new TEMP_BRG_MP(),
+                    Errors = null
                 };
-
-                return PartialView("TableUploadBarangPartial", barangVm);
+               
+            return Json(barangInDb, JsonRequestBehavior.AllowGet);
+            //return PartialView("TableUploadBarangPartial", barangVm);
+            //end change by nurul 17/6/2019, paging 
                 //end change by calvin 14 januari 2019
             }
             catch (Exception ex)

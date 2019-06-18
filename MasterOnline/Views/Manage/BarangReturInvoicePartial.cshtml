@@ -299,13 +299,15 @@
                             //change by nurul 25/7/2018
                             //@listBarang.Single(b => b.BRG == invoice.BRG).NAMA
                             var nm = "";
+                            var nm2 = "";
                             if (listBarang.Single(b => b.BRG == invoice.BRG)!=null)
                             {
                                 nm = listBarang.Single(b => b.BRG == invoice.BRG).NAMA;
+                                nm2 = listBarang.Single(b => b.BRG == invoice.BRG)?.NAMA2;
                             }
                             //end change
                         }
-                        @nm                        
+                        @nm @nm2                       
                     </td>
                     <td class="stn-barang">
                         @stnBarang
