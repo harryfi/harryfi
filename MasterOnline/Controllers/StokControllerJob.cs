@@ -698,13 +698,6 @@ namespace MasterOnline.Controllers
 
             var qtyOnHand = GetQOHSTF08A(stf02_brg, "ALL");
 
-            //add by calvin 11 juni 2019
-            //get QOO_lazada
-            double qtySOLazada = ErasoftDbContext.Database.SqlQuery<double>("SELECT ISNULL(SUM(ISNULL(QTY,0)),0) QSO FROM SOT01A A INNER JOIN SOT01B B ON A.NO_BUKTI = B.NO_BUKTI LEFT JOIN SIT01A C ON A.NO_BUKTI = C.NO_SO WHERE A.CUST = '"+ log_CUST + "' AND A.STATUS_TRANSAKSI IN ('0', '01', '02', '03', '04') AND ISNULL(C.NO_BUKTI,'') = '' AND B.BRG = '" + stf02_brg + "'").FirstOrDefault();
-            //rumus qoh lazada = qtyOnHand ( dari QOH - QOO_semua_mp - ReservedStokBlibliLv2 + QOO_lazada ), karena lazada menghitung ulang stok nya.
-            qtyOnHand = qtyOnHand + qtySOLazada;
-            //end add by calvin 11 juni 2019
-
             //add by calvin 17 juni 2019
             if (qtyOnHand < 0)
             {
