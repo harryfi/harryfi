@@ -183,32 +183,35 @@
                                 //change by nurul 26/7/2018
                                 //@listBarang.Single(b => b.BRG == stok.Kobar).NAMA
                                 var nm = "";
+                                var nm2 = "";
                                 if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
                                     nm = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).NAMA;
+                                    nm2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)?.NAMA2;
                                 }
                                 //end change
                             }
-                            @nm
+                            @nm @nm2
+
                         </td>
                         <td class="stn-barang">
                             @{
                                 //change by nurul 26/7/2018
                                 //@(stok.Satuan == "1" ? listBarang.Single(b => b.BRG == stok.Kobar).STN : listBarang.Single(b => b.BRG == stok.Kobar).STN2)
                                 var sstn = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
                                     sstn = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN;
                                 }
 
                                 var sstn2 = "";
-                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar)!=null)
+                                if (listBarang.SingleOrDefault(b => b.BRG == stok.Kobar) != null)
                                 {
                                     sstn2 = listBarang.SingleOrDefault(b => b.BRG == stok.Kobar).STN2;
                                 }
-                                //end change 
+                                //end change
                             }
-                            @(stok.Satuan=="1" ? sstn : sstn2)
+                            @(stok.Satuan == "1" ? sstn : sstn2)
 
                         </td>
                         <td class="harga-barang" style="text-align:right">

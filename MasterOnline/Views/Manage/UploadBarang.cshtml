@@ -227,7 +227,7 @@
                 <div class="input-group">
                     <input id="search_barang" type="text" class="form-control" placeholder="Pencarian">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary">
+                        <button type="button" id="search_barang_click" class="btn btn-primary">
                             <i class="fa fa-search"></i>
                         </button>
                     </span>
@@ -245,11 +245,11 @@
             </div>
         </div>
         <div class="row" style="margin-top: 5px;">
-            <div id="loading_barang_tab" class="text-center">
+            @*<div id="loading_barang_tab" class="text-center">
                 <img src="~/Content/Images/spinner.gif" width="100" />
-            </div>
+            </div>*@
             <div class="col-sm-12 barang_table_section" id="table-upload-barang-partial">
-                @Html.Partial("TableUploadBarangPartial")
+                @*@Html.Partial("TableUploadBarangPartial")*@
             </div>
         </div>
         <div class="row barang_editor_section" style="display: none;">
@@ -275,7 +275,7 @@
                     @using (Html.BeginForm("UploadSatuBarang", "Manage", FormMethod.Post, new { enctype = "multipart/form-data", id = "form-barang" }))
                     {
                         <div id="form-partial">
-                            @Html.Partial("FormBarangUploadsPartial")
+                            @*@Html.Partial("FormBarangUploadsPartial")*@
                         </div>
                     }
                 </div>
@@ -466,15 +466,16 @@
     <script src="~/Content/build/js/selectivity-jquery.min.js" type="text/javascript"></script>
     <script src="~/Scripts/jquery.ajax-progress.js"></script>
     <script type="text/javascript">
-        var table = $('#datatable').DataTable();
+        //var table = $('#datatable').DataTable();
 
         //add by nurul 12/2/2019
         var $page = window.text;
         //end add by nurul 12/2/2019
 
-        $('#search_barang').keyup(function () {
-            table.search($(this).val()).draw();
-        });
+        //$('#search_barang').keyup(function () {
+        //    table.search($(this).val()).draw();
+        //});
+
         
         @*function checkfile(s) {
             var validExts = new Array(".xlsx", ".xls");
@@ -615,10 +616,10 @@
             refreshTableBarangUpload();
             $('#progressDiv').hide();
             $('#table-upload-barang-partial').show();
-            var table = $('#datatable').DataTable();
-            $('#search_barang').keyup(function () {
-                table.search($(this).val()).draw();
-            });
+            //var table = $('#datatable').DataTable();
+            //$('#search_barang').keyup(function () {
+            //    table.search($(this).val()).draw();
+            //});
             controlButton(1);
         }
         function getStatus() {
@@ -669,14 +670,29 @@
             //event.preventDefault;
             //startSyncAll();
             //add by nurul 12/2/2019
-            $('#datatable').on('page.dt', function () {
-                $page = $('#datatable').DataTable().page.info().page;
-            });
-            $('#datatable').DataTable().page($page).draw(false);
+            //$('#datatable').on('page.dt', function () {
+            //    $page = $('#datatable').DataTable().page.info().page;
+            //});
+            //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
+
+            //add by nurul 17/6/2019, paging 
+            $('#search_barang').keypress(function (e) {
+                var key = e.which;
+                if (key == 13)// the enter key code
+                {
+                    searchTableBarangUpload();
+                    return false;
+                }
+            });
+            $('#search_barang_click').click(function () {
+                searchTableBarangUpload();
+            });
+            //end add by nurul 17/6/2019, paging 
         });
 
-        function refreshTableBarangUpload() {
+        //change by nurul 17/6/2019, paging 
+        @*function refreshTableBarangUpload() {
             var link = '@Url.Action("RefreshTableUploadBarang", "Manage", new { cust = "replaceCust" })';
             link = link.replace("replaceCust", $('#promptHiddenField').val());
 
@@ -684,32 +700,85 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable').hide();
+                    //$('#datatable').hide();
+                    $('#table-upload-barang-partial').hide();
+
                     $('#loading_barang_tab').show();
                 },
                 success: function (response) {
                     $('#table-upload-barang-partial').html(response);
-                    var table = $('#datatable').DataTable();
-                    $('#search_barang').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
+                    //var table = $('#datatable').DataTable();
+                    //$('#search_barang').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
                     $('#loading_barang_tab').hide();
-                    $('#datatable').show();
+                    //$('#datatable').show();
+                    $('#table-upload-barang-partial').show();
+
                     //add by nurul 3 des 2018, setelah di close, search lg
-                    table.search($('#search_barang').val()).draw();
+                    //table.search($('#search_barang').val()).draw();
                     //end add by nurul 3 des 2018, setelah di close, search lg
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
                     console.log(error);
                 }
             });
+        }*@
+
+        function refreshTableBarangUpload() {
+            var $link = '@Html.Raw(Url.Action("RefreshTableUploadBarang", "Manage", new { cust = "replaceCust", page = "replaceLastPage", search = "replaceSearch" }))';
+            $link = $link.replace("replaceCust", $('#promptHiddenField').val());
+            $link = $link.replace("replaceSearch", $('#search_barang').val());
+            $link = $link.replace("replaceLastPage", $('#txt_last_page').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#table-upload-barang-partial').hide();
+                    $('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#table-upload-barang-partial').html(response);
+                    $('#loading_uploadbarang_tab').hide();
+                    $('#table-upload-barang-partial').show();
+
+                },
+                error: function (xhr, status, error) {
+                    console.log(error);
+                }
+            });
         }
+        function searchTableBarangUpload(){
+            var $link = '@Html.Raw(Url.Action("RefreshTableUploadBarang", "Manage", new { cust = "replaceCust", search = "replaceSearch" }))';
+            $link = $link.replace("replaceCust", $('#promptHiddenField').val());
+            $link = $link.replace("replaceSearch", $('#search_barang').val());
+
+            $.ajax({
+                type: "GET",
+                url: $link,
+                beforeSend: function () {
+                    $('#search_barang_click')[0].disabled = true;
+                    $('#loading_uploadbarang_tab').show();
+                },
+                success: function (response) {
+                    $('#search_barang_click')[0].disabled = false;
+                    $('#table-upload-barang-partial').html(response);
+                    $('#loading_uploadbarang_tab').hide();
+                },
+                error: function (xhr, status, error) {
+                    $('#search_barang_click')[0].disabled = false;
+                    console.log(error);
+                }
+            });
+        }
+        //end change by nurul 17/6/2019, paging 
 
         function refreshFormBarang() {
             var link = '@Url.Action("RefreshFormUploadBarang", "Manage")';
@@ -758,17 +827,19 @@
                     type: "GET",
                     url: link,
                     beforeSend: function () {
-                        $('#datatable').hide();
+                        //$('#datatable').hide();
+                        $('#table-upload-barang-partial').hide();
                         $('#loading_barang_tab').show();
                     },
                     success: function (response) {
                         $('#table-upload-barang-partial').html(response);
-                        var table = $('#datatable').DataTable();
-                        $('#search_barang').keyup(function () {
-                            table.search($(this).val()).draw();
-                        });
+                        //var table = $('#datatable').DataTable();
+                        //$('#search_barang').keyup(function () {
+                        //    table.search($(this).val()).draw();
+                        //});
                         $('#loading_barang_tab').hide();
-                        $('#datatable').show();
+                        $('#table-upload-barang-partial').show();
+                        //$('#datatable').show();
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
@@ -791,7 +862,9 @@
                     type: "GET",
                     url: link,
                     beforeSend: function () {
-                        $('#datatable').hide();
+                        //$('#datatable').hide();
+                        $('#table-upload-barang-partial').hide();
+
                         $('#loading_barang_tab').show();
                         $('#info_record').show();
                     },
@@ -823,7 +896,8 @@
                         } else {
                             alert(response.Errors);
                             $('#loading_barang_tab').hide();
-                            $('#datatable').show();
+                            //$('#datatable').show();
+                            $('#table-upload-barang-partial').show();
                             $('#info_record').hide();
                         }
 
@@ -856,7 +930,8 @@
                     url: link,
                     beforeSend: function () {
                         $('#konfSyncAll').modal('hide');
-                        $('#datatable').hide();
+                        //$('#datatable').hide();
+                        $('#table-upload-barang-partial').hide();
                         $('#loading_barang_tab').show();
                     },
                     //progress: function (e) {
@@ -876,10 +951,10 @@
                     success: function (response) {
                         if (response.Errors == null) {
                             $('#table-upload-barang-partial').html(response);
-                            var table = $('#datatable').DataTable();
-                            $('#search_barang').keyup(function () {
-                                table.search($(this).val()).draw();
-                            });
+                            //var table = $('#datatable').DataTable();
+                            //$('#search_barang').keyup(function () {
+                            //    table.search($(this).val()).draw();
+                            //});
                         } else {
                             if (response.Errors.length > 0) {
                                 response.Errors.forEach(ErrorMessageDialog);
@@ -896,7 +971,7 @@
                         }
                         $('#table-upload-barang-partial').show();
                         $('#loading_barang_tab').hide();
-                        $('#datatable').show();
+                        //$('#datatable').show();
                     },
                     error: function (xhr, status, error) {
                         console.log(error);
@@ -1056,7 +1131,9 @@
                     $('#loading_spinner').show();
                 },
                 success: function (response) {
-                    $('#datatable').hide();
+                    //$('#datatable').hide();
+                    $('#table-upload-barang-partial').hide();
+
                     $('.barang_table_section').hide();
                     $('.barang_editor_section').show();
                     $('#form-partial').html(response);
@@ -1069,10 +1146,10 @@
                     $('#close-editor-1')[0].disabled = false;
                     $('#loading_spinner').hide();
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
                 },
                 error: function (xhr, status, error) {
@@ -1095,11 +1172,14 @@
                 type: "GET",
                 url: link,
                 beforeSend: function () {
-                    $('#datatable').hide();
+                    //$('#datatable').hide();
+                    //////$('#table-upload-barang-partial').hide();
+
                     $('#loading_barang_tab').show();
                     $('#konfHapusBarang').modal('hide');
                 },
-                success: function (response) {
+                //success: function (response) {
+                success: function () {
                     //change by calvin 14 januari 2019
                     ////change by nurul 30/7/2018
                     ////$('#table-barang-1-partial').html(response);
@@ -1114,20 +1194,23 @@
                     //    //$('#konfHapusBarang').modal('hide');
                     //}
                     ////end change
-                    $('#table-upload-barang-partial').html(response);
-                    var table = $('#datatable').DataTable();
-                    $('#search_barang').keyup(function () {
-                        table.search($(this).val()).draw();
-                    });
+                    //////$('#table-upload-barang-partial').html(response);
+                    refreshTableBarangUpload();
+                    //var table = $('#datatable').DataTable();
+                    //$('#search_barang').keyup(function () {
+                    //    table.search($(this).val()).draw();
+                    //});
                     $('#loading_barang_tab').hide();
-                    $('#datatable').show();
-                    table.search($('#search_barang').val()).draw();
+                    //$('#datatable').show();
+                    //////$('#table-upload-barang-partial').show();
+
+                    //table.search($('#search_barang').val()).draw();
                     //end change by calvin 14 januari 2019
                     //add by nurul 12/2/2019
-                    $('#datatable').on('page.dt', function () {
-                        $page = $('#datatable').DataTable().page.info().page;
-                    });
-                    $('#datatable').DataTable().page($page).draw(false);
+                    //$('#datatable').on('page.dt', function () {
+                    //    $page = $('#datatable').DataTable().page.info().page;
+                    //});
+                    //$('#datatable').DataTable().page($page).draw(false);
                     //end add by nurul 12/2/2019
 
                 },

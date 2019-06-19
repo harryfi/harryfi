@@ -1312,6 +1312,7 @@
     <Compile Include="ViewModels\MarketplaceMenuViewModel.cs" />
     <Compile Include="ViewModels\MarketplaceViewModel.cs" />
     <Compile Include="ViewModels\MasterStrukturVarViewModel.cs" />
+    <Compile Include="ViewModels\mdlUploadBarang.cs" />
     <Compile Include="ViewModels\mdlPromosi.cs" />
     <Compile Include="ViewModels\mdlJurnal.cs" />
     <Compile Include="ViewModels\mdlHargaJual.cs" />
